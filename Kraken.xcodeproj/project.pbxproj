@@ -1,0 +1,705 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */; };
+		EA1E3B9322457A1800017F07 /* TwitarrViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA1E3B9122457A1800017F07 /* TwitarrViewController.xib */; };
+		EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */; };
+		EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B97224584BC00017F07 /* UserManager.swift */; };
+		EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B992245CF3000017F07 /* CurrentUser.swift */; };
+		EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */; };
+		EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9E2246CDF700017F07 /* Settings.swift */; };
+		EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3BA2224D858700017F07 /* ImageManager.swift */; };
+		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
+		EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BE2242D300009F287F /* FirstViewController.swift */; };
+		EAA2E4C12242D300009F287F /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* SecondViewController.swift */; };
+		EAA2E4C42242D300009F287F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C22242D300009F287F /* Main.storyboard */; };
+		EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C52242D301009F287F /* Assets.xcassets */; };
+		EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */; };
+		EAA2E4D42242D301009F287F /* KrakenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4D32242D301009F287F /* KrakenTests.swift */; };
+		EAA2E4DF2242D301009F287F /* KrakenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4DE2242D301009F287F /* KrakenUITests.swift */; };
+		EAEF3410224ED88300C7A0D9 /* LoginCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF340F224ED88300C7A0D9 /* LoginCell.swift */; };
+		EAEF3412224EE08F00C7A0D9 /* LoginCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAEF3411224EE08F00C7A0D9 /* LoginCell.xib */; };
+		EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */; };
+		EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EAA2E4D02242D301009F287F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EAA2E4B12242D300009F287F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EAA2E4B82242D300009F287F;
+			remoteInfo = Kraken;
+		};
+		EAA2E4DB2242D301009F287F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EAA2E4B12242D300009F287F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EAA2E4B82242D300009F287F;
+			remoteInfo = Kraken;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		EA1E3B8B2242F04600017F07 /* Twitarr API V2 Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Twitarr API V2 Notes.md"; sourceTree = "<group>"; };
+		EA1E3B8C22430A7D00017F07 /* Managers Overview.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Managers Overview.md"; sourceTree = "<group>"; };
+		EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrViewController.swift; sourceTree = "<group>"; };
+		EA1E3B9122457A1800017F07 /* TwitarrViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TwitarrViewController.xib; sourceTree = "<group>"; };
+		EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrDataManager.swift; sourceTree = "<group>"; };
+		EA1E3B97224584BC00017F07 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
+		EA1E3B992245CF3000017F07 /* CurrentUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentUser.swift; sourceTree = "<group>"; };
+		EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkGovernor.swift; sourceTree = "<group>"; };
+		EA1E3B9E2246CDF700017F07 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		EA1E3BA02248153F00017F07 /* Feature plans.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Feature plans.md"; sourceTree = "<group>"; };
+		EA1E3BA2224D858700017F07 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
+		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		EAA2E4BE2242D300009F287F /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
+		EAA2E4C02242D300009F287F /* SecondViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondViewController.swift; sourceTree = "<group>"; };
+		EAA2E4C32242D300009F287F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		EAA2E4C52242D301009F287F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EAA2E4C82242D301009F287F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		EAA2E4CA2242D301009F287F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAA2E4CF2242D301009F287F /* KrakenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KrakenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAA2E4D32242D301009F287F /* KrakenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenTests.swift; sourceTree = "<group>"; };
+		EAA2E4D52242D301009F287F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAA2E4DA2242D301009F287F /* KrakenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KrakenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAA2E4DE2242D301009F287F /* KrakenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenUITests.swift; sourceTree = "<group>"; };
+		EAA2E4E02242D301009F287F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAEF340F224ED88300C7A0D9 /* LoginCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCell.swift; sourceTree = "<group>"; };
+		EAEF3411224EE08F00C7A0D9 /* LoginCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginCell.xib; sourceTree = "<group>"; };
+		EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailRootViewController.swift; sourceTree = "<group>"; };
+		EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrTweetCell.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EAA2E4B62242D300009F287F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAA2E4CC2242D301009F287F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAA2E4D72242D301009F287F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EA1E3B8A2242F00200017F07 /* Docs */ = {
+			isa = PBXGroup;
+			children = (
+				EA1E3B8B2242F04600017F07 /* Twitarr API V2 Notes.md */,
+				EA1E3B8C22430A7D00017F07 /* Managers Overview.md */,
+				EA1E3BA02248153F00017F07 /* Feature plans.md */,
+			);
+			path = Docs;
+			sourceTree = "<group>";
+		};
+		EA1E3B8D2245795100017F07 /* Twittarr */ = {
+			isa = PBXGroup;
+			children = (
+				EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */,
+				EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */,
+				EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */,
+				EA1E3B9122457A1800017F07 /* TwitarrViewController.xib */,
+			);
+			path = Twittarr;
+			sourceTree = "<group>";
+		};
+		EA1E3B8E2245796F00017F07 /* Forums */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Forums;
+			sourceTree = "<group>";
+		};
+		EA1E3B8F2245798400017F07 /* Seamail */ = {
+			isa = PBXGroup;
+			children = (
+				EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */,
+			);
+			path = Seamail;
+			sourceTree = "<group>";
+		};
+		EA1E3B962245849B00017F07 /* Users */ = {
+			isa = PBXGroup;
+			children = (
+				EA1E3B97224584BC00017F07 /* UserManager.swift */,
+				EA1E3B992245CF3000017F07 /* CurrentUser.swift */,
+				EAEF340F224ED88300C7A0D9 /* LoginCell.swift */,
+				EAEF3411224EE08F00C7A0D9 /* LoginCell.xib */,
+			);
+			path = Users;
+			sourceTree = "<group>";
+		};
+		EA1E3B9B22461CA500017F07 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */,
+				EA1E3B9E2246CDF700017F07 /* Settings.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		EA1E3BA1224D79C400017F07 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				EA1E3BA2224D858700017F07 /* ImageManager.swift */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
+		EAA2E4B02242D300009F287F = {
+			isa = PBXGroup;
+			children = (
+				EAA2E4BB2242D300009F287F /* Kraken */,
+				EA1E3B8A2242F00200017F07 /* Docs */,
+				EAA2E4D22242D301009F287F /* KrakenTests */,
+				EAA2E4DD2242D301009F287F /* KrakenUITests */,
+				EAA2E4BA2242D300009F287F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EAA2E4BA2242D300009F287F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EAA2E4B92242D300009F287F /* Kraken.app */,
+				EAA2E4CF2242D301009F287F /* KrakenTests.xctest */,
+				EAA2E4DA2242D301009F287F /* KrakenUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EAA2E4BB2242D300009F287F /* Kraken */ = {
+			isa = PBXGroup;
+			children = (
+				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
+				EAA2E4BE2242D300009F287F /* FirstViewController.swift */,
+				EAA2E4C02242D300009F287F /* SecondViewController.swift */,
+				EAA2E4C22242D300009F287F /* Main.storyboard */,
+				EAA2E4C52242D301009F287F /* Assets.xcassets */,
+				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
+				EAA2E4CA2242D301009F287F /* Info.plist */,
+				EA1E3B8D2245795100017F07 /* Twittarr */,
+				EA1E3B8E2245796F00017F07 /* Forums */,
+				EA1E3B8F2245798400017F07 /* Seamail */,
+				EA1E3B962245849B00017F07 /* Users */,
+				EA1E3BA1224D79C400017F07 /* Images */,
+				EA1E3B9B22461CA500017F07 /* Core */,
+			);
+			path = Kraken;
+			sourceTree = "<group>";
+		};
+		EAA2E4D22242D301009F287F /* KrakenTests */ = {
+			isa = PBXGroup;
+			children = (
+				EAA2E4D32242D301009F287F /* KrakenTests.swift */,
+				EAA2E4D52242D301009F287F /* Info.plist */,
+			);
+			path = KrakenTests;
+			sourceTree = "<group>";
+		};
+		EAA2E4DD2242D301009F287F /* KrakenUITests */ = {
+			isa = PBXGroup;
+			children = (
+				EAA2E4DE2242D301009F287F /* KrakenUITests.swift */,
+				EAA2E4E02242D301009F287F /* Info.plist */,
+			);
+			path = KrakenUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EAA2E4B82242D300009F287F /* Kraken */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAA2E4E32242D301009F287F /* Build configuration list for PBXNativeTarget "Kraken" */;
+			buildPhases = (
+				EAA2E4B52242D300009F287F /* Sources */,
+				EAA2E4B62242D300009F287F /* Frameworks */,
+				EAA2E4B72242D300009F287F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Kraken;
+			productName = Kraken;
+			productReference = EAA2E4B92242D300009F287F /* Kraken.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EAA2E4CE2242D301009F287F /* KrakenTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAA2E4E62242D301009F287F /* Build configuration list for PBXNativeTarget "KrakenTests" */;
+			buildPhases = (
+				EAA2E4CB2242D301009F287F /* Sources */,
+				EAA2E4CC2242D301009F287F /* Frameworks */,
+				EAA2E4CD2242D301009F287F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EAA2E4D12242D301009F287F /* PBXTargetDependency */,
+			);
+			name = KrakenTests;
+			productName = KrakenTests;
+			productReference = EAA2E4CF2242D301009F287F /* KrakenTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EAA2E4D92242D301009F287F /* KrakenUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAA2E4E92242D301009F287F /* Build configuration list for PBXNativeTarget "KrakenUITests" */;
+			buildPhases = (
+				EAA2E4D62242D301009F287F /* Sources */,
+				EAA2E4D72242D301009F287F /* Frameworks */,
+				EAA2E4D82242D301009F287F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EAA2E4DC2242D301009F287F /* PBXTargetDependency */,
+			);
+			name = KrakenUITests;
+			productName = KrakenUITests;
+			productReference = EAA2E4DA2242D301009F287F /* KrakenUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EAA2E4B12242D300009F287F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1010;
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = "Chall Fry";
+				TargetAttributes = {
+					EAA2E4B82242D300009F287F = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					EAA2E4CE2242D301009F287F = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = EAA2E4B82242D300009F287F;
+					};
+					EAA2E4D92242D301009F287F = {
+						CreatedOnToolsVersion = 10.1;
+						TestTargetID = EAA2E4B82242D300009F287F;
+					};
+				};
+			};
+			buildConfigurationList = EAA2E4B42242D300009F287F /* Build configuration list for PBXProject "Kraken" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EAA2E4B02242D300009F287F;
+			productRefGroup = EAA2E4BA2242D300009F287F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EAA2E4B82242D300009F287F /* Kraken */,
+				EAA2E4CE2242D301009F287F /* KrakenTests */,
+				EAA2E4D92242D301009F287F /* KrakenUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EAA2E4B72242D300009F287F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAEF3412224EE08F00C7A0D9 /* LoginCell.xib in Resources */,
+				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
+				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
+				EA1E3B9322457A1800017F07 /* TwitarrViewController.xib in Resources */,
+				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAA2E4CD2242D301009F287F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAA2E4D82242D301009F287F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EAA2E4B52242D300009F287F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
+				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
+				EAEF3410224ED88300C7A0D9 /* LoginCell.swift in Sources */,
+				EAA2E4C12242D300009F287F /* SecondViewController.swift in Sources */,
+				EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */,
+				EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */,
+				EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */,
+				EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */,
+				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
+				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
+				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
+				EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */,
+				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAA2E4CB2242D301009F287F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAA2E4D42242D301009F287F /* KrakenTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAA2E4D62242D301009F287F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAA2E4DF2242D301009F287F /* KrakenUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EAA2E4D12242D301009F287F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EAA2E4B82242D300009F287F /* Kraken */;
+			targetProxy = EAA2E4D02242D301009F287F /* PBXContainerItemProxy */;
+		};
+		EAA2E4DC2242D301009F287F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EAA2E4B82242D300009F287F /* Kraken */;
+			targetProxy = EAA2E4DB2242D301009F287F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		EAA2E4C22242D300009F287F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EAA2E4C32242D300009F287F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EAA2E4C82242D301009F287F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		EAA2E4E12242D301009F287F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		EAA2E4E22242D301009F287F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EAA2E4E42242D301009F287F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				INFOPLIST_FILE = Kraken/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.Kraken;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EAA2E4E52242D301009F287F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				INFOPLIST_FILE = Kraken/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.Kraken;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EAA2E4E72242D301009F287F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				INFOPLIST_FILE = KrakenTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kraken.app/Kraken";
+			};
+			name = Debug;
+		};
+		EAA2E4E82242D301009F287F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				INFOPLIST_FILE = KrakenTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kraken.app/Kraken";
+			};
+			name = Release;
+		};
+		EAA2E4EA2242D301009F287F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				INFOPLIST_FILE = KrakenUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Kraken;
+			};
+			name = Debug;
+		};
+		EAA2E4EB2242D301009F287F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				INFOPLIST_FILE = KrakenUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Kraken;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EAA2E4B42242D300009F287F /* Build configuration list for PBXProject "Kraken" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EAA2E4E12242D301009F287F /* Debug */,
+				EAA2E4E22242D301009F287F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EAA2E4E32242D301009F287F /* Build configuration list for PBXNativeTarget "Kraken" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EAA2E4E42242D301009F287F /* Debug */,
+				EAA2E4E52242D301009F287F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EAA2E4E62242D301009F287F /* Build configuration list for PBXNativeTarget "KrakenTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EAA2E4E72242D301009F287F /* Debug */,
+				EAA2E4E82242D301009F287F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EAA2E4E92242D301009F287F /* Build configuration list for PBXNativeTarget "KrakenUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EAA2E4EA2242D301009F287F /* Debug */,
+				EAA2E4EB2242D301009F287F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EAA2E4B12242D300009F287F /* Project object */;
+}
