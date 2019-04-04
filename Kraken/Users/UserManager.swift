@@ -29,7 +29,7 @@ class KrakenUser : NSObject {
 	var comment: String? 			// Logged in user's comment string on this user
 	
 	var lastPhotoUpdated: Int
-	var thumbPhoto: UIImage?
+	@objc dynamic weak var  thumbPhoto:  UIImage?
 	var fullPhoto: UIImage?
 
 
@@ -49,18 +49,22 @@ class KrakenUser : NSObject {
 		if thumbPhoto != nil {
 			return
 		}
-	
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/photo/\(name)")
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let response = response as? HTTPURLResponse {
-				if response.statusCode < 300, let data = data {
-					self.thumbPhoto =  UIImage(data:data)
-				} else 
-				{
-					// Load failed for some reason
-				}
-			}
+		
+		ImageManager.shared.userImageCache.image(forKey:name) { newImage in
+			self.thumbPhoto = newImage
 		}
+	
+//		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/photo/\(name)")
+//		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+//			if let response = response as? HTTPURLResponse {
+//				if response.statusCode < 300, let data = data {
+//					self.thumbPhoto =  UIImage(data:data)
+//				} else 
+//				{
+//					// Load failed for some reason
+//				}
+//			}
+//		}
 	}
 }
 

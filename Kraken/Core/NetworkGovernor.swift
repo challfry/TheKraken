@@ -50,22 +50,16 @@ class NetworkGovernor: NSObject {
 	
 	func queue(_ request:URLRequest, _ done: @escaping (Data?, URLResponse?) -> Void) {
 	
+		// This is where we could check for duplicate request URLs...
+	
 		let task = session.dataTask(with:request) 
 		let queuedTask = InternalTask(task: task, responseData: Data(), doneCallback:done)
 		activeTasksQ.async {
 			self.activeTasks.append(queuedTask)
 		}
 		task.resume()
-
-
-//		let task = session.dataTask(with:request) { data, response, error in
-//			if let error = error {
-//				print(error)
-//			}
-//			if let data2 = data {
-//				print (String(decoding:data2, as: UTF8.self))
-//			}
-//		}
+		
+		print ("Started network request to \(request.url?.absoluteString ?? "<unknown>")")
 	}
 	
 }
@@ -80,12 +74,12 @@ extension NetworkGovernor: URLSessionDelegate {
 
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-		print ("hmm")
+		print ("didReceive challenge")
 		completionHandler(.performDefaultHandling, nil)
 	}
 
     public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-		print ("hmm")
+		print ("urlSessionDidFinishEvents")
     }
 }
 
@@ -93,36 +87,36 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 	//
 	public func urlSession(_ session: URLSession, task: URLSessionTask, willBeginDelayedRequest request: URLRequest, 
 			completionHandler: @escaping (URLSession.DelayedRequestDisposition, URLRequest?) -> Void) {
-		print ("willBeginDelayedRequest")
+//		print ("willBeginDelayedRequest")
 		completionHandler(.continueLoading, request)
 	}
 
     
     public func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-		print ("hmm")
+		print ("taskIsWaitingForConnectivity")
 	}
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, 
     		completionHandler: @escaping (URLRequest?) -> Void)  {
-		print ("hmm")
+		print ("willPerformHTTPRedirection")
 		
 	}
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-		print ("hmm")
+		print ("didReceive challenge")
 	}
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		needNewBodyStream completionHandler: @escaping (InputStream?) -> Void) {
-		print ("hmm")
+		print ("needNewBodyStream")
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, 
 			didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
-		print(bytesSent)		
+//		print("didSendBodyData")		
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {

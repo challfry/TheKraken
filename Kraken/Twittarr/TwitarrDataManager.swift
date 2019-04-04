@@ -72,6 +72,7 @@ class TwitarrDataManager: NSObject {
 	
 	func loadStreamTweets(anchorTweet: TwitarrV2Post?, newer: Bool = false, done: (() -> Void)? = nil) {
 		var queryParams = [ URLQueryItem(name:"newer_posts", value:newer ? "true" : "false") ]
+		queryParams.append(URLQueryItem(name:"limit", value:"50"))
 		if let anchorTweet = anchorTweet {
 			let startTime = newer ? anchorTweet.timestamp + 1 : anchorTweet.timestamp - 1
 			queryParams.append(URLQueryItem(name: "start", value: String(startTime)))

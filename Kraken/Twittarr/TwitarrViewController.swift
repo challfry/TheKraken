@@ -8,12 +8,20 @@
 
 import UIKit
 
-class TwitarrViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class TwitarrViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, 
+		UICollectionViewDelegateFlowLayout {
 
 	@IBOutlet var collectionView: UICollectionView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+			layout.itemSize = UICollectionViewFlowLayout.automaticSize
+			layout.estimatedItemSize = CGSize(width: 375, height: 52 )
+			
+			layout.minimumLineSpacing = 0
+		}
 
         // Do any additional setup after loading the view.
 		TwitarrDataManager.shared.loadNewestTweets() {
@@ -57,4 +65,5 @@ class TwitarrViewController: UIViewController, UICollectionViewDelegate, UIColle
 
 		return cell
 	}
+
 }

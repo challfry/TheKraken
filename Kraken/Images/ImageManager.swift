@@ -20,10 +20,13 @@ class ImageCache {
 	var allCachedFilenames = Set<String>()
 	
 	private let imageCacheQ = DispatchQueue(label:"ImageCache mutation serializer")
-	var fileCacheDir: URL?
+	private var fileCacheDir: URL?
+	private var memoryState: DispatchSource.MemoryPressureEvent = .normal
+	private var countLimit = 0
+	private var fetchURLPath: String
 
-	init(fileCacheDirectory: String) {
-		if let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(fileCacheDirectory) {
+	init(dirName: String, fetchURL: String, limit: Int) {
+		if let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(dirName) {
 			do {
 				try FileManager.default.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
 				fileCacheDir = tempDirURL
@@ -36,20 +39,72 @@ class ImageCache {
 			} catch {
 			}
 		}
+		
+		countLimit = limit
+		fetchURLPath = fetchURL
+		
+		// Set up memory pressure handler
+		let source = DispatchSource.makeMemoryPressureSource(eventMask: .all, queue: DispatchQueue.main)
+		let handler: DispatchSourceProtocol.DispatchSourceHandler = { [weak self] in
+			guard !source.isCancelled, let self = self else { return }
+
+			self.memoryState = source.data
+			if source.data == .critical {
+				self.imageCache.removeAll()
+				self.imageCacheLRU.removeAll()
+			}
+			else if source.data == .warning {
+			
+				// For warnings, should probably just dump a percentage of the cached data
+				self.imageCache.removeAll()
+				self.imageCacheLRU.removeAll()
+			}
+			else if source.data == .normal {
+//				print("normal")
+			}
+			
+		}
+		source.setEventHandler(handler: handler)
+		source.setRegistrationHandler(handler: handler)
+		source.resume()
+		
 	}
 
-	func cacheImage(fromData: Data, withKey: String) {
+	func cacheImage(fromData: Data, withKey cacheKey: String) -> UIImage? {
+		// If this image is already in the cache, just return it. It should be the same as the data passed in.
+		if let cachedImage = imageCache[cacheKey] {
+			touchCacheEntry(forKey: cacheKey)
+			return cachedImage
+		}
 		
+		guard let imageData = UIImage(data:fromData) else {
+			return nil
+		}
+		
+		// Add new item to RAM cache.
+		imageCache[cacheKey] = imageData
+		imageCacheLRU.append(cacheKey)
+		
+		// And, save the compressed image data to disk
+		if let fileURL = fileCacheDir?.appendingPathComponent(cacheKey),
+				!FileManager.default.fileExists(atPath: fileURL.absoluteString) {
+			do {
+				try fromData.write(to:fileURL, options:.atomic)
+				allCachedFilenames.insert(cacheKey)
+			}
+			catch {
+				print (error)
+			}
+		}
+		
+		return imageData
 	}
 	
 	// Returns the image immediately if it's in the RAM cache. Otherwise, returns nil.
-	func image(forKey: String) -> UIImage? {
-		let image = imageCache[forKey]
+	func image(forKey key: String) -> UIImage? {
+		let image = imageCache[key]
 		if image != nil {
-			if let lruIndex = imageCacheLRU.firstIndex(of: forKey) {
-				imageCacheLRU.remove(at:lruIndex)
-				imageCacheLRU.append(forKey)
-			}
+			touchCacheEntry(forKey: key)
 		}
 		
 		return image
@@ -60,8 +115,51 @@ class ImageCache {
 	//		- in local file storage; the compressed image data is read in async, rendered, and returned,
 	//	 	- on the server; fetched via HTTP call. Obviously, only works when online with the Twitarr server.
 	// 
-	func image(forKey: String, done: (UIImage?) -> Void) {
+	// Done block always gets called on the main thread.
+	func image(forKey key: String, done: @escaping (UIImage?) -> Void) {
+	
+		// 1. Local RAM cache
+		if let image = imageCache[key] {
+			touchCacheEntry(forKey: key)
+			done(image)
+			return
+		}
 		
+		// 2. File cache
+		if allCachedFilenames.contains(key), let fileURL = fileCacheDir?.appendingPathComponent(key) {
+			if let image = UIImage(contentsOfFile:fileURL.path) {
+				imageCache[key] = image
+				imageCacheLRU.append(key)
+				DispatchQueue.main.async { done(image) }
+				return
+			}
+			else {
+				// Delete the file; it doesn't seem to produce an image
+				try? FileManager.default.removeItem(at: fileURL)
+				allCachedFilenames.remove(key)
+			}
+		}
+		
+		// 3. Ask the server.
+		let request = NetworkGovernor.buildTwittarV2Request(withPath:"\(fetchURLPath)\(key)")
+		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			if let response = response as? HTTPURLResponse {
+				if response.statusCode < 300, let data = data, let image = self.cacheImage(fromData:data, withKey:key) {
+					DispatchQueue.main.async { done(image) }
+				} else 
+				{
+					// Load failed for some reason
+				}
+			}
+		}
+		
+	}
+	
+	private func touchCacheEntry(forKey: String) {
+		if let lruIndex = imageCacheLRU.firstIndex(of: forKey) {
+			imageCacheLRU.remove(at:lruIndex)
+			imageCacheLRU.append(forKey)
+		}
 	}
 
 }
@@ -75,17 +173,23 @@ class ImageManager : NSObject {
 		case full
 	}
 	
-	var smallImageCache = ImageCache(fileCacheDirectory: "smallImageCache")
-	var medImageCache = ImageCache(fileCacheDirectory: "mediumImageCache")
-	var largeImageCache = ImageCache(fileCacheDirectory: "largeImageCache")
+	var smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v2/photo/small_thumb/", limit: 1000)
+	var medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v2/photo/medium_thumb/", limit: 1000)
+	var largeImageCache = ImageCache(dirName: "largeImageCache", fetchURL: "/api/v2/photo/full/", limit: 1000)
+
+	var userImageCache = ImageCache(dirName: "userImageCache", fetchURL: "/api/v2/user/photo/", limit: 2000)
 	
 	// The API contract for this method is: The done block COULD BE CALLED MULTIPLE TIMES. This could happen
 	// if the requested size isn't in the cache, but a smaller size is. The smaller size is returned immediately,
 	// while the larger size gets fetched async. 
 	// Also, the returned image could be smaller or larger than the requested size class.
 	// If the done block is called with nil, that indicates fetching completed with some sort of failure.
-	func image(withSize: ImageSizeEnum, forKey: String, done: (UIImage?) -> Void) {
-		
+	func image(withSize: ImageSizeEnum, forKey: String, done: @escaping (UIImage?) -> Void) {
+		switch withSize {
+			case .small: smallImageCache.image(forKey: forKey, done: done)
+			case .medium: medImageCache.image(forKey: forKey, done: done)
+			case .full: largeImageCache.image(forKey: forKey, done: done)
+		}
 	}
 }
 
