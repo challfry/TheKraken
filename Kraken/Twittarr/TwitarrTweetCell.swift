@@ -14,7 +14,7 @@ class TwitarrTweetCell: UICollectionViewCell, UITextViewDelegate {
 	@IBOutlet var userAvatar: UIImageView!
 	@IBOutlet var postImage: UIImageView!
 
-    var tweetModel: TwitarrV2Post? {
+    var tweetModel: TwitarrPost? {
     	didSet {
     		titleLabel.text = tweetModel?.author.displayName
     		if let text = tweetModel?.text {
@@ -25,7 +25,7 @@ class TwitarrTweetCell: UICollectionViewCell, UITextViewDelegate {
 				tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
 	    		
 			}
-    		if let username = tweetModel?.author.username, let user = UserManager.shared.user(username) {
+    		if let user = tweetModel?.author {
 	    		user.loadUserThumbnail()
 	    		user.tell(self, when:"thumbPhoto") { observer, observed in
 					observer.userAvatar.image = observed.thumbPhoto
@@ -46,6 +46,13 @@ class TwitarrTweetCell: UICollectionViewCell, UITextViewDelegate {
 			titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 			tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     	}
+	}
+	
+	override func prepareForReuse() {
+		super.prepareForReuse()
+		if let user = tweetModel?.author {
+			user.stopTellingAboutChanges(self)
+		}
 	}
 	
 	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 

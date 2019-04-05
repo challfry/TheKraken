@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 
 // This is our internal model object for users.
-class KrakenUser : NSObject {
-	let name: String
+class KrakenUser : NSObject, Codable {
+	let username: String
 	var displayName: String
 	
 	var emailAddress: String?
@@ -29,8 +29,8 @@ class KrakenUser : NSObject {
 	var comment: String? 			// Logged in user's comment string on this user
 	
 	var lastPhotoUpdated: Int
-	@objc dynamic weak var  thumbPhoto:  UIImage?
-	var fullPhoto: UIImage?
+	@objc dynamic weak var thumbPhoto:  UIImage?
+	@objc dynamic weak var fullPhoto: UIImage?
 
 
 	// Extra stuff the UserAccount type has
@@ -40,7 +40,7 @@ class KrakenUser : NSObject {
 	// unnoticed_alerts
 	
 	init(with userName: String) {
-		name = userName
+		username = userName
 		displayName = userName
 		lastPhotoUpdated = 0
 	}
@@ -50,21 +50,15 @@ class KrakenUser : NSObject {
 			return
 		}
 		
-		ImageManager.shared.userImageCache.image(forKey:name) { newImage in
+		ImageManager.shared.userImageCache.image(forKey:username) { newImage in
 			self.thumbPhoto = newImage
 		}
-	
-//		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/photo/\(name)")
-//		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-//			if let response = response as? HTTPURLResponse {
-//				if response.statusCode < 300, let data = data {
-//					self.thumbPhoto =  UIImage(data:data)
-//				} else 
-//				{
-//					// Load failed for some reason
-//				}
-//			}
-//		}
+	}
+
+	enum CodingKeys: String, CodingKey {
+		case username, displayName, emailAddress, currentLocation, roomNumber, realName
+		case pronouns, homeLocation, numberOfTweets, numberOfMentions
+		case isStarred, comment, lastPhotoUpdated
 	}
 }
 
@@ -105,7 +99,7 @@ class UserManager : NSObject {
 			let addingUser = KrakenUser(with: username)
 			addingUser.displayName = displayName
 			addingUser.lastPhotoUpdated = lastPhotoUpdated
-			users[addingUser.name] = addingUser
+			users[addingUser.username] = addingUser
 			
 			return addingUser
 		}

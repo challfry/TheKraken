@@ -8,13 +8,50 @@
 
 import Foundation
 
+// Our model object for tweets. Why not just use the V2API tweet object? V3 is coming, and this way we 
+// have a model object that doesn't have to exactly match a service response.
+class TwitarrPost: NSObject, Codable {
+	let id: String 
+	let author: KrakenUser
+	let locked: Bool
+	let timestamp: Int
+	let text: String
+	let reactions: [String: TwitarrV2Reactions ]
+	let photo: TwitarrV2PhotoDetails?
+	let parentChain: [String]
+
+	enum CodingKeys: String, CodingKey {
+		case id
+		case author
+		case locked
+		case timestamp
+		case text
+		case reactions
+		case photo
+		case parentChain = "parent_chain"
+	}
+	
+	init(id: String, author: String, locked: Bool, timestamp: Int, text: String, reactions: [String: TwitarrV2Reactions],
+			photo: TwitarrV2PhotoDetails?, parentChain: [String])
+	{
+		self.id = id
+		self.author = UserManager.shared.user(author) ?? KrakenUser(with: "unknown")
+		self.locked = locked
+		self.timestamp = timestamp
+		self.text = text
+		self.reactions = reactions
+		self.photo = photo
+		self.parentChain = parentChain
+	}
+}
 
 // A contiguous slice of tweets from the twitarr stream
-class TweetChunk: CustomStringConvertible {
-	var tweets = [TwitarrV2Post]()
+class TweetChunk: CustomStringConvertible, Codable {
+	var tweets = [TwitarrPost]()
+	let uuid = UUID()
 	
-//	var hasNewer: Bool = false
-//	var hasOlder: Bool = false
+//	var contiguousWithNewer: Bool = false
+//	var contiguousWithOlder: Bool = false
 	
 	// Computed props for newest id, oldest id, newest timestamp, oldest timestamp
 	func newestTimestamp() -> Int {
@@ -36,8 +73,7 @@ class TweetChunk: CustomStringConvertible {
 }
 
 
-class TwitarrDataManager: NSObject {
-	static let shared = TwitarrDataManager()
+class TwitarrStreamDataManager: NSObject {
 	
 	// item 0 of tweetChunk 0 is the most recent tweet in the stream -- the one posted closest to now.
 	// Both within chunks and in the stream, the most-recent item is at 0.
@@ -58,19 +94,11 @@ class TwitarrDataManager: NSObject {
 	
 	func loadNewestTweets(done: (() -> Void)? = nil) {
 		loadStreamTweets(anchorTweet: nil) {	
-
-			// testing
-			self.tweetStreamQ.async {
-				self.loadStreamTweets(anchorTweet:self.tweetStream.last?.tweets.last) {
-					print(self.tweetStream)
-				}
-			}
-			
 			done?()
 		}
 	}
 	
-	func loadStreamTweets(anchorTweet: TwitarrV2Post?, newer: Bool = false, done: (() -> Void)? = nil) {
+	func loadStreamTweets(anchorTweet: TwitarrPost?, newer: Bool = false, done: (() -> Void)? = nil) {
 		var queryParams = [ URLQueryItem(name:"newer_posts", value:newer ? "true" : "false") ]
 		queryParams.append(URLQueryItem(name:"limit", value:"50"))
 		if let anchorTweet = anchorTweet {
@@ -86,7 +114,8 @@ class TwitarrDataManager: NSObject {
 				let decoder = JSONDecoder()
 				if let tweetStream = try? decoder.decode(TwitarrV2Stream.self, from: data) {
 					let morePostsExist = tweetStream.hasNextPage
-					self.addPostsToStream(posts: tweetStream.streamPosts, anchorTweet:anchorTweet,
+					let modelPosts = tweetStream.streamPosts.map() { $0.makeTwitarrPost() }
+					self.addPostsToStream(posts: modelPosts, anchorTweet:anchorTweet,
 							extendsNewer: newer, morePostsExist: morePostsExist)
 				}
 			}
@@ -129,7 +158,7 @@ class TwitarrDataManager: NSObject {
 	// The optional AnchorTweet specifies that the given posts are directly adjacent to the anchor (that is, if 
 	// extendsNewer is true, the oldest tweet in posts is the tweet chronologically after anchor. If anchor is nil, 
 	// we can only assume posts can replace the tweets between startTime and endTime.
-	private func addPostsToStream(posts: [TwitarrV2Post], anchorTweet: TwitarrV2Post?, extendsNewer: Bool, morePostsExist: Bool) {
+	fileprivate func addPostsToStream(posts: [TwitarrPost], anchorTweet: TwitarrPost?, extendsNewer: Bool, morePostsExist: Bool) {
 
 		// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
 		// completed in order, or that we haven't made the same call twice somehow.
@@ -251,6 +280,25 @@ class TwitarrDataManager: NSObject {
 	
 }
 
+// This is the 'main' data manager, for the overall tweet stream. It takes the parent class, intended for filter streams,
+// and adds functionality for caching the main steam posts to local file storage.
+class TwitarrDataManager: TwitarrStreamDataManager {
+	static let shared = TwitarrDataManager()
+
+	override init() {
+		
+	}
+	
+	fileprivate override func addPostsToStream(posts: [TwitarrPost], anchorTweet: TwitarrPost?, 
+			extendsNewer: Bool, morePostsExist: Bool) {
+		super.addPostsToStream(posts: posts, anchorTweet: anchorTweet, 
+				extendsNewer: extendsNewer, morePostsExist: morePostsExist)
+	}
+	
+}
+
+
+// MARK: - V2 API Decoding
 
 struct TwitarrV2Reactions: Codable {
 	let count: Int
@@ -276,6 +324,12 @@ struct TwitarrV2Post: Codable {
 		case reactions
 		case photo
 		case parentChain = "parent_chain"
+	}
+	
+	func makeTwitarrPost() -> TwitarrPost {
+		let result = TwitarrPost(id: id, author: author.username, locked: locked, timestamp: timestamp, text: text, 
+				reactions: reactions, photo: photo, parentChain: parentChain)
+		return result
 	}
 }
 
