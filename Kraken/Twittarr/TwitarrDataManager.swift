@@ -7,90 +7,160 @@
 //
 
 import Foundation
+import CoreData
+import UIKit
 
 // Our model object for tweets. Why not just use the V2API tweet object? V3 is coming, and this way we 
 // have a model object that doesn't have to exactly match a service response.
-class TwitarrPost: NSObject, Codable {
-	let id: String 
-	let author: KrakenUser
-	let locked: Bool
-	let timestamp: Int
-	let text: String
-	let reactions: [String: TwitarrV2Reactions ]
-	let photo: TwitarrV2PhotoDetails?
-	let parentChain: [String]
+@objc(TwitarrPost) public class TwitarrPost: KrakenManagedObject {
+    @NSManaged public var id: String
+    @NSManaged public var locked: Bool
+    @NSManaged public var reactions: Int64
+    @NSManaged public var text: String
+    @NSManaged public var timestamp: Int64
+    @NSManaged public var contigWithOlder: Bool
+    @NSManaged public var author: KrakenUser
+    @NSManaged public var parentChain: TwitarrPost?
+    @NSManaged public var photoDetails: PhotoDetails?
+    
+	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Post) {
+		var changed = TestAndUpdate(\.id, v2Object.id)
+		changed = changed || TestAndUpdate(\.locked, v2Object.locked)
+		changed = changed || TestAndUpdate(\.text, v2Object.text)
+		changed = changed || TestAndUpdate(\.timestamp, v2Object.timestamp)
+		
+		let userDict: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
+		if let krakenUser = userDict[v2Object.author.username] {
+			if krakenUser.username != author.username {
+				author = krakenUser
+			}
+		}
+		else {
+			print("Somehow we have a tweet without an author, or the author changed?")
+		}
 
-	enum CodingKeys: String, CodingKey {
-		case id
-		case author
-		case locked
-		case timestamp
-		case text
-		case reactions
-		case photo
-		case parentChain = "parent_chain"
-	}
-	
-	init(id: String, author: String, locked: Bool, timestamp: Int, text: String, reactions: [String: TwitarrV2Reactions],
-			photo: TwitarrV2PhotoDetails?, parentChain: [String])
-	{
-		self.id = id
-		self.author = UserManager.shared.user(author) ?? KrakenUser(with: "unknown")
-		self.locked = locked
-		self.timestamp = timestamp
-		self.text = text
-		self.reactions = reactions
-		self.photo = photo
-		self.parentChain = parentChain
-	}
-}
-
-// A contiguous slice of tweets from the twitarr stream
-class TweetChunk: CustomStringConvertible, Codable {
-	var tweets = [TwitarrPost]()
-	let uuid = UUID()
-	
-//	var contiguousWithNewer: Bool = false
-//	var contiguousWithOlder: Bool = false
-	
-	// Computed props for newest id, oldest id, newest timestamp, oldest timestamp
-	func newestTimestamp() -> Int {
-		let timestamp = tweets.first?.timestamp ?? 0
-		return timestamp
-	}
-	
-	func oldestTimestamp() -> Int {
-		let timestamp = tweets.last?.timestamp ?? 0
-		return timestamp
-	}
-	
-    var description: String {
-        let result = tweets.reduce("\(tweets.count) tweets in chunk:\n", { str, post in
-        	str + "    \(post)\n"
-        })
-        return result 
+		if let v2Photo = v2Object.photo {
+			if photoDetails?.id != v2Photo.id {
+				let photoDict: [String : PhotoDetails ] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+				photoDetails = photoDict[v2Photo.id] 
+			}
+		}
+		else {
+			if photoDetails != nil {
+				photoDetails = nil	// Can happen if photo was deleted from tweet
+			}
+		}
+		
+	//	reactions = jsonObject.reactions
+	//	parentChain = parentChain
     }
+	
 }
 
+fileprivate class RecentNetworkCall : NSObject {
+	var mostRecent: TwitarrPost 
+	var earliest: TwitarrPost
+	var mostRecentIndex: Int = -1
+	var earliestIndex: Int = -1
+	let callTime: Date
+	
+	init(mostRecent: TwitarrPost, earliest: TwitarrPost) {
+		self.mostRecent = mostRecent
+		self.earliest = earliest
+		self.callTime = Date()
+	}
+	
+	func updateIndices(frc: NSFetchedResultsController<TwitarrPost>) {
+		if let mostRecentIndexPath = frc.indexPath(forObject: mostRecent)
+		{
+			mostRecentIndex = mostRecentIndexPath.last!
+		}
+		else {
+			mostRecentIndex = -1
+		}
+		if let earliestIndexPath = frc.indexPath(forObject: earliest)
+		{
+			earliestIndex = earliestIndexPath.last!
+		}
+		else {
+			earliestIndex = -1
+		}
+	}
+	
+	func covers(index: Int) -> Bool {
+		guard earliestIndex != -1 && mostRecentIndex != -1 else {
+			return false
+		}
+		return index >= earliestIndex && index <= mostRecentIndex 
+	}
+}
 
-class TwitarrStreamDataManager: NSObject {
+// TwitarrDataManager provides access to tweets.
+//
+// That is, it is responsible for initiating and processing server calls to get tweets and associated data; it maintains 
+// a local cache of that data; and it provides a unified API such that online and offline access to tweets work the same way.
+// This includes searching for tweets--when offline, searching the tweet stream is performed locally, whereas the same search
+// initiates network requests when online.
+class TwitarrDataManager: NSObject {
+	static let shared = TwitarrDataManager()
 	
-	// item 0 of tweetChunk 0 is the most recent tweet in the stream -- the one posted closest to now.
-	// Both within chunks and in the stream, the most-recent item is at 0.
-	// Therefore, the timeline always goes from tweet N in a chunk to a discontinuity (where tweets aren't loaded)
-	// to tweet 0 in the next chunk.
-	public var tweetStream = [TweetChunk]()
-	var totalTweets: Int = 0
-	private let tweetStreamQ = DispatchQueue(label:"TweetStream mutation serializer")
-	
+	private let container = LocalCoreData.shared.persistentContainer
+	var filter: String?
+	var fetchedData: NSFetchedResultsController<TwitarrPost>
+	fileprivate var recentNetworkCalls: [RecentNetworkCall] = []
+	private let recentNetworkCallsQ = DispatchQueue(label:"RecentNetworkCalls mutation serializer")
+	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
+
 	// Once we've loaded the very first tweet, olderPosts gets .false. If we scroll backwards, get older tweets, 
 	// but not the first ever, it'll get .true. NewerPostsExist is only .true if we scroll forward, load new posts,
 	// and the server returns N new posts but says there's even newer ones available. 
 	var newerPostsExist: Bool? 
 	var olderPostsExist: Bool?
+	var totalTweets: Int = 0
 	
 	//
 	var lastError : Error?
+	
+	init(filterString: String? = nil) {
+		filter = filterString
+		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
+		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: container.viewContext, 
+				sectionNameKeyPath: nil, cacheName: nil)
+		
+		if let filter = filter {
+			fetchRequest.predicate = NSPredicate(format: "text contains %@", filter)
+		}
+
+		super.init()
+		fetchedData.delegate = self
+	}
+	
+	func addDelegate(_ newDelegate: NSObject & NSFetchedResultsControllerDelegate) {
+		if !viewDelegates.contains(where: { $0 === newDelegate } ) {
+			viewDelegates.insert(newDelegate, at: 0)
+		}
+	}
+	
+	func removeDelegate(_ oldDelegate: NSObject & NSFetchedResultsControllerDelegate) {
+		viewDelegates.removeAll(where: { $0 === oldDelegate } )
+	}
+	
+	
+	func requestTweet(atIndex requestIndex: Int) {
+		// Check our recent network calls to see if we've requested this tweet from the server recently
+		recentNetworkCallsQ.async {
+			let cutoffDate = Date(timeIntervalSinceNow: -60 * 5)
+			self.recentNetworkCalls = self.recentNetworkCalls.compactMap( { $0.callTime > cutoffDate ? $0 : nil } )
+			let indexCovered = self.recentNetworkCalls.reduce( false, { $0 || $1.covers(index: requestIndex) } )
+
+			if !indexCovered {
+				
+			}	
+		}
+		
+	}
+	
 	
 	func loadNewestTweets(done: (() -> Void)? = nil) {
 		loadStreamTweets(anchorTweet: nil) {	
@@ -101,9 +171,11 @@ class TwitarrStreamDataManager: NSObject {
 	func loadStreamTweets(anchorTweet: TwitarrPost?, newer: Bool = false, done: (() -> Void)? = nil) {
 		var queryParams = [ URLQueryItem(name:"newer_posts", value:newer ? "true" : "false") ]
 		queryParams.append(URLQueryItem(name:"limit", value:"50"))
+//		queryParams.append(URLQueryItem(name:"app", value:"plain"))
+		var anchorTime: Int64 = 0
 		if let anchorTweet = anchorTweet {
-			let startTime = newer ? anchorTweet.timestamp + 1 : anchorTweet.timestamp - 1
-			queryParams.append(URLQueryItem(name: "start", value: String(startTime)))
+			anchorTime = newer ? anchorTweet.timestamp + 1 : anchorTweet.timestamp - 1
+			queryParams.append(URLQueryItem(name: "start", value: String(anchorTime)))
 		}
 		
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/stream", query: queryParams)
@@ -112,189 +184,154 @@ class TwitarrStreamDataManager: NSObject {
 					let data = data {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
-				if let tweetStream = try? decoder.decode(TwitarrV2Stream.self, from: data) {
+				do {
+					let tweetStream = try decoder.decode(TwitarrV2Stream.self, from: data)
 					let morePostsExist = tweetStream.hasNextPage
-					let modelPosts = tweetStream.streamPosts.map() { $0.makeTwitarrPost() }
-					self.addPostsToStream(posts: modelPosts, anchorTweet:anchorTweet,
+					self.addPostsToStream(posts: tweetStream.streamPosts, anchorTime: anchorTime,
 							extendsNewer: newer, morePostsExist: morePostsExist)
-				}
+				} catch 
+				{
+					print (error)
+				} 
 			}
 			
 			done?()
 		}
+	}
+	
+	func loadSearchTweets(fromOffset: Int, done: (() -> Void)? = nil) {
+		guard let filter = filter, let escapedQuery = filter.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+			print("Need to have a filter set to use this.")
+			return
+		}
+	
+		let queryParams = [ URLQueryItem(name: "limit", value: "50"), URLQueryItem(name: "page", value: String(fromOffset))]
+
+		let request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/search/tweets/\(escapedQuery)", query: queryParams)
+		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			if let response = response as? HTTPURLResponse, response.statusCode < 300,
+					let data = data {
+//				print (String(decoding:data!, as: UTF8.self))
+				let decoder = JSONDecoder()
+				do {
+					let tweetStream = try decoder.decode(TwitarrV2TweetQueryResult.self, from: data)
+					let morePostsExist = tweetStream.tweets.more
+		//			self.addPostsToStream(posts: tweetStream.tweets.matches, anchorTime: 0, extendsNewer: false, morePostsExist: morePostsExist)
+				} catch 
+				{
+					print (error)
+				} 
+			}
+		}
+	}
 		
-	}
-	
-	// If there's a post with that timestamp, returns its location as a (chunk,index) tuple
-	// If orOlder is TRUE, returns the location of the nearest tweet occuring before timestamp.
-	// Note that in the case where the timestamp falls betwen 2 chunks, if orOlder is TRUE we'll return index 0 of
-	// the next-oldest chunk, and if orOlder is FALSE we return the last index in the previous (newer) chunk.
-	private func findPostLoc(at timestamp:Int, orOlder: Bool) -> (chunk: Int, index: Int) {
-		if (orOlder) {
-			if let chunk = tweetStream.firstIndex( where: { $0.oldestTimestamp() <= timestamp }),
-					let index = tweetStream[chunk].tweets.firstIndex( where: { $0.timestamp <= timestamp }) {
-				return (chunk, index)
-			}
-			
-			// If the given timestamp is older than the oldest post in our cache, return index 0 of a new chunk
-		//	if let oldestTimestamp = tweetStream.last?.oldestTimestamp(), oldestTimestamp > timestamp {
-				return (tweetStream.count, 0)
-		//	}
-		}
-		else {
-			if let chunk = tweetStream.lastIndex( where: { $0.newestTimestamp() >= timestamp }),
-					let index = tweetStream[chunk].tweets.lastIndex( where: { $0.timestamp >= timestamp }) {
-				return (chunk, index)
-			}
-			
-			// If the given timestamp is newer than the newest post in our cache, return index 0 of chunk -1
-		//	if let newestTimestamp = tweetStream.first?.newestTimestamp(), newestTimestamp < timestamp {
-				return (-1, 0)
-		//	}
-		}
-	}
-	
 	
 	// The optional AnchorTweet specifies that the given posts are directly adjacent to the anchor (that is, if 
 	// extendsNewer is true, the oldest tweet in posts is the tweet chronologically after anchor. If anchor is nil, 
 	// we can only assume posts can replace the tweets between startTime and endTime.
-	fileprivate func addPostsToStream(posts: [TwitarrPost], anchorTweet: TwitarrPost?, extendsNewer: Bool, morePostsExist: Bool) {
-
-		// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
-		// completed in order, or that we haven't made the same call twice somehow.
-		tweetStreamQ.async {
-			if self.tweetStream.isEmpty {
-				let newChunk = TweetChunk()
-				newChunk.tweets = posts
-				self.tweetStream.append(newChunk)
-				self.totalTweets = posts.count
+	fileprivate func addPostsToStream(posts: [TwitarrV2Post], anchorTime: Int64, extendsNewer: Bool, morePostsExist: Bool) {
+		let context = container.newBackgroundContext()
+		context.perform {
+			do {
+				// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
+				// relationship links to the already-established sub-objects. 
+			
+				// Make a uniqued list of users from the posts, and get them inserted/updated.
+				let jsonUsers = Dictionary(posts.map { ($0.author.username, $0.author) }, uniquingKeysWith: { (first,_) in first })
+				UserManager.shared.update(users: jsonUsers, inContext: context)
 				
-				if (extendsNewer) {
-					self.newerPostsExist = morePostsExist
-				}
-				else {
-					self.olderPostsExist = morePostsExist
-				}
-			}
-			else {
-				if var oldestPostTimestamp = posts.last?.timestamp, var newestPostTimestamp = posts.first?.timestamp {
+				// Photos, same idea
+				let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },
+						uniquingKeysWith: { first,_ in first })
+				ImageManager.shared.update(photoDetails: tweetPhotos, inContext: context)
+				
+				// Reactions
+				
+				// Get the CD cached posts for the same timeframe as the network call. 			
+				let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
+				let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
+				let request = self.container.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
+						substitutionVariables: [ "startDate" : startDate, "endDate" : endDate ]) as! NSFetchRequest<TwitarrPost>
+				request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
+		//		let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+				let cdResults = try request.execute()
 
-					var allDone = false
-					if let anchor = anchorTweet {
-						let anchorPostLoc = self.findPostLoc(at: anchor.timestamp, orOlder: false)
-						if anchorPostLoc.chunk >= 0 && 
-								anchor.id == self.tweetStream[anchorPostLoc.chunk].tweets[anchorPostLoc.index].id {
-							if extendsNewer {
-								let newestLoc = self.findPostLoc(at: newestPostTimestamp, orOlder:true)
-								let chunk = self.tweetStream[anchorPostLoc.chunk]
-								let replacementStartIndex = newestLoc.chunk == anchorPostLoc.chunk ? newestLoc.index : 0
-								let replacementEndIndex = anchorPostLoc.index
-								chunk.tweets.replaceSubrange(replacementStartIndex..<replacementEndIndex, with: posts)
-								
-								//
-								if newestLoc.chunk < anchorPostLoc.chunk {
-									// Coalesce the prefix (if any) of newestChunk into anchorChunk.
-									let newestChunk = self.tweetStream[newestLoc.chunk]
-									chunk.tweets.insert(contentsOf: newestChunk.tweets[0..<newestLoc.index], at: 0)
-							
-									// Now remove all the chunks that have been coalesced. 
-									self.tweetStream.removeSubrange(newestLoc.chunk..<anchorPostLoc.chunk)
-								}
-							}
-							else {
-								let oldestLoc = self.findPostLoc(at: oldestPostTimestamp, orOlder:false)
-								let chunk = self.tweetStream[anchorPostLoc.chunk]
-								let replacementStartIndex = anchorPostLoc.index + 1
-								let replacementEndIndex = oldestLoc.chunk == anchorPostLoc.chunk ? oldestLoc.index + 1 : 
-										chunk.tweets.count
-								chunk.tweets.replaceSubrange(replacementStartIndex..<replacementEndIndex, with: posts)
-								
-								//
-								if oldestLoc.chunk > anchorPostLoc.chunk {
-									// Coalesce the suffix (if any) of oldestChunk into anchorChunk.
-									let oldestChunk = self.tweetStream[oldestLoc.chunk]
-									chunk.tweets.append(contentsOf: oldestChunk.tweets.suffix(from:oldestLoc.index + 1))
-							
-									// Now remove all the chunks that have been coalesced. 
-									self.tweetStream.removeSubrange((anchorPostLoc.chunk + 1)...oldestLoc.chunk)
-								}
-							}
-							
-							allDone = true
-						}
-
-						// If we have an anchor tweet but can't find it, modify our date range to be just before/after
-						// the anchor; this handles the case where the tweet before/after the anchor has been deleted 
-						// and no longer shows up in the stream.
-						if extendsNewer {
-							oldestPostTimestamp = anchor.timestamp + 1
-						}
-						else {
-							newestPostTimestamp = anchor.timestamp - 1
-						}
-					}
+				// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
+				// completed in order, or that we haven't made the same call twice somehow.
+				var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+				var mostRecent: TwitarrPost?
+				var earliest: TwitarrPost?
+				for post in posts {
+					let cdPost = cdPostsDict.removeValue(forKey: post.id) ?? TwitarrPost(context: context)
+					cdPost.buildFromV2(context: context, v2Object: post)
 					
-					// This part is for when we don't have an anchor that we can find.
-					if !allDone {
-						let oldestLoc = self.findPostLoc(at: oldestPostTimestamp, orOlder:false)
-						let newestLoc = self.findPostLoc(at: newestPostTimestamp, orOlder:true)
+					if post.id == posts.first!.id {
+						mostRecent = cdPost
+					}
+					else if post.id == posts.last!.id {
+						earliest = cdPost
 						
-						if oldestLoc.chunk == newestLoc.chunk && oldestLoc.chunk < self.tweetStream.count {
-							let chunk = self.tweetStream[oldestLoc.chunk]
-							chunk.tweets.replaceSubrange(newestLoc.index...oldestLoc.index, with: posts)
+						if !extendsNewer && morePostsExist && cdPost.isInserted && self.filter == nil {
+							cdPost.contigWithOlder = false
 						}
-						else if oldestLoc.chunk < newestLoc.chunk {
-							// Between chunks. With no anchor, we have to insert a new chunk here.
-							let newChunk = TweetChunk()
-							newChunk.tweets = posts
-							self.tweetStream.insert(newChunk, at:newestLoc.chunk)
-						}
-						else {
-							// We span chunks. Need to merge.
-							var newestTweets = self.tweetStream[newestLoc.chunk].tweets.prefix(through:newestLoc.index)
-							newestTweets.append(contentsOf: posts)
-							newestTweets.append(contentsOf: self.tweetStream[oldestLoc.chunk].tweets.suffix(from:oldestLoc.index + 1))
-							self.tweetStream[newestLoc.chunk].tweets = Array(newestTweets)
-							
-							// Now, delete chunks that got merged
-							self.tweetStream.removeSubrange((newestLoc.chunk + 1)...oldestLoc.chunk)
-						}
+					} else if self.filter == nil {
+						// Note: This weird construction is necessary to keep CoreData from over-saving the store.
+						cdPost.contigWithOlder == false ? cdPost.contigWithOlder = true : nil
 					}
 					
-					// Get our sum of tweets
-					self.totalTweets = self.tweetStream.reduce(0) { $0 + $1.tweets.count }
-					
-					// Record whether newer/older posts exist in the timeline
-					if extendsNewer, let newNewestTimestamp = self.tweetStream.first?.newestTimestamp(),
-							newNewestTimestamp == newestPostTimestamp {
-						self.newerPostsExist = morePostsExist
-					}
-					else if !extendsNewer, let newOldestTimestamp = self.tweetStream.last?.oldestTimestamp(),
-							newOldestTimestamp == oldestPostTimestamp {
-						self.olderPostsExist = morePostsExist
+					// When there's a filter, we don't know if posts we add to the stream are contiguous. 
+					if cdPost.isInserted && self.filter != nil {
+						cdPost.contigWithOlder = false
 					}
 				}
+				
+				// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
+				if self.filter == nil {
+					cdPostsDict.forEach( {key, value in context.delete(value) } )
+				}
+				
+				if let earliest = earliest, let mostRecent = mostRecent {
+					let newNetworkResults = RecentNetworkCall(mostRecent: mostRecent, earliest: earliest)
+					self.recentNetworkCallsQ.async {
+						self.recentNetworkCalls.insert(newNetworkResults, at: 0)
+						self.recentNetworkCalls.forEach( { $0.updateIndices(frc: self.fetchedData) } )
+					}
+				}
+								
+				try context.save()
+			}
+			catch {
+				print (error)
 			}
 		}
 	}
 	
 }
 
-// This is the 'main' data manager, for the overall tweet stream. It takes the parent class, intended for filter streams,
-// and adds functionality for caching the main steam posts to local file storage.
-class TwitarrDataManager: TwitarrStreamDataManager {
-	static let shared = TwitarrDataManager()
+// The data manager can multiple delegates, all of which are watching the same results set.
+extension TwitarrDataManager : NSFetchedResultsControllerDelegate {
 
-	override init() {
-		
+	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		viewDelegates.forEach( { $0.controllerWillChangeContent?(controller) } )
 	}
-	
-	fileprivate override func addPostsToStream(posts: [TwitarrPost], anchorTweet: TwitarrPost?, 
-			extendsNewer: Bool, morePostsExist: Bool) {
-		super.addPostsToStream(posts: posts, anchorTweet: anchorTweet, 
-				extendsNewer: extendsNewer, morePostsExist: morePostsExist)
+
+	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
+			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+		viewDelegates.forEach( { $0.controller?(controller, didChange: anObject, at: indexPath, for: type, newIndexPath: newIndexPath) } )
 	}
-	
+
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, 
+    		atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+    	viewDelegates.forEach( { $0.controller?(controller, didChange: sectionInfo, atSectionIndex: sectionIndex, for: type) } )		
+	}
+
+	// We can't actually implement this in a multi-delegate model. Also, wth is NSFetchedResultsController doing having a 
+	// delegate method that does this?
+ //   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, sectionIndexTitleForSectionName sectionName: String) -> String?
+    
+	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		viewDelegates.forEach( { $0.controllerDidChangeContent?(controller) } )
+	}
 }
 
 
@@ -309,7 +346,7 @@ struct TwitarrV2Post: Codable {
 	let id: String
 	let author: TwitarrV2UserInfo
 	let locked: Bool
-	let timestamp: Int
+	let timestamp: Int64
 	let text: String
 	let reactions: [String: TwitarrV2Reactions ]
 	let photo: TwitarrV2PhotoDetails?
@@ -324,12 +361,6 @@ struct TwitarrV2Post: Codable {
 		case reactions
 		case photo
 		case parentChain = "parent_chain"
-	}
-	
-	func makeTwitarrPost() -> TwitarrPost {
-		let result = TwitarrPost(id: id, author: author.username, locked: locked, timestamp: timestamp, text: text, 
-				reactions: reactions, photo: photo, parentChain: parentChain)
-		return result
 	}
 }
 
@@ -347,3 +378,18 @@ struct TwitarrV2Stream: Codable {
 	}
 }
 
+struct TwitarrV2QueryText: Codable {
+	let text: String
+}
+
+struct TwitarrV2TweetQuery: Codable {
+	let matches: [TwitarrV2Post]
+	let count: Int
+	let more: Bool
+}
+
+struct TwitarrV2TweetQueryResult: Codable {
+	let status: String
+	let query: TwitarrV2QueryText
+	let tweets: TwitarrV2TweetQuery
+}

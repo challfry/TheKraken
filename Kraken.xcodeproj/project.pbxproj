@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */; };
 		EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */; };
 		EA1E3B9322457A1800017F07 /* TwitarrViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA1E3B9122457A1800017F07 /* TwitarrViewController.xib */; };
 		EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */; };
@@ -24,6 +25,9 @@
 		EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D1322540801008501A3 /* NSDictionary+EBNObservable.m */; };
 		EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D1422540801008501A3 /* EBNObservation.m */; };
 		EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D1522540801008501A3 /* EBNObservable.mm */; };
+		EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */; };
+		EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */; };
+		EA9E5BD92261C67E0073A863 /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BE2242D300009F287F /* FirstViewController.swift */; };
 		EAA2E4C12242D300009F287F /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* SecondViewController.swift */; };
@@ -56,6 +60,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionViewCell.swift; sourceTree = "<group>"; };
 		EA1E3B8B2242F04600017F07 /* Twitarr API V2 Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Twitarr API V2 Notes.md"; sourceTree = "<group>"; };
 		EA1E3B8C22430A7D00017F07 /* Managers Overview.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Managers Overview.md"; sourceTree = "<group>"; };
 		EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrViewController.swift; sourceTree = "<group>"; };
@@ -68,6 +73,7 @@
 		EA1E3BA02248153F00017F07 /* Feature plans.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Feature plans.md"; sourceTree = "<group>"; };
 		EA1E3BA2224D858700017F07 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
+		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		EA4A1D0522540801008501A3 /* NSArray+EBNObservable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+EBNObservable.h"; sourceTree = "<group>"; };
 		EA4A1D0622540801008501A3 /* EBNLazyLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EBNLazyLoader.h; sourceTree = "<group>"; };
 		EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSSet+EBNObservable.m"; sourceTree = "<group>"; };
@@ -86,6 +92,9 @@
 		EA4A1D1422540801008501A3 /* EBNObservation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EBNObservation.m; sourceTree = "<group>"; };
 		EA4A1D1522540801008501A3 /* EBNObservable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EBNObservable.mm; sourceTree = "<group>"; };
 		EA4A1D1F225408DC008501A3 /* EBNDebugUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EBNDebugUtilities.h; sourceTree = "<group>"; };
+		EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCoreData.swift; sourceTree = "<group>"; };
+		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
+		EA9E5BDA226548F20073A863 /* Code Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Code Data Model Notes.md"; sourceTree = "<group>"; };
 		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EAA2E4BE2242D300009F287F /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
@@ -137,6 +146,7 @@
 				EA1E3B8B2242F04600017F07 /* Twitarr API V2 Notes.md */,
 				EA1E3B8C22430A7D00017F07 /* Managers Overview.md */,
 				EA1E3BA02248153F00017F07 /* Feature plans.md */,
+				EA9E5BDA226548F20073A863 /* Code Data Model Notes.md */,
 			);
 			path = Docs;
 			sourceTree = "<group>";
@@ -170,6 +180,7 @@
 		EA1E3B962245849B00017F07 /* Users */ = {
 			isa = PBXGroup;
 			children = (
+				EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */,
 				EA1E3B97224584BC00017F07 /* UserManager.swift */,
 				EA1E3B992245CF3000017F07 /* CurrentUser.swift */,
 				EAEF340F224ED88300C7A0D9 /* LoginCell.swift */,
@@ -181,8 +192,10 @@
 		EA1E3B9B22461CA500017F07 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */,
 				EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */,
 				EA1E3B9E2246CDF700017F07 /* Settings.swift */,
+				EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -249,6 +262,7 @@
 				EAA2E4BE2242D300009F287F /* FirstViewController.swift */,
 				EAA2E4C02242D300009F287F /* SecondViewController.swift */,
 				EAA2E4C22242D300009F287F /* Main.storyboard */,
+				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
 				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
 				EAA2E4CA2242D301009F287F /* Info.plist */,
@@ -349,13 +363,16 @@
 				TargetAttributes = {
 					EAA2E4B82242D300009F287F = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 					};
 					EAA2E4CE2242D301009F287F = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 						TestTargetID = EAA2E4B82242D300009F287F;
 					};
 					EAA2E4D92242D301009F287F = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 						TestTargetID = EAA2E4B82242D300009F287F;
 					};
 				};
@@ -415,6 +432,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
+				EA9E5BD92261C67E0073A863 /* UserProfileViewController.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
@@ -426,13 +444,16 @@
 				EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */,
 				EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */,
 				EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */,
+				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */,
 				EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */,
+				EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */,
 				EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */,
 				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
+				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
 				EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,
@@ -613,6 +634,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
 				INFOPLIST_FILE = Kraken/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -620,7 +642,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.Kraken;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Kraken/Core/Kraken-Bridging-Header.h";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -632,6 +654,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
 				INFOPLIST_FILE = Kraken/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -639,7 +662,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.Kraken;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Kraken/Core/Kraken-Bridging-Header.h";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -659,7 +682,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kraken.app/Kraken";
 			};
@@ -680,7 +703,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kraken.app/Kraken";
 			};
@@ -700,7 +723,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Kraken;
 			};
@@ -720,7 +743,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.challfry.KrakenUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Kraken;
 			};
@@ -766,6 +789,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				EA333C8E225818A600247B3E /* Model.xcdatamodel */,
+			);
+			currentVersion = EA333C8E225818A600247B3E /* Model.xcdatamodel */;
+			path = TwitarrModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = EAA2E4B12242D300009F287F /* Project object */;
 }

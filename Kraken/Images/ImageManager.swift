@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 // Why not just use NSCache? 
 // I have a personal dislike for NSCache's complete lack of transparency and debuggability.
@@ -191,8 +192,85 @@ class ImageManager : NSObject {
 			case .full: largeImageCache.image(forKey: forKey, done: done)
 		}
 	}
+	
+	func update(photoDetails: [String : TwitarrV2PhotoDetails], inContext context: NSManagedObjectContext) {
+		do {
+			var photoIds = Set(photoDetails.keys)
+			let request = LocalCoreData.shared.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PhotosWithIds", 
+					substitutionVariables: [ "ids" : photoIds ]) as! NSFetchRequest<PhotoDetails>
+			let results = try request.execute()
+			var resultDict = Dictionary(uniqueKeysWithValues: zip(results.map { $0.id } , results))
+			
+			// I don't think PhotoDetails objects can ever change; therefore there's no updating that needs to be done.
+			photoIds.subtract(resultDict.keys)
+						
+			// Anything still in photoIds needs to be added
+			for photoId in photoIds {
+				let newPhotoDetails = PhotoDetails(context: context)
+				newPhotoDetails.buildFromV2(context: context, v2Object: photoDetails[photoId]!)
+				resultDict[photoId] = newPhotoDetails
+			}
+			
+			// Results should now have all the users that were passed in.
+			context.userInfo.setObject(resultDict, forKey: "PhotoDetails" as NSString)
+		}
+		catch {
+			print (error)
+		}
+	}
+
 }
 
+@objc(PhotoDetails) public class PhotoDetails : KrakenManagedObject {
+	@NSManaged var id: String
+	@NSManaged var animated: Bool
+	@NSManaged private var thumbWidth: Int32
+	@NSManaged private var thumbHeight: Int32
+	@NSManaged private var mediumWidth: Int32
+	@NSManaged private var mediumHeight: Int32
+	@NSManaged private var fullWidth: Int32
+	@NSManaged private var fullHeight: Int32
+	
+	var thumbSize: CGSize? {
+		get {
+			return thumbWidth > 0 && thumbHeight > 0 ? CGSize(width: Int(thumbWidth), height: Int(thumbHeight)) : nil
+		}
+		set {
+			thumbWidth = Int32(newValue?.width ?? 0)
+			thumbHeight = Int32(newValue?.height ?? 0)
+		}
+	}
+
+	var mediumSize: CGSize? {
+		get {
+			return mediumWidth > 0 && mediumHeight > 0 ? CGSize(width: Int(mediumWidth), height: Int(mediumHeight)) : nil
+		}
+		set {
+			mediumWidth = Int32(newValue?.width ?? 0)
+			mediumHeight = Int32(newValue?.height ?? 0)
+		}
+	}
+
+	var fullSize: CGSize? {
+		get {
+			return fullWidth > 0 && fullHeight > 0 ? CGSize(width: Int(fullWidth), height: Int(fullHeight)) : nil
+		}
+		set {
+			fullWidth = Int32(newValue?.width ?? 0)
+			fullHeight = Int32(newValue?.height ?? 0)
+		}
+	}
+
+	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2PhotoDetails) {
+		TestAndUpdate(\.id, v2Object.id)
+		TestAndUpdate(\.animated, v2Object.animated)
+		TestAndUpdate(\.thumbSize, v2Object.thumbSize)
+		TestAndUpdate(\.mediumSize, v2Object.mediumSize)
+		TestAndUpdate(\.fullSize, v2Object.fullSize)
+	}
+}
+
+// MARK: - V2 API Decoding
 
 struct TwitarrV2PhotoDetails: Codable {
 	let id: String

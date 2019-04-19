@@ -19,7 +19,7 @@ class NetworkGovernor: NSObject {
 	struct InternalTask {
 		let task: URLSessionTask
 		var responseData: Data
-		let doneCallback: (Data?, URLResponse?) -> Void
+		var doneCallbacks: [(Data?, URLResponse?) -> Void]
 	}
 	private var activeTasks = [InternalTask]()
 	private let activeTasksQ = DispatchQueue(label:"ActiveTask mutation serializer")
@@ -48,18 +48,32 @@ class NetworkGovernor: NSObject {
 		return request
 	}
 	
+	// All network calls should funnel through here.
 	func queue(_ request:URLRequest, _ done: @escaping (Data?, URLResponse?) -> Void) {
-	
-		// This is where we could check for duplicate request URLs...
-	
-		let task = session.dataTask(with:request) 
-		let queuedTask = InternalTask(task: task, responseData: Data(), doneCallback:done)
+
+// A quick way to test no-network conditions	
+//		done(nil, nil)
+//		return
+
 		activeTasksQ.async {
-			self.activeTasks.append(queuedTask)
-		}
-		task.resume()
+			// If there's already a request outstanding for this exact URL, de-duplicate it here
+			for var activeTask in self.activeTasks {
+				if activeTask.task.originalRequest?.url == request.url && 
+						activeTask.task.originalRequest?.httpMethod == request.httpMethod {
+					activeTask.doneCallbacks.append(done)
+					print ("De-duped network request to \(request.url?.absoluteString ?? "<unknown>")")
+					return
+				}
+			}
 		
-		print ("Started network request to \(request.url?.absoluteString ?? "<unknown>")")
+			// Make a new InternalTask, and get the network request started
+			let task = self.session.dataTask(with:request) 
+			let queuedTask = InternalTask(task: task, responseData: Data(), doneCallbacks:[done])
+				self.activeTasks.append(queuedTask)
+			task.resume()
+		
+			print ("Started network request to \(request.url?.absoluteString ?? "<unknown>")")
+		}
 	}
 	
 }
@@ -124,8 +138,12 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-		let findOurTask = activeTasksQ.sync {
-			activeTasks.first(where: { $0.task.taskIdentifier == task.taskIdentifier } )
+		let findOurTask: InternalTask? = activeTasksQ.sync {
+			if let index = activeTasks.firstIndex(where: { $0.task.taskIdentifier == task.taskIdentifier } ) {
+				let result = activeTasks.remove(at: index)
+				return result
+			}
+			return nil
 		}
 		guard let foundTask = findOurTask else {
 			return
@@ -140,7 +158,9 @@ extension NetworkGovernor: URLSessionTaskDelegate {
     		
 		}
 
-		foundTask.doneCallback(foundTask.responseData, task.response)
+		for doneCallback in foundTask.doneCallbacks {
+			doneCallback(foundTask.responseData, task.response)
+		}
 //		print (String(decoding:foundTask.responseData, as: UTF8.self))
 	}
 }

@@ -8,11 +8,13 @@
 
 import UIKit
 
-class TwitarrTweetCell: UICollectionViewCell, UITextViewDelegate {
+class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 	@IBOutlet var titleLabel: UITextView!
 	@IBOutlet var tweetTextView: UITextView!
-	@IBOutlet var userAvatar: UIImageView!
 	@IBOutlet var postImage: UIImageView!
+	@IBOutlet var userButton: UIButton!
+	
+	var viewController: TwitarrViewController?
 
     var tweetModel: TwitarrPost? {
     	didSet {
@@ -28,11 +30,12 @@ class TwitarrTweetCell: UICollectionViewCell, UITextViewDelegate {
     		if let user = tweetModel?.author {
 	    		user.loadUserThumbnail()
 	    		user.tell(self, when:"thumbPhoto") { observer, observed in
-					observer.userAvatar.image = observed.thumbPhoto
+					observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
+					observer.userButton.setTitle("", for: .normal)
 	    		}?.schedule()
 			}
 			
-			if let photo = tweetModel?.photo {
+			if let photo = tweetModel?.photoDetails {
 				self.postImage.isHidden = false
 				ImageManager.shared.image(withSize:.medium, forKey: photo.id) { image in
 					self.postImage.image = image
@@ -48,30 +51,18 @@ class TwitarrTweetCell: UICollectionViewCell, UITextViewDelegate {
     	}
 	}
 	
-	override func prepareForReuse() {
-		super.prepareForReuse()
-		if let user = tweetModel?.author {
-			user.stopTellingAboutChanges(self)
-		}
-	}
-	
-	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 
-			-> UICollectionViewLayoutAttributes {
-		setNeedsLayout()
-		layoutIfNeeded()
-		let size = contentView.systemLayoutSizeFitting(layoutAttributes.size)
-		var frame = layoutAttributes.frame
-		frame.size.height = ceil(size.height)
-		layoutAttributes.frame = frame
-//		print(frame)
-		return layoutAttributes
-	}
-	
 	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, 
 			interaction: UITextItemInteraction) -> Bool {
-        UIApplication.shared.open(URL, options: [:])
+ //		UIApplication.shared.open(URL, options: [:])
+ 		viewController?.pushSubController(forFilterString: URL.absoluteString)
         return false
     }
+    
+   	@IBAction func showUserProfile() {
+   		if let userName = tweetModel?.author.username {
+			viewController?.pushUserProfileController(forUser: userName)
+		}
+   	}
 		
     func cleanupText(_ text:String) -> NSAttributedString {
     	let outputString = NSMutableAttributedString()

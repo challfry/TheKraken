@@ -7,6 +7,34 @@
 //
 
 import Foundation
+import CoreData
+
+class LoggedInKrakenUser: KrakenUser {
+
+	// Specific to the logged-in user
+	@NSManaged public var commentsAndStars: [CommentsAndStars]?
+	
+}
+
+@objc(CommentsAndStars) public class CommentsAndStars : KrakenManagedObject {
+	@NSManaged public var comment: String?
+	@NSManaged public var isStarred: Bool
+	@NSManaged public var commentingUser: KrakenUser
+	@NSManaged public var commentedOnUser: KrakenUser
+
+	func build(context: NSManagedObjectContext, userCommentedOn: KrakenUser, loggedInUser: KrakenUser, comment: String?, isStarred: Bool?) {
+		TestAndUpdate(\.comment, comment)
+		if let isStarred = isStarred {
+			TestAndUpdate(\.isStarred, isStarred)
+		}
+		if commentingUser.username != loggedInUser.username  {
+			commentingUser = loggedInUser
+		}
+		if commentedOnUser.username != userCommentedOn.username {
+			commentedOnUser = userCommentedOn
+		}
+	}
+}
 
 // There is at most 1 current logged-in user at a time. That user is specified by CurrentUser.shared.loggedInUser.
 class CurrentUser: NSObject {
@@ -22,7 +50,7 @@ class CurrentUser: NSObject {
 		case loggedOut
 	}
 	
-	var loggedInUser: KrakenUser?
+	var loggedInUser: LoggedInKrakenUser?
 	var twitarrV2AuthKey: String?
 	var isChangingLoginState: Bool = false
 	
@@ -95,21 +123,21 @@ class CurrentUser: NSObject {
 				if let profileResponse = try? decoder.decode(TwitarrV2ProfileResponse.self, from: data) {
 					
 					// Adds the user to the cache if it doesn't exist.
-					let krakenUser = UserManager.shared.updateUser(profileResponse.userAccount.username,
-							displayName: profileResponse.userAccount.displayName, 
-							lastPhotoUpdated: profileResponse.userAccount.lastPhotoUpdated)
-					
-					// KrakenUser is separate from TwitarrV2UserAccount for a very good reason!
-					krakenUser.emailAddress = profileResponse.userAccount.email
-					krakenUser.currentLocation = profileResponse.userAccount.currentLocation
-					krakenUser.roomNumber = profileResponse.userAccount.roomNumber
-					krakenUser.realName = profileResponse.userAccount.realName
-					krakenUser.pronouns = profileResponse.userAccount.pronouns
-					krakenUser.homeLocation = profileResponse.userAccount.homeLocation
-					
+//					let krakenUser = UserManager.shared.updateUser(profileResponse.userAccount.username,
+//							displayName: profileResponse.userAccount.displayName, 
+//							lastPhotoUpdated: profileResponse.userAccount.lastPhotoUpdated)
+//					
+//					// KrakenUser is separate from TwitarrV2UserAccount for a very good reason!
+//					krakenUser.emailAddress = profileResponse.userAccount.email
+//					krakenUser.currentLocation = profileResponse.userAccount.currentLocation
+//					krakenUser.roomNumber = profileResponse.userAccount.roomNumber
+//					krakenUser.realName = profileResponse.userAccount.realName
+//					krakenUser.pronouns = profileResponse.userAccount.pronouns
+//					krakenUser.homeLocation = profileResponse.userAccount.homeLocation
+//					
 					// If this is a login action, set the logged in user, their key, and other values 
 					if let keyUsedForLogin = keyToUseDuringLogin {
-						self.loggedInUser = krakenUser
+//						self.loggedInUser = krakenUser
 						self.lastLogin = profileResponse.userAccount.lastLogin
 						self.twitarrV2AuthKey = keyUsedForLogin
 						
@@ -150,6 +178,12 @@ class CurrentUser: NSObject {
 	
 	func createUser(name: String, password: String, displayName: String?, regCode: String) {
 		
+	}
+	
+	func setUserComment(_ comment: String, forUser: KrakenUser) {
+		if let currentUser = loggedInUser {
+			
+		}
 	}
 	
 	// Returns TRUE if a network error occurred.
@@ -215,6 +249,7 @@ struct TwitarrV2ProfileResponse: Codable {
 	}
 }
 
+// This is the User type that is only returned for the current logged in user. The other variant is TwitarrV2UserProfile.
 struct TwitarrV2UserAccount: Codable {
 	let username: String
 	let role: String
@@ -223,7 +258,7 @@ struct TwitarrV2UserAccount: Codable {
 	let currentLocation: String?
 	let lastLogin: Int
 	let emptyPassword: Bool
-	let lastPhotoUpdated: Int
+	let lastPhotoUpdated: Int64
 	let roomNumber: String?
 	let realName: String?
 	let pronouns: String?

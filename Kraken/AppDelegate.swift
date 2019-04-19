@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	var backgroundSessionCompletionHandler: (() -> Void)?
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-		print(Settings.shared.baseURL)
+//		LocalCoreData.shared.fullCoreDataReset()
 		
 		CurrentUser.shared.loginUser(name: "james", password: "james")
 		return true

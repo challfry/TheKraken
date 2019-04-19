@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14490.98" systemVersion="18E226" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CommentsAndStars" representedClassName="CommentsAndStars" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isStarred" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="commentedOnUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentedUpon" inverseEntity="KrakenUser" syncable="YES"/>
+        <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentsAndStars" inverseEntity="KrakenUser" syncable="YES"/>
+    </entity>
+    <entity name="KrakenUser" representedClassName="KrakenUser" syncable="YES">
+        <attribute name="currentLocation" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="displayName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="emailAddress" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="homeLocation" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lastLogin" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="lastPhotoUpdated" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="numberOfMentions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="numberOfTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="pronouns" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="realName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="role" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="roomNumber" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="thumbPhotoData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentsAndStars" inverseName="commentedOnUser" inverseEntity="CommentsAndStars" syncable="YES"/>
+        <relationship name="commentsAndStars" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CommentsAndStars" inverseName="commentingUser" inverseEntity="CommentsAndStars" syncable="YES"/>
+        <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="author" inverseEntity="TwitarrPost" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="username"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="PhotoDetails" representedClassName="PhotoDetails" syncable="YES">
+        <attribute name="animated" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="fullHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="fullWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="mediumHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="mediumWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="thumbHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="thumbWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="postsWithThisPhoto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="photoDetails" inverseEntity="TwitarrPost" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="TwitarrPost" representedClassName="TwitarrPost" syncable="YES">
+        <attribute name="contigWithOlder" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="id" attributeType="String" syncable="YES"/>
+        <attribute name="locked" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="reactions" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="tweets" inverseEntity="KrakenUser" syncable="YES"/>
+        <relationship name="parentChain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="parentChain" inverseEntity="TwitarrPost" syncable="YES"/>
+        <relationship name="photoDetails" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoDetails" inverseName="postsWithThisPhoto" inverseEntity="PhotoDetails" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="username == $username"/>
+    <fetchRequest name="FindUsers" entity="KrakenUser" predicateString="username IN $usernames"/>
+    <fetchRequest name="PhotosWithIds" entity="PhotoDetails" predicateString="id IN $ids"/>
+    <fetchRequest name="PostsInDateRange" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate"/>
+    <elements>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="300"/>
+        <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
+        <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="180"/>
+        <element name="CommentsAndStars" positionX="117" positionY="90" width="128" height="105"/>
+    </elements>
+</model>
