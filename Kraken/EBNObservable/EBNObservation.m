@@ -362,6 +362,23 @@
 */
 - (BOOL) executeWithPreviousValue:(id) prevValue
 {
+	if (self.willDebugBreakOnChange)
+	{
+		if (EBNIsADebuggerConnected())
+		{
+			EBLogStdOut(@"debugBreakOnChange breakpoint");
+			if (self.debugString.length > 0)
+			{
+				EBLogStdOut(@"    debugString: %@", self.debugString);
+			}
+	
+			// This line will cause a break in the debugger! If you stop here in the debugger, it is
+			// because someone set the debugBreakOnChange property on an EBNObservation to YES, and
+			// one of the keypaths it is observing just changed.
+			DEBUG_BREAKPOINT;
+		}
+	}
+
 	BOOL observationIsValid = [self schedule] && [self executeImmedBlockWithPreviousValue:prevValue];
 	return observationIsValid;
 }

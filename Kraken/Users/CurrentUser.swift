@@ -9,11 +9,27 @@
 import Foundation
 import CoreData
 
-class LoggedInKrakenUser: KrakenUser {
+@objc(LoggedInKrakenUser) public class LoggedInKrakenUser: KrakenUser {
 
 	// Specific to the logged-in user
 	@NSManaged public var commentsAndStars: [CommentsAndStars]?
+	@NSManaged public var lastLogin: Bool
 	
+	func buildFromV2UserAccount(context: NSManagedObjectContext, v2Object: TwitarrV2UserAccount) {
+		TestAndUpdate(\.username, v2Object.username)
+		TestAndUpdate(\.displayName, v2Object.displayName)
+		TestAndUpdate(\.realName, v2Object.realName)
+		TestAndUpdate(\.pronouns, v2Object.pronouns)
+
+		TestAndUpdate(\.emailAddress, v2Object.emailAddress)
+		TestAndUpdate(\.homeLocation, v2Object.homeLocation)
+		TestAndUpdate(\.currentLocation, v2Object.currentLocation)
+		TestAndUpdate(\.roomNumber, v2Object.roomNumber)
+
+		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
+//		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
+//		TestAndUpdate(\.emptyPassword, v2Object.emptyPassword)
+	}
 }
 
 @objc(CommentsAndStars) public class CommentsAndStars : KrakenManagedObject {
@@ -37,7 +53,7 @@ class LoggedInKrakenUser: KrakenUser {
 }
 
 // There is at most 1 current logged-in user at a time. That user is specified by CurrentUser.shared.loggedInUser.
-class CurrentUser: NSObject {
+@objc class CurrentUser: NSObject {
 	static let shared = CurrentUser()
 	
 	enum UserRole: String {
@@ -50,16 +66,16 @@ class CurrentUser: NSObject {
 		case loggedOut
 	}
 	
-	var loggedInUser: LoggedInKrakenUser?
+	@objc dynamic var loggedInUser: LoggedInKrakenUser?
 	var twitarrV2AuthKey: String?
-	var isChangingLoginState: Bool = false
+	@objc dynamic var isChangingLoginState: Bool = false
 	
 	// Info about the current user that should not be in KrakenUser nor cached to disk.
 	var lastLogin: Int = 0
 	var userRole: UserRole = .loggedOut
 	
 	// The last error we got from the server. Cleared when we start a new call.
-	var lastError : Error?
+	@objc dynamic var lastError : Error?
 	struct CurrentUserError: Error {
 		let httpStatus: Int
 		let errorString: String
@@ -83,7 +99,7 @@ class CurrentUser: NSObject {
 //		let authData = try! encoder.encode(authStruct)
 //		print (String(decoding:authData, as: UTF8.self))
 		
-		let authQuery = "username=james&password=james".data(using: .utf8)!
+		let authQuery = "username=\(name)&password=\(password)".data(using: .utf8)!
 		
 		// Call /api/v2/user/auth, and then call whoami
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/auth", query: nil)
@@ -94,7 +110,14 @@ class CurrentUser: NSObject {
 					let data = data {
 				let decoder = JSONDecoder()
 				if let authResponse = try? decoder.decode(TwitarrV2AuthResponse.self, from: data) {
-					self.loadProfileInfo(keyToUseDuringLogin: authResponse.key)
+					if authResponse.status == "ok" {
+						self.loadProfileInfo(keyToUseDuringLogin: authResponse.key)
+					}
+					else
+					{
+						self.lastError = CurrentUserError(httpStatus: 200, 
+								errorString: "Unknown error")
+					}
 				}
 			} 
 			else {
@@ -120,28 +143,19 @@ class CurrentUser: NSObject {
 			if !self.handledNetworkError(data: data, response: response),
 					let data = data {
 				let decoder = JSONDecoder()
-				if let profileResponse = try? decoder.decode(TwitarrV2ProfileResponse.self, from: data) {
+				if let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
 					
 					// Adds the user to the cache if it doesn't exist.
-//					let krakenUser = UserManager.shared.updateUser(profileResponse.userAccount.username,
-//							displayName: profileResponse.userAccount.displayName, 
-//							lastPhotoUpdated: profileResponse.userAccount.lastPhotoUpdated)
-//					
-//					// KrakenUser is separate from TwitarrV2UserAccount for a very good reason!
-//					krakenUser.emailAddress = profileResponse.userAccount.email
-//					krakenUser.currentLocation = profileResponse.userAccount.currentLocation
-//					krakenUser.roomNumber = profileResponse.userAccount.roomNumber
-//					krakenUser.realName = profileResponse.userAccount.realName
-//					krakenUser.pronouns = profileResponse.userAccount.pronouns
-//					krakenUser.homeLocation = profileResponse.userAccount.homeLocation
-//					
+					let krakenUser = UserManager.shared.updateAccount(from: profileResponse)
+										
 					// If this is a login action, set the logged in user, their key, and other values 
 					if let keyUsedForLogin = keyToUseDuringLogin {
-//						self.loggedInUser = krakenUser
+						self.loggedInUser = krakenUser
 						self.lastLogin = profileResponse.userAccount.lastLogin
 						self.twitarrV2AuthKey = keyUsedForLogin
 						
 						self.userRole = UserRole(rawValue: profileResponse.userAccount.role) ?? .user
+						self.isChangingLoginState = false
 					}
 				}
 			}
@@ -237,7 +251,8 @@ struct TwitarrV2AuthResponse: Codable {
 	let key: String
 }
 
-struct TwitarrV2ProfileResponse: Codable {
+// /api/v2/user/profile
+struct TwitarrV2CurrentUserProfileResponse: Codable {
 	let status: String
 	let userAccount: TwitarrV2UserAccount
 	let needPasswordChange: Bool
@@ -253,7 +268,7 @@ struct TwitarrV2ProfileResponse: Codable {
 struct TwitarrV2UserAccount: Codable {
 	let username: String
 	let role: String
-	let email: String?
+	let emailAddress: String?
 	let displayName: String
 	let currentLocation: String?
 	let lastLogin: Int
@@ -266,8 +281,9 @@ struct TwitarrV2UserAccount: Codable {
 	let unnoticedAlerts: Bool?
 	
 	enum CodingKeys: String, CodingKey {
-		case username, role, email, pronouns
+		case username, role, pronouns
 		case displayName = "display_name"
+		case emailAddress = "email"
 		case currentLocation = "current_location"
 		case lastLogin = "last_login"
 		case emptyPassword = "empty_password"

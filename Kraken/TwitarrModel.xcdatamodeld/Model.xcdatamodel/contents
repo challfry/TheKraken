@@ -6,7 +6,7 @@
         <relationship name="commentedOnUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentedUpon" inverseEntity="KrakenUser" syncable="YES"/>
         <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentsAndStars" inverseEntity="KrakenUser" syncable="YES"/>
     </entity>
-    <entity name="KrakenUser" representedClassName="KrakenUser" syncable="YES">
+    <entity name="KrakenUser" representedClassName="LoggedInKrakenUser" syncable="YES">
         <attribute name="currentLocation" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="displayName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="emailAddress" optional="YES" attributeType="String" syncable="YES"/>
@@ -67,9 +67,9 @@
     <fetchRequest name="PhotosWithIds" entity="PhotoDetails" predicateString="id IN $ids"/>
     <fetchRequest name="PostsInDateRange" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate"/>
     <elements>
+        <element name="CommentsAndStars" positionX="117" positionY="90" width="128" height="105"/>
         <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="300"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="180"/>
-        <element name="CommentsAndStars" positionX="117" positionY="90" width="128" height="105"/>
     </elements>
 </model>

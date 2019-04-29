@@ -34,9 +34,7 @@ extern NSMutableSet				*EBNObservableSynchronizationToken;
 	variants are for blocks added to the list while we're in the process of executing the blocks.
 */
 extern NSMutableSet				*EBN_ObserverBlocksToRunAfterThisEvent;
-extern NSMutableSet				*EBN_ObserverBlocksBeingDrained;
 extern NSMutableArray			*EBN_ObservedObjectKeepAlive;
-extern NSMutableArray 			*EBN_ObservedObjectBeingDrainedKeepAlive;
 
 #pragma mark - EBNShadowedClassInfo
 

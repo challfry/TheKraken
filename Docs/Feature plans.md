@@ -34,6 +34,11 @@ Results are still delivered async, UI doesn't know the search was local.
 ## Games?
 Maybe we can combine AR and beacons to create shipboard game things?
 
+Chaos Engine, where players get randomly paired and must find each other. Once the server pairs, players start receiving updates
+about each others' shipboard loc (via beacons). Paired players moving phones close to each other scores the points.
+
+AR Pokemon Go -- distribute QR code paper around ship, scan to see pokemon and take picture?
+
 ## Event View improvements
 Offline mode, especially so that events can be viewed onshore
 Happening Now view
@@ -43,3 +48,5 @@ Maybe filter by location onboard?
 Make the app the handler for links, maybe? Universal links require the super-fun app site association file.
 Custom url schemes are also a possibility.
 
+## Twitarr, Seamail, Forums improvements
+Rotate phone to fullscreen the topmost photo in a tweet/mail/forum post that's on screen.

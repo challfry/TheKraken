@@ -9,34 +9,26 @@
 import UIKit
 import CoreData
 
-class TwitarrViewController: UIViewController {
+class TwitarrViewController: BaseCollectionViewController {
 
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
 	var dataManager = TwitarrDataManager.shared
 
-	@IBOutlet var collectionView: UICollectionView!
 	private var collectionViewUpdateBlocks: [() -> Void] = []
 
 	override func viewDidLoad() {
         super.viewDidLoad()
         
-		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-			layout.itemSize = UICollectionViewFlowLayout.automaticSize
-			layout.estimatedItemSize = CGSize(width: 375, height: 52 )
-			
-			layout.minimumLineSpacing = 0
-		}
-
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
- 
+ 		collectionView.prefetchDataSource = self
+
         // Do any additional setup after loading the view.
 		try! self.dataManager.fetchedData.performFetch()
 		startRefresh()
 		
 		title = dataManager.filter ?? "Twitarr"
 		
-		collectionView.prefetchDataSource = self
 		
     }
     
@@ -104,6 +96,14 @@ extension TwitarrViewController: UICollectionViewDataSource, UICollectionViewDel
 	}
 
 }
+
+// Have to change this:
+//Operations order in PerformBatchUpdates
+//
+//Deletes → Always use original indexes (will be used in descending order)
+//Inserts → Always use final indexes (will be used in ascending order)
+//Moves → From = original index; To = final index
+//Reload → Under the hood, it deletes then inserts. Index = original index. You can't reload an item that is moved.
 
 extension TwitarrViewController: NSFetchedResultsControllerDelegate {
 			

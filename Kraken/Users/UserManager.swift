@@ -107,15 +107,15 @@ import CoreData
 
 class UserManager : NSObject {
 	static let shared = UserManager()
-	private let container = LocalCoreData.shared.persistentContainer
+	private let coreData = LocalCoreData.shared
 
 		
 	func user(_ userName: String) -> KrakenUser? {
-		let context = container.viewContext
+		let context = coreData.mainThreadContext
 		var result: KrakenUser?
 		context.performAndWait {
 			do {
-				let request = container.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
+				let request = coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
 						substitutionVariables: [ "username" : userName ]) as! NSFetchRequest<KrakenUser>
 				let results = try request.execute()
 				result = results.first
@@ -153,11 +153,9 @@ class UserManager : NSObject {
 	}
 	
 	func updateProfile(for objectID: NSManagedObjectID?, from response: TwitarrV2UserProfileResponse) {
-		guard response.status == "ok" else
-		{
-			return
-		}
-		let context = container.newBackgroundContext()
+		guard response.status == "ok" else { return }
+
+		let context = coreData.networkOperationContext
 		context.perform {
 			do {
 				// If we have an objectID, use it to get the KrakenUser. Else we do a search.
@@ -166,7 +164,7 @@ class UserManager : NSObject {
 					krakenUser = try context.existingObject(with: objectID) as? KrakenUser
 				}
 				else {
-					let request = self.container.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
+					let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
 								substitutionVariables: [ "username" : response.user.username ]) as! NSFetchRequest<KrakenUser>
 					let results = try request.execute()
 					krakenUser = results.first
@@ -183,11 +181,39 @@ class UserManager : NSObject {
 		}
 	}
 	
+	// Only used to update info for logged in user.
+	func updateAccount(from response: TwitarrV2CurrentUserProfileResponse) -> LoggedInKrakenUser? {
+		guard response.status == "ok" else { return nil }
+		
+		let context = coreData.networkOperationContext
+		var krakenUser: LoggedInKrakenUser?
+		context.performAndWait {
+			do {
+				// If we have an objectID, use it to get the KrakenUser. Else we do a search.
+				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
+							substitutionVariables: [ "username" : response.userAccount.username ]) as! NSFetchRequest<LoggedInKrakenUser>
+				let results = try request.execute()
+				krakenUser = results.first 
+				
+				if let user = krakenUser {
+					user.buildFromV2UserAccount(context: context, v2Object: response.userAccount)
+					try context.save()
+				}
+			}
+			catch
+			{
+				print (error)
+			}
+		}
+		
+		return krakenUser
+	}
+	
 	func update(users origUsers: [ String : TwitarrV2UserInfo], inContext context: NSManagedObjectContext) {
 		do {
 			var users = origUsers
 			let usernames = Array(users.keys)
-			let request = container.managedObjectModel.fetchRequestFromTemplate(withName: "FindUsers", 
+			let request = coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindUsers", 
 					substitutionVariables: [ "usernames" : usernames ]) as! NSFetchRequest<KrakenUser>
 			let results = try request.execute()
 			var resultDict = Dictionary(uniqueKeysWithValues: zip(results.map { $0.username } , results))
@@ -273,6 +299,7 @@ struct TwitarrV2UserProfile: Codable {
 	}
 }
 
+// /api/v2/user/profile/:username
 struct TwitarrV2UserProfileResponse: Codable {
 	let status: String
 	let user: TwitarrV2UserProfile

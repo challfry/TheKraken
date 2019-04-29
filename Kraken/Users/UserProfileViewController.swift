@@ -9,10 +9,8 @@
 import UIKit
 
 
-class UserProfileViewController: UIViewController {
-
-	@IBOutlet var collectionView: UICollectionView!
-	var cellModels = [BaseCollectionViewCell.BaseCellModel]()
+class UserProfileViewController: BaseCollectionViewController {
+	let dataSource = FilteringDataSource()
 	
 	// The user name is what the VC is 'modeling', not the KrakenUser. This way, even if there's no user with that name,
 	// the VC still appears and is responsible for displaying the error.
@@ -21,14 +19,8 @@ class UserProfileViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        dataSource.collectionView = collectionView
         self.title = String("User: \(modelUserName ?? "")")
-
-		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-			layout.itemSize = UICollectionViewFlowLayout.automaticSize
-			layout.estimatedItemSize = CGSize(width: 375, height: 300 )
-			
-			layout.minimumLineSpacing = 0
-		}
 
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
@@ -37,45 +29,30 @@ class UserProfileViewController: UIViewController {
 	        modelKrakenUser = UserManager.shared.loadUserProfile(userName)
 		}
 		
-		setupCellModels()        
+		setupCellModels()
+		collectionView.dataSource = dataSource      
+		collectionView.delegate = dataSource      
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+		dataSource.enableAnimations = true
+	}
     
 	@objc func startRefresh() {
     }
     
     func setupCellModels() {
-    
-    	// Use different layouts here for different avatar aspect ratios.
-		cellModels.append(UserProfileAvatarCell.CellModel(user: modelKrakenUser))
-		
-		if modelKrakenUser?.emailAddress != nil {
-			cellModels.append(UserProfileSingleValueCell.CellModel(user: modelKrakenUser, mode: .email))
-		}
-		if modelKrakenUser?.homeLocation != nil {
-			cellModels.append(UserProfileSingleValueCell.CellModel(user: modelKrakenUser, mode: .homeLocation))
-		}
-		if modelKrakenUser?.roomNumber != nil {
-			cellModels.append(UserProfileSingleValueCell.CellModel(user: modelKrakenUser, mode: .roomNumber))
-		}
-		if modelKrakenUser?.currentLocation != nil {
-			cellModels.append(UserProfileSingleValueCell.CellModel(user: modelKrakenUser, mode: .currentLocation))
-		}
-		if let numTweets = modelKrakenUser?.numberOfTweets, numTweets > 0 {
-			let cell = UserProfileDisclosureCell.CellModel(user: modelKrakenUser, mode:.authoredTweets)
-			cell.viewController = self
-			cellModels.append(cell)
-		}
-		if let numMentions = modelKrakenUser?.numberOfMentions, numMentions > 0 {
-			let cell = UserProfileDisclosureCell.CellModel(user: modelKrakenUser, mode:.mentions)
-			cell.viewController = self
-			cellModels.append(cell)
-		}
-//		if let currentUser = CurrentUser.shared.loggedInUser, currentUser.username != modelKrakenUser?.username {
-			let cell = (UserProfileDisclosureCell.CellModel(user: modelKrakenUser, mode:.sendSeamail))
-			cell.viewController = self
-			cellModels.append(cell)
-			cellModels.append(UserProfileCommentCell.CellModel(user: modelKrakenUser))
-//		}
+
+    	let section = dataSource.appendSection(named: "UserProfile")
+    	section.append(UserProfileAvatarCellModel(user: modelKrakenUser))
+		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email))
+		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation))
+		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .roomNumber))
+		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation))
+		section.append(UserProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self))
+		section.append(UserProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self))
+		section.append(UserProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self))		
+		section.append(UserProfileCommentCellModel(user: modelKrakenUser))
     }
 
     
@@ -108,207 +85,214 @@ class UserProfileViewController: UIViewController {
 
 }
 
-// Lumping all of these extensions together since they're indistinguishable from each other
-extension UserProfileViewController: UICollectionViewDataSource, UICollectionViewDelegate,  UICollectionViewDelegateFlowLayout {
+@objc protocol UserProfileAvatarCellProtocol {
+	var userModel: KrakenUser? { get set }
+}
 
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return cellModels.count
-	}
-	    
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let cellModel = cellModels[indexPath.row]
-		let cell = cellModel.makeCell(for: collectionView, indexPath: indexPath)
-		return cell
-	}
+@objc class UserProfileAvatarCellModel: BaseCellModel, UserProfileAvatarCellProtocol {
+	private static let validReuseIDs = [ "UserProfileAvatarLeft" : NibAndClass(UserProfileAvatarCell.self, nil)]
+	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
 
-	func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-		let cellModel = cellModels[indexPath.row]
-		cellModel.cellTapped()
+	var userModel: KrakenUser?
+	
+	init(user: KrakenUser?) {
+		super.init(bindingWith: UserProfileAvatarCellProtocol.self)
+		userModel = user
 	}
 }
 
-class UserProfileAvatarCell: BaseCollectionViewCell {
+@objc class UserProfileAvatarCell: BaseCollectionViewCell, UserProfileAvatarCellProtocol {
 	@IBOutlet var userNameLabel: UILabel!
 	@IBOutlet var realNameLabel: UILabel!
 	@IBOutlet var pronounsLabel: UILabel!
 	@IBOutlet var userAvatar: UIImageView!
-	
-	class CellModel: BaseCellModel {
-		typealias Cell = UserProfileAvatarCell
-		var userModel: KrakenUser?
-		
-		init(user: KrakenUser?) {
-			super.init()
-			storyboardId = "UserProfileAvatarLeft"
-			userModel = user
-		}
-	}
-	
-	override func setCellModel(newModel: BaseCellModel) {
-		cellModel = newModel
-		let model = newModel as? CellModel
 
-		clearObservations()
-		if let userModel = model?.userModel {
-			userModel.tell(self, when: "displayName") { observer, observed in
-				observer.userNameLabel.text = String("@\(observed.displayName)")
-			}?.schedule()
-			userModel.tell(self, when: "realName") { observer, observed in
-				observer.realNameLabel.text = observed.realName
-			}?.schedule()
-			userModel.tell(self, when: "pronouns") { observer, observed in
-				observer.pronounsLabel.text = observed.pronouns
-			}?.schedule()
-			userModel.tell(self, when: [ "fullPhoto", "thumbPhoto" ]) { observer, observed in
-				if let fullPhoto = observed.fullPhoto {
-					observer.userAvatar.image = fullPhoto
-				}
-				else if let thumbPhoto = observed.thumbPhoto {
-					observer.userAvatar.image = thumbPhoto
-				}
-			}?.schedule()
+	dynamic var userModel: KrakenUser? {
+		didSet {
+//			clearObservations()
+			if let userModel = self.userModel {
+				userModel.tell(self, when: "displayName") { observer, observed in
+					observer.userNameLabel.text = String("@\(observed.displayName)")
+				}?.schedule()
+				userModel.tell(self, when: "realName") { observer, observed in
+					observer.realNameLabel.text = observed.realName
+				}?.schedule()
+				userModel.tell(self, when: "pronouns") { observer, observed in
+					observer.pronounsLabel.text = observed.pronouns
+				}?.schedule()
+				userModel.tell(self, when: [ "fullPhoto", "thumbPhoto" ]) { observer, observed in
+					if let fullPhoto = observed.fullPhoto {
+						observer.userAvatar.image = fullPhoto
+					}
+					else if let thumbPhoto = observed.thumbPhoto {
+						observer.userAvatar.image = thumbPhoto
+					}
+				}?.schedule()
+			}
 		}
 	}
 }
 
-class UserProfileSingleValueCell: BaseCollectionViewCell {
-	@IBOutlet var titleLabel: UILabel!
-	@IBOutlet var valueLabel: UILabel!
-	
-	class CellModel: BaseCellModel {
-		typealias Cell = UserProfileSingleValueCell
-		var userModel: KrakenUser?
-		enum DisplayMode: String {
-			case email = "email"
-			case roomNumber = "room #"
-			case homeLocation = "Hometown"
-			case currentLocation = "Last seen"
-		}
-		var displayMode: DisplayMode = .email
-		
-		init(user: KrakenUser?, mode: DisplayMode) {
-			super.init()
-			storyboardId = "UserProfileSingleValue"
-			userModel = user
-			displayMode = mode
-		}
-	}
-	
-	override func setCellModel(newModel: BaseCellModel) {
-		cellModel = newModel
-		let model = newModel as? CellModel
+@objc protocol UserProfileSingleValueCellProtocol {
+	var title: String? { get set }
+	var value: String? { get set }
+}
 
-		clearObservations()
-		if let cellModel = model, let userModel = cellModel.userModel {
-			titleLabel.text = cellModel.displayMode.rawValue
-			switch cellModel.displayMode {
+@objc class UserProfileSingleValueCellModel: BaseCellModel, UserProfileSingleValueCellProtocol {
+	private static let validReuseIDs = [ "UserProfileSingleValue" : NibAndClass(UserProfileSingleValueCell.self,  nil)]
+	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+
+	typealias Cell = UserProfileSingleValueCell
+	var userModel: KrakenUser?
+	dynamic var title: String?
+	dynamic var value: String?
+
+	enum DisplayMode: String {
+		case email = "email"
+		case roomNumber = "room #"
+		case homeLocation = "Hometown"
+		case currentLocation = "Last seen"
+	}
+	dynamic var displayMode: DisplayMode
+	
+	init(user: KrakenUser?, mode: DisplayMode) {
+		displayMode = mode
+		userModel = user
+		title = displayMode.rawValue
+		super.init(bindingWith: UserProfileSingleValueCellProtocol.self)
+
+		if let user = userModel {
+			switch displayMode {
 			case .email:
-				addObservation(userModel.tell(self, when: "emailAddress") { observer, observed in
-					observer.valueLabel.text = observed.emailAddress
+				addObservation(user.tell(self, when: "emailAddress") { observer, observed in
+					observer.value = observed.emailAddress
+					observer.shouldBeVisible = observed.emailAddress != nil
 				}?.schedule())
 			case .roomNumber: 
-				addObservation(userModel.tell(self, when: "roomNumber") { observer, observed in
-					observer.valueLabel.text = observed.roomNumber
+				addObservation(user.tell(self, when: "roomNumber") { observer, observed in
+					observer.value = observed.roomNumber
+					observer.shouldBeVisible = observed.roomNumber != nil
 				}?.schedule())
 			case .homeLocation:
-				addObservation(userModel.tell(self, when: "homeLocation") { observer, observed in
-					observer.valueLabel.text = observed.homeLocation
+				addObservation(user.tell(self, when: "homeLocation") { observer, observed in
+					observer.value = observed.homeLocation
+					observer.shouldBeVisible = observed.homeLocation != nil
 				}?.schedule())
 			case .currentLocation:
-				addObservation(userModel.tell(self, when: "currentLocation") { observer, observed in
-					observer.valueLabel.text = observed.currentLocation
+				addObservation(user.tell(self, when: "currentLocation") { observer, observed in
+					observer.value = observed.currentLocation
+					observer.shouldBeVisible = observed.currentLocation != nil
 				}?.schedule())
 			}
-		}
-	}	
-}
-
-
-
-class UserProfileDisclosureCell: BaseCollectionViewCell {
-	@IBOutlet var titleLabel: UILabel!
-
-	class CellModel: BaseCellModel {
-		typealias Cell = UserProfileDisclosureCell
-		var userModel: KrakenUser?
-		var viewController: UserProfileViewController?
-
-		enum DisplayMode {
-			case authoredTweets
-			case mentions		
-			case sendSeamail		
-		}
-		var displayMode: DisplayMode = .authoredTweets
-		
-		init(user: KrakenUser?, mode: DisplayMode) {
-			super.init()
-			storyboardId = "UserProfileDisclosure"
-			userModel = user
-			displayMode = mode
-		}
-		
-		override func cellTapped() {
-			switch displayMode {
-			case .authoredTweets: viewController?.pushUserTweetsView()
-			case .mentions: viewController?.pushUserMentionsView()
-			case .sendSeamail: viewController?.pushSendSeamailView()
-			}
-		}
-	}
-
-	override func setCellModel(newModel: BaseCellModel) {
-		cellModel = newModel
-
-		clearObservations()
-		if let model = newModel as? CellModel, let userModel = model.userModel {
-			switch model.displayMode {
-			case .authoredTweets:
-					userModel.tell(self, when: "numberOfTweets") { observer, observed in
-						observer.titleLabel.text = String("\(observed.numberOfTweets) Tweets")
-					}?.schedule()
-			case .mentions:
-					userModel.tell(self, when: "numberOfMentions") { observer, observed in
-						observer.titleLabel.text = String("\(observed.numberOfMentions) Mentions")
-					}?.schedule()
-			case .sendSeamail:
-					titleLabel.text = "Send Seamail to \(userModel.username)"
-			}
-		}
-	}
-}
-
-class UserProfileCommentCell: BaseCollectionViewCell {
-	@IBOutlet var commentView: UITextView!
-	@IBOutlet var saveButton: UIButton!
-
-	class CellModel: BaseCellModel {
-		typealias Cell = UserProfileCommentCell
-		var userModel: KrakenUser?
-		
-		init(user: KrakenUser?) {
-			super.init()
-			storyboardId = "UserProfileComment"
-			userModel = user
-		}
-	}
-
-	override func setCellModel(newModel: BaseCellModel) {
-		cellModel = newModel
-
-		clearObservations()
-		if let model = newModel as? CellModel, let userModel = model.userModel, let currentUser = CurrentUser.shared.loggedInUser {
-			if let commentAndStar = currentUser.commentsAndStars?.first(where: { $0.commentedOnUser.username == userModel.username } ) {
-				commentView.text = commentAndStar.comment
-			}
-			
-//			userModel.tell(self, when: "numberOfTweets") { observer, observed in
-//					observer.titleLabel.text = String("\(observed.numberOfTweets) Tweets")
-//			}?.schedule()
 		}
 	}
 	
+	
+}
+
+class UserProfileSingleValueCell: BaseCollectionViewCell, UserProfileSingleValueCellProtocol {
+	@IBOutlet var titleLabel: UILabel!
+	@IBOutlet var valueLabel: UILabel!
+
+	var title: String? {
+		didSet { titleLabel.text = title }
+	}
+	var value: String? {
+		didSet { valueLabel.text = value }
+	}
+}
+
+
+@objc protocol UserProfileDisclosureCellProtocol {
+	dynamic var title: String? { get set }
+}
+
+@objc class UserProfileDisclosureCellModel: BaseCellModel, UserProfileDisclosureCellProtocol {
+	private static let validReuseIDs = [ "UserProfileDisclosureCell" : NibAndClass(UserProfileDisclosureCell.self, nil)]
+	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+
+	var userModel: KrakenUser?
+	dynamic var title: String?
+	var viewController: UserProfileViewController?
+
+	enum DisplayMode {
+		case authoredTweets
+		case mentions		
+		case sendSeamail		
+	}
+	dynamic var displayMode: DisplayMode
+	
+	init(user: KrakenUser?, mode: DisplayMode, vc: UserProfileViewController) {
+		displayMode = mode
+		userModel = user
+		viewController = vc
+		super.init(bindingWith: UserProfileDisclosureCellProtocol.self)
+
+		if let user = userModel {
+			switch displayMode {
+			case .authoredTweets:
+					user.tell(self, when: "numberOfTweets") { observer, observed in
+						observer.title = String("\(observed.numberOfTweets) Tweets")
+					}?.schedule()
+			case .mentions:
+					user.tell(self, when: "numberOfMentions") { observer, observed in
+						observer.title = String("\(observed.numberOfMentions) Mentions")
+					}?.schedule()
+			case .sendSeamail:
+					title = "Send Seamail to \(user.username)"
+			}
+		}
+	}
+	
+	override func cellTapped() {
+		switch displayMode {
+		case .authoredTweets: viewController?.pushUserTweetsView()
+		case .mentions: viewController?.pushUserMentionsView()
+		case .sendSeamail: viewController?.pushSendSeamailView()
+		}
+	}
+}
+
+class UserProfileDisclosureCell: BaseCollectionViewCell, UserProfileDisclosureCellProtocol {
+	@IBOutlet var titleLabel: UILabel!
+	var title: String? {
+		didSet { titleLabel.text = title }
+	}
+}
+
+@objc protocol UserProfileCommentCellProtocol {
+	dynamic var comment: String? { get set }
+}
+
+@objc class UserProfileCommentCellModel: BaseCellModel, UserProfileCommentCellProtocol {
+	private static let validReuseIDs = [ "UserProfileCommentCell" : NibAndClass(UserProfileCommentCell.self, nil)]
+	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+
+	var userModel: KrakenUser?
+	dynamic var comment: String?
+	
+	init(user: KrakenUser?) {
+		userModel = user
+		super.init(bindingWith: UserProfileCommentCellProtocol.self)
+
+//		clearObservations()
+//		if let model = userModel as? CellModel, let userModel = model.userModel, let currentUser = CurrentUser.shared.loggedInUser {
+//			if let commentAndStar = currentUser.commentsAndStars?.first(where: { $0.commentedOnUser.username == userModel.username } ) {
+//				commentView.text = commentAndStar.comment
+//			}
+//		}
+	}
+	
+}
+
+
+class UserProfileCommentCell: BaseCollectionViewCell, UserProfileCommentCellProtocol {
+	@IBOutlet var commentView: UITextView!
+	@IBOutlet var saveButton: UIButton!
+	dynamic var comment: String?
+	
 	@IBAction func saveButtonTapped() {
-		if let model = cellModel as? CellModel, let userModel = model.userModel {
+		if let model = cellModel as? UserProfileCommentCellModel, let userModel = model.userModel {
 			CurrentUser.shared.setUserComment(commentView.text, forUser: userModel)
 		}
 	}

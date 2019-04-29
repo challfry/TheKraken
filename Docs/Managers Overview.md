@@ -16,7 +16,9 @@ LOGOUT! Need to figure out what data is user-specific, so we can uncache it at l
 	- Forums may need to reap info about new post counts/last viewed times.
 	- 
 
-Anyway. Dict of users, indexed by username.
+Anyway. Dict of users, indexed by username. Core Data stores all users as LoggedInUser, a subclass of KrakenUser. However,
+we only create LoggedInUser objects for the actual logged-in user (for everyone else we create KrakenUser). This way,
+the private data for a different logged-in user is inaccessible, even though CoreData is storing it.
 
 ## Event Manager
 

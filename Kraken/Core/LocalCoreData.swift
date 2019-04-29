@@ -42,7 +42,17 @@ class LocalCoreData: NSObject {
 		})
 		return container
 	}()
-
+	
+	// This returns the single MOC for use by the UI in the main thread.
+	lazy var mainThreadContext: NSManagedObjectContext = {
+		return persistentContainer.viewContext
+	}()
+	
+	// This creates a single MOC for use by network JSON parsers.
+	lazy var networkOperationContext: NSManagedObjectContext = {
+		return persistentContainer.newBackgroundContext()
+	}()
+	
 	func saveContext () {
 		let context = persistentContainer.viewContext
 		if context.hasChanges {

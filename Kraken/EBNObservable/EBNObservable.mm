@@ -78,9 +78,7 @@ template<typename T> inline BOOL EBNComparePropertyEquality(NSString *propName,
 
 	// Keeping track of delayed blocks
 NSMutableSet					*EBN_ObserverBlocksToRunAfterThisEvent;
-NSMutableSet					*EBN_ObserverBlocksBeingDrained;
 NSMutableArray					*EBN_ObservedObjectKeepAlive;
-NSMutableArray 					*EBN_ObservedObjectBeingDrainedKeepAlive;
 
 	// Shadow classes--private subclasses that we create to implement overriding setter methods
 	// This dictionary holds EBNShadowedClassInfo objects, and is keyed with Class objects
@@ -2439,67 +2437,56 @@ template<typename T> void overrideSetterMethod(NSString *propName,
 	
 	Calls all the observer blocks that got scheduled during the current runloop.
 */
+static int consecutiveLoopsWithBlocksToRun = 0;
 void EBN_RunLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info)
 {
-	// Make a copy the list of blocks we need to call. This copy goes into a global that is only
-	// mutated by the main thread. So, after this sync, all other threads that mutate observed
-	// properties are adding blocks to EBN_ObserverBlocksToRunAfterThisEvent, which will schedule
-	// the block for the next time this method is called. Blocks scheduled by the main thread (which
-	// functionally means blocks scheduled due to code in other blocks) will be added to the BeingDrained set.
+	// Make a copy the list of blocks we need to call. After this sync, all observer blocks get added to 
+	// EBN_ObserverBlocksToRunAfterThisEvent, which will schedule the block for the next time this method is called. 
+	NSMutableSet *blocksBeingDrained;
+	NSMutableArray *objectsToKeepAlive;
 	@synchronized(EBNObservableSynchronizationToken)
 	{
 		if (![EBN_ObserverBlocksToRunAfterThisEvent count])
+		{
+			consecutiveLoopsWithBlocksToRun = 0;
 			return;
+		}
+		consecutiveLoopsWithBlocksToRun++;
+		if (consecutiveLoopsWithBlocksToRun > 10)
+		{
+			// This can happen when an observation modifies a value that causes itself to get scheduled--
+			// the observation will then get triggered on every run loop until the app quits.
+			EBLogStdOut(@"%d runLoops in a row with observer blocks to run! This probably indicates a live-lock.", 
+					consecutiveLoopsWithBlocksToRun);
+		}
 
-		EBN_ObserverBlocksBeingDrained = [EBN_ObserverBlocksToRunAfterThisEvent mutableCopy];
+		blocksBeingDrained = [EBN_ObserverBlocksToRunAfterThisEvent mutableCopy];
 		[EBN_ObserverBlocksToRunAfterThisEvent removeAllObjects];
-		EBN_ObservedObjectBeingDrainedKeepAlive = EBN_ObservedObjectKeepAlive;
+		objectsToKeepAlive = EBN_ObservedObjectKeepAlive;
 		EBN_ObservedObjectKeepAlive = [[NSMutableArray alloc] init];
 	}
-	
-	// Observers could set properties, creating more observation blocks. We should call those
-	// observers too, unless it will cause recursion. The idea is the masterCallList tracks
-	// every block we've called during this event, and we only call any particular block once.
-	NSMutableSet *masterCallList = [NSMutableSet set];
 	
 	// If we find any blocks whose observer objects have been dealloc'ed, we will want to call reapBlocks on
 	// those observed objects, but we only need to call reap once per object.
 	NSMutableSet *objectsToReap = nil;
 	
-	while (EBN_ObserverBlocksBeingDrained)
+	// Call each observation block
+	for (EBNObservation *blockInfo in blocksBeingDrained)
 	{
-		// Step 1: Copy the list of objects that have blocks that need to be called
-		NSMutableSet *thisIterationCallList = [EBN_ObserverBlocksBeingDrained mutableCopy];
-		
-		// Step 2: Add the blocks we're going go call to the master list
-		[masterCallList unionSet:thisIterationCallList];
-
-		// Step 3: Call each observation block
-		for (EBNObservation *blockInfo in thisIterationCallList)
+		if (![blockInfo execute])
 		{
-			if (![blockInfo execute])
-			{
-				// We are holding the observed object in the keepAlive array; _weakObserved should be non-nil
-				if (!objectsToReap)
-					objectsToReap = [NSMutableSet set];
-				[objectsToReap addObject:blockInfo->_weakObserved];
-			}
+			// We are holding the observed object in the keepAlive array; _weakObserved should be non-nil
+			if (!objectsToReap)
+				objectsToReap = [NSMutableSet set];
+			[objectsToReap addObject:blockInfo->_weakObserved];
 		}
-
-		// Step 4: Remove any blocks we've already called from the global set
-		[EBN_ObserverBlocksBeingDrained minusSet:masterCallList];
-		if (![EBN_ObserverBlocksBeingDrained count])
-			EBN_ObserverBlocksBeingDrained = nil;
 	}
 	
-	// Step 5. Reap
+	// Reap
 	for (NSObject *obj in objectsToReap)
 	{
 		[obj ebn_reapBlocks];
-	}
-	
-	// We're done notifying observers, purge the retains we've been keeping
-	EBN_ObservedObjectBeingDrainedKeepAlive = nil;
+	}	
 }
 
 /****************************************************************************************************

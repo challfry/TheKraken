@@ -104,7 +104,7 @@ fileprivate class RecentNetworkCall : NSObject {
 class TwitarrDataManager: NSObject {
 	static let shared = TwitarrDataManager()
 	
-	private let container = LocalCoreData.shared.persistentContainer
+	private let coreData = LocalCoreData.shared
 	var filter: String?
 	var fetchedData: NSFetchedResultsController<TwitarrPost>
 	fileprivate var recentNetworkCalls: [RecentNetworkCall] = []
@@ -125,7 +125,7 @@ class TwitarrDataManager: NSObject {
 		filter = filterString
 		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
-		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: container.viewContext, 
+		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
 				sectionNameKeyPath: nil, cacheName: nil)
 		
 		if let filter = filter {
@@ -230,7 +230,7 @@ class TwitarrDataManager: NSObject {
 	// extendsNewer is true, the oldest tweet in posts is the tweet chronologically after anchor. If anchor is nil, 
 	// we can only assume posts can replace the tweets between startTime and endTime.
 	fileprivate func addPostsToStream(posts: [TwitarrV2Post], anchorTime: Int64, extendsNewer: Bool, morePostsExist: Bool) {
-		let context = container.newBackgroundContext()
+		let context = coreData.networkOperationContext
 		context.perform {
 			do {
 				// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
@@ -250,7 +250,7 @@ class TwitarrDataManager: NSObject {
 				// Get the CD cached posts for the same timeframe as the network call. 			
 				let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
 				let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
-				let request = self.container.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
+				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
 						substitutionVariables: [ "startDate" : startDate, "endDate" : endDate ]) as! NSFetchRequest<TwitarrPost>
 				request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
 		//		let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")

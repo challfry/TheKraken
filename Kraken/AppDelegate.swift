@@ -16,8 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 //		LocalCoreData.shared.fullCoreDataReset()
-		
-		CurrentUser.shared.loginUser(name: "james", password: "james")
 		return true
 	}
 

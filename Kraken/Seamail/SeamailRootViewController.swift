@@ -8,16 +8,29 @@
 
 import UIKit
 
-//class SeamailRootViewController: UITableViewController {
-class SeamailRootViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
-	@IBOutlet weak var collectionView: UICollectionView!
+class SeamailRootViewController: BaseCollectionViewController {
+	let loginDataSource = LoginDataSource()
 	
     override func viewDidLoad() {
         super.viewDidLoad()
-
-  // 	tableView.registerNib(UINib(nibName: "MyCell", bundle: nil), forCellWithReuseIdentifier: "cell")
+		loginDataSource.headerCellText = "In order to see your Seamail, you will need to log in first."
+     	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
+       
+        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+        	if observed.loggedInUser == nil {
+				observer.loginDataSource.register(with: observer.collectionView)
+        	}
+        	else {
+        		observer.collectionView.dataSource = self
+        		observer.collectionView.delegate = self
+        		observer.collectionView.reloadData()
+        	}
+        }?.execute()        
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+		loginDataSource.enableAnimations = true
+	}
 
     /*
     // MARK: - Navigation
@@ -28,16 +41,20 @@ class SeamailRootViewController: UIViewController, UICollectionViewDelegate, UIC
         // Pass the selected object to the new view controller.
     }
     */
-	
+
+}
+
+
+extension SeamailRootViewController: UICollectionViewDataSource, UICollectionViewDelegate,  UICollectionViewDelegateFlowLayout {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+    	return 0
+    }
+
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return 1
-	}
-	    
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "login3", for: indexPath)
-		return cell
+		return 0
 	}
 	
-
-
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		return UICollectionViewCell()
+	}
 }
