@@ -44,15 +44,15 @@ class UserProfileViewController: BaseCollectionViewController {
     func setupCellModels() {
 
     	let section = dataSource.appendSection(named: "UserProfile")
-    	section.append(UserProfileAvatarCellModel(user: modelKrakenUser))
+    	section.append(ProfileAvatarCellModel(user: modelKrakenUser))
 		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email))
 		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation))
 		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .roomNumber))
 		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation))
-		section.append(UserProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self))
-		section.append(UserProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self))
-		section.append(UserProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self))		
-		section.append(UserProfileCommentCellModel(user: modelKrakenUser))
+		section.append(ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self))
+		section.append(ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self))
+		section.append(ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self))		
+		section.append(ProfileCommentCellModel(user: modelKrakenUser))
     }
 
     
@@ -85,27 +85,30 @@ class UserProfileViewController: BaseCollectionViewController {
 
 }
 
-@objc protocol UserProfileAvatarCellProtocol {
+@objc protocol ProfileAvatarCellProtocol {
 	var userModel: KrakenUser? { get set }
 }
 
-@objc class UserProfileAvatarCellModel: BaseCellModel, UserProfileAvatarCellProtocol {
-	private static let validReuseIDs = [ "UserProfileAvatarLeft" : NibAndClass(UserProfileAvatarCell.self, nil)]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+@objc class ProfileAvatarCellModel: BaseCellModel, ProfileAvatarCellProtocol {
+	private static let validReuseIDs = [ "ProfileAvatarLeft" : ProfileAvatarCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	var userModel: KrakenUser?
 	
 	init(user: KrakenUser?) {
-		super.init(bindingWith: UserProfileAvatarCellProtocol.self)
+		super.init(bindingWith: ProfileAvatarCellProtocol.self)
 		userModel = user
 	}
 }
 
-@objc class UserProfileAvatarCell: BaseCollectionViewCell, UserProfileAvatarCellProtocol {
+@objc class ProfileAvatarCell: BaseCollectionViewCell, ProfileAvatarCellProtocol {
 	@IBOutlet var userNameLabel: UILabel!
 	@IBOutlet var realNameLabel: UILabel!
 	@IBOutlet var pronounsLabel: UILabel!
 	@IBOutlet var userAvatar: UIImageView!
+
+	private static let cellInfo = [ "ProfileAvatarLeft" : PrototypeCellInfo("ProfileAvatarLeftCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	dynamic var userModel: KrakenUser? {
 		didSet {
@@ -133,16 +136,10 @@ class UserProfileViewController: BaseCollectionViewController {
 	}
 }
 
-@objc protocol UserProfileSingleValueCellProtocol {
-	var title: String? { get set }
-	var value: String? { get set }
-}
+@objc class UserProfileSingleValueCellModel: BaseCellModel, SingleValueCellProtocol {
+	private static let validReuseIDs = [ "SingleValue" : SingleValueCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
-@objc class UserProfileSingleValueCellModel: BaseCellModel, UserProfileSingleValueCellProtocol {
-	private static let validReuseIDs = [ "UserProfileSingleValue" : NibAndClass(UserProfileSingleValueCell.self,  nil)]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
-
-	typealias Cell = UserProfileSingleValueCell
 	var userModel: KrakenUser?
 	dynamic var title: String?
 	dynamic var value: String?
@@ -159,7 +156,7 @@ class UserProfileViewController: BaseCollectionViewController {
 		displayMode = mode
 		userModel = user
 		title = displayMode.rawValue
-		super.init(bindingWith: UserProfileSingleValueCellProtocol.self)
+		super.init(bindingWith: SingleValueCellProtocol.self)
 
 		if let user = userModel {
 			switch displayMode {
@@ -186,30 +183,15 @@ class UserProfileViewController: BaseCollectionViewController {
 			}
 		}
 	}
-	
-	
 }
 
-class UserProfileSingleValueCell: BaseCollectionViewCell, UserProfileSingleValueCellProtocol {
-	@IBOutlet var titleLabel: UILabel!
-	@IBOutlet var valueLabel: UILabel!
-
-	var title: String? {
-		didSet { titleLabel.text = title }
-	}
-	var value: String? {
-		didSet { valueLabel.text = value }
-	}
-}
-
-
-@objc protocol UserProfileDisclosureCellProtocol {
+@objc protocol DisclosureCellProtocol {
 	dynamic var title: String? { get set }
 }
 
-@objc class UserProfileDisclosureCellModel: BaseCellModel, UserProfileDisclosureCellProtocol {
-	private static let validReuseIDs = [ "UserProfileDisclosureCell" : NibAndClass(UserProfileDisclosureCell.self, nil)]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+@objc class ProfileDisclosureCellModel: BaseCellModel, DisclosureCellProtocol {
+	private static let validReuseIDs = [ "ProfileDisclosure" : ProfileDisclosureCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	var userModel: KrakenUser?
 	dynamic var title: String?
@@ -226,7 +208,7 @@ class UserProfileSingleValueCell: BaseCollectionViewCell, UserProfileSingleValue
 		displayMode = mode
 		userModel = user
 		viewController = vc
-		super.init(bindingWith: UserProfileDisclosureCellProtocol.self)
+		super.init(bindingWith: DisclosureCellProtocol.self)
 
 		if let user = userModel {
 			switch displayMode {
@@ -253,27 +235,30 @@ class UserProfileSingleValueCell: BaseCollectionViewCell, UserProfileSingleValue
 	}
 }
 
-class UserProfileDisclosureCell: BaseCollectionViewCell, UserProfileDisclosureCellProtocol {
+class ProfileDisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 	@IBOutlet var titleLabel: UILabel!
+	private static let cellInfo = [ "ProfileDisclosure" : PrototypeCellInfo("ProfileDisclosureCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+
 	var title: String? {
 		didSet { titleLabel.text = title }
 	}
 }
 
-@objc protocol UserProfileCommentCellProtocol {
+@objc protocol ProfileCommentCellProtocol {
 	dynamic var comment: String? { get set }
 }
 
-@objc class UserProfileCommentCellModel: BaseCellModel, UserProfileCommentCellProtocol {
-	private static let validReuseIDs = [ "UserProfileCommentCell" : NibAndClass(UserProfileCommentCell.self, nil)]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+@objc class ProfileCommentCellModel: BaseCellModel, ProfileCommentCellProtocol {
+	private static let validReuseIDs = [ "ProfileComment" : ProfileCommentCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	var userModel: KrakenUser?
 	dynamic var comment: String?
 	
 	init(user: KrakenUser?) {
 		userModel = user
-		super.init(bindingWith: UserProfileCommentCellProtocol.self)
+		super.init(bindingWith: ProfileCommentCellProtocol.self)
 
 //		clearObservations()
 //		if let model = userModel as? CellModel, let userModel = model.userModel, let currentUser = CurrentUser.shared.loggedInUser {
@@ -286,14 +271,17 @@ class UserProfileDisclosureCell: BaseCollectionViewCell, UserProfileDisclosureCe
 }
 
 
-class UserProfileCommentCell: BaseCollectionViewCell, UserProfileCommentCellProtocol {
+class ProfileCommentCell: BaseCollectionViewCell, ProfileCommentCellProtocol {
 	@IBOutlet var commentView: UITextView!
 	@IBOutlet var saveButton: UIButton!
-	dynamic var comment: String?
+	private static let cellInfo = [ "ProfileComment"  : PrototypeCellInfo("ProfileCommentCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
+	dynamic var comment: String?
+
 	@IBAction func saveButtonTapped() {
-		if let model = cellModel as? UserProfileCommentCellModel, let userModel = model.userModel {
-			CurrentUser.shared.setUserComment(commentView.text, forUser: userModel)
+		if let model = cellModel as? ProfileCommentCellModel, let userModel = model.userModel {
+			CurrentUser.shared.setUserComment(commentView.text, forUser: userModel) {}
 		}
 	}
 }

@@ -75,10 +75,10 @@ import CoreData
 	var userRole: UserRole = .loggedOut
 	
 	// The last error we got from the server. Cleared when we start a new call.
-	@objc dynamic var lastError : Error?
-	struct CurrentUserError: Error {
-		let httpStatus: Int
-		let errorString: String
+	@objc dynamic var lastError : ServerError?
+		
+	func clearErrors() {
+		lastError = nil
 	}
 
 	func isLoggedIn() -> Bool {
@@ -91,6 +91,7 @@ import CoreData
 			return
 		}
 		isChangingLoginState = true
+		clearErrors()
 		
 		// Build our auth call's POST data -- Docs say to do it this way for POST, but no.
 		// For POST, you make a HTTP Body request that contains key=value&key=value syntax, like URL params.
@@ -106,8 +107,12 @@ import CoreData
 		request.httpMethod = "POST"
 		request.httpBody = authQuery
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if !self.handledNetworkError(data: data, response: response),
-					let data = data {
+			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				// Login failed.
+				self.lastError = error
+				self.isChangingLoginState = false
+			}
+			else if let data = data {
 				let decoder = JSONDecoder()
 				if let authResponse = try? decoder.decode(TwitarrV2AuthResponse.self, from: data) {
 					if authResponse.status == "ok" {
@@ -115,8 +120,8 @@ import CoreData
 					}
 					else
 					{
-						self.lastError = CurrentUserError(httpStatus: 200, 
-								errorString: "Unknown error")
+						self.lastError = ServerError("Unknown error")
+						self.isChangingLoginState = false
 					}
 				}
 			} 
@@ -140,10 +145,12 @@ import CoreData
 		let queryParams = [ URLQueryItem(name:"key", value:key) ]
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if !self.handledNetworkError(data: data, response: response),
-					let data = data {
+			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				self.lastError = error
+			}
+			else {
 				let decoder = JSONDecoder()
-				if let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
+				if let data = data,  let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
 					
 					// Adds the user to the cache if it doesn't exist.
 					let krakenUser = UserManager.shared.updateAccount(from: profileResponse)
@@ -153,14 +160,16 @@ import CoreData
 						self.loggedInUser = krakenUser
 						self.lastLogin = profileResponse.userAccount.lastLogin
 						self.twitarrV2AuthKey = keyUsedForLogin
-						
 						self.userRole = UserRole(rawValue: profileResponse.userAccount.role) ?? .user
-						self.isChangingLoginState = false
 					}
 				}
+				else {
+					self.lastError = ServerError("Received a response from the server, but couldn't parse it.")
+				}
 			}
-			else if keyToUseDuringLogin != nil {
-				// Login failed.
+			
+			// Success or failure, we are no longer trying to log in (if we had been).
+			if keyToUseDuringLogin != nil {
 				self.isChangingLoginState = false
 			}
 		}
@@ -172,11 +181,12 @@ import CoreData
 			return
 		}
 		isChangingLoginState = true
+		clearErrors()
 		
 		// We send a logout request, but don't care about its result
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/logout")
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			self.handledNetworkError(data: data, response: response) 
+			let _ = NetworkGovernor.shared.parseServerError(data: data, response: response)
 		}
 		
 		// Throw away all login info
@@ -184,71 +194,250 @@ import CoreData
 		self.lastLogin = 0
 		self.twitarrV2AuthKey = nil
 		self.userRole = .loggedOut
+		let cookiesToDelete = HTTPCookieStorage.shared.cookies?.filter { $0.name == "_twitarr_session" }
+		for cookie in cookiesToDelete ?? [] {
+			HTTPCookieStorage.shared.deleteCookie(cookie)
+		}
 		
 		// Todo: Tell Seamail and Forums to reap for logout
 		
 		isChangingLoginState = false
 	}
 	
-	func createUser(name: String, password: String, displayName: String?, regCode: String) {
-		
-	}
-	
-	func setUserComment(_ comment: String, forUser: KrakenUser) {
-		if let currentUser = loggedInUser {
-			
+	func createNewAccount(name: String, password: String, displayName: String?, regCode: String) {
+		guard !isChangingLoginState, !isLoggedIn() else {
+			return
 		}
-	}
-	
-	// Returns TRUE if a network error occurred.
-	@discardableResult private func handledNetworkError(data: Data?, response: URLResponse?) -> Bool {
-		var result = true
-		if let response = response as? HTTPURLResponse {
-			if response.statusCode >= 300 {
-				self.lastError = nil
-				if let data = data {
-					print (String(decoding:data, as: UTF8.self))
-					let decoder = JSONDecoder()
-					if let errorInfo = try? decoder.decode(TwitarrV2ErrorResponse.self, from: data) {
-						
-						// todo: add support for errors (the multiple error array)
-					
-						self.lastError = CurrentUserError(httpStatus: response.statusCode, 
-								errorString: errorInfo.error ?? "Unknown error")
-					}
-				}
+		isChangingLoginState = true
+		clearErrors()
+		
+		let authStruct = TwitarrV2CreateAccountRequest(username: name, password: password, displayName: displayName, regCode: regCode)
+		let encoder = JSONEncoder()
+		let authData = try! encoder.encode(authStruct)
+		print (String(decoding:authData, as: UTF8.self))
 				
-				if self.lastError == nil {
-					self.lastError = CurrentUserError(httpStatus: response.statusCode, 
-							errorString: "HTTP error \(response.statusCode).")
-				}
+		// Call /api/v2/user/new, and then call whoami
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/new", query: nil)
+		request.httpMethod = "POST"
+		request.httpBody = authData
+		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				// CreateUserAccount failed.
+				self.lastError = error
+				self.isChangingLoginState = false
 			}
 			else {
-				result = false
-			}
+				let decoder = JSONDecoder()
+				if let data = data, let authResponse = try? decoder.decode(TwitarrV2CreateAccountResponse.self, from: data),
+						authResponse.status == "ok" {
+					self.loadProfileInfo(keyToUseDuringLogin: authResponse.key)
+				}
+				else
+				{
+					self.lastError = ServerError("Unknown error")
+					self.isChangingLoginState = false
+				}
+			} 
 		}
-		
-		return result
 	}
 	
+	// Must be logged in to change password; resetPassword works while logged but requres reg code.
+	func changeUserPassword(currentPassword: String, newPassword: String, done: @escaping () -> Void) {
+		guard !isChangingLoginState, let savedCurrentUserName = self.loggedInUser?.username else {
+			return
+		}
+		clearErrors()
+		
+		let changePasswordStruct = TwitarrV2ChangePasswordRequest(currentPassword: currentPassword, newPassword: newPassword)
+		let encoder = JSONEncoder()
+		let authData = try! encoder.encode(changePasswordStruct)
+				
+		// Call /api/v2/user/change_password
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/change_password", query: nil)
+		request.httpMethod = "POST"
+		request.httpBody = authData
+		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				self.lastError = error
+			}
+			else {
+				let decoder = JSONDecoder()
+				if  let data = data, let response = try? decoder.decode(TwitarrV2ChangePasswordResponse.self, from: data),
+						response.status == "ok" && savedCurrentUserName == self.loggedInUser?.username {
+					self.twitarrV2AuthKey = response.key
+					done()
+				}
+				else
+				{
+					self.lastError = ServerError("Unknown error")
+				}
+			} 
+		}
+	}
+	
+	// ?? Can Reset be used when you're logged in? It doesn't send a new auth key.
+	func resetPassword(name: String, regCode: String, newPassword: String, done: @escaping () -> Void) {
+		guard !isChangingLoginState else {
+			return
+		}
+		clearErrors()
+		
+		let resetPasswordStruct = TwitarrV2ResetPasswordRequest(username: name, regCode: regCode, newPassword: newPassword)
+		let encoder = JSONEncoder()
+		let authData = try! encoder.encode(resetPasswordStruct)
+				
+		// Call /api/v2/user/change_password
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/reset_password", query: nil)
+		request.httpMethod = "POST"
+		request.httpBody = authData
+		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				self.lastError = error
+			}
+			else {
+				let decoder = JSONDecoder()
+				if  let data = data, let response = try? decoder.decode(TwitarrV2ResetPasswordResponse.self, from: data) {
+					if response.status == "ok" {
+						done()
+					}
+					else
+					{
+						self.lastError = ServerError("Unknown error")
+					}
+				}
+			} 
+		}
+	}
+	
+	// This lets the logged in user set a private comment about another user.
+	func setUserComment(_ comment: String, forUser: KrakenUser, done: @escaping () -> Void) {
+		guard isLoggedIn() else { return }
+		clearErrors()
+		
+		let userCommentStruct = TwitarrV2UserCommentRequest(comment: comment)
+		let encoder = JSONEncoder()
+		let requestData = try! encoder.encode(userCommentStruct)
+				
+		// Call /api/v2/user/change_password
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile/\(forUser.username)/personal_comment", query: nil)
+		request.httpMethod = "POST"
+		request.httpBody = requestData
+		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				self.lastError = error
+			}
+			else {
+				let decoder = JSONDecoder()
+				if let data = data, let response = try? decoder.decode(TwitarrV2UserCommentResponse.self, from: data) {
+					if response.status == "ok" {
+						UserManager.shared.updateProfile(for: forUser.objectID, from: response.user)
+						done()
+					}
+					else
+					{
+						self.lastError = ServerError("Unknown error")
+					}
+				}
+			} 
+		}
+	}
+
 }
 
 
-struct TwitarrV2AuthRequestBody: Codable {
-	let username: String
-	let password: String
-}
+// MARK: - Twitarr V2 API Structs
 
 struct TwitarrV2ErrorResponse: Codable {
 	let status: String
-	let error: String?
-	let errors: [String]?
+	let error: String
+}
+
+struct TwitarrV2ErrorsResponse: Codable {
+	let status: String
+	let errors: [String]
+}
+
+struct TwitarrV2ErrorDictionaryResponse: Codable {
+	let status: String
+	let errors: [String : [String]]
+}
+
+// POST /api/v2/user/new 
+struct TwitarrV2CreateAccountRequest: Codable {
+	let username: String
+	let password: String
+	let displayName: String?
+	let regCode: String
+	
+	enum CodingKeys: String, CodingKey {
+		case username = "new_username"
+		case password = "new_password"
+		case displayName = "display_name"
+		case regCode = "registration_code"
+	}
+}
+
+struct TwitarrV2CreateAccountResponse: Codable {
+	let status: String
+	let user: TwitarrV2UserAccount
+	let key: String
+}
+
+
+// /api/v2/user/auth
+struct TwitarrV2AuthRequestBody: Codable {
+	let username: String
+	let password: String
 }
 
 struct TwitarrV2AuthResponse: Codable {
 	let status: String
 	let username: String
 	let key: String
+}
+
+// /api/v2/user/change_password
+struct TwitarrV2ChangePasswordRequest: Codable {
+	let currentPassword: String
+	let newPassword: String
+
+	enum CodingKeys: String, CodingKey {
+		case currentPassword = "current_password"
+		case newPassword = "new_password"
+	}
+}
+
+struct TwitarrV2ChangePasswordResponse: Codable {
+	let status: String
+	let key: String
+}
+
+// /api/v2/user/reset_password
+struct TwitarrV2ResetPasswordRequest: Codable {
+	let username: String
+	let regCode: String
+	let newPassword: String
+
+	enum CodingKeys: String, CodingKey {
+		case username = "username"
+		case regCode = "registration_code"
+		case newPassword = "new_password"
+	}
+}
+
+struct TwitarrV2ResetPasswordResponse: Codable {
+	let status: String
+	let message: String
+}
+
+// /api/v2/user/profile/:username/personal_comment
+struct TwitarrV2UserCommentRequest: Codable {
+	let comment: String
+}
+
+struct TwitarrV2UserCommentResponse: Codable {
+	let status: String
+	let user: TwitarrV2UserProfile
 }
 
 // /api/v2/user/profile
@@ -293,6 +482,4 @@ struct TwitarrV2UserAccount: Codable {
 		case homeLocation = "home_locations"
 		case unnoticedAlerts = "unnoticed_alerts"
 	}
-	
-	
 }

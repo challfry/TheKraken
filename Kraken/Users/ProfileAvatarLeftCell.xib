@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ProfileAvatarLeft" id="Yzs-vX-MlD" customClass="ProfileAvatarCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fnD-RF-C9Q">
+                        <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="200" id="JzQ-d4-Ffd"/>
+                            <constraint firstAttribute="width" constant="200" id="SY2-Of-km4"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XEF-md-vqj">
+                        <rect key="frame" x="216" y="12" width="159" height="21"/>
+                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Real Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c3W-fd-6JF">
+                        <rect key="frame" x="216" y="39" width="159" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Pronouns" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dJr-zb-XnC">
+                        <rect key="frame" x="216" y="66" width="159" height="21"/>
+                        <fontDescription key="fontDescription" type="italicSystem" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="c3W-fd-6JF" secondAttribute="trailing" id="6Gd-gg-ih5"/>
+                <constraint firstItem="fnD-RF-C9Q" firstAttribute="top" secondItem="Yzs-vX-MlD" secondAttribute="top" id="Gov-bT-sXt"/>
+                <constraint firstItem="XEF-md-vqj" firstAttribute="top" secondItem="fnD-RF-C9Q" secondAttribute="top" constant="12" id="Ig1-7e-MIa"/>
+                <constraint firstItem="c3W-fd-6JF" firstAttribute="leading" secondItem="XEF-md-vqj" secondAttribute="leading" id="MbP-j8-P6X"/>
+                <constraint firstAttribute="trailing" secondItem="XEF-md-vqj" secondAttribute="trailing" id="Nt9-EY-qCS"/>
+                <constraint firstItem="dJr-zb-XnC" firstAttribute="leading" secondItem="XEF-md-vqj" secondAttribute="leading" id="QKV-xM-eex"/>
+                <constraint firstAttribute="bottom" secondItem="fnD-RF-C9Q" secondAttribute="bottom" id="Qmk-Sl-vMF"/>
+                <constraint firstItem="c3W-fd-6JF" firstAttribute="top" secondItem="XEF-md-vqj" secondAttribute="bottom" constant="6" id="Tzx-cC-dtX"/>
+                <constraint firstItem="fnD-RF-C9Q" firstAttribute="leading" secondItem="Yzs-vX-MlD" secondAttribute="leading" id="gxR-GV-om0"/>
+                <constraint firstAttribute="trailing" secondItem="dJr-zb-XnC" secondAttribute="trailing" id="kK4-mS-jr8"/>
+                <constraint firstItem="dJr-zb-XnC" firstAttribute="top" secondItem="c3W-fd-6JF" secondAttribute="bottom" constant="6" id="pJG-Ed-YBE"/>
+                <constraint firstItem="XEF-md-vqj" firstAttribute="leading" secondItem="fnD-RF-C9Q" secondAttribute="trailing" constant="16" id="zlE-gt-lXH"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="o3G-oj-XTu"/>
+            <size key="customSize" width="375" height="200"/>
+            <connections>
+                <outlet property="pronounsLabel" destination="dJr-zb-XnC" id="8BL-K0-kg9"/>
+                <outlet property="realNameLabel" destination="c3W-fd-6JF" id="sh0-aE-5yO"/>
+                <outlet property="userAvatar" destination="fnD-RF-C9Q" id="nnI-Z1-hOg"/>
+                <outlet property="userNameLabel" destination="XEF-md-vqj" id="t4H-TI-GOe"/>
+            </connections>
+        </collectionViewCell>
+    </objects>
+</document>

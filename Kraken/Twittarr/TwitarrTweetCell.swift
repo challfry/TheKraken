@@ -15,6 +15,17 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 	@IBOutlet var userButton: UIButton!
 	
 	var viewController: TwitarrViewController?
+	
+	private static let cellInfo = [ "tweet" : PrototypeCellInfo("TwitarrTweetCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return TwitarrTweetCell.cellInfo }
+	
+	private static var prototypeCell: TwitarrTweetCell =
+		UINib(nibName: "TwitarrTweetCell", bundle: nil).instantiate(withOwner: nil, options: nil)[0] as! TwitarrTweetCell
+
+	static func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> TwitarrTweetCell? {
+		let cell = TwitarrTweetCell.prototypeCell
+		return cell
+	}
 
     var tweetModel: TwitarrPost? {
     	didSet {
@@ -25,8 +36,11 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 				let fixedWidth = tweetTextView.frame.size.width
 				let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
 				tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-	    		
 			}
+			else {
+				tweetTextView.attributedText = nil
+			}
+			
     		if let user = tweetModel?.author {
 	    		user.loadUserThumbnail()
 	    		user.tell(self, when:"thumbPhoto") { observer, observed in

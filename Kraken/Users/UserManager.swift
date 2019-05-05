@@ -154,7 +154,10 @@ class UserManager : NSObject {
 	
 	func updateProfile(for objectID: NSManagedObjectID?, from response: TwitarrV2UserProfileResponse) {
 		guard response.status == "ok" else { return }
+		updateProfile(for: objectID, from: response.user)
+	}
 
+	func updateProfile(for objectID: NSManagedObjectID?, from profile: TwitarrV2UserProfile) {
 		let context = coreData.networkOperationContext
 		context.perform {
 			do {
@@ -165,17 +168,17 @@ class UserManager : NSObject {
 				}
 				else {
 					let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
-								substitutionVariables: [ "username" : response.user.username ]) as! NSFetchRequest<KrakenUser>
+								substitutionVariables: [ "username" : profile.username ]) as! NSFetchRequest<KrakenUser>
 					let results = try request.execute()
 					krakenUser = results.first
 				}
 				if let krakenUser = krakenUser {
-					krakenUser.buildFromV2UserProfile(context: context, v2Object: response.user)
+					krakenUser.buildFromV2UserProfile(context: context, v2Object: profile)
 					try context.save()
 				}
+				// rcf Shouldn't we create a KrakenUser if none was found?
 			}
-			catch
-			{
+			catch {
 				print (error)
 			}
 		}

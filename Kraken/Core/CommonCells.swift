@@ -16,8 +16,8 @@ import UIKit
 }
 
 @objc class LabelCellModel: BaseCellModel, LabelCellProtocol {	
-	private static let validReuseIDs = [ "LabelCell" : NibAndClass(LabelCell.self, "LabelCell")]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+	private static let validReuseIDs = [ "LabelCell" : LabelCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	dynamic var labelText: NSAttributedString?
 	
@@ -29,6 +29,8 @@ import UIKit
 
 class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
 	@IBOutlet var label: UILabel!
+	private static let cellInfo = [ "LabelCell" : PrototypeCellInfo("LabelCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
 	var labelText: NSAttributedString? {
 		didSet { label.attributedText = labelText }
@@ -36,32 +38,71 @@ class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
 }
 
 
+// MARK: Cell with two labels, a bold title and a normal value.
+@objc protocol SingleValueCellProtocol {
+	var title: String? { get set }
+	var value: String? { get set }
+}
+
+class SingleValueCell: BaseCollectionViewCell, SingleValueCellProtocol {
+	@IBOutlet var titleLabel: UILabel!
+	@IBOutlet var valueLabel: UILabel!
+
+	private static let cellInfo = [ "SingleValue" : PrototypeCellInfo("SingleValueCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+
+	var title: String? {
+		didSet { titleLabel.text = title }
+	}
+	var value: String? {
+		didSet { valueLabel.text = value }
+	}
+}
+
 // MARK: Simple text entry cell with a label and a TextField.
 @objc protocol TextFieldCellProtocol {
 	dynamic var labelText: String? { get set }
+	dynamic var errorText: String? { get set }
 	dynamic var isPassword: Bool { get set }
 }
 
 @objc class TextFieldCellModel: BaseCellModel, TextFieldCellProtocol {	
-	private static let validReuseIDs = [ "TextFieldCell" : NibAndClass(TextFieldCell.self, "TextFieldCell")]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+	private static let validReuseIDs = [ "TextFieldCell" : TextFieldCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	dynamic var labelText: String?
+	dynamic var errorText: String?
 	dynamic var isPassword: Bool = false
-	@objc dynamic var editedText: String?
+	@objc dynamic var editedText: String?			// Cell fills this in
 	
-	init(_ titleLabel: String) {
+	init(_ titleLabel: String, isPassword: Bool = false) {
 		labelText = titleLabel
+		self.isPassword = isPassword
 		super.init(bindingWith: TextFieldCellProtocol.self)
+	}
+	
+	func hasText() -> Bool {
+		if let text = editedText {
+			return !text.isEmpty
+		}
+		else {
+			return false
+		}
 	}
 }
 
 class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldDelegate {
 	@IBOutlet var textField: UITextField!
 	@IBOutlet var label: UILabel!
+	@IBOutlet var errorLabel: UILabel!
+	private static let cellInfo = [ "TextFieldCell" : PrototypeCellInfo("TextFieldCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
 	var labelText: String? {
 		didSet { label.text = labelText }
+	}
+	var errorText: String? {
+		didSet { errorLabel.text = errorText }
 	}
 	var isPassword: Bool = false {
 		didSet {
@@ -78,6 +119,20 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 		}
 		return true
 	}
+	
+	func textFieldShouldClear(_ textField: UITextField) -> Bool {
+		if let model = cellModel as? TextFieldCellModel {
+			model.editedText = ""
+		}
+		return true
+	}
+	
+	func textFieldDidEndEditing(_ textField: UITextField) {
+		if let model = cellModel as? TextFieldCellModel {
+			model.editedText = textField.text
+		}
+	}
+
 }
 
 // MARK: Button cell; right-alighed button
@@ -90,8 +145,8 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 }
 
 @objc class ButtonCellModel: BaseCellModel, ButtonCellProtocol {
-	private static let validReuseIDs = [ "ButtonCell" :  NibAndClass(ButtonCell.self, "ButtonCell")]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+	private static let validReuseIDs = [ "ButtonCell" : ButtonCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	dynamic var buttonText: String? {
 		didSet { shouldBeVisible = buttonText != nil }
@@ -114,6 +169,9 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 	@IBOutlet var leftConstraint: NSLayoutConstraint!
 	@IBOutlet var centerXConstraint: NSLayoutConstraint!
 	@IBOutlet var rightConstraint: NSLayoutConstraint!
+
+	private static let cellInfo = [ "ButtonCell" : PrototypeCellInfo("ButtonCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	var buttonText: String? {  didSet { button.setTitle(buttonText, for:.normal) } }
 	var buttonEnabled: Bool = true { didSet { button.isEnabled = buttonEnabled } } 
@@ -140,12 +198,11 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 @objc protocol LoginStatusCellProtocol {
 	dynamic var statusText: String { get set }
 	dynamic var showSpinner: Bool { get set }
-	dynamic var collection: UICollectionView? { get set }
 }
 
 @objc class LoginStatusCellModel: BaseCellModel, LoginStatusCellProtocol {	
-	private static let validReuseIDs = [ "LoginStatusCell" : NibAndClass(LoginStatusCell.self, "LoginStatusCell")]
-	override class var validReuseIDDict: [String: NibAndClass ] { return validReuseIDs }
+	private static let validReuseIDs = [ "LoginStatusCell" : LoginStatusCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	@objc dynamic var statusText: String = ""
 	@objc dynamic var showSpinner: Bool = false
@@ -161,22 +218,22 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 			observer.showSpinner = true
 			observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
 			
-//			if observed.isChangingLoginState || observed.lastError != nil {
-//				observer.shouldBeVisible = true
-//			}
-//			observer.showSpinner = observed.isChangingLoginState
-//			if observed.isChangingLoginState {
-//				observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
-//			}
-//			else {
-//				if let error = observed.lastError as? CurrentUser.CurrentUserError {
-//					observer.statusText = error.errorString
-//	//				observer.statusText = "This is a very long error string, specifically to test out how the cell resizes itself in response to the text in the label changing."
-//				}
-//				else {
-//					observer.statusText = ""
-//				}
-//			}
+			if observed.isChangingLoginState || observed.lastError != nil {
+				observer.shouldBeVisible = true
+			}
+			observer.showSpinner = observed.isChangingLoginState
+			if observed.isChangingLoginState {
+				observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
+			}
+			else {
+				if let error = observed.lastError {
+					observer.statusText = error.getErrorString()
+	//				observer.statusText = "This is a very long error string, specifically to test out how the cell resizes itself in response to the text in the label changing."
+				}
+				else {
+					observer.statusText = ""
+				}
+			}
 		}?.schedule()
 	}
 }
@@ -186,11 +243,15 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 	@IBOutlet var spinner: UIActivityIndicatorView!
 	@objc dynamic var collection: UICollectionView?
 
+	private static let cellInfo = [ "LoginStatusCell" : PrototypeCellInfo("LoginStatusCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+
 	var statusText: String = "" {
 		didSet { 
 			statusLabel.text = statusText; 
 			self.layer.removeAllAnimations()
-			collection?.performBatchUpdates({ }, completion: nil )
+//			collection?.collectionViewLayout.invalidateLayout()
+//			collection?.performBatchUpdates({ }, completion: nil )
 		}
 	}
 	var showSpinner: Bool = false { 

@@ -46,6 +46,11 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="ServerTextFile" representedClassName="ServerTextFile" syncable="YES">
+        <attribute name="fetchDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="fileName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="jsonData" optional="YES" attributeType="Binary" syncable="YES"/>
+    </entity>
     <entity name="TwitarrPost" representedClassName="TwitarrPost" syncable="YES">
         <attribute name="contigWithOlder" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="id" attributeType="String" syncable="YES"/>
@@ -63,6 +68,7 @@
         </uniquenessConstraints>
     </entity>
     <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="username == $username"/>
+    <fetchRequest name="FindServerTextFile" entity="ServerTextFile" predicateString="fileName == $fileName"/>
     <fetchRequest name="FindUsers" entity="KrakenUser" predicateString="username IN $usernames"/>
     <fetchRequest name="PhotosWithIds" entity="PhotoDetails" predicateString="id IN $ids"/>
     <fetchRequest name="PostsInDateRange" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate"/>
@@ -71,5 +77,6 @@
         <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="300"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="180"/>
+        <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
     </elements>
 </model>

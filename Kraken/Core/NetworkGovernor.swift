@@ -9,6 +9,36 @@
 import Foundation
 
 
+@objc class ServerError: NSObject, Error {
+	var httpStatus: Int?
+	var errorString: String?
+	dynamic var fieldErrors: [String: [String]]?
+//	let serverResponded: Bool				// TRUE if the error comes from a Twitarr API (error) response.
+//											// FALSE if the error is a server time-out, or network unreachable or such.
+
+	init(_ error: String) {
+		super.init()
+		errorString = error
+	}
+
+	override init() {
+		super.init()
+	}
+	
+	func getErrorString() -> String {
+		if let errorString = errorString {
+			return errorString
+		}
+		else if let generalErrors = fieldErrors?["general"] {
+			let errorString = generalErrors[0]
+			return errorString
+		}
+		else {
+			return "Unknown Error"
+		}
+	}
+}
+
 
 // All networking calls the app makes should funnel through here. This is so we can do global traffic
 // management, analysis, and logging. 
@@ -74,6 +104,51 @@ class NetworkGovernor: NSObject {
 		
 			print ("Started network request to \(request.url?.absoluteString ?? "<unknown>")")
 		}
+	}
+	
+	// 
+	@discardableResult func parseServerError(data: Data?, response: URLResponse?) -> ServerError? {
+		if let response = response as? HTTPURLResponse {
+			if response.statusCode >= 300 {
+				let resultError = ServerError()
+				resultError.httpStatus = response.statusCode
+				
+				if let data = data {
+					print (String(decoding:data, as: UTF8.self))
+					let decoder = JSONDecoder()
+	
+					// Single "error" = "message" in error response
+					if let errorInfo = try? decoder.decode(TwitarrV2ErrorResponse.self, from: data) {
+						resultError.errorString = errorInfo.error
+					}
+					else if let errorInfo = try? decoder.decode(TwitarrV2ErrorsResponse.self, from: data) {
+						var errorString = ""
+						for multiError in errorInfo.errors {
+							errorString.append(multiError + "\n")
+						}
+						resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
+					}
+					else if let errorInfo = try? decoder.decode(TwitarrV2ErrorDictionaryResponse.self, from: data) {
+					
+						resultError.fieldErrors = errorInfo.errors
+						
+						// Any errors in the "general" category get set in errorString
+						if let generalErrors = errorInfo.errors["general"] {
+							let errorString = generalErrors.reduce("") { $0 + $1 + "\n" }
+							resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
+						}
+					}
+				}
+				else {
+					// No body data in response -- make a generic error string
+					resultError.errorString = "HTTP Error \(response.statusCode)"
+				}
+			
+				return resultError
+			}
+		}
+		
+		return nil
 	}
 	
 }

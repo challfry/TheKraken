@@ -24,7 +24,9 @@ import UIKit
 	init(_ dataSource: FilteringDataSource) {
 		self.dataSource = dataSource
 		super.init()
-		allCellModels.tell(self, when: "*.shouldBeVisible") { observer, observed in
+		
+		// Watch for visibility OR height updates in cells; tell DS to go runupdates.
+		allCellModels.tell(self, when: ["*.shouldBeVisible", "*.cellHeight"]) { observer, observed in
 			let cells = observer.allCellModels as! [BaseCellModel]
 			let newVisibleCells = cells.compactMap() { model in model.shouldBeVisible ? model : nil }
 			observer.oldVisibleCellModels = observer.visibleCellModels	
@@ -59,10 +61,14 @@ import UIKit
 	
 	weak var collectionView: UICollectionView?
 	weak var tableView: UITableView?
+	weak var viewController: UIViewController? 			// So that cells can segue/present other VCs.
 	var enableAnimations = false			// Generally, set to true in viewDidAppear
+	var registeredCellReuseIDs = Set<String>()
 	
 	override init() {
 		super.init()
+		
+		// Watch for section visibility changes; tell Collection to update
 		allSections.tell(self, when: "*.sectionVisible") { observer, observed in
 			let allSections = observer.allSections as! [FilteringDataSourceSection]
 			let newVisibleSections = allSections.compactMap() { model in model.sectionVisible ? model : nil }
@@ -71,6 +77,7 @@ import UIKit
 			observer.runUpdates()
 		}
 		
+		// Watch for sections that have updates to cell visibility; run updates.
 		self.tell(self, when: ["visibleSections.*.oldVisibleCellModels", "oldVisibleSections"]) { observer, observed in
 			observer.runUpdates()
 		}
@@ -179,6 +186,12 @@ extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDeleg
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let sections = visibleSections as! [FilteringDataSourceSection]
 		let model = sections[indexPath.section].visibleCellModels[indexPath.row]
+		let reuseID = model.reuseID()
+		if !registeredCellReuseIDs.contains(reuseID) {
+			registeredCellReuseIDs.insert(reuseID)
+			let classType = type(of: model).validReuseIDDict[reuseID]
+			classType?.registerCells(with: collectionView)
+		}
 		return model.makeCell(for: collectionView, indexPath: indexPath)
 	}
 	

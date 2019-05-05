@@ -14,6 +14,13 @@ Need pickup mode to retrieve beacons
 ## Local notifications
 Tag events to send local notifications. Basically alarms for event times.
 
+Call /api/v2/alerts once a minute? 
+	- Tweets Tab - badge with # tweet_mentions
+	- Forums Tab - badge with # of forum_mentions
+	- Seamail Tab - badge with # unread_seamail
+	- Events Tab - Maybe badge this?
+	 
+
 ## Better time zone management
 Notify when the device's time doesn't match server time.
 Make it very clear whether times shown are device time or ship time when they don't match!
@@ -49,4 +56,4 @@ Make the app the handler for links, maybe? Universal links require the super-fun
 Custom url schemes are also a possibility.
 
 ## Twitarr, Seamail, Forums improvements
-Rotate phone to fullscreen the topmost photo in a tweet/mail/forum post that's on screen.
+Rotate phone to show in a fullscreen view the topmost photo in a tweet/mail/forum post that's on screen.

@@ -22,14 +22,13 @@ class TwitarrViewController: BaseCollectionViewController {
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
  		collectionView.prefetchDataSource = self
+ 		TwitarrTweetCell.registerCells(with:collectionView)
 
         // Do any additional setup after loading the view.
 		try! self.dataManager.fetchedData.performFetch()
 		startRefresh()
 		
 		title = dataManager.filter ?? "Twitarr"
-		
-		
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -95,6 +94,22 @@ extension TwitarrViewController: UICollectionViewDataSource, UICollectionViewDel
 		return cell
 	}
 
+	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
+			sizeForItemAt indexPath: IndexPath) -> CGSize {
+		let model = dataManager.fetchedData.object(at: indexPath)
+
+//		let sectionInset = collectionViewLayout.sectionInset
+//		let widthToSubtract = sectionInset!.left + sectionInset!.right
+		let requiredWidth = collectionView.bounds.size.width
+	
+		if let protoCell = TwitarrTweetCell.makePrototypeCell(for: collectionView, indexPath: indexPath) {
+			protoCell.tweetModel = model
+			let newSize = protoCell.calculateHeight(for: requiredWidth)
+   			return newSize
+		}
+
+		return CGSize(width:414, height: 50)
+	}
 }
 
 // Have to change this:
