@@ -13,9 +13,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
 	@IBOutlet var userButton: UIButton!
-	
-	var viewController: TwitarrViewController?
-	
+		
 	private static let cellInfo = [ "tweet" : PrototypeCellInfo("TwitarrTweetCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return TwitarrTweetCell.cellInfo }
 	
@@ -24,6 +22,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 
 	static func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> TwitarrTweetCell? {
 		let cell = TwitarrTweetCell.prototypeCell
+		cell.collectionViewSize = collectionView.bounds.size
 		return cell
 	}
 
@@ -68,13 +67,13 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, 
 			interaction: UITextItemInteraction) -> Bool {
  //		UIApplication.shared.open(URL, options: [:])
- 		viewController?.pushSubController(forFilterString: URL.absoluteString)
+ 		viewController?.performSegue(withIdentifier: "TweetFilter", sender: URL.absoluteString)
         return false
     }
     
    	@IBAction func showUserProfile() {
    		if let userName = tweetModel?.author.username {
-			viewController?.pushUserProfileController(forUser: userName)
+   			viewController?.performSegue(withIdentifier: "UserProfile", sender: userName)
 		}
    	}
 		

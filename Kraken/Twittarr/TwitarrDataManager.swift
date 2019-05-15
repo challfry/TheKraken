@@ -125,6 +125,7 @@ class TwitarrDataManager: NSObject {
 		filter = filterString
 		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
+		fetchRequest.fetchBatchSize = 50
 		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
 				sectionNameKeyPath: nil, cacheName: nil)
 		
@@ -308,7 +309,7 @@ class TwitarrDataManager: NSObject {
 	
 }
 
-// The data manager can multiple delegates, all of which are watching the same results set.
+// The data manager can have multiple delegates, all of which are watching the same results set.
 extension TwitarrDataManager : NSFetchedResultsControllerDelegate {
 
 	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
@@ -348,7 +349,7 @@ struct TwitarrV2Post: Codable {
 	let locked: Bool
 	let timestamp: Int64
 	let text: String
-	let reactions: [String: TwitarrV2Reactions ]
+	let reactions: [ String: TwitarrV2Reactions ]
 	let photo: TwitarrV2PhotoDetails?
 	let parentChain: [String]
 

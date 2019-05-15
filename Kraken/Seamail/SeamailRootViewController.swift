@@ -7,55 +7,62 @@
 //
 
 import UIKit
+import CoreData
 
 class SeamailRootViewController: BaseCollectionViewController {
 	let loginDataSource = LoginDataSource()
+	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
+	let dataManager = SeamailDataManager.shared
 	
-    override func viewDidLoad() {
+ 	private var collectionViewUpdateBlocks: [() -> Void] = []
+
+	override func viewDidLoad() {
         super.viewDidLoad()
         loginDataSource.viewController = self
 		loginDataSource.headerCellText = "In order to see your Seamail, you will need to log in first."
-     	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
+		frcDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData, vc: self,
+				setupCell: setupThreadCell, reuseID: "seamailThread")
+  		SeamailThreadCell.registerCells(with:collectionView)
+    	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
        
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
         	if observed.loggedInUser == nil {
 				observer.loginDataSource.register(with: observer.collectionView)
+				observer.dataManager.removeDelegate(observer.frcDataSource)
         	}
         	else {
-        		observer.collectionView.dataSource = self
-        		observer.collectionView.delegate = self
-        		observer.collectionView.reloadData()
-        	}
+       			observer.collectionView.dataSource = observer.frcDataSource
+        		observer.collectionView.delegate = observer.frcDataSource
+  				observer.dataManager.addDelegate(observer.frcDataSource)
+        		observer.dataManager.loadSeamails { 
+					DispatchQueue.main.async { observer.collectionView.reloadData() }
+				}
+       	}
         }?.execute()        
+
+		title = "Seamail"
     }
     
     override func viewDidAppear(_ animated: Bool) {
 		loginDataSource.enableAnimations = true
 	}
+	
+	// Gets called from within collectionView:cellForItemAt:
+	func setupThreadCell(_ cell: UICollectionViewCell, _ modelObject: NSManagedObject) {
+		guard let threadCell = cell as? SeamailThreadCell, let thread = modelObject as? SeamailThread else { return }
+		
+		threadCell.threadModel = thread
+	}
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-}
-
-
-extension SeamailRootViewController: UICollectionViewDataSource, UICollectionViewDelegate,  UICollectionViewDelegateFlowLayout {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-    	return 0
+		if segue.identifier == "UserProfile", let destVC = segue.destination as? UserProfileViewController,
+				let userName = sender as? String {
+			destVC.modelUserName = userName
+		}
     }
 
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return 0
-	}
-	
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		return UICollectionViewCell()
-	}
 }

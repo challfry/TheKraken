@@ -1,5 +1,6 @@
 
 # Seamail
+GET /api/v2/seamail
 GET /api/v2/seamail_threads
 GET /api/v2/seamail/:id_string
 POST /api/v2/seamail

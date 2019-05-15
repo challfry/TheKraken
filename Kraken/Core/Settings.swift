@@ -16,6 +16,11 @@ class Settings: NSObject, Codable {
 		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://127.0.0.1:3000")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
+
+	public var lastSeamailCheckTime: Date {
+		get { return getSetting(name: "lastSeamailCheckTime", defaultValue: Date(timeIntervalSince1970: 0)) }
+		set { setSetting(name: "lastSeamailCheckTime", newValue: newValue) }
+	}
 	
 	private func getSetting<settingType>(name: String, defaultValue:settingType) -> settingType {
 		switch settingType.self {

@@ -37,6 +37,7 @@ import UIKit
 			cell.bind(to:self, with: prot)
 		}
 		cell.cellModel = self
+		cell.collectionViewSize = collectionView.bounds.size
 		return cell
 		
 		
@@ -44,6 +45,8 @@ import UIKit
 //		return  collectionView.dequeueReusableCell(withReuseIdentifier: "none", for: indexPath)
 	}
 	
+	// Makes a prototype cell, binds the cell to the cellModel. By overriding reuseID, subclasses can
+	// have a single model that spawns different cell classes.
 	func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> BaseCollectionViewCell? {
 		let id = reuseID()
 		
@@ -53,6 +56,7 @@ import UIKit
 				cell.bind(to:self, with: prot)
 			}
 			cell.cellModel = self
+			cell.collectionViewSize = collectionView.bounds.size
 			return cell
 		}
 		return nil
@@ -105,29 +109,44 @@ struct PrototypeCellInfo {
 	}
 
 	var cellModel: BaseCellModel? 
+	var viewController: BaseCollectionViewController? // For launching segues
 	var calculatedHeight: CGFloat = 0.0
+	var fullWidthConstraint: NSLayoutConstraint?
+	var fullWidth: Bool = true
 	    
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		contentView.translatesAutoresizingMaskIntoConstraints = false
-		contentView.widthAnchor.constraint(equalToConstant: 414).isActive = true
+	}
+	
+	var collectionViewSize: CGSize = CGSize(width: 0, height: 0) {
+		didSet {
+			guard collectionViewSize.width > 0 else { return }
+			if fullWidth && fullWidthConstraint == nil {
+				fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: collectionViewSize.width)
+			}
+			fullWidthConstraint?.isActive = fullWidth
+		}
 	}
 
-//	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 
-//			-> UICollectionViewLayoutAttributes {
-//		let attrs = super.preferredLayoutAttributesFitting(layoutAttributes)
-//		setNeedsLayout()
-//		layoutIfNeeded()
-//		let size = contentView.systemLayoutSizeFitting(layoutAttributes.size)
-//		var frame = layoutAttributes.frame
-//		frame.size.height = ceil(size.height)
-//		calculatedHeight = frame.size.height
-//		attrs.frame = frame
-////		print(frame)
-//		return attrs
-//	}
+	// Returns a prototype cell that this class can manage. Doesn't set up that cell's data. Subclasses can define
+	// multiple reuseIDs which will load different nibs/layouts.
+	class func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath, reuseID: String) -> BaseCollectionViewCell? {		
+		if let cellInfo = validReuseIDDict[reuseID], let cell = cellInfo.prototypeCell {
+			cell.collectionViewSize = collectionView.bounds.size
+			return cell
+		}
+		return nil
+	}
 	
-	func calculateHeight(for width: CGFloat) -> CGSize {
+	class func makePrototypeCell(reuseID: String) -> BaseCollectionViewCell? {		
+		if let cellInfo = validReuseIDDict[reuseID], let cell = cellInfo.prototypeCell {
+			return cell
+		}
+		return nil
+	}
+	
+	func calculateSize() -> CGSize {
 		setNeedsLayout()
 		layoutIfNeeded()
 		

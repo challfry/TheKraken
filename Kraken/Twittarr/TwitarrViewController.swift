@@ -44,30 +44,15 @@ class TwitarrViewController: BaseCollectionViewController {
 			DispatchQueue.main.async { self.collectionView.refreshControl?.endRefreshing() }
 		}
     }
-    
 
-	// MARK: - Navigation
-
-	var filterForNextVC: String?
-    func pushSubController(forFilterString: String) {
-    	filterForNextVC = forFilterString
-    	self.performSegue(withIdentifier: "TweetFilter", sender: self)
-    }
-    
-    var userNameForUserProfileVC: String?
-    func pushUserProfileController(forUser: String) {
-    	userNameForUserProfileVC = forUser
-    	self.performSegue(withIdentifier: "UserProfile", sender: self)
-    }
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if segue.identifier == "TweetFilter", let destVC = segue.destination as? TwitarrViewController {
-			destVC.dataManager = TwitarrDataManager(filterString: filterForNextVC)
+		if segue.identifier == "TweetFilter", let destVC = segue.destination as? TwitarrViewController,
+				let filterString = sender as? String {
+			destVC.dataManager = TwitarrDataManager(filterString: filterString)
 		}
-		else if segue.identifier == "UserProfile", let destVC = segue.destination as? UserProfileViewController {
-			
-			destVC.modelUserName = userNameForUserProfileVC
+		else if segue.identifier == "UserProfile", let destVC = segue.destination as? UserProfileViewController,
+				let username = sender as? String {
+			destVC.modelUserName = username
 		}
     }
     
@@ -87,6 +72,7 @@ extension TwitarrViewController: UICollectionViewDataSource, UICollectionViewDel
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "tweet", for: indexPath) as! TwitarrTweetCell
 		cell.viewController = self
+		cell.collectionViewSize = collectionView.bounds.size
 
 		let object = self.dataManager.fetchedData.object(at: indexPath) 
 		cell.tweetModel = object
@@ -100,11 +86,11 @@ extension TwitarrViewController: UICollectionViewDataSource, UICollectionViewDel
 
 //		let sectionInset = collectionViewLayout.sectionInset
 //		let widthToSubtract = sectionInset!.left + sectionInset!.right
-		let requiredWidth = collectionView.bounds.size.width
+	//	let requiredWidth = collectionView.bounds.size.width
 	
 		if let protoCell = TwitarrTweetCell.makePrototypeCell(for: collectionView, indexPath: indexPath) {
 			protoCell.tweetModel = model
-			let newSize = protoCell.calculateHeight(for: requiredWidth)
+			let newSize = protoCell.calculateSize()
    			return newSize
 		}
 

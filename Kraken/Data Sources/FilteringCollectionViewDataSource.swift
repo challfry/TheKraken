@@ -206,12 +206,8 @@ extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDeleg
 		let sections = visibleSections as! [FilteringDataSourceSection]
 		let model = sections[indexPath.section].visibleCellModels[indexPath.row]
 
-//		let sectionInset = collectionViewLayout.sectionInset
-//		let widthToSubtract = sectionInset!.left + sectionInset!.right
-		let requiredWidth = collectionView.bounds.size.width
-	
 		if let protoCell = model.makePrototypeCell(for: collectionView, indexPath: indexPath) {
-			let newSize = protoCell.calculateHeight(for: requiredWidth)
+			let newSize = protoCell.calculateSize()
 			model.unbind(cell: protoCell)
    			return newSize
 		}

@@ -32,7 +32,7 @@ import CoreData
 	@objc dynamic weak var fullPhoto: UIImage?
 	
 	// Only follow this link when parsing! This goes to all comments *others* have left, including anyone who logged into this device!
-	@NSManaged private var commentedUpon: [CommentsAndStars]?
+	@NSManaged private var commentedUpon: Set<CommentsAndStars>?
 	
 	func buildFromV2UserInfo(context: NSManagedObjectContext, v2Object: TwitarrV2UserInfo)
 	{
