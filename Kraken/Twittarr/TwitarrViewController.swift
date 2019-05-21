@@ -10,6 +10,7 @@ import UIKit
 import CoreData
 
 class TwitarrViewController: BaseCollectionViewController {
+	@IBOutlet var postButton: UIBarButtonItem!
 
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
 	var dataManager = TwitarrDataManager.shared
@@ -29,7 +30,8 @@ class TwitarrViewController: BaseCollectionViewController {
 		startRefresh()
 		
 		title = dataManager.filter ?? "Twitarr"
-    }
+		setupGestureRecognizer()
+	}
     
     override func viewWillAppear(_ animated: Bool) {
 		dataManager.addDelegate(self)
@@ -56,7 +58,82 @@ class TwitarrViewController: BaseCollectionViewController {
 		}
     }
     
+	var customGR: UILongPressGestureRecognizer?
+	var tappedCell: UICollectionViewCell?
+	
+	var updateScheduled = false
+	func runUpdates() {
+		guard !updateScheduled else { return }
+		updateScheduled = true
+		DispatchQueue.main.async {
+			self.updateScheduled = false
+			self.collectionView.performBatchUpdates({
+				self.collectionViewUpdateBlocks.forEach { $0() }
+				self.collectionViewUpdateBlocks.removeAll(keepingCapacity: false)
+			}, completion: { finished in
+			})
+		}
+	}
 }
+
+extension TwitarrViewController: UIGestureRecognizerDelegate {
+
+	func setupGestureRecognizer() {	
+		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(TwitarrViewController.tweetCellTapped))
+		tapper.minimumPressDuration = 0.1
+		tapper.numberOfTouchesRequired = 1
+		tapper.numberOfTapsRequired = 0
+		tapper.allowableMovement = 10.0
+		tapper.delegate = self
+		tapper.name = "TwitarrViewController Long Press"
+		collectionView.addGestureRecognizer(tapper)
+		customGR = tapper
+	}
+
+	func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+		// need to call super if it's not our recognizer
+		if gestureRecognizer != customGR {
+			return false
+		}
+		let hitPoint = gestureRecognizer.location(in: collectionView)
+		if !collectionView.point(inside:hitPoint, with: nil) {
+			return false
+		}
+		if let _ = collectionView.indexPathForItem(at: hitPoint) {
+			return true
+		}
+		
+		return false
+	}
+
+	@objc func tweetCellTapped(_ sender: UILongPressGestureRecognizer) {
+		if sender.state == .began {
+			if let indexPath = collectionView.indexPathForItem(at: sender.location(in:collectionView)) {
+				tappedCell = collectionView.cellForItem(at: indexPath)
+			}
+			else {
+				tappedCell = nil
+			}
+		}
+		guard let tappedCell = tappedCell else { return }
+		
+		if sender.state == .changed {
+			tappedCell.isHighlighted = tappedCell.point(inside:sender.location(in: tappedCell), with: nil)
+		}
+		else if sender.state == .ended {
+			if tappedCell.isHighlighted {
+				let indexPath = collectionView.indexPath(for: tappedCell)
+				collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
+			}
+		} 
+		
+		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {
+			tappedCell.isHighlighted = false
+		}
+	}
+	
+}
+
    
 // Lumping all of these extensions together since they're indistinguishable from each other
 extension TwitarrViewController: UICollectionViewDataSource, UICollectionViewDelegate,  UICollectionViewDelegateFlowLayout {
@@ -90,6 +167,13 @@ extension TwitarrViewController: UICollectionViewDataSource, UICollectionViewDel
 	
 		if let protoCell = TwitarrTweetCell.makePrototypeCell(for: collectionView, indexPath: indexPath) {
 			protoCell.tweetModel = model
+			if let selection = collectionView.indexPathsForSelectedItems, selection.contains(indexPath) {
+				protoCell.isSelected = true
+			}
+			else {
+				protoCell.isSelected = false
+			}
+
 			let newSize = protoCell.calculateSize()
    			return newSize
 		}
@@ -97,14 +181,6 @@ extension TwitarrViewController: UICollectionViewDataSource, UICollectionViewDel
 		return CGSize(width:414, height: 50)
 	}
 }
-
-// Have to change this:
-//Operations order in PerformBatchUpdates
-//
-//Deletes → Always use original indexes (will be used in descending order)
-//Inserts → Always use final indexes (will be used in ascending order)
-//Moves → From = original index; To = final index
-//Reload → Under the hood, it deletes then inserts. Index = original index. You can't reload an item that is moved.
 
 extension TwitarrViewController: NSFetchedResultsControllerDelegate {
 			
@@ -134,13 +210,8 @@ extension TwitarrViewController: NSFetchedResultsControllerDelegate {
 	}
 
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		collectionView.performBatchUpdates({
-			self.collectionViewUpdateBlocks.forEach { $0() }
-		}, completion: { finished in
-			self.collectionViewUpdateBlocks.removeAll(keepingCapacity: false)
-		})
+		runUpdates()	
 	}
-
 }
 
 extension TwitarrViewController: UICollectionViewDataSourcePrefetching {

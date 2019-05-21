@@ -14,13 +14,11 @@ class SeamailRootViewController: BaseCollectionViewController {
 	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
 	let dataManager = SeamailDataManager.shared
 	
- 	private var collectionViewUpdateBlocks: [() -> Void] = []
-
 	override func viewDidLoad() {
         super.viewDidLoad()
         loginDataSource.viewController = self
 		loginDataSource.headerCellText = "In order to see your Seamail, you will need to log in first."
-		frcDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData, vc: self,
+		frcDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData,
 				setupCell: setupThreadCell, reuseID: "seamailThread")
   		SeamailThreadCell.registerCells(with:collectionView)
     	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
@@ -50,7 +48,7 @@ class SeamailRootViewController: BaseCollectionViewController {
 	// Gets called from within collectionView:cellForItemAt:
 	func setupThreadCell(_ cell: UICollectionViewCell, _ modelObject: NSManagedObject) {
 		guard let threadCell = cell as? SeamailThreadCell, let thread = modelObject as? SeamailThread else { return }
-		
+		threadCell.viewController = self
 		threadCell.threadModel = thread
 	}
 
@@ -62,6 +60,10 @@ class SeamailRootViewController: BaseCollectionViewController {
 		if segue.identifier == "UserProfile", let destVC = segue.destination as? UserProfileViewController,
 				let userName = sender as? String {
 			destVC.modelUserName = userName
+		}
+		else if segue.identifier == "ShowSeamailThread", let destVC = segue.destination as? SeamailThreadViewController,
+				let threadModel = sender as? SeamailThread {
+			destVC.threadModel = threadModel
 		}
     }
 

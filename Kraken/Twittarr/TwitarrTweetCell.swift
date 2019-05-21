@@ -13,6 +13,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
 	@IBOutlet var userButton: UIButton!
+	@IBOutlet var editStack: UIStackView!
+	@IBOutlet var editButton: UIButton!
 		
 	private static let cellInfo = [ "tweet" : PrototypeCellInfo("TwitarrTweetCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return TwitarrTweetCell.cellInfo }
@@ -30,7 +32,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
     	didSet {
     		titleLabel.text = tweetModel?.author.displayName
     		if let text = tweetModel?.text {
-	    		tweetTextView.attributedText = cleanupText(text)
+	    		tweetTextView.attributedText = StringUtilities.cleanupText(text)
 	    		
 				let fixedWidth = tweetTextView.frame.size.width
 				let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
@@ -64,6 +66,37 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
     	}
 	}
 	
+	override var isSelected: Bool {
+		didSet {
+			if  isSelected != editStack.isHidden {
+				return
+			}
+			editStack.isHidden = !isSelected
+			contentView.backgroundColor = isSelected ? UIColor(white: 0.95, alpha: 1.0) : UIColor.white
+			
+			if let vc = viewController as? TwitarrViewController {
+				vc.runUpdates()
+			}
+		}
+	
+	}
+	
+	var highlightAnimation: UIViewPropertyAnimator?
+	override var isHighlighted: Bool {
+		didSet {
+			if let oldAnim = highlightAnimation {
+				oldAnim.stopAnimation(true)
+			}
+			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
+				self.contentView.backgroundColor = self.isHighlighted || self.isSelected ? UIColor(white:0.95, alpha: 1.0) : UIColor.white
+			}
+			anim.isUserInteractionEnabled = true
+			anim.isInterruptible = true
+			anim.startAnimation()
+			highlightAnimation = anim
+		}
+	}	
+	
 	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, 
 			interaction: UITextItemInteraction) -> Bool {
  //		UIApplication.shared.open(URL, options: [:])
@@ -77,63 +110,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 		}
    	}
 		
-    func cleanupText(_ text:String) -> NSAttributedString {
-    	let outputString = NSMutableAttributedString()
-    	let openTag = CharacterSet(charactersIn: "<")
-    	let closeTag = CharacterSet(charactersIn: ">")
-    	let emptySet = CharacterSet(charactersIn: "")
-    	var tagStack = [String]()
-    	
-    	// The jankiest HTML fragment parser I've written this week.
-     	let scanner = Scanner(string: text)
-     	scanner.charactersToBeSkipped = emptySet
-		while !scanner.isAtEnd {
-			if let tempString = scanner.scanUpToCharactersFrom(openTag) {
-				if tagStack.isEmpty {
-					let attrString = NSAttributedString(string: tempString)
-					outputString.append(attrString)
-				}
-				else {
-    				let tagAttrs: [NSAttributedString.Key : Any] = [ .link : tempString ]
-					let attrString = NSAttributedString(string: tempString, attributes: tagAttrs)
-					outputString.append(attrString)
-				}
-			}
-			scanner.scanString("<", into: nil)
-	   		if let tagContents = scanner.scanUpToCharactersFrom(closeTag) {
-	   			let firstSpace = tagContents.firstIndex(of: " ") ?? tagContents.endIndex
-				let tagName = tagContents[..<firstSpace]
-				if tagName.hasPrefix("/") {
-					_ = tagStack.popLast()
-				}
-				else {
-					tagStack.append(String(tagName))
-				}
-			}
-		   	scanner.scanString(">", into: nil)
-	   	}
-    	
-    	return outputString
-    }
-    
-}
-
-extension Scanner {
-  
-  @discardableResult func scanUpToCharactersFrom(_ set: CharacterSet) -> String? {
-    var result: NSString?                                                           
-    return scanUpToCharacters(from: set, into: &result) ? (result as String?) : nil 
-  }
-  
-  func scanUpTo(_ string: String) -> String? {
-    var result: NSString?
-    return self.scanUpTo(string, into: &result) ? (result as String?) : nil
-  }
-  
-  func scanDouble() -> Double? {
-    var double: Double = 0
-    return scanDouble(&double) ? double : nil
-  }
 }
 
 

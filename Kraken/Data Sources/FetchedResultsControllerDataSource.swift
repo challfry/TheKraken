@@ -10,37 +10,46 @@ import UIKit
 import CoreData
 
 class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject, NSFetchedResultsControllerDelegate, 
-		UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSourcePrefetching
+		UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSourcePrefetching,
+		FilteringDataSourceSectionProtocol
 		where FetchedObjectType : NSFetchRequestResult, CellType : BaseCollectionViewCell {
 
-	var vc: BaseCollectionViewController?
 	var frc: NSFetchedResultsController<FetchedObjectType>?
 	var collectionView: UICollectionView?	
-	var setupCell: ((_ cell: UICollectionViewCell, _ fromModel: FetchedObjectType) -> Void)?
+	var setupCell: ((_ cell: CellType, _ fromModel: FetchedObjectType) -> Void)?
+	var overrideReuseID: ((_ usingModel: FetchedObjectType) -> String?)?
 	var reuseID: String?
+	
 	
 	private var collectionViewUpdateBlocks: [() -> Void] = []
 	
-	func setup(collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>, vc: BaseCollectionViewController?,
-			setupCell: ((_ cell: UICollectionViewCell, _ fromModel: FetchedObjectType) -> Void)?, reuseID: String) {
-		self.vc = vc
+	func setup(collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>,
+			setupCell: ((_ cell: CellType, _ fromModel: FetchedObjectType) -> Void)?, reuseID: String) {
 		self.frc = frc
 		self.collectionView = collectionView
 		self.setupCell = setupCell
-		self.reuseID = reuseID		
+		self.reuseID = reuseID
 	}
 			
 // MARK: FetchedResultsControllerDelegate
+	var insertSections = IndexSet()
+	var deleteSections = IndexSet()
+	var insertCells = [IndexPath]()
+	var deleteCells = [IndexPath]()
+	var moveCells = [(IndexPath, IndexPath)]()			// from, to
+	var reloadCells = [IndexPath]()
+	
+
 	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
 	}
-
+	
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, 
 			didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
 		switch type {
 		case .insert:
-			collectionViewUpdateBlocks.append { self.collectionView?.insertSections(IndexSet(integer: sectionIndex)) }
+			insertSections.insert(sectionIndex)
 		case .delete:
-			collectionViewUpdateBlocks.append { self.collectionView?.deleteSections(IndexSet(integer: sectionIndex)) }
+			deleteSections.insert(sectionIndex)
 		default:
 			fatalError()
 		}
@@ -52,26 +61,34 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 		switch type {
 		case .insert:
 			guard let newIndexPath = newIndexPath else { return }
-			collectionViewUpdateBlocks.append( { self.collectionView?.insertItems(at: [newIndexPath]) })
+			insertCells.append(newIndexPath)
 		case .delete:
 			guard let indexPath = indexPath else { return }
-			collectionViewUpdateBlocks.append( { self.collectionView?.deleteItems(at: [indexPath]) })
+			deleteCells.append(indexPath)
 		case .move:
 			guard let indexPath = indexPath,  let newIndexPath = newIndexPath else { return }
-			collectionViewUpdateBlocks.append( { self.collectionView?.moveItem(at: indexPath, to: newIndexPath) })
+			moveCells.append((indexPath, newIndexPath))
 		case .update:
 			guard let indexPath = indexPath else { return }
-			collectionViewUpdateBlocks.append( { self.collectionView?.reloadItems(at: [indexPath]) })
+			reloadCells.append(indexPath)
 		@unknown default:
 			fatalError()
 		}
 	}
 
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		collectionView?.performBatchUpdates({
-			self.collectionViewUpdateBlocks.forEach { $0() }
-			self.collectionViewUpdateBlocks.removeAll(keepingCapacity: false)
-		}, completion: nil)
+		if let ds = dataSource {
+			// If we're not top-level, tell upstream that updates need to be run. Remember, performBatchUpdates
+			// must update everything -- when it's done, every section's cell count must add up.
+			ds.runUpdates()
+		}
+		else if let cv = collectionView {
+			// If we're the top-level, performBatchUpdates ourselves
+			cv.performBatchUpdates({
+				self.runUpdates(for: cv, sectionOffset: 0)
+				self.collectionViewUpdateBlocks.removeAll(keepingCapacity: false)
+			}, completion: nil)
+		} 
 	}
 
 // MARK: UICollectionView Data Source
@@ -88,18 +105,14 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		if let reuseID = reuseID, let object = frc?.object(at: indexPath) {
-			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) 
-			if let baseCell = cell as? BaseCollectionViewCell {
-				baseCell.collectionViewSize = collectionView.bounds.size
-				baseCell.viewController = vc
-			}
+		if let object = frc?.object(at: indexPath), let reuseID = overrideReuseID?(object) ?? self.reuseID {
+			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CellType
+			cell.collectionViewSize = collectionView.bounds.size
 			setupCell?(cell, object)
 			return cell
 		}
 		
 		return UICollectionViewCell()
-
 	}
 
 // MARK: UICollectionView Data Source Prefetch
@@ -125,9 +138,8 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
-	
-		if let reuseID = reuseID, let model = frc?.object(at: indexPath),
-				 let protoCell = CellType.makePrototypeCell(for: collectionView, indexPath: indexPath, reuseID: reuseID) {
+		if let model = frc?.object(at: indexPath), let reuseID = overrideReuseID?(model) ?? self.reuseID,
+				let protoCell = CellType.makePrototypeCell(for: collectionView, indexPath: indexPath, reuseID: reuseID) as? CellType {
 			setupCell?(protoCell, model)
 			let newSize = protoCell.calculateSize()
 						
@@ -137,4 +149,44 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 		return CGSize(width:414, height: 50)
 	}
 	
+// MARK: FilteringDataSourceSectionProtocol
+	var dataSource: FilteringDataSource?
+	var sectionName: String = ""
+	@objc dynamic var sectionVisible = true
+
+	func append(_ cell: BaseCellModel) {
+		print("Can't append cells to this data source")
+	}
+
+	func runUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
+
+		func addOffsetToIndexSet(_ indexes: IndexSet) -> IndexSet {
+			var result = IndexSet()
+			for index in indexes { result.insert(index + sectionOffset) }
+			return result
+		}
+		func addSectionOffset(_ paths:[IndexPath]) -> [IndexPath] {
+			let result = paths.map { return IndexPath(row:$0.row, section: $0.section + sectionOffset) }
+			return result
+		}
+
+		collectionView?.deleteSections(addOffsetToIndexSet(deleteSections))
+		collectionView?.deleteItems(at: addSectionOffset(deleteCells))
+		for (from, to) in moveCells {
+			let newFrom = IndexPath(row: from.row, section: from.section + sectionOffset)
+			let newTo = IndexPath(row: to.row, section: to.section + sectionOffset)
+			collectionView?.moveItem(at: newFrom, to: newTo)
+		}
+		collectionView?.reloadItems(at: addSectionOffset(reloadCells))
+		collectionView?.insertSections(addOffsetToIndexSet(insertSections))
+		collectionView?.insertItems(at: addSectionOffset(insertCells))
+	
+		deleteSections.removeAll()
+		insertSections.removeAll()
+		deleteCells.removeAll()
+		moveCells.removeAll()
+		reloadCells.removeAll()
+		insertCells.removeAll()
+	}
+
 }
