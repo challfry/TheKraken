@@ -10,14 +10,17 @@ import UIKit
 import CoreData
 
 class SeamailRootViewController: BaseCollectionViewController {
-	let loginDataSource = LoginDataSource()
+	let loginDataSource = FilteringDataSource()
 	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
 	let dataManager = SeamailDataManager.shared
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
         loginDataSource.viewController = self
-		loginDataSource.headerCellText = "In order to see your Seamail, you will need to log in first."
+        let loginSection = LoginDataSourceSection()
+        loginDataSource.appendSection(section: loginSection)
+        
+		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
 		frcDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData,
 				setupCell: setupThreadCell, reuseID: "seamailThread")
   		SeamailThreadCell.registerCells(with:collectionView)

@@ -31,8 +31,7 @@ import UIKit
 		didSet { updateVisibility() }
 	}
 		
-	init(_ dataSource: FilteringDataSource) {
-		self.dataSource = dataSource
+	override init() {
 		super.init()
 		
 		// Watch for visibility OR height updates in cells; tell DS to go runupdates.
@@ -45,7 +44,7 @@ import UIKit
 			observer.visibleCellModels = newVisibleCells
 			
 			observer.updateVisibility()
-			dataSource.runUpdates()
+			observer.dataSource?.runUpdates()
 		}
 	}
 	
@@ -60,7 +59,7 @@ import UIKit
 	}
 	
 	// Returns input cell, for chaining
-	@discardableResult func append<T: BaseCellModel>(_ cell: T) -> T {
+	@discardableResult func append<T: BaseCellModel>(cell: T) -> T {
 		allCellModels.add(cell)
 		return cell
 	}
@@ -157,6 +156,12 @@ import UIKit
 //		}
 	}
 	
+	func register(with cv: UICollectionView) {
+		collectionView = cv
+		cv.dataSource = self
+		cv.delegate = self
+	}
+	
 	var updateScheduled = false
 	func runUpdates() {
 		guard !updateScheduled else { return }
@@ -208,13 +213,15 @@ import UIKit
 	}
 	
 	@discardableResult func appendSection(named: String) -> FilteringDataSourceSection {
-		let newSection = FilteringDataSourceSection(self)
+		let newSection = FilteringDataSourceSection()
+		newSection.dataSource = self
 		newSection.sectionName = named
 		allSections.add(newSection)
 		return newSection
 	}
 
 	@discardableResult func appendSection(section: FilteringDataSourceSectionProtocol) -> FilteringDataSourceSectionProtocol {
+		section.dataSource = self
 		allSections.add(section)
 		return section
 	}

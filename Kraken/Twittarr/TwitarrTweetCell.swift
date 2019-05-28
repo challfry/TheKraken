@@ -24,13 +24,24 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 
 	static func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> TwitarrTweetCell? {
 		let cell = TwitarrTweetCell.prototypeCell
-		cell.collectionViewSize = collectionView.bounds.size
+		cell.collectionView = collectionView
 		return cell
 	}
 
     var tweetModel: TwitarrPost? {
     	didSet {
-    		titleLabel.text = tweetModel?.author.displayName
+    		if let model = tweetModel {
+	    		let titleAttrString = NSMutableAttributedString(string: "\(model.author.displayName), ", 
+	    				attributes: authorTextAttributes())
+				let timeString = StringUtilities.relativeTimeString(forDate: model.postDate())
+	    		let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
+	    		titleAttrString.append(timeAttrString)
+	    		titleLabel.attributedText = titleAttrString
+			}
+			else {
+				titleLabel.attributedText = nil
+			}
+	    		
     		if let text = tweetModel?.text {
 	    		tweetTextView.attributedText = StringUtilities.cleanupText(text)
 	    		
@@ -66,17 +77,15 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
     	}
 	}
 	
+	
 	override var isSelected: Bool {
 		didSet {
 			if  isSelected != editStack.isHidden {
 				return
 			}
 			editStack.isHidden = !isSelected
+			cellSizeChanged()
 			contentView.backgroundColor = isSelected ? UIColor(white: 0.95, alpha: 1.0) : UIColor.white
-			
-			if let vc = viewController as? TwitarrViewController {
-				vc.runUpdates()
-			}
 		}
 	
 	}
@@ -95,7 +104,21 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 			anim.startAnimation()
 			highlightAnimation = anim
 		}
-	}	
+	}
+	
+	func authorTextAttributes() -> [ NSAttributedString.Key : Any ] {
+		let authorFont = UIFont(name:"Helvetica-Bold", size: 14)
+		let result: [NSAttributedString.Key : Any] = [ .font : authorFont?.withSize(14) as Any ]
+		return result
+	}
+	
+	func postTimeTextAttributes() -> [ NSAttributedString.Key : Any ] {
+		let postTimeFont = UIFont(name:"Georgia-Italic", size: 14)
+		let postTimeColor = UIColor.lightGray
+		let result: [NSAttributedString.Key : Any] = [ .font : postTimeFont?.withSize(14) as Any, .foregroundColor : postTimeColor ]
+		return result
+	}
+	
 	
 	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, 
 			interaction: UITextItemInteraction) -> Bool {

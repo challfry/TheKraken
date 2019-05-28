@@ -25,9 +25,9 @@ import UIKit
     
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Post) {
 		var changed = TestAndUpdate(\.id, v2Object.id)
-		changed = changed || TestAndUpdate(\.locked, v2Object.locked)
-		changed = changed || TestAndUpdate(\.text, v2Object.text)
-		changed = changed || TestAndUpdate(\.timestamp, v2Object.timestamp)
+		changed = TestAndUpdate(\.locked, v2Object.locked) || changed
+		changed = TestAndUpdate(\.text, v2Object.text) || changed 
+		changed = TestAndUpdate(\.timestamp, v2Object.timestamp) || changed
 		
 		let userDict: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
 		if let krakenUser = userDict[v2Object.author.username] {
@@ -55,6 +55,9 @@ import UIKit
 	//	parentChain = parentChain
     }
 	
+	func postDate() -> Date {
+		return Date(timeIntervalSince1970: Double(timestamp) / 1000.0)
+	}
 }
 
 fileprivate class RecentNetworkCall : NSObject {

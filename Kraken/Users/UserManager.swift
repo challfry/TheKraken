@@ -223,7 +223,10 @@ class UserManager : NSObject {
 			
 			// Perform adds and updates on users
 			for user in users.values {
-				let addingUser = resultDict[user.username] ?? KrakenUser(context: context)
+				// Users in the user table must always be *created* as LoggedInKrakenUser, so that if that user
+				// logs in on this device we can load them as a LoggedInKrakenUser. Generally we *search* for KrakenUsers,
+				// the superclass.
+				let addingUser = resultDict[user.username] ?? LoggedInKrakenUser(context: context)
 				addingUser.buildFromV2UserInfo(context: context, v2Object: user)
 				resultDict[addingUser.username] = addingUser
 			}

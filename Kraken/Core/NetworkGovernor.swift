@@ -6,6 +6,7 @@
 //  Copyright © 2019 Chall Fry. All rights reserved.
 //
 
+import SystemConfiguration
 import Foundation
 
 
@@ -42,11 +43,22 @@ import Foundation
 
 // All networking calls the app makes should funnel through here. This is so we can do global traffic
 // management, analysis, and logging. 
-class NetworkGovernor: NSObject {
+@objc class NetworkGovernor: NSObject {
 	static let shared = NetworkGovernor()
 	var session: URLSession
+	var reachability: SCNetworkReachability?
 	
-	struct InternalTask {
+	//
+	@objc public enum ConnectionState: Int {
+		case canConnect					// Last attempt to connect succeeded, and no reachability change since.
+		case maybeConnect				// Reachability changed since we last spoke to server so ... ??
+		case noConnection				// 
+	}
+	@objc dynamic var connectionState = ConnectionState.noConnection
+	var lastError: Error?
+	
+	// Internal to NetworkGovenor. Associates a SessionTask with its reponse data and who to tell when it's done.
+	fileprivate struct InternalTask {
 		let task: URLSessionTask
 		var responseData: Data
 		var doneCallbacks: [(Data?, URLResponse?) -> Void]
@@ -63,6 +75,35 @@ class NetworkGovernor: NSObject {
 //		let config = URLSessionConfiguration.default
 		config.allowsCellularAccess	= false
 		session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+		
+		if let hostname = Settings.shared.baseURL.host {
+			reachability = SCNetworkReachabilityCreateWithName(nil, hostname)
+		}
+		else {
+			var socketAddress = sockaddr()
+			socketAddress.sa_len = UInt8(MemoryLayout<sockaddr>.size)
+			socketAddress.sa_family = sa_family_t(AF_INET)
+			reachability = SCNetworkReachabilityCreateWithAddress(nil, &socketAddress)
+		}
+		if let reachability = reachability {
+			let callbackFn: SCNetworkReachabilityCallBack = { (reachabilityObj, flags, context) in 
+				if let context = context {
+					let selfish = Unmanaged<NetworkGovernor>.fromOpaque(context).takeUnretainedValue()
+				
+					if !flags.contains(.reachable) {
+						selfish.connectionState = .noConnection
+					}
+					else {
+						selfish.connectionState = .canConnect
+					}
+				}
+			}
+			var context = SCNetworkReachabilityContext(version: 0,
+					info: UnsafeMutableRawPointer(Unmanaged<NetworkGovernor>.passUnretained(self).toOpaque()), 
+					retain: nil, release: nil, copyDescription: nil)
+			SCNetworkReachabilitySetCallback(reachability, callbackFn, &context)
+			SCNetworkReachabilitySetDispatchQueue(reachability, DispatchQueue.main)
+		}
 	}
 	
 	class func buildTwittarV2Request(withPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
@@ -151,6 +192,8 @@ class NetworkGovernor: NSObject {
 		return nil
 	}
 	
+	
+	
 }
 
 extension NetworkGovernor: URLSessionDelegate {		
@@ -226,11 +269,17 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		
 		// Error, in this context, only refers to networking errors. If the server produces a response, even 
 		// if it's an error response, it's not an 'error'.
+		lastError = error
     	if let error = error {
     		print(error)
+    		connectionState = .noConnection
+    		
     		
     		// todo: real error handling here
     		
+		}
+		else {
+			connectionState = .canConnect
 		}
 
 		for doneCallback in foundTask.doneCallbacks {

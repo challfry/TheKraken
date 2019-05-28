@@ -32,7 +32,17 @@ class LocalCoreData: NSObject {
 	static let shared = LocalCoreData()
 
 	lazy var persistentContainer: NSPersistentContainer = {
-		let container = NSPersistentContainer(name: "TwitarrModel")
+		guard let modelURL = Bundle.main.url(forResource: "TwitarrModel", withExtension:"momd"),
+				let model = NSManagedObjectModel(contentsOf: modelURL) else {
+			fatalError("Can't load Core Data model file. That's bad.")
+		}
+		
+		// Intent here is to set container name to parts of URL that uniquely identify the server, while allowing 
+		// slightly different URLs that point to the same server instance to alias (e.g. HTTP vs. HTTPS).
+		// This way, each different server you connect to gets its own cache.
+		let serverURL = Settings.shared.baseURL
+		let containerName = "TwitarrCoreData_\(serverURL.host ?? "")_\(serverURL.port ?? 80)_\(serverURL.path)"
+		let container = NSPersistentContainer(name: "TwitarrModel", managedObjectModel: model)
 		container.loadPersistentStores(completionHandler: { (storeDescription, error) in
 			if let error = error as NSError? {
 				fatalError("Unresolved error \(error), \(error.userInfo)")

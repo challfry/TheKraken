@@ -25,6 +25,11 @@ import UIKit
 		labelText = titleLabel
 		super.init(bindingWith: LabelCellProtocol.self)
 	}
+	
+	init(_ titleLabel: String) {
+		labelText = NSAttributedString(string: titleLabel)
+		super.init(bindingWith: LabelCellProtocol.self)
+	}
 }
 
 class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
@@ -62,6 +67,7 @@ class SingleValueCell: BaseCollectionViewCell, SingleValueCellProtocol {
 // MARK: Simple text entry cell with a label and a TextField.
 @objc protocol TextFieldCellProtocol {
 	dynamic var labelText: String? { get set }
+	dynamic var fieldText: String? { get set }
 	dynamic var errorText: String? { get set }
 	dynamic var isPassword: Bool { get set }
 }
@@ -71,6 +77,7 @@ class SingleValueCell: BaseCollectionViewCell, SingleValueCellProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	dynamic var labelText: String?
+	@objc dynamic var fieldText: String?
 	dynamic var errorText: String?
 	dynamic var isPassword: Bool = false
 	@objc dynamic var editedText: String?			// Cell fills this in
@@ -101,8 +108,18 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	var labelText: String? {
 		didSet { label.text = labelText }
 	}
+	var fieldText: String? {
+		didSet { 
+			if let model = cellModel as? TextFieldCellModel, let text = model.editedText {
+				textField.text = text
+			}
+			else {
+				textField.text = fieldText
+			}
+		}
+	}
 	var errorText: String? {
-		didSet { errorLabel.text = errorText }
+		didSet { errorLabel.text = errorText; cellSizeChanged() }
 	}
 	var isPassword: Bool = false {
 		didSet {
@@ -134,6 +151,84 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	}
 
 }
+
+// MARK: Multi-Line Text Entry Cell
+@objc protocol TextViewCellProtocol {
+	dynamic var labelText: String? { get set }
+	dynamic var editText: String? { get set }
+	dynamic var errorText: String? { get set }
+}
+
+@objc class TextViewCellModel: BaseCellModel, TextViewCellProtocol {	
+	private static let validReuseIDs = [ "TextViewCell" : TextViewCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
+
+	dynamic var labelText: String?
+	dynamic var editText: String?
+	dynamic var errorText: String?
+	@objc dynamic var editedText: String?			// Cell fills this in
+	
+	init(_ titleLabel: String) {
+		labelText = titleLabel
+		editText = "lollerskates"
+		super.init(bindingWith: TextViewCellProtocol.self)
+	}
+	
+	func hasText() -> Bool {
+		if let text = editedText {
+			return !text.isEmpty
+		}
+		else {
+			return false
+		}
+	}
+}
+
+class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDelegate {
+	@IBOutlet var textView: UITextView!
+	@IBOutlet var label: UILabel!
+	@IBOutlet var errorLabel: UILabel!
+	@IBOutlet var textViewHeightConstraint: NSLayoutConstraint!
+	
+	private static let cellInfo = [ "TextViewCell" : PrototypeCellInfo("TextViewCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+	
+	var labelText: String? {
+		didSet { label.text = labelText }
+	}
+	var editText: String? {
+		didSet {
+			if isPrototypeCell, let model = cellModel as? TextViewCellModel, let editedText = model.editedText  {
+				textView.text = editedText
+				let newSize = textView.sizeThatFits(CGSize(width: textView.frame.size.width, height: 10000.0))
+				textViewHeightConstraint.constant = newSize.height
+			}
+			else {
+				textView.text = editText 
+			}
+		}
+	}
+	var errorText: String? {
+		didSet {  //errorLabel.text = errorText
+		}
+	}
+	
+	func textViewDidChange(_ textView: UITextView) {
+		if let model = cellModel as? TextViewCellModel {
+			model.editedText = textView.text
+			let newSize = textView.sizeThatFits(CGSize(width: textView.frame.size.width, height: 10000.0))
+			if newSize.height != textViewHeightConstraint.constant {
+				let _ = UIViewPropertyAnimator(duration: 0.4, curve: .easeInOut) {
+					self.textViewHeightConstraint.constant = newSize.height
+				}
+				cellSizeChanged()
+			}
+		}
+	}
+
+	
+}
+
 
 // MARK: Button cell; right-alighed button
 @objc protocol ButtonCellProtocol {
@@ -206,10 +301,8 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 
 	@objc dynamic var statusText: String = ""
 	@objc dynamic var showSpinner: Bool = false
-	@objc dynamic var collection: UICollectionView?
 
-	init(cv: UICollectionView) {
-		collection = cv
+	init() {
 		super.init(bindingWith: LoginStatusCellProtocol.self)
 		
 		CurrentUser.shared.tell(self, when:[ "isChangingLoginState", "lastError" ]) { observer, observed in
@@ -250,8 +343,6 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 		didSet { 
 			statusLabel.text = statusText; 
 			self.layer.removeAllAnimations()
-//			collection?.collectionViewLayout.invalidateLayout()
-//			collection?.performBatchUpdates({ }, completion: nil )
 		}
 	}
 	var showSpinner: Bool = false { 

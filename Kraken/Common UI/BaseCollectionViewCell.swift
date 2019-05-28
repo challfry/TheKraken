@@ -37,7 +37,7 @@ import UIKit
 			cell.bind(to:self, with: prot)
 		}
 		cell.cellModel = self
-		cell.collectionViewSize = collectionView.bounds.size
+		cell.collectionView = collectionView
 		return cell
 		
 		
@@ -56,7 +56,7 @@ import UIKit
 				cell.bind(to:self, with: prot)
 			}
 			cell.cellModel = self
-			cell.collectionViewSize = collectionView.bounds.size
+			cell.collectionView = collectionView
 			return cell
 		}
 		return nil
@@ -93,6 +93,7 @@ struct PrototypeCellInfo {
 			nib = UINib(nibName: nibName, bundle: nil)
 			if let nibContents = nib?.instantiate(withOwner: nil, options: nil) {
 				prototypeCell = (nibContents[0] as! BaseCollectionViewCell)
+				prototypeCell?.isPrototypeCell = true
 			}
 		}
 	}
@@ -108,32 +109,55 @@ struct PrototypeCellInfo {
 		}
 	}
 
-	var cellModel: BaseCellModel? 
-	var viewController: BaseCollectionViewController? // For launching segues
+	var cellModel: BaseCellModel? 							// Not all datasources use cell models
+	weak var viewController: BaseCollectionViewController?  // For launching segues
+	
+	var isPrototypeCell: Bool = false
 	var calculatedHeight: CGFloat = 0.0
 	var fullWidthConstraint: NSLayoutConstraint?
 	var fullWidth: Bool = true
 	    
+	weak var collectionView: UICollectionView? {
+		didSet {
+			guard let width = collectionView?.bounds.width, width > 0 else { return }
+			if fullWidth && fullWidthConstraint == nil {
+				fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: width)
+			}
+			fullWidthConstraint?.isActive = fullWidth
+		}
+	}
+	
+	func cellSizeChanged() {
+		if !isPrototypeCell {
+//			if let indexPath = collectionView?.indexPath(for: self) {
+//				collectionView?.reloadItems(at: [indexPath])
+//				collectionView?.collectionViewLayout.invalidateLayout()
+				let context = UICollectionViewFlowLayoutInvalidationContext()
+				context.invalidateFlowLayoutDelegateMetrics = true
+				
+				collectionView?.performBatchUpdates({ 
+					collectionView?.collectionViewLayout.invalidateLayout(with: context)
+				}, completion: nil)
+			}
+//		}
+	}
+
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		contentView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
-	var collectionViewSize: CGSize = CGSize(width: 0, height: 0) {
-		didSet {
-			guard collectionViewSize.width > 0 else { return }
-			if fullWidth && fullWidthConstraint == nil {
-				fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: collectionViewSize.width)
-			}
-			fullWidthConstraint?.isActive = fullWidth
-		}
-	}
-
 	// Returns a prototype cell that this class can manage. Doesn't set up that cell's data. Subclasses can define
 	// multiple reuseIDs which will load different nibs/layouts.
 	class func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath, reuseID: String) -> BaseCollectionViewCell? {		
 		if let cellInfo = validReuseIDDict[reuseID], let cell = cellInfo.prototypeCell {
-			cell.collectionViewSize = collectionView.bounds.size
+			cell.collectionView = collectionView
+			if let selection = collectionView.indexPathsForSelectedItems, selection.contains(indexPath) {
+				cell.isSelected = true
+			}
+			else {
+				cell.isSelected = false
+			}
 			return cell
 		}
 		return nil
@@ -155,7 +179,6 @@ struct PrototypeCellInfo {
 		return size
 	}
 	
-
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		cellModel?.unbind(cell: self)

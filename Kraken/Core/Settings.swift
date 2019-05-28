@@ -8,12 +8,16 @@
 
 import Foundation
 
-class Settings: NSObject, Codable {
+@objc class Settings: NSObject, Codable {
 	static let shared = Settings()
 	
+	// Settings that can't be changed once we initialize, but can be mutated for the next launch declared here.
+	@objc dynamic public lazy var baseURL = settingsBaseURL
+	
 	// Each Settings property should get a copy of these 4 lines, modified appropriately
-	public var baseURL: URL {
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://127.0.0.1:3000")!) }
+	@objc dynamic public var settingsBaseURL: URL {
+	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://127.0.0.1:3000")!) }
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.1.27:3000")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
 

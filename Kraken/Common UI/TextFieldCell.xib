@@ -11,14 +11,14 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="TextFieldCell" id="kis-5B-WWK" userLabel="TextFieldCell" customClass="TextFieldCell" customModule="Kraken" customModuleProvider="target">
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="TextFieldCell" id="kis-5B-WWK" userLabel="TextFieldCell" customClass="TextFieldCell" customModule="Kraken" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                 <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AaT-XN-9qq">
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AaT-XN-9qq">
                         <rect key="frame" x="20" y="11.5" width="160" height="21"/>
                         <constraints>
                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="160" id="CHP-p3-wo1"/>
@@ -39,7 +39,7 @@
                             <outlet property="delegate" destination="kis-5B-WWK" id="hkl-hS-Qy4"/>
                         </connections>
                     </textField>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dr-Xc-8rl">
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="100" verticalCompressionResistancePriority="500" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dr-Xc-8rl">
                         <rect key="frame" x="20" y="48" width="335" height="24"/>
                         <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
                         <color key="textColor" red="0.83386843765483176" green="0.13037952783677625" blue="0.17990947416034478" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -53,9 +53,9 @@
                 <constraint firstItem="Gn9-H6-Irx" firstAttribute="top" secondItem="kis-5B-WWK" secondAttribute="top" constant="8" id="DOm-Lo-iFH"/>
                 <constraint firstItem="3Dr-Xc-8rl" firstAttribute="leading" secondItem="kis-5B-WWK" secondAttribute="leading" constant="20" id="Ic1-aW-R8N"/>
                 <constraint firstItem="AaT-XN-9qq" firstAttribute="leading" secondItem="kis-5B-WWK" secondAttribute="leading" constant="20" id="Mf0-PE-tGH"/>
-                <constraint firstItem="3Dr-Xc-8rl" firstAttribute="top" secondItem="Gn9-H6-Irx" secondAttribute="bottom" constant="10" id="NSa-dN-b3T"/>
+                <constraint firstItem="3Dr-Xc-8rl" firstAttribute="top" secondItem="Gn9-H6-Irx" secondAttribute="bottom" priority="200" constant="10" id="NSa-dN-b3T"/>
                 <constraint firstAttribute="trailing" secondItem="Gn9-H6-Irx" secondAttribute="trailing" constant="20" id="dTz-Tg-oWv"/>
-                <constraint firstAttribute="bottom" secondItem="3Dr-Xc-8rl" secondAttribute="bottom" constant="8" id="h6X-q8-wdO"/>
+                <constraint firstAttribute="bottom" secondItem="3Dr-Xc-8rl" secondAttribute="bottom" priority="200" constant="8" id="h6X-q8-wdO"/>
                 <constraint firstItem="Gn9-H6-Irx" firstAttribute="firstBaseline" secondItem="AaT-XN-9qq" secondAttribute="firstBaseline" id="zYy-A7-Vqo"/>
             </constraints>
             <size key="customSize" width="375" height="86"/>

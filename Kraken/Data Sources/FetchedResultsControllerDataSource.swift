@@ -19,10 +19,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 	var setupCell: ((_ cell: CellType, _ fromModel: FetchedObjectType) -> Void)?
 	var overrideReuseID: ((_ usingModel: FetchedObjectType) -> String?)?
 	var reuseID: String?
-	
-	
-	private var collectionViewUpdateBlocks: [() -> Void] = []
-	
+		
 	func setup(collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>,
 			setupCell: ((_ cell: CellType, _ fromModel: FetchedObjectType) -> Void)?, reuseID: String) {
 		self.frc = frc
@@ -85,8 +82,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 		else if let cv = collectionView {
 			// If we're the top-level, performBatchUpdates ourselves
 			cv.performBatchUpdates({
-				self.runUpdates(for: cv, sectionOffset: 0)
-				self.collectionViewUpdateBlocks.removeAll(keepingCapacity: false)
+				runUpdates(for: cv, sectionOffset: 0)
 			}, completion: nil)
 		} 
 	}
@@ -107,7 +103,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		if let object = frc?.object(at: indexPath), let reuseID = overrideReuseID?(object) ?? self.reuseID {
 			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! CellType
-			cell.collectionViewSize = collectionView.bounds.size
+			cell.collectionView = collectionView
 			setupCell?(cell, object)
 			return cell
 		}
@@ -142,6 +138,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType, CellType>: NSObject,
 				let protoCell = CellType.makePrototypeCell(for: collectionView, indexPath: indexPath, reuseID: reuseID) as? CellType {
 			setupCell?(protoCell, model)
 			let newSize = protoCell.calculateSize()
+			print ("New size for cell at \(indexPath) is \(newSize)")
 						
    			return newSize
 		}

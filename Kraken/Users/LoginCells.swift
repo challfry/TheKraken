@@ -19,6 +19,7 @@ import UIKit
 
 @objc protocol LoginHeaderCellProtocol {
 	dynamic var labelText: String? { get set }
+	dynamic var subLabelText: String? { get set }
 }
 
 @objc class LoginHeaderCellModel: BaseCellModel, LoginHeaderCellProtocol {
@@ -28,6 +29,7 @@ import UIKit
 	dynamic var labelText: String? {
 		didSet { shouldBeVisible = labelText != nil }
 	}
+	dynamic var subLabelText: String? 
 
 	init() {
 		super.init(bindingWith: LoginHeaderCellProtocol.self)
@@ -35,19 +37,28 @@ import UIKit
 }
 
 class LoginHeaderCell: BaseCollectionViewCell, LoginHeaderCellProtocol {
-	@IBOutlet var label: UILabel!
+	@IBOutlet var topLabel: UILabel!
+	@IBOutlet var subLabel: UILabel!
 	private static let cellInfo = [ "loginHeader" : PrototypeCellInfo("LoginHeaderCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return cellInfo }
 
 	var labelText: String? { 
-		didSet { label.text = labelText }
+		didSet { topLabel.text = labelText }
+	}
+	var subLabelText: String? { 
+		didSet { 
+			UIViewPropertyAnimator(duration: 0.6, curve: .easeInOut) {
+				self.subLabel.text = self.subLabelText
+				self.subLabel.alpha = self.subLabel.text == nil ? 0.0 : 1.0
+			}.startAnimation()
+		}
 	}
 }
 
 class LoginButtonCellModel: ButtonCellModel {
-	var dataSource: LoginDataSource
+	var dataSource: LoginDataSourceSection
 
-	init(title: String?, action: (() -> Void)?, ds: LoginDataSource) {
+	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
 		dataSource = ds
 		super.init(title: title, action: action)
 		buttonAlignment	= .right
@@ -74,7 +85,7 @@ class LoginButtonCellModel: ButtonCellModel {
 // MARK: Create Account
 
 class CreateAccountHeaderLabelModel: LabelCellModel {
-	init(dataSource: LoginDataSource) {
+	init(dataSource: LoginDataSourceSection) {
 		super.init(CreateAccountHeaderLabelModel.buildNewRegistrationHeaderString())
 		
 		dataSource.tell(self, when: "mode") { observer, observed in 
@@ -113,7 +124,7 @@ class CreateAccountHeaderLabelModel: LabelCellModel {
 }
 
 class EditDisplayNameCellModel : TextFieldCellModel {
-	init(dataSource: LoginDataSource) {
+	init(dataSource: LoginDataSourceSection) {
 		super.init("Display Name:")
 		
 		dataSource.tell(self, when: "mode") { observer, observed in 
@@ -133,7 +144,7 @@ class EditDisplayNameCellModel : TextFieldCellModel {
 }
 
 class RegistrationCodeCellModel: TextFieldCellModel {
-	init(dataSource: LoginDataSource) {
+	init(dataSource: LoginDataSourceSection) {
 		super.init("Registration Code:")
 		
 		dataSource.tell(self, when: "mode") { observer, observed in 
@@ -149,7 +160,7 @@ class RegistrationCodeCellModel: TextFieldCellModel {
 }
 
 class ConfirmPasswordCellModel: TextFieldCellModel {
-	init(dataSource: LoginDataSource) {
+	init(dataSource: LoginDataSourceSection) {
 		super.init("Confirm Password:", isPassword: true)
 		
 		dataSource.tell(self, when: "mode") { observer, observed in 
@@ -159,9 +170,9 @@ class ConfirmPasswordCellModel: TextFieldCellModel {
 }
 
 class CreateAccountButtonCellModel: ButtonCellModel {
-	var dataSource: LoginDataSource
+	var dataSource: LoginDataSourceSection
 
-	init(title: String?, action: (() -> Void)?, ds: LoginDataSource) {
+	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
 		dataSource = ds
 		super.init(title: title, action: action)
 		buttonAlignment	= .right
@@ -188,9 +199,9 @@ class CreateAccountButtonCellModel: ButtonCellModel {
 // MARK: Forgot Password
 
 class ForgotPasswordButtonCellModel: ButtonCellModel {
-	var dataSource: LoginDataSource
+	var dataSource: LoginDataSourceSection
 
-	init(title: String?, action: (() -> Void)?, ds: LoginDataSource) {
+	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
 		dataSource = ds
 		super.init(title: title, action: action)
 		buttonAlignment	= .right
@@ -261,10 +272,10 @@ class EditPasswordCellModel: TextFieldCellModel {
 }
 
 class ModeSwitchButtonCellModel: ButtonCellModel {
-	var targetMode: LoginDataSource.Mode = .login
-	var dataSource: LoginDataSource
+	var targetMode: LoginDataSourceSection.Mode = .login
+	var dataSource: LoginDataSourceSection
 
-	init(title: String, forMode: LoginDataSource.Mode, dataSource: LoginDataSource) {
+	init(title: String, forMode: LoginDataSourceSection.Mode, dataSource: LoginDataSourceSection) {
 		targetMode = forMode
 		self.dataSource = dataSource
 		super.init(title: title, action: { dataSource.mode = forMode }, alignment: .left)
@@ -276,13 +287,21 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 }
 
 
-@objc class LoginDataSource: FilteringDataSource {
+@objc class LoginDataSourceSection: FilteringDataSourceSection {
 
 	@objc enum Mode: Int {
 		case login, createAccount, forgotPassword
 	}
 	@objc dynamic var mode: Mode = .login {
-		didSet { CurrentUser.shared.clearErrors() }
+		didSet { 
+			CurrentUser.shared.clearErrors() 
+			
+			switch mode {
+				case .login: headerCellModel.subLabelText = nil
+				case .createAccount: headerCellModel.subLabelText = "…and to log in you may need to create an account."
+				case .forgotPassword: headerCellModel.subLabelText = "…and to log in you may need to recover your password.\n\nYou can use the registration code you received in the mail to set a new password for your account."
+			}
+		}
 	}
 
 	// The Login cells show up when we need to log in before seeing content. The idea is that the login cells show up
@@ -297,37 +316,25 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	@objc dynamic lazy var passwordCellModel = EditPasswordCellModel()
 	@objc dynamic lazy var confirmPasswordCellModel = ConfirmPasswordCellModel(dataSource: self)
 	@objc dynamic lazy var registrationCodeCellModel = RegistrationCodeCellModel(dataSource: self)
-	
+			
 	override init() {
 		super.init()
-		
-		headerCellModel.labelText = headerCellText
-	}
-		
-	func register(with cv:UICollectionView) {
-		if allSections.count == 0 {
-
-			let section = self.appendSection(named: "login")
-			section.append(headerCellModel)
-			section.append(CreateAccountHeaderLabelModel(dataSource: self))
-			section.append(usernameCellModel)
-			section.append(registrationCodeCellModel)
-			section.append(displayNameCellModel)
-			section.append(passwordCellModel)
-			section.append(confirmPasswordCellModel)
-			section.append(LoginButtonCellModel(title: "Login", action: startLoggingIn, ds: self))
-			section.append(CreateAccountButtonCellModel(title: "Create Account", action: startAccountCreation, ds: self))
-			section.append(ForgotPasswordButtonCellModel(title: "Reset Password", action: startResetPassword, ds: self))
-			section.append(LoginStatusCellModel(cv: cv))
-			section.append(ModeSwitchButtonCellModel(title: "Actually, just let me log in.", forMode: .login, dataSource: self))
-			section.append(ModeSwitchButtonCellModel(title: "Create a new account", forMode: .createAccount, dataSource: self))
-			section.append(ModeSwitchButtonCellModel(title: "I've, uh, forgotten my password.", forMode: .forgotPassword, dataSource: self))
-			section.append(ButtonCellModel(title: "Read Code of Conduct", action: readCodeOfConductAction,  alignment: .left))
-		}
-
-		collectionView = cv
-		collectionView?.dataSource = self
-		collectionView?.delegate = self
+	
+		append(headerCellModel)
+		append(CreateAccountHeaderLabelModel(dataSource: self))
+		append(usernameCellModel)
+		append(registrationCodeCellModel)
+		append(displayNameCellModel)
+		append(passwordCellModel)
+		append(confirmPasswordCellModel)
+		append(LoginButtonCellModel(title: "Login", action: startLoggingIn, ds: self))
+		append(CreateAccountButtonCellModel(title: "Create Account", action: startAccountCreation, ds: self))
+		append(ForgotPasswordButtonCellModel(title: "Reset Password", action: startResetPassword, ds: self))
+		append(LoginStatusCellModel())
+		append(ModeSwitchButtonCellModel(title: "Actually, just let me log in.", forMode: .login, dataSource: self))
+		append(ModeSwitchButtonCellModel(title: "Create a new account", forMode: .createAccount, dataSource: self))
+		append(ModeSwitchButtonCellModel(title: "I've, uh, forgotten my password.", forMode: .forgotPassword, dataSource: self))
+		append(ButtonCellModel(title: "Read Code of Conduct", action: readCodeOfConductAction,  alignment: .left))
 	}
 	
 	func startLoggingIn() {
@@ -363,7 +370,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
 			textFileVC.fileToLoad = "codeofconduct"
-			viewController?.present(textFileVC, animated: true, completion: nil)
+			dataSource?.viewController?.present(textFileVC, animated: true, completion: nil)
 		}
 	}
 		

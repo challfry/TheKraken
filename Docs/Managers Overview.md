@@ -6,7 +6,7 @@ Will need to work with UI and have an anchor object, which could be a tweet, a h
 ## Seamail Manager
 Mostly, an array of SeamailThreads. 
 
-## Forum Manager
+## Forums Manager
 
 ## User Manager
 LOGOUT! Need to figure out what data is user-specific, so we can uncache it at logout time.
@@ -26,6 +26,22 @@ the private data for a different logged-in user is inaccessible, even though Cor
 Cache images. Luckily, it appears that photo IDs can be created and deleted but the photo data for an id cannot be changed.
 
 ## Search Manager
+
+## Settings
+
+	- Network state -> connected to server, server addr text field
+	- Login state/ Who is logged in
+	- Saved Content to Post 
+		- This is content the user created while offline (that is--onshore, mostly)
+		- Tweets, posts, seamails, faves, follows, reactions, Profile Edits, personal comments
+		- Not going to use SaveForLater with login, password change, password reset.
+		- Nor will it work with admin functions.
+	- Time Zone Info
+		- Does server time match phone time?
+		- If not, what do we show? 
+	- Preference Settings
+		- ??
+	- Clear Cache
 
 
 # UI
