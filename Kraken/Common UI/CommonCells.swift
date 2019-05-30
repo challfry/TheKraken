@@ -102,6 +102,7 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	@IBOutlet var textField: UITextField!
 	@IBOutlet var label: UILabel!
 	@IBOutlet var errorLabel: UILabel!
+
 	private static let cellInfo = [ "TextFieldCell" : PrototypeCellInfo("TextFieldCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
@@ -126,6 +127,14 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 			textField.clearsOnBeginEditing = isPassword
 			textField.isSecureTextEntry = isPassword
 		}
+	}
+	
+	func textFieldDidBeginEditing(_ textField: UITextField) {
+		viewController?.activeTextEntry = textField
+	}
+	
+	func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+		viewController?.activeTextEntry = nil
 	}
 	
 	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -213,6 +222,14 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 		}
 	}
 	
+	func textViewDidBeginEditing(_ textView: UITextView) {
+		viewController?.activeTextEntry = textView
+	}
+	
+	func textViewDidEndEditing(_ textView: UITextView) {
+		viewController?.activeTextEntry = nil
+	}
+	
 	func textViewDidChange(_ textView: UITextView) {
 		if let model = cellModel as? TextViewCellModel {
 			model.editedText = textView.text
@@ -225,8 +242,6 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 			}
 		}
 	}
-
-	
 }
 
 

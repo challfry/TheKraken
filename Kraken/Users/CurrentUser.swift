@@ -146,7 +146,13 @@ import CoreData
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				// HTTP 401 error at this point means the user isn't actually logged in. This can happen if they
+				// change their password from another device.
+				self.logoutUser()
 				self.lastError = error
+			}
+			else if response == nil {
+				// No response object indicates a network error of some sort (NOT a server error)
 			}
 			else {
 				let decoder = JSONDecoder()
@@ -161,6 +167,7 @@ import CoreData
 						self.lastLogin = profileResponse.userAccount.lastLogin
 						self.twitarrV2AuthKey = keyUsedForLogin
 						self.userRole = UserRole(rawValue: profileResponse.userAccount.role) ?? .user
+						self.saveLoginCredentials()
 					}
 				}
 				else {
@@ -198,6 +205,7 @@ import CoreData
 		for cookie in cookiesToDelete ?? [] {
 			HTTPCookieStorage.shared.deleteCookie(cookie)
 		}
+		removeLoginCredentials()
 		
 		// Todo: Tell Seamail and Forums to reap for logout
 		
@@ -341,7 +349,95 @@ import CoreData
 			} 
 		}
 	}
+}
 
+/* Secure storage of user auth data.
+
+	We save a single item into KeychainServices. That item is a small JSON struct containing both the username and the 
+	auth key--not the password--of the logged-in user. The auth key comes from the server. The item is stored in the 
+	keychain dictionary with a key that contains the base URL of the server that user was logged in to.
+	
+	This means that the app can support being 'logged in' to multiple servers at once, with different credentials, in
+	that the auth key comes from the server and doesn't really time out. The app still only supports talking to a single
+	server per launch. But, for a particular server URL, we can save only one login credential at a time; that of the 
+	logged-in user.
+	
+	Also--we don't track previous values of the base URL, so we don't have a way to know if switching the baseURL to point
+	to another server will cause a user to be logged in at next app launch.
+*/
+extension CurrentUser {
+	
+	// Only save login creds as a result of successful server reponse to login.
+ 	@discardableResult public func saveLoginCredentials() -> Bool {
+ 		guard let user = loggedInUser, let authKey = twitarrV2AuthKey, 
+ 				let keyData = authKey.data(using:.utf8, allowLossyConversion: false) else { return false }
+ 				
+		removeLoginCredentials()
+ 		
+ 		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
+		let query: [String : Any] = [
+				kSecClass as String: kSecClassInternetPassword as String,
+				kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+				kSecAttrAccount as String: user.username,
+				kSecAttrServer as String: keychainObjectKey,
+				kSecAttrSecurityDomain as String: self.userRole.rawValue,	// Heh. Not what SecurityDomain is actually for.
+				kSecValueData as String: keyData as NSData]
+
+		let status: OSStatus = SecItemAdd(query as CFDictionary, nil)
+		return status == noErr
+	}
+	
+	func removeLoginCredentials() {
+ 		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
+		let query: [String : Any] = [
+				kSecClass as String: kSecClassInternetPassword as String,
+				kSecAttrServer as String: keychainObjectKey,
+				kSecReturnData as String: true]
+
+        // Delete any existing items, for all accounts on this server.
+        let status = SecItemDelete(query as CFDictionary)
+        if (status != errSecSuccess && status != errSecItemNotFound) {
+			print("Remove failed: \(status)")
+        }
+
+	}
+
+	// Called early on during app launch.
+	func setInitialLoginState() {
+ 		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
+		let query: [String : Any] = [
+				kSecClass as String : kSecClassInternetPassword,
+				kSecAttrServer as String : keychainObjectKey,
+				kSecReturnAttributes as String : true,
+				kSecReturnData as String : true,
+				kSecMatchLimit as String : kSecMatchLimitOne]
+
+		var dataTypeRef: AnyObject?
+		let status: OSStatus = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
+		if status == errSecSuccess, let recordDict = dataTypeRef as? [String : Any],
+   				let accountName = recordDict[kSecAttrAccount as String] as? String,
+				let passwordData = recordDict[kSecValueData as String] as? Data,
+    			let authKey = String(data: passwordData, encoding: String.Encoding.utf8),
+    			let userRoleStr = recordDict[kSecAttrSecurityDomain as String] as? String {
+    			
+			//
+			let krakenUser = UserManager.shared.user(accountName) as? LoggedInKrakenUser
+	
+			// 
+			self.loggedInUser = krakenUser
+			self.lastLogin = 0
+			self.twitarrV2AuthKey = authKey
+			self.userRole = UserRole(rawValue: userRoleStr) ?? .user
+
+			loadProfileInfo()
+		}
+		else if status == errSecItemNotFound {	// errSecItemNotFound is -25300
+			// No record found; this is fine. Means we're not logging in as anyone at app launch.
+		}
+		else {
+			print("Failure loading keychain info.")
+		}
+	}
 }
 
 

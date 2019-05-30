@@ -19,6 +19,8 @@ class SettingsRootViewController: BaseCollectionViewController {
 
   		dataSource.register(with: collectionView)
 		let settingsSection = dataSource.appendSection(named: "settingsSection")
+		
+		// Network Info
 		let networkInfoCell = settingsSection.append(cell: SettingsInfoCellModel("Network"))
 		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, observed in
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
@@ -26,9 +28,11 @@ class SettingsRootViewController: BaseCollectionViewController {
 		settingsSection.append(ServerAddressEditCellModel("Server URL"))
 		settingsSection.append(ButtonCellModel(title: "Reset Server URL to Default", action: resetServerButtonHit, alignment: .center))
 		
-		var x = settingsSection.append(cell: SettingsInfoCellModel("Logged In User"))
-		x.labelText = NSAttributedString(string: "None")
-		x = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
+		settingsSection.append(cell: LoginInfoCellModel())
+		settingsSection.append(cell: ButtonCellModel(title: "Logout", action: nil, alignment: .center))
+
+
+		var x = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
 		x.labelText = NSAttributedString(string: "Nothing to post")
 		x = settingsSection.append(cell: SettingsInfoCellModel("Time Zone Info"))
 		x.labelText = NSAttributedString(string: "Clocks Synchronized")
@@ -128,12 +132,27 @@ class SettingsRootViewController: BaseCollectionViewController {
 	private static let validReuseIDs = [ "SettingsInfoCell" : SettingsInfoCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
-	dynamic var titleText: String?
+	@objc dynamic var titleText: String?
 	@objc dynamic var labelText: NSAttributedString?
 	
 	init(_ titleLabel: String) {
 		titleText = titleLabel
 		super.init(bindingWith: SettingsInfoCellProtocol.self)
+	}
+}
+
+@objc class LoginInfoCellModel: SettingsInfoCellModel {
+	init() {
+		super.init("Logged In User")
+		
+		CurrentUser.shared.tell(self, when:"loggedInUser") { observer, observed in
+			if let currentUser = observed.loggedInUser {
+				observer.labelText = NSAttributedString(string: "Logged in as: \(currentUser.username)")
+			}
+			else {
+				observer.labelText = NSAttributedString(string: "Not logged in.")
+			}
+		}?.schedule()
 	}
 }
 

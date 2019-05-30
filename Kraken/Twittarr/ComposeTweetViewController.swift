@@ -12,6 +12,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	let loginDataSource = FilteringDataSource()
 	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
 	let composeDataSource = FilteringDataSource()
+	var tweetTextCell: TextViewCellModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,10 +22,14 @@ class ComposeTweetViewController: BaseCollectionViewController {
         loginDataSource.appendSection(section: loginSection)
         loginSection.headerCellText = "You will need to log in before you can post to Twitarr."
         
-        let composeSection = composeDataSource.appendSection(named: "ComposeSection")
-        composeSection.append(TextViewCellModel("Tweet"))
+		composeDataSource.viewController = self
+		let composeSection = composeDataSource.appendSection(named: "ComposeSection")
+        let textCell = TextViewCellModel("What do you want to say?")
+        tweetTextCell = textCell
+        composeSection.append(textCell)
         composeSection.append(ButtonCellModel(title:"Post", action: postAction))
-        composeSection.append(EmojiSelectionCellModel())
+        composeSection.append(EmojiSelectionCellModel(paster: emojiButtonTapped))
+        composeSection.append(PhotoSelectionCellModel())
         
 
    		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
@@ -42,8 +47,15 @@ class ComposeTweetViewController: BaseCollectionViewController {
     	print("Got to posting")
     }
     
+    func emojiButtonTapped(withEmojiString: String?) {
+    	if let emoji = withEmojiString, let range = activeTextEntry?.selectedTextRange {
+    		activeTextEntry?.replace(range, withText: emoji)
+    	}
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
 		loginDataSource.enableAnimations = true
+		composeDataSource.enableAnimations = true
 	}
 
     /*

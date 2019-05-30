@@ -22,8 +22,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="412" height="25"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hUQ-Yg-tDo" userLabel="Top Line View">
-                                <rect key="frame" x="0.0" y="0.0" width="52.5" height="1"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <rect key="frame" x="0.0" y="0.0" width="412" height="1"/>
+                                <color key="backgroundColor" red="0.36690356789587186" green="0.43511324173287313" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="1" id="bs9-Vc-D5X"/>
                                 </constraints>
@@ -40,7 +40,7 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.97296501663285817" blue="0.8764842964619407" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
-                            <constraint firstItem="hUQ-Yg-tDo" firstAttribute="trailing" secondItem="PXc-AJ-FuA" secondAttribute="trailing" id="2pm-db-yag"/>
+                            <constraint firstAttribute="trailing" secondItem="hUQ-Yg-tDo" secondAttribute="trailing" id="FLc-CH-uPy"/>
                             <constraint firstItem="PXc-AJ-FuA" firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="top" constant="2" id="M76-JN-2X9"/>
                             <constraint firstItem="hUQ-Yg-tDo" firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="top" id="NLt-oY-2s1"/>
                             <constraint firstItem="PXc-AJ-FuA" firstAttribute="leading" secondItem="TCh-v3-S0l" secondAttribute="leading" constant="8" id="jbZ-qz-qmB"/>

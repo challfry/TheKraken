@@ -21,6 +21,10 @@ import UIKit
 	@objc dynamic var shouldBeVisible = true
 	@objc dynamic var cellHeight = 0
 	
+	// Cells built from this model can use this to store their state data. State data includes stuff like text entered in text fields.
+	// The dict is indexed by reuseID.
+//	var cellStateStorage: [String : Any] = [:]
+	
 	init(bindingWith: Protocol?) {
 		bindingProtocol = bindingWith
 	}
@@ -110,7 +114,7 @@ struct PrototypeCellInfo {
 	}
 
 	var cellModel: BaseCellModel? 							// Not all datasources use cell models
-	weak var viewController: BaseCollectionViewController?  // For launching segues
+	@objc dynamic weak var viewController: BaseCollectionViewController?  // For launching segues
 	
 	var isPrototypeCell: Bool = false
 	var calculatedHeight: CGFloat = 0.0

@@ -61,7 +61,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>com.apple.developer.networking.wifi-info</key>
-	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo Library Access lets you choose photos to attach to Twitarr posts, Seamail, and Forum posts.</string>
 </dict>
 </plist>

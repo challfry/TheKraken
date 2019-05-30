@@ -260,7 +260,11 @@ extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDeleg
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let sections = visibleSections as! [FilteringDataSourceSectionProtocol]
 		let sectionPath = IndexPath(row: indexPath.row, section: 0)
-		return sections[indexPath.section].collectionView(collectionView, cellForItemAt: sectionPath)
+		let resultCell = sections[indexPath.section].collectionView(collectionView, cellForItemAt: sectionPath)
+		if let cell = resultCell as? BaseCollectionViewCell, let vc = viewController as? BaseCollectionViewController {
+			cell.viewController = vc
+		}
+		return resultCell
 	}
 	
 //	func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
