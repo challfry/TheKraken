@@ -77,6 +77,7 @@
 		EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF340F224ED88300C7A0D9 /* LoginCells.swift */; };
 		EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */; };
 		EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */; };
+		EAF777F722A3B1D000B27803 /* SettingsLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF777F622A3B1D000B27803 /* SettingsLoginViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -188,6 +189,7 @@
 		EAEF340F224ED88300C7A0D9 /* LoginCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCells.swift; sourceTree = "<group>"; };
 		EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailRootViewController.swift; sourceTree = "<group>"; };
 		EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrTweetCell.swift; sourceTree = "<group>"; };
+		EAF777F622A3B1D000B27803 /* SettingsLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -304,6 +306,7 @@
 			isa = PBXGroup;
 			children = (
 				EA3C631422975D8400077E3B /* SettingsRootViewController.swift */,
+				EAF777F622A3B1D000B27803 /* SettingsLoginViewController.swift */,
 				EA3C63162297EFD400077E3B /* SettingsInfoCell.xib */,
 			);
 			path = Settings;
@@ -652,6 +655,7 @@
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,
+				EAF777F722A3B1D000B27803 /* SettingsLoginViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

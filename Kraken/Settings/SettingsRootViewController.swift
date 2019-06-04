@@ -28,8 +28,10 @@ class SettingsRootViewController: BaseCollectionViewController {
 		settingsSection.append(ServerAddressEditCellModel("Server URL"))
 		settingsSection.append(ButtonCellModel(title: "Reset Server URL to Default", action: resetServerButtonHit, alignment: .center))
 		
+		// Login State, login/out
 		settingsSection.append(cell: LoginInfoCellModel())
-		settingsSection.append(cell: ButtonCellModel(title: "Logout", action: nil, alignment: .center))
+		settingsSection.append(cell: SettingsLoginButtonCellModel(action: loginButtonTapped))
+//		settingsSection.append(cell: SettingsLogoutButtonCellModel())
 
 
 		var x = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
@@ -84,17 +86,23 @@ class SettingsRootViewController: BaseCollectionViewController {
 		Settings.shared.settingsBaseURL = defaultValue
 	}
 	
+	func loginButtonTapped() {
+		if CurrentUser.shared.isLoggedIn() {
+			// TODO: Should warn user if they logout while offline, they can't log in until
+			// they return to the ship. If they have pending posts, that dialog should also
+			// mention posts won't be sent until they're logged back in.
+		
+			CurrentUser.shared.logoutUser()
+		}
+		else {
+			// Show login controller
+			performSegue(withIdentifier: "ShowLogin", sender: self)
+		}
+	}
 	
-
-    /*
     // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
     }
-    */
 
 }
 
@@ -126,6 +134,8 @@ class SettingsRootViewController: BaseCollectionViewController {
 @objc protocol SettingsInfoCellProtocol {
 	dynamic var titleText: String? { get set }
 	dynamic var labelText: NSAttributedString? { get set }
+	dynamic var showActivitySpinner: Bool { get set }
+	dynamic var activityText: String? { get set }
 }
 
 @objc class SettingsInfoCellModel: BaseCellModel, SettingsInfoCellProtocol {	
@@ -134,12 +144,42 @@ class SettingsRootViewController: BaseCollectionViewController {
 
 	@objc dynamic var titleText: String?
 	@objc dynamic var labelText: NSAttributedString?
-	
+	@objc dynamic var showActivitySpinner: Bool = false
+	@objc dynamic var activityText: String?
+
 	init(_ titleLabel: String) {
 		titleText = titleLabel
 		super.init(bindingWith: SettingsInfoCellProtocol.self)
 	}
 }
+
+class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
+	@IBOutlet var titleLabel: UILabel!
+	@IBOutlet var infoLabel: UILabel!
+	@IBOutlet var activityView: UIView!
+	@IBOutlet var activityLabel: UILabel!
+	
+	private static let cellInfo = [ "SettingsInfoCell" : PrototypeCellInfo("SettingsInfoCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+
+	var titleText: String? {
+		didSet { titleLabel.text = titleText }
+	}
+	
+	var labelText: NSAttributedString? {
+		didSet { infoLabel.attributedText = labelText }
+	}
+	
+	var showActivitySpinner: Bool = false {
+		didSet { activityView.isHidden = !showActivitySpinner }
+	}
+	
+	var activityText: String? {
+		didSet { activityLabel.text = activityText }
+	}
+}
+
+
 
 @objc class LoginInfoCellModel: SettingsInfoCellModel {
 	init() {
@@ -156,20 +196,19 @@ class SettingsRootViewController: BaseCollectionViewController {
 	}
 }
 
-class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
-	@IBOutlet var titleLabel: UILabel!
-	@IBOutlet var infoLabel: UILabel!
-	
-	private static let cellInfo = [ "SettingsInfoCell" : PrototypeCellInfo("SettingsInfoCell") ]
-	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
-
-	var titleText: String? {
-		didSet { titleLabel.text = titleText }
+@objc class SettingsLoginButtonCellModel : ButtonCellModel {
+	init(action: (() -> Void)?) {
+		super.init(title: "Login", action: action, alignment: .center)
+		
+		CurrentUser.shared.tell(self, when:"loggedInUser") { observer, observed in
+//			observer.shouldBeVisible = observed.loggedInUser == nil
+			observer.buttonText = observed.loggedInUser == nil ? "Login" : "Log Out"
+		}?.schedule()
+		
+		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in
+			observer.buttonEnabled = !observed.isChangingLoginState
+		}?.schedule()
 	}
-
 	
-	var labelText: NSAttributedString? {
-		didSet { infoLabel.attributedText = labelText }
-	}
 }
 

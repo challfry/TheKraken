@@ -87,6 +87,7 @@ class SeamailDataManager: NSObject {
 		// Init the fetched results controller with a fetch that returns nothing. See the observation block below.
 		let fetchRequest = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
 		fetchRequest.predicate = NSPredicate(value: false)
+		fetchRequest.fetchBatchSize = 50
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
 		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest,
 				managedObjectContext: coreData.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)

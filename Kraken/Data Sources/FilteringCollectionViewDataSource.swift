@@ -248,6 +248,10 @@ import UIKit
 
 extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate,  UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
+		if oldVisibleSections == nil {
+			oldVisibleSections = visibleSections
+		}
+
     	return visibleSections.count
     }
 
