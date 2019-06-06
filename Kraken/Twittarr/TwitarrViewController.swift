@@ -14,7 +14,7 @@ class TwitarrViewController: BaseCollectionViewController {
 
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
 	var dataManager = TwitarrDataManager.shared
-	var tweetDataSource = FetchedResultsControllerDataSource<TwitarrPost, TwitarrTweetCell>()
+	var tweetDataSource = FetchedResultsControllerDataSource<TwitarrPost>()
 
 	var customGR: UILongPressGestureRecognizer?
 	var tappedCell: UICollectionViewCell?
@@ -27,14 +27,14 @@ class TwitarrViewController: BaseCollectionViewController {
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
  		TwitarrTweetCell.registerCells(with:collectionView)
- 		tweetDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData, setupCell: setupTweetCell, 
+		try! self.dataManager.fetchedData.performFetch()
+ 		tweetDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData, createCellModel: createCellModel, 
  				reuseID: "tweet")
 		collectionView.dataSource = tweetDataSource
 		collectionView.delegate = tweetDataSource
  		collectionView.prefetchDataSource = tweetDataSource
 
         // Do any additional setup after loading the view.
-		try! self.dataManager.fetchedData.performFetch()
 		startRefresh()
 		
 		title = dataManager.filter ?? "Twitarr"
@@ -45,12 +45,16 @@ class TwitarrViewController: BaseCollectionViewController {
 		dataManager.addDelegate(tweetDataSource)
 	}
 	
+    override func viewDidAppear(_ animated: Bool) {
+		tweetDataSource.enableAnimations = true
+	}
+	
     override func viewWillDisappear(_ animated: Bool) {
 		dataManager.removeDelegate(tweetDataSource)
 	}
 	
-	func setupTweetCell(cell: TwitarrTweetCell, fromModel: TwitarrPost) {
-		cell.tweetModel = fromModel
+	func createCellModel(_ model:TwitarrPost) -> BaseCellModel {
+		return TwitarrTweetCellModel(withModel: model, reuse: "tweet")
 	}
     
 	@objc func startRefresh() {
@@ -106,6 +110,7 @@ extension TwitarrViewController: UIGestureRecognizerDelegate {
 		if sender.state == .began {
 			if let indexPath = collectionView.indexPathForItem(at: sender.location(in:collectionView)) {
 				tappedCell = collectionView.cellForItem(at: indexPath)
+				tappedCell?.isHighlighted = true
 			}
 			else {
 				tappedCell = nil

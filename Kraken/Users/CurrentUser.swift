@@ -56,7 +56,7 @@ import CoreData
 @objc class CurrentUser: NSObject {
 	static let shared = CurrentUser()
 	
-	enum UserRole: String {
+	@objc enum UserRole: Int {
 		case admin
 		case tho
 		case moderator
@@ -64,6 +64,20 @@ import CoreData
 		case muted
 		case banned
 		case loggedOut
+		
+		// Done this dumb way because we need to be @objc, therefore Int-backed, not string-backed.
+		static func roleForString(str: String) -> UserRole? {
+			switch str {
+			case "admin": return .admin
+			case "tho": return .tho
+			case "moderator": return .moderator
+			case "user": return .user
+			case "muted": return .muted
+			case "banned": return .banned
+			case "loggedOut": return .loggedOut
+			default: return nil
+			}
+		}
 	}
 	
 	@objc dynamic var loggedInUser: LoggedInKrakenUser?
@@ -72,7 +86,7 @@ import CoreData
 	
 	// Info about the current user that should not be in KrakenUser nor cached to disk.
 	var lastLogin: Int = 0
-	var userRole: UserRole = .loggedOut
+	@objc dynamic var userRole: UserRole = .loggedOut
 	
 	// The last error we got from the server. Cleared when we start a new call.
 	@objc dynamic var lastError : ServerError?
@@ -166,7 +180,7 @@ import CoreData
 						self.loggedInUser = krakenUser
 						self.lastLogin = profileResponse.userAccount.lastLogin
 						self.twitarrV2AuthKey = keyUsedForLogin
-						self.userRole = UserRole(rawValue: profileResponse.userAccount.role) ?? .user
+						self.userRole = UserRole.roleForString(str: profileResponse.userAccount.role) ?? .user
 						self.saveLoginCredentials()
 					}
 				}
@@ -427,7 +441,7 @@ extension CurrentUser {
 			self.loggedInUser = krakenUser
 			self.lastLogin = 0
 			self.twitarrV2AuthKey = authKey
-			self.userRole = UserRole(rawValue: userRoleStr) ?? .user
+			self.userRole = UserRole.roleForString(str: userRoleStr) ?? .user
 
 			loadProfileInfo()
 		}

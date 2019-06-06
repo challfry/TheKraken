@@ -15,7 +15,12 @@ import UIKit
 	var sectionVisible: Bool { get set }
 		
 	func append(_ cell: BaseCellModel)
-	func runUpdates(for collectionView: UICollectionView?, sectionOffset: Int)
+	func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int)
+}
+
+protocol KrakenDataSourceProtocol {
+	var enableAnimations: Bool { get set}
+	func invalidateLayout()
 }
 
 @objc class FilteringDataSourceSection : NSObject, FilteringDataSourceSectionProtocol {
@@ -70,11 +75,12 @@ import UIKit
 	
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
-		let model = visibleCellModels[indexPath.row]
+		let cellModel = visibleCellModels[indexPath.row]
 
-		if let protoCell = model.makePrototypeCell(for: collectionView, indexPath: indexPath) {
+		if let protoCell = cellModel.makePrototypeCell(for: collectionView, indexPath: indexPath) {
 			let newSize = protoCell.calculateSize()
-			model.unbind(cell: protoCell)
+			cellModel.cellSize = newSize
+			cellModel.unbind(cell: protoCell)
    			return newSize
 		}
 
@@ -97,8 +103,8 @@ import UIKit
 		return model.makeCell(for: collectionView, indexPath: indexPath)
 	}
 	
-	// 
-	func runUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
+	// Only called by runUpdates, which is only in the top-level datasource
+	func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
 		var deletes = [IndexPath]()
 		var inserts = [IndexPath]()
 		if let oldModels = oldVisibleCellModels {
@@ -119,7 +125,7 @@ import UIKit
 	}
 }
 
-@objc class FilteringDataSource: NSObject {
+@objc class FilteringDataSource: NSObject, KrakenDataSourceProtocol {
 	@objc dynamic var allSections = NSMutableArray() // [FilteringDataSourceSection]()
 	@objc dynamic var visibleSections = NSMutableArray() // [FilteringDataSourceSection]()
 	@objc dynamic var oldVisibleSections: NSMutableArray? // [FilteringDataSourceSection]()
@@ -162,7 +168,13 @@ import UIKit
 		cv.delegate = self
 	}
 	
-	var updateScheduled = false
+	private var internalInvalidateLayout = false
+	func invalidateLayout() {
+		internalInvalidateLayout = true
+		runUpdates()
+	}
+	
+	private var updateScheduled = false
 	func runUpdates() {
 		guard !updateScheduled else { return }
 		DispatchQueue.main.async {
@@ -196,10 +208,17 @@ import UIKit
 					 	let section = self.visibleSections[sectionIndex] as! FilteringDataSourceSectionProtocol
 						if insertedSections.contains(sectionIndex) {
 							// Run and discard cell-level updates on this just-inserted section
-							section.runUpdates(for: nil, sectionOffset: sectionIndex)
+							section.internalRunUpdates(for: nil, sectionOffset: sectionIndex)
 							continue
 						}
-						section.runUpdates(for: cv, sectionOffset: sectionIndex)
+						section.internalRunUpdates(for: cv, sectionOffset: sectionIndex)
+					}
+					
+					if self.internalInvalidateLayout {
+						self.internalInvalidateLayout = false
+						let context = UICollectionViewFlowLayoutInvalidationContext()
+						context.invalidateFlowLayoutDelegateMetrics = true
+						self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
 					}
 				}, completion: nil)
 
@@ -246,7 +265,7 @@ import UIKit
 
 }
 
-extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate,  UICollectionViewDelegateFlowLayout {
+extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
 		if oldVisibleSections == nil {
 			oldVisibleSections = visibleSections

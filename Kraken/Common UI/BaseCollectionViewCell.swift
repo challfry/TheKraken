@@ -19,7 +19,7 @@ import UIKit
 	var bindingProtocol: Protocol?
 	var observations = [EBNObservation]()
 	@objc dynamic var shouldBeVisible = true
-	@objc dynamic var cellHeight = 0
+	@objc dynamic var cellSize = CGSize(width: 0, height: 0)
 	
 	// Cells built from this model can use this to store their state data. State data includes stuff like text entered in text fields.
 	// The dict is indexed by reuseID.
@@ -32,7 +32,6 @@ import UIKit
 	func reuseID() -> String { return type(of: self).validReuseIDDict.first?.key ?? "" }
 
 	func makeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> UICollectionViewCell {
-	
 		let id = reuseID()
 		// Get a cell and property bind it to the cell model
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! BaseCollectionViewCell 
@@ -43,10 +42,6 @@ import UIKit
 		cell.cellModel = self
 		cell.collectionView = collectionView
 		return cell
-		
-		
-		// TODO: fix default cell
-//		return  collectionView.dequeueReusableCell(withReuseIdentifier: "none", for: indexPath)
 	}
 	
 	// Makes a prototype cell, binds the cell to the cellModel. By overriding reuseID, subclasses can
@@ -56,11 +51,18 @@ import UIKit
 		
 		if let classType = type(of: self).validReuseIDDict[id], let cellInfo = classType.validReuseIDDict[id],
 				let cell = cellInfo.prototypeCell {
+//		if let classType = type(of: self).validReuseIDDict[id], let cell = classType.makePrototypeCell(reuseID: id) {
 			if let prot = self.bindingProtocol {
 				cell.bind(to:self, with: prot)
 			}
 			cell.cellModel = self
 			cell.collectionView = collectionView
+			if let selection = collectionView.indexPathsForSelectedItems, selection.contains(indexPath) {
+				cell.isSelected = true
+			}
+			else {
+				cell.isSelected = false
+			}
 			return cell
 		}
 		return nil
@@ -84,6 +86,7 @@ import UIKit
 	func unbind(cell: BaseCollectionViewCell) {
 		if let prot = self.bindingProtocol {
 			cell.unbind(self, from: prot)
+			cell.clearObservations()
 		}
 	}
 }
@@ -114,12 +117,14 @@ struct PrototypeCellInfo {
 	}
 
 	var cellModel: BaseCellModel? 							// Not all datasources use cell models
+	var observations = [EBNObservation]()
 	@objc dynamic weak var viewController: BaseCollectionViewController?  // For launching segues
 	
 	var isPrototypeCell: Bool = false
-	var calculatedHeight: CGFloat = 0.0
+	var calculatedSize: CGSize = CGSize(width: 0.0, height: 0.0)
 	var fullWidthConstraint: NSLayoutConstraint?
 	var fullWidth: Bool = true
+	private var isRecyclingCell = false
 	    
 	weak var collectionView: UICollectionView? {
 		didSet {
@@ -132,18 +137,19 @@ struct PrototypeCellInfo {
 	}
 	
 	func cellSizeChanged() {
-		if !isPrototypeCell {
-//			if let indexPath = collectionView?.indexPath(for: self) {
-//				collectionView?.reloadItems(at: [indexPath])
+		cellModel?.cellSize = CGSize(width: 0, height: 0)
+		if !isPrototypeCell && !isRecyclingCell {
+		//	if let indexPath = collectionView?.indexPath(for: self) {
+	//			collectionView?.reloadItems(at: [indexPath])
 //				collectionView?.collectionViewLayout.invalidateLayout()
 				let context = UICollectionViewFlowLayoutInvalidationContext()
 				context.invalidateFlowLayoutDelegateMetrics = true
-				
-				collectionView?.performBatchUpdates({ 
-					collectionView?.collectionViewLayout.invalidateLayout(with: context)
-				}, completion: nil)
+				collectionView?.collectionViewLayout.invalidateLayout(with: context)
+			//	if let ds = collectionView?.dataSource as? KrakenDataSourceProtocol {
+			//		ds.invalidateLayout()
+			//	}
 			}
-//		}
+	//	}
 	}
 
 	override func awakeFromNib() {
@@ -179,12 +185,26 @@ struct PrototypeCellInfo {
 		layoutIfNeeded()
 		
 		let size = contentView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-		calculatedHeight = size.height
+		calculatedSize = size
 		return size
 	}
 	
 	override func prepareForReuse() {
+		isRecyclingCell = true
 		super.prepareForReuse()
 		cellModel?.unbind(cell: self)
+		isRecyclingCell = false
 	}
+	
+	func addObservation(_ observation: EBNObservation?) {
+		guard let obs = observation else { return }
+		
+		observations.append(obs)
+	}
+	
+	func clearObservations() {
+		observations.forEach { $0.stopObservations() } 
+		observations.removeAll()
+	}
+	
 }

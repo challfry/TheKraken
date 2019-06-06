@@ -9,10 +9,14 @@
 import UIKit
 
 class ComposeTweetViewController: BaseCollectionViewController {
+	var parentTweet: TwitarrPost?
+	var editTweet: TwitarrPost?
+
 	let loginDataSource = FilteringDataSource()
-	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
+//	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
 	let composeDataSource = FilteringDataSource()
 	var tweetTextCell: TextViewCellModel?
+	var postButtonCell: ButtonCellModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,8 +30,10 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		let composeSection = composeDataSource.appendSection(named: "ComposeSection")
         let textCell = TextViewCellModel("What do you want to say?")
         tweetTextCell = textCell
-        composeSection.append(textCell)
-        composeSection.append(ButtonCellModel(title:"Post", action: postAction))
+		let btnCell = ButtonCellModel(title:"Post", action: postAction)
+		postButtonCell = btnCell
+		composeSection.append(textCell)
+        composeSection.append(btnCell)
         composeSection.append(EmojiSelectionCellModel(paster: emojiButtonTapped))
         composeSection.append(PhotoSelectionCellModel())
         
@@ -44,7 +50,19 @@ class ComposeTweetViewController: BaseCollectionViewController {
     }
     
     func postAction() {
-    	print("Got to posting")
+    	let context = LocalCoreData.shared.mainThreadContext
+    	let tweetText = tweetTextCell?.editedText
+    	
+//    	context.perform {
+//    		do {
+//				let newPost = PostOperationTweet(context: context)
+//				newPost.build(text, photo, parent, edit)
+//				try context.save()
+//			}
+//			catch {
+//				
+//			}
+//    	}
     }
     
     func emojiButtonTapped(withEmojiString: String?) {

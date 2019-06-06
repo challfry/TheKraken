@@ -11,7 +11,7 @@ import CoreData
 
 class SeamailRootViewController: BaseCollectionViewController {
 	let loginDataSource = FilteringDataSource()
-	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
+	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread>()
 	let dataManager = SeamailDataManager.shared
 	
 	override func viewDidLoad() {
@@ -22,7 +22,7 @@ class SeamailRootViewController: BaseCollectionViewController {
         
 		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
 		frcDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData,
-				setupCell: setupThreadCell, reuseID: "seamailThread")
+				createCellModel: createCellModel, reuseID: "seamailThread")
   		SeamailThreadCell.registerCells(with:collectionView)
     	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
        
@@ -49,10 +49,11 @@ class SeamailRootViewController: BaseCollectionViewController {
 	}
 	
 	// Gets called from within collectionView:cellForItemAt:
-	func setupThreadCell(_ cell: UICollectionViewCell, _ modelObject: NSManagedObject) {
-		guard let threadCell = cell as? SeamailThreadCell, let thread = modelObject as? SeamailThread else { return }
-		threadCell.viewController = self
-		threadCell.threadModel = thread
+	func createCellModel(_ model:SeamailThread) -> BaseCellModel {
+//		guard let threadCell = cell as? SeamailThreadCell, let thread = modelObject as? SeamailThread else { return }
+//		threadCell.viewController = self
+//		threadCell.threadModel = thread
+		return BaseCellModel(bindingWith: nil)
 	}
 
     

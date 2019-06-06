@@ -13,7 +13,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 
 	var threadModel: SeamailThread?
 	
-	let frcDataSource = FetchedResultsControllerDataSource<SeamailMessage, SeamailMessageCell>()
+	let frcDataSource = FetchedResultsControllerDataSource<SeamailMessage>()
 	let filterDataSource = FilteringDataSource()
 	let dataManager = SeamailDataManager.shared
 	private let coreData = LocalCoreData.shared
@@ -33,7 +33,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 				managedObjectContext: coreData.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
 		try? fetchedResults.performFetch()
 		frcDataSource.setup(collectionView: collectionView, frc: fetchedResults,
-				setupCell: setupMessageCell, reuseID: "SeamailMessageCell")
+				createCellModel: createMessageCellModel, reuseID: "SeamailMessageCell")
 		frcDataSource.overrideReuseID = overrideReuseID
 		collectionView.register(UINib(nibName: "SeamailMessageCell", bundle: nil), forCellWithReuseIdentifier: "SeamailMessageCell")
 		collectionView.register(UINib(nibName: "SeamailSelfMessageCell", bundle: nil), forCellWithReuseIdentifier: "SeamailSelfMessageCell")
@@ -46,9 +46,9 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		collectionView.delegate = filterDataSource
     }
     
-	func setupMessageCell(_ cell:SeamailMessageCell, _ model: SeamailMessage) {
-    	cell.model = model
-    }
+	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {
+		return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
+	}
     
     func overrideReuseID(_ model: SeamailMessage) -> String? {
     	if model.author.username == CurrentUser.shared.loggedInUser?.username {

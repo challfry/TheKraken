@@ -7,8 +7,15 @@
 //
 
 import UIKit
+import CoreData
 
-class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
+@objc class TwitarrTweetCellModel: FetchedResultsCellModel {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "tweet" : TwitarrTweetCell.self ] }
+}
+
+
+class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, UITextViewDelegate {
+	
 	@IBOutlet var titleLabel: UITextView!
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
@@ -28,43 +35,42 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 		return cell
 	}
 
-    var tweetModel: TwitarrPost? {
+    var model: NSFetchRequestResult? {
     	didSet {
-    		if let model = tweetModel {
-	    		let titleAttrString = NSMutableAttributedString(string: "\(model.author.displayName), ", 
-	    				attributes: authorTextAttributes())
-				let timeString = StringUtilities.relativeTimeString(forDate: model.postDate())
-	    		let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
-	    		titleAttrString.append(timeAttrString)
-	    		titleLabel.attributedText = titleAttrString
-			}
-			else {
+    		clearObservations()
+    		guard let tweetModel = model as? TwitarrPost else {
 				titleLabel.attributedText = nil
-			}
-	    		
-    		if let text = tweetModel?.text {
-	    		tweetTextView.attributedText = StringUtilities.cleanupText(text)
-	    		
-				let fixedWidth = tweetTextView.frame.size.width
-				let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-				tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-			}
-			else {
 				tweetTextView.attributedText = nil
-			}
+				postImage.image = nil
+				userButton.setBackgroundImage(nil, for: .normal)				
+  				self.postImage.isHidden = true
+				self.postImage.image = nil
+				return
+  			}
+    		
+			let titleAttrString = NSMutableAttributedString(string: "\(tweetModel.author.displayName), ", 
+					attributes: authorTextAttributes())
+			let timeString = StringUtilities.relativeTimeString(forDate: tweetModel.postDate())
+			let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
+			titleAttrString.append(timeAttrString)
+			titleLabel.attributedText = titleAttrString
+
+			tweetTextView.attributedText = StringUtilities.cleanupText(tweetModel.text)
+			let fixedWidth = tweetTextView.frame.size.width
+			let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+			tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
 			
-    		if let user = tweetModel?.author {
-	    		user.loadUserThumbnail()
-	    		user.tell(self, when:"thumbPhoto") { observer, observed in
-					observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
-					observer.userButton.setTitle("", for: .normal)
-	    		}?.schedule()
-			}
+			tweetModel.author.loadUserThumbnail()
+			addObservation(tweetModel.author.tell(self, when:"thumbPhoto") { observer, observed in
+				observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
+				observer.userButton.setTitle("", for: .normal)
+			}?.schedule())
 			
-			if let photo = tweetModel?.photoDetails {
+			if let photo = tweetModel.photoDetails {
 				self.postImage.isHidden = false
 				ImageManager.shared.image(withSize:.medium, forKey: photo.id) { image in
 					self.postImage.image = image
+					self.cellSizeChanged()
 				}
 			}
 			else {
@@ -80,7 +86,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
 	
 	override var isSelected: Bool {
 		didSet {
-			if  isSelected != editStack.isHidden {
+			if  isSelected == oldValue {
 				return
 			}
 			editStack.isHidden = !isSelected
@@ -128,7 +134,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, UITextViewDelegate {
     }
     
    	@IBAction func showUserProfile() {
-   		if let userName = tweetModel?.author.username {
+   		if let tweetModel = model as? TwitarrPost {
+   			let userName = tweetModel.author.username
    			viewController?.performSegue(withIdentifier: "UserProfile", sender: userName)
 		}
    	}

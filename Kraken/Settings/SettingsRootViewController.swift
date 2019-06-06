@@ -30,8 +30,8 @@ class SettingsRootViewController: BaseCollectionViewController {
 		
 		// Login State, login/out
 		settingsSection.append(cell: LoginInfoCellModel())
+		settingsSection.append(cell: LoginAdminInfoCellModel())
 		settingsSection.append(cell: SettingsLoginButtonCellModel(action: loginButtonTapped))
-//		settingsSection.append(cell: SettingsLogoutButtonCellModel())
 
 
 		var x = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
@@ -195,6 +195,38 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		}?.schedule()
 	}
 }
+
+@objc class LoginAdminInfoCellModel: LabelCellModel {
+	init() {
+		super.init("")
+		
+		CurrentUser.shared.tell(self, when:"userRole") { observer, observed in
+			var infoString: String
+			var showCell = true
+			switch observed.userRole {
+				case .admin: infoString = "This is an admin account, although Kraken doesn't support many admin features."
+				case .tho: infoString = "This is The Home Office special account"
+				case .moderator: infoString = "This is a moderator account, although Kraken doesn't support many moderator features."
+				case .user: infoString = ""; showCell = false
+				case .muted: infoString = "This account has been temporarily muted"
+				case .banned: infoString = "This account has been banned"
+				case .loggedOut: infoString = ""; showCell = false
+			}
+
+			// For Testing
+	//		infoString = "This is a moderator account, although Kraken doesn't support many moderator features."
+	//		observer.shouldBeVisible = true
+
+			let centerStyle = NSMutableParagraphStyle()
+			centerStyle.alignment = .center
+			let warningAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.preferredFont(forTextStyle:.headline).withSize(17) as Any, 
+					.foregroundColor : UIColor.red, .paragraphStyle : centerStyle ]
+			observer.labelText = NSAttributedString(string: infoString, attributes:  warningAttrs)
+			observer.shouldBeVisible = showCell
+		}?.schedule()
+	}
+}
+
 
 @objc class SettingsLoginButtonCellModel : ButtonCellModel {
 	init(action: (() -> Void)?) {

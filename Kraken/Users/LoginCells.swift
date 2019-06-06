@@ -138,7 +138,6 @@ class EditDisplayNameCellModel : TextFieldCellModel {
 			else {
 				observer.errorText = ""
 			}
-			observer.cellHeight = observer.cellHeight + 1
 		}?.execute()
 	}
 }
@@ -246,7 +245,6 @@ class EditUsernameCellModel: TextFieldCellModel {
 			else {
 				observer.errorText = ""
 			}
-			observer.cellHeight = observer.cellHeight + 1
 		}
 	}
 }
@@ -266,7 +264,6 @@ class EditPasswordCellModel: TextFieldCellModel {
 			else {
 				observer.errorText = ""
 			}
-			observer.cellHeight = observer.cellHeight + 1
 		}
 	}
 }

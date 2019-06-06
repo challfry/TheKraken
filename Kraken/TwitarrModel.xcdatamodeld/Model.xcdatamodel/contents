@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14490.99" systemVersion="18E226" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14490.99" systemVersion="18F132" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CommentsAndStars" representedClassName="CommentsAndStars" syncable="YES">
         <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="isStarred" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
@@ -56,7 +56,7 @@
         <attribute name="id" attributeType="String" syncable="YES"/>
         <attribute name="originalPostTime" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="readyToSend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="author" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="postOps" inverseEntity="KrakenUser" syncable="YES"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="postOps" inverseEntity="KrakenUser" syncable="YES"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -129,11 +129,11 @@
         <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="30"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
+        <element name="PostOperation" positionX="117" positionY="126" width="128" height="120"/>
+        <element name="PostOperationTweet" positionX="126" positionY="117" width="128" height="30"/>
         <element name="SeamailMessage" positionX="144" positionY="135" width="128" height="135"/>
         <element name="SeamailThread" positionX="153" positionY="153" width="128" height="135"/>
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="30"/>
-        <element name="PostOperation" positionX="117" positionY="126" width="128" height="30"/>
-        <element name="PostOperationTweet" positionX="126" positionY="117" width="128" height="30"/>
     </elements>
 </model>

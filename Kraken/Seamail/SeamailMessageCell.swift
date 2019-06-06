@@ -8,6 +8,10 @@
 
 import UIKit
 
+@objc class SeamailMessageCellModel: FetchedResultsCellModel {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "SeamailMessageCell" : SeamailMessageCell.self ] }
+}
+
 class SeamailMessageCell: BaseCollectionViewCell {
 
 	@IBOutlet weak var authorImage: UIImageView!

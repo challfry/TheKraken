@@ -17,7 +17,7 @@ class SeamailThreadCell: BaseCollectionViewCell {
 	@IBOutlet var usersView: UICollectionView!
 	@IBOutlet var usersViewHeightConstraint: NSLayoutConstraint!
 
-	var frcDataSource = FetchedResultsControllerDataSource<KrakenUser, SmallUserCell>()
+	var frcDataSource = FetchedResultsControllerDataSource<KrakenUser>()
 
 	private static let cellInfo = [ "seamailThread" : PrototypeCellInfo("SeamailThreadCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailThreadCell.cellInfo }
@@ -38,7 +38,7 @@ class SeamailThreadCell: BaseCollectionViewCell {
 			fetchRequest.fetchBatchSize = 30
 			let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
 					managedObjectContext: LocalCoreData.shared.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
-			frcDataSource.setup(collectionView: usersView, frc: frc, setupCell: setupUserCell, reuseID: "SmallUserCell")
+			frcDataSource.setup(collectionView: usersView, frc: frc, createCellModel: createUserCellModel, reuseID: "SmallUserCell")
 	
 			if let thread = threadModel {
 				subjectLabel.text = thread.subject
@@ -50,10 +50,10 @@ class SeamailThreadCell: BaseCollectionViewCell {
 				frcDataSource.frc?.fetchRequest.predicate = NSPredicate(format: "ANY seamailParticipant.id == %@", thread.id)
 
 				// Set the height of the in-cell CollectionView to be at least as tall as its cells.
-				if let protoCell = SmallUserCell.makePrototypeCell(reuseID: "SmallUserCell"), let protoUser = thread.participants.first {
-					setupUserCell(protoCell, protoUser)
-					let newSize = protoCell.calculateSize()
-					if usersViewHeightConstraint.constant < newSize.height {
+				if let protoUser = thread.participants.first {
+					let protoCellModel = SmallUserCellModel(withModel: protoUser, reuse: "SmalluserCell")
+					let protoCell = protoCellModel.makeCell(for: usersView, indexPath: IndexPath(row: 0, section: 0)) as? SmallUserCell
+					if let newSize = protoCell?.calculateSize(), usersViewHeightConstraint.constant < newSize.height {
 						usersViewHeightConstraint.constant = newSize.height
 					}
 				}
@@ -79,12 +79,10 @@ class SeamailThreadCell: BaseCollectionViewCell {
 		setupGestureRecognizer()		
 	}
 	
-	func setupUserCell(_ cell:UICollectionViewCell, _ model:KrakenUser) {
-		guard let userCell = cell as? SmallUserCell else { return }
-		userCell.userModel = model
-		userCell.viewController	= viewController
+	func createUserCellModel(_ model:KrakenUser) -> BaseCellModel {
+		return SmallUserCellModel(withModel: model, reuse: "SmallUserCell")
 	}
-
+    
 	override var isSelected: Bool {
 		didSet {
 			if isSelected {
@@ -163,7 +161,11 @@ extension SeamailThreadCell: UIGestureRecognizerDelegate {
 }
 
 
-class SmallUserCell: BaseCollectionViewCell {
+@objc class SmallUserCellModel: FetchedResultsCellModel {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "SmallUserCell" : SmallUserCell.self ] }
+}
+
+class SmallUserCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
 	@IBOutlet var imageView: UIImageView!
 	@IBOutlet var usernameLabel: UILabel!
 	
@@ -177,9 +179,9 @@ class SmallUserCell: BaseCollectionViewCell {
 		return cell
 	}
 	
-	var userModel: KrakenUser? {
+	var model: NSFetchRequestResult? {
 		didSet {
-			if let user = userModel {
+			if let user = model as? KrakenUser {
 	    		user.loadUserThumbnail()
 	    		user.tell(self, when:"thumbPhoto") { observer, observed in
 					observer.imageView.image = observed.thumbPhoto
@@ -187,7 +189,6 @@ class SmallUserCell: BaseCollectionViewCell {
 	    		
 	    		usernameLabel.text = "@\(user.username)"
 			}
-
 		}
 	}
 	
@@ -198,8 +199,8 @@ class SmallUserCell: BaseCollectionViewCell {
 	
 	override var isSelected: Bool {
 		didSet {
-			if isSelected {
-				viewController?.performSegue(withIdentifier: "UserProfile", sender: userModel?.username)
+			if isSelected, let userModel = model as? KrakenUser {
+				viewController?.performSegue(withIdentifier: "UserProfile", sender: userModel.username)
 			}
 		}
 	}
