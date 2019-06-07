@@ -130,9 +130,11 @@ extension TwitarrViewController: UIGestureRecognizerDelegate {
 		
 		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {
 			tappedCell.isHighlighted = false
+			
+			// Stop the scroll view's odd scrolling behavior that happens when cell tap resizes the cell.
+			collectionView.setContentOffset(collectionView.contentOffset, animated: false)
 		}
 	}
 	
 }
-
 

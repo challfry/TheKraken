@@ -15,13 +15,26 @@ import UIKit
 @objc(TwitarrPost) public class TwitarrPost: KrakenManagedObject {
     @NSManaged public var id: String
     @NSManaged public var locked: Bool
-    @NSManaged public var reactions: Int64
+    @NSManaged public var reactions: Set<Reaction>
     @NSManaged public var text: String
     @NSManaged public var timestamp: Int64
     @NSManaged public var contigWithOlder: Bool
     @NSManaged public var author: KrakenUser
-    @NSManaged public var parentChain: TwitarrPost?
+    @NSManaged public var parentID: String?
+    @NSManaged public var parent: TwitarrPost?
+    @NSManaged public var children: Set<TwitarrPost>?
     @NSManaged public var photoDetails: PhotoDetails?
+    
+    @objc dynamic public var reactionDict: NSMutableDictionary?
+    
+	public override func awakeFromFetch() {
+		super.awakeFromFetch()
+    	let dict = NSMutableDictionary()
+		for reaction in reactions {
+			dict.setValue(reaction, forKey: reaction.word)
+		}
+		reactionDict = dict
+	}
     
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Post) {
 		var changed = TestAndUpdate(\.id, v2Object.id)
@@ -51,9 +64,25 @@ import UIKit
 			}
 		}
 		
-	//	reactions = jsonObject.reactions
-	//	parentChain = parentChain
-    }
+		// Hopefully item 0 in the parent chain is the *direct* parent?
+		if v2Object.parentChain.count > 0 {
+			let parentIDStr = v2Object.parentChain[0]
+			TestAndUpdate(\TwitarrPost.parentID, parentIDStr)
+			
+			// Not hooking up the parent relationship yet. Not sure if we can, as the parent may not be cached at this point?
+		}
+		
+		for (reactionName, reactionV2Obj) in v2Object.reactions {
+			var reaction = reactions.first { object in return object.word == reactionName }
+			if reaction == nil {
+				let r = Reaction(context: context)
+				reactions.insert(r)	
+				reaction = r
+			}
+			reaction?.buildFromV2(context: context, post: self, v2Object: reactionV2Obj, reactionName: reactionName)
+		}
+
+	}
 	
 	func postDate() -> Date {
 		return Date(timeIntervalSince1970: Double(timestamp) / 1000.0)
@@ -342,7 +371,7 @@ extension TwitarrDataManager : NSFetchedResultsControllerDelegate {
 // MARK: - V2 API Decoding
 
 struct TwitarrV2Reactions: Codable {
-	let count: Int
+	let count: Int32
 	let me: Bool
 }
 

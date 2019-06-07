@@ -78,6 +78,17 @@ import CoreData
 			default: return nil
 			}
 		}
+		static func stringForRole(role: UserRole) -> String {
+			switch role {
+			case .admin: return "admin"
+			case .tho: return "tho"
+			case .moderator: return "moderator"
+			case .user: return "user"
+			case .muted: return "muted"
+			case .banned: return "banned"
+			case .loggedOut: return "loggedOut"
+			}
+		}
 	}
 	
 	@objc dynamic var loggedInUser: LoggedInKrakenUser?
@@ -394,7 +405,7 @@ extension CurrentUser {
 				kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
 				kSecAttrAccount as String: user.username,
 				kSecAttrServer as String: keychainObjectKey,
-				kSecAttrSecurityDomain as String: self.userRole.rawValue,	// Heh. Not what SecurityDomain is actually for.
+				kSecAttrSecurityDomain as String: UserRole.stringForRole(role: userRole),	// Heh. Not what SecurityDomain is actually for.
 				kSecValueData as String: keyData as NSData]
 
 		let status: OSStatus = SecItemAdd(query as CFDictionary, nil)

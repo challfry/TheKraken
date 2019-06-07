@@ -24,6 +24,7 @@
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentsAndStars" inverseName="commentedOnUser" inverseEntity="CommentsAndStars" syncable="YES"/>
         <relationship name="commentsAndStars" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CommentsAndStars" inverseName="commentingUser" inverseEntity="CommentsAndStars" syncable="YES"/>
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation" syncable="YES"/>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction" syncable="YES"/>
         <relationship name="seamailAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="author" inverseEntity="SeamailMessage" syncable="YES"/>
         <relationship name="seamailParticipant" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="participants" inverseEntity="SeamailThread" syncable="YES"/>
         <relationship name="seamailReader" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="readUsers" inverseEntity="SeamailMessage" syncable="YES"/>
@@ -68,6 +69,12 @@
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsWithThisParent" inverseEntity="TwitarrPost" syncable="YES"/>
         <relationship name="tweetToEdit" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsEditingThisTweet" inverseEntity="TwitarrPost" syncable="YES"/>
     </entity>
+    <entity name="Reaction" representedClassName="Reaction" syncable="YES">
+        <attribute name="count" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="word" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="sourceTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="reactions" inverseEntity="TwitarrPost" syncable="YES"/>
+        <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="reactions" inverseEntity="KrakenUser" syncable="YES"/>
+    </entity>
     <entity name="SeamailMessage" representedClassName="SeamailMessage" syncable="YES">
         <attribute name="id" attributeType="String" syncable="YES"/>
         <attribute name="text" attributeType="String" syncable="YES"/>
@@ -103,14 +110,16 @@
         <attribute name="contigWithOlder" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="id" attributeType="String" syncable="YES"/>
         <attribute name="locked" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="reactions" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="parentID" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="tweets" inverseEntity="KrakenUser" syncable="YES"/>
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="parent" inverseEntity="TwitarrPost" syncable="YES"/>
         <relationship name="opsEditingThisTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOperationTweet" inverseName="tweetToEdit" inverseEntity="PostOperationTweet" syncable="YES"/>
         <relationship name="opsWithThisParent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOperationTweet" inverseName="parent" inverseEntity="PostOperationTweet" syncable="YES"/>
-        <relationship name="parentChain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="parentChain" inverseEntity="TwitarrPost" syncable="YES"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="children" inverseEntity="TwitarrPost" syncable="YES"/>
         <relationship name="photoDetails" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoDetails" inverseName="postsWithThisPhoto" inverseEntity="PhotoDetails" syncable="YES"/>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="sourceTweet" inverseEntity="Reaction" syncable="YES"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -126,7 +135,7 @@
     <fetchRequest name="SeamailThreadsWithIDs" entity="SeamailThread" predicateString="id IN $ids"/>
     <elements>
         <element name="CommentsAndStars" positionX="117" positionY="90" width="128" height="105"/>
-        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="30"/>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="375"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="120"/>
@@ -134,6 +143,7 @@
         <element name="SeamailMessage" positionX="144" positionY="135" width="128" height="135"/>
         <element name="SeamailThread" positionX="153" positionY="153" width="128" height="135"/>
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
-        <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="30"/>
+        <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="240"/>
+        <element name="Reaction" positionX="117" positionY="117" width="128" height="105"/>
     </elements>
 </model>

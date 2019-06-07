@@ -16,12 +16,17 @@ import CoreData
 
 class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, UITextViewDelegate {
 	
-	@IBOutlet var titleLabel: UITextView!
+	@IBOutlet var titleLabel: UITextView!			// Author and timestamp
+	@IBOutlet var likesLabel: UILabel!				
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
 	@IBOutlet var userButton: UIButton!
-	@IBOutlet var editStack: UIStackView!
-	@IBOutlet var editButton: UIButton!
+	@IBOutlet var editStackView: UIView!
+	@IBOutlet var 	editStack: UIStackView!
+	@IBOutlet var   	likeButton: UIButton!
+	@IBOutlet var 		editButton: UIButton!
+	@IBOutlet var 		replyButton: UIButton!
+	@IBOutlet var 		deleteButton: UIButton!
 		
 	private static let cellInfo = [ "tweet" : PrototypeCellInfo("TwitarrTweetCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return TwitarrTweetCell.cellInfo }
@@ -54,6 +59,14 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 			let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
 			titleAttrString.append(timeAttrString)
 			titleLabel.attributedText = titleAttrString
+			
+			if let likeReaction = tweetModel.reactions.first(where: { reaction in reaction.word == "like" }) {
+				likesLabel.isHidden = false
+				likesLabel.text = "\(likeReaction.count) 💛"
+			}
+			else {
+				likesLabel.isHidden = true
+			}
 
 			tweetTextView.attributedText = StringUtilities.cleanupText(tweetModel.text)
 			let fixedWidth = tweetTextView.frame.size.width
@@ -77,10 +90,35 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 				self.postImage.image = nil
 				self.postImage.isHidden = true
 			}
+			
+			let currentUserWroteThis = tweetModel.author.username == CurrentUser.shared.loggedInUser?.username
+			editButton.isHidden = !currentUserWroteThis
+			deleteButton.isHidden = !currentUserWroteThis
+			tweetModel.tell(self, when: "reactionDict.like.users.<currentUser>") { observer, observed in
+				observer.setLikeButtonState()
+			}?.schedule()
+			
 
 			titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 			tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     	}
+	}
+	
+	func setLikeButtonState() {
+		guard let currentUser = CurrentUser.shared.loggedInUser, let tweetModel = model as? TwitarrPost else {
+			likeButton.setTitle("Like", for: .normal)
+			return
+		}
+		
+		// If the current logged in user already likes this tweet, set the like button to unlike
+		if let likeReaction = tweetModel.reactionDict?["like"] as? Reaction {
+			if likeReaction.users.contains(where: { user in return user.username == currentUser.username }) {
+				likeButton.setTitle("Unlike", for: .normal)
+			}
+		}
+		else {
+			likeButton.setTitle("Like", for: .normal)
+		}
 	}
 	
 	
@@ -89,11 +127,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 			if  isSelected == oldValue {
 				return
 			}
-			editStack.isHidden = !isSelected
+			editStackView.isHidden = !isSelected
 			cellSizeChanged()
 			contentView.backgroundColor = isSelected ? UIColor(white: 0.95, alpha: 1.0) : UIColor.white
 		}
-	
 	}
 	
 	var highlightAnimation: UIViewPropertyAnimator?
@@ -138,6 +175,17 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
    			let userName = tweetModel.author.username
    			viewController?.performSegue(withIdentifier: "UserProfile", sender: userName)
 		}
+   	}
+   	
+   	@IBAction func likeButtonTapped() {
+//   		if !CurrentUser.shared.isLoggedIn() {
+//   			viewController?.performSegue(withIdentifier: "login", sender: <#T##Any?#>)
+//   		}
+//   		else {
+//    		if let tweetModel = model as? TwitarrPost {
+//    			tweetModel.setLikeReaction(true)
+//    		}
+//   		}
    	}
 		
 }
