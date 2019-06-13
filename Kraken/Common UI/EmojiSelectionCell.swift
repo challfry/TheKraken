@@ -33,7 +33,7 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 	@objc dynamic var buttonEnableState: Bool = false
 
 //	let items = ["😂", "😭", "😍", "❤️", "👉", "💜", ",💕", "😊", "🤔", "🙏", "⌚️", "❤️", "🏁", "🇩🇿" ]
-	let items = [ "😂", "❤️", "♻️", "😍", "♥️", "😭", "😊", "😒", "💕", "😘", "😩", "☺️", "👌", "😔", "😁", "😏", "😉", 
+	let items = [ "😂", "❤️", "♻️", "😍", "♥️", "😭", "😊", "😒", "💕", "😘", "😩", "☺️", "👌\u{1F3FF}", "😔", "😁", "😏", "😉", 
 			"👍", "⬅️", "😅", "🙏", "😌", "😢", "👀", "💔", "😎", "🎶", "💙", "💜", "🙌", "😳", "✨", "💖", "🙈", "💯", 
 			"🔥", "✌️", "😄", "😴", "😑", "😋", "😜", "😕", "😞", "😪", "💗", "👏", "😐", "👉", "💞", "💘", "📷", "😱", 
 			"💛", "🌹", "💁", "🌸", "💋", "😡", "🙊", "💀", "😆", "😀", "😈", "🎉", "💪", "😃", "✋", "😫", "▶️", "😝", 
@@ -44,7 +44,9 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 		emojiCollection.register(EmojiButtonCell.self, forCellWithReuseIdentifier: "EmojiButton")
 		
 		self.tell(self, when: "viewController.activeTextEntry") { observer, observed in 
-			observer.buttonEnableState = observed.viewController?.activeTextEntry != nil
+			if let vc = observed.viewController as? BaseCollectionViewController {
+				observer.buttonEnableState = vc.activeTextEntry != nil
+			}
 		}
 	}
 	

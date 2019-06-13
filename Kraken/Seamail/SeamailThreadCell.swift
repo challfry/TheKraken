@@ -38,7 +38,8 @@ class SeamailThreadCell: BaseCollectionViewCell {
 			fetchRequest.fetchBatchSize = 30
 			let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
 					managedObjectContext: LocalCoreData.shared.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
-			frcDataSource.setup(collectionView: usersView, frc: frc, createCellModel: createUserCellModel, reuseID: "SmallUserCell")
+			frcDataSource.setup(viewController: viewController, collectionView: usersView, frc: frc, createCellModel: 
+					createUserCellModel, reuseID: "SmallUserCell")
 	
 			if let thread = threadModel {
 				subjectLabel.text = thread.subject
@@ -179,6 +180,8 @@ class SmallUserCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
 		return cell
 	}
 	
+	@objc dynamic var privateSelected: Bool = false
+
 	var model: NSFetchRequestResult? {
 		didSet {
 			if let user = model as? KrakenUser {

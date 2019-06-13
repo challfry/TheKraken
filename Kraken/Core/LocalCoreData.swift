@@ -63,17 +63,17 @@ class LocalCoreData: NSObject {
 		return persistentContainer.newBackgroundContext()
 	}()
 	
-	func saveContext () {
-		let context = persistentContainer.viewContext
-		if context.hasChanges {
-			do {
-				try context.save()
-			} catch {
-				let nserror = error as NSError
-				fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-			}
-		}
-	}
+//	func saveContext () {
+//		let context = persistentContainer.viewContext
+//		if context.hasChanges {
+//			do {
+//				try context.save()
+//			} catch {
+//				let nserror = error as NSError
+//				fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+//			}
+//		}
+//	}
 	
 	// Deletes every object in the Core Data store. Should only be called at app launch, probably?
 	func fullCoreDataReset() {

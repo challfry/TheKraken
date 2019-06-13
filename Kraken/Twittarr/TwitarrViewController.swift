@@ -28,8 +28,8 @@ class TwitarrViewController: BaseCollectionViewController {
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
  		TwitarrTweetCell.registerCells(with:collectionView)
 		try! self.dataManager.fetchedData.performFetch()
- 		tweetDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData, createCellModel: createCellModel, 
- 				reuseID: "tweet")
+ 		tweetDataSource.setup(viewController: self, collectionView: collectionView, frc: dataManager.fetchedData, 
+ 				createCellModel: createCellModel, reuseID: "tweet")
 		collectionView.dataSource = tweetDataSource
 		collectionView.delegate = tweetDataSource
  		collectionView.prefetchDataSource = tweetDataSource
@@ -43,6 +43,7 @@ class TwitarrViewController: BaseCollectionViewController {
     
     override func viewWillAppear(_ animated: Bool) {
 		dataManager.addDelegate(tweetDataSource)
+		tweetDataSource.enableAnimations = true
 	}
 	
     override func viewDidAppear(_ animated: Bool) {
@@ -64,15 +65,49 @@ class TwitarrViewController: BaseCollectionViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if segue.identifier == "TweetFilter", let destVC = segue.destination as? TwitarrViewController,
-				let filterString = sender as? String {
-			destVC.dataManager = TwitarrDataManager(filterString: filterString)
-		}
-		else if segue.identifier == "UserProfile", let destVC = segue.destination as? UserProfileViewController,
-				let username = sender as? String {
-			destVC.modelUserName = username
-		}
+    	switch segue.identifier {
+		case "TweetFilter":
+			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
+				destVC.dataManager = TwitarrDataManager(filterString: filterString)
+			}
+			
+		case "UserProfile":
+			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
+				destVC.modelUserName = username
+			}
+
+		case "ModalLogin":
+			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
+				destVC.segueData = package
+			}
+			
+		case "ComposeReplyTweet":
+			if let destVC = segue.destination as? ComposeTweetViewController, let parent = sender as? TwitarrPost {
+				destVC.parentTweet = parent
+			}
+			
+		case "EditTweet":
+			if let destVC = segue.destination as? ComposeTweetViewController, let original = sender as? TwitarrPost {
+				destVC.editTweet = original
+			}
+			
+		// Some segues legit don't need us to do anything.
+		case "ComposeTweet": break
+		default: break 
+    	}
     }
+    
+	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
+		// Try to continue whatever we were doing before having to log in.
+		if let loginVC = segue.source as? ModalLoginViewController {
+			if CurrentUser.shared.isLoggedIn() {
+				loginVC.segueData?.loginSuccessAction?()
+			}
+			else {
+				loginVC.segueData?.loginFailureAction?()
+			}
+		}
+	}	
     
 }
 
@@ -99,7 +134,11 @@ extension TwitarrViewController: UIGestureRecognizerDelegate {
 		if !collectionView.point(inside:hitPoint, with: nil) {
 			return false
 		}
-		if let _ = collectionView.indexPathForItem(at: hitPoint) {
+		
+		// Only take the tap if the cell isn't already selected. This ensures taps on widgets inside the cell go through
+		// once the cell is selected.
+		if let path = collectionView.indexPathForItem(at: hitPoint), let cell = collectionView.cellForItem(at: path),
+				let c = cell as? TwitarrTweetCell, !c.privateSelected {
 			return true
 		}
 		
@@ -123,8 +162,11 @@ extension TwitarrViewController: UIGestureRecognizerDelegate {
 		}
 		else if sender.state == .ended {
 			if tappedCell.isHighlighted {
-				let indexPath = collectionView.indexPath(for: tappedCell)
-				collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
+//				let indexPath = collectionView.indexPath(for: tappedCell)
+//				collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
+				if let tc = tappedCell as? TwitarrTweetCell, let cm = tc.cellModel as? TwitarrTweetCellModel {
+					cm.privateSelected = true
+				}
 			}
 		} 
 		

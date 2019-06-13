@@ -21,7 +21,7 @@ class SeamailRootViewController: BaseCollectionViewController {
         loginDataSource.appendSection(section: loginSection)
         
 		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
-		frcDataSource.setup(collectionView: collectionView, frc: dataManager.fetchedData,
+		frcDataSource.setup(viewController: self, collectionView: collectionView, frc: dataManager.fetchedData,
 				createCellModel: createCellModel, reuseID: "seamailThread")
   		SeamailThreadCell.registerCells(with:collectionView)
     	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))

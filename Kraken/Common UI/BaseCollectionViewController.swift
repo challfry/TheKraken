@@ -14,7 +14,9 @@ class BaseCollectionViewController: UIViewController {
 		
     override func viewDidLoad() {
         super.viewDidLoad()
-     	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
+     	let keyboardCanceler = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:)))
+ //    	keyboardCanceler.cancelsTouchesInView = false
+	 	view.addGestureRecognizer(keyboardCanceler)
                
  		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
 			layout.itemSize = UICollectionViewFlowLayout.automaticSize
@@ -30,7 +32,7 @@ class BaseCollectionViewController: UIViewController {
 
 		}
     }
-    
+        
     @objc func keyboardWillShow(notification: NSNotification) {
 		if let keyboardHeight = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height {
 			collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)

@@ -130,11 +130,15 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	}
 	
 	func textFieldDidBeginEditing(_ textField: UITextField) {
-		viewController?.activeTextEntry = textField
+		if let vc = viewController as? BaseCollectionViewController {
+			vc.activeTextEntry = textField
+		}
 	}
 	
 	func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-		viewController?.activeTextEntry = nil
+		if let vc = viewController as? BaseCollectionViewController {
+			vc.activeTextEntry = nil
+		}
 	}
 	
 	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -223,11 +227,15 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 	}
 	
 	func textViewDidBeginEditing(_ textView: UITextView) {
-		viewController?.activeTextEntry = textView
+		if let vc = viewController as? BaseCollectionViewController {
+			vc.activeTextEntry = textView
+		}
 	}
 	
 	func textViewDidEndEditing(_ textView: UITextView) {
-		viewController?.activeTextEntry = nil
+		if let vc = viewController as? BaseCollectionViewController {
+			vc.activeTextEntry = nil
+		}
 	}
 	
 	func textViewDidChange(_ textView: UITextView) {

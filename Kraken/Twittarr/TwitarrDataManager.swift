@@ -25,6 +25,9 @@ import UIKit
     @NSManaged public var children: Set<TwitarrPost>?
     @NSManaged public var photoDetails: PhotoDetails?
     
+    @NSManaged public var reactionOps: NSMutableSet?
+    @objc dynamic public var reactionOpsCount: Int = 0
+    
     @objc dynamic public var reactionDict: NSMutableDictionary?
     
 	public override func awakeFromFetch() {
@@ -34,6 +37,7 @@ import UIKit
 			dict.setValue(reaction, forKey: reaction.word)
 		}
 		reactionDict = dict
+		reactionOpsCount = reactionOps?.count ?? 0
 	}
     
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Post) {
@@ -86,6 +90,63 @@ import UIKit
 	
 	func postDate() -> Date {
 		return Date(timeIntervalSince1970: Double(timestamp) / 1000.0)
+	}
+	
+	// Always returns nil if nobody's logged in.
+	func getPendingUserReaction(_ named: String) -> PostOpTweetReaction? {
+		if let username = CurrentUser.shared.loggedInUser?.username, let reaction = reactionOps?.first(where: { reaction in
+				guard let r = reaction as? PostOpTweetReaction else { return false }
+				return r.author.username == username && r.reactionWord == named }) {
+			return reaction as? PostOpTweetReaction
+		}
+		return nil
+	}
+	
+	func setReaction(_ reactionWord: String, to newState: Bool) {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			guard let currentUser = CurrentUser.shared.loggedInUser,
+					let thisPost = context.object(with: self.objectID) as? TwitarrPost,
+					let thisUser = context.object(with: currentUser.objectID) as? KrakenUser else { return }
+			
+			// Check for existing op for this user, with this word
+			if let existingOp = thisPost.getPendingUserReaction(reactionWord) {
+				existingOp.isAdd = newState
+			}
+			else {
+				let op = PostOpTweetReaction(context: context)
+				op.reactionWord = reactionWord
+				op.sourcePost = thisPost
+				op.isAdd = newState
+				op.author = thisUser
+				op.readyToSend = true
+				op.originalPostTime = Date()
+			}
+			
+			do {
+				try context.save()
+			}
+			catch {
+				print("Couldn't save context.")
+			}
+		}
+	}
+	
+	func cancelReactionOp(_ reactionWord: String) {
+		if let existingOp = getPendingUserReaction(reactionWord) {
+			let context = LocalCoreData.shared.networkOperationContext
+			context.perform {
+				if let reaction = context.object(with: existingOp.objectID) as? PostOpTweetReaction, !reaction.sentNetworkCall {
+					context.delete(reaction)
+					do {
+						try context.save()
+					}
+					catch {
+						print("Couldn't save context.")
+					}
+				}
+			}
+		}
 	}
 }
 

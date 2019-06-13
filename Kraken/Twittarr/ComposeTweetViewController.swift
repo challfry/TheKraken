@@ -27,7 +27,12 @@ class ComposeTweetViewController: BaseCollectionViewController {
         loginSection.headerCellText = "You will need to log in before you can post to Twitarr."
         
 		composeDataSource.viewController = self
+//		let referenceSection = composeDataSource.appendSection(named: "ReferenceSection")
 		let composeSection = composeDataSource.appendSection(named: "ComposeSection")
+
+		let replySourceCellModel = TwitarrTweetCellModel(withModel: parentTweet, reuse: "tweet")
+		composeSection.append(replySourceCellModel)
+		
         let textCell = TextViewCellModel("What do you want to say?")
         tweetTextCell = textCell
 		let btnCell = ButtonCellModel(title:"Post", action: postAction)

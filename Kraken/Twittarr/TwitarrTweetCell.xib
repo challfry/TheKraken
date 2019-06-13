@@ -33,15 +33,15 @@
                         <rect key="frame" x="58" y="2" width="315" height="296"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1wj-CQ-Zuk">
-                                <rect key="frame" x="0.0" y="0.0" width="315" height="50"/>
+                                <rect key="frame" x="0.0" y="0.0" width="315" height="33"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="User Name" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="O8q-zM-KLF" userLabel="Author Label">
-                                        <rect key="frame" x="0.0" y="0.0" width="86" height="50"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="86" height="33"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3 💛" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3II-e7-kC3" userLabel="Likes Label">
-                                        <rect key="frame" x="282.5" y="8" width="32.5" height="42"/>
+                                        <rect key="frame" x="282.5" y="8" width="32.5" height="25"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -58,7 +58,7 @@
                                 </constraints>
                             </view>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="250" insetsLayoutMarginsFromSafeArea="NO" scrollEnabled="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ZqV-9f-4d4">
-                                <rect key="frame" x="0.0" y="50" width="315" height="46"/>
+                                <rect key="frame" x="0.0" y="33" width="315" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <connections>
@@ -66,32 +66,65 @@
                                 </connections>
                             </textView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WqQ-lV-DUd">
-                                <rect key="frame" x="0.0" y="96" width="315" height="200"/>
+                                <rect key="frame" x="0.0" y="33" width="315" height="200"/>
                                 <color key="backgroundColor" red="0.72533118210000003" green="0.04477352976" blue="0.04477352976" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="Hhz-d3-Ph5"/>
                                 </constraints>
                             </imageView>
-                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5gF-dv-jyP">
-                                <rect key="frame" x="0.0" y="296" width="315" height="0.0"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z5p-BY-GCY">
+                                <rect key="frame" x="0.0" y="233" width="315" height="33"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="&quot;Like&quot; pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RoI-Cv-j34">
+                                        <rect key="frame" x="157.5" y="8" width="94.5" height="17"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KLu-bJ-VTi">
+                                        <rect key="frame" x="262" y="2" width="45" height="29"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <state key="normal" title="Cancel"/>
+                                        <connections>
+                                            <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="ND8-SN-teC"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" red="1" green="0.97053501832359335" blue="0.74234068342845094" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="KLu-bJ-VTi" secondAttribute="trailing" constant="8" id="9Wg-zY-lf4"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="KLu-bJ-VTi" secondAttribute="bottom" constant="2" id="CAj-2d-jkp"/>
+                                    <constraint firstItem="RoI-Cv-j34" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="top" constant="2" id="DS8-i6-kl6"/>
+                                    <constraint firstItem="KLu-bJ-VTi" firstAttribute="firstBaseline" secondItem="RoI-Cv-j34" secondAttribute="firstBaseline" id="VWF-eF-Djp"/>
+                                    <constraint firstItem="RoI-Cv-j34" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="leading" constant="2" id="YDS-re-lgh"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="RoI-Cv-j34" secondAttribute="bottom" constant="2" id="Yhb-Kb-OQm"/>
+                                    <constraint firstItem="KLu-bJ-VTi" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="top" constant="2" id="Yrv-PM-Zxc"/>
+                                    <constraint firstItem="KLu-bJ-VTi" firstAttribute="leading" secondItem="RoI-Cv-j34" secondAttribute="trailing" constant="10" id="sxs-o8-YP7"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5gF-dv-jyP">
+                                <rect key="frame" x="0.0" y="266" width="315" height="30"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="wD7-pt-H3w">
-                                        <rect key="frame" x="105" y="0.0" width="210" height="0.0"/>
+                                        <rect key="frame" x="105" y="0.0" width="210" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="enx-3S-79P">
-                                                <rect key="frame" x="0.0" y="0.0" width="45" height="0.0"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="45" height="30"/>
                                                 <state key="normal" title="Delete"/>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gAH-td-gvz">
-                                                <rect key="frame" x="55" y="0.0" width="45" height="0.0"/>
+                                                <rect key="frame" x="55" y="0.0" width="45" height="30"/>
                                                 <state key="normal" title="Edit"/>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zKk-L1-jDy">
-                                                <rect key="frame" x="110" y="0.0" width="45" height="0.0"/>
+                                                <rect key="frame" x="110" y="0.0" width="45" height="30"/>
                                                 <state key="normal" title="Reply"/>
+                                                <connections>
+                                                    <action selector="replyButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="KfQ-BD-oDZ"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KMk-Wd-mQa">
-                                                <rect key="frame" x="165" y="0.0" width="45" height="0.0"/>
+                                                <rect key="frame" x="165" y="0.0" width="45" height="30"/>
                                                 <state key="normal" title="Like"/>
                                                 <connections>
                                                     <action selector="likeButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="rBR-Yu-cD4"/>
@@ -123,6 +156,7 @@
             </constraints>
             <size key="customSize" width="375" height="300"/>
             <connections>
+                <outlet property="cancelQueuedReactionButton" destination="KLu-bJ-VTi" id="PgT-Jr-dfo"/>
                 <outlet property="deleteButton" destination="enx-3S-79P" id="pdZ-rW-6jk"/>
                 <outlet property="editButton" destination="gAH-td-gvz" id="sGH-Yc-EBb"/>
                 <outlet property="editStack" destination="wD7-pt-H3w" id="WjM-qf-IJ1"/>
@@ -130,6 +164,8 @@
                 <outlet property="likeButton" destination="KMk-Wd-mQa" id="Ocg-9J-Bic"/>
                 <outlet property="likesLabel" destination="3II-e7-kC3" id="Ngh-ji-tJW"/>
                 <outlet property="postImage" destination="WqQ-lV-DUd" id="Dku-7d-1I0"/>
+                <outlet property="reactionQueuedLabel" destination="RoI-Cv-j34" id="cVf-OX-u8e"/>
+                <outlet property="reactionQueuedView" destination="Z5p-BY-GCY" id="XqU-F9-pCu"/>
                 <outlet property="replyButton" destination="zKk-L1-jDy" id="1PE-yI-wqO"/>
                 <outlet property="titleLabel" destination="O8q-zM-KLF" id="de7-YQ-HQk"/>
                 <outlet property="tweetTextView" destination="ZqV-9f-4d4" id="Ph4-t0-rln"/>

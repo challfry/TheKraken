@@ -148,7 +148,7 @@ protocol KrakenDataSourceProtocol {
 			}
 			observer.visibleSections = NSMutableArray(array: newVisibleSections)
 			observer.runUpdates()
-		}
+		}?.execute()
 		
 		// Watch for sections that have updates to cell visibility; run updates.
 //		self.tell(self, when: ["visibleSections.*.oldVisibleCellModels", "oldVisibleSections"]) { observer, observed in
@@ -187,6 +187,10 @@ protocol KrakenDataSourceProtocol {
 				cv.performBatchUpdates( {
 					var deletedSections = IndexSet()
 					var insertedSections = IndexSet()
+					
+					//
+//					print ("Start of Batch: \(self.visibleSections.count) sections, oldVis = \(self.oldVisibleSections?.count)" )
+					
 					if let oldSections = self.oldVisibleSections {
 						for sectionIndex in 0 ..< oldSections.count {
 							if !self.visibleSections.contains(oldSections[sectionIndex]) {
@@ -200,7 +204,7 @@ protocol KrakenDataSourceProtocol {
 						}
 						cv.deleteSections(deletedSections)
 						cv.insertSections(insertedSections)
-						print ("inserted \(insertedSections) \ndeleted \(deletedSections)")
+//						print ("SECTIONS: inserted \(insertedSections.count), deleted \(deletedSections.count)")
 						self.oldVisibleSections = nil
 					}
 					
@@ -267,10 +271,7 @@ protocol KrakenDataSourceProtocol {
 
 extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-		if oldVisibleSections == nil {
-			oldVisibleSections = visibleSections
-		}
-
+//		print ("Someone asked how many sections. Responded with \(visibleSections.count)")
     	return visibleSections.count
     }
 
@@ -303,6 +304,12 @@ extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDeleg
 //		let protoSize = sections[indexPath.section].sizeForCell(for: collectionView, indexPath: sectionPath)
 		let protoSize = sections[indexPath.section].collectionView?(collectionView, 
 				layout: collectionView.collectionViewLayout, sizeForItemAt: sectionPath)
+				
+		//
+//		let x = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
+//		protoSize?.width = 100
+//		print ("Cell Size: \(protoSize), cv: \(collectionView.bounds.size.width), content: \(collectionView.contentInset), section:\(x.sectionInset)")
+				
 		return protoSize ?? CGSize(width: 50, height: 50)
 	}
 

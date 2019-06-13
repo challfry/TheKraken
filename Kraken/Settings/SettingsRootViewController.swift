@@ -104,6 +104,10 @@ class SettingsRootViewController: BaseCollectionViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     }
 
+	// This fn has to be here so that the login unwind stops here.
+	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
+	
+	}	
 }
 
 @objc class ServerAddressEditCellModel: TextFieldCellModel {

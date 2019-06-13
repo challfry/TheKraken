@@ -31,7 +31,7 @@ import UIKit
 	
 	func reuseID() -> String { return type(of: self).validReuseIDDict.first?.key ?? "" }
 
-	func makeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> UICollectionViewCell {
+	func makeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> BaseCollectionViewCell {
 		let id = reuseID()
 		// Get a cell and property bind it to the cell model
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! BaseCollectionViewCell 
@@ -117,8 +117,8 @@ struct PrototypeCellInfo {
 	}
 
 	var cellModel: BaseCellModel? 							// Not all datasources use cell models
-	var observations = [EBNObservation]()
-	@objc dynamic weak var viewController: BaseCollectionViewController?  // For launching segues
+	var observations = Set<EBNObservation>()
+	@objc dynamic weak var viewController: UIViewController?  // For launching segues
 	
 	var isPrototypeCell: Bool = false
 	var calculatedSize: CGSize = CGSize(width: 0.0, height: 0.0)
@@ -155,6 +155,7 @@ struct PrototypeCellInfo {
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		contentView.translatesAutoresizingMaskIntoConstraints = false
+		self.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	// Returns a prototype cell that this class can manage. Doesn't set up that cell's data. Subclasses can define
@@ -199,7 +200,13 @@ struct PrototypeCellInfo {
 	func addObservation(_ observation: EBNObservation?) {
 		guard let obs = observation else { return }
 		
-		observations.append(obs)
+		observations.insert(obs)
+	}
+	
+	func removeObservation(_ observation: EBNObservation?) {
+		guard let obs = observation else { return }
+		
+		observations.remove(obs)
 	}
 	
 	func clearObservations() {

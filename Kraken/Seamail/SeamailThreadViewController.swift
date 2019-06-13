@@ -32,7 +32,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		let fetchedResults = NSFetchedResultsController(fetchRequest: fetchRequest,
 				managedObjectContext: coreData.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
 		try? fetchedResults.performFetch()
-		frcDataSource.setup(collectionView: collectionView, frc: fetchedResults,
+		frcDataSource.setup(viewController: self, collectionView: collectionView, frc: fetchedResults,
 				createCellModel: createMessageCellModel, reuseID: "SeamailMessageCell")
 		frcDataSource.overrideReuseID = overrideReuseID
 		collectionView.register(UINib(nibName: "SeamailMessageCell", bundle: nil), forCellWithReuseIdentifier: "SeamailMessageCell")

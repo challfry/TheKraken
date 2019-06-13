@@ -14,16 +14,25 @@ import CoreData
 // or for cells that have to save state back to their cellModel.
 @objc protocol FetchedResultsBindingProtocol {
 	var model: NSFetchRequestResult? { get set }
+	var privateSelected: Bool { get set }
 }
 
 class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
-	@objc dynamic var model: NSFetchRequestResult?
+	@objc dynamic var model: NSFetchRequestResult? {
+		didSet {
+			// Hide the cell if we don't have anything to show
+			shouldBeVisible = model != nil
+		}
+	}
+	@objc dynamic var privateSelected: Bool = false
 	var reuse: String
 	
-	init(withModel: NSFetchRequestResult, reuse: String) {
+	init(withModel: NSFetchRequestResult?, reuse: String) {
 		model = withModel
 		self.reuse = reuse
 		super.init(bindingWith: FetchedResultsBindingProtocol.self)
+
+		self.shouldBeVisible = model != nil
 	}
 	
 	override func reuseID() -> String {
@@ -39,6 +48,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 		where FetchedObjectType : NSFetchRequestResult {
 
 	var frc: NSFetchedResultsController<FetchedObjectType>?
+	var viewController: UIViewController?
 	var collectionView: UICollectionView?
 	var cellModels: [BaseCellModel] = []
 	var enableAnimations = false			// Generally, set to true in viewDidAppear
@@ -52,9 +62,10 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 	var reuseID: String?
 	var overrideReuseID: ((_ usingModel: FetchedObjectType) -> String?)?
 		
-	func setup(collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>,
+	func setup(viewController: UIViewController?, collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>,
 			createCellModel: ((_ from: FetchedObjectType) -> BaseCellModel)?, reuseID: String) {
 		self.frc = frc
+		self.viewController = viewController
 		self.collectionView = collectionView
 		self.createCellModel = createCellModel
 		self.reuseID = reuseID
@@ -144,6 +155,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 		if indexPath.row < cellModels.count {
 			let cellModel = cellModels[indexPath.row]
 			let cell = cellModel.makeCell(for: collectionView, indexPath: indexPath)
+			cell.viewController = viewController
 			return cell
 		}
 				
@@ -170,6 +182,15 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		print (indexPath)
 	}
+	
+	func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
+		print (indexPath)
+		return true
+	}
+
+	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+		print (indexPath)
+	}
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -178,11 +199,6 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 		}
 		let cellModel = cellModels[indexPath.row]
 
-		//
-		if indexPath.row == 0 {
-			print("Current Size: \(cellModel.cellSize)")
-		}	
-		
 		if cellModel.cellSize.height > 0 {
 			return cellModel.cellSize
 		}
@@ -191,12 +207,8 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 				let newSize = protoCell.calculateSize()
 				cellModel.cellSize = newSize
 				cellModel.unbind(cell: protoCell)
-				print ("New size for cell at \(indexPath) is \(newSize)")
+//				print ("New size for cell at \(indexPath) is \(newSize)")
 							
-		if indexPath.row == 0 {
-			print("New Size: \(cellModel.cellSize)")
-		}	
-		
 				return newSize
 			}
 		}
@@ -229,9 +241,11 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 					if !self.enableAnimations {
 						UIView.setAnimationsEnabled(false)
 					}
+					
 					cv.performBatchUpdates( {
 						self.internalRunUpdates(for: collectionView, sectionOffset: sectionOffset)
 					}, completion: nil)
+					
 					if !self.enableAnimations {
 						UIView.setAnimationsEnabled(true)
 					}
@@ -250,7 +264,8 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 			let result = paths.map { return IndexPath(row:$0.row, section: $0.section + sectionOffset) }
 			return result
 		}
-
+		
+		
 		collectionView?.deleteSections(addOffsetToIndexSet(deleteSections))
 		collectionView?.deleteItems(at: addSectionOffset(deleteCells))
 		for (from, to) in moveCells {
