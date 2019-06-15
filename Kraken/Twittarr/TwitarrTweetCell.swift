@@ -306,6 +306,16 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 		viewController?.performSegue(withIdentifier: "ComposeReplyTweet", sender: tweetModel)
 	}
   	
+	@IBAction func editButtonTapped() {
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+		viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetModel)
+	}
+	
+	@IBAction func eliteDeleteTweetButtonTapped() {
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+//
+	}
+	
    	@IBAction func cancelReactionOpButtonTapped() {
    		guard let tweetModel = model as? TwitarrPost else { return } 
    		tweetModel.cancelReactionOp("like")   		

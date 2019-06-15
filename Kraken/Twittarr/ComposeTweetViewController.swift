@@ -20,6 +20,12 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // If we have a tweet to edit, but no parent set, and the tweet we're editing is a response (that is, has a parent)
+        // set that tweet as the parent.
+        if editTweet != nil, parentTweet == nil, let newParent = editTweet?.parent {
+        	parentTweet = newParent
+        }
 
 		loginDataSource.viewController = self
         let loginSection = LoginDataSourceSection()
@@ -30,11 +36,31 @@ class ComposeTweetViewController: BaseCollectionViewController {
 //		let referenceSection = composeDataSource.appendSection(named: "ReferenceSection")
 		let composeSection = composeDataSource.appendSection(named: "ComposeSection")
 
+		let replyLabelCellModel = LabelCellModel("In response to:")
+		replyLabelCellModel.shouldBeVisible = parentTweet != nil
+		composeSection.append(replyLabelCellModel)
 		let replySourceCellModel = TwitarrTweetCellModel(withModel: parentTweet, reuse: "tweet")
 		composeSection.append(replySourceCellModel)
 		
-        let textCell = TextViewCellModel("What do you want to say?")
+		let editSourceLabelModel = LabelCellModel("Your original post:")
+		editSourceLabelModel.shouldBeVisible = editTweet != nil
+		composeSection.append(editSourceLabelModel)
+ 		let editSourceCellModel = TwitarrTweetCellModel(withModel: editTweet, reuse: "tweet")
+		composeSection.append(editSourceCellModel)
+
+		var writingPrompt = "What do you want to say?"
+		if editTweet != nil {
+			writingPrompt = "What do you want to say insteead?"
+		}
+		else if parentTweet != nil {
+			writingPrompt = "What do you want to say?"
+		}
+		let textCell = TextViewCellModel(writingPrompt)
         tweetTextCell = textCell
+        if let editTweet = editTweet {
+			textCell.editText = StringUtilities.cleanupText(editTweet.text).string
+		}
+        
 		let btnCell = ButtonCellModel(title:"Post", action: postAction)
 		postButtonCell = btnCell
 		composeSection.append(textCell)

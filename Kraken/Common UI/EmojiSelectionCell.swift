@@ -27,13 +27,14 @@ import UIKit
 
 class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UICollectionViewDataSource, UICollectionViewDelegate {
 	@IBOutlet weak var emojiCollection: UICollectionView!
+	@IBOutlet weak var cellHeightConstraint: NSLayoutConstraint!
 	private static let cellInfo = [ "EmojiSelectionCell" : PrototypeCellInfo("EmojiSelectionCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	@objc dynamic var buttonEnableState: Bool = false
 
 //	let items = ["😂", "😭", "😍", "❤️", "👉", "💜", ",💕", "😊", "🤔", "🙏", "⌚️", "❤️", "🏁", "🇩🇿" ]
-	let items = [ "😂", "❤️", "♻️", "😍", "♥️", "😭", "😊", "😒", "💕", "😘", "😩", "☺️", "👌\u{1F3FF}", "😔", "😁", "😏", "😉", 
+	let items = [ "😂", "❤️", "♻️", "😍", "♥️", "😭", "😊", "😒", "💕", "😘", "😩", "☺️", "👌", "😔", "😁", "😏", "😉", 
 			"👍", "⬅️", "😅", "🙏", "😌", "😢", "👀", "💔", "😎", "🎶", "💙", "💜", "🙌", "😳", "✨", "💖", "🙈", "💯", 
 			"🔥", "✌️", "😄", "😴", "😑", "😋", "😜", "😕", "😞", "😪", "💗", "👏", "😐", "👉", "💞", "💘", "📷", "😱", 
 			"💛", "🌹", "💁", "🌸", "💋", "😡", "🙊", "💀", "😆", "😀", "😈", "🎉", "💪", "😃", "✋", "😫", "▶️", "😝", 
@@ -42,6 +43,8 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		emojiCollection.register(EmojiButtonCell.self, forCellWithReuseIdentifier: "EmojiButton")
+		(emojiCollection.collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize = CGSize(width: 41, height: 41)
+		cellHeightConstraint.constant = 41 * 3
 		
 		self.tell(self, when: "viewController.activeTextEntry") { observer, observed in 
 			if let vc = observed.viewController as? BaseCollectionViewController {
@@ -68,7 +71,7 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 	}
 }
 
-@objc class EmojiButtonCell: UICollectionViewCell {
+@objc class EmojiButtonCell: UICollectionViewCell, UIGestureRecognizerDelegate, UIPopoverPresentationControllerDelegate {
 	@objc dynamic var ownerCell: EmojiSelectionCell?
 	var emojiButton = UIButton()
 	var emoji: String? {
@@ -81,13 +84,22 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
+		
 		emojiButton.frame = self.bounds
-		addSubview(emojiButton)
 		emojiButton.addTarget(self, action:#selector(buttonHit), for:.touchUpInside)
 //		emojiButton.showsTouchWhenHighlighted = true
 		emojiButton.adjustsImageWhenHighlighted = true
 		emojiButton.adjustsImageWhenDisabled = true
+		emojiButton.imageEdgeInsets = UIEdgeInsets(top: -4, left: -4, bottom: -4, right: -4)
 		emojiButton.setBackgroundImage(UIImage(named:"BlueButtonHighlight"), for: .highlighted)
+		addSubview(emojiButton)
+
+		let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(showEmojiOptions))
+		longPressGesture.minimumPressDuration = 0.7
+		longPressGesture.numberOfTapsRequired = 0
+		longPressGesture.delegate = self
+		longPressGesture.cancelsTouchesInView = true
+		emojiButton.addGestureRecognizer(longPressGesture)
 
 		self.tell(self, when:"ownerCell.buttonEnableState") { observer, observed in 
 			if let enableState = observed.ownerCell?.buttonEnableState {
@@ -104,14 +116,115 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
     	ownerCell?.buttonTapped(withString:emoji)
     }
     
+    // Pure glue for the popup's buttons
+    func buttonHitInPopup(withString: String) {
+		ownerCell?.buttonTapped(withString:withString)
+    }
+    
+    var emojiPopupVC: EmojiPopupViewController?
+    @objc func showEmojiOptions(_ sender: UILongPressGestureRecognizer) {
+		if sender.state == .began {
+			if emojiPopupVC == nil {
+				let storyboard = UIStoryboard(name: "Main", bundle: nil)
+				let emojiPopup = storyboard.instantiateViewController(withIdentifier: "EmojiPopup") as? EmojiPopupViewController
+				emojiPopupVC = emojiPopup
+				
+			}
+			if let emojiPopup = emojiPopupVC, let vc = ownerCell?.viewController {
+				emojiPopup.modalPresentationStyle = .popover
+				emojiPopup.popoverPresentationController?.sourceView = self
+				emojiPopup.popoverPresentationController?.sourceRect = CGRect(x: self.bounds.width / 2 - 1, y: 0, width: 1, height: self.bounds.height)
+				emojiPopup.popoverPresentationController?.permittedArrowDirections = .down
+				emojiPopup.popoverPresentationController?.delegate = self
+				emojiPopup.parentButtonCell = self
+				emojiPopup.emoji = emoji
+				vc.present(emojiPopup, animated: true, completion: nil)
+			}
+		}
+    }
+    
     func emojiImage(for emoji: String) -> UIImage {
-		UIGraphicsBeginImageContextWithOptions(CGSize(width: 30, height: 30), false, 0.0)
+		let imgSize = CGSize(width: self.bounds.size.width - 6, height: self.bounds.size.height - 6)
+		UIGraphicsBeginImageContextWithOptions(CGSize(width: imgSize.width, height: imgSize.height), false, 0.0)
 		let str = emoji as NSString
-		str.draw(at:CGPoint(x: -1.5, y: -3.0), withAttributes: [.font : UIFont.systemFont(ofSize: 30.0) ])
+		str.draw(at:CGPoint(x: -1.5, y: -3.0), withAttributes: [.font : UIFont.systemFont(ofSize: imgSize.height) ])
 		let resultImage = UIGraphicsGetImageFromCurrentImageContext()
     	UIGraphicsEndImageContext()
     	return resultImage ?? UIImage()
     }
+    
+	override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+		if let unicodeValue = emoji?.unicodeScalars.first {
+			return unicodeValue.properties.isEmojiModifierBase
+		}
+		return false
+	}
+    
+	func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+		return .none
+	}
 }
 
 
+class EmojiPopupViewController: UIViewController {
+	@IBOutlet var stackView: UIStackView!
+	@IBOutlet var button1: UIButton!
+	@IBOutlet var button2: UIButton!
+	@IBOutlet var button3: UIButton!
+	@IBOutlet var button4: UIButton!
+	@IBOutlet var button5: UIButton!
+	@IBOutlet var button6: UIButton!
+	
+	var parentButtonCell: EmojiButtonCell?
+	static let swatches = [ "", "\u{1F3FB}", "\u{1F3FC}", "\u{1F3FD}", "\u{1F3FE}",  "\u{1F3FF}" ]
+	
+	var emoji: String? {
+		didSet {
+			setupButtons()
+		}
+	}
+	
+	override func viewDidLoad() {
+		setupButtons()
+	}
+	
+	var alreadySetupButtons = false
+	func setupButtons() {
+		guard isViewLoaded, !alreadySetupButtons else { return }
+		alreadySetupButtons = true
+		
+		// Heh. No binding IBOutlets into arrays.
+		setupButton(button: button1, index: 0)
+		setupButton(button: button2, index: 1)
+		setupButton(button: button3, index: 2)
+		setupButton(button: button4, index: 3)
+		setupButton(button: button5, index: 4)
+		setupButton(button: button6, index: 5)
+	}
+	
+	func setupButton(button: UIButton, index: Int) {
+		if let em = emoji {
+			button.setImage(parentButtonCell?.emojiImage(for:em + EmojiPopupViewController.swatches[index]), for: .normal)
+			button.adjustsImageWhenHighlighted = true
+			button.adjustsImageWhenDisabled = true
+			button.imageEdgeInsets = UIEdgeInsets(top: -4, left: -4, bottom: -4, right: -4)
+		}
+	}
+	
+	@IBAction func buttonTapped(sender: UIButton) {
+		if let emojiChar = emoji {
+			var emojiCompoundString: String
+			if sender === button1 { emojiCompoundString = emojiChar + EmojiPopupViewController.swatches[0] }
+			else if sender === button2 { emojiCompoundString = emojiChar + EmojiPopupViewController.swatches[1] }
+			else if sender === button3 { emojiCompoundString = emojiChar + EmojiPopupViewController.swatches[2] }
+			else if sender === button4 { emojiCompoundString = emojiChar + EmojiPopupViewController.swatches[3] }
+			else if sender === button5 { emojiCompoundString = emojiChar + EmojiPopupViewController.swatches[4] }
+			else if sender === button6 { emojiCompoundString = emojiChar + EmojiPopupViewController.swatches[5] }
+			else { emojiCompoundString = emojiChar }
+				
+			parentButtonCell?.buttonHitInPopup(withString: emojiCompoundString)
+			dismiss(animated: true, completion: nil)
+		}
+	}
+
+}

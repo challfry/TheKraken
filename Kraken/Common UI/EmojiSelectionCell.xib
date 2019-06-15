@@ -45,6 +45,7 @@
             </constraints>
             <size key="customSize" width="418" height="99"/>
             <connections>
+                <outlet property="cellHeightConstraint" destination="k6x-Yn-BTx" id="2px-6F-99q"/>
                 <outlet property="emojiCollection" destination="ENE-FU-ny8" id="aTT-g8-2zL"/>
             </connections>
             <point key="canvasLocation" x="198.55072463768118" y="168.75"/>

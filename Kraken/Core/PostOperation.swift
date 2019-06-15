@@ -109,7 +109,7 @@ import UIKit
 	@NSManaged public var text: String
 	
 		// Photo needs to be uploaded as a separate POST, then the id is sent.
-	@NSManaged public var photo: NSData?
+	@NSManaged public var image: NSData?
 	
 		// Parent tweet, if this is a response. Can be nil.
 	@NSManaged public var parent: TwitarrPost?

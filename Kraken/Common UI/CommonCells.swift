@@ -183,7 +183,7 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	
 	init(_ titleLabel: String) {
 		labelText = titleLabel
-		editText = "lollerskates"
+		editText = ""
 		super.init(bindingWith: TextViewCellProtocol.self)
 	}
 	

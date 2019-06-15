@@ -400,6 +400,30 @@ class TwitarrDataManager: NSObject {
 		}
 	}
 	
+	// For new mainline posts and posts that are replies. Not for edits of existing posts.
+	func queueNewPost(withText: String, image: Data?, inReplyTo: TwitarrPost? = nil) {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			guard let currentUser = CurrentUser.shared.loggedInUser,
+					let thisUser = context.object(with: currentUser.objectID) as? KrakenUser else { return }
+			let newPost = PostOpTweet(context: context)
+			newPost.text = withText
+			newPost.parent = inReplyTo
+			newPost.readyToSend = false
+			newPost.sentNetworkCall = false
+			newPost.originalPostTime = Date()
+			newPost.author = thisUser
+			newPost.image = image as NSData?
+			
+			do {
+				try context.save()
+			}
+			catch {
+				print("Couldn't save context.")
+			}
+		}
+	}
+	
 }
 
 // The data manager can have multiple delegates, all of which are watching the same results set.

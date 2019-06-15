@@ -111,10 +111,16 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="enx-3S-79P">
                                                 <rect key="frame" x="0.0" y="0.0" width="45" height="30"/>
                                                 <state key="normal" title="Delete"/>
+                                                <connections>
+                                                    <action selector="eliteDeleteTweetButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="5pj-sJ-zRb"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gAH-td-gvz">
                                                 <rect key="frame" x="55" y="0.0" width="45" height="30"/>
                                                 <state key="normal" title="Edit"/>
+                                                <connections>
+                                                    <action selector="editButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="9yL-N7-d66"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zKk-L1-jDy">
                                                 <rect key="frame" x="110" y="0.0" width="45" height="30"/>

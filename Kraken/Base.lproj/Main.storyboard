@@ -391,6 +391,88 @@
             </objects>
             <point key="canvasLocation" x="4335" y="474"/>
         </scene>
+        <!--EmojiPopup-->
+        <scene sceneID="zjB-10-Z01">
+            <objects>
+                <viewController storyboardIdentifier="EmojiPopup" autoresizesArchivedViewToFullSize="NO" title="EmojiPopup" id="gPO-V5-1aA" customClass="EmojiPopupViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ifn-78-eIF">
+                        <rect key="frame" x="0.0" y="0.0" width="244" height="50"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="wJQ-Cc-hcW">
+                                <rect key="frame" x="4" y="0.0" width="236" height="50"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" horizontalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LjR-y3-qSW">
+                                        <rect key="frame" x="0.0" y="0.0" width="30" height="50"/>
+                                        <connections>
+                                            <action selector="buttonTappedWithSender:" destination="gPO-V5-1aA" eventType="touchUpInside" id="wP1-QN-7bb"/>
+                                        </connections>
+                                    </button>
+                                    <view contentMode="scaleToFill" horizontalHuggingPriority="200" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="8Fo-GU-SAx">
+                                        <rect key="frame" x="34" y="0.0" width="32" height="50"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </view>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cDt-nm-XOk">
+                                        <rect key="frame" x="70" y="0.0" width="30" height="50"/>
+                                        <connections>
+                                            <action selector="buttonTappedWithSender:" destination="gPO-V5-1aA" eventType="touchUpInside" id="Apb-eP-ne4"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9Zp-Ve-0wN">
+                                        <rect key="frame" x="104" y="0.0" width="30" height="50"/>
+                                        <connections>
+                                            <action selector="buttonTappedWithSender:" destination="gPO-V5-1aA" eventType="touchUpInside" id="8kv-Sq-3oS"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qu3-ts-eMj">
+                                        <rect key="frame" x="138" y="0.0" width="30" height="50"/>
+                                        <connections>
+                                            <action selector="buttonTappedWithSender:" destination="gPO-V5-1aA" eventType="touchUpInside" id="grJ-dn-I6t"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qK1-Tp-w1h">
+                                        <rect key="frame" x="172" y="0.0" width="30" height="50"/>
+                                        <connections>
+                                            <action selector="buttonTappedWithSender:" destination="gPO-V5-1aA" eventType="touchUpInside" id="9e5-eW-Anf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yqX-eI-TN1">
+                                        <rect key="frame" x="206" y="0.0" width="30" height="50"/>
+                                        <connections>
+                                            <action selector="buttonTappedWithSender:" destination="gPO-V5-1aA" eventType="touchUpInside" id="fmd-jv-Tcy"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="wJQ-Cc-hcW" secondAttribute="bottom" id="HVg-9V-vDK"/>
+                            <constraint firstAttribute="top" secondItem="wJQ-Cc-hcW" secondAttribute="top" id="IgX-Mz-eCi"/>
+                            <constraint firstAttribute="trailing" secondItem="wJQ-Cc-hcW" secondAttribute="trailing" constant="4" id="L2v-zs-FcX"/>
+                            <constraint firstItem="wJQ-Cc-hcW" firstAttribute="leading" secondItem="ifn-78-eIF" secondAttribute="leading" constant="4" id="q92-aU-WZG"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <value key="contentSizeForViewInPopover" type="size" width="244" height="50"/>
+                    <nil key="simulatedTopBarMetrics"/>
+                    <nil key="simulatedBottomBarMetrics"/>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="244" height="50"/>
+                    <connections>
+                        <outlet property="button1" destination="LjR-y3-qSW" id="aQr-Iy-G2N"/>
+                        <outlet property="button2" destination="cDt-nm-XOk" id="j9K-iA-61k"/>
+                        <outlet property="button3" destination="9Zp-Ve-0wN" id="RVg-7i-ZSn"/>
+                        <outlet property="button4" destination="Qu3-ts-eMj" id="WbA-I2-vDh"/>
+                        <outlet property="button5" destination="qK1-Tp-w1h" id="yBT-SJ-tXM"/>
+                        <outlet property="button6" destination="yqX-eI-TN1" id="IAI-d1-6ad"/>
+                        <outlet property="stackView" destination="wJQ-Cc-hcW" id="IpR-Xo-hgA"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0OX-cB-6wT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3619.1999999999998" y="-918.4729064039409"/>
+        </scene>
         <!--Server Text File-->
         <scene sceneID="0Ge-ik-Eaj">
             <objects>
