@@ -148,6 +148,7 @@ import UIKit
 			}
 		}
 	}
+	
 }
 
 fileprivate class RecentNetworkCall : NSObject {
@@ -240,7 +241,18 @@ class TwitarrDataManager: NSObject {
 		viewDelegates.removeAll(where: { $0 === oldDelegate } )
 	}
 	
-	
+	// Maps parent post IDs to draft reply text. The most recent 'mainline' post draft is in the "" entry.
+	// Probably don't need to save this between launches? Probably should move this to a "ComposeDataManager"?
+	var recentTwitarrPostDrafts: [ String : String ] = [:]
+	func getDraftPostText(replyingTo: String?) -> String? {
+		return recentTwitarrPostDrafts[replyingTo ?? ""]
+	}
+	func saveDraftPost(text: String?, replyingTo: String?) {
+		if let text = text {
+			recentTwitarrPostDrafts[replyingTo ?? ""] = text
+		}
+	}
+
 	func requestTweet(atIndex requestIndex: Int) {
 		// Check our recent network calls to see if we've requested this tweet from the server recently
 		recentNetworkCallsQ.async {
@@ -400,7 +412,7 @@ class TwitarrDataManager: NSObject {
 		}
 	}
 	
-	// For new mainline posts and posts that are replies. Not for edits of existing posts.
+	// For new mainline posts and new posts that are replies. Not for edits of existing posts.
 	func queueNewPost(withText: String, image: Data?, inReplyTo: TwitarrPost? = nil) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {

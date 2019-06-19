@@ -180,8 +180,6 @@ class SmallUserCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
 		return cell
 	}
 	
-	@objc dynamic var privateSelected: Bool = false
-
 	var model: NSFetchRequestResult? {
 		didSet {
 			if let user = model as? KrakenUser {

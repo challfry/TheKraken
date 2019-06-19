@@ -18,11 +18,6 @@ import UIKit
 	func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int)
 }
 
-protocol KrakenDataSourceProtocol {
-	var enableAnimations: Bool { get set}
-	func invalidateLayout()
-}
-
 @objc class FilteringDataSourceSection : NSObject, FilteringDataSourceSectionProtocol {
 	var dataSource: FilteringDataSource?
 	var sectionName: String = ""
@@ -125,15 +120,11 @@ protocol KrakenDataSourceProtocol {
 	}
 }
 
-@objc class FilteringDataSource: NSObject, KrakenDataSourceProtocol {
+@objc class FilteringDataSource: KrakenDataSource {
 	@objc dynamic var allSections = NSMutableArray() // [FilteringDataSourceSection]()
 	@objc dynamic var visibleSections = NSMutableArray() // [FilteringDataSourceSection]()
 	@objc dynamic var oldVisibleSections: NSMutableArray? // [FilteringDataSourceSection]()
 	
-	weak var collectionView: UICollectionView?
-	weak var tableView: UITableView?
-	weak var viewController: UIViewController? 			// So that cells can segue/present other VCs.
-	var enableAnimations = false			// Generally, set to true in viewDidAppear
 	var registeredCellReuseIDs = Set<String>()
 	
 	override init() {
@@ -160,19 +151,15 @@ protocol KrakenDataSourceProtocol {
 //				observer.runUpdates()
 //			}
 //		}
-	}
+	}	
 	
-	func register(with cv: UICollectionView) {
-		collectionView = cv
+	override func register(with cv: UICollectionView, viewController: BaseCollectionViewController? = nil) {
+		super.register(with: cv, viewController: viewController)
+		self.viewController = viewController
 		cv.dataSource = self
 		cv.delegate = self
 	}
-	
-	private var internalInvalidateLayout = false
-	func invalidateLayout() {
-		internalInvalidateLayout = true
-		runUpdates()
-	}
+
 	
 	private var updateScheduled = false
 	func runUpdates() {
@@ -266,12 +253,15 @@ protocol KrakenDataSourceProtocol {
 		}
 		return nil
 	}
-
+	
 }
 
 extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
 //		print ("Someone asked how many sections. Responded with \(visibleSections.count)")
+		if oldVisibleSections == nil, visibleSections.count > 0 {
+			oldVisibleSections = visibleSections
+		}
     	return visibleSections.count
     }
 

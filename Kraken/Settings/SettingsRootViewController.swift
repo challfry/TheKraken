@@ -18,6 +18,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		title = "Settings"
 
   		dataSource.register(with: collectionView)
+  		dataSource.viewController = self
 		let settingsSection = dataSource.appendSection(named: "settingsSection")
 		
 		// Network Info

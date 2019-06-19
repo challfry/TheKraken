@@ -75,6 +75,7 @@
 		EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */; };
 		EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */; };
 		EAE59152229EA345002B5DEF /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAE59151229EA345002B5DEF /* Photos.framework */; };
+		EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */; };
 		EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF340F224ED88300C7A0D9 /* LoginCells.swift */; };
 		EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */; };
 		EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */; };
@@ -188,6 +189,7 @@
 		EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectionCell.swift; sourceTree = "<group>"; };
 		EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
 		EAE59151229EA345002B5DEF /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenDataSource.swift; sourceTree = "<group>"; };
 		EAEF340F224ED88300C7A0D9 /* LoginCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCells.swift; sourceTree = "<group>"; };
 		EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailRootViewController.swift; sourceTree = "<group>"; };
 		EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrTweetCell.swift; sourceTree = "<group>"; };
@@ -440,6 +442,7 @@
 		EAC71D48228A13BC002F7BB3 /* Data Sources */ = {
 			isa = PBXGroup;
 			children = (
+				EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */,
 				EAC71D49228A13F6002F7BB3 /* FetchedResultsControllerDataSource.swift */,
 				EA278A98226A86BE00808AED /* FilteringCollectionViewDataSource.swift */,
 				EA3C630F2296275F00077E3B /* CollectionFlowLayout.swift */,
@@ -617,6 +620,7 @@
 			files = (
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
+				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
 				EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,

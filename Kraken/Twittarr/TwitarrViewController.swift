@@ -164,8 +164,9 @@ extension TwitarrViewController: UIGestureRecognizerDelegate {
 			if tappedCell.isHighlighted {
 //				let indexPath = collectionView.indexPath(for: tappedCell)
 //				collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
-				if let tc = tappedCell as? TwitarrTweetCell, let cm = tc.cellModel as? TwitarrTweetCellModel {
-					cm.privateSelected = true
+				
+				if let tc = tappedCell as? TwitarrTweetCell {
+					tc.privateSelectCell()
 				}
 			}
 		} 

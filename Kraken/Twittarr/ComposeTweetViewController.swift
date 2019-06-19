@@ -13,10 +13,10 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	var editTweet: TwitarrPost?
 
 	let loginDataSource = FilteringDataSource()
-//	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread, SeamailThreadCell>()
 	let composeDataSource = FilteringDataSource()
 	var tweetTextCell: TextViewCellModel?
 	var postButtonCell: ButtonCellModel?
+	var photoSelectionCell: PhotoSelectionCellModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,6 +59,9 @@ class ComposeTweetViewController: BaseCollectionViewController {
         tweetTextCell = textCell
         if let editTweet = editTweet {
 			textCell.editText = StringUtilities.cleanupText(editTweet.text).string
+		} 
+		else if let draftText = TwitarrDataManager.shared.getDraftPostText(replyingTo: parentTweet?.id) {
+			textCell.editText = draftText
 		}
         
 		let btnCell = ButtonCellModel(title:"Post", action: postAction)
@@ -66,34 +69,39 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		composeSection.append(textCell)
         composeSection.append(btnCell)
         composeSection.append(EmojiSelectionCellModel(paster: emojiButtonTapped))
-        composeSection.append(PhotoSelectionCellModel())
-        
+        let photoCell = PhotoSelectionCellModel()
+        composeSection.append(photoCell)
+        photoSelectionCell = photoCell
 
    		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
         	if observed.loggedInUser == nil {
-				observer.loginDataSource.register(with: observer.collectionView)
-//				observer.dataManager.removeDelegate(observer.frcDataSource)
+				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
         	}
         	else {
-        		observer.composeDataSource.register(with: observer.collectionView)
+        		observer.composeDataSource.register(with: observer.collectionView, viewController: observer)
 			}
         }?.execute()        
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+		loginDataSource.enableAnimations = true
+		composeDataSource.enableAnimations = true
+	}
+
+	override func viewDidDisappear(_ animated: Bool) {
+		if !didPost {
+			TwitarrDataManager.shared.saveDraftPost(text: tweetTextCell?.editedText, replyingTo: parentTweet?.id)
+		}
+	}
+
+// MARK: Actions    
+    
+    var didPost = false
     func postAction() {
-    	let context = LocalCoreData.shared.mainThreadContext
-    	let tweetText = tweetTextCell?.editedText
-    	
-//    	context.perform {
-//    		do {
-//				let newPost = PostOperationTweet(context: context)
-//				newPost.build(text, photo, parent, edit)
-//				try context.save()
-//			}
-//			catch {
-//				
-//			}
-//    	}
+    	didPost = true
+    	if let tweetText = tweetTextCell?.editedText ?? tweetTextCell?.editText {
+	    	TwitarrDataManager.shared.queueNewPost(withText: tweetText, image: nil, inReplyTo: parentTweet)
+		}
     }
     
     func emojiButtonTapped(withEmojiString: String?) {
@@ -102,20 +110,27 @@ class ComposeTweetViewController: BaseCollectionViewController {
     	}
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-		loginDataSource.enableAnimations = true
-		composeDataSource.enableAnimations = true
-	}
-
-    /*
-    // MARK: - Navigation
+// MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    	switch segue.identifier {
+		case "UserProfile":
+			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
+				destVC.modelUserName = username
+			}
+		default: break 
+    	}
+
     }
-    */
+
+	override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+		if identifier == "TweetFilter" {
+			return false
+		}
+		
+		return true
+	}
 
 }
 

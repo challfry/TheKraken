@@ -42,12 +42,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 	private static var prototypeCell: TwitarrTweetCell =
 		UINib(nibName: "TwitarrTweetCell", bundle: nil).instantiate(withOwner: nil, options: nil)[0] as! TwitarrTweetCell
 
-	static func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> TwitarrTweetCell? {
-		let cell = TwitarrTweetCell.prototypeCell
-		cell.collectionView = collectionView
-		return cell
-	}
-	
 
     var model: NSFetchRequestResult? {
     	didSet {
@@ -76,8 +70,11 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 			else {
 				likesLabel.isHidden = true
 			}
+			
+			// Can the user tap on a link and open a filtered view?
+			let addLinksToText = viewController?.shouldPerformSegue(withIdentifier: "TweetFilter", sender: self) ?? false
 
-			tweetTextView.attributedText = StringUtilities.cleanupText(tweetModel.text)
+			tweetTextView.attributedText = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
 			let fixedWidth = tweetTextView.frame.size.width
 			let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
 			tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
@@ -153,7 +150,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 					observer.reactionQueuedView.isHidden = true
 					observer.likeButton.isEnabled = true
 				}
-			}?.schedule())
+			}?.execute())
 			
 
 			titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -214,7 +211,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 //		}
 //	}
 	
-	var privateSelected: Bool = false {
+	override var privateSelected: Bool {
 		didSet {
 			if privateSelected == oldValue { return }
 			

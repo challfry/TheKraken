@@ -24,7 +24,6 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 			shouldBeVisible = model != nil
 		}
 	}
-	@objc dynamic var privateSelected: Bool = false
 	var reuse: String
 	
 	init(withModel: NSFetchRequestResult?, reuse: String) {
@@ -42,16 +41,12 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 
 // Note: For some reason I couldn't put protocol conformance into extensions, and I didn't bother trying to figure out why.
 // Why would I do such a terrible thing? Because you can put the methods in the class and move on. 
-class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetchedResultsControllerDelegate, 
+class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, NSFetchedResultsControllerDelegate, 
 		UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSourcePrefetching,
-		FilteringDataSourceSectionProtocol, KrakenDataSourceProtocol
-		where FetchedObjectType : NSFetchRequestResult {
+		FilteringDataSourceSectionProtocol where FetchedObjectType : NSFetchRequestResult {
 
 	var frc: NSFetchedResultsController<FetchedObjectType>?
-	var viewController: UIViewController?
-	var collectionView: UICollectionView?
 	var cellModels: [BaseCellModel] = []
-	var enableAnimations = false			// Generally, set to true in viewDidAppear
 	
 	// Clients need to implement this to populate the cell's data from the model.
 	var createCellModel: ((_ fromModel: FetchedObjectType) -> BaseCellModel)?
@@ -80,14 +75,6 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 		}
 	}
 	
-	private var internalInvalidateLayout = false
-	func invalidateLayout() {
-		internalInvalidateLayout = true
-		if let cv = collectionView {
-			runUpdates(for: cv, sectionOffset: 0)
-		} 
-	}
-			
 // MARK: FetchedResultsControllerDelegate
 	var insertSections = IndexSet()
 	var deleteSections = IndexSet()
@@ -133,9 +120,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 	}
 
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		if let cv = collectionView {
-			runUpdates(for: cv, sectionOffset: 0)
-		} 
+		runUpdates(sectionOffset: 0)
 	}
 
 // MARK: UICollectionView Data Source
@@ -225,34 +210,6 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: NSObject, NSFetched
 		print("Can't append cells to this data source")
 	}
 
-	// Always called from within a performBatchUpdates
-	private var updateScheduled = false
-	func runUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
-		if let ds = dataSource {
-			// If we're not top-level, tell upstream that updates need to be run. Remember, performBatchUpdates
-			// must update everything -- when it's done, every section's cell count must add up.
-			ds.runUpdates()
-		}
-		else {
-			guard !updateScheduled else { return }	
-			DispatchQueue.main.async {
-				self.updateScheduled = false
-				if let cv = self.collectionView {
-					if !self.enableAnimations {
-						UIView.setAnimationsEnabled(false)
-					}
-					
-					cv.performBatchUpdates( {
-						self.internalRunUpdates(for: collectionView, sectionOffset: sectionOffset)
-					}, completion: nil)
-					
-					if !self.enableAnimations {
-						UIView.setAnimationsEnabled(true)
-					}
-				}
-			}
-		}
-	}
 	
 	internal func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
 		func addOffsetToIndexSet(_ indexes: IndexSet) -> IndexSet {

@@ -10,7 +10,7 @@ import UIKit
 
 class StringUtilities {
  
-    class func cleanupText(_ text:String) -> NSAttributedString {
+    class func cleanupText(_ text:String, addLinks: Bool = true) -> NSAttributedString {
     	let outputString = NSMutableAttributedString()
     	let openTag = CharacterSet(charactersIn: "<")
     	let closeTag = CharacterSet(charactersIn: ">")
@@ -22,7 +22,7 @@ class StringUtilities {
      	scanner.charactersToBeSkipped = emptySet
 		while !scanner.isAtEnd {
 			if let tempString = scanner.scanUpToCharactersFrom(openTag) {
-				if tagStack.isEmpty {
+				if tagStack.isEmpty || !addLinks {
 					let attrString = NSAttributedString(string: tempString)
 					outputString.append(attrString)
 				}

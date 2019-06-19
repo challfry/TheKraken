@@ -24,14 +24,13 @@ class BaseCollectionViewController: UIViewController {
 			layout.estimatedItemSize = CGSize(width: width, height: 52 )
 			
 			layout.minimumLineSpacing = 0
-			
-			NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillShow(notification:)), 
-					name: UIResponder.keyboardDidShowNotification, object: nil)
-		    NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillHide(notification:)), 
-					name: UIResponder.keyboardDidHideNotification, object: nil)
-
 		}
-    }
+ 
+		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillShow(notification:)), 
+				name: UIResponder.keyboardDidShowNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillHide(notification:)), 
+				name: UIResponder.keyboardDidHideNotification, object: nil)
+   }
         
     @objc func keyboardWillShow(notification: NSNotification) {
 		if let keyboardHeight = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height {

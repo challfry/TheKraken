@@ -334,6 +334,8 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="elB-bV-rZV" id="H0x-Dj-G2w"/>
+                        <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="oPR-Dz-wmr"/>
+                        <segue destination="0s5-bb-y2H" kind="show" identifier="TweetFilter" id="jQ6-os-thd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lFb-xg-kP0" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -452,6 +454,7 @@
                             <constraint firstAttribute="trailing" secondItem="wJQ-Cc-hcW" secondAttribute="trailing" constant="4" id="L2v-zs-FcX"/>
                             <constraint firstItem="wJQ-Cc-hcW" firstAttribute="leading" secondItem="ifn-78-eIF" secondAttribute="leading" constant="4" id="q92-aU-WZG"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="WDl-C2-kRn"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <value key="contentSizeForViewInPopover" type="size" width="244" height="50"/>
@@ -637,9 +640,9 @@
         <image name="second" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="NT7-WF-Ano"/>
+        <segue reference="oPR-Dz-wmr"/>
         <segue reference="1ve-Md-YVN"/>
-        <segue reference="lin-0h-BUN"/>
+        <segue reference="jQ6-os-thd"/>
         <segue reference="vXi-dK-Rxk"/>
     </inferredMetricsTieBreakers>
 </document>
