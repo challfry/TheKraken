@@ -49,7 +49,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="xFL-hY-55B" firstAttribute="centerX" secondItem="mob-BF-bC7" secondAttribute="centerX" id="6c9-wU-iw6"/>
-                            <constraint firstAttribute="height" constant="80" id="Jbe-tB-rgw"/>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" id="Jbe-tB-rgw"/>
                             <constraint firstItem="xFL-hY-55B" firstAttribute="centerY" secondItem="mob-BF-bC7" secondAttribute="centerY" id="VUB-hq-Ck2"/>
                         </constraints>
                     </view>
@@ -68,6 +68,7 @@
             <size key="customSize" width="412" height="83"/>
             <connections>
                 <outlet property="authorizationView" destination="mob-BF-bC7" id="89V-tn-Qwc"/>
+                <outlet property="heightConstraint" destination="Zff-90-Qjv" id="aQd-lM-ZEx"/>
                 <outlet property="photoCollectionView" destination="l7G-yu-J9U" id="1mm-tc-Dde"/>
             </connections>
             <point key="canvasLocation" x="101.44927536231884" y="163.39285714285714"/>

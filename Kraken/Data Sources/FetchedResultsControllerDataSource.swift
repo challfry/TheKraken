@@ -43,7 +43,7 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 // Why would I do such a terrible thing? Because you can put the methods in the class and move on. 
 class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, NSFetchedResultsControllerDelegate, 
 		UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSourcePrefetching,
-		FilteringDataSourceSectionProtocol where FetchedObjectType : NSFetchRequestResult {
+		KrakenDataSourceSectionProtocol where FetchedObjectType : NSFetchRequestResult {
 
 	var frc: NSFetchedResultsController<FetchedObjectType>?
 	var cellModels: [BaseCellModel] = []
@@ -201,7 +201,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 		return CGSize(width:414, height: 50)
 	}
 	
-// MARK: FilteringDataSourceSectionProtocol
+// MARK: KrakenDataSourceSectionProtocol
 	var dataSource: FilteringDataSource?
 	var sectionName: String = ""
 	@objc dynamic var sectionVisible = true

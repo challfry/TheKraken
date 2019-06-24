@@ -8,17 +8,7 @@
 
 import UIKit
 
-// This has to be an @objc protocol, which has cascading effects.
-@objc protocol FilteringDataSourceSectionProtocol: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-	var dataSource: FilteringDataSource? { get set }
-	var sectionName: String { get set }
-	var sectionVisible: Bool { get set }
-		
-	func append(_ cell: BaseCellModel)
-	func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int)
-}
-
-@objc class FilteringDataSourceSection : NSObject, FilteringDataSourceSectionProtocol {
+@objc class FilteringDataSourceSection : NSObject, KrakenDataSourceSectionProtocol {
 	var dataSource: FilteringDataSource?
 	var sectionName: String = ""
 
@@ -132,7 +122,7 @@ import UIKit
 		
 		// Watch for section visibility changes; tell Collection to update
 		allSections.tell(self, when: "*.sectionVisible") { observer, observed in
-			let allSections = observer.allSections as! [FilteringDataSourceSectionProtocol]
+			let allSections = observer.allSections as! [KrakenDataSourceSectionProtocol]
 			let newVisibleSections = allSections.compactMap() { model in model.sectionVisible ? model : nil }
 			if observer.oldVisibleSections == nil {
 				observer.oldVisibleSections = observer.visibleSections
@@ -196,7 +186,7 @@ import UIKit
 					}
 					
 					for sectionIndex in 0 ..< self.visibleSections.count {
-					 	let section = self.visibleSections[sectionIndex] as! FilteringDataSourceSectionProtocol
+					 	let section = self.visibleSections[sectionIndex] as! KrakenDataSourceSectionProtocol
 						if insertedSections.contains(sectionIndex) {
 							// Run and discard cell-level updates on this just-inserted section
 							section.internalRunUpdates(for: nil, sectionOffset: sectionIndex)
@@ -230,7 +220,7 @@ import UIKit
 		return newSection
 	}
 
-	@discardableResult func appendSection(section: FilteringDataSourceSectionProtocol) -> FilteringDataSourceSectionProtocol {
+	@discardableResult func appendSection(section: KrakenDataSourceSectionProtocol) -> KrakenDataSourceSectionProtocol {
 		section.dataSource = self
 		allSections.add(section)
 		return section
@@ -238,16 +228,16 @@ import UIKit
 	
 	// Returns cell, for chaining
 	@discardableResult func appendCell<T: BaseCellModel>(_ cell: T, toSection name: String) -> T {
-		let sections = allSections as! [FilteringDataSourceSectionProtocol]
+		let sections = allSections as! [KrakenDataSourceSectionProtocol]
 		if let section = sections.first(where: { $0.sectionName == name } ) {
 			section.append(cell)
 		}
 		return cell
 	}
 		
-	func section(named: String) -> FilteringDataSourceSectionProtocol? {
+	func section(named: String) -> KrakenDataSourceSectionProtocol? {
 		for section in allSections {
-			if let section = section as? FilteringDataSourceSectionProtocol, section.sectionName == named {
+			if let section = section as? KrakenDataSourceSectionProtocol, section.sectionName == named {
 				return section
 			}
 		}
@@ -266,13 +256,13 @@ extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDeleg
     }
 
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		let sections = visibleSections as! [FilteringDataSourceSectionProtocol]
+		let sections = visibleSections as! [KrakenDataSourceSectionProtocol]
 		let count = sections[section].collectionView(collectionView, numberOfItemsInSection: 0)
 		return count
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let sections = visibleSections as! [FilteringDataSourceSectionProtocol]
+		let sections = visibleSections as! [KrakenDataSourceSectionProtocol]
 		let sectionPath = IndexPath(row: indexPath.row, section: 0)
 		let resultCell = sections[indexPath.section].collectionView(collectionView, cellForItemAt: sectionPath)
 		if let cell = resultCell as? BaseCollectionViewCell, let vc = viewController as? BaseCollectionViewController {
@@ -282,14 +272,14 @@ extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDeleg
 	}
 	
 //	func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-//		let sections = visibleSections as! [FilteringDataSourceSectionProtocol]
+//		let sections = visibleSections as! [KrakenDataSourceSectionProtocol]
 //		let model = sections[indexPath.section].visibleCellModels[indexPath.row]
 //		model.cellTapped()
 //	}
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
-		let sections = visibleSections as! [FilteringDataSourceSectionProtocol]
+		let sections = visibleSections as! [KrakenDataSourceSectionProtocol]
 		let sectionPath = IndexPath(row: indexPath.row, section: 0)
 //		let protoSize = sections[indexPath.section].sizeForCell(for: collectionView, indexPath: sectionPath)
 		let protoSize = sections[indexPath.section].collectionView?(collectionView, 

@@ -10,7 +10,7 @@ import UIKit
 import Photos
 
 @objc protocol PhotoSelectionCellProtocol {
-	
+	@objc dynamic var privateSelected: Bool { get set }
 }
 
 @objc class PhotoSelectionCellModel: BaseCellModel, PhotoSelectionCellProtocol {
@@ -31,7 +31,8 @@ import Photos
 class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UICollectionViewDataSource, UICollectionViewDelegate {
 	@IBOutlet var authorizationView: UIView!
 	@IBOutlet var photoCollectionView: UICollectionView!
-
+	@IBOutlet weak var heightConstraint: NSLayoutConstraint!
+	
 	private static let cellInfo = [ "PhotoSelectionCell" : PrototypeCellInfo("PhotoSelectionCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
@@ -39,6 +40,9 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 
     override func awakeFromNib() {
         super.awakeFromNib()
+ 		lineLayout = HorizontalLineLayout(withParent: self)
+		photoCollectionView.collectionViewLayout = lineLayout!
+		heightConstraint.constant = 400
 
 		photoCollectionView.register(PhotoButtonCell.self, forCellWithReuseIdentifier: "PhotoButtonCell")
 
@@ -78,6 +82,29 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 		cell.ownerCell = self
 		return cell
 	}
+	
+	
+	var lineLayout: HorizontalLineLayout?
+	func cellTapped(_ cell: PhotoButtonCell) {
+		if let _ = lineLayout?.privateSelectedIndexPath {
+			lineLayout?.privateSelectedIndexPath = nil
+		} 
+		else {
+			lineLayout?.privateSelectedIndexPath = photoCollectionView.indexPath(for: cell)
+		}
+		UIView.animate(withDuration: 0.3) {
+			self.lineLayout?.invalidateLayout()
+			self.photoCollectionView.layoutIfNeeded()
+		}
+	}
+	
+	@objc dynamic override var privateSelected: Bool {
+		didSet {
+			heightConstraint.constant = privateSelected ? 400 : 400
+			cellSizeChanged()
+		}
+	}
+	
 }
 
 @objc class PhotoButtonCell: UICollectionViewCell {
@@ -86,7 +113,7 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 	var asset: PHAsset? {
 		didSet {
 			guard let asset = asset else { return }
-			let _ = PHImageManager.default().requestImage(for: asset, targetSize: CGSize(width:80, height: 80), 
+			let _ = PHImageManager.default().requestImage(for: asset, targetSize: CGSize(width:400, height: 400), 
 					contentMode: .aspectFill, options: nil) { image, info in
 				if let image = image {
 					self.photoButton.setImage(image, for: .normal)
@@ -97,12 +124,36 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
+		
+		// Add the photo as a button; makes highlight and hit detection easier.
 		photoButton.frame = self.bounds
 		addSubview(photoButton)
 		photoButton.addTarget(self, action:#selector(buttonHit), for:.touchUpInside)
 		photoButton.adjustsImageWhenHighlighted = true
 		photoButton.adjustsImageWhenDisabled = true
-		photoButton.imageView?.contentMode = .scaleAspectFill	 
+		photoButton.imageView?.contentMode = .scaleAspectFill
+		photoButton.contentVerticalAlignment = .fill
+		photoButton.contentHorizontalAlignment = .fill
+		photoButton.imageView?.clipsToBounds = true
+		photoButton.clipsToBounds = true
+		
+		photoButton.translatesAutoresizingMaskIntoConstraints = false
+		photoButton.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+		photoButton.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+		photoButton.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+		
+		// Make a label that only shows up when the cell is selected (via constraints)
+		let label = UILabel()
+		label.text = "This photo will be added to your post"
+		addSubview(label)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		label.textAlignment = .center
+		label.clipsToBounds = true
+		label.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+		label.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+		label.topAnchor.constraint(equalTo: topAnchor).isActive = true
+		photoButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 80.0).isActive = true
+		photoButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 0).isActive = true
 	}
 	
     required init?(coder aDecoder: NSCoder) {
@@ -110,8 +161,95 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
     }
     
     @objc func buttonHit() {
-//    	ownerCell?.buttonTapped(withString:emoji)
+    	ownerCell?.cellTapped(self)
+		photoButton.imageView?.contentMode = photoButton.imageView?.contentMode == .scaleAspectFill ?
+				.scaleAspectFit : .scaleAspectFill
+
     }
 }
 
 
+class HorizontalLineLayout: UICollectionViewLayout {
+	var privateSelectedIndexPath: IndexPath?
+	var parentCell: PhotoSelectionCell
+	
+	static let cellWidth = 80
+	static let cellSpacing = 6
+	static var cellStride: Int { return cellWidth + cellSpacing }
+	
+	init(withParent: PhotoSelectionCell) {
+		parentCell = withParent
+		super.init()
+	}
+	
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
+	override var collectionViewContentSize: CGSize {
+		if let _ = privateSelectedIndexPath {
+			return collectionView!.bounds.size 
+		}
+		else {
+			let photoCount = parentCell.allPhotos?.count ?? 0
+			return CGSize(width: photoCount * (HorizontalLineLayout.cellStride), height: 80)
+		}
+	}
+
+	override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+		var result: [UICollectionViewLayoutAttributes] = []
+		if let path = privateSelectedIndexPath {
+			let attrs = UICollectionViewLayoutAttributes(forCellWith: path)
+			attrs.isHidden = false
+			attrs.frame = collectionView!.bounds
+			result.append(attrs)
+		}
+		else {
+			var index = Int(Int(rect.origin.x) / HorizontalLineLayout.cellStride)
+			if index < 0 { index = 0 }
+			var last = Int(Int(rect.origin.x + rect.size.width) / HorizontalLineLayout.cellStride)
+			if last > parentCell.allPhotos!.count { last = parentCell.allPhotos!.count }
+			while index < last {
+				let val = UICollectionViewLayoutAttributes(forCellWith: IndexPath(row: index, section: 0))
+				val.isHidden = false
+				val.frame = CGRect(x: index * HorizontalLineLayout.cellStride, y: 0, width: HorizontalLineLayout.cellWidth, height: 80)
+				result.append(val)
+				index = index + 1
+			}
+			if result.count > 6 {	
+				print ("Retuning \(result.count) objects; last was \(last)")
+			}
+		}
+		
+		return result
+	}
+	
+	override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+		let result = UICollectionViewLayoutAttributes(forCellWith: indexPath)
+		if let selectedIndexPath = privateSelectedIndexPath {
+			result.isHidden = selectedIndexPath != indexPath
+			result.frame = collectionView!.bounds
+		}
+		else {
+			result.isHidden = false
+			result.frame = CGRect(x: indexPath.row * HorizontalLineLayout.cellStride, y: 0,
+					width: HorizontalLineLayout.cellWidth, height: 80)
+		}
+		return result
+	}
+
+	override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+		return true
+	}
+	
+	var exitContentOffset = CGPoint(x:0, y:0)
+	override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+		if let _ = privateSelectedIndexPath {
+			exitContentOffset = proposedContentOffset
+			return CGPoint(x: 0, y: 0)
+		}
+		else {
+			return exitContentOffset
+		}
+	}
+}

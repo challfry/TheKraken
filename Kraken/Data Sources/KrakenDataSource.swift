@@ -8,6 +8,17 @@
 
 import UIKit
 
+// This has to be an @objc protocol, which has cascading effects.
+@objc protocol KrakenDataSourceSectionProtocol: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+	var dataSource: FilteringDataSource? { get set }
+	var sectionName: String { get set }
+	var sectionVisible: Bool { get set }
+//	var numVisibleSections: Int { get set }	// May have to switch to this to handle sub-DS that has multiple sections?
+		
+	func append(_ cell: BaseCellModel)
+	func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int)
+}
+
 class KrakenDataSource: NSObject {
 	var enableAnimations = false			// Generally, set to true in viewDidAppear
 	
@@ -16,22 +27,31 @@ class KrakenDataSource: NSObject {
 	weak var viewController: UIViewController? 			// So that cells can segue/present other VCs.
 
 	var selectedCell: BaseCellModel?
-	func setCellSelection(cellModel: BaseCellModel, newState: Bool) {
-		// Only dealing with the single-select case
+	func setCellSelection(cell: BaseCollectionViewCell, newState: Bool) {
+		// Only dealing with the single-select case; eventually create an enum with selection types?
 		
 		// If we're selecting a cell that isn't the current selected cell
-		if newState, let currentSelection = selectedCell, currentSelection !== cellModel {
+		if newState, let currentSelection = selectedCell, currentSelection !== cell.cellModel {
+			selectedCell = nil
+			currentSelection.privateSelected = false
+		}
+		
+		// If we're deselecting the currently selected cell
+		if !newState, let currentSelection = selectedCell, currentSelection === cell.cellModel {
 			selectedCell = nil
 			currentSelection.privateSelected = false
 		}
 		
 		if newState {
-			selectedCell = cellModel
-			cellModel.privateSelected = true
+			selectedCell = cell.cellModel
+			cell.cellModel?.privateSelected = true
+		}
+		
+		if let indexPath = collectionView?.indexPath(for: cell) {
+			collectionView?.selectItem(at: indexPath, animated: false, scrollPosition: .left)
 		}
 	}
-
-
+	
 	var internalInvalidateLayout = false
 	func invalidateLayout() {
 		internalInvalidateLayout = true

@@ -155,7 +155,7 @@ struct PrototypeCellInfo {
 		if let model = cellModel {
 			model.privateSelected = true
 			if let ds = self.dataSource {
-				ds.setCellSelection(cellModel: model, newState: newState)
+				ds.setCellSelection(cell: self, newState: newState)
 			}
 		}
 	}
