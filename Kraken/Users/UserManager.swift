@@ -56,7 +56,7 @@ import CoreData
 		TestAndUpdate(\.numberOfTweets, v2Object.numberOfTweets)
 		TestAndUpdate(\.numberOfMentions, v2Object.numberOfMentions)
 		
-		if let loggedInUser = CurrentUser.shared.loggedInUser {
+		if let loggedInUser = CurrentUser.shared.getLoggedInUser(in: context) {
 			var commentToUpdate = commentedUpon?.first(where: { $0.commentingUser.username == loggedInUser.username } )
 			
 			// Only create a comment object if there's some content to put in it
@@ -109,9 +109,9 @@ class UserManager : NSObject {
 	static let shared = UserManager()
 	private let coreData = LocalCoreData.shared
 
-		
-	func user(_ userName: String) -> KrakenUser? {
-		let context = coreData.mainThreadContext
+	// Gets the User object for a given username. Returns nil if CD hasn't heard of that user yet. Does not make a server call.
+	func user(_ userName: String, inContext: NSManagedObjectContext? = nil) -> KrakenUser? {
+		let context = inContext ?? coreData.mainThreadContext
 		var result: KrakenUser?
 		context.performAndWait {
 			do {
@@ -128,6 +128,7 @@ class UserManager : NSObject {
 		return result
 	}
 	
+	// Calls /api/v2/user/profile to get info on a user. Updates CD with the returned information.
 	func loadUserProfile(_ username: String) -> KrakenUser? {
 	
 		// The background context we use to save data parsed from network calls CAN use the object ID but CANNOT reference the object

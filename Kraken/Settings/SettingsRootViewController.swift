@@ -9,6 +9,7 @@
 import UIKit
 import SystemConfiguration
 import SystemConfiguration.CaptiveNetwork
+import CoreData
 
 class SettingsRootViewController: BaseCollectionViewController {
 	let dataSource = FilteringDataSource()
@@ -34,10 +35,14 @@ class SettingsRootViewController: BaseCollectionViewController {
 		settingsSection.append(cell: LoginAdminInfoCellModel())
 		settingsSection.append(cell: SettingsLoginButtonCellModel(action: loginButtonTapped))
 
+		// POST actions waiting to be delivered to the server
+		let delayedPostInfo = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
+		delayedPostInfo.labelText = NSAttributedString(string: "Changes you've made, waiting to be sent to the Twitarr server.")
+		let delayedPostDisclosure = settingsSection.append(cell: DelayedPostDisclosureCellModel())
+		delayedPostDisclosure.viewController = self
 
-		var x = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
-		x.labelText = NSAttributedString(string: "Nothing to post")
-		x = settingsSection.append(cell: SettingsInfoCellModel("Time Zone Info"))
+
+		var  x = settingsSection.append(cell: SettingsInfoCellModel("Time Zone Info"))
 		x.labelText = NSAttributedString(string: "Clocks Synchronized")
 		x = settingsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
 		x.labelText = NSAttributedString(string: "lolwut?")
@@ -103,6 +108,14 @@ class SettingsRootViewController: BaseCollectionViewController {
 	
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    	switch segue.identifier {
+//		case "PostOperations":
+//			if let destVC = segue.destination as? SettingsTasksViewController, 
+//					let controller = sender as? NSFetchedResultsController<PostOperation> {
+//				destVC.controller = controller
+//			}
+		default: break 
+    	}
     }
 
 	// This fn has to be here so that the login unwind stops here.
@@ -249,3 +262,46 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	
 }
 
+@objc class DelayedPostDisclosureCellModel : DisclosureCellModel, NSFetchedResultsControllerDelegate {
+	let controller: NSFetchedResultsController<PostOperation>
+	var viewController: SettingsRootViewController?
+	
+	override init() {
+		
+		let context = LocalCoreData.shared.mainThreadContext
+		let fetchRequest = NSFetchRequest<PostOperation>(entityName: "PostOperation")
+		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "originalPostTime", ascending: true)]
+		controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, 
+				sectionNameKeyPath: nil, cacheName: nil)
+
+		super.init()
+		controller.delegate = self
+		do {
+			try controller.performFetch()
+			controllerDidChangeContent(controller as! NSFetchedResultsController<NSFetchRequestResult>)
+		} catch {
+			fatalError("Failed to fetch entities: \(error)")
+		}
+	}
+
+	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		if let changeCount = controller.fetchedObjects?.count {
+			if changeCount == 1 {
+				title = "1 item to post"
+			}
+			else {
+				title = "\(changeCount) items to post"
+			}
+		}
+		else {
+			title = "No changes waiting to be sent to the server."
+		}
+	}
+	
+	override func cellTapped() {
+		if let count = controller.fetchedObjects?.count, count > 0 {
+			viewController?.performSegue(withIdentifier: "PostOperations", sender: controller)
+		}
+	}
+
+}

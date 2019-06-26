@@ -185,16 +185,9 @@ class UserProfileViewController: BaseCollectionViewController {
 	}
 }
 
-@objc protocol DisclosureCellProtocol {
-	dynamic var title: String? { get set }
-}
-
-@objc class ProfileDisclosureCellModel: BaseCellModel, DisclosureCellProtocol {
-	private static let validReuseIDs = [ "ProfileDisclosure" : ProfileDisclosureCell.self ]
-	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
+@objc class ProfileDisclosureCellModel: DisclosureCellModel {
 
 	var userModel: KrakenUser?
-	dynamic var title: String?
 	var viewController: UserProfileViewController?
 
 	enum DisplayMode {
@@ -208,7 +201,7 @@ class UserProfileViewController: BaseCollectionViewController {
 		displayMode = mode
 		userModel = user
 		viewController = vc
-		super.init(bindingWith: DisclosureCellProtocol.self)
+		super.init()
 
 		if let user = userModel {
 			switch displayMode {
@@ -232,16 +225,6 @@ class UserProfileViewController: BaseCollectionViewController {
 		case .mentions: viewController?.pushUserMentionsView()
 		case .sendSeamail: viewController?.pushSendSeamailView()
 		}
-	}
-}
-
-class ProfileDisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
-	@IBOutlet var titleLabel: UILabel!
-	private static let cellInfo = [ "ProfileDisclosure" : PrototypeCellInfo("ProfileDisclosureCell") ]
-	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
-
-	var title: String? {
-		didSet { titleLabel.text = title }
 	}
 }
 

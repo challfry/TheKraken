@@ -49,7 +49,7 @@
 		EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADE12279836D00363CBF /* ProfileAvatarLeftCell.xib */; };
 		EA86ADE4227983B600363CBF /* ProfileAvatarTopCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADE3227983B600363CBF /* ProfileAvatarTopCell.xib */; };
 		EA86ADE6227983E500363CBF /* SingleValueCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADE5227983E500363CBF /* SingleValueCell.xib */; };
-		EA86ADE82279B49400363CBF /* ProfileDisclosureCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADE72279B49400363CBF /* ProfileDisclosureCell.xib */; };
+		EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADE72279B49400363CBF /* DisclosureCell.xib */; };
 		EA86ADEA2279B4E400363CBF /* ProfileCommentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADE92279B4E400363CBF /* ProfileCommentCell.xib */; };
 		EA86ADEE227D188A00363CBF /* ServerTextFileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADED227D188A00363CBF /* ServerTextFileParser.swift */; };
 		EA86ADF0227D18AD00363CBF /* ServerTextFileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADEF227D18AD00363CBF /* ServerTextFileViewController.swift */; };
@@ -64,6 +64,8 @@
 		EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */; };
 		EAA2E4D42242D301009F287F /* KrakenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4D32242D301009F287F /* KrakenTests.swift */; };
 		EAA2E4DF2242D301009F287F /* KrakenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4DE2242D301009F287F /* KrakenUITests.swift */; };
+		EAA62C6D22C2B5FA0031A999 /* DisclosureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */; };
+		EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
 		EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */; };
@@ -154,7 +156,7 @@
 		EA86ADE12279836D00363CBF /* ProfileAvatarLeftCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileAvatarLeftCell.xib; sourceTree = "<group>"; };
 		EA86ADE3227983B600363CBF /* ProfileAvatarTopCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileAvatarTopCell.xib; sourceTree = "<group>"; };
 		EA86ADE5227983E500363CBF /* SingleValueCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SingleValueCell.xib; sourceTree = "<group>"; };
-		EA86ADE72279B49400363CBF /* ProfileDisclosureCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileDisclosureCell.xib; sourceTree = "<group>"; };
+		EA86ADE72279B49400363CBF /* DisclosureCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DisclosureCell.xib; sourceTree = "<group>"; };
 		EA86ADE92279B4E400363CBF /* ProfileCommentCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileCommentCell.xib; sourceTree = "<group>"; };
 		EA86ADED227D188A00363CBF /* ServerTextFileParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerTextFileParser.swift; sourceTree = "<group>"; };
 		EA86ADEF227D18AD00363CBF /* ServerTextFileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerTextFileViewController.swift; sourceTree = "<group>"; };
@@ -178,6 +180,8 @@
 		EAA2E4DA2242D301009F287F /* KrakenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KrakenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4DE2242D301009F287F /* KrakenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenUITests.swift; sourceTree = "<group>"; };
 		EAA2E4E02242D301009F287F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DisclosureCell.swift; path = "Kraken/Common UI/DisclosureCell.swift"; sourceTree = SOURCE_ROOT; };
+		EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTasksViewController.swift; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadViewController.swift; sourceTree = "<group>"; };
 		EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailMessageCell.swift; sourceTree = "<group>"; };
@@ -278,7 +282,6 @@
 				EAEF340F224ED88300C7A0D9 /* LoginCells.swift */,
 				EA86ADE12279836D00363CBF /* ProfileAvatarLeftCell.xib */,
 				EA86ADE3227983B600363CBF /* ProfileAvatarTopCell.xib */,
-				EA86ADE72279B49400363CBF /* ProfileDisclosureCell.xib */,
 				EA86ADE92279B4E400363CBF /* ProfileCommentCell.xib */,
 				EA86ADD02272813800363CBF /* LoginHeaderCell.xib */,
 			);
@@ -311,6 +314,7 @@
 			isa = PBXGroup;
 			children = (
 				EA3C631422975D8400077E3B /* SettingsRootViewController.swift */,
+				EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */,
 				EAF777F622A3B1D000B27803 /* ModalLoginViewController.swift */,
 				EA3C63162297EFD400077E3B /* SettingsInfoCell.xib */,
 			);
@@ -322,6 +326,8 @@
 			children = (
 				EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */,
 				EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */,
+				EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */,
+				EA86ADE72279B49400363CBF /* DisclosureCell.xib */,
 				EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */,
 				EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */,
 				EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */,
@@ -580,7 +586,7 @@
 				EA86ADD42272855000363CBF /* jellyfish.png in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
-				EA86ADE82279B49400363CBF /* ProfileDisclosureCell.xib in Resources */,
+				EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */,
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
 				EA278A4A226A755400808AED /* LoginStatusCell.xib in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
@@ -624,6 +630,7 @@
 				EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
+				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
 				EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */,
 				EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */,
@@ -632,6 +639,7 @@
 				EA86ADD82272BAD300363CBF /* CommonCells.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
+				EAA62C6D22C2B5FA0031A999 /* DisclosureCell.swift in Sources */,
 				EA86ADDC22745A5800363CBF /* BaseCollectionViewController.swift in Sources */,
 				EA86ADEE227D188A00363CBF /* ServerTextFileParser.swift in Sources */,
 				EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */,

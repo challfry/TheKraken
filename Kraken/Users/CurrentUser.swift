@@ -110,6 +110,28 @@ import CoreData
 		return loggedInUser != nil
 	}
 	
+	func getLoggedInUser(in context: NSManagedObjectContext) -> KrakenUser? {
+		guard let loggedInObjectID = loggedInUser?.objectID, let username = loggedInUser?.username else { return nil }
+		var resultUser: KrakenUser?
+		context.performAndWait {
+			do {
+				resultUser = try context.existingObject(with: loggedInObjectID) as? KrakenUser
+				
+				if resultUser == nil {
+					let mom = LocalCoreData.shared.persistentContainer.managedObjectModel
+					let request = mom.fetchRequestFromTemplate(withName: "FindAUser", 
+							substitutionVariables: [ "username" : username ]) as! NSFetchRequest<KrakenUser>
+					let results = try request.execute()
+					resultUser = results.first
+				}
+			}
+			catch {
+				print(error)
+			}
+		}
+		return resultUser
+	}
+	
 	func loginUser(name: String, password: String) {
 		// For lots of reasons, logging in doesn't do anything immediately, nor does it return a value.
 		guard !isChangingLoginState else {
@@ -378,7 +400,7 @@ import CoreData
 
 /* Secure storage of user auth data.
 
-	We save a single item into KeychainServices. That item is a small JSON struct containing both the username and the 
+	We save a single item into KeychainServices. That item is a small struct containing both the username and the 
 	auth key--not the password--of the logged-in user. The auth key comes from the server. The item is stored in the 
 	keychain dictionary with a key that contains the base URL of the server that user was logged in to.
 	

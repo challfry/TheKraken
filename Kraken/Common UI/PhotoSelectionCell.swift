@@ -11,11 +11,14 @@ import Photos
 
 @objc protocol PhotoSelectionCellProtocol {
 	@objc dynamic var privateSelected: Bool { get set }
+	@objc dynamic var showAuthView: Bool { get set }
 }
 
 @objc class PhotoSelectionCellModel: BaseCellModel, PhotoSelectionCellProtocol {
 	private static let validReuseIDs = [ "PhotoSelectionCell" : PhotoSelectionCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
+	
+	@objc dynamic var showAuthView = PHPhotoLibrary.authorizationStatus() == .notDetermined
 	
 	init() {
 		super.init(bindingWith: PhotoSelectionCellProtocol.self)
@@ -24,8 +27,25 @@ import Photos
 		if status == .restricted || status == .denied {
 			shouldBeVisible = false
 		}
+
+		if !showAuthView {
+			let allPhotosOptions = PHFetchOptions()
+			allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+			allPhotosOptions.includeAssetSourceTypes = [.typeUserLibrary, .typeCloudShared, .typeiTunesSynced] 
+			allPhotos = PHAsset.fetchAssets(with: .image, options: allPhotosOptions)
+		}
 	}
 	
+	// Will be nil if no photo selected
+	var allPhotos: PHFetchResult<PHAsset>?
+	var selectedPhotoIndex: Int?
+	
+	func getSelectedPhoto() -> PHAsset? {
+		if let index = selectedPhotoIndex, let photos = allPhotos, index < photos.count {
+			return photos[index]
+		}	
+		return nil
+	}
 }
 
 class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UICollectionViewDataSource, UICollectionViewDelegate {
@@ -35,9 +55,14 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 	
 	private static let cellInfo = [ "PhotoSelectionCell" : PrototypeCellInfo("PhotoSelectionCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
-	
-	var allPhotos: PHFetchResult<PHAsset>?
 
+	@objc dynamic var showAuthView: Bool = true {
+		didSet {
+			authorizationView.isHidden = !showAuthView
+			photoCollectionView.isHidden = showAuthView
+		}
+	}
+	
     override func awakeFromNib() {
         super.awakeFromNib()
  		lineLayout = HorizontalLineLayout(withParent: self)
@@ -46,16 +71,8 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 
 		photoCollectionView.register(PhotoButtonCell.self, forCellWithReuseIdentifier: "PhotoButtonCell")
 
-		let showAuthView = PHPhotoLibrary.authorizationStatus() == .notDetermined
 		authorizationView.isHidden = !showAuthView
 		photoCollectionView.isHidden = showAuthView
-		
-		if !showAuthView {
-			let allPhotosOptions = PHFetchOptions()
-			allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-			allPhotosOptions.includeAssetSourceTypes = [.typeUserLibrary, .typeCloudShared, .typeiTunesSynced] 
-			allPhotos = PHAsset.fetchAssets(with: .image, options: allPhotosOptions)
-		}
     }
 
 	@IBAction func authButtonTapped(_ sender: Any) {
@@ -65,32 +82,38 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 					self.cellModel?.shouldBeVisible = false
 				}
 				if status == .authorized {
-					self.authorizationView.isHidden = true
-					self.photoCollectionView.isHidden = false
+					(self.cellModel as? PhotoSelectionCellModel)?.showAuthView = false
 				}
 			}
 		}
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return allPhotos?.count ?? 0
+		if let model = cellModel as? PhotoSelectionCellModel {
+			return model.allPhotos?.count ?? 0
+		}
+		return 0
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = photoCollectionView.dequeueReusableCell(withReuseIdentifier: "PhotoButtonCell", for: indexPath) as! PhotoButtonCell 
-		cell.asset = allPhotos?.object(at: indexPath.row)
+		if let model = cellModel as? PhotoSelectionCellModel {
+			cell.asset = model.allPhotos?.object(at: indexPath.row)
+		}
 		cell.ownerCell = self
 		return cell
 	}
-	
 	
 	var lineLayout: HorizontalLineLayout?
 	func cellTapped(_ cell: PhotoButtonCell) {
 		if let _ = lineLayout?.privateSelectedIndexPath {
 			lineLayout?.privateSelectedIndexPath = nil
+			(cellModel as? PhotoSelectionCellModel)?.selectedPhotoIndex = nil
 		} 
 		else {
-			lineLayout?.privateSelectedIndexPath = photoCollectionView.indexPath(for: cell)
+			let indexPath = photoCollectionView.indexPath(for: cell)
+			lineLayout?.privateSelectedIndexPath = indexPath
+			(cellModel as? PhotoSelectionCellModel)?.selectedPhotoIndex = indexPath?.row
 		}
 		UIView.animate(withDuration: 0.3) {
 			self.lineLayout?.invalidateLayout()
@@ -190,14 +213,17 @@ class HorizontalLineLayout: UICollectionViewLayout {
 		if let _ = privateSelectedIndexPath {
 			return collectionView!.bounds.size 
 		}
-		else {
-			let photoCount = parentCell.allPhotos?.count ?? 0
+		else if let model = parentCell.cellModel as? PhotoSelectionCellModel {
+			let photoCount = model.allPhotos?.count ?? 0
 			return CGSize(width: photoCount * (HorizontalLineLayout.cellStride), height: 80)
 		}
+		
+		return collectionView!.bounds.size 
 	}
 
 	override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
 		var result: [UICollectionViewLayoutAttributes] = []
+		let photoCount = (parentCell.cellModel as? PhotoSelectionCellModel)?.allPhotos?.count ?? 0
 		if let path = privateSelectedIndexPath {
 			let attrs = UICollectionViewLayoutAttributes(forCellWith: path)
 			attrs.isHidden = false
@@ -208,7 +234,7 @@ class HorizontalLineLayout: UICollectionViewLayout {
 			var index = Int(Int(rect.origin.x) / HorizontalLineLayout.cellStride)
 			if index < 0 { index = 0 }
 			var last = Int(Int(rect.origin.x + rect.size.width) / HorizontalLineLayout.cellStride)
-			if last > parentCell.allPhotos!.count { last = parentCell.allPhotos!.count }
+			if last > photoCount { last = photoCount }
 			while index < last {
 				let val = UICollectionViewLayoutAttributes(forCellWith: IndexPath(row: index, section: 0))
 				val.isHidden = false

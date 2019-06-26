@@ -175,11 +175,50 @@
                     <connections>
                         <outlet property="collectionView" destination="aPE-Dg-ILQ" id="abo-z9-uuA"/>
                         <segue destination="DA5-7s-QTr" kind="presentation" identifier="ShowLogin" id="hIj-Jv-E7S"/>
+                        <segue destination="1mH-gG-DrE" kind="show" identifier="PostOperations" id="Yxg-Xl-ZUF"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LVi-K1-QnL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1477.5999999999999" y="1850.9852216748768"/>
+        </scene>
+        <!--Tasks-->
+        <scene sceneID="6iT-O7-E32">
+            <objects>
+                <viewController id="1mH-gG-DrE" customClass="SettingsTasksViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="xMR-dh-71F">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="BL1-Gv-xud">
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="02G-b6-Wnp">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="1Tf-SC-In5" firstAttribute="bottom" secondItem="BL1-Gv-xud" secondAttribute="bottom" id="8S4-Do-pOu"/>
+                            <constraint firstItem="1Tf-SC-In5" firstAttribute="trailing" secondItem="BL1-Gv-xud" secondAttribute="trailing" id="FR7-W4-x8f"/>
+                            <constraint firstItem="BL1-Gv-xud" firstAttribute="leading" secondItem="1Tf-SC-In5" secondAttribute="leading" id="aAa-mX-pVQ"/>
+                            <constraint firstItem="BL1-Gv-xud" firstAttribute="top" secondItem="1Tf-SC-In5" secondAttribute="top" id="b5P-PX-9c3"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="1Tf-SC-In5"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Tasks" id="P87-Oa-JRg"/>
+                    <connections>
+                        <outlet property="collectionView" destination="BL1-Gv-xud" id="klt-BG-djd"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Hhu-Il-zkk" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2220" y="1850.9852216748768"/>
         </scene>
         <!--Login-->
         <scene sceneID="SU3-wg-bl9">
@@ -643,6 +682,6 @@
         <segue reference="oPR-Dz-wmr"/>
         <segue reference="1ve-Md-YVN"/>
         <segue reference="jQ6-os-thd"/>
-        <segue reference="vXi-dK-Rxk"/>
+        <segue reference="hIj-Jv-E7S"/>
     </inferredMetricsTieBreakers>
 </document>

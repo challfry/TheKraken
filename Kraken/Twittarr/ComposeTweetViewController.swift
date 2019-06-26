@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 
 class ComposeTweetViewController: BaseCollectionViewController {
 	var parentTweet: TwitarrPost?
@@ -100,7 +101,15 @@ class ComposeTweetViewController: BaseCollectionViewController {
     func postAction() {
     	didPost = true
     	if let tweetText = tweetTextCell?.editedText ?? tweetTextCell?.editText {
-	    	TwitarrDataManager.shared.queueNewPost(withText: tweetText, image: nil, inReplyTo: parentTweet)
+    		if let postPhotoAsset = photoSelectionCell?.getSelectedPhoto() {
+				let _ = PHImageManager.default().requestImageData(for: postPhotoAsset, options: nil) { image, dataUTI, orientation, info in
+					if let image = image {
+	    				TwitarrDataManager.shared.queueNewPost(withText: tweetText, image: image, inReplyTo: self.parentTweet)
+					}
+				} 
+			} else {
+	    		TwitarrDataManager.shared.queueNewPost(withText: tweetText, image: nil, inReplyTo: parentTweet)
+			}
 		}
     }
     
