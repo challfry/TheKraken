@@ -25,8 +25,10 @@ class ImageCache {
 	private var memoryState: DispatchSource.MemoryPressureEvent = .normal
 	private var countLimit = 0
 	private var fetchURLPath: String
+	private var cacheName: String
 
 	init(dirName: String, fetchURL: String, limit: Int) {
+		cacheName = dirName
 		if let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(dirName) {
 			do {
 				try FileManager.default.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
@@ -51,17 +53,19 @@ class ImageCache {
 
 			self.memoryState = source.data
 			if source.data == .critical {
+				ImageLog.info("Memory pressure critical", ["CacheCount" : self.imageCache.count, "name" : self.cacheName])
 				self.imageCache.removeAll()
 				self.imageCacheLRU.removeAll()
 			}
 			else if source.data == .warning {
+				ImageLog.info("Memory pressure at warning level", ["CacheCount" : self.imageCache.count, "name" : self.cacheName])
 			
 				// For warnings, should probably just dump a percentage of the cached data
-				self.imageCache.removeAll()
-				self.imageCacheLRU.removeAll()
+		//		self.imageCache.removeAll()
+		//		self.imageCacheLRU.removeAll()
 			}
 			else if source.data == .normal {
-//				print("normal")
+				ImageLog.info("Memory pressure at normal level", ["name" : self.cacheName])
 			}
 			
 		}
@@ -94,7 +98,7 @@ class ImageCache {
 				allCachedFilenames.insert(cacheKey)
 			}
 			catch {
-				print (error)
+				ImageLog.error("Couldn't save image to file.", ["Error" : error, "cacheKey" : cacheKey])
 			}
 		}
 		
@@ -193,6 +197,7 @@ class ImageManager : NSObject {
 		}
 	}
 	
+	// Must be inside a context.perform
 	func update(photoDetails: [String : TwitarrV2PhotoDetails], inContext context: NSManagedObjectContext) {
 		do {
 			var photoIds = Set(photoDetails.keys)
@@ -215,7 +220,7 @@ class ImageManager : NSObject {
 			context.userInfo.setObject(resultDict, forKey: "PhotoDetails" as NSString)
 		}
 		catch {
-			print (error)
+			ImageLog.error("Failed to fetch photoDetail ids while updating with new ids.", ["Error" : error])
 		}
 	}
 
@@ -296,12 +301,12 @@ struct TwitarrV2PhotoDetails: Codable {
 				case "small_thumb": thumbSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
 				case "medium_thumb": mediumSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
 				case "full": fullSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
-				default: print("Found unknown photo size tag")
+				default: ImageLog.debug("Found unknown photo size tag")
 				}
 			}
 		} 
 		catch {
-			print (error)
+			ImageLog.error("Error thrown when parsing TwitarrV2Photo.", ["Error" : error])
 			id = ""
 			animated = false
 		}

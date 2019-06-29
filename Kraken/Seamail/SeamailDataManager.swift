@@ -138,7 +138,7 @@ class SeamailDataManager: NSObject {
 					self.addNewSeamails(from: newSeamails.seamailThreads)
 				}
 				catch {
-					print (error)
+					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])
 				} 
 			}
 			
@@ -183,7 +183,7 @@ class SeamailDataManager: NSObject {
 				self.updateLastSeamailCheckTime()
 			}
 			catch {
-				print(error)
+				CoreDataLog.error("Failed to add new Seamails.", ["error" : error])
 			}
 		}
 	}

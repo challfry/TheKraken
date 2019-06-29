@@ -137,7 +137,7 @@ class ServerTextFileParser: NSObject {
 				try context.save()
 			}
 			catch {
-				print(error)
+				CoreDataLog.error("Failed to save context for server file.", ["error" : error])
 			}
 		}
 	}
@@ -156,7 +156,7 @@ class ServerTextFileParser: NSObject {
 				}
 			}
 			catch {
-				print(error)
+				CoreDataLog.error("Failed to load server file from CD.", ["error" : error])
 			}
 		}
 	}

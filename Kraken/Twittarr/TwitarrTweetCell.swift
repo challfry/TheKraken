@@ -9,12 +9,24 @@
 import UIKit
 import CoreData
 
-@objc class TwitarrTweetCellModel: FetchedResultsCellModel {
+@objc protocol TwitarrTweetCellBindingProtocol: FetchedResultsBindingProtocol {
+	var isInteractive: Bool { get set }
+}
+
+@objc class TwitarrTweetCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "tweet" : TwitarrTweetCell.self ] }
+
+	// If false, the tweet cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
+	// user thumbnail open a user profile panel.
+	@objc dynamic var isInteractive: Bool = true
+	
+	override init(withModel: NSFetchRequestResult?, reuse: String, bindingWith: Protocol = TwitarrTweetCellBindingProtocol.self) {
+		super.init(withModel: withModel, reuse: reuse, bindingWith: bindingWith)
+	}
 }
 
 
-class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, UITextViewDelegate {
+class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol, UITextViewDelegate {
 	
 	@IBOutlet var titleLabel: UITextView!			// Author and timestamp
 	@IBOutlet var likesLabel: UILabel!				
@@ -42,120 +54,163 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 	private static var prototypeCell: TwitarrTweetCell =
 		UINib(nibName: "TwitarrTweetCell", bundle: nil).instantiate(withOwner: nil, options: nil)[0] as! TwitarrTweetCell
 
+	var isInteractive: Bool = true
 
     var model: NSFetchRequestResult? {
     	didSet {
     		clearObservations()
-    		guard let tweetModel = model as? TwitarrPost else {
+    		if let tweetModel = model as? TwitarrPost {
+    			setup(from: tweetModel)
+			}
+			else if let postOpModel = model as? PostOpTweet {
+				setup(from: postOpModel)
+			}
+			else {
 				titleLabel.attributedText = nil
 				tweetTextView.attributedText = nil
 				postImage.image = nil
 				userButton.setBackgroundImage(nil, for: .normal)				
   				self.postImage.isHidden = true
 				self.postImage.image = nil
-				return
   			}
+		}
+	}
+  			
+	func setup(from tweetModel: TwitarrPost) {
     		
-			let titleAttrString = NSMutableAttributedString(string: "\(tweetModel.author.displayName), ", 
-					attributes: authorTextAttributes())
-			let timeString = StringUtilities.relativeTimeString(forDate: tweetModel.postDate())
-			let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
-			titleAttrString.append(timeAttrString)
-			titleLabel.attributedText = titleAttrString
-			
-			if let likeReaction = tweetModel.reactions.first(where: { reaction in reaction.word == "like" }) {
-				likesLabel.isHidden = false
-				likesLabel.text = "\(likeReaction.count) 💛"
-			}
-			else {
-				likesLabel.isHidden = true
-			}
-			
-			// Can the user tap on a link and open a filtered view?
-			let addLinksToText = viewController?.shouldPerformSegue(withIdentifier: "TweetFilter", sender: self) ?? false
+		let titleAttrString = NSMutableAttributedString(string: "\(tweetModel.author.displayName), ", 
+				attributes: authorTextAttributes())
+		let timeString = StringUtilities.relativeTimeString(forDate: tweetModel.postDate())
+		let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
+		titleAttrString.append(timeAttrString)
+		titleLabel.attributedText = titleAttrString
+		
+		if let likeReaction = tweetModel.reactions.first(where: { reaction in reaction.word == "like" }) {
+			likesLabel.isHidden = false
+			likesLabel.text = "\(likeReaction.count) 💛"
+		}
+		else {
+			likesLabel.isHidden = true
+		}
+		
+		// Can the user tap on a link and open a filtered view?
+		let addLinksToText = viewController?.shouldPerformSegue(withIdentifier: "TweetFilter", sender: self) ?? false
 
-			tweetTextView.attributedText = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
-			let fixedWidth = tweetTextView.frame.size.width
-			let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-			tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-			
-			tweetModel.author.loadUserThumbnail()
-			addObservation(tweetModel.author.tell(self, when:"thumbPhoto") { observer, observed in
-				observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
-				observer.userButton.setTitle("", for: .normal)
-			}?.schedule())
-			
-			if let photo = tweetModel.photoDetails {
-				self.postImage.isHidden = false
-				ImageManager.shared.image(withSize:.medium, forKey: photo.id) { image in
-					self.postImage.image = image
-					self.cellSizeChanged()
-				}
+		tweetTextView.attributedText = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
+		let fixedWidth = tweetTextView.frame.size.width
+		let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+		tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+		
+		tweetModel.author.loadUserThumbnail()
+		addObservation(tweetModel.author.tell(self, when:"thumbPhoto") { observer, observed in
+			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
+			observer.userButton.setTitle("", for: .normal)
+		}?.schedule())
+		
+		if let photo = tweetModel.photoDetails {
+			self.postImage.isHidden = false
+			ImageManager.shared.image(withSize:.medium, forKey: photo.id) { image in
+				self.postImage.image = image
+				self.cellSizeChanged()
 			}
-			else {
-				self.postImage.image = nil
-				self.postImage.isHidden = true
-			}
+		}
+		else {
+			self.postImage.image = nil
+			self.postImage.isHidden = true
+		}
+		
+		let currentUserWroteThis = tweetModel.author.username == CurrentUser.shared.loggedInUser?.username
+		editButton.isHidden = !currentUserWroteThis
+		deleteButton.isHidden = !currentUserWroteThis
+		
+		// Watch for login/out, so we can update like/unlike button state
+		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+			observer.setLikeButtonState()
 			
-			let currentUserWroteThis = tweetModel.author.username == CurrentUser.shared.loggedInUser?.username
-			editButton.isHidden = !currentUserWroteThis
-			deleteButton.isHidden = !currentUserWroteThis
-			
-			// Watch for login/out, so we can update like/unlike button state
-			addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-				observer.setLikeButtonState()
+			// Inside the other obseration: if we're logged in,
+			if let username = CurrentUser.shared.loggedInUser?.username {
+				// setup observation on reactions to watch for currentUser has reacting to this tweet.
+				observer.reactionDictObservation = tweetModel.tell(self, when: "reactionDict.like.users.\(username)") { observer, observed in
+					observer.setLikeButtonState()
+				}?.schedule()
+				observer.addObservation(observer.reactionDictObservation)
 				
-				// Inside the other obseration: if we're logged in,
-				if let username = CurrentUser.shared.loggedInUser?.username {
-					// setup observation on reactions to watch for currentUser has reacting to this tweet.
-					observer.reactionDictObservation = tweetModel.tell(self, when: "reactionDict.like.users.\(username)") { observer, observed in
-						observer.setLikeButtonState()
-					}?.schedule()
-					observer.addObservation(observer.reactionDictObservation)
-					
-					// and watch ReactionOps to look for pending reactions; show/hide the Pending Reaction card.
-					observer.reactionOpsObservation = tweetModel.tell(self, when: "reactionOpsCount") { observer, observed in
-						if observer.privateSelected, let likeReaction = tweetModel.getPendingUserReaction("like") {
-							if observer.isPrototypeCell {
-								observer.reactionQueuedView.isHidden = !observer.privateSelected
-							}
-							else {
-								UIView.animate(withDuration: 0.3) {
-									observer.reactionQueuedView.isHidden = !observer.privateSelected
-								}
-							}
-						//	observer.reactionQueuedView.isHidden = !observer.privateSelected/
-							observer.reactionQueuedLabel.text = likeReaction.isAdd ? "\"Like\" pending" : "\"Unlike\" pending"
-							observer.likeButton.isEnabled = false
+				// and watch ReactionOps to look for pending reactions; show/hide the Pending Reaction card.
+				observer.reactionOpsObservation = tweetModel.tell(self, when: "reactionOpsCount") { observer, observed in
+					if observer.privateSelected, let likeReaction = tweetModel.getPendingUserReaction("like") {
+						if observer.isPrototypeCell {
+							observer.reactionQueuedView.isHidden = !observer.privateSelected
 						}
 						else {
-							if observer.isPrototypeCell {
+							UIView.animate(withDuration: 0.3) {
+								observer.reactionQueuedView.isHidden = !observer.privateSelected
+							}
+						}
+					//	observer.reactionQueuedView.isHidden = !observer.privateSelected/
+						observer.reactionQueuedLabel.text = likeReaction.isAdd ? "\"Like\" pending" : "\"Unlike\" pending"
+						observer.likeButton.isEnabled = false
+					}
+					else {
+						if observer.isPrototypeCell {
+							observer.reactionQueuedView.isHidden = true
+						}
+						else {
+							UIView.animate(withDuration: 0.3) {
 								observer.reactionQueuedView.isHidden = true
 							}
-							else {
-								UIView.animate(withDuration: 0.3) {
-									observer.reactionQueuedView.isHidden = true
-								}
-							}
-							observer.likeButton.isEnabled = true
 						}
-				
-						observer.cellSizeChanged()
-					}?.execute()
-					observer.addObservation(observer.reactionOpsObservation)
-				}
-				else {
-					observer.removeObservation(observer.reactionDictObservation)
-					observer.removeObservation(observer.reactionOpsObservation)
-					observer.reactionQueuedView.isHidden = true
-					observer.likeButton.isEnabled = true
-				}
-			}?.execute())
+						observer.likeButton.isEnabled = true
+					}
 			
+					observer.cellSizeChanged()
+				}?.execute()
+				observer.addObservation(observer.reactionOpsObservation)
+			}
+			else {
+				observer.removeObservation(observer.reactionDictObservation)
+				observer.removeObservation(observer.reactionOpsObservation)
+				observer.reactionQueuedView.isHidden = true
+				observer.likeButton.isEnabled = true
+			}
+		}?.execute())
+		
+		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+	}
+	
+	func setup(from postOpModel: PostOpTweet) {
+		let titleAttrString = NSMutableAttributedString(string: "\(postOpModel.author.displayName), ", 
+				attributes: authorTextAttributes())
+		let timeString = "In the near future"
+		let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
+		titleAttrString.append(timeAttrString)
+		titleLabel.attributedText = titleAttrString
+		
+		likesLabel.isHidden = true
 
-			titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-			tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    	}
+		tweetTextView.attributedText = StringUtilities.cleanupText(postOpModel.text, addLinks: false)
+		let fixedWidth = tweetTextView.frame.size.width
+		let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+		tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+
+		postOpModel.author.loadUserThumbnail()
+		addObservation(postOpModel.author.tell(self, when:"thumbPhoto") { observer, observed in
+			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
+			observer.userButton.setTitle("", for: .normal)
+		}?.schedule())
+
+		if let imageData = postOpModel.image, let image = UIImage(data: imageData as Data) {
+			self.postImage.isHidden = false
+			self.postImage.image = image
+			self.cellSizeChanged()
+		}
+		else {
+			self.postImage.image = nil
+			self.postImage.isHidden = true
+		}
+		
+		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 	}
 	
 	override func awakeFromNib() {
@@ -184,11 +239,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 	
 //	override var isSelected: Bool {
 //		didSet {
-//			// debug
-//			print ("\(isSelected) old: \(oldValue) proto: \(isPrototypeCell) for cell: " + tweetTextView.text)
-//			if !isSelected && oldValue && !isPrototypeCell {
-//				print("boned")
-//			}
 //
 //			if  isSelected == oldValue {
 //				return
@@ -266,11 +316,13 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
 	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, 
 			interaction: UITextItemInteraction) -> Bool {
  //		UIApplication.shared.open(URL, options: [:])
+ 		guard isInteractive else { return false }
  		viewController?.performSegue(withIdentifier: "TweetFilter", sender: URL.absoluteString)
         return false
     }
         
    	@IBAction func showUserProfile() {
+ 		guard isInteractive else { return }
    		if let tweetModel = model as? TwitarrPost {
    			let userName = tweetModel.author.username
    			viewController?.performSegue(withIdentifier: "UserProfile", sender: userName)
@@ -278,6 +330,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
    	}
    	
    	@IBAction func likeButtonTapped() {
+ 		guard isInteractive else { return }
    		guard let tweetModel = model as? TwitarrPost else { return } 
    		var alreadyLikesThis = false
 		if let currentUser = CurrentUser.shared.loggedInUser,
@@ -299,21 +352,25 @@ class TwitarrTweetCell: BaseCollectionViewCell, FetchedResultsBindingProtocol, U
    	}
    	
 	@IBAction func replyButtonTapped() {
+ 		guard isInteractive else { return }
    		guard let tweetModel = model as? TwitarrPost else { return } 
 		viewController?.performSegue(withIdentifier: "ComposeReplyTweet", sender: tweetModel)
 	}
   	
 	@IBAction func editButtonTapped() {
+ 		guard isInteractive else { return }
    		guard let tweetModel = model as? TwitarrPost else { return } 
 		viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetModel)
 	}
 	
 	@IBAction func eliteDeleteTweetButtonTapped() {
+ 		guard isInteractive else { return }
    		guard let tweetModel = model as? TwitarrPost else { return } 
 //
 	}
 	
    	@IBAction func cancelReactionOpButtonTapped() {
+ 		guard isInteractive else { return }
    		guard let tweetModel = model as? TwitarrPost else { return } 
    		tweetModel.cancelReactionOp("like")   		
    	}

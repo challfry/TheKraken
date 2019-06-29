@@ -11,9 +11,12 @@ import CoreData
 
 class SettingsTasksViewController: BaseCollectionViewController, NSFetchedResultsControllerDelegate {
 	var controller: NSFetchedResultsController<PostOperation>?
-	
-	override func awakeFromNib() {
-		super.awakeFromNib()
+	let dataSource = FilteringDataSource()
+		
+    override func viewDidLoad() {
+		super.viewDidLoad()
+  		dataSource.register(with: collectionView, viewController: self)
+  		dataSource.viewController = self
 		
 		let context = LocalCoreData.shared.mainThreadContext
 		let fetchRequest = NSFetchRequest<PostOperation>(entityName: "PostOperation")
@@ -29,8 +32,36 @@ class SettingsTasksViewController: BaseCollectionViewController, NSFetchedResult
 		}
 	}
 	
+	
+	
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-
+		if let tasks = controller.fetchedObjects {
+			var x = 0
+			for task in tasks {
+				x = x + 1
+				let taskSection = dataSource.appendSection(named: "\(x)")
+				
+				if let reactionTask = task as? PostOpTweetReaction {
+					if reactionTask.isAdd {
+						taskSection.append(SettingsInfoCellModel("\(x):  Add a \"Like\" reaction to this tweet:"))
+					}
+					else {
+						taskSection.append(SettingsInfoCellModel("\(x):  Cancel the \"Like\" on this tweet:"))
+					}
+					
+					let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost, reuse: "tweet")
+					model.isInteractive = false
+					taskSection.append(model)
+				}
+				else if let postTask = task as? PostOpTweet {
+					let cellModel = TwitarrTweetCellModel(withModel: postTask, reuse: "tweet")
+					cellModel.isInteractive = false
+					taskSection.append(SettingsInfoCellModel("\(x): Post a new Twitarr tweet:"))
+					taskSection.append(cellModel)
+				}
+				
+			}		
+		} 
 	}
 
 }

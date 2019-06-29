@@ -24,20 +24,18 @@ class SeamailRootViewController: BaseCollectionViewController {
 		frcDataSource.setup(viewController: self, collectionView: collectionView, frc: dataManager.fetchedData,
 				createCellModel: createCellModel, reuseID: "seamailThread")
   		SeamailThreadCell.registerCells(with:collectionView)
-    	view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
        
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
         	if observed.loggedInUser == nil {
-				observer.loginDataSource.register(with: observer.collectionView)
+				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
 				observer.dataManager.removeDelegate(observer.frcDataSource)
         	}
         	else {
-       			observer.collectionView.dataSource = observer.frcDataSource
-        		observer.collectionView.delegate = observer.frcDataSource
+         		observer.frcDataSource.register(with: observer.collectionView, viewController: observer)
   				observer.dataManager.addDelegate(observer.frcDataSource)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
-				}
+			}
        	}
         }?.execute()        
 
@@ -50,12 +48,9 @@ class SeamailRootViewController: BaseCollectionViewController {
 	
 	// Gets called from within collectionView:cellForItemAt:
 	func createCellModel(_ model:SeamailThread) -> BaseCellModel {
-//		guard let threadCell = cell as? SeamailThreadCell, let thread = modelObject as? SeamailThread else { return }
-//		threadCell.viewController = self
-//		threadCell.threadModel = thread
-		return BaseCellModel(bindingWith: nil)
+		let cellModel = SeamailThreadCellModel(withModel: model, reuse: "seamailThread")
+		return cellModel
 	}
-
     
     // MARK: - Navigation
 

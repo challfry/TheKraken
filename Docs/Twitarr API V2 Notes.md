@@ -3,9 +3,9 @@
 GET /api/v2/seamail
 GET /api/v2/seamail_threads
 GET /api/v2/seamail/:id_string
-POST /api/v2/seamail
-POST /api/v2/seamail/:id
-POST /api/v2/seamail/:id/recipients
+POST /api/v2/seamail											New seamail thread, with initial message
+POST /api/v2/seamail/:id										Add message to existing thread
+POST /api/v2/seamail/:id/recipients								Disabled? Modifies recipient list.
 GET /api/v2/user/new_seamail
 
 # Twitter Stream
@@ -84,7 +84,7 @@ GET /api/v2/event/day/:epoch															Gets a list of all events with a star
 GET /api/v2/event/mine/:epoch															Gets a list of favorited events with a start time on the same day as :epoch.
 GET /api/v2/event/:id																	Get details of an event.
 GET /api/v2/event/:id/ical																Get details of an event as an ical file.
-DELETE /api/v2/event/:id																Remove an event. 
+DELETE /api/v2/event/:id																Remove an event. Admins.
 POST /api/v2/event/:id																	Allows an admin to edit the title, description, location, start time, and end time of an event.
 POST /api/v2/event/:id/favorite															Allows the user to favorite an event.
 DELETE /api/v2/event/:id/favorite														Allows the user to remove their favorite from an event.

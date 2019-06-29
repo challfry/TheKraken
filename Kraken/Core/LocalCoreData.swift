@@ -88,7 +88,7 @@ class LocalCoreData: NSObject {
 			}
 			
 		} catch let error as NSError {
-			print(error)
+			CoreDataLog.error("Attempted a full reset, failed.", ["error" : error])
 		}
 
 	}

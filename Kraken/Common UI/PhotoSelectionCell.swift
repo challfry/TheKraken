@@ -242,9 +242,6 @@ class HorizontalLineLayout: UICollectionViewLayout {
 				result.append(val)
 				index = index + 1
 			}
-			if result.count > 6 {	
-				print ("Retuning \(result.count) objects; last was \(last)")
-			}
 		}
 		
 		return result

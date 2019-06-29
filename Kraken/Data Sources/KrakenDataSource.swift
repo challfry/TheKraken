@@ -95,12 +95,31 @@ class KrakenDataSource: NSObject {
 		collectionView?.collectionViewLayout.invalidateLayout(with: context)
 	}
 
+	var itemsToRunAfterBatchUpdates: [() -> Void]?
+	func scheduleBatchUpdateCompletionBlock(block: @escaping () -> Void) {
+		if let ds = collectionView?.dataSource as? KrakenDataSource,  ds.itemsToRunAfterBatchUpdates != nil {
+			ds.itemsToRunAfterBatchUpdates?.append(block)
+			CollectionViewLog.debug("Scheduling block to run later, on addr: \(Unmanaged.passUnretained(ds).toOpaque())")
+		}
+		else {
+			block()
+		}
+	}
 
 // MARK: For subclasses to override
 
 	func register(with cv: UICollectionView, viewController: BaseCollectionViewController?) {
 		collectionView = cv
 		self.viewController = viewController
+		scheduleBatchUpdateCompletionBlock {
+			if let ds = self as? UICollectionViewDataSource {
+				cv.dataSource = ds
+	//			cv.reloadData()
+			}
+			if let del = self as? UICollectionViewDelegate {
+				cv.delegate = del
+			}
+		}
 	}
 	
 	internal func internalRunUpdates(sectionOffset: Int) {

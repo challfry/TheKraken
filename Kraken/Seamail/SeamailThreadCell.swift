@@ -9,7 +9,23 @@
 import UIKit
 import CoreData
 
-class SeamailThreadCell: BaseCollectionViewCell {
+@objc protocol SeamailThreadCellBindingProtocol: FetchedResultsBindingProtocol {
+	var isInteractive: Bool { get set }
+}
+
+@objc class SeamailThreadCellModel: FetchedResultsCellModel, SeamailThreadCellBindingProtocol {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "seamailThread" : SeamailThreadCell.self ] }
+
+	// If false, the tweet cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
+	// user thumbnail open a user profile panel.
+	@objc dynamic var isInteractive: Bool = true
+	
+	override init(withModel: NSFetchRequestResult?, reuse: String, bindingWith: Protocol = SeamailThreadCellBindingProtocol.self) {
+		super.init(withModel: withModel, reuse: reuse, bindingWith: bindingWith)
+	}
+}
+
+class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtocol {
 	@IBOutlet var subjectLabel: UILabel!
 	@IBOutlet var lastPostTime: UILabel!
 	@IBOutlet var postCountLabel: UILabel!
@@ -21,15 +37,10 @@ class SeamailThreadCell: BaseCollectionViewCell {
 
 	private static let cellInfo = [ "seamailThread" : PrototypeCellInfo("SeamailThreadCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailThreadCell.cellInfo }
-
-	private static var prototypeCell: SeamailThreadCell =
-		UINib(nibName: "SeamailThreadCell", bundle: nil).instantiate(withOwner: nil, options: nil)[0] as! SeamailThreadCell
-	static func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> SeamailThreadCell? {
-		let cell = SeamailThreadCell.prototypeCell
-		return cell
-	}
 	
-	var threadModel: SeamailThread? {
+	var isInteractive: Bool = true
+
+    var model: NSFetchRequestResult? {
 		didSet {
 		
 			let fetchRequest = NSFetchRequest<KrakenUser>(entityName: "KrakenUser")
@@ -38,31 +49,31 @@ class SeamailThreadCell: BaseCollectionViewCell {
 			fetchRequest.fetchBatchSize = 30
 			let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
 					managedObjectContext: LocalCoreData.shared.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
-			frcDataSource.setup(viewController: viewController, collectionView: usersView, frc: frc, createCellModel: 
-					createUserCellModel, reuseID: "SmallUserCell")
 	
-			if let thread = threadModel {
+			if let thread = model as? SeamailThread {
 				subjectLabel.text = thread.subject
 				postCountLabel.text = "\(thread.messages.count) messages"
 				participantCountLabel.text = "\(thread.participants.count) participants"
 	    		let postDate: TimeInterval = TimeInterval(thread.timestamp) / 1000.0
 	    		lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
 				
-				frcDataSource.frc?.fetchRequest.predicate = NSPredicate(format: "ANY seamailParticipant.id == %@", thread.id)
+				fetchRequest.predicate = NSPredicate(format: "ANY seamailParticipant.id == %@", thread.id)
 
 				// Set the height of the in-cell CollectionView to be at least as tall as its cells.
 				if let protoUser = thread.participants.first {
-					let protoCellModel = SmallUserCellModel(withModel: protoUser, reuse: "SmalluserCell")
-					let protoCell = protoCellModel.makeCell(for: usersView, indexPath: IndexPath(row: 0, section: 0)) as? SmallUserCell
+					let protoCellModel = SmallUserCellModel(withModel: protoUser, reuse: "SmallUserCell")
+					let protoCell = protoCellModel.makePrototypeCell(for: usersView, indexPath: IndexPath(row: 0, section: 0)) as? SmallUserCell
 					if let newSize = protoCell?.calculateSize(), usersViewHeightConstraint.constant < newSize.height {
 						usersViewHeightConstraint.constant = newSize.height
 					}
 				}
 			}
 			else {
-				frcDataSource.frc?.fetchRequest.predicate = NSPredicate(value: false)
+				fetchRequest.predicate = NSPredicate(value: false)
 			}
-			try? frcDataSource.frc?.performFetch()
+			try? frc.performFetch()
+			frcDataSource.setup(viewController: viewController, collectionView: usersView, frc: frc, createCellModel: 
+					createUserCellModel, reuseID: "SmallUserCell")
 		}
 	}
 	
@@ -70,8 +81,6 @@ class SeamailThreadCell: BaseCollectionViewCell {
 		super.awakeFromNib()
 
 		usersView.register(UINib(nibName: "SmallUserCell", bundle: nil), forCellWithReuseIdentifier: "SmallUserCell")
-		usersView.dataSource = frcDataSource
-		usersView.delegate = frcDataSource
 		usersView.backgroundColor = UIColor.clear
 		if let layout = usersView.collectionViewLayout as? UICollectionViewFlowLayout {
 			layout.itemSize = CGSize(width: 68, height: 68)
@@ -87,7 +96,7 @@ class SeamailThreadCell: BaseCollectionViewCell {
 	override var isSelected: Bool {
 		didSet {
 			if isSelected {
-				viewController?.performSegue(withIdentifier: "ShowSeamailThread", sender: threadModel)
+				viewController?.performSegue(withIdentifier: "ShowSeamailThread", sender: model)
 			}
 		}
 	}
@@ -115,7 +124,7 @@ extension SeamailThreadCell: UIGestureRecognizerDelegate {
 
 	func setupGestureRecognizer() {	
 		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(SeamailThreadCell.usersViewTapped))
-		tapper.minimumPressDuration = 0.2
+		tapper.minimumPressDuration = 0.05
 		tapper.numberOfTouchesRequired = 1
 		tapper.numberOfTapsRequired = 0
 		tapper.allowableMovement = 10.0
@@ -175,6 +184,7 @@ class SmallUserCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
 
 	private static var prototypeCell: SmallUserCell =
 		UINib(nibName: "SmallUserCell", bundle: nil).instantiate(withOwner: nil, options: nil)[0] as! SmallUserCell
+		
 	static func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> SmallUserCell? {
 		let cell = SmallUserCell.prototypeCell
 		return cell

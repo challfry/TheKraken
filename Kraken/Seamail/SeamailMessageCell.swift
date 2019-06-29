@@ -7,27 +7,26 @@
 //
 
 import UIKit
+import CoreData
 
 @objc class SeamailMessageCellModel: FetchedResultsCellModel {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "SeamailMessageCell" : SeamailMessageCell.self ] }
 }
 
-class SeamailMessageCell: BaseCollectionViewCell {
-
+class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
 	@IBOutlet weak var authorImage: UIImageView!
 	@IBOutlet weak var authorUsernameLabel: UILabel!
 	@IBOutlet weak var postTimeLabel: UILabel!
 	@IBOutlet weak var messageLabel: UILabel!
-	
-	
+		
 	override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
     
-    var model: SeamailMessage? {
+    var model: NSFetchRequestResult? {
     	didSet {
-    		if let message = model {
+    		if let message = model as? SeamailMessage {
 	    	//	authorUsernameLabel.text = message.author.username
 	    		messageLabel.text = message.text
 	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
@@ -42,5 +41,5 @@ class SeamailMessageCell: BaseCollectionViewCell {
 			}
     	}
     }
-
+    
 }

@@ -126,7 +126,7 @@ import CoreData
 				}
 			}
 			catch {
-				print(error)
+				CoreDataLog.error("Error while getting logged in user for context.", ["error" : error])
 			}
 		}
 		return resultUser
@@ -269,7 +269,7 @@ import CoreData
 		let authStruct = TwitarrV2CreateAccountRequest(username: name, password: password, displayName: displayName, regCode: regCode)
 		let encoder = JSONEncoder()
 		let authData = try! encoder.encode(authStruct)
-		print (String(decoding:authData, as: UTF8.self))
+//		print (String(decoding:authData, as: UTF8.self))
 				
 		// Call /api/v2/user/new, and then call whoami
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/new", query: nil)
@@ -431,6 +431,7 @@ extension CurrentUser {
 				kSecValueData as String: keyData as NSData]
 
 		let status: OSStatus = SecItemAdd(query as CFDictionary, nil)
+		KeychainLog.assert(status == noErr, "Failure to save login creds.", ["status" : status])
 		return status == noErr
 	}
 	
@@ -443,9 +444,8 @@ extension CurrentUser {
 
         // Delete any existing items, for all accounts on this server.
         let status = SecItemDelete(query as CFDictionary)
-        if (status != errSecSuccess && status != errSecItemNotFound) {
-			print("Remove failed: \(status)")
-        }
+		KeychainLog.assert(status == errSecSuccess || status == errSecItemNotFound, 
+				"Keychain credential remove failed.", ["status" : status])
 
 	}
 
@@ -477,12 +477,14 @@ extension CurrentUser {
 			self.userRole = UserRole.roleForString(str: userRoleStr) ?? .user
 
 			loadProfileInfo()
+			KeychainLog.debug("Logging in as a user at app launch")
 		}
 		else if status == errSecItemNotFound {	// errSecItemNotFound is -25300
 			// No record found; this is fine. Means we're not logging in as anyone at app launch.
+			KeychainLog.debug("App launching with no logged in user.")
 		}
 		else {
-			print("Failure loading keychain info.")
+			KeychainLog.error("Failure loading keychain info at app launch.", ["status" : status])
 		}
 	}
 }

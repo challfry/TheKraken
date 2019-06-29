@@ -132,7 +132,7 @@ import Foundation
 				if activeTask.task.originalRequest?.url == request.url && 
 						activeTask.task.originalRequest?.httpMethod == request.httpMethod {
 					activeTask.doneCallbacks.append(done)
-					print ("De-duped network request to \(request.url?.absoluteString ?? "<unknown>")")
+					NetworkLog.debug("De-duped network request to \(request.url?.absoluteString ?? "<unknown>")")
 					return
 				}
 			}
@@ -143,7 +143,7 @@ import Foundation
 				self.activeTasks.append(queuedTask)
 			task.resume()
 		
-			print ("Started network request to \(request.url?.absoluteString ?? "<unknown>")")
+			NetworkLog.debug("Started network request to \(request.url?.absoluteString ?? "<unknown>")")
 		}
 	}
 	
@@ -155,8 +155,10 @@ import Foundation
 				resultError.httpStatus = response.statusCode
 				
 				if let data = data {
-					print (String(decoding:data, as: UTF8.self))
+//					print (String(decoding:data, as: UTF8.self))
 					let decoder = JSONDecoder()
+	
+					// There's 3 types of error JSON that could happen. Single, Multi, and FieldTagged.
 	
 					// Single "error" = "message" in error response
 					if let errorInfo = try? decoder.decode(TwitarrV2ErrorResponse.self, from: data) {
@@ -184,6 +186,11 @@ import Foundation
 					// No body data in response -- make a generic error string
 					resultError.errorString = "HTTP Error \(response.statusCode)"
 				}
+				
+				// Field errors from the server are almost always form input errors; don't log 'em.
+				if let serverError = resultError.errorString {
+					NetworkLog.error("Server Error:", ["Error" : serverError])
+				}
 			
 				return resultError
 			}
@@ -200,18 +207,18 @@ extension NetworkGovernor: URLSessionDelegate {
 	//
     public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
     	if let error = error {
-	    	print (error)
+	    	NetworkLog.error("URL Session became invalid.", ["error" : error])
 		}
     }
 
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-		print ("didReceive challenge")
+		NetworkLog.debug("URLSession sent an URLAuthentication challenge.")
 		completionHandler(.performDefaultHandling, nil)
 	}
 
     public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-		print ("urlSessionDidFinishEvents")
+		NetworkLog.debug("urlSessionDidFinishEvents.")
     }
 }
 
@@ -219,40 +226,39 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 	//
 	public func urlSession(_ session: URLSession, task: URLSessionTask, willBeginDelayedRequest request: URLRequest, 
 			completionHandler: @escaping (URLSession.DelayedRequestDisposition, URLRequest?) -> Void) {
-//		print ("willBeginDelayedRequest")
+//		NetworkLog.debug("urlSession willBeginDelayedRequest.")
 		completionHandler(.continueLoading, request)
 	}
 
     
     public func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-		print ("taskIsWaitingForConnectivity")
+		NetworkLog.debug("urlSession taskIsWaitingForConnectivity.")
 	}
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, 
     		completionHandler: @escaping (URLRequest?) -> Void)  {
-		print ("willPerformHTTPRedirection")
-		
+		NetworkLog.debug("urlSession willPerformHTTPRedirection.")
 	}
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-		print ("didReceive challenge")
+		NetworkLog.debug("urlSession didReceive challenge.")
 	}
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		needNewBodyStream completionHandler: @escaping (InputStream?) -> Void) {
-		print ("needNewBodyStream")
+		NetworkLog.debug("urlSession needNewBodyStream.")
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, 
 			didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
-//		print("didSendBodyData")		
+//		NetworkLog.debug("urlSession didSendBodyData.")
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-//		print(metrics)		
+//		NetworkLog.debug("Collected metrics for task.", ["metrics" : metrics])		
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
@@ -271,10 +277,9 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		// if it's an error response, it's not an 'error'.
 		lastError = error
     	if let error = error {
-    		print(error)
+			NetworkLog.error("Task completed with error.", ["error" : error])		
     		connectionState = .noConnection
-    		
-    		
+    		    		
     		// todo: real error handling here
     		
 		}

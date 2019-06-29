@@ -62,7 +62,10 @@ import UIKit
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let cellModel = visibleCellModels[indexPath.row]
 
-		if let protoCell = cellModel.makePrototypeCell(for: collectionView, indexPath: indexPath) {
+		if cellModel.cellSize.height > 0 {
+			return cellModel.cellSize
+		}
+		else if let protoCell = cellModel.makePrototypeCell(for: collectionView, indexPath: indexPath) {
 			let newSize = protoCell.calculateSize()
 			cellModel.cellSize = newSize
 			cellModel.unbind(cell: protoCell)
@@ -103,6 +106,12 @@ import UIKit
 					inserts.append(IndexPath(row: cellIndex, section: sectionOffset))
 				}
 			}
+			if collectionView != nil {
+				CollectionViewLog.debug("Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+			}
+			else {
+				CollectionViewLog.debug("THROWING AWAY Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+			}
 			collectionView?.deleteItems(at: deletes)
 			collectionView?.insertItems(at: inserts)
 			oldVisibleCellModels = nil
@@ -113,7 +122,6 @@ import UIKit
 @objc class FilteringDataSource: KrakenDataSource {
 	@objc dynamic var allSections = NSMutableArray() // [FilteringDataSourceSection]()
 	@objc dynamic var visibleSections = NSMutableArray() // [FilteringDataSourceSection]()
-	@objc dynamic var oldVisibleSections: NSMutableArray? // [FilteringDataSourceSection]()
 	
 	var registeredCellReuseIDs = Set<String>()
 	
@@ -122,12 +130,6 @@ import UIKit
 		
 		// Watch for section visibility changes; tell Collection to update
 		allSections.tell(self, when: "*.sectionVisible") { observer, observed in
-			let allSections = observer.allSections as! [KrakenDataSourceSectionProtocol]
-			let newVisibleSections = allSections.compactMap() { model in model.sectionVisible ? model : nil }
-			if observer.oldVisibleSections == nil {
-				observer.oldVisibleSections = observer.visibleSections
-			}
-			observer.visibleSections = NSMutableArray(array: newVisibleSections)
 			observer.runUpdates()
 		}?.execute()
 		
@@ -143,69 +145,81 @@ import UIKit
 //		}
 	}	
 	
-	override func register(with cv: UICollectionView, viewController: BaseCollectionViewController? = nil) {
-		super.register(with: cv, viewController: viewController)
-		self.viewController = viewController
-		cv.dataSource = self
-		cv.delegate = self
-	}
-
-	
 	private var updateScheduled = false
 	func runUpdates() {
 		guard !updateScheduled else { return }
+		updateScheduled = true
 		DispatchQueue.main.async {
-			self.updateScheduled = false
-			if let cv = self.collectionView {
-				if !self.enableAnimations {
-					UIView.setAnimationsEnabled(false)
-				}
+			
+			// Update visible sections, create locals for new and old visible sections for diffing
+			let allSections = self.allSections as! [KrakenDataSourceSectionProtocol]
+			let newVisibleSections = allSections.compactMap() { model in model.sectionVisible ? model : nil }
+			let oldVisibleSections = self.visibleSections as! [KrakenDataSourceSectionProtocol]
+			self.visibleSections = NSMutableArray(array: newVisibleSections)
+			
+			// Are we currently the datasource for this collectionView?
+			guard let cv = self.collectionView, cv.dataSource === self else {
+				self.updateScheduled = false
+				return
+			}
+		
+			if !self.enableAnimations {
+				UIView.setAnimationsEnabled(false)
+			}
 
-				cv.performBatchUpdates( {
-					var deletedSections = IndexSet()
-					var insertedSections = IndexSet()
-					
-					//
-//					print ("Start of Batch: \(self.visibleSections.count) sections, oldVis = \(self.oldVisibleSections?.count)" )
-					
-					if let oldSections = self.oldVisibleSections {
-						for sectionIndex in 0 ..< oldSections.count {
-							if !self.visibleSections.contains(oldSections[sectionIndex]) {
-								deletedSections.insert(sectionIndex)
-							}
-						}
-						for sectionIndex in 0 ..< self.visibleSections.count {
-							if !oldSections.contains(self.visibleSections[sectionIndex]) {
-								insertedSections.insert(sectionIndex)
-							}
-						}
-						cv.deleteSections(deletedSections)
-						cv.insertSections(insertedSections)
-//						print ("SECTIONS: inserted \(insertedSections.count), deleted \(deletedSections.count)")
-						self.oldVisibleSections = nil
-					}
-					
-					for sectionIndex in 0 ..< self.visibleSections.count {
-					 	let section = self.visibleSections[sectionIndex] as! KrakenDataSourceSectionProtocol
-						if insertedSections.contains(sectionIndex) {
-							// Run and discard cell-level updates on this just-inserted section
-							section.internalRunUpdates(for: nil, sectionOffset: sectionIndex)
-							continue
-						}
-						section.internalRunUpdates(for: cv, sectionOffset: sectionIndex)
-					}
-					
-					if self.internalInvalidateLayout {
-						self.internalInvalidateLayout = false
-						let context = UICollectionViewFlowLayoutInvalidationContext()
-						context.invalidateFlowLayoutDelegateMetrics = true
-						self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
-					}
-				}, completion: nil)
-
-				if !self.enableAnimations {
-					UIView.setAnimationsEnabled(true)
+			cv.performBatchUpdates( {
+				if self.itemsToRunAfterBatchUpdates == nil {
+					self.itemsToRunAfterBatchUpdates = []
 				}
+				var deletedSections = IndexSet()
+				var insertedSections = IndexSet()
+				
+				//
+				CollectionViewLog.debug("Start of performBatchUpdates:", ["DS" : self, 
+						"New Sections" : newVisibleSections.count, "Old Sections" : oldVisibleSections.count])
+				
+				for sectionIndex in 0 ..< oldVisibleSections.count {
+					if !newVisibleSections.contains(where: { $0 === oldVisibleSections[sectionIndex] }) {
+						deletedSections.insert(sectionIndex)
+					}
+				}
+				for sectionIndex in 0 ..< newVisibleSections.count {
+					if !oldVisibleSections.contains(where: { $0 === newVisibleSections[sectionIndex] }) {
+						insertedSections.insert(sectionIndex)
+					}
+				}
+				cv.deleteSections(deletedSections)
+				cv.insertSections(insertedSections)
+				CollectionViewLog.debug("SECTIONS: inserted \(insertedSections.count), deleted \(deletedSections.count)", 
+						["DS" : self])				
+				
+				for sectionIndex in 0 ..< newVisibleSections.count {
+					let section = newVisibleSections[sectionIndex] 
+					if insertedSections.contains(sectionIndex) {
+						// Run and discard cell-level updates on this just-inserted section
+						section.internalRunUpdates(for: nil, sectionOffset: sectionIndex)
+						continue
+					}
+					section.internalRunUpdates(for: cv, sectionOffset: sectionIndex)
+				}
+				
+				if self.internalInvalidateLayout {
+					self.internalInvalidateLayout = false
+					let context = UICollectionViewFlowLayoutInvalidationContext()
+					context.invalidateFlowLayoutDelegateMetrics = true
+					self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
+				}
+			
+				CollectionViewLog.debug("End of batch", ["DS" : self])
+			}, completion: { completed in
+				CollectionViewLog.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
+				self.itemsToRunAfterBatchUpdates?.forEach { $0() }
+				self.itemsToRunAfterBatchUpdates = nil
+				self.updateScheduled = false
+			})
+
+			if !self.enableAnimations {
+				UIView.setAnimationsEnabled(true)
 			}
 		}
 		
@@ -248,10 +262,7 @@ import UIKit
 
 extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-//		print ("Someone asked how many sections. Responded with \(visibleSections.count)")
-		if oldVisibleSections == nil, visibleSections.count > 0 {
-			oldVisibleSections = visibleSections
-		}
+		CollectionViewLog.debug("numberOfSections", ["count" : self.visibleSections.count, "DS" : self])
     	return visibleSections.count
     }
 
@@ -284,12 +295,7 @@ extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDeleg
 //		let protoSize = sections[indexPath.section].sizeForCell(for: collectionView, indexPath: sectionPath)
 		let protoSize = sections[indexPath.section].collectionView?(collectionView, 
 				layout: collectionView.collectionViewLayout, sizeForItemAt: sectionPath)
-				
-		//
-//		let x = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
-//		protoSize?.width = 100
-//		print ("Cell Size: \(protoSize), cv: \(collectionView.bounds.size.width), content: \(collectionView.contentInset), section:\(x.sectionInset)")
-				
+								
 		return protoSize ?? CGSize(width: 50, height: 50)
 	}
 

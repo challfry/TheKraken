@@ -115,7 +115,7 @@ extension TwitarrViewController: UIGestureRecognizerDelegate {
 
 	func setupGestureRecognizer() {	
 		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(TwitarrViewController.tweetCellTapped))
-		tapper.minimumPressDuration = 0.1
+		tapper.minimumPressDuration = 0.05
 		tapper.numberOfTouchesRequired = 1
 		tapper.numberOfTapsRequired = 0
 		tapper.allowableMovement = 10.0

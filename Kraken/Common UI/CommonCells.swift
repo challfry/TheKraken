@@ -170,6 +170,7 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	dynamic var labelText: String? { get set }
 	dynamic var editText: String? { get set }
 	dynamic var errorText: String? { get set }
+	dynamic var isEditable: Bool { get set }
 }
 
 @objc class TextViewCellModel: BaseCellModel, TextViewCellProtocol {	
@@ -180,6 +181,7 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	dynamic var editText: String?
 	dynamic var errorText: String?
 	@objc dynamic var editedText: String?			// Cell fills this in
+	@objc dynamic var isEditable: Bool = true
 	
 	init(_ titleLabel: String) {
 		labelText = titleLabel
@@ -223,6 +225,12 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 	}
 	var errorText: String? {
 		didSet {  //errorLabel.text = errorText
+		}
+	}
+	
+	var isEditable: Bool = true {
+		didSet {
+			textView.isEditable = isEditable
 		}
 	}
 	
@@ -313,30 +321,36 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 
 
 // MARK: Status cell; activity name + spinner, or error status on failure
-@objc protocol LoginStatusCellProtocol {
+@objc protocol OperationStatusCellProtocol {
 	dynamic var statusText: String { get set }
 	dynamic var showSpinner: Bool { get set }
 }
 
-@objc class LoginStatusCellModel: BaseCellModel, LoginStatusCellProtocol {	
-	private static let validReuseIDs = [ "LoginStatusCell" : LoginStatusCell.self ]
+@objc class OperationStatusCellModel: BaseCellModel, OperationStatusCellProtocol {
+	private static let validReuseIDs = [ "OperationStatusCell" : OperationStatusCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	@objc dynamic var statusText: String = ""
 	@objc dynamic var showSpinner: Bool = false
 
 	init() {
-		super.init(bindingWith: LoginStatusCellProtocol.self)
+		super.init(bindingWith: OperationStatusCellProtocol.self)
+	}
+}
+
+@objc class LoginStatusCellModel: BaseCellModel, OperationStatusCellProtocol {	
+	private static let validReuseIDs = [ "OperationStatusCell" : OperationStatusCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
+
+	@objc dynamic var statusText: String = ""
+	@objc dynamic var showSpinner: Bool = false
+
+	init() {
+		super.init(bindingWith: OperationStatusCellProtocol.self)
 		
 		CurrentUser.shared.tell(self, when:[ "isChangingLoginState", "lastError" ]) { observer, observed in
-		
-			observer.shouldBeVisible = true
-			observer.showSpinner = true
-			observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
-			
-			if observed.isChangingLoginState || observed.lastError != nil {
-				observer.shouldBeVisible = true
-			}
+					
+			observer.shouldBeVisible = observed.isChangingLoginState || observed.lastError != nil 
 			observer.showSpinner = observed.isChangingLoginState
 			if observed.isChangingLoginState {
 				observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
@@ -354,12 +368,12 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 	}
 }
 
-@objc class LoginStatusCell: BaseCollectionViewCell, LoginStatusCellProtocol {
+@objc class OperationStatusCell: BaseCollectionViewCell, OperationStatusCellProtocol {
 	@IBOutlet var statusLabel: UILabel!
 	@IBOutlet var spinner: UIActivityIndicatorView!
 	@objc dynamic var collection: UICollectionView?
 
-	private static let cellInfo = [ "LoginStatusCell" : PrototypeCellInfo("LoginStatusCell") ]
+	private static let cellInfo = [ "OperationStatusCell" : PrototypeCellInfo("OperationStatusCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	var statusText: String = "" {

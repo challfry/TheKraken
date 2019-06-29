@@ -18,7 +18,7 @@ class SettingsRootViewController: BaseCollectionViewController {
         super.viewDidLoad()
 		title = "Settings"
 
-  		dataSource.register(with: collectionView)
+  		dataSource.register(with: collectionView, viewController: self)
   		dataSource.viewController = self
 		let settingsSection = dataSource.appendSection(named: "settingsSection")
 		

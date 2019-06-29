@@ -17,6 +17,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	let composeDataSource = FilteringDataSource()
 	var tweetTextCell: TextViewCellModel?
 	var postButtonCell: ButtonCellModel?
+	var postStatusCell: OperationStatusCellModel?
 	var photoSelectionCell: PhotoSelectionCellModel?
 
     override func viewDidLoad() {
@@ -67,15 +68,23 @@ class ComposeTweetViewController: BaseCollectionViewController {
         
 		let btnCell = ButtonCellModel(title:"Post", action: postAction)
 		postButtonCell = btnCell
+ 
+        let statusCell = OperationStatusCellModel()
+        statusCell.shouldBeVisible = false
+        statusCell.showSpinner = true
+        statusCell.statusText = "Posting..."
+        postStatusCell = statusCell
+
 		composeSection.append(textCell)
         composeSection.append(btnCell)
+        composeSection.append(statusCell)
         composeSection.append(EmojiSelectionCellModel(paster: emojiButtonTapped))
         let photoCell = PhotoSelectionCellModel()
         composeSection.append(photoCell)
         photoSelectionCell = photoCell
 
    		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-        	if observed.loggedInUser == nil {
+     	  	if observed.loggedInUser == nil {
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
         	}
         	else {
@@ -100,6 +109,11 @@ class ComposeTweetViewController: BaseCollectionViewController {
     var didPost = false
     func postAction() {
     	didPost = true
+    	postButtonCell?.buttonEnabled = false
+    	postButtonCell?.buttonText = "Posting"
+    	postStatusCell?.shouldBeVisible = true
+    	tweetTextCell?.isEditable = false
+    	
     	if let tweetText = tweetTextCell?.editedText ?? tweetTextCell?.editText {
     		if let postPhotoAsset = photoSelectionCell?.getSelectedPhoto() {
 				let _ = PHImageManager.default().requestImageData(for: postPhotoAsset, options: nil) { image, dataUTI, orientation, info in

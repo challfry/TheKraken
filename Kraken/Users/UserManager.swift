@@ -121,7 +121,7 @@ class UserManager : NSObject {
 				result = results.first
 			}
 			catch {
-				print (error)
+				CoreDataLog.error("Failure fetching user.", ["Error" : error])
 			}
 		}
 		
@@ -146,7 +146,7 @@ class UserManager : NSObject {
 					self.updateProfile(for: krakenUserID, from: profileResponse)
 				} catch 
 				{
-					print (error)
+					NetworkLog.error("Failure loading user profile.", ["Error" : error])
 				} 
 			}
 		}
@@ -180,7 +180,7 @@ class UserManager : NSObject {
 				// rcf Shouldn't we create a KrakenUser if none was found?
 			}
 			catch {
-				print (error)
+				NetworkLog.error("Failure saving user profile data.", ["Error" : error])
 			}
 		}
 	}
@@ -206,7 +206,7 @@ class UserManager : NSObject {
 			}
 			catch
 			{
-				print (error)
+				CoreDataLog.error("Failure updating user info.", ["Error" : error])
 			}
 		}
 		
@@ -250,7 +250,7 @@ class UserManager : NSObject {
 			context.userInfo.setObject(resultDict, forKey: "Users" as NSString)
 		}
 		catch {
-			print (error)
+			CoreDataLog.error("Couldn't add users to CD.", ["Error" : error])
 		}
 	}
 	

@@ -213,7 +213,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="Tasks" id="P87-Oa-JRg"/>
                     <connections>
-                        <outlet property="collectionView" destination="BL1-Gv-xud" id="klt-BG-djd"/>
+                        <outlet property="collectionView" destination="BL1-Gv-xud" id="3kg-Nq-U9o"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hhu-Il-zkk" userLabel="First Responder" sceneMemberID="firstResponder"/>

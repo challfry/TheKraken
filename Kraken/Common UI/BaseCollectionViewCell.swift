@@ -37,6 +37,7 @@ import UIKit
 		let id = reuseID()
 		// Get a cell and property bind it to the cell model
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! BaseCollectionViewCell 
+		CollectionViewLog.assert(cell.reuseIdentifier != nil, "Just dequeued a cell that has no reuseID.")
 	
 		cell.collectionViewSizeChanged(to: collectionView.bounds.size)	
 		cell.dataSource = collectionView.dataSource as? KrakenDataSource

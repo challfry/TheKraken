@@ -53,7 +53,7 @@ import UIKit
 			}
 		}
 		else {
-			print("Somehow we have a tweet without an author, or the author changed?")
+			CoreDataLog.error("Somehow we have a tweet without an author, or the author changed?")
 		}
 
 		if let v2Photo = v2Object.photo {
@@ -127,7 +127,7 @@ import UIKit
 				try context.save()
 			}
 			catch {
-				print("Couldn't save context.")
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
 			}
 		}
 	}
@@ -142,7 +142,7 @@ import UIKit
 						try context.save()
 					}
 					catch {
-						print("Couldn't save context.")
+						CoreDataLog.error("Couldn't save context.", ["error" : error])
 					}
 				}
 			}
@@ -297,7 +297,7 @@ class TwitarrDataManager: NSObject {
 							extendsNewer: newer, morePostsExist: morePostsExist)
 				} catch 
 				{
-					print (error)
+					NetworkLog.error("Failure parsing stream tweets.", ["Error" : error, "URL" : request.url as Any])
 				} 
 			}
 			
@@ -307,7 +307,7 @@ class TwitarrDataManager: NSObject {
 	
 	func loadSearchTweets(fromOffset: Int, done: (() -> Void)? = nil) {
 		guard let filter = filter, let escapedQuery = filter.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
-			print("Need to have a filter set to use this.")
+			CoreDataLog.error("Need to have a filter set to loadSearchTweets.")
 			return
 		}
 	
@@ -317,7 +317,6 @@ class TwitarrDataManager: NSObject {
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let response = response as? HTTPURLResponse, response.statusCode < 300,
 					let data = data {
-//				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {
 					let tweetStream = try decoder.decode(TwitarrV2TweetQueryResult.self, from: data)
@@ -325,7 +324,7 @@ class TwitarrDataManager: NSObject {
 		//			self.addPostsToStream(posts: tweetStream.tweets.matches, anchorTime: 0, extendsNewer: false, morePostsExist: morePostsExist)
 				} catch 
 				{
-					print (error)
+					NetworkLog.error("Failure parsing search tweets.", ["Error" : error, "URL" : request.url as Any])
 				} 
 			}
 		}
@@ -407,7 +406,7 @@ class TwitarrDataManager: NSObject {
 				try context.save()
 			}
 			catch {
-				print (error)
+				CoreDataLog.error("Failure adding stream tweets to CD.", ["Error" : error])
 			}
 		}
 	}
@@ -416,22 +415,27 @@ class TwitarrDataManager: NSObject {
 	func queueNewPost(withText: String, image: Data?, inReplyTo: TwitarrPost? = nil) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
-			guard let currentUser = CurrentUser.shared.loggedInUser,
-					let thisUser = context.object(with: currentUser.objectID) as? KrakenUser else { return }
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
+			
+			var parentPost: TwitarrPost? = nil
+			if let parent = inReplyTo {
+				parentPost = context.object(with: parent.objectID) as? TwitarrPost
+			}
+			
 			let newPost = PostOpTweet(context: context)
 			newPost.text = withText
-			newPost.parent = inReplyTo
+			newPost.parent = parentPost
 			newPost.readyToSend = false
 			newPost.sentNetworkCall = false
 			newPost.originalPostTime = Date()
-			newPost.author = thisUser
+			newPost.author = currentUser
 			newPost.image = image as NSData?
 			
 			do {
 				try context.save()
 			}
 			catch {
-				print("Couldn't save context.")
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
 			}
 		}
 	}

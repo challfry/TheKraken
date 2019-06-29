@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import os
 
 // A simple cell model and binding protocol. Useful for when your cell can set itself up from data in the model object
 // and can have knowledge of that that object is. Not for use with generic cells that just get told what text to put where,
@@ -26,10 +27,10 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 	}
 	var reuse: String
 	
-	init(withModel: NSFetchRequestResult?, reuse: String) {
+	init(withModel: NSFetchRequestResult?, reuse: String, bindingWith: Protocol = FetchedResultsBindingProtocol.self) {
 		model = withModel
 		self.reuse = reuse
-		super.init(bindingWith: FetchedResultsBindingProtocol.self)
+		super.init(bindingWith: bindingWith)
 
 		self.shouldBeVisible = model != nil
 	}
@@ -59,12 +60,6 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 		
 	func setup(viewController: UIViewController?, collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>,
 			createCellModel: ((_ from: FetchedObjectType) -> BaseCellModel)?, reuseID: String) {
-		self.frc = frc
-		self.viewController = viewController
-		self.collectionView = collectionView
-		self.createCellModel = createCellModel
-		self.reuseID = reuseID
-		
 		//
 		if let objects = frc.fetchedObjects {
 			for fetchedIndex in 0..<objects.count {
@@ -73,6 +68,17 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 				}
 			}
 		}
+		else {
+			CollectionViewLog.error("No fetched objects during setup.")
+		}
+
+		if let vc = viewController as? BaseCollectionViewController {
+			super.register(with: collectionView, viewController: vc)
+		}
+		self.frc = frc
+		self.createCellModel = createCellModel
+		self.reuseID = reuseID
+		
 	}
 	
 // MARK: FetchedResultsControllerDelegate
@@ -133,15 +139,20 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 			fatalError("No sections in fetchedResultsController")
 		}
 		let sectionInfo = sections[section]
+//		CollectionViewLog.debug("numberOfItemsInSection", ["numObjects" : sectionInfo.numberOfObjects, "DS" : self])
 		return sectionInfo.numberOfObjects
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+//		CollectionViewLog.d("Asking for cell at indexpath", [ "cellModels" : self.cellModels.count, "indexPath" : indexPath ])
 		if indexPath.row < cellModels.count {
 			let cellModel = cellModels[indexPath.row]
 			let cell = cellModel.makeCell(for: collectionView, indexPath: indexPath)
 			cell.viewController = viewController
 			return cell
+		}
+		else {
+			CollectionViewLog.error("Datasource doesn't have a built cellModel for requested indexPath.")
 		}
 				
 		return UICollectionViewCell()
@@ -150,31 +161,31 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 // MARK: UICollectionView Data Source Prefetch
 
 	func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-		print ("Prefetch at: \(indexPaths)")
+		CollectionViewLog.d("Prefetch at: \(indexPaths)", ["DS" : self])
 	}
 
 	func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
-		print ("Cancel \(indexPaths)")
+		CollectionViewLog.d("Cancel Prefetch at: \(indexPaths)", ["DS" : self])
 	}
 		
 // MARK: UICollectionView Delegate
 
 	func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-		print (indexPath)
+		CollectionViewLog.debug("shouldSelectItemAt", ["indexPath" : indexPath, "DS" : self])
 		return true
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		print (indexPath)
+		CollectionViewLog.debug("didSelectItemAt", ["indexPath" : indexPath, "DS" : self])
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-		print (indexPath)
+		CollectionViewLog.debug("shouldDeselectItemAt", ["indexPath" : indexPath, "DS" : self])
 		return true
 	}
 
 	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-		print (indexPath)
+		CollectionViewLog.debug("didDeselectItemAt", ["indexPath" : indexPath, "DS" : self])
 	}
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
@@ -192,7 +203,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 				let newSize = protoCell.calculateSize()
 				cellModel.cellSize = newSize
 				cellModel.unbind(cell: protoCell)
-//				print ("New size for cell at \(indexPath) is \(newSize)")
+//				CollectionViewLog.debug("New size for cell at \(indexPath) is \(newSize)", ["DS" : self])
 							
 				return newSize
 			}
@@ -207,7 +218,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 	@objc dynamic var sectionVisible = true
 
 	func append(_ cell: BaseCellModel) {
-		print("Can't append cells to this data source")
+		CollectionViewLog.debug("Can't append cells to this data source")
 	}
 
 	
