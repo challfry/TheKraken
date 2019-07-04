@@ -51,6 +51,7 @@ class LoginHeaderCell: BaseCollectionViewCell, LoginHeaderCellProtocol {
 				self.subLabel.text = self.subLabelText
 				self.subLabel.alpha = self.subLabel.text == nil ? 0.0 : 1.0
 			}.startAnimation()
+			cellSizeChanged()
 		}
 	}
 }
@@ -60,8 +61,8 @@ class LoginButtonCellModel: ButtonCellModel {
 
 	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
 		dataSource = ds
-		super.init(title: title, action: action)
-		buttonAlignment	= .right
+		super.init(alignment: .right)
+		setupButton(1, title: title, action: action)
 
 		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
 			observer.calcButtonEnable()
@@ -76,7 +77,7 @@ class LoginButtonCellModel: ButtonCellModel {
 	}
 	
 	func calcButtonEnable() {
-		buttonEnabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
+		button1Enabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
 					dataSource.passwordCellModel.editedText?.isEmpty == false &&
 					!CurrentUser.shared.isChangingLoginState
 	}
@@ -173,8 +174,8 @@ class CreateAccountButtonCellModel: ButtonCellModel {
 
 	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
 		dataSource = ds
-		super.init(title: title, action: action)
-		buttonAlignment	= .right
+		super.init(alignment: .right)
+		setupButton(1, title: title, action: action)
 
 //		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
 //			observer.calcButtonEnable()
@@ -189,7 +190,7 @@ class CreateAccountButtonCellModel: ButtonCellModel {
 	}
 	
 	func calcButtonEnable() {
-		buttonEnabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
+		button1Enabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
 					dataSource.passwordCellModel.editedText?.isEmpty == false &&
 					!CurrentUser.shared.isChangingLoginState
 	}
@@ -202,8 +203,8 @@ class ForgotPasswordButtonCellModel: ButtonCellModel {
 
 	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
 		dataSource = ds
-		super.init(title: title, action: action)
-		buttonAlignment	= .right
+		super.init(alignment: .right)
+		setupButton(1, title: title, action: action)
 
 		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
 			observer.calcButtonEnable()
@@ -219,7 +220,7 @@ class ForgotPasswordButtonCellModel: ButtonCellModel {
 	}
 	
 	func calcButtonEnable() {
-		buttonEnabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
+		button1Enabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
 					dataSource.passwordCellModel.editedText?.isEmpty == false &&
 					dataSource.confirmPasswordCellModel.editedText?.isEmpty == false &&
 					dataSource.registrationCodeCellModel.editedText?.isEmpty == false &&
@@ -275,7 +276,8 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	init(title: String, forMode: LoginDataSourceSection.Mode, dataSource: LoginDataSourceSection) {
 		targetMode = forMode
 		self.dataSource = dataSource
-		super.init(title: title, action: { dataSource.mode = forMode }, alignment: .left)
+		super.init(alignment: .left)
+		setupButton(1, title: title, action: { dataSource.mode = forMode })
 		
 		dataSource.tell(self, when: "mode") { observer, observed in 
 			observer.shouldBeVisible = observed.mode != observer.targetMode

@@ -51,9 +51,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	private static let cellInfo = [ "tweet" : PrototypeCellInfo("TwitarrTweetCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return TwitarrTweetCell.cellInfo }
 	
-	private static var prototypeCell: TwitarrTweetCell =
-		UINib(nibName: "TwitarrTweetCell", bundle: nil).instantiate(withOwner: nil, options: nil)[0] as! TwitarrTweetCell
-
 	var isInteractive: Bool = true
 
     var model: NSFetchRequestResult? {
@@ -129,10 +126,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			
 			// Inside the other obseration: if we're logged in,
 			if let username = CurrentUser.shared.loggedInUser?.username {
-				// setup observation on reactions to watch for currentUser has reacting to this tweet.
+				// setup observation on 'reactions' to watch for currentUser reacting to this tweet.
 				observer.reactionDictObservation = tweetModel.tell(self, when: "reactionDict.like.users.\(username)") { observer, observed in
 					observer.setLikeButtonState()
-				}?.schedule()
+				}?.execute()
 				observer.addObservation(observer.reactionDictObservation)
 				
 				// and watch ReactionOps to look for pending reactions; show/hide the Pending Reaction card.
@@ -188,7 +185,9 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		
 		likesLabel.isHidden = true
 
-		tweetTextView.attributedText = StringUtilities.cleanupText(postOpModel.text, addLinks: false)
+		addObservation(postOpModel.tell(self, when:"text") { observer, observed in
+			observer.tweetTextView.attributedText = StringUtilities.cleanupText(observed.text, addLinks: false)
+		}?.execute())
 		let fixedWidth = tweetTextView.frame.size.width
 		let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
 		tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
@@ -197,18 +196,21 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		addObservation(postOpModel.author.tell(self, when:"thumbPhoto") { observer, observed in
 			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
 			observer.userButton.setTitle("", for: .normal)
-		}?.schedule())
+		}?.execute())
 
-		if let imageData = postOpModel.image, let image = UIImage(data: imageData as Data) {
-			self.postImage.isHidden = false
-			self.postImage.image = image
-			self.cellSizeChanged()
-		}
-		else {
-			self.postImage.image = nil
-			self.postImage.isHidden = true
-		}
-		
+		addObservation(postOpModel.tell(self, when:"image") { observer, observed in
+			if let imageData = observed.image, let image = UIImage(data: imageData as Data) {
+				observer.postImage.isHidden = false
+				observer.postImage.image = image
+				observer.cellSizeChanged()
+			}
+			else {
+				observer.postImage.image = nil
+				observer.postImage.isHidden = true
+				observer.cellSizeChanged()
+			}
+		}?.execute()?.debugBreakOnChange())
+				
 		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 	}
@@ -365,8 +367,20 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	@IBAction func eliteDeleteTweetButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-//
+   		
+   		let alert = UIAlertController(title: "Delete Confirmation", message: "Are you sure you want to delete this post?", 
+   				preferredStyle: .alert) 
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), 
+				style: .cancel, handler: nil))
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Delete", comment: "Default action"), 
+				style: .destructive, handler: eliteDeleteTweetConfirmationComplete))
+		
+		viewController?.present(alert, animated: true, completion: nil)
+	}
+	
+	func eliteDeleteTweetConfirmationComplete(_ action: UIAlertAction) {
+   		guard let tweetModel = model as? TwitarrPost else { return }
+		tweetModel.addDeleteTweetOp()
 	}
 	
    	@IBAction func cancelReactionOpButtonTapped() {

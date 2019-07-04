@@ -56,7 +56,6 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 	// are the same. Or, clients can provide a closure to set a reuse type per cell. The models in a FRC are still all
 	// the same type, but if some of the cells should look different, use this.
 	var reuseID: String?
-	var overrideReuseID: ((_ usingModel: FetchedObjectType) -> String?)?
 		
 	func setup(viewController: UIViewController?, collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>,
 			createCellModel: ((_ from: FetchedObjectType) -> BaseCellModel)?, reuseID: String) {

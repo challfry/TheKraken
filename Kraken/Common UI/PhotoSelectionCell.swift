@@ -20,6 +20,15 @@ import Photos
 	
 	@objc dynamic var showAuthView = PHPhotoLibrary.authorizationStatus() == .notDetermined
 	
+	override var shouldBeVisible: Bool {
+		didSet {
+			let status = PHPhotoLibrary.authorizationStatus()
+			if status == .restricted || status == .denied {
+				shouldBeVisible = false
+			}
+		}
+	}
+	
 	init() {
 		super.init(bindingWith: PhotoSelectionCellProtocol.self)
 		

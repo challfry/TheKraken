@@ -10,8 +10,9 @@ import UIKit
 import Photos
 
 class ComposeTweetViewController: BaseCollectionViewController {
-	var parentTweet: TwitarrPost?
-	var editTweet: TwitarrPost?
+	var parentTweet: TwitarrPost?			// If we're composing a reply, the parent
+	var editTweet: TwitarrPost?				// If we're editing a posted tweet, the original
+	var draftTweet: PostOpTweet?			// If we're editing a draft, the draft
 
 	let loginDataSource = FilteringDataSource()
 	let composeDataSource = FilteringDataSource()
@@ -19,13 +20,15 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	var postButtonCell: ButtonCellModel?
 	var postStatusCell: OperationStatusCellModel?
 	var photoSelectionCell: PhotoSelectionCellModel?
+	var draftImageCell: DraftImageCellModel?
+	var removeDraftImage: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // If we have a tweet to edit, but no parent set, and the tweet we're editing is a response (that is, has a parent)
         // set that tweet as the parent.
-        if editTweet != nil, parentTweet == nil, let newParent = editTweet?.parent {
+        if parentTweet == nil, let newParent = editTweet?.parent ?? draftTweet?.parent {
         	parentTweet = newParent
         }
 
@@ -45,13 +48,19 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		composeSection.append(replySourceCellModel)
 		
 		let editSourceLabelModel = LabelCellModel("Your original post:")
-		editSourceLabelModel.shouldBeVisible = editTweet != nil
+		if draftTweet != nil {
+			editSourceLabelModel.labelText = NSAttributedString(string:"Your original draft:")
+		}
+		editSourceLabelModel.shouldBeVisible = editTweet != nil || draftTweet != nil
 		composeSection.append(editSourceLabelModel)
  		let editSourceCellModel = TwitarrTweetCellModel(withModel: editTweet, reuse: "tweet")
+ 		if draftTweet != nil {
+ 			editSourceCellModel.model = draftTweet
+ 		}
 		composeSection.append(editSourceCellModel)
 
 		var writingPrompt = "What do you want to say?"
-		if editTweet != nil {
+		if editTweet != nil || draftTweet != nil {
 			writingPrompt = "What do you want to say insteead?"
 		}
 		else if parentTweet != nil {
@@ -62,12 +71,22 @@ class ComposeTweetViewController: BaseCollectionViewController {
         if let editTweet = editTweet {
 			textCell.editText = StringUtilities.cleanupText(editTweet.text).string
 		} 
+		else if let draftTweet = draftTweet {
+			// This is from a draft tweet not yet sent to the server; waiting in the PostOp queue
+			textCell.editText = StringUtilities.cleanupText(draftTweet.text).string
+		}
 		else if let draftText = TwitarrDataManager.shared.getDraftPostText(replyingTo: parentTweet?.id) {
+			// This is from our cache of uncompleted tweets, where user typed something but didn't post.
 			textCell.editText = draftText
 		}
         
-		let btnCell = ButtonCellModel(title:"Post", action: postAction)
+		let btnCell = ButtonCellModel()
+		btnCell.setupButton(2, title:"Post", action: postAction)
 		postButtonCell = btnCell
+		tweetTextCell?.tell(btnCell, when: "editedText") { observer, observed in 
+			let textString = observed.editedText ?? observed.editText
+			observer.button2Enabled = !(textString?.isEmpty ?? true)
+		}?.execute()
  
         let statusCell = OperationStatusCellModel()
         statusCell.shouldBeVisible = false
@@ -82,6 +101,15 @@ class ComposeTweetViewController: BaseCollectionViewController {
         let photoCell = PhotoSelectionCellModel()
         composeSection.append(photoCell)
         photoSelectionCell = photoCell
+        
+        // Only used when editing a draft, where we have a photo that's already pulled from the library and made
+        // into an NSData.
+        if let draftImage = draftTweet?.image {
+        	draftImageCell = DraftImageCellModel()
+        	draftImageCell!.imageData = draftImage
+        	composeSection.append(draftImageCell!)
+        	photoSelectionCell?.shouldBeVisible = false
+        }
 
    		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
      	  	if observed.loggedInUser == nil {
@@ -96,6 +124,10 @@ class ComposeTweetViewController: BaseCollectionViewController {
     override func viewDidAppear(_ animated: Bool) {
 		loginDataSource.enableAnimations = true
 		composeDataSource.enableAnimations = true
+		
+		if let cellModel = tweetTextCell, let textCell = composeDataSource.cell(forModel: cellModel) as? TextViewCell {
+			textCell.textView.becomeFirstResponder()
+		}
 	}
 
 	override func viewDidDisappear(_ animated: Bool) {
@@ -109,21 +141,64 @@ class ComposeTweetViewController: BaseCollectionViewController {
     var didPost = false
     func postAction() {
     	didPost = true
-    	postButtonCell?.buttonEnabled = false
-    	postButtonCell?.buttonText = "Posting"
+    	postButtonCell?.button2Enabled = false
+    	postButtonCell?.button2Text = "Posting"
     	postStatusCell?.shouldBeVisible = true
     	tweetTextCell?.isEditable = false
     	
+    	// Need to disable photo selection, too.
+    	
     	if let tweetText = tweetTextCell?.editedText ?? tweetTextCell?.editText {
-    		if let postPhotoAsset = photoSelectionCell?.getSelectedPhoto() {
-				let _ = PHImageManager.default().requestImageData(for: postPhotoAsset, options: nil) { image, dataUTI, orientation, info in
+    		if photoSelectionCell?.shouldBeVisible == true, let postPhotoAsset = photoSelectionCell?.getSelectedPhoto() {
+    			let options = PHImageRequestOptions()
+    			options.version = .current
+    			options.progressHandler = imageiCloudDownloadProgress
+				let _ = PHImageManager.default().requestImageData(for: postPhotoAsset, 
+						options: options) { image, dataUTI, orientation, info in
 					if let image = image {
-	    				TwitarrDataManager.shared.queueNewPost(withText: tweetText, image: image, inReplyTo: self.parentTweet)
+	    				TwitarrDataManager.shared.queuePost(self.draftTweet, withText: tweetText, image: image, 
+	    						inReplyTo: self.parentTweet, done: self.postEnqueued)
+					}
+					else {
+						var text = "Couldn't post: failed to get photo to attach to post."
+						if let error = info?[PHImageErrorKey]{
+							text.append(" \(error)")
+						}
+    					self.postStatusCell?.errorText = text
 					}
 				} 
 			} else {
-	    		TwitarrDataManager.shared.queueNewPost(withText: tweetText, image: nil, inReplyTo: parentTweet)
+				var image: Data?
+				
+				// If editing a draft (as yet undelivered to server) post, we already have the photo to attach
+				// saved as an NSData, not a PHImage in the photos library. So, we handle it a bit differently.
+				// (also, delivering a post with an attached image should work even if the user disables photo access
+				// after tapping Post).
+    			if !removeDraftImage {
+    				image = draftTweet?.image as Data?
+    			}
+	    		TwitarrDataManager.shared.queuePost(draftTweet, withText: tweetText, image: image, 
+	    				inReplyTo: parentTweet, done: postEnqueued)
 			}
+		}
+    }
+    
+    func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 
+    		_ info: [AnyHashable : Any]?) {
+		if let error = error {
+			postStatusCell?.errorText = error.localizedDescription
+		}
+		else if let resultInCloud = info?[PHImageResultIsInCloudKey] as? NSNumber, resultInCloud.boolValue == true {
+			postStatusCell?.statusText = "Downloading full-sized photo from iCloud"
+		}
+	}
+    
+    func postEnqueued(post: PostOpTweet?) {
+    	if post == nil {
+    		postStatusCell?.statusText = "Couldn't assemble a post."
+    	}
+    	else {
+    		postStatusCell?.statusText = "Sending post to server."
 		}
     }
     
@@ -133,9 +208,14 @@ class ComposeTweetViewController: BaseCollectionViewController {
     	}
     }
     
+    func draftImageRemoveButtonTapped() {
+    	draftImageCell?.shouldBeVisible = false
+    	photoSelectionCell?.shouldBeVisible = true
+    	removeDraftImage = true
+    }
+    
 // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     	switch segue.identifier {
 		case "UserProfile":
@@ -157,3 +237,43 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
 }
 
+@objc protocol DraftImageCellProtocol {
+	@objc dynamic var imageData: NSData? { get set }
+}
+
+@objc class DraftImageCellModel: BaseCellModel, DraftImageCellProtocol {	
+	private static let validReuseIDs = [ "DraftImageCell" : DraftImageCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
+	
+	@objc dynamic var imageData: NSData? {
+		didSet {
+			shouldBeVisible = imageData != nil
+		}
+	}
+
+	init() {
+		super.init(bindingWith: DraftImageCellProtocol.self)
+	}
+	
+}
+
+class DraftImageCell: BaseCollectionViewCell, DraftImageCellProtocol {
+	@IBOutlet var imageView: UIImageView!
+
+	private static let cellInfo = [ "DraftImageCell" : PrototypeCellInfo("DraftImageCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+
+	var imageData: NSData? {
+		didSet {
+			if let image = imageData {
+				imageView.image = UIImage(data: image as Data)
+			}
+		}
+	}
+	
+	@IBAction func removeButtonTapped() {
+		if let vc = viewController as? ComposeTweetViewController {
+			vc.draftImageRemoveButtonTapped()
+		}
+	}
+}

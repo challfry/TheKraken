@@ -314,11 +314,11 @@
 - (void) stopAllCallsTo:(nullable ObservationBlock) block;
 
 /**
-	Returns all properties currently being observed on the receiver, as an array of strings.
+	Returns all properties currently being observed on the receiver, as an set of strings.
 
-	@return an array of strings
+	@return a set of strings
  */
-- (nullable NSArray<NSString *> *) allObservedProperties;
+- (nullable NSSet<NSString *> *) allObservedProperties;
 
 /**
 	Returns how many observers there are for the given property

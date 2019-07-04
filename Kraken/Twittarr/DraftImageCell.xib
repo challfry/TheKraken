@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="DraftImageCell" id="MhD-se-xxN" customClass="DraftImageCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="417" height="236"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                <rect key="frame" x="0.0" y="0.0" width="417" height="236"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This image will be attached to your post:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r8q-cE-3yP">
+                        <rect key="frame" x="12" y="6" width="277" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZVG-yN-aNF">
+                        <rect key="frame" x="347" y="0.0" width="55" height="30"/>
+                        <state key="normal" title="Remove"/>
+                        <connections>
+                            <action selector="removeButtonTapped" destination="MhD-se-xxN" eventType="touchUpInside" id="RhJ-me-grk"/>
+                        </connections>
+                    </button>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ZXP-HH-lej">
+                        <rect key="frame" x="0.0" y="36" width="417" height="200"/>
+                        <constraints>
+                            <constraint firstAttribute="height" relation="lessThanOrEqual" constant="300" id="4Lm-aP-hr4"/>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="Fh9-eW-Azg"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="ZXP-HH-lej" secondAttribute="trailing" id="B7J-IQ-eSh"/>
+                <constraint firstItem="ZXP-HH-lej" firstAttribute="leading" secondItem="MhD-se-xxN" secondAttribute="leading" id="Ebr-VC-xeL"/>
+                <constraint firstAttribute="trailing" secondItem="ZVG-yN-aNF" secondAttribute="trailing" constant="15" id="NGq-yw-Cui"/>
+                <constraint firstAttribute="bottom" secondItem="ZXP-HH-lej" secondAttribute="bottom" id="T9A-Ak-oIE"/>
+                <constraint firstItem="r8q-cE-3yP" firstAttribute="top" secondItem="MhD-se-xxN" secondAttribute="top" constant="6" id="T9l-hc-4k4"/>
+                <constraint firstItem="ZVG-yN-aNF" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="r8q-cE-3yP" secondAttribute="trailing" constant="12" id="ZJQ-Ff-x5q"/>
+                <constraint firstItem="ZXP-HH-lej" firstAttribute="top" secondItem="r8q-cE-3yP" secondAttribute="bottom" constant="12" id="f6M-UT-6GZ"/>
+                <constraint firstItem="r8q-cE-3yP" firstAttribute="leading" secondItem="MhD-se-xxN" secondAttribute="leading" constant="12" id="i0k-ZQ-wOE"/>
+                <constraint firstItem="ZVG-yN-aNF" firstAttribute="top" secondItem="MhD-se-xxN" secondAttribute="top" id="lnJ-nh-r70"/>
+            </constraints>
+            <size key="customSize" width="417" height="236"/>
+            <connections>
+                <outlet property="imageView" destination="ZXP-HH-lej" id="WWk-u8-ros"/>
+            </connections>
+            <point key="canvasLocation" x="245.6521739130435" y="4.0178571428571423"/>
+        </collectionViewCell>
+    </objects>
+</document>

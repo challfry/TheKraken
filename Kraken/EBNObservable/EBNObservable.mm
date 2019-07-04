@@ -670,17 +670,17 @@ NSObject						*EBN_InvalidPropertyKey;
 	properties being observed because a keypath rooted at some other object runs through (or ends at)
 	this object.
 */
-- (NSSet *) allObservedProperties
+- (NSSet<NSString *> *) allObservedProperties
 {
 	[self ebn_reapBlocks];
 	
-	NSMutableSet *properties = nil;
+	NSSet *properties = nil;
 	NSMutableDictionary *observedKeysDict = [self ebn_observedKeysDict:NO];
 	if (observedKeysDict)
 	{
 		@synchronized(observedKeysDict)
 		{
-			properties = [NSMutableSet setWithArray:[observedKeysDict allKeys]];
+			properties = [NSSet setWithArray:[observedKeysDict allKeys]];
 		}
 	}
 	
@@ -2520,5 +2520,23 @@ BOOL EBNIsADebuggerConnected(void)
 #endif
 }
 
-
+NSString *debugDumpAllMethods(Class classtype)
+{
+	NSMutableString *outputString = [[NSMutableString alloc] init];
+	Class currentClass = classtype;
+	do {
+		[outputString appendFormat:@"Methods of class %@\n", currentClass];
+		unsigned int outCount = 500;
+		Method *methods =  class_copyMethodList(currentClass, &outCount);
+		for (int index = 0; index < outCount; ++index) 
+		{
+			Method *indexedMethod = methods + index;
+			const char *string = sel_getName(method_getName(*indexedMethod));
+			[outputString appendFormat:@"    %s\n", string];
+		}
+		currentClass = class_getSuperclass(currentClass);
+	} while (currentClass != [NSObject class]);
+		
+		return outputString;
+}
 

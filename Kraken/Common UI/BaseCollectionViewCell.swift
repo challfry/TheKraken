@@ -39,12 +39,14 @@ import UIKit
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! BaseCollectionViewCell 
 		CollectionViewLog.assert(cell.reuseIdentifier != nil, "Just dequeued a cell that has no reuseID.")
 	
+		cell.isBuildingCell = true
 		cell.collectionViewSizeChanged(to: collectionView.bounds.size)	
 		cell.dataSource = collectionView.dataSource as? KrakenDataSource
 		if let prot = self.bindingProtocol {
 			cell.bind(to:self, with: prot)
 		}
 		cell.cellModel = self
+		cell.isBuildingCell = false
 		return cell
 	}
 	
@@ -129,7 +131,7 @@ struct PrototypeCellInfo {
 	var observations = Set<EBNObservation>()
 	var isPrototypeCell: Bool = false
 	var calculatedSize: CGSize = CGSize(width: 0.0, height: 0.0)
-	private var isRecyclingCell = false
+	var isBuildingCell = false
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
@@ -163,7 +165,7 @@ struct PrototypeCellInfo {
 	
 	func cellSizeChanged() {
 		setNeedsLayout()
-		if !isPrototypeCell, !isRecyclingCell, let model = cellModel {
+		if !isPrototypeCell, !isBuildingCell, let model = cellModel {
 			dataSource?.sizeChanged(for: model)
 		}	
 	}
@@ -203,10 +205,10 @@ struct PrototypeCellInfo {
 	}
 	
 	override func prepareForReuse() {
-		isRecyclingCell = true
+		isBuildingCell = true
 		super.prepareForReuse()
 		cellModel?.unbind(cell: self)
-		isRecyclingCell = false
+		isBuildingCell = false
 	}
 	
 	func addObservation(_ observation: EBNObservation?) {

@@ -26,6 +26,10 @@ class KrakenDataSource: NSObject {
 	weak var tableView: UITableView?
 	weak var viewController: UIViewController? 			// So that cells can segue/present other VCs.
 
+	func performSegue(withIdentifier: String, sender: AnyObject) {
+		viewController?.performSegue(withIdentifier: withIdentifier, sender: sender)
+	}
+
 	var selectedCell: BaseCellModel?
 	func setCellSelection(cell: BaseCollectionViewCell, newState: Bool) {
 		// Only dealing with the single-select case; eventually create an enum with selection types?
@@ -125,4 +129,36 @@ class KrakenDataSource: NSObject {
 	internal func internalRunUpdates(sectionOffset: Int) {
 
 	}
+}
+
+// Debugging extensions
+extension KrakenDataSource: UIScrollViewDelegate {
+
+	// Dumps info about cell and CV sizes. Shouldn't be called in the app. To use:
+	//			in LLDB: po <datasource>.debugCellHeights()
+	func debugCellHeights() {
+		guard let this = self as? (UICollectionViewDataSource & UICollectionViewDelegate & UICollectionViewDelegateFlowLayout),
+				let cv = collectionView else { return }
+		let sectionCount = this.numberOfSections?(in: cv) ?? 1
+		var totalHeight: CGFloat = 0.0
+		var debugString = ""
+		for sectionIndex in  0..<sectionCount {
+			let cellCount = this.collectionView(cv, numberOfItemsInSection: sectionIndex)
+			var sectionHeight: CGFloat = 0.0
+			for cellIndex in 0..<cellCount {
+				let indexPath = IndexPath(row: cellIndex, section: sectionIndex)
+				let cellSize = this.collectionView?(cv, layout:cv.collectionViewLayout, sizeForItemAt: indexPath)
+				sectionHeight += cellSize?.height ?? 0
+			}
+			totalHeight += sectionHeight
+			debugString.append("    Section \(sectionIndex): \(cellCount) cells, \(sectionHeight) height.\n")
+		}
+		CollectionViewLog.debug("CV: \(sectionCount) sections, totalHeight: \(totalHeight)\n\(debugString)")
+	}
+	
+//	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//		CollectionViewLog.debug("ContentOffset: \(scrollView.contentOffset.y) ContentSize: \(scrollView.contentSize.height)"
+//				+ " ViewHeight: \(scrollView.bounds.size.height) MaxOffset: \(scrollView.contentSize.height - scrollView.bounds.size.height)" )
+//	}
+
 }

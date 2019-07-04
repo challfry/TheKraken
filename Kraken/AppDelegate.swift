@@ -16,7 +16,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 //		LocalCoreData.shared.fullCoreDataReset()
-		CurrentUser.shared.setInitialLoginState()
+
+		// Startup tasks. Hopefully they won't interact, but let's keep them in the same order just to be sure.
+		CurrentUser.shared.setInitialLoginState()		// If someone was logged in when the app quit, keeps them logged in. 
+		_ = PostOperationDataManager.shared				// Responsible for POSTs to the server. 
 		return true
 	}
 

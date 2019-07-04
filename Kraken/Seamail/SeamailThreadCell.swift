@@ -181,15 +181,7 @@ class SmallUserCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
 	
 	private static let cellInfo = [ "SmallUserCell" : PrototypeCellInfo("SmallUserCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SmallUserCell.cellInfo }
-
-	private static var prototypeCell: SmallUserCell =
-		UINib(nibName: "SmallUserCell", bundle: nil).instantiate(withOwner: nil, options: nil)[0] as! SmallUserCell
-		
-	static func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> SmallUserCell? {
-		let cell = SmallUserCell.prototypeCell
-		return cell
-	}
-	
+			
 	var model: NSFetchRequestResult? {
 		didSet {
 			if let user = model as? KrakenUser {

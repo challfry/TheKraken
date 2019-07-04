@@ -34,7 +34,6 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		try? fetchedResults.performFetch()
 		frcDataSource.setup(viewController: self, collectionView: collectionView, frc: fetchedResults,
 				createCellModel: createMessageCellModel, reuseID: "SeamailMessageCell")
-		frcDataSource.overrideReuseID = overrideReuseID
 		collectionView.register(UINib(nibName: "SeamailMessageCell", bundle: nil), forCellWithReuseIdentifier: "SeamailMessageCell")
 		collectionView.register(UINib(nibName: "SeamailSelfMessageCell", bundle: nil), forCellWithReuseIdentifier: "SeamailSelfMessageCell")
 				
@@ -47,16 +46,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
     }
     
 	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {
-		return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
+			return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
 	}
-    
-    func overrideReuseID(_ model: SeamailMessage) -> String? {
-    	if model.author.username == CurrentUser.shared.loggedInUser?.username {
-    		return "SeamailSelfMessageCell"
-    	}
-    	else {
-    		return "SeamailMessageCell"
-    	}
-    }
-    
+	
 }

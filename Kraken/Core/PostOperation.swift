@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 /*
 	All:
@@ -70,6 +71,97 @@ import UIKit
 		- add/remove
 */
 
+@objc public class PostOperationDataManager: NSObject {
+	static let shared = PostOperationDataManager()
+	
+	@objc dynamic var pendingOperationCount: Int = 0
+	let controller: NSFetchedResultsController<PostOperation>
+	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
+	
+	override init() {
+		let context = LocalCoreData.shared.mainThreadContext
+		let fetchRequest = NSFetchRequest<PostOperation>(entityName: "PostOperation")
+		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "originalPostTime", ascending: true)]
+		controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, 
+				sectionNameKeyPath: nil, cacheName: nil)
+		super.init()
+		controller.delegate = self
+
+		do {
+			try controller.performFetch()
+			controllerDidChangeContent(controller as! NSFetchedResultsController<NSFetchRequestResult>)
+		} catch {
+			CoreDataLog.error("Failed to fetch PostOperations", ["error" : error])
+		}
+
+	}
+		
+	func remove(op: PostOperation) {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			do {
+				let opInContext = context.object(with: op.objectID)
+				context.delete(opInContext)
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
+			}
+		}
+	}
+		
+	func checkForOpsToDeliver() {
+		if let operations = controller.fetchedObjects {
+			for op in operations {
+				if op.readyToSend && !op.sentNetworkCall {
+					// Tell the op to send to server here
+			//		NetworkLog.debug("Sending op to server", ["op" : op])
+				}
+			}
+			
+		}
+	}
+		
+
+}
+
+// The data manager can have multiple delegates, all of which are watching the same results set.
+extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
+
+	public func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		viewDelegates.forEach( { $0.controllerWillChangeContent?(controller) } )
+	}
+
+	public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
+			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+		viewDelegates.forEach( { $0.controller?(controller, didChange: anObject, at: indexPath, for: type, newIndexPath: newIndexPath) } )
+	}
+
+    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, 
+    		atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+    	viewDelegates.forEach( { $0.controller?(controller, didChange: sectionInfo, atSectionIndex: sectionIndex, for: type) } )		
+	}
+
+	// We can't actually implement this in a multi-delegate model. Also, wth is NSFetchedResultsController doing having a 
+	// delegate method that does this?
+ //   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, sectionIndexTitleForSectionName sectionName: String) -> String?
+    
+	public func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+		pendingOperationCount = controller.fetchedObjects?.count ?? 0
+		checkForOpsToDeliver()
+		viewDelegates.forEach( { $0.controllerDidChangeContent?(controller) } )
+	}
+	
+	func addDelegate(_ newDelegate: NSObject & NSFetchedResultsControllerDelegate) {
+		if !viewDelegates.contains(where: { $0 === newDelegate } ) {
+			viewDelegates.insert(newDelegate, at: 0)
+		}
+	}
+	
+	func removeDelegate(_ oldDelegate: NSObject & NSFetchedResultsControllerDelegate) {
+		viewDelegates.removeAll(where: { $0 === oldDelegate } )
+	}
+}
 
 
 /* 'Post' in this context is any REST call that changes server state, where you need to be logged in.
@@ -102,14 +194,22 @@ import UIKit
 			// - Allow user to resend manually from the list of deferred posts in Settings
 			// - Tell the user immediately, then go to an editor screen?
 	
-	
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
+		if let moc = managedObjectContext, let currentUser = CurrentUser.shared.getLoggedInUser(in: moc) {
+			author = currentUser
+		}
+		originalPostTime = Date()
+		readyToSend = false
+		sentNetworkCall = false
+	}
 }
 
 @objc(PostOpTweet) public class PostOpTweet: PostOperation {
 	@NSManaged public var text: String
 	
 		// Photo needs to be uploaded as a separate POST, then the id is sent.
-	@NSManaged public var image: NSData?
+	@NSManaged @objc dynamic public var image: NSData?
 	
 		// Parent tweet, if this is a response. Can be nil.
 	@NSManaged public var parent: TwitarrPost?
@@ -126,6 +226,10 @@ import UIKit
 	
 		// True to add this reaction to this post, false to delete it.
 	@NSManaged public var isAdd: Bool
+}
+
+@objc(PostOpTweetDelete) public class PostOpTweetDelete: PostOperation {
+	@NSManaged public var tweetToDelete: TwitarrPost?
 }
 
 

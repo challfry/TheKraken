@@ -28,7 +28,9 @@ class SettingsRootViewController: BaseCollectionViewController {
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
 		}?.schedule()
 		settingsSection.append(ServerAddressEditCellModel("Server URL"))
-		settingsSection.append(ButtonCellModel(title: "Reset Server URL to Default", action: resetServerButtonHit, alignment: .center))
+		let buttonCell = ButtonCellModel(alignment: .center)
+		buttonCell.setupButton(1, title: "Reset Server URL to Default", action: resetServerButtonHit)
+		settingsSection.append(buttonCell)
 		
 		// Login State, login/out
 		settingsSection.append(cell: LoginInfoCellModel())
@@ -248,59 +250,39 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 
 @objc class SettingsLoginButtonCellModel : ButtonCellModel {
 	init(action: (() -> Void)?) {
-		super.init(title: "Login", action: action, alignment: .center)
+		super.init(alignment: .center)
+		setupButton(1, title: "Login", action: action)
 		
 		CurrentUser.shared.tell(self, when:"loggedInUser") { observer, observed in
 //			observer.shouldBeVisible = observed.loggedInUser == nil
-			observer.buttonText = observed.loggedInUser == nil ? "Login" : "Log Out"
+			observer.button1Text = observed.loggedInUser == nil ? "Login" : "Log Out"
 		}?.schedule()
 		
 		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in
-			observer.buttonEnabled = !observed.isChangingLoginState
+			observer.button1Enabled = !observed.isChangingLoginState
 		}?.schedule()
 	}
 	
 }
 
 @objc class DelayedPostDisclosureCellModel : DisclosureCellModel, NSFetchedResultsControllerDelegate {
-	let controller: NSFetchedResultsController<PostOperation>
 	var viewController: SettingsRootViewController?
 	
 	override init() {
-		
-		let context = LocalCoreData.shared.mainThreadContext
-		let fetchRequest = NSFetchRequest<PostOperation>(entityName: "PostOperation")
-		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "originalPostTime", ascending: true)]
-		controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, 
-				sectionNameKeyPath: nil, cacheName: nil)
-
 		super.init()
-		controller.delegate = self
-		do {
-			try controller.performFetch()
-			controllerDidChangeContent(controller as! NSFetchedResultsController<NSFetchRequestResult>)
-		} catch {
-			fatalError("Failed to fetch entities: \(error)")
-		}
-	}
-
-	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		if let changeCount = controller.fetchedObjects?.count {
-			if changeCount == 1 {
-				title = "1 item to post"
+		
+		PostOperationDataManager.shared.tell(self, when: "pendingOperationCount") { observer, observed in
+			switch observed.pendingOperationCount {
+				case 0: observer.title = "No changes waiting to be sent to the server."
+				case 1: observer.title = "1 item to post"
+				default: observer.title = "\(observed.pendingOperationCount) items to post"
 			}
-			else {
-				title = "\(changeCount) items to post"
-			}
-		}
-		else {
-			title = "No changes waiting to be sent to the server."
-		}
+        }?.execute()        
 	}
 	
 	override func cellTapped() {
-		if let count = controller.fetchedObjects?.count, count > 0 {
-			viewController?.performSegue(withIdentifier: "PostOperations", sender: controller)
+		if PostOperationDataManager.shared.pendingOperationCount > 0 {
+			viewController?.performSegue(withIdentifier: "PostOperations", sender: self)
 		}
 	}
 

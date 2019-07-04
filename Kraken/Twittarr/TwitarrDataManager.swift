@@ -26,9 +26,11 @@ import UIKit
     @NSManaged public var photoDetails: PhotoDetails?
     
     @NSManaged public var reactionOps: NSMutableSet?
-    @objc dynamic public var reactionOpsCount: Int = 0
-    
+    @objc dynamic public var reactionOpsCount: Int = 0    
     @objc dynamic public var reactionDict: NSMutableDictionary?
+    
+	@NSManaged public var opsDeletingThisTweet: NSMutableSet?
+
     
 	public override func awakeFromFetch() {
 		super.awakeFromFetch()
@@ -118,9 +120,6 @@ import UIKit
 				op.reactionWord = reactionWord
 				op.sourcePost = thisPost
 				op.isAdd = newState
-				op.author = thisUser
-				op.readyToSend = true
-				op.originalPostTime = Date()
 			}
 			
 			do {
@@ -145,6 +144,44 @@ import UIKit
 						CoreDataLog.error("Couldn't save context.", ["error" : error])
 					}
 				}
+			}
+		}
+	}
+	
+	// Currently only works for deletes where the author is the current user--not for admin deletes.
+	func addDeleteTweetOp() {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context),
+					let thisPost = context.object(with: self.objectID) as? TwitarrPost else { return }
+			
+			// Until we add support for admin deletes
+			guard currentUser.username == thisPost.author.username else { 
+				CoreDataLog.debug("Kraken can't do admin deletes of twitarr posts.")
+				return
+			}
+			
+			// Check for existing op for this post
+			var existingOp: PostOpTweetDelete?
+			if let existingOps = thisPost.opsDeletingThisTweet {
+				for task in existingOps {
+					// Technically should always be true as we don't allow for admin deletes?
+					if let op = task as? PostOpTweetDelete, op.author.username == thisPost.author.username {
+						existingOp = op
+						return
+					}
+				}
+			}
+			if existingOp == nil {
+				existingOp = PostOpTweetDelete(context: context)
+				existingOp?.tweetToDelete = thisPost
+			}
+			
+			do {
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
 			}
 		}
 	}
@@ -411,8 +448,9 @@ class TwitarrDataManager: NSObject {
 		}
 	}
 	
-	// For new mainline posts and new posts that are replies. Not for edits of existing posts.
-	func queueNewPost(withText: String, image: Data?, inReplyTo: TwitarrPost? = nil) {
+	// For new mainline posts, new posts that are replies, and edits to existing posts
+	func queuePost(_ existingDraft: PostOpTweet?, withText: String, image: Data?, 
+			inReplyTo: TwitarrPost? = nil, done: @escaping (PostOpTweet?) -> Void) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
 			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
@@ -421,21 +459,25 @@ class TwitarrDataManager: NSObject {
 			if let parent = inReplyTo {
 				parentPost = context.object(with: parent.objectID) as? TwitarrPost
 			}
+			let draftInContext = existingDraft != nil ? context.object(with: existingDraft!.objectID) as? PostOpTweet :  nil
 			
-			let newPost = PostOpTweet(context: context)
-			newPost.text = withText
-			newPost.parent = parentPost
-			newPost.readyToSend = false
-			newPost.sentNetworkCall = false
-			newPost.originalPostTime = Date()
-			newPost.author = currentUser
-			newPost.image = image as NSData?
+			let postToQueue = draftInContext ?? PostOpTweet(context: context)
+			postToQueue.text = withText
+			postToQueue.parent = parentPost
+			postToQueue.readyToSend = false
+			postToQueue.sentNetworkCall = false
+			postToQueue.originalPostTime = Date()
+			postToQueue.author = currentUser
+			postToQueue.image = image as NSData?
 			
 			do {
 				try context.save()
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postToQueue.objectID) as? PostOpTweet 
+				done(mainThreadPost)
 			}
 			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
+				CoreDataLog.error("Couldn't save context while creating new Twitarr post.", ["error" : error])
+				done(nil)
 			}
 		}
 	}

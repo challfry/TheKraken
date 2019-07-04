@@ -11,14 +11,27 @@ import CoreData
 
 @objc class SeamailMessageCellModel: FetchedResultsCellModel {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "SeamailMessageCell" : SeamailMessageCell.self ] }
+
+	override func reuseID() -> String {
+		if let message = model as? SeamailMessage, message.author.username == CurrentUser.shared.loggedInUser?.username {
+    		return "SeamailSelfMessageCell"
+    	}
+    	else {
+    		return "SeamailMessageCell"
+    	}
+	}
 }
 
 class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
-	@IBOutlet weak var authorImage: UIImageView!
-	@IBOutlet weak var authorUsernameLabel: UILabel!
-	@IBOutlet weak var postTimeLabel: UILabel!
-	@IBOutlet weak var messageLabel: UILabel!
+	@IBOutlet var authorImage: UIImageView!
+	@IBOutlet var authorUsernameLabel: UILabel?
+	@IBOutlet var postTimeLabel: UILabel?
+	@IBOutlet var messageLabel: UILabel!
 		
+	private static let cellInfo = [ "SeamailMessageCell" : PrototypeCellInfo("SeamailMessageCell"),
+			"SeamailSelfMessageCell" : PrototypeCellInfo("SeamailSelfMessageCell") ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailMessageCell.cellInfo }
+
 	override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -31,12 +44,13 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 	    		messageLabel.text = message.text
 	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
 	    		let dateString = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
-				authorUsernameLabel.text = "\(message.author.username), \(dateString)"
-				postTimeLabel.text = dateString
+				authorUsernameLabel?.text = "\(message.author.username), \(dateString)"
+				postTimeLabel?.text = dateString
  
 				message.author.loadUserThumbnail()
 				message.author.tell(self, when:"thumbPhoto") { observer, observed in
 					observer.authorImage.image = observed.thumbPhoto
+					CollectionViewLog.debug("Setting user image for \(observed.username)", ["image" : observed.thumbPhoto])
 				}?.schedule()
 			}
     	}

@@ -14,7 +14,7 @@ import UIKit
 
 	@objc dynamic var allCellModels = NSMutableArray() // [BaseCellModel]()
 	var visibleCellModels = [BaseCellModel]()
-	@objc dynamic var oldVisibleCellModels: [BaseCellModel]?
+//	@objc dynamic var oldVisibleCellModels: [BaseCellModel]?
 
 	@objc dynamic var sectionVisible = false
 	var forceSectionVisible: Bool? {	// If this is nil, section is visible iff it has any visible cells. T/F overrides.
@@ -26,25 +26,27 @@ import UIKit
 		
 		// Watch for visibility OR height updates in cells; tell DS to go runupdates.
 		allCellModels.tell(self, when: ["*.shouldBeVisible", "*.cellHeight"]) { observer, observed in
-			let cells = observer.allCellModels as! [BaseCellModel]
-			let newVisibleCells = cells.compactMap() { model in model.shouldBeVisible ? model : nil }
-			if observer.oldVisibleCellModels == nil {
-				observer.oldVisibleCellModels = observer.visibleCellModels	
-			}
-			observer.visibleCellModels = newVisibleCells
-			
 			observer.updateVisibility()
 			observer.dataSource?.runUpdates()
 		}
 	}
 	
 	func updateVisibility() {
-		// Determine section visibility
+		// Determine section visibility. Force can set visibility on or off
 		if let forceVis = forceSectionVisible {
 			sectionVisible = forceVis
 		}
 		else {
-			sectionVisible = !visibleCellModels.isEmpty
+			// Otherwise, the section is visible iff it has a visible cell
+			var hasVisibleCells = false
+			let cells = allCellModels as! [BaseCellModel]
+			for cell in cells {	// In non-degenerate cases this will break really early, as most cells are visible
+				if cell.shouldBeVisible {
+					hasVisibleCells = true
+					break
+				}
+			}
+			sectionVisible = hasVisibleCells
 		}
 	}
 	
@@ -62,17 +64,21 @@ import UIKit
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let cellModel = visibleCellModels[indexPath.row]
 
+		var cellSize: CGSize
 		if cellModel.cellSize.height > 0 {
-			return cellModel.cellSize
+			cellSize = cellModel.cellSize
 		}
 		else if let protoCell = cellModel.makePrototypeCell(for: collectionView, indexPath: indexPath) {
-			let newSize = protoCell.calculateSize()
-			cellModel.cellSize = newSize
+			cellSize = protoCell.calculateSize()
+			cellModel.cellSize = cellSize
 			cellModel.unbind(cell: protoCell)
-   			return newSize
 		}
-
-		return CGSize(width:collectionView.bounds.size.width, height: 50)
+		else {
+			cellSize = CGSize(width:collectionView.bounds.size.width, height: 50)
+		}
+		
+//		CollectionViewLog.debug("sizeForItemAt", ["height" : cellSize.height, "path" : indexPath])
+		return cellSize
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -93,29 +99,31 @@ import UIKit
 	
 	// Only called by runUpdates, which is only in the top-level datasource
 	func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
+		let cells = allCellModels as! [BaseCellModel]
+		let newVisibleCells = cells.compactMap() { model in model.shouldBeVisible ? model : nil }
+		let oldModels = visibleCellModels	
+		visibleCellModels = newVisibleCells
+
 		var deletes = [IndexPath]()
 		var inserts = [IndexPath]()
-		if let oldModels = oldVisibleCellModels {
-			for cellIndex in 0 ..< oldModels.count {
-				if !visibleCellModels.contains(oldModels[cellIndex]) {
-					deletes.append(IndexPath(row: cellIndex, section: sectionOffset))
-				}
+		for cellIndex in 0 ..< oldModels.count {
+			if !visibleCellModels.contains(oldModels[cellIndex]) {
+				deletes.append(IndexPath(row: cellIndex, section: sectionOffset))
 			}
-			for cellIndex in 0 ..< visibleCellModels.count {
-				if !oldModels.contains(visibleCellModels[cellIndex]) {
-					inserts.append(IndexPath(row: cellIndex, section: sectionOffset))
-				}
-			}
-			if collectionView != nil {
-				CollectionViewLog.debug("Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
-			}
-			else {
-				CollectionViewLog.debug("THROWING AWAY Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
-			}
-			collectionView?.deleteItems(at: deletes)
-			collectionView?.insertItems(at: inserts)
-			oldVisibleCellModels = nil
 		}
+		for cellIndex in 0 ..< visibleCellModels.count {
+			if !oldModels.contains(visibleCellModels[cellIndex]) {
+				inserts.append(IndexPath(row: cellIndex, section: sectionOffset))
+			}
+		}
+//		if collectionView != nil {
+//			CollectionViewLog.debug("Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+//		}
+//		else {
+//			CollectionViewLog.debug("THROWING AWAY Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+//		}
+		collectionView?.deleteItems(at: deletes)
+		collectionView?.insertItems(at: inserts)
 	}
 }
 
@@ -150,16 +158,13 @@ import UIKit
 		guard !updateScheduled else { return }
 		updateScheduled = true
 		DispatchQueue.main.async {
-			
-			// Update visible sections, create locals for new and old visible sections for diffing
-			let allSections = self.allSections as! [KrakenDataSourceSectionProtocol]
-			let newVisibleSections = allSections.compactMap() { model in model.sectionVisible ? model : nil }
-			let oldVisibleSections = self.visibleSections as! [KrakenDataSourceSectionProtocol]
-			self.visibleSections = NSMutableArray(array: newVisibleSections)
+			self.updateScheduled = false
 			
 			// Are we currently the datasource for this collectionView?
 			guard let cv = self.collectionView, cv.dataSource === self else {
-				self.updateScheduled = false
+				let allSections = self.allSections as! [KrakenDataSourceSectionProtocol]
+				let newVisibleSections = allSections.compactMap() { model in model.sectionVisible ? model : nil }
+				self.visibleSections = NSMutableArray(array: newVisibleSections)
 				return
 			}
 		
@@ -171,13 +176,19 @@ import UIKit
 				if self.itemsToRunAfterBatchUpdates == nil {
 					self.itemsToRunAfterBatchUpdates = []
 				}
+
+				// Update visible sections, create locals for new and old visible sections for diffing
+				let allSections = self.allSections as! [KrakenDataSourceSectionProtocol]
+				let newVisibleSections = allSections.compactMap() { model in model.sectionVisible ? model : nil }
+				let oldVisibleSections = self.visibleSections as! [KrakenDataSourceSectionProtocol]
+				self.visibleSections = NSMutableArray(array: newVisibleSections)
+			
+				//
+//				CollectionViewLog.debug("Start of performBatchUpdates:", ["DS" : self, 
+//						"New Sections" : newVisibleSections.count, "Old Sections" : oldVisibleSections.count])
+				
 				var deletedSections = IndexSet()
 				var insertedSections = IndexSet()
-				
-				//
-				CollectionViewLog.debug("Start of performBatchUpdates:", ["DS" : self, 
-						"New Sections" : newVisibleSections.count, "Old Sections" : oldVisibleSections.count])
-				
 				for sectionIndex in 0 ..< oldVisibleSections.count {
 					if !newVisibleSections.contains(where: { $0 === oldVisibleSections[sectionIndex] }) {
 						deletedSections.insert(sectionIndex)
@@ -190,8 +201,8 @@ import UIKit
 				}
 				cv.deleteSections(deletedSections)
 				cv.insertSections(insertedSections)
-				CollectionViewLog.debug("SECTIONS: inserted \(insertedSections.count), deleted \(deletedSections.count)", 
-						["DS" : self])				
+//				CollectionViewLog.debug("SECTIONS: inserted \(insertedSections.count), deleted \(deletedSections.count)", 
+//						["DS" : self])				
 				
 				for sectionIndex in 0 ..< newVisibleSections.count {
 					let section = newVisibleSections[sectionIndex] 
@@ -210,12 +221,11 @@ import UIKit
 					self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
 				}
 			
-				CollectionViewLog.debug("End of batch", ["DS" : self])
+//				CollectionViewLog.debug("End of batch", ["DS" : self])
 			}, completion: { completed in
-				CollectionViewLog.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
+//				CollectionViewLog.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
 				self.itemsToRunAfterBatchUpdates?.forEach { $0() }
 				self.itemsToRunAfterBatchUpdates = nil
-				self.updateScheduled = false
 			})
 
 			if !self.enableAnimations {
@@ -240,6 +250,36 @@ import UIKit
 		return section
 	}
 	
+	// Inserts the given section into allSections at a position just before the visible section with the given index.
+	// That is, if the allSections section before the visible section at visibleIndex is hidden, insert happens between 
+	// those 2 sections.
+	@discardableResult func insertSection(_ section: KrakenDataSourceSectionProtocol, atVisibleIndex: Int) -> KrakenDataSourceSectionProtocol {
+		section.dataSource = self
+		if atVisibleIndex >= visibleSections.count {
+			appendSection(section: section)
+			return section
+		}
+		let object = visibleSections.object(at: atVisibleIndex)
+		let allSectionsIndex = allSections.indexOfObjectIdentical(to: object)
+		allSections.insert(section, at: allSectionsIndex)
+		return section
+	}
+	
+	// Inserts the given section into allSections at the given allSections index. Remember that this may not match 
+	// the visibleSections indexes!
+	@discardableResult func insertSection(_ section: KrakenDataSourceSectionProtocol, at index: Int) -> KrakenDataSourceSectionProtocol {
+		section.dataSource = self
+		allSections.insert(section, at: index)
+		return section
+	}
+	
+	// Returns deleted object; useful for implementing move as delete/inert
+	@discardableResult func deleteSection(at index: Int) -> KrakenDataSourceSectionProtocol? {
+		let result = allSections[index] as? KrakenDataSourceSectionProtocol
+		allSections.removeObject(at: index)
+		return result
+	}
+	
 	// Returns cell, for chaining
 	@discardableResult func appendCell<T: BaseCellModel>(_ cell: T, toSection name: String) -> T {
 		let sections = allSections as! [KrakenDataSourceSectionProtocol]
@@ -258,11 +298,22 @@ import UIKit
 		return nil
 	}
 	
+	// Returns the cell for a given cell model, iff the cell is currently built by the CV.
+	func cell(forModel: BaseCellModel) -> BaseCollectionViewCell? {
+		var resultCell: BaseCollectionViewCell?
+		collectionView?.visibleCells.forEach { cell in
+			if let baseCell = cell as? BaseCollectionViewCell, baseCell.cellModel === forModel {
+				resultCell = baseCell
+			}
+		}
+		return resultCell
+	}
+	
 }
 
 extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-		CollectionViewLog.debug("numberOfSections", ["count" : self.visibleSections.count, "DS" : self])
+//		CollectionViewLog.debug("numberOfSections", ["count" : self.visibleSections.count, "DS" : self])
     	return visibleSections.count
     }
 

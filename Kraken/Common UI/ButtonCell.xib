@@ -18,41 +18,53 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="46"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L03-WC-3TE">
-                        <rect key="frame" x="164.5" y="8" width="46" height="30"/>
+                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="M9q-On-aV2">
+                        <rect key="frame" x="124" y="8" width="127" height="30"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L03-WC-3TE" userLabel="Button1">
+                                <rect key="frame" x="0.0" y="0.0" width="52" height="44"/>
+                                <state key="normal" title="Button1"/>
+                                <connections>
+                                    <action selector="button1Tapped:" destination="jyN-Es-fX0" eventType="touchUpInside" id="BXq-0G-3yw"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tih-pw-cYP" userLabel="Button2">
+                                <rect key="frame" x="64" y="0.0" width="55" height="44"/>
+                                <state key="normal" title="Button2"/>
+                                <connections>
+                                    <action selector="button2Tapped:" destination="jyN-Es-fX0" eventType="touchUpInside" id="ZI3-sZ-Jpa"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <constraints>
-                            <constraint firstAttribute="height" constant="30" id="hP4-d1-Ben"/>
+                            <constraint firstAttribute="height" constant="44" id="TkC-DJ-pUY"/>
                         </constraints>
-                        <state key="normal" title="Button"/>
-                        <connections>
-                            <action selector="buttonTapped:" destination="jyN-Es-fX0" eventType="touchUpInside" id="v7d-EF-MOX"/>
-                        </connections>
-                    </button>
+                    </stackView>
                 </subviews>
             </view>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="L03-WC-3TE" secondAttribute="trailing" priority="500" constant="20" id="QnW-Qj-KzZ"/>
-                <constraint firstItem="L03-WC-3TE" firstAttribute="leading" secondItem="jyN-Es-fX0" secondAttribute="leading" priority="250" constant="20" id="Zux-PE-tqr"/>
-                <constraint firstItem="L03-WC-3TE" firstAttribute="centerX" secondItem="jyN-Es-fX0" secondAttribute="centerX" priority="750" id="gS7-Dt-bLz"/>
-                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="L03-WC-3TE" secondAttribute="trailing" constant="20" id="hOk-Zd-85S"/>
-                <constraint firstItem="L03-WC-3TE" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="jyN-Es-fX0" secondAttribute="leading" constant="20" id="iUd-K5-XYT"/>
-                <constraint firstAttribute="bottom" secondItem="L03-WC-3TE" secondAttribute="bottom" constant="8" id="xge-1O-due"/>
-                <constraint firstItem="L03-WC-3TE" firstAttribute="top" secondItem="jyN-Es-fX0" secondAttribute="top" constant="8" id="yLA-4d-M4V"/>
+                <constraint firstItem="M9q-On-aV2" firstAttribute="centerY" secondItem="jyN-Es-fX0" secondAttribute="centerY" id="897-ns-5fy"/>
+                <constraint firstItem="M9q-On-aV2" firstAttribute="top" relation="greaterThanOrEqual" secondItem="jyN-Es-fX0" secondAttribute="top" id="GQ6-7o-uYs"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="M9q-On-aV2" secondAttribute="bottom" id="PRl-rT-sn0"/>
+                <constraint firstItem="M9q-On-aV2" firstAttribute="centerX" secondItem="jyN-Es-fX0" secondAttribute="centerX" priority="800" id="PSR-xx-bfh"/>
+                <constraint firstItem="M9q-On-aV2" firstAttribute="leading" secondItem="jyN-Es-fX0" secondAttribute="leading" priority="700" constant="20" id="duW-49-6qH"/>
+                <constraint firstAttribute="trailing" secondItem="M9q-On-aV2" secondAttribute="trailing" priority="900" constant="20" id="h1T-RJ-exh"/>
             </constraints>
             <variation key="default">
                 <mask key="constraints">
-                    <exclude reference="QnW-Qj-KzZ"/>
-                    <exclude reference="Zux-PE-tqr"/>
-                    <exclude reference="gS7-Dt-bLz"/>
+                    <exclude reference="PSR-xx-bfh"/>
+                    <exclude reference="duW-49-6qH"/>
+                    <exclude reference="h1T-RJ-exh"/>
                 </mask>
             </variation>
             <connections>
-                <outlet property="button" destination="L03-WC-3TE" id="d0I-Cb-G1G"/>
-                <outlet property="centerXConstraint" destination="gS7-Dt-bLz" id="2BE-q5-A7R"/>
-                <outlet property="leftConstraint" destination="Zux-PE-tqr" id="vJd-aQ-YLu"/>
-                <outlet property="rightConstraint" destination="QnW-Qj-KzZ" id="6Ht-gg-v1M"/>
+                <outlet property="button1" destination="L03-WC-3TE" id="vNY-Ys-hyd"/>
+                <outlet property="button2" destination="tih-pw-cYP" id="aA5-H1-kyi"/>
+                <outlet property="centerXConstraint" destination="PSR-xx-bfh" id="R8R-0H-MSu"/>
+                <outlet property="leftConstraint" destination="duW-49-6qH" id="8Vd-FD-iip"/>
+                <outlet property="rightConstraint" destination="h1T-RJ-exh" id="fGk-xf-E6w"/>
             </connections>
-            <point key="canvasLocation" x="-94" y="63"/>
+            <point key="canvasLocation" x="-94.927536231884062" y="62.946428571428569"/>
         </collectionViewCell>
     </objects>
 </document>

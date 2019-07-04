@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class SettingsTasksViewController: BaseCollectionViewController, NSFetchedResultsControllerDelegate {
+class SettingsTasksViewController: BaseCollectionViewController  {
 	var controller: NSFetchedResultsController<PostOperation>?
 	let dataSource = FilteringDataSource()
 		
@@ -26,42 +26,148 @@ class SettingsTasksViewController: BaseCollectionViewController, NSFetchedResult
 		controller?.delegate = self
 		do {
 			try controller?.performFetch()
-			controllerDidChangeContent(controller as! NSFetchedResultsController<NSFetchRequestResult>)
+			
+			if let tasks = controller?.fetchedObjects {
+				var x = 0
+				for task in tasks {
+					x = x + 1
+					let newSection = makeNewSection(for: task, sectionIndex: x)
+					dataSource.appendSection(section: newSection)
+				}
+			}
 		} catch {
-			fatalError("Failed to fetch entities: \(error)")
+			CoreDataLog.error("Failed to fetch entities for PostOp tasks.", ["error" : error])
+		}
+	}	
+		
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    	switch segue.identifier {
+		case "EditTweet":
+			if let destVC = segue.destination as? ComposeTweetViewController, let tweet = sender as? PostOpTweet {
+				destVC.draftTweet = tweet
+			}
+		default: break 
 		}
 	}
+}
+
+// SettingsTasks maps a simple array of tasks from the FRC to an array of sections in the CollectionView.
+// Each item in the FRC array is a section (usually with 3 cells in it) in the CV.
+extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
+
+	func makeNewSection(for task: PostOperation, sectionIndex: Int) -> KrakenDataSourceSectionProtocol {
+		let taskSection = FilteringDataSourceSection()
+		taskSection.sectionName = "\(sectionIndex)"
+		
+		if let reactionTask = task as? PostOpTweetReaction {
+			if reactionTask.isAdd {
+				taskSection.append(SettingsInfoCellModel("\(sectionIndex):  Add a \"Like\" reaction to this tweet:"))
+			}
+			else {
+				taskSection.append(SettingsInfoCellModel("\(sectionIndex):  Cancel the \"Like\" on this tweet:"))
+			}
+			
+			let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost, reuse: "tweet")
+			model.isInteractive = false
+			taskSection.append(model)
+			taskSection.append(TaskEditButtonsCellModel(forTask: reactionTask, vc: self))
+		}
+		else if let postTask = task as? PostOpTweet {
+			let cellModel = TwitarrTweetCellModel(withModel: postTask, reuse: "tweet")
+			cellModel.isInteractive = false
+			taskSection.append(SettingsInfoCellModel("\(sectionIndex): Post a new Twitarr tweet:"))
+			taskSection.append(cellModel)
+			taskSection.append(TaskEditButtonsCellModel(forTask: postTask, vc: self))
+		}
+		else if let deleteTask = task as? PostOpTweetDelete {
+			let cellModel = TwitarrTweetCellModel(withModel: deleteTask.tweetToDelete, reuse: "tweet")
+			cellModel.isInteractive = false
+			taskSection.append(SettingsInfoCellModel("\(sectionIndex): Delete this Twitarr tweet of yours:"))
+			taskSection.append(cellModel)
+			taskSection.append(TaskEditButtonsCellModel(forTask: deleteTask, vc: self))
+		}
+		
+		return taskSection
+	}
+
+	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+	}
 	
+//	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, 
+//			didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+//		switch type {
+//		case .insert:
+//			insertSections.insert(sectionIndex)
+//		case .delete:
+//			deleteSections.insert(sectionIndex)
+//		default:
+//			fatalError()
+//		}
+//	}
 	
-	
+	// Repeating comment from above: ROWS in the FRC map to SECTIONS in the CollectionView.
+	// The FRC has 1 section, and if it has 12 objects, then the CV has 12 sections.
+	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
+			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+
+		switch type {
+		case .insert:
+			guard let newIndexPath = newIndexPath, let task = anObject as? PostOperation else { return }
+			let newSection = makeNewSection(for: task, sectionIndex: newIndexPath.row)
+			dataSource.insertSection(newSection, at: newIndexPath.row)
+		case .delete:
+			guard let indexPath = indexPath else { return }
+			dataSource.deleteSection(at: indexPath.row)
+		case .move:
+			guard let indexPath = indexPath,  let newIndexPath = newIndexPath else { return }
+			if let section = dataSource.deleteSection(at: indexPath.row) {
+				dataSource.insertSection(section, at: newIndexPath.row)
+			}
+		case .update: break;
+//			guard let indexPath = indexPath else { return }
+//			reloadCells.append(indexPath)
+		@unknown default:
+			fatalError()
+		}
+	}
+
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
 		if let tasks = controller.fetchedObjects {
 			var x = 0
 			for task in tasks {
 				x = x + 1
-				let taskSection = dataSource.appendSection(named: "\(x)")
-				
-				if let reactionTask = task as? PostOpTweetReaction {
-					if reactionTask.isAdd {
-						taskSection.append(SettingsInfoCellModel("\(x):  Add a \"Like\" reaction to this tweet:"))
-					}
-					else {
-						taskSection.append(SettingsInfoCellModel("\(x):  Cancel the \"Like\" on this tweet:"))
-					}
-					
-					let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost, reuse: "tweet")
-					model.isInteractive = false
-					taskSection.append(model)
-				}
-				else if let postTask = task as? PostOpTweet {
-					let cellModel = TwitarrTweetCellModel(withModel: postTask, reuse: "tweet")
-					cellModel.isInteractive = false
-					taskSection.append(SettingsInfoCellModel("\(x): Post a new Twitarr tweet:"))
-					taskSection.append(cellModel)
-				}
-				
 			}		
 		} 
 	}
+}
 
+// Cancel Action, Edit
+class TaskEditButtonsCellModel: ButtonCellModel {
+	var task: PostOperation?
+	weak var viewController: BaseCollectionViewController?
+	
+	init(forTask: PostOperation, vc: BaseCollectionViewController) {
+		task = forTask
+		viewController = vc
+		super.init(alignment: .right)
+		
+		if task is PostOpTweetReaction || task is PostOpTweetDelete {
+		}
+		else {
+			setupButton(1, title: "Edit", action: editTaskHit)
+		}
+		setupButton(2, title: "Cancel", action: cancelTaskHit)
+	}
+	
+	func editTaskHit() {
+		if task is PostOpTweet {
+			viewController?.performSegue(withIdentifier: "EditTweet", sender: task)
+		}
+	}
+	
+	func cancelTaskHit() {
+		if let task = task {
+			PostOperationDataManager.shared.remove(op: task)
+		}
+	}
 }
