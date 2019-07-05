@@ -73,6 +73,15 @@
 #pragma mark Keypath Management
 
 /****************************************************************************************************
+	isTerminalIndex
+	
+*/
+- (BOOL) isTerminalIndex
+{
+	return _keyPathIndex == _keyPath.count - 1;
+}
+
+/****************************************************************************************************
 	ebn_removeObservation
 	
 	Tells the object at the root of the observation keypath to stop the observation, cleaning
@@ -145,6 +154,8 @@
 - (BOOL) ebn_updateKeypathAtIndex:(NSInteger) index from:(id) fromObj to:(id) toObj
 {
 	BOOL result = NO;
+	if (index >= _keyPath.count) 
+		return result;
 
 	// Get the property name we'll be updating
 	NSString *propName = _keyPath[index];

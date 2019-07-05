@@ -11,6 +11,7 @@
 #import <objc/message.h>
 #import <UIKit/UIGeometry.h>
 #import <CoreGraphics/CGGeometry.h>
+#import <CoreData/CoreData.h>
 
 #import "EBNObservableInternal.h"
 
@@ -392,38 +393,6 @@ NSObject						*EBN_InvalidPropertyKey;
 #pragma mark Somewhat Protected
 
 /****************************************************************************************************
-	ebn_manuallyTriggerObserversForPath:previousValue:
-	
-	Triggers observers, lazyloading evaluation, keypath updating, and other upkeep on the property at the
-	END of the path	as if that property's setter had been called.
-	
-	If any value in the keyPath besides the last is nil, does nothing.
-	
-	Functionally, this method walks the values in the keypath to get to the terminal property, and then
-	calls manuallyTriggerObserversForProperty: on that property.
-*/
-- (void) ebn_manuallyTriggerObserversForPath:(NSString *) keyPath previousValue:(id) prevValue
-{
-	NSArray *keyPathArray = [keyPath componentsSeparatedByString:@"."];
-	NSObject<EBNObservable_Custom_Selectors> *object = (NSObject<EBNObservable_Custom_Selectors> *) self;
-	
-	if (keyPathArray.count == 0)
-	{
-		return;
-	}
-	else if (keyPathArray.count > 1)
-	{
-		for (int index = 0; index < keyPathArray.count - 1; ++index)
-		{
-			object = [object ebn_valueForKey:keyPathArray[index]];
-			if (!object)
-				return;
-		}
-	}
-	[object ebn_manuallyTriggerObserversForProperty:[keyPathArray lastObject] previousValue:prevValue];
-}
-
-/****************************************************************************************************
 	ebn_manuallyTriggerObserversForProperty:previousValue:
 	
 	Triggers observers, lazyloading evaluation, keypath updating, and other upkeep on the given property,
@@ -434,12 +403,19 @@ NSObject						*EBN_InvalidPropertyKey;
 	property in order to check to see whether the value changed.
 	
 	Therefore, you should only call this method when you're reasonably sure the value changed, but actually
-	testing against the new value isn't necessary.
+	testing against the new value isn't necessary. You can use forceUpdate when you really don't know
+	whether the value changed (as can happen after a CoreData fault, for example).
 	
 	For external callers, this method is useful if a observed object needs to use direct ivar access yet 
 	still wants to trigger observers.
 */
-- (void) ebn_manuallyTriggerObserversForProperty:(NSString *) propertyName previousValue:(id) prevValue
+- (void) ebn_manuallyTriggerObserversForProperty:(NSString *) propertyName previousValue:(id) prevValue 
+{
+	[self ebn_manuallyTriggerObserversForProperty:propertyName previousValue:prevValue forceUpdate:NO];
+}
+
+- (void) ebn_manuallyTriggerObserversForProperty:(NSString *) propertyName previousValue:(id) prevValue 
+		forceUpdate:(BOOL) forceUpdate
 {
 	NSMutableArray *observers = nil;
 	NSMutableDictionary *observedKeysDict = [self ebn_observedKeysDict:NO];
@@ -494,43 +470,11 @@ NSObject						*EBN_InvalidPropertyKey;
 	// No need to do anything if the values are the same. Note when debugging: For properties that
 	// box into a NSInteger or NSValue, this won't get hit because the pointers don't match. That's by design.
 	// This catches object-type properties that didn't change.
-	if (newValue == prevValue)
+	if (!forceUpdate && newValue == prevValue)
 		return;
 	
 	[self ebn_manuallyTriggerObserversForProperty:propertyName previousValue:prevValue newValue:newValue
-			copiedObserverTable:observers];
-}
-
-/****************************************************************************************************
-	ebn_manuallyTriggerObserversForPath:previousValue:newValue:
-	
-	Triggers observers, lazyloading evaluation, keypath updating, and other upkeep on the property at the
-	END of the path	as if that property's setter had been called.
-	
-	If any value in the keyPath besides the last is nil, does nothing.
-	
-	Functionally, this method walks the values in the keypath to get to the terminal property, and then
-	calls manuallyTriggerObserversForProperty: on that property.
-*/
-- (void) ebn_manuallyTriggerObserversForPath:(NSString *) keyPath previousValue:(id) prevValue newValue:(id) newValue
-{
-	NSArray *keyPathArray = [keyPath componentsSeparatedByString:@"."];
-	NSObject<EBNObservable_Custom_Selectors> *object = (NSObject<EBNObservable_Custom_Selectors> *) self;
-	
-	if (keyPathArray.count == 0)
-	{
-		return;
-	}
-	else if (keyPathArray.count > 1)
-	{
-		for (int index = 0; index < keyPathArray.count - 1; ++index)
-		{
-			object = [object ebn_valueForKey:keyPathArray[index]];
-			if (!object)
-				return;
-		}
-	}
-	[object ebn_manuallyTriggerObserversForProperty:[keyPathArray lastObject] previousValue:prevValue newValue:newValue];
+			copiedObserverTable:observers forceUpdate:(BOOL) forceUpdate];
 }
 
 /****************************************************************************************************
@@ -551,6 +495,12 @@ NSObject						*EBN_InvalidPropertyKey;
 */
 - (void) ebn_manuallyTriggerObserversForProperty:(NSString *) propertyName previousValue:(id) prevValue
 		newValue:(id) newValue
+{
+	[self ebn_manuallyTriggerObserversForProperty:propertyName previousValue:prevValue newValue: newValue forceUpdate:NO];
+}
+
+- (void) ebn_manuallyTriggerObserversForProperty:(NSString *) propertyName previousValue:(id) prevValue
+		newValue:(id) newValue forceUpdate:(BOOL) forceUpdate
 {
 	// Don't test for 'isEqual' here--keypaths need to be updated whenever the pointers are different
 	if (newValue != prevValue || [propertyName isEqualToString:@"*"])
@@ -594,7 +544,7 @@ NSObject						*EBN_InvalidPropertyKey;
 		}
 		
 		[self ebn_manuallyTriggerObserversForProperty:propertyName previousValue:prevValue newValue:newValue
-				copiedObserverTable:observers];
+				copiedObserverTable:observers forceUpdate: forceUpdate];
 	}
 }
 
@@ -608,7 +558,7 @@ NSObject						*EBN_InvalidPropertyKey;
 	This method is private; don't call it directly.
 */
 - (void) ebn_manuallyTriggerObserversForProperty:(NSString *)propertyName previousValue:(id)prevValue
-		newValue:(id)newValue copiedObserverTable:(NSMutableArray *) observers
+		newValue:(id)newValue copiedObserverTable:(NSMutableArray *) observers forceUpdate:(BOOL) forceUpdate
 {	
 	BOOL reapBlocksAfter = NO;
 
@@ -618,7 +568,7 @@ NSObject						*EBN_InvalidPropertyKey;
 	{
 		// Update the keypath to go through the new object; this also tells us if any endpoint of the keypath
 		// changed value
-		if ([entry ebn_updateNextKeypathEntryFrom:prevValue to:newValue])
+		if ([entry ebn_updateNextKeypathEntryFrom:prevValue to:newValue] || forceUpdate)
 		{
 			EBNObservation *blockInfo = entry->_blockInfo;
 			
@@ -1705,6 +1655,115 @@ NSObject						*EBN_InvalidPropertyKey;
 	[debugStr appendFormat:@"\n"];
 	
 	return debugStr;
+}
+
+@end
+
+
+@implementation NSManagedObject (EBNObservable)
+
+/****************************************************************************************************
+	ebn_handleCoreDataFault
+	
+	When Core Data turns an object into a fault, it sets the values of every managed property to nil.
+	However, the property values didn't *change*, you just can't seem them right now, meaning we don't
+	call observers when this happens. Observable has to take any keypaths that go through this object 
+	and nil out the rest of the keypath.
+	
+	Of course, if/when the object eventually un-faults, we won't be able to know whether the new values
+	are the same or different. So, handleAwakeFromFetch will call all the observers.
+	
+	Intended to be called in response to willTurnIntoFault.
+*/
+- (void) ebn_handleCoreDataFault
+{
+	NSMutableDictionary *observedKeysDict = [self ebn_observedKeysDict:NO];
+	if (observedKeysDict)
+	{
+		NSSet *managedProperties = [NSSet setWithArray:self.entity.propertiesByName.allKeys];
+		NSMutableDictionary *observedManagedProperties = [[NSMutableDictionary alloc] init];
+		NSMutableArray *splatObservers = nil;
+
+		@synchronized(observedKeysDict)
+		{
+			splatObservers = [observedKeysDict[@"*"] copy];
+			
+			// Get the intersection of (properties we're observing) x (CoreData managed properties)
+			for (NSString *propertyName in observedKeysDict) 
+			{
+				if ([propertyName isEqualToString: @"*"])
+					continue;
+				if (![managedProperties containsObject:propertyName])
+					continue;
+			
+				observedManagedProperties[propertyName] = [observedKeysDict[propertyName] copy];
+			}
+		}
+		
+		// And then remove all the 'downstream' keypath parts.
+		for (NSString *propertyName in managedProperties) 
+		{
+			id fromObj = nil;
+			
+			// SplatOverservers observe every property. For faults, only the managed properties will become nil.
+			for (EBNKeypathEntryInfo *entry in splatObservers)
+			{
+				if (entry.isTerminalIndex)
+					continue;
+						
+				// Lazily get the current value of the property (the pre-fault value, that is). If it's
+				// already nil, nothing to do.
+				if (!fromObj)
+				{
+					id fromObj = [self ebn_valueForKey: propertyName];
+					if (fromObj == nil) 
+						break;
+				}
+				[entry ebn_updateKeypathAtIndex:entry->_keyPathIndex + 1 from:fromObj to:nil];				
+			}
+
+			// ObservedManagedProperties may not have an entry for this property; that's okay.
+			for (EBNKeypathEntryInfo *entry in observedManagedProperties[propertyName])
+			{
+				if (entry.isTerminalIndex)
+					continue;
+					
+				// Lazily get the current value of the property (the pre-fault value, that is). If it's
+				// already nil, nothing to do.
+				if (!fromObj)
+				{
+					id fromObj = [self ebn_valueForKey: propertyName];
+					if (fromObj == nil) 
+						break;
+				}
+				[entry ebn_updateKeypathAtIndex:entry->_keyPathIndex + 1 from:fromObj to:nil];
+			}
+		}
+	}
+}
+
+/****************************************************************************************************
+	ebn_handleAwakeFromFetch
+	
+*/
+- (void) ebn_handleAwakeFromFetch
+{
+	NSMutableDictionary *observedKeysDict = [self ebn_observedKeysDict:NO];
+	if (observedKeysDict)
+	{
+		NSMutableSet *observedManagedProperties = [NSMutableSet setWithArray:self.entity.propertiesByName.allKeys];
+		@synchronized(observedKeysDict)
+		{
+			[observedManagedProperties intersectSet:[NSSet setWithArray: observedKeysDict.allKeys]];
+		}
+		
+		// Updates all the keypaths downstream of this object, and calls observers.
+		for (NSString *propertyName in observedManagedProperties) 
+		{
+			[self ebn_manuallyTriggerObserversForProperty:propertyName previousValue: nil forceUpdate: true];
+		}
+	}
+
 }
 
 @end

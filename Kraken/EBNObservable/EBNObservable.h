@@ -10,6 +10,7 @@
 #import <objc/runtime.h>
 #import "EBNObservation.h"
 #import "NSSet+EBNObservable.h"
+#import <CoreData/CoreData.h>
 
 /**
 	This macro makes it easier to make self the observer of the given keypath rooted at the given
@@ -329,27 +330,6 @@
  */
 - (NSUInteger) numberOfObservers:(nonnull NSString *) propertyName;
 
-
-/**
-	Triggers observers, lazyloading evaluation, keypath updating, and other upkeep on the property at the
-	END of the path	as if that property's setter had been called.
-	
-	If any value in the keyPath besides the last is nil, does nothing.
-*/
-- (void) ebn_manuallyTriggerObserversForPath:(nonnull NSString *) keyPath previousValue:(nullable id) prevValue;
-
-/**
-	Triggers observers, lazyloading evaluation, keypath updating, and other upkeep on the property at the
-	END of the path	as if that property's setter had been called.
-	
-	If any value in the keyPath besides the last is nil, does nothing.
-	
-	Functionally, this method walks the values in the keypath to get to the terminal property, and then
-	calls manuallyTriggerObserversForProperty: on that property.
-*/
-- (void) ebn_manuallyTriggerObserversForPath:(nonnull NSString *) keyPath previousValue:(nullable id) prevValue
-		newValue:(nullable id) newValue;
-
 /**
 	For manually triggering observers. EBNObervable subclasses can use this if they
 	have to set property ivars directly, but still want observers to get called.
@@ -368,6 +348,8 @@
 	@param prevValue    The value the property had before the change.
  */
 - (void) ebn_manuallyTriggerObserversForProperty:(nonnull NSString *) propertyName previousValue:(nullable id) prevValue;
+- (void) ebn_manuallyTriggerObserversForProperty:(nonnull NSString *) propertyName previousValue:(nullable id) prevValue
+		forceUpdate:(BOOL) forceUpdate;
 
 /**
 	For manually triggering observers. EBNObervable subclasses can use this if they
@@ -388,6 +370,8 @@
  */
 - (void) ebn_manuallyTriggerObserversForProperty:(nonnull NSString *) propertyName previousValue:(nullable id) prevValue
 		newValue:(nullable id) newValue;
+- (void) ebn_manuallyTriggerObserversForProperty:(nonnull NSString *) propertyName previousValue:(nullable id) prevValue
+		newValue:(nullable id) newValue forceUpdate:(BOOL) forceUpdate;
 
 /**
 	Attempts to get the actual base class for a given class, before runtime subclassing. This is a bug workaround
@@ -462,6 +446,12 @@
 */
 - (nonnull NSString *) debugBreakOnChange:(nonnull NSString *) keyPath line:(int) lineNum file:(nullable const char *) filePath
 		func:(nullable const char *) func;
+
+@end
+
+@interface NSManagedObject (EBNObservable)
+- (void) ebn_handleCoreDataFault;
+- (void) ebn_handleAwakeFromFetch;
 
 @end
 

@@ -26,6 +26,17 @@ extension TestAndSettable where Self : KrakenManagedObject {
 
 // A base class for our Core Data Managed Objects; contains utility functions
 @objc(KrakenManagedObject) public class KrakenManagedObject: NSManagedObject, TestAndSettable {
+
+	@objc dynamic override public func willTurnIntoFault() {
+		super.willTurnIntoFault()
+		ebn_handleCoreDataFault()
+	}
+	
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		ebn_handleAwakeFromFetch()
+	}
+
 }
 
 class LocalCoreData: NSObject {

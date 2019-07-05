@@ -101,6 +101,12 @@ extern NSMutableArray			*EBN_ObservedObjectKeepAlive;
 }
 
 /**
+	TRUE if this is the last entry in the keypath. The property indicated by this entry could be of any type;
+	every previous entry must be an object.
+*/
+- (BOOL) isTerminalIndex;
+
+/**
 	This is used as we're traversing the objects in a keypath to update the keypath's conents. The
 	KeyPathEntryInfo object for item N in the keypath determines the previous and current values for
 	the next property in the keypath, and calls this method so that item N + 1 in the keypath can remove

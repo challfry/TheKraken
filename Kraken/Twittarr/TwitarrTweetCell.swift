@@ -209,7 +209,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				observer.postImage.isHidden = true
 				observer.cellSizeChanged()
 			}
-		}?.execute()?.debugBreakOnChange())
+		}?.execute())
 				
 		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)

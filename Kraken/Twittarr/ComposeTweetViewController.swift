@@ -61,7 +61,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
 		var writingPrompt = "What do you want to say?"
 		if editTweet != nil || draftTweet != nil {
-			writingPrompt = "What do you want to say insteead?"
+			writingPrompt = "What do you want to say instead?"
 		}
 		else if parentTweet != nil {
 			writingPrompt = "What do you want to say?"
