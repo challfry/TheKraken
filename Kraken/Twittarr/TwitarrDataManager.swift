@@ -25,12 +25,14 @@ import UIKit
     @NSManaged public var children: Set<TwitarrPost>?
     @NSManaged public var photoDetails: PhotoDetails?
     
+    	// Kraken relationships to other data
+    @NSManaged public var opsWithThisParent: Set<PostOpTweet>?
+    @NSManaged public var opsDeletingThisTweet: NSMutableSet?	// Still needs to be to-many. Sigh.
+    @NSManaged public var opsEditingThisTweet: PostOpTweet?		// I *think* this one can be to-one?
+    
     @NSManaged public var reactionOps: NSMutableSet?
     @objc dynamic public var reactionOpsCount: Int = 0    
     @objc dynamic public var reactionDict: NSMutableDictionary?
-    
-	@NSManaged public var opsDeletingThisTweet: NSMutableSet?
-
     
 	public override func awakeFromFetch() {
 		super.awakeFromFetch()
@@ -450,7 +452,7 @@ class TwitarrDataManager: NSObject {
 	
 	// For new mainline posts, new posts that are replies, and edits to existing posts
 	func queuePost(_ existingDraft: PostOpTweet?, withText: String, image: Data?, 
-			inReplyTo: TwitarrPost? = nil, done: @escaping (PostOpTweet?) -> Void) {
+			inReplyTo: TwitarrPost? = nil, editing: TwitarrPost? = nil, done: @escaping (PostOpTweet?) -> Void) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
 			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
@@ -459,11 +461,16 @@ class TwitarrDataManager: NSObject {
 			if let parent = inReplyTo {
 				parentPost = context.object(with: parent.objectID) as? TwitarrPost
 			}
+			var editPost: TwitarrPost? = nil
+			if let edit = editing {
+				editPost = context.object(with: edit.objectID) as? TwitarrPost
+			}
 			let draftInContext = existingDraft != nil ? context.object(with: existingDraft!.objectID) as? PostOpTweet :  nil
 			
 			let postToQueue = draftInContext ?? PostOpTweet(context: context)
 			postToQueue.text = withText
 			postToQueue.parent = parentPost
+			postToQueue.tweetToEdit = editPost
 			postToQueue.readyToSend = false
 			postToQueue.sentNetworkCall = false
 			postToQueue.originalPostTime = Date()

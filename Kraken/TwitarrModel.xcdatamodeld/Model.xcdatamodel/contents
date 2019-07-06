@@ -121,7 +121,7 @@
         <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="parent" inverseEntity="TwitarrPost" syncable="YES"/>
         <relationship name="opsDeletingThisTweet" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweetDelete" inverseName="tweetToDelete" inverseEntity="PostOpTweetDelete" syncable="YES"/>
         <relationship name="opsEditingThisTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="tweetToEdit" inverseEntity="PostOpTweet" syncable="YES"/>
-        <relationship name="opsWithThisParent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="parent" inverseEntity="PostOpTweet" syncable="YES"/>
+        <relationship name="opsWithThisParent" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="parent" inverseEntity="PostOpTweet" syncable="YES"/>
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="children" inverseEntity="TwitarrPost" syncable="YES"/>
         <relationship name="photoDetails" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoDetails" inverseName="postsWithThisPhoto" inverseEntity="PhotoDetails" syncable="YES"/>
         <relationship name="reactionOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweetReaction" inverseName="sourcePost" inverseEntity="PostOpTweetReaction" syncable="YES"/>
@@ -146,12 +146,12 @@
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="120"/>
         <element name="PostOpTweet" positionX="126" positionY="117" width="128" height="105"/>
+        <element name="PostOpTweetDelete" positionX="117" positionY="117" width="128" height="60"/>
         <element name="PostOpTweetReaction" positionX="126" positionY="126" width="128" height="90"/>
         <element name="Reaction" positionX="117" positionY="117" width="128" height="105"/>
         <element name="SeamailMessage" positionX="144" positionY="135" width="128" height="135"/>
         <element name="SeamailThread" positionX="153" positionY="153" width="128" height="135"/>
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
-        <element name="PostOpTweetDelete" positionX="117" positionY="117" width="128" height="60"/>
     </elements>
 </model>

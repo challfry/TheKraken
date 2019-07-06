@@ -152,6 +152,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 }
 
 @objc protocol SettingsInfoCellProtocol {
+	dynamic var taskIndex: Int { get set }
 	dynamic var titleText: String? { get set }
 	dynamic var labelText: NSAttributedString? { get set }
 	dynamic var showActivitySpinner: Bool { get set }
@@ -162,13 +163,15 @@ class SettingsRootViewController: BaseCollectionViewController {
 	private static let validReuseIDs = [ "SettingsInfoCell" : SettingsInfoCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
+	@objc dynamic var taskIndex: Int = 0
 	@objc dynamic var titleText: String?
 	@objc dynamic var labelText: NSAttributedString?
 	@objc dynamic var showActivitySpinner: Bool = false
 	@objc dynamic var activityText: String?
 
-	init(_ titleLabel: String) {
+	init(_ titleLabel: String, taskIndex: Int = 0) {
 		titleText = titleLabel
+		self.taskIndex = taskIndex
 		super.init(bindingWith: SettingsInfoCellProtocol.self)
 	}
 }
@@ -182,8 +185,16 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	private static let cellInfo = [ "SettingsInfoCell" : PrototypeCellInfo("SettingsInfoCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
+	var taskIndex: Int = 0 {
+		didSet { buildTitle() }
+	}
+
 	var titleText: String? {
-		didSet { titleLabel.text = titleText }
+		didSet { buildTitle() }
+	}
+	
+	func buildTitle() {
+		titleLabel.text = (taskIndex > 0 ? "\(taskIndex): " : "") + (titleText ?? "")
 	}
 	
 	var labelText: NSAttributedString? {

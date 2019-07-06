@@ -40,6 +40,10 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		}
 	}	
 		
+    override func viewWillAppear(_ animated: Bool) {
+		dataSource.enableAnimations = true
+	}
+	
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     	switch segue.identifier {
 		case "EditTweet":
@@ -61,10 +65,10 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 		
 		if let reactionTask = task as? PostOpTweetReaction {
 			if reactionTask.isAdd {
-				taskSection.append(SettingsInfoCellModel("\(sectionIndex):  Add a \"Like\" reaction to this tweet:"))
+				taskSection.append(SettingsInfoCellModel("Add a \"Like\" reaction to this tweet:", taskIndex: sectionIndex))
 			}
 			else {
-				taskSection.append(SettingsInfoCellModel("\(sectionIndex):  Cancel the \"Like\" on this tweet:"))
+				taskSection.append(SettingsInfoCellModel("Cancel the \"Like\" on this tweet:", taskIndex: sectionIndex))
 			}
 			
 			let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost, reuse: "tweet")
@@ -75,14 +79,23 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 		else if let postTask = task as? PostOpTweet {
 			let cellModel = TwitarrTweetCellModel(withModel: postTask, reuse: "tweet")
 			cellModel.isInteractive = false
-			taskSection.append(SettingsInfoCellModel("\(sectionIndex): Post a new Twitarr tweet:"))
+			if postTask.tweetToEdit != nil {
+				taskSection.append(SettingsInfoCellModel("Post an edit to your tweet:", taskIndex: sectionIndex))
+			}
+			else if let parentTweet = postTask.parent {
+				let parentUsername = parentTweet.author.username
+				taskSection.append(SettingsInfoCellModel("Post a reply to a tweet by @\(parentUsername):", taskIndex: sectionIndex))
+			}
+			else {
+				taskSection.append(SettingsInfoCellModel("Post a new Twitarr tweet:", taskIndex: sectionIndex))
+			}
 			taskSection.append(cellModel)
 			taskSection.append(TaskEditButtonsCellModel(forTask: postTask, vc: self))
 		}
 		else if let deleteTask = task as? PostOpTweetDelete {
 			let cellModel = TwitarrTweetCellModel(withModel: deleteTask.tweetToDelete, reuse: "tweet")
 			cellModel.isInteractive = false
-			taskSection.append(SettingsInfoCellModel("\(sectionIndex): Delete this Twitarr tweet of yours:"))
+			taskSection.append(SettingsInfoCellModel("Delete this Twitarr tweet of yours:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
 			taskSection.append(TaskEditButtonsCellModel(forTask: deleteTask, vc: self))
 		}
@@ -132,12 +145,19 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 	}
 
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		if let tasks = controller.fetchedObjects {
-			var x = 0
-			for task in tasks {
-				x = x + 1
-			}		
-		} 
+		dataSource.runUpdates(sectionOffset: 0)
+
+		var x = 0
+		for section in dataSource.allSections {
+			x = x + 1
+			if let filteringSection = section as? FilteringDataSourceSection {
+				for model in filteringSection.allCellModels {
+					if let cellModel = model as? SettingsInfoCellModel {
+						cellModel.taskIndex = x
+					}
+				}
+			}
+		}		
 	}
 }
 

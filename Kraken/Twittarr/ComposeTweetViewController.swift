@@ -157,7 +157,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 						options: options) { image, dataUTI, orientation, info in
 					if let image = image {
 	    				TwitarrDataManager.shared.queuePost(self.draftTweet, withText: tweetText, image: image, 
-	    						inReplyTo: self.parentTweet, done: self.postEnqueued)
+	    						inReplyTo: self.parentTweet, editing: self.editTweet, done: self.postEnqueued)
 					}
 					else {
 						var text = "Couldn't post: failed to get photo to attach to post."
@@ -178,7 +178,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
     				image = draftTweet?.image as Data?
     			}
 	    		TwitarrDataManager.shared.queuePost(draftTweet, withText: tweetText, image: image, 
-	    				inReplyTo: parentTweet, done: postEnqueued)
+	    				inReplyTo: parentTweet, editing: self.editTweet, done: postEnqueued)
 			}
 		}
     }
