@@ -12,10 +12,10 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="tweet" id="jfs-vB-cbw" customClass="TwitarrTweetCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="404"/>
+            <rect key="frame" x="0.0" y="0.0" width="375" height="545"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="404"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="545"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VUr-DA-Pmu" userLabel="User Avatar">
@@ -30,18 +30,18 @@
                         </connections>
                     </button>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="yR2-EL-Eir">
-                        <rect key="frame" x="58" y="2" width="315" height="412"/>
+                        <rect key="frame" x="58" y="2" width="315" height="541"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1wj-CQ-Zuk">
-                                <rect key="frame" x="0.0" y="0.0" width="315" height="33"/>
+                                <rect key="frame" x="0.0" y="0.0" width="315" height="67"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="User Name" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="O8q-zM-KLF" userLabel="Author Label">
-                                        <rect key="frame" x="0.0" y="0.0" width="86" height="33"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="86" height="67"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3 💛" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3II-e7-kC3" userLabel="Likes Label">
-                                        <rect key="frame" x="282.5" y="8" width="32.5" height="25"/>
+                                        <rect key="frame" x="282.5" y="8" width="32.5" height="59"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -57,190 +57,211 @@
                                     <constraint firstItem="3II-e7-kC3" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="O8q-zM-KLF" secondAttribute="trailing" constant="10" id="zOa-5v-9Ex"/>
                                 </constraints>
                             </view>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="250" insetsLayoutMarginsFromSafeArea="NO" scrollEnabled="NO" editable="NO" text="Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ZqV-9f-4d4">
-                                <rect key="frame" x="0.0" y="33" width="315" height="0.0"/>
+                            <textView multipleTouchEnabled="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="250" insetsLayoutMarginsFromSafeArea="NO" scrollEnabled="NO" editable="NO" text="Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ZqV-9f-4d4">
+                                <rect key="frame" x="0.0" y="67" width="315" height="33"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="Imp-rw-T1I"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <connections>
                                     <outlet property="delegate" destination="jfs-vB-cbw" id="ym4-nX-5eH"/>
                                 </connections>
                             </textView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WqQ-lV-DUd">
-                                <rect key="frame" x="0.0" y="33" width="315" height="200"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WqQ-lV-DUd">
+                                <rect key="frame" x="0.0" y="100" width="315" height="200"/>
                                 <color key="backgroundColor" red="0.72533118210000003" green="0.04477352976" blue="0.04477352976" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="Hhz-d3-Ph5"/>
                                 </constraints>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dLu-at-n7Y" userLabel="Delete Queued View">
-                                <rect key="frame" x="0.0" y="233" width="315" height="50"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="atw-t9-ZLS" userLabel="Pending Ops Stack View">
+                                <rect key="frame" x="0.0" y="300" width="315" height="241"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" ambiguous="YES" text="Delete pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xzz-ln-yBN">
-                                        <rect key="frame" x="154" y="8" width="98" height="17"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ayi-Sy-Xej">
-                                        <rect key="frame" x="262" y="2" width="45" height="29"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <state key="normal" title="Cancel"/>
-                                        <connections>
-                                            <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="C3W-Ps-wtO"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" red="1" green="0.9705350183" blue="0.74234068340000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <constraints>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="ayi-Sy-Xej" secondAttribute="bottom" constant="2" id="Fj2-1n-nBc"/>
-                                    <constraint firstItem="xzz-ln-yBN" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="dLu-at-n7Y" secondAttribute="leading" priority="250" constant="2" id="NM2-dY-DUm"/>
-                                    <constraint firstItem="ayi-Sy-Xej" firstAttribute="top" relation="greaterThanOrEqual" secondItem="dLu-at-n7Y" secondAttribute="top" constant="2" id="PiQ-11-4X6"/>
-                                    <constraint firstItem="xzz-ln-yBN" firstAttribute="top" relation="greaterThanOrEqual" secondItem="dLu-at-n7Y" secondAttribute="top" constant="2" id="aIQ-oy-VDW"/>
-                                    <constraint firstItem="ayi-Sy-Xej" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="xzz-ln-yBN" secondAttribute="trailing" constant="10" id="bIf-ND-FdY"/>
-                                    <constraint firstItem="ayi-Sy-Xej" firstAttribute="firstBaseline" secondItem="xzz-ln-yBN" secondAttribute="firstBaseline" id="gBm-OJ-b7K"/>
-                                    <constraint firstAttribute="trailing" secondItem="ayi-Sy-Xej" secondAttribute="trailing" constant="8" id="gfV-ry-Tp3"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="xzz-ln-yBN" secondAttribute="bottom" constant="2" id="rQX-GJ-EjI"/>
-                                </constraints>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fD8-Qm-cMp" userLabel="Edit Queued View">
-                                <rect key="frame" x="0.0" y="283" width="315" height="33"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" ambiguous="YES" text="Edit pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DaO-Pu-p9M">
-                                        <rect key="frame" x="170.5" y="8" width="81.5" height="17"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RT0-4d-xLb">
-                                        <rect key="frame" x="262" y="2" width="45" height="29"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <state key="normal" title="Cancel"/>
-                                        <connections>
-                                            <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="naV-pe-ZA9"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" red="1" green="0.9705350183" blue="0.74234068340000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="RT0-4d-xLb" secondAttribute="trailing" constant="8" id="0YJ-Lq-FO4"/>
-                                    <constraint firstItem="RT0-4d-xLb" firstAttribute="firstBaseline" secondItem="DaO-Pu-p9M" secondAttribute="firstBaseline" id="1Iv-kP-M8I"/>
-                                    <constraint firstItem="DaO-Pu-p9M" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="fD8-Qm-cMp" secondAttribute="leading" priority="250" constant="2" id="8XJ-vr-JY3"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="RT0-4d-xLb" secondAttribute="bottom" constant="2" id="FC9-5z-8tv"/>
-                                    <constraint firstItem="RT0-4d-xLb" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="DaO-Pu-p9M" secondAttribute="trailing" constant="10" id="HLG-D5-sg4"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="DaO-Pu-p9M" secondAttribute="bottom" constant="2" id="iC4-Zt-M6d"/>
-                                    <constraint firstItem="RT0-4d-xLb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fD8-Qm-cMp" secondAttribute="top" constant="2" id="sba-4u-vHf"/>
-                                    <constraint firstItem="DaO-Pu-p9M" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fD8-Qm-cMp" secondAttribute="top" constant="2" id="wQb-bd-pv6"/>
-                                </constraints>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qao-VE-b6f" userLabel="Reply Queued View">
-                                <rect key="frame" x="0.0" y="316" width="315" height="33"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" ambiguous="YES" text="Reply pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVH-7E-xXY">
-                                        <rect key="frame" x="172.5" y="8" width="92.5" height="17"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jx8-8r-22C">
-                                        <rect key="frame" x="275" y="2" width="32" height="29"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <state key="normal" title="View"/>
-                                        <connections>
-                                            <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="y0U-Cz-tP0"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" red="1" green="0.9705350183" blue="0.74234068340000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <constraints>
-                                    <constraint firstItem="oVH-7E-xXY" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Qao-VE-b6f" secondAttribute="top" constant="2" id="M0C-eE-sN4"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="jx8-8r-22C" secondAttribute="bottom" constant="2" id="VfJ-Ov-2bg"/>
-                                    <constraint firstAttribute="trailing" secondItem="jx8-8r-22C" secondAttribute="trailing" constant="8" id="Xk0-3v-Uaf"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="oVH-7E-xXY" secondAttribute="bottom" constant="2" id="iIX-8b-Zq0"/>
-                                    <constraint firstItem="jx8-8r-22C" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Qao-VE-b6f" secondAttribute="top" constant="2" id="naa-8f-xDg"/>
-                                    <constraint firstItem="jx8-8r-22C" firstAttribute="firstBaseline" secondItem="oVH-7E-xXY" secondAttribute="firstBaseline" id="tLj-Df-DXj"/>
-                                    <constraint firstItem="jx8-8r-22C" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="oVH-7E-xXY" secondAttribute="trailing" priority="750" constant="10" id="xhG-a3-Aip"/>
-                                </constraints>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z5p-BY-GCY">
-                                <rect key="frame" x="0.0" y="349" width="315" height="33"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" ambiguous="YES" text="&quot;Like&quot; pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RoI-Cv-j34">
-                                        <rect key="frame" x="157.5" y="8" width="94.5" height="17"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KLu-bJ-VTi">
-                                        <rect key="frame" x="262" y="2" width="45" height="29"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <state key="normal" title="Cancel"/>
-                                        <connections>
-                                            <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="ND8-SN-teC"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" red="1" green="0.97053501832359335" blue="0.74234068342845094" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="KLu-bJ-VTi" secondAttribute="trailing" constant="8" id="9Wg-zY-lf4"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="KLu-bJ-VTi" secondAttribute="bottom" constant="2" id="CAj-2d-jkp"/>
-                                    <constraint firstItem="RoI-Cv-j34" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="top" constant="2" id="DS8-i6-kl6"/>
-                                    <constraint firstItem="KLu-bJ-VTi" firstAttribute="firstBaseline" secondItem="RoI-Cv-j34" secondAttribute="firstBaseline" id="VWF-eF-Djp"/>
-                                    <constraint firstItem="RoI-Cv-j34" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="leading" priority="250" constant="2" id="YDS-re-lgh"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="RoI-Cv-j34" secondAttribute="bottom" constant="2" id="Yhb-Kb-OQm"/>
-                                    <constraint firstItem="KLu-bJ-VTi" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="top" constant="2" id="Yrv-PM-Zxc"/>
-                                    <constraint firstItem="KLu-bJ-VTi" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="RoI-Cv-j34" secondAttribute="trailing" constant="10" id="sxs-o8-YP7"/>
-                                </constraints>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5gF-dv-jyP">
-                                <rect key="frame" x="0.0" y="382" width="315" height="30"/>
-                                <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="wD7-pt-H3w">
-                                        <rect key="frame" x="105" y="0.0" width="210" height="30"/>
+                                    <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dLu-at-n7Y" userLabel="Delete Queued View">
+                                        <rect key="frame" x="0.0" y="0.0" width="315" height="50"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="enx-3S-79P">
-                                                <rect key="frame" x="0.0" y="0.0" width="45" height="30"/>
-                                                <state key="normal" title="Delete"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" verticalCompressionResistancePriority="100" text="Delete pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xzz-ln-yBN">
+                                                <rect key="frame" x="154" y="16.5" width="98" height="17"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ayi-Sy-Xej">
+                                                <rect key="frame" x="262" y="10.5" width="45" height="29"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <state key="normal" title="Cancel"/>
                                                 <connections>
-                                                    <action selector="eliteDeleteTweetButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="5pj-sJ-zRb"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gAH-td-gvz">
-                                                <rect key="frame" x="55" y="0.0" width="45" height="30"/>
-                                                <state key="normal" title="Edit"/>
-                                                <connections>
-                                                    <action selector="editButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="9yL-N7-d66"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zKk-L1-jDy">
-                                                <rect key="frame" x="110" y="0.0" width="45" height="30"/>
-                                                <state key="normal" title="Reply"/>
-                                                <connections>
-                                                    <action selector="replyButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="KfQ-BD-oDZ"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KMk-Wd-mQa">
-                                                <rect key="frame" x="165" y="0.0" width="45" height="30"/>
-                                                <state key="normal" title="Like"/>
-                                                <connections>
-                                                    <action selector="likeButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="rBR-Yu-cD4"/>
+                                                    <action selector="cancelDeleteOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="TKZ-ZW-xKZ"/>
+                                                    <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="C3W-Ps-wtO"/>
                                                 </connections>
                                             </button>
                                         </subviews>
-                                    </stackView>
+                                        <color key="backgroundColor" red="1" green="0.9705350183" blue="0.74234068340000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <constraints>
+                                            <constraint firstItem="ayi-Sy-Xej" firstAttribute="leading" secondItem="xzz-ln-yBN" secondAttribute="trailing" priority="250" constant="10" id="5ui-NR-zc4"/>
+                                            <constraint firstAttribute="height" priority="750" constant="44" id="Bq0-qu-i1c"/>
+                                            <constraint firstItem="ayi-Sy-Xej" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="xzz-ln-yBN" secondAttribute="trailing" constant="10" id="bIf-ND-FdY"/>
+                                            <constraint firstItem="ayi-Sy-Xej" firstAttribute="centerY" secondItem="dLu-at-n7Y" secondAttribute="centerY" id="bk7-Jk-Fen"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="xzz-ln-yBN" secondAttribute="bottom" priority="800" id="d5n-vK-rqF"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="ayi-Sy-Xej" secondAttribute="bottom" priority="200" id="fax-me-OWc"/>
+                                            <constraint firstItem="ayi-Sy-Xej" firstAttribute="firstBaseline" secondItem="xzz-ln-yBN" secondAttribute="firstBaseline" id="gBm-OJ-b7K"/>
+                                            <constraint firstAttribute="trailing" secondItem="ayi-Sy-Xej" secondAttribute="trailing" constant="8" id="gfV-ry-Tp3"/>
+                                            <constraint firstItem="xzz-ln-yBN" firstAttribute="top" relation="greaterThanOrEqual" secondItem="dLu-at-n7Y" secondAttribute="top" priority="900" id="rxF-vr-Cvd"/>
+                                            <constraint firstItem="ayi-Sy-Xej" firstAttribute="top" relation="greaterThanOrEqual" secondItem="dLu-at-n7Y" secondAttribute="top" priority="900" id="zJs-K6-As8"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fD8-Qm-cMp" userLabel="Edit Queued View">
+                                        <rect key="frame" x="0.0" y="50" width="315" height="50"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" verticalCompressionResistancePriority="200" text="Edit pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DaO-Pu-p9M">
+                                                <rect key="frame" x="170.5" y="16.5" width="81.5" height="17"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RT0-4d-xLb">
+                                                <rect key="frame" x="262" y="10.5" width="45" height="29"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <state key="normal" title="Cancel"/>
+                                                <connections>
+                                                    <action selector="cancelEditOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="Pea-7Y-Efw"/>
+                                                    <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="naV-pe-ZA9"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" red="1" green="0.9705350183" blue="0.74234068340000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="RT0-4d-xLb" secondAttribute="trailing" constant="8" id="0YJ-Lq-FO4"/>
+                                            <constraint firstItem="RT0-4d-xLb" firstAttribute="firstBaseline" secondItem="DaO-Pu-p9M" secondAttribute="firstBaseline" id="1Iv-kP-M8I"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="RT0-4d-xLb" secondAttribute="bottom" priority="800" id="3gT-CH-N39"/>
+                                            <constraint firstItem="RT0-4d-xLb" firstAttribute="centerY" secondItem="fD8-Qm-cMp" secondAttribute="centerY" id="3ik-WP-JWS"/>
+                                            <constraint firstAttribute="height" priority="750" constant="44" id="3kU-3B-Rne"/>
+                                            <constraint firstItem="DaO-Pu-p9M" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fD8-Qm-cMp" secondAttribute="top" priority="900" id="3mL-Ks-EQ8"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="DaO-Pu-p9M" secondAttribute="bottom" priority="800" id="DZ6-Ts-QIH"/>
+                                            <constraint firstItem="RT0-4d-xLb" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="DaO-Pu-p9M" secondAttribute="trailing" constant="10" id="HLG-D5-sg4"/>
+                                            <constraint firstItem="RT0-4d-xLb" firstAttribute="leading" secondItem="DaO-Pu-p9M" secondAttribute="trailing" priority="250" constant="10" id="IP9-yl-eft"/>
+                                            <constraint firstItem="RT0-4d-xLb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fD8-Qm-cMp" secondAttribute="top" priority="900" id="PAb-sa-qsW"/>
+                                        </constraints>
+                                    </view>
+                                    <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qao-VE-b6f" userLabel="Reply Queued View">
+                                        <rect key="frame" x="0.0" y="100" width="315" height="50"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" verticalCompressionResistancePriority="200" text="Reply pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVH-7E-xXY">
+                                                <rect key="frame" x="159.5" y="16.5" width="92.5" height="17"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jx8-8r-22C">
+                                                <rect key="frame" x="262" y="10.5" width="45" height="29"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <state key="normal" title="View"/>
+                                                <connections>
+                                                    <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="y0U-Cz-tP0"/>
+                                                    <action selector="viewPendingRepliesButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="kWO-pu-nkW"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" red="1" green="0.9705350183" blue="0.74234068340000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <constraints>
+                                            <constraint firstItem="jx8-8r-22C" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Qao-VE-b6f" secondAttribute="top" priority="900" id="E8N-D9-fxs"/>
+                                            <constraint firstAttribute="height" priority="750" constant="44" id="R5M-8P-dBC"/>
+                                            <constraint firstItem="jx8-8r-22C" firstAttribute="centerY" secondItem="Qao-VE-b6f" secondAttribute="centerY" id="Rm7-dD-Ol4"/>
+                                            <constraint firstItem="oVH-7E-xXY" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Qao-VE-b6f" secondAttribute="top" priority="900" id="TlK-cM-Ksu"/>
+                                            <constraint firstAttribute="trailing" secondItem="jx8-8r-22C" secondAttribute="trailing" constant="8" id="Xk0-3v-Uaf"/>
+                                            <constraint firstItem="jx8-8r-22C" firstAttribute="leading" secondItem="oVH-7E-xXY" secondAttribute="trailing" priority="250" constant="10" id="ihX-Hp-w72"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="jx8-8r-22C" secondAttribute="bottom" priority="800" id="ln7-KB-i1Z"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="oVH-7E-xXY" secondAttribute="bottom" priority="800" id="rqa-Q5-NG7"/>
+                                            <constraint firstItem="jx8-8r-22C" firstAttribute="firstBaseline" secondItem="oVH-7E-xXY" secondAttribute="firstBaseline" id="tLj-Df-DXj"/>
+                                            <constraint firstItem="jx8-8r-22C" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="oVH-7E-xXY" secondAttribute="trailing" constant="10" id="xhG-a3-Aip"/>
+                                        </constraints>
+                                    </view>
+                                    <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z5p-BY-GCY">
+                                        <rect key="frame" x="0.0" y="150" width="315" height="47"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="&quot;Like&quot; pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RoI-Cv-j34">
+                                                <rect key="frame" x="157.5" y="15" width="94.5" height="17"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KLu-bJ-VTi">
+                                                <rect key="frame" x="262" y="9" width="45" height="29"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <state key="normal" title="Cancel"/>
+                                                <connections>
+                                                    <action selector="cancelReactionOpButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="ND8-SN-teC"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" red="1" green="0.9705350183" blue="0.74234068340000003" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <constraints>
+                                            <constraint firstItem="RoI-Cv-j34" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="top" priority="900" id="1nL-ru-lI4"/>
+                                            <constraint firstItem="KLu-bJ-VTi" firstAttribute="centerY" secondItem="Z5p-BY-GCY" secondAttribute="centerY" id="6CL-GC-UHa"/>
+                                            <constraint firstAttribute="trailing" secondItem="KLu-bJ-VTi" secondAttribute="trailing" constant="8" id="9Wg-zY-lf4"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="KLu-bJ-VTi" secondAttribute="bottom" priority="800" id="RcR-MG-hiI"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="RoI-Cv-j34" secondAttribute="bottom" priority="800" id="UGf-Vg-1aP"/>
+                                            <constraint firstItem="KLu-bJ-VTi" firstAttribute="firstBaseline" secondItem="RoI-Cv-j34" secondAttribute="firstBaseline" id="VWF-eF-Djp"/>
+                                            <constraint firstItem="KLu-bJ-VTi" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Z5p-BY-GCY" secondAttribute="top" priority="900" id="Yhj-2x-f2m"/>
+                                            <constraint firstItem="KLu-bJ-VTi" firstAttribute="leading" secondItem="RoI-Cv-j34" secondAttribute="trailing" priority="250" constant="10" id="fSu-R3-Mgy"/>
+                                            <constraint firstAttribute="height" priority="750" constant="44" id="q3Y-tK-AF0"/>
+                                            <constraint firstItem="KLu-bJ-VTi" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="RoI-Cv-j34" secondAttribute="trailing" constant="10" id="sxs-o8-YP7"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5gF-dv-jyP">
+                                        <rect key="frame" x="0.0" y="197" width="315" height="44"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="wD7-pt-H3w">
+                                                <rect key="frame" x="105" y="0.0" width="210" height="44"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="enx-3S-79P">
+                                                        <rect key="frame" x="0.0" y="0.0" width="45" height="44"/>
+                                                        <state key="normal" title="Delete"/>
+                                                        <connections>
+                                                            <action selector="eliteDeleteTweetButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="5pj-sJ-zRb"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gAH-td-gvz">
+                                                        <rect key="frame" x="55" y="0.0" width="45" height="44"/>
+                                                        <state key="normal" title="Edit"/>
+                                                        <connections>
+                                                            <action selector="editButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="9yL-N7-d66"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zKk-L1-jDy">
+                                                        <rect key="frame" x="110" y="0.0" width="45" height="44"/>
+                                                        <state key="normal" title="Reply"/>
+                                                        <connections>
+                                                            <action selector="replyButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="KfQ-BD-oDZ"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KMk-Wd-mQa">
+                                                        <rect key="frame" x="165" y="0.0" width="45" height="44"/>
+                                                        <state key="normal" title="Like"/>
+                                                        <connections>
+                                                            <action selector="likeButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="rBR-Yu-cD4"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                            </stackView>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="bottom" secondItem="wD7-pt-H3w" secondAttribute="bottom" id="1SD-CB-z1T"/>
+                                            <constraint firstItem="wD7-pt-H3w" firstAttribute="top" secondItem="5gF-dv-jyP" secondAttribute="top" id="4Lh-0P-KnV"/>
+                                            <constraint firstAttribute="height" constant="44" id="K0e-Bc-Irs"/>
+                                            <constraint firstItem="wD7-pt-H3w" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="5gF-dv-jyP" secondAttribute="leading" id="n87-bm-qBX"/>
+                                            <constraint firstAttribute="trailing" secondItem="wD7-pt-H3w" secondAttribute="trailing" id="qsv-27-gm8"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="wD7-pt-H3w" secondAttribute="bottom" id="1SD-CB-z1T"/>
-                                    <constraint firstItem="wD7-pt-H3w" firstAttribute="top" secondItem="5gF-dv-jyP" secondAttribute="top" id="4Lh-0P-KnV"/>
-                                    <constraint firstItem="wD7-pt-H3w" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="5gF-dv-jyP" secondAttribute="leading" id="n87-bm-qBX"/>
-                                    <constraint firstAttribute="trailing" secondItem="wD7-pt-H3w" secondAttribute="trailing" id="qsv-27-gm8"/>
+                                    <constraint firstItem="oVH-7E-xXY" firstAttribute="trailing" secondItem="xzz-ln-yBN" secondAttribute="trailing" id="4Ym-Sr-8yK"/>
+                                    <constraint firstItem="RoI-Cv-j34" firstAttribute="trailing" secondItem="xzz-ln-yBN" secondAttribute="trailing" id="iGT-uX-uow"/>
+                                    <constraint firstItem="DaO-Pu-p9M" firstAttribute="trailing" secondItem="xzz-ln-yBN" secondAttribute="trailing" id="ykU-iL-RXy"/>
                                 </constraints>
-                            </view>
+                            </stackView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="DaO-Pu-p9M" firstAttribute="trailing" secondItem="xzz-ln-yBN" secondAttribute="trailing" id="Mef-Ot-24s"/>
-                            <constraint firstItem="oVH-7E-xXY" firstAttribute="trailing" secondItem="xzz-ln-yBN" secondAttribute="trailing" id="k3L-pt-AC6"/>
-                            <constraint firstItem="RoI-Cv-j34" firstAttribute="trailing" secondItem="xzz-ln-yBN" secondAttribute="trailing" id="nFk-Iz-fy7"/>
-                        </constraints>
                     </stackView>
                 </subviews>
             </view>
@@ -250,11 +271,11 @@
                 <constraint firstItem="yR2-EL-Eir" firstAttribute="leading" secondItem="VUr-DA-Pmu" secondAttribute="trailing" constant="8" id="RoR-Uc-wtS"/>
                 <constraint firstAttribute="trailing" secondItem="yR2-EL-Eir" secondAttribute="trailing" constant="2" id="adU-0d-YjF"/>
                 <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="VUr-DA-Pmu" secondAttribute="bottom" constant="2" id="i5z-hg-BW6"/>
+                <constraint firstAttribute="bottom" secondItem="yR2-EL-Eir" secondAttribute="bottom" constant="2" id="jxa-Ny-ioj"/>
                 <constraint firstItem="yR2-EL-Eir" firstAttribute="top" secondItem="VUr-DA-Pmu" secondAttribute="top" id="pDR-4e-o7V"/>
                 <constraint firstItem="VUr-DA-Pmu" firstAttribute="leading" secondItem="jfs-vB-cbw" secondAttribute="leading" constant="2" id="qMh-wa-Xdh"/>
-                <constraint firstAttribute="bottom" secondItem="yR2-EL-Eir" secondAttribute="bottom" priority="750" constant="2" id="rMD-4r-Bhj"/>
             </constraints>
-            <size key="customSize" width="375" height="404"/>
+            <size key="customSize" width="375" height="545"/>
             <connections>
                 <outlet property="cancelQueuedDeleteButton" destination="ayi-Sy-Xej" id="ckL-Gr-O4F"/>
                 <outlet property="cancelQueuedEditButton" destination="RT0-4d-xLb" id="8w9-Ds-VH9"/>
@@ -269,6 +290,7 @@
                 <outlet property="editStackView" destination="5gF-dv-jyP" id="GuE-GY-H03"/>
                 <outlet property="likeButton" destination="KMk-Wd-mQa" id="Ocg-9J-Bic"/>
                 <outlet property="likesLabel" destination="3II-e7-kC3" id="Ngh-ji-tJW"/>
+                <outlet property="pendingOpsStackView" destination="atw-t9-ZLS" id="7k8-7g-ABA"/>
                 <outlet property="postImage" destination="WqQ-lV-DUd" id="Dku-7d-1I0"/>
                 <outlet property="reactionQueuedLabel" destination="RoI-Cv-j34" id="cVf-OX-u8e"/>
                 <outlet property="reactionQueuedView" destination="Z5p-BY-GCY" id="XqU-F9-pCu"/>
@@ -280,7 +302,7 @@
                 <outlet property="userButton" destination="VUr-DA-Pmu" id="QJ0-nc-4Ym"/>
                 <outlet property="viewQueuedRepliesButton" destination="jx8-8r-22C" id="aLV-02-zbK"/>
             </connections>
-            <point key="canvasLocation" x="35.507246376811594" y="69.642857142857139"/>
+            <point key="canvasLocation" x="35.507246376811594" y="115.51339285714285"/>
         </collectionViewCell>
     </objects>
 </document>

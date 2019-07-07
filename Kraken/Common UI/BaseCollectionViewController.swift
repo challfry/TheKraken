@@ -12,6 +12,9 @@ class BaseCollectionViewController: UIViewController {
 	@IBOutlet var collectionView: UICollectionView!
 	@objc dynamic var activeTextEntry: UITextInput?
 		
+	var customGR: UILongPressGestureRecognizer?
+	var tappedCell: UICollectionViewCell?
+
     override func viewDidLoad() {
         super.viewDidLoad()
      	let keyboardCanceler = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:)))
@@ -45,3 +48,71 @@ class BaseCollectionViewController: UIViewController {
 	}
 
 }
+
+extension BaseCollectionViewController: UIGestureRecognizerDelegate {
+
+	func setupGestureRecognizer() {	
+		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(BaseCollectionViewController.cellTapped))
+		tapper.minimumPressDuration = 0.05
+		tapper.numberOfTouchesRequired = 1
+		tapper.numberOfTapsRequired = 0
+		tapper.allowableMovement = 10.0
+		tapper.delegate = self
+		tapper.name = "BaseCollectionViewController Long Press"
+		collectionView.addGestureRecognizer(tapper)
+		customGR = tapper
+	}
+
+	func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+		// need to call super if it's not our recognizer
+		if gestureRecognizer != customGR {
+			return false
+		}
+		let hitPoint = gestureRecognizer.location(in: collectionView)
+		if !collectionView.point(inside:hitPoint, with: nil) {
+			return false
+		}
+		
+		// Only take the tap if the cell isn't already selected. This ensures taps on widgets inside the cell go through
+		// once the cell is selected.
+		if let path = collectionView.indexPathForItem(at: hitPoint), let cell = collectionView.cellForItem(at: path),
+				let c = cell as? BaseCollectionViewCell, !c.privateSelected {
+			return true
+		}
+		
+		return false
+	}
+
+	@objc func cellTapped(_ sender: UILongPressGestureRecognizer) {
+		if sender.state == .began {
+			if let indexPath = collectionView.indexPathForItem(at: sender.location(in:collectionView)) {
+				tappedCell = collectionView.cellForItem(at: indexPath)
+				tappedCell?.isHighlighted = true
+			}
+			else {
+				tappedCell = nil
+			}
+		}
+		guard let tappedCell = tappedCell else { return }
+		
+		if sender.state == .changed {
+			tappedCell.isHighlighted = tappedCell.point(inside:sender.location(in: tappedCell), with: nil)
+		}
+		else if sender.state == .ended {
+			if tappedCell.isHighlighted {				
+				if let tc = tappedCell as? BaseCollectionViewCell {
+					tc.privateSelectCell()
+				}
+			}
+		} 
+		
+		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {
+			tappedCell.isHighlighted = false
+			
+			// Stop the scroll view's odd scrolling behavior that happens when cell tap resizes the cell.
+			collectionView.setContentOffset(collectionView.contentOffset, animated: false)
+		}
+	}
+	
+}
+

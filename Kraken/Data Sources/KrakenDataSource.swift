@@ -8,6 +8,11 @@
 
 import UIKit
 
+@objc protocol KrakenCellBindingProtocol {
+	var privateSelected: Bool { get set }
+}
+
+
 // This has to be an @objc protocol, which has cascading effects.
 @objc protocol KrakenDataSourceSectionProtocol: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 	var dataSource: FilteringDataSource? { get set }
@@ -52,7 +57,7 @@ class KrakenDataSource: NSObject {
 		}
 		
 		if let indexPath = collectionView?.indexPath(for: cell) {
-			collectionView?.selectItem(at: indexPath, animated: false, scrollPosition: .left)
+			collectionView?.selectItem(at: indexPath, animated: false, scrollPosition: [])
 		}
 	}
 	
@@ -69,6 +74,9 @@ class KrakenDataSource: NSObject {
 		if let ds = parentDataSource {
 			// If we're not top-level, tell upstream that updates need to be run. Remember, performBatchUpdates
 			// must update everything -- when it's done, every section's cell count must add up.
+			//
+			// to say this differently and with more emphasis, you can't just call performBatchUpdates to do your 
+			// one thing unless you're *certain* there aren't any other changes.
 			ds.runUpdates()
 		}
 		else {
@@ -81,7 +89,7 @@ class KrakenDataSource: NSObject {
 				}
 				
 				self.collectionView?.performBatchUpdates( {
-					self.internalRunUpdates(sectionOffset: sectionOffset)
+					self.internalRunUpdates(for: self.collectionView, sectionOffset: sectionOffset)
 				}, completion: nil)
 				
 				if !self.enableAnimations {
@@ -93,10 +101,14 @@ class KrakenDataSource: NSObject {
 	
 	func sizeChanged(for cellModel: BaseCellModel) {
 		cellModel.cellSize = CGSize(width: 0, height: 0)
-					
-		let context = UICollectionViewFlowLayoutInvalidationContext()
-		context.invalidateFlowLayoutDelegateMetrics = true
-		collectionView?.collectionViewLayout.invalidateLayout(with: context)
+		
+//		CollectionViewLog.debug("scroll pos: \(self.collectionView!.contentOffset.y)")
+		UIView.animate(withDuration: 0.3) {
+			let context = UICollectionViewFlowLayoutInvalidationContext()
+			context.invalidateFlowLayoutDelegateMetrics = true
+			self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
+		}
+//		CollectionViewLog.debug("scroll pos2: \(self.collectionView!.contentOffset.y)")
 	}
 
 	var itemsToRunAfterBatchUpdates: [() -> Void]?
@@ -118,7 +130,6 @@ class KrakenDataSource: NSObject {
 		scheduleBatchUpdateCompletionBlock {
 			if let ds = self as? UICollectionViewDataSource {
 				cv.dataSource = ds
-	//			cv.reloadData()
 			}
 			if let del = self as? UICollectionViewDelegate {
 				cv.delegate = del
@@ -126,7 +137,7 @@ class KrakenDataSource: NSObject {
 		}
 	}
 	
-	internal func internalRunUpdates(sectionOffset: Int) {
+	internal func internalRunUpdates(for: UICollectionView?, sectionOffset: Int) {
 
 	}
 }

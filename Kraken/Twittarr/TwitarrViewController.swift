@@ -15,9 +15,6 @@ class TwitarrViewController: BaseCollectionViewController {
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
 	var dataManager = TwitarrDataManager.shared
 	var tweetDataSource = FetchedResultsControllerDataSource<TwitarrPost>()
-
-	var customGR: UILongPressGestureRecognizer?
-	var tappedCell: UICollectionViewCell?
 	
 //	private var collectionViewUpdateBlocks: [() -> Void] = []
 
@@ -30,10 +27,7 @@ class TwitarrViewController: BaseCollectionViewController {
 		try! self.dataManager.fetchedData.performFetch()
  		tweetDataSource.setup(viewController: self, collectionView: collectionView, frc: dataManager.fetchedData, 
  				createCellModel: createCellModel, reuseID: "tweet")
-		collectionView.dataSource = tweetDataSource
-		collectionView.delegate = tweetDataSource
- 		collectionView.prefetchDataSource = tweetDataSource
-
+		
         // Do any additional setup after loading the view.
 		startRefresh()
 		
@@ -66,9 +60,16 @@ class TwitarrViewController: BaseCollectionViewController {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     	switch segue.identifier {
+			// A filtered view of the tweet stream.
 		case "TweetFilter":
 			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
 				destVC.dataManager = TwitarrDataManager(filterString: filterString)
+			}
+			
+			// PostOpTweets by this user, that are replies to a given tweet.
+		case "PendingReplies":
+			if let destVC = segue.destination as? PendingTwitarrRepliesVC, let parent = sender as? TwitarrPost {
+				destVC.parentTweet = parent
 			}
 			
 		case "UserProfile":
@@ -109,75 +110,5 @@ class TwitarrViewController: BaseCollectionViewController {
 		}
 	}	
     
-}
-
-extension TwitarrViewController: UIGestureRecognizerDelegate {
-
-	func setupGestureRecognizer() {	
-		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(TwitarrViewController.tweetCellTapped))
-		tapper.minimumPressDuration = 0.05
-		tapper.numberOfTouchesRequired = 1
-		tapper.numberOfTapsRequired = 0
-		tapper.allowableMovement = 10.0
-		tapper.delegate = self
-		tapper.name = "TwitarrViewController Long Press"
-		collectionView.addGestureRecognizer(tapper)
-		customGR = tapper
-	}
-
-	func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-		// need to call super if it's not our recognizer
-		if gestureRecognizer != customGR {
-			return false
-		}
-		let hitPoint = gestureRecognizer.location(in: collectionView)
-		if !collectionView.point(inside:hitPoint, with: nil) {
-			return false
-		}
-		
-		// Only take the tap if the cell isn't already selected. This ensures taps on widgets inside the cell go through
-		// once the cell is selected.
-		if let path = collectionView.indexPathForItem(at: hitPoint), let cell = collectionView.cellForItem(at: path),
-				let c = cell as? TwitarrTweetCell, !c.privateSelected {
-			return true
-		}
-		
-		return false
-	}
-
-	@objc func tweetCellTapped(_ sender: UILongPressGestureRecognizer) {
-		if sender.state == .began {
-			if let indexPath = collectionView.indexPathForItem(at: sender.location(in:collectionView)) {
-				tappedCell = collectionView.cellForItem(at: indexPath)
-				tappedCell?.isHighlighted = true
-			}
-			else {
-				tappedCell = nil
-			}
-		}
-		guard let tappedCell = tappedCell else { return }
-		
-		if sender.state == .changed {
-			tappedCell.isHighlighted = tappedCell.point(inside:sender.location(in: tappedCell), with: nil)
-		}
-		else if sender.state == .ended {
-			if tappedCell.isHighlighted {
-//				let indexPath = collectionView.indexPath(for: tappedCell)
-//				collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
-				
-				if let tc = tappedCell as? TwitarrTweetCell {
-					tc.privateSelectCell()
-				}
-			}
-		} 
-		
-		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {
-			tappedCell.isHighlighted = false
-			
-			// Stop the scroll view's odd scrolling behavior that happens when cell tap resizes the cell.
-			collectionView.setContentOffset(collectionView.contentOffset, animated: false)
-		}
-	}
-	
 }
 

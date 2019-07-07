@@ -13,9 +13,8 @@ import os
 // A simple cell model and binding protocol. Useful for when your cell can set itself up from data in the model object
 // and can have knowledge of that that object is. Not for use with generic cells that just get told what text to put where,
 // or for cells that have to save state back to their cellModel.
-@objc protocol FetchedResultsBindingProtocol {
+@objc protocol FetchedResultsBindingProtocol : KrakenCellBindingProtocol {
 	var model: NSFetchRequestResult? { get set }
-	var privateSelected: Bool { get set }
 }
 
 class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
@@ -71,13 +70,11 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 			CollectionViewLog.error("No fetched objects during setup.")
 		}
 
-		if let vc = viewController as? BaseCollectionViewController {
-			super.register(with: collectionView, viewController: vc)
-		}
-		self.frc = frc
 		self.createCellModel = createCellModel
 		self.reuseID = reuseID
-		
+		register(with: collectionView, viewController: viewController as? BaseCollectionViewController)
+		self.frc = frc
+		frc.delegate = self
 	}
 	
 // MARK: FetchedResultsControllerDelegate
@@ -221,7 +218,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 	}
 
 	
-	internal func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
+	internal override func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
 		func addOffsetToIndexSet(_ indexes: IndexSet) -> IndexSet {
 			var result = IndexSet()
 			for index in indexes { result.insert(index + sectionOffset) }
@@ -235,6 +232,12 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 		
 		collectionView?.deleteSections(addOffsetToIndexSet(deleteSections))
 		collectionView?.deleteItems(at: addSectionOffset(deleteCells))
+		
+		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
+		for index in deleteCells.reversed() {
+			cellModels.remove(at: index.row)
+		}
+		
 		for (from, to) in moveCells {
 			let newFrom = IndexPath(row: from.row, section: from.section + sectionOffset)
 			let newTo = IndexPath(row: to.row, section: to.section + sectionOffset)
@@ -244,6 +247,15 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 		collectionView?.insertSections(addOffsetToIndexSet(insertSections))
 		collectionView?.insertItems(at: addSectionOffset(insertCells))
 	
+		// Now add the cells from our CellModel array, in step with what we tell the CV.
+		if let objects = frc?.fetchedObjects {
+			for index in insertCells {
+				if let cellModel = createCellModel?(objects[index.row]) {
+					cellModels.insert(cellModel, at: index.row)
+				}
+			}
+		}
+
 		deleteSections.removeAll()
 		insertSections.removeAll()
 		deleteCells.removeAll()

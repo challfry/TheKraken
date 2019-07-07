@@ -26,6 +26,13 @@ import Foundation
 		set { setSetting(name: "lastSeamailCheckTime", newValue: newValue) }
 	}
 	
+	@objc dynamic public var blockEmptyingPostOpsQueue: Bool {
+		get { return getSetting(name: "blockEmptyingPostOpsQueue", defaultValue: false) }
+		set { setSetting(name: "blockEmptyingPostOpsQueue", newValue: newValue) }
+	}
+
+
+// MARK: Private stuff for Settings to do its work.
 	private func getSetting<settingType>(name: String, defaultValue:settingType) -> settingType {
 		switch settingType.self {
 			// Bool auto-interprets missing values as "false"

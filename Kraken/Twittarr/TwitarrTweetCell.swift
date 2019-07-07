@@ -34,28 +34,27 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
 	@IBOutlet var userButton: UIButton!
-	@IBOutlet var editStackView: UIView!
-	@IBOutlet var 	editStack: UIStackView!
-	@IBOutlet var   	likeButton: UIButton!
-	@IBOutlet var 		editButton: UIButton!
-	@IBOutlet var 		replyButton: UIButton!
-	@IBOutlet var 		deleteButton: UIButton!
 	
+	@IBOutlet var pendingOpsStackView: UIStackView!
 	@IBOutlet var 	deleteQueuedView: UIView!
 	@IBOutlet var 		deleteQueuedLabel: UILabel!
 	@IBOutlet var 		cancelQueuedDeleteButton: UIButton!
-		
 	@IBOutlet var 	editQueuedView: UIView!
 	@IBOutlet var 		editQueuedLabel: UILabel!
 	@IBOutlet var 		cancelQueuedEditButton: UIButton!
-		
 	@IBOutlet var 	replyQueuedView: UIView!
 	@IBOutlet var 		replyQueuedLabel: UILabel!
 	@IBOutlet var 		viewQueuedRepliesButton: UIButton!
-		
 	@IBOutlet var 	reactionQueuedView: UIView!
 	@IBOutlet var 		reactionQueuedLabel: UILabel!
 	@IBOutlet var 		cancelQueuedReactionButton: UIButton!
+	@IBOutlet var 	editStackView: UIView!
+	@IBOutlet var 		editStack: UIStackView!
+	@IBOutlet var   		likeButton: UIButton!
+	@IBOutlet var 			editButton: UIButton!
+	@IBOutlet var 			replyButton: UIButton!
+	@IBOutlet var 			deleteButton: UIButton!
+
 	private var opsByCurrentUserObservations: [EBNObservation?] = []
 
 	@objc dynamic var loggedInUserHasLikedThis: Bool = false
@@ -145,8 +144,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 					let replyCount = observed.opsWithThisParent?.reduce(0) { result, operation in 
 						return operation.author.username == username ? result + 1 : result
 					} ?? 0
-					observer.setViewVisibility(view: observer.replyQueuedView, 
-							showIf: observer.privateSelected && replyCount != 0)
+					observer.setViewVisibility(view: observer.replyQueuedView, showIf: replyCount != 0)
 					if replyCount == 1 {
 						observer.replyQueuedLabel.text = "Reply pending"
 					}
@@ -160,8 +158,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				if currentUserWroteThis { 
 					// Observe "opsDeletingThisTweet" 
 					observation = tweetModel.tell(self, when: "opsDeletingThisTweet") { observer, observed in
-						observer.setViewVisibility(view: observer.deleteQueuedView, 
-							showIf: observer.privateSelected && observed.opsDeletingThisTweet != nil)
+						let opCount = observed.opsDeletingThisTweet?.count ?? 0
+						observer.setViewVisibility(view: observer.deleteQueuedView, showIf: opCount > 0)
 					}?.execute()
 					observer.opsByCurrentUserObservations.append(observation)
 					observer.addObservation(observation)
@@ -169,7 +167,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 					// Observe "opsEditingThisTweet" to find edits
 					observation = tweetModel.tell(self, when: "opsEditingThisTweet") { observer, observed in
 						observer.setViewVisibility(view: observer.editQueuedView, 
-							showIf: observer.privateSelected && observed.opsEditingThisTweet != nil)
+							showIf: observed.opsEditingThisTweet != nil)
 					}?.execute()
 					observer.opsByCurrentUserObservations.append(observation)
 					observer.addObservation(observation)
@@ -188,8 +186,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				
 				// and watch ReactionOps to look for pending reactions; show/hide the Pending Reaction card.
 				observation = tweetModel.tell(self, when: "reactionOpsCount") { observer, observed in
-					if observer.privateSelected, let likeReaction = tweetModel.getPendingUserReaction("like") {
-						observer.setViewVisibility(view: observer.reactionQueuedView, showIf: observer.privateSelected)
+					if let likeReaction = tweetModel.getPendingUserReaction("like") {
+						observer.setViewVisibility(view: observer.reactionQueuedView, showIf: true)
 						observer.reactionQueuedLabel.text = likeReaction.isAdd ? "\"Like\" pending" : "\"Unlike\" pending"
 						observer.likeButton.isEnabled = false
 					}
@@ -197,8 +195,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 						observer.setViewVisibility(view: observer.reactionQueuedView, showIf: false)
 						observer.likeButton.isEnabled = true
 					}
-			
-					observer.cellSizeChanged()
 				}?.execute()
 				observer.opsByCurrentUserObservations.append(observation)
 				observer.addObservation(observation)
@@ -255,6 +251,13 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				observer.cellSizeChanged()
 			}
 		}?.execute())
+		
+		deleteQueuedView.isHidden = true
+		editQueuedView.isHidden = true
+		replyQueuedView.isHidden = true
+		reactionQueuedView.isHidden = true
+		likeButton.isHidden = true
+		replyButton.isHidden = true
 				
 		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -262,18 +265,21 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
-		reactionQueuedView.isHidden = true
-		editStackView.isHidden = true
+		pendingOpsStackView.isHidden = true				// In case the xib didn't leave this hidden
 	}
 	
 	// Prototype cells have difficulty figuring out their layout while animating.
 	func setViewVisibility(view: UIView, showIf: Bool) {
+		if showIf != view.isHidden { return }
 		if isPrototypeCell {
 			view.isHidden = !showIf
 		}
 		else {
 			UIView.animate(withDuration: 0.3) {
 				view.isHidden = !showIf
+			}
+			if privateSelected {
+				cellSizeChanged()
 			}
 		}
 	}
@@ -298,18 +304,15 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	override var privateSelected: Bool {
 		didSet {
 			if privateSelected == oldValue { return }
-			
-			editStackView.isHidden = !privateSelected
-			
-			if let tweetModel = model as? TwitarrPost, let existingLikeReactionOp = tweetModel.getPendingUserReaction("like") {
-				reactionQueuedView.isHidden = !privateSelected
-				reactionQueuedLabel.text = existingLikeReactionOp.isAdd ? "\"Like\" pending" : "\"Unlike\" pending"
+			if isPrototypeCell {
+				pendingOpsStackView.isHidden = !privateSelected
 			}
 			else {
-				reactionQueuedView.isHidden = true
+				UIView.animate(withDuration: 0.3) {
+					self.pendingOpsStackView.isHidden = !self.privateSelected
+				}
+				cellSizeChanged()
 			}
-
-			cellSizeChanged()
 			contentView.backgroundColor = privateSelected ? UIColor(white: 0.95, alpha: 1.0) : UIColor.white
 		}
 	}
@@ -395,14 +398,25 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
   	
 	@IBAction func editButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-		viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetModel)
+   		if let tweetModel = model as? TwitarrPost {
+			viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetModel)
+		}
+		else if let tweetOpModel = model as? PostOpTweet {
+			viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetOpModel)
+		}
 	}
 	
 	@IBAction func eliteDeleteTweetButtonTapped() {
  		guard isInteractive else { return }
+ 		
+ 		var deleteConfirmationMessage: String
+ 		switch model {
+ 		case is TwitarrPost: deleteConfirmationMessage = "Are you sure you want to delete this post?"
+ 		case is PostOpTweet: deleteConfirmationMessage = "This draft post hasn't been delivered to the server yet. Delete it?"
+   		default: deleteConfirmationMessage = ""
+   		}
    		
-   		let alert = UIAlertController(title: "Delete Confirmation", message: "Are you sure you want to delete this post?", 
+   		let alert = UIAlertController(title: "Delete Confirmation", message: deleteConfirmationMessage, 
    				preferredStyle: .alert) 
 		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), 
 				style: .cancel, handler: nil))
@@ -413,12 +427,35 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 	
 	func eliteDeleteTweetConfirmationComplete(_ action: UIAlertAction) {
-   		guard let tweetModel = model as? TwitarrPost else { return }
-		tweetModel.addDeleteTweetOp()
+   		if let tweetModel = model as? TwitarrPost {
+			tweetModel.addDeleteTweetOp()
+		}
+		else if let postOpModel = model as? PostOpTweet {
+			PostOperationDataManager.shared.remove(op: postOpModel)
+		}
 	}
 	
 // MARK: Buttons in pending state change views
 	
+	
+   	@IBAction func cancelDeleteOpButtonTapped() {
+ 		guard isInteractive else { return }
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+   		tweetModel.cancelDeleteOp()   		
+   	}
+		
+   	@IBAction func cancelEditOpButtonTapped() {
+ 		guard isInteractive else { return }
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+   		tweetModel.cancelEditOp()   		
+   	}
+		
+   	@IBAction func viewPendingRepliesButtonTapped() {
+ 		guard isInteractive else { return }
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+		viewController?.performSegue(withIdentifier: "PendingReplies", sender: tweetModel)
+   	}
+		
    	@IBAction func cancelReactionOpButtonTapped() {
  		guard isInteractive else { return }
    		guard let tweetModel = model as? TwitarrPost else { return } 

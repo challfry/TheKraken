@@ -105,17 +105,24 @@ import CoreData
 				try context.save()
 			}
 			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
+				CoreDataLog.error("Couldn't save context when deleting a PostOperation.", ["error" : error])
 			}
 		}
 	}
 		
 	func checkForOpsToDeliver() {
+		if Settings.shared.blockEmptyingPostOpsQueue {
+			NetworkLog.debug("Not sending ops to server; blocked by user setting")
+			return
+		}
+		
+		// TODO: Need to throttle here; otherwise we try to send every op each time an op is mutated.
+	
 		if let operations = controller.fetchedObjects {
 			for op in operations {
 				if op.readyToSend && !op.sentNetworkCall {
 					// Tell the op to send to server here
-			//		NetworkLog.debug("Sending op to server", ["op" : op])
+					NetworkLog.debug("Sending op to server", ["op" : op])
 				}
 			}
 			

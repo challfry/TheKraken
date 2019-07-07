@@ -37,11 +37,12 @@
 		EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D1522540801008501A3 /* EBNObservable.mm */; };
 		EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */; };
 		EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */; };
+		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
 		EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */; };
 		EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD02272813800363CBF /* LoginHeaderCell.xib */; };
 		EA86ADD42272855000363CBF /* jellyfish.png in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD32272855000363CBF /* jellyfish.png */; };
 		EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */; };
-		EA86ADD82272BAD300363CBF /* CommonCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADD72272BAD300363CBF /* CommonCells.swift */; };
+		EA86ADD82272BAD300363CBF /* OperationStatusCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADD72272BAD300363CBF /* OperationStatusCell.swift */; };
 		EA86ADDA22730C7300363CBF /* ButtonCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD922730C7300363CBF /* ButtonCell.xib */; };
 		EA86ADDC22745A5800363CBF /* BaseCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */; };
 		EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADDD2275BD3500363CBF /* LabelCell.xib */; };
@@ -68,6 +69,11 @@
 		EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */; };
 		EAA62C7122C55CC00031A999 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C7022C55CC00031A999 /* Logging.swift */; };
 		EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAA62C7222CC57060031A999 /* DraftImageCell.xib */; };
+		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
+		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
+		EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536C22D1F75600CD1671 /* ButtonCell.swift */; };
+		EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */; };
+		EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
 		EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */; };
@@ -147,10 +153,11 @@
 		EA4A1D1522540801008501A3 /* EBNObservable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EBNObservable.mm; sourceTree = "<group>"; };
 		EA4A1D1F225408DC008501A3 /* EBNDebugUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EBNDebugUtilities.h; sourceTree = "<group>"; };
 		EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCoreData.swift; sourceTree = "<group>"; };
+		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
 		EA86ADD32272855000363CBF /* jellyfish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jellyfish.png; sourceTree = "<group>"; };
 		EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextFieldCell.xib; sourceTree = "<group>"; };
-		EA86ADD72272BAD300363CBF /* CommonCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCells.swift; sourceTree = "<group>"; };
+		EA86ADD72272BAD300363CBF /* OperationStatusCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationStatusCell.swift; sourceTree = "<group>"; };
 		EA86ADD922730C7300363CBF /* ButtonCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ButtonCell.xib; sourceTree = "<group>"; };
 		EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BaseCollectionViewController.swift; path = "Kraken/Common UI/BaseCollectionViewController.swift"; sourceTree = SOURCE_ROOT; };
 		EA86ADDD2275BD3500363CBF /* LabelCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LabelCell.xib; sourceTree = "<group>"; };
@@ -186,6 +193,11 @@
 		EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTasksViewController.swift; sourceTree = "<group>"; };
 		EAA62C7022C55CC00031A999 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EAA62C7222CC57060031A999 /* DraftImageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DraftImageCell.xib; sourceTree = "<group>"; };
+		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
+		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
+		EAB4536C22D1F75600CD1671 /* ButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCell.swift; sourceTree = "<group>"; };
+		EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SwitchCell.xib; sourceTree = "<group>"; };
+		EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchCell.swift; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadViewController.swift; sourceTree = "<group>"; };
 		EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailMessageCell.swift; sourceTree = "<group>"; };
@@ -246,6 +258,7 @@
 			children = (
 				EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */,
 				EA3C630D2293913600077E3B /* ComposeTweetViewController.swift */,
+				EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */,
 				EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */,
 				EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */,
 				EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */,
@@ -338,13 +351,18 @@
 				EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */,
 				EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */,
 				EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */,
-				EA86ADD72272BAD300363CBF /* CommonCells.swift */,
+				EAB4536822D1F63900CD1671 /* LabelCell.swift */,
 				EA86ADDD2275BD3500363CBF /* LabelCell.xib */,
+				EA86ADE5227983E500363CBF /* SingleValueCell.xib */,
+				EAB4536A22D1F6DF00CD1671 /* TextCells.swift */,
 				EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */,
 				EA3C63112296BE7800077E3B /* TextViewCell.xib */,
+				EAB4536C22D1F75600CD1671 /* ButtonCell.swift */,
 				EA86ADD922730C7300363CBF /* ButtonCell.xib */,
-				EA86ADE5227983E500363CBF /* SingleValueCell.xib */,
+				EA86ADD72272BAD300363CBF /* OperationStatusCell.swift */,
 				EA278A49226A755400808AED /* OperationStatusCell.xib */,
+				EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */,
+				EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */,
 			);
 			path = "Common UI";
 			sourceTree = "<group>";
@@ -592,6 +610,7 @@
 				EA86ADD42272855000363CBF /* jellyfish.png in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
+				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
 				EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */,
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
 				EA278A4A226A755400808AED /* OperationStatusCell.xib in Resources */,
@@ -631,6 +650,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
 				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
@@ -641,9 +661,10 @@
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
 				EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */,
 				EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */,
+				EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
-				EA86ADD82272BAD300363CBF /* CommonCells.swift in Sources */,
+				EA86ADD82272BAD300363CBF /* OperationStatusCell.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
 				EAA62C6D22C2B5FA0031A999 /* DisclosureCell.swift in Sources */,
@@ -656,6 +677,7 @@
 				EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */,
 				EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */,
 				EAA62C7122C55CC00031A999 /* Logging.swift in Sources */,
+				EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */,
 				EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */,
 				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */,
@@ -672,10 +694,12 @@
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FetchedResultsControllerDataSource.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
+				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,
 				EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */,
 				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */,
+				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,

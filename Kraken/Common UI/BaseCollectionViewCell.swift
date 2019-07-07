@@ -219,7 +219,7 @@ struct PrototypeCellInfo {
 	
 	func removeObservation(_ observation: EBNObservation?) {
 		guard let obs = observation else { return }
-		
+		obs.stopObservations()
 		observations.remove(obs)
 	}
 	

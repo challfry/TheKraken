@@ -27,13 +27,15 @@ import UIKit
     
     	// Kraken relationships to other data
     @NSManaged public var opsWithThisParent: Set<PostOpTweet>?
-    @NSManaged public var opsDeletingThisTweet: NSMutableSet?	// Still needs to be to-many. Sigh.
+    @NSManaged public var opsDeletingThisTweet: Set<PostOpTweetDelete>?	// Still needs to be to-many. Sigh.
     @NSManaged public var opsEditingThisTweet: PostOpTweet?		// I *think* this one can be to-one?
     
     @NSManaged public var reactionOps: NSMutableSet?
     @objc dynamic public var reactionOpsCount: Int = 0    
     @objc dynamic public var reactionDict: NSMutableDictionary?
-    
+  
+// MARK: Methods
+
 	public override func awakeFromFetch() {
 		super.awakeFromFetch()
     	let dict = NSMutableDictionary()
@@ -168,8 +170,8 @@ import UIKit
 			if let existingOps = thisPost.opsDeletingThisTweet {
 				for task in existingOps {
 					// Technically should always be true as we don't allow for admin deletes?
-					if let op = task as? PostOpTweetDelete, op.author.username == thisPost.author.username {
-						existingOp = op
+					if task.author.username == thisPost.author.username {
+						existingOp = task
 						return
 					}
 				}
@@ -188,6 +190,19 @@ import UIKit
 		}
 	}
 	
+	func cancelDeleteOp() {
+		guard let currentUsername = CurrentUser.shared.loggedInUser?.username else { return }
+		if let deleteOp = opsDeletingThisTweet?.first(where: { $0.author.username == currentUsername }) {
+			PostOperationDataManager.shared.remove(op: deleteOp)
+		}
+	}
+	
+	func cancelEditOp() {
+		guard let currentUsername = CurrentUser.shared.loggedInUser?.username else { return }
+		if let editOp = opsEditingThisTweet, editOp.author.username == currentUsername {
+			PostOperationDataManager.shared.remove(op: editOp)
+		}
+	}
 }
 
 fileprivate class RecentNetworkCall : NSObject {
@@ -471,9 +486,7 @@ class TwitarrDataManager: NSObject {
 			postToQueue.text = withText
 			postToQueue.parent = parentPost
 			postToQueue.tweetToEdit = editPost
-			postToQueue.readyToSend = false
-			postToQueue.sentNetworkCall = false
-			postToQueue.originalPostTime = Date()
+			postToQueue.readyToSend = true
 			postToQueue.author = currentUser
 			postToQueue.image = image as NSData?
 			

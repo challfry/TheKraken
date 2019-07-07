@@ -58,11 +58,16 @@ struct LogMessageData {
 			}
 		}
 		
-		if shortMessage.count + message.count < 120 {
-			shortMessage = "\(message) | \(shortMessage)"
+		if shortMessage.count == 0 {
+			shortMessage = message
 		}
-		else {
-			shortMessage = "\(message)\n    \(shortMessage)"
+		else if message.count > 0 {
+			if shortMessage.count + message.count < 120 {
+				shortMessage = "\(message) | \(shortMessage)"
+			}
+			else {
+				shortMessage = "\(message)\n    \(shortMessage)"
+			}
 		}
 		return shortMessage
 	}

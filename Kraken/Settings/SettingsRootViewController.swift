@@ -44,10 +44,15 @@ class SettingsRootViewController: BaseCollectionViewController {
 		delayedPostDisclosure.viewController = self
 
 
-		var  x = settingsSection.append(cell: SettingsInfoCellModel("Time Zone Info"))
+		var x = settingsSection.append(cell: SettingsInfoCellModel("Time Zone Info"))
 		x.labelText = NSAttributedString(string: "Clocks Synchronized")
-		x = settingsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
-		x.labelText = NSAttributedString(string: "lolwut?")
+		
+		// Preferences
+		let prefsHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
+		prefsHeaderCell.labelText = NSAttributedString(string: "App-wide settings")
+		let processPostsSwitch = settingsSection.append(cell: 
+				DelayPostsSwitchCellModel())
+		
 		x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
 		x.labelText = NSAttributedString(string: "Button")
 		
@@ -296,5 +301,16 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 			viewController?.performSegue(withIdentifier: "PostOperations", sender: self)
 		}
 	}
-
 }
+
+@objc class DelayPostsSwitchCellModel: SwitchCellModel {
+	init() {
+		super.init(labelText: "Don't send content changes to server. Content changes will be queued but not sent while this is on.")
+		switchStateChanged = { 
+			Settings.shared.blockEmptyingPostOpsQueue = self.switchState
+		}
+		switchState = Settings.shared.blockEmptyingPostOpsQueue
+	}
+	
+}
+
