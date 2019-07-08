@@ -39,9 +39,16 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="wGd-eA-BOI"/>
                     </view>
-                    <navigationItem key="navigationItem" id="iJs-2k-TPX"/>
+                    <navigationItem key="navigationItem" id="iJs-2k-TPX">
+                        <barButtonItem key="rightBarButtonItem" title="New" id="Zng-z5-0GZ">
+                            <connections>
+                                <segue destination="Gfc-pJ-wBA" kind="show" id="hV8-Mc-Uo7"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="bzJ-CE-5yu" id="gXn-X5-I43"/>
+                        <outlet property="newThreadButton" destination="Zng-z5-0GZ" id="dV4-sR-5oZ"/>
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="Cci-1G-tOu"/>
                         <segue destination="UX8-5D-MNK" kind="show" identifier="ShowSeamailThread" id="KgG-cX-29G"/>
                     </connections>
@@ -95,6 +102,52 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Ms-N4-lZA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2141.5999999999999" y="475.86206896551727"/>
+        </scene>
+        <!--Compose Seamail ThreadVC-->
+        <scene sceneID="DJQ-yg-G8h">
+            <objects>
+                <viewController id="Gfc-pJ-wBA" customClass="ComposeSeamailThreadVC" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Q50-t8-Jcv">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="PX9-hx-nIP">
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="UWz-Xl-bGC">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="Thr-Ew-M9P">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </view>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="PX9-hx-nIP" firstAttribute="top" secondItem="I1N-2Z-8aV" secondAttribute="top" id="4Gz-bO-cAb"/>
+                            <constraint firstItem="PX9-hx-nIP" firstAttribute="leading" secondItem="I1N-2Z-8aV" secondAttribute="leading" id="G7L-7v-Nge"/>
+                            <constraint firstItem="I1N-2Z-8aV" firstAttribute="bottom" secondItem="PX9-hx-nIP" secondAttribute="bottom" id="gge-MZ-1x3"/>
+                            <constraint firstItem="I1N-2Z-8aV" firstAttribute="trailing" secondItem="PX9-hx-nIP" secondAttribute="trailing" id="vnW-yd-lkE"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="I1N-2Z-8aV"/>
+                    </view>
+                    <connections>
+                        <outlet property="collectionView" destination="PX9-hx-nIP" id="UH2-v5-w6A"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Gaz-IU-YXP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2864.8000000000002" y="475.86206896551727"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="zGf-wI-VVz">
@@ -439,7 +492,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="uG2-2f-nge">
-                                <rect key="frame" x="0.0" y="44" width="375" height="734"/>
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="VIl-sM-GDe">
                                     <size key="itemSize" width="375" height="200"/>
@@ -720,7 +773,7 @@
         <image name="second" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="NT7-WF-Ano"/>
+        <segue reference="Cci-1G-tOu"/>
         <segue reference="Ona-uX-i7h"/>
         <segue reference="jQ6-os-thd"/>
         <segue reference="vXi-dK-Rxk"/>

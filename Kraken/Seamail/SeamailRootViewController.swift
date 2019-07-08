@@ -10,6 +10,8 @@ import UIKit
 import CoreData
 
 class SeamailRootViewController: BaseCollectionViewController {
+	@IBOutlet var newThreadButton: UIBarButtonItem!
+
 	let loginDataSource = FilteringDataSource()
 	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread>()
 	let dataManager = SeamailDataManager.shared
@@ -29,12 +31,14 @@ class SeamailRootViewController: BaseCollectionViewController {
         	if observed.loggedInUser == nil {
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
 				observer.dataManager.removeDelegate(observer.frcDataSource)
+				observer.newThreadButton.isEnabled = false
         	}
         	else {
          		observer.frcDataSource.register(with: observer.collectionView, viewController: observer)
   				observer.dataManager.addDelegate(observer.frcDataSource)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
+				observer.newThreadButton.isEnabled = true
 			}
        	}
         }?.execute()        
@@ -65,5 +69,4 @@ class SeamailRootViewController: BaseCollectionViewController {
 			destVC.threadModel = threadModel
 		}
     }
-
 }

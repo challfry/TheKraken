@@ -74,6 +74,7 @@
 		EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536C22D1F75600CD1671 /* ButtonCell.swift */; };
 		EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */; };
 		EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */; };
+		EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
 		EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */; };
@@ -198,6 +199,7 @@
 		EAB4536C22D1F75600CD1671 /* ButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCell.swift; sourceTree = "<group>"; };
 		EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SwitchCell.xib; sourceTree = "<group>"; };
 		EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchCell.swift; sourceTree = "<group>"; };
+		EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeSeamailThreadVC.swift; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadViewController.swift; sourceTree = "<group>"; };
 		EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailMessageCell.swift; sourceTree = "<group>"; };
@@ -280,6 +282,7 @@
 			children = (
 				EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */,
 				EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */,
+				EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */,
 				EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */,
 				EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */,
 				EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */,
@@ -697,6 +700,7 @@
 				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,
 				EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */,
 				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
+				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
