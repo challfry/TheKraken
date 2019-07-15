@@ -239,4 +239,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var tweetToDelete: TwitarrPost?
 }
 
+@objc(PostOpSeamailThread) public class PostOpSeamailThread: PostOperation {
+	@NSManaged public var subject: String?
+	@NSManaged public var text: String?
+	@NSManaged public var recipient: Set<PotentialUser>?
+}
+
 

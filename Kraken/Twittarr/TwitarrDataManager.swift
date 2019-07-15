@@ -396,8 +396,8 @@ class TwitarrDataManager: NSObject {
 				// relationship links to the already-established sub-objects. 
 			
 				// Make a uniqued list of users from the posts, and get them inserted/updated.
-				let jsonUsers = Dictionary(posts.map { ($0.author.username, $0.author) }, uniquingKeysWith: { (first,_) in first })
-				UserManager.shared.update(users: jsonUsers, inContext: context)
+				let userArray = posts.map { $0.author }
+				UserManager.shared.update(users: userArray, inContext: context)
 				
 				// Photos, same idea
 				let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },

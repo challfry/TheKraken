@@ -71,52 +71,52 @@ class DisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 	}
 }
 
-extension DisclosureCell: UIGestureRecognizerDelegate {
-
-	func setupGestureRecognizer() {	
-		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(DisclosureCell.cellTapGesture))
-		tapper.minimumPressDuration = 0.1
-		tapper.numberOfTouchesRequired = 1
-		tapper.numberOfTapsRequired = 0
-		tapper.allowableMovement = 10.0
-		tapper.delegate = self
-		tapper.name = "DisclosureCell Tap Detector"
-		self.addGestureRecognizer(tapper)
-		tapRecognizer = tapper
-	}
-
-	override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-		// need to call super if it's not our recognizer
-		if gestureRecognizer != tapRecognizer {
-			return false
-		}
-		
-		return true
-	}
-
-	@objc func cellTapGesture(_ sender: UILongPressGestureRecognizer) {
-		if sender.state == .began {
-			isHighlighted = true
-		}
-		
-		let currentPoint = sender.location(in: self)
-		var isInside = false
-		if point(inside: currentPoint, with: nil) {
-			isInside = true
-		}
-
-		if sender.state == .changed {
-			isHighlighted = isInside
-		}
-		else if sender.state == .ended {
-			if isInside {
-				cellTapped()
-			}
-		} 
-		
-		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {
-			isHighlighted = false
-		}
-	}
-	
-}
+//extension DisclosureCell: UIGestureRecognizerDelegate {
+//
+//	func setupGestureRecognizer() {	
+//		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(DisclosureCell.cellTapGesture))
+//		tapper.minimumPressDuration = 0.1
+//		tapper.numberOfTouchesRequired = 1
+//		tapper.numberOfTapsRequired = 0
+//		tapper.allowableMovement = 10.0
+//		tapper.delegate = self
+//		tapper.name = "DisclosureCell Tap Detector"
+//		self.addGestureRecognizer(tapper)
+//		tapRecognizer = tapper
+//	}
+//
+//	override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+//		// need to call super if it's not our recognizer
+//		if gestureRecognizer != tapRecognizer {
+//			return false
+//		}
+//		
+//		return true
+//	}
+//
+//	@objc func cellTapGesture(_ sender: UILongPressGestureRecognizer) {
+//		if sender.state == .began {
+//			isHighlighted = true
+//		}
+//		
+//		let currentPoint = sender.location(in: self)
+//		var isInside = false
+//		if point(inside: currentPoint, with: nil) {
+//			isInside = true
+//		}
+//
+//		if sender.state == .changed {
+//			isHighlighted = isInside
+//		}
+//		else if sender.state == .ended {
+//			if isInside {
+//				cellTapped()
+//			}
+//		} 
+//		
+//		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {
+//			isHighlighted = false
+//		}
+//	}
+//	
+//}

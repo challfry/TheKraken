@@ -24,19 +24,21 @@
 import UIKit
 import os
 
+// Logging front ends create one of these objects for each log message  and send it to the LogMessageMultiplexer.
 struct LogMessageData {
+
+	// Logging 'front ends' should fill in these fields 
 	let messageClosure: () -> String
 	let objectsClosure: (() -> [String : Any]?)?
-	
-	lazy var message: String = messageClosure()
-	lazy var objects: [String : Any]? = objectsClosure?() 
-
 	let level: OSLogType
 	let logObject: OSLog?
 	let file: StaticString
 	let function: String
 	let line: UInt
 	
+	lazy var message: String = messageClosure()
+	lazy var objects: [String : Any]? = objectsClosure?() 
+
 	init(messageClosure: @escaping () -> String, objectsClosure: (()-> [String: Any]?)?, 
 			level: OSLogType, logObject: OSLog?, file: StaticString, function: String,  line: UInt)
 	{

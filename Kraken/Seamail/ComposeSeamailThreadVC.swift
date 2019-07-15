@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ComposeSeamailThreadVC: BaseCollectionViewController {
+@objc class ComposeSeamailThreadVC: BaseCollectionViewController {
 	// PostOp for thread creation
 
 	let dataManager = SeamailDataManager.shared
@@ -16,26 +16,44 @@ class ComposeSeamailThreadVC: BaseCollectionViewController {
  
  // Recipient Chooser textfield?
  // Recipient List smallUser cells?
-	var subjectCell: TextFieldCellModel?
-	var messageCell: TextViewCellModel?
+	var usernameTextCell: TextFieldCellModel?
+	var userSuggestionsCell: UserListCoreDataCellModel?
+	var messageRecipientsCell: UserListCoreDataCellModel?
+	@objc dynamic var subjectCell: TextViewCellModel?
+	@objc dynamic var messageCell: TextViewCellModel?
 	var postButtonCell: ButtonCellModel?
 	var postStatusCell: OperationStatusCellModel?
 	
+	var usersInRecentThreads = Set<PossibleKrakenUser>()
+	var usersInThread = Set<PossibleKrakenUser>()
+	@objc dynamic var threadHasRecipients = false
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
         title = "New Seamail"
 
+        usersInRecentThreads = buildRecentsList()
+
 		composeDataSource.register(with: collectionView, viewController: self)
 		let composeSection = composeDataSource.appendSection(named: "ComposeSection")
-		subjectCell = TextFieldCellModel("Subject:")
+		usernameTextCell = composeSection.append(cell: TextFieldCellModel("Participants"))
+		usernameTextCell?.showClearTextButton = true
+		usernameTextCell?.returnButtonHit = textFieldReturnHit
+		userSuggestionsCell = composeSection.append(cell: UserListCoreDataCellModel(withTitle: "Suggestions"))
+		userSuggestionsCell?.selectionCallback = suggestedUserTappedAction
+		messageRecipientsCell = composeSection.append(cell: UserListCoreDataCellModel(withTitle: "Users In Thread"))
+		messageRecipientsCell?.selectionCallback = userInThreadTappedAction
+		messageRecipientsCell?.usePredicate = false
+		messageRecipientsCell?.source = "(besides you)"
+
+		subjectCell = TextViewCellModel("Subject:")
 		composeSection.append(subjectCell!)
 		
 		messageCell = TextViewCellModel("Initial Message:")
 		composeSection.append(messageCell!)
 		
 		postButtonCell = ButtonCellModel()
-		postButtonCell!.setupButton(2, title:"Post", action: postAction)
+		postButtonCell!.setupButton(2, title:"Send", action: postAction)
 		composeSection.append(postButtonCell!)
 
         let statusCell = OperationStatusCellModel()
@@ -43,21 +61,106 @@ class ComposeSeamailThreadVC: BaseCollectionViewController {
         statusCell.showSpinner = true
         statusCell.statusText = "Sending..."
         postStatusCell = statusCell
+        
+        
+        // Let the userSuggestion cell know about changes made to the username text field
+        usernameTextCell?.tell(userSuggestionsCell!, when: "editedText") { observer, observed in 
+        	if let text = observed.editedText, !text.isEmpty {
+        		observer.usePredicate = true
+	        	observer.predicate = NSPredicate(format: "username CONTAINS[cd] %@", text)
+	        	observer.source = "from partial string match"
+			}
+			else {
+        		observer.usePredicate = false
+	        	observer.users = self.usersInRecentThreads
+	        	observer.source = self.usersInRecentThreads.count > 0 ? "from recent Seamail threads" : ""
+			}
+        }?.execute()
+        
+        //
+        self.tell(self, when: ["threadHasRecipients", "subjectCell.editedText", "messageCell.editedText"]) { observer, observed in
+			if let subjectText = observed.subjectCell?.editedText, let messageText = observed.messageCell?.editedText,
+					observed.threadHasRecipients, subjectText.count > 0, messageText.count > 0 {
+				observer.postButtonCell?.button2Enabled = true
+			}
+			else {
+				observer.postButtonCell?.button2Enabled = false
+			}
+        }?.execute()
     }
     
+    func addUserToThread(user: KrakenUser) {
+    	guard user.username != CurrentUser.shared.loggedInUser?.username else { return }
+    	let possUser = PossibleKrakenUser(user: user)
+    	possUser.canBeRemoved = true
+    	usersInThread.insert(possUser)
+   		threadHasRecipients = usersInThread.count > 0
+    	messageRecipientsCell?.users = usersInThread  	
+    }
+    
+    func addUsernameToThread(username: String) {
+    	guard username != CurrentUser.shared.loggedInUser?.username, !username.isEmpty else { return }
+    	let possUser = PossibleKrakenUser(username: username)
+    	possUser.canBeRemoved = true
+    	usersInThread.insert(possUser)
+   		threadHasRecipients = usersInThread.count > 0
+    	messageRecipientsCell?.users = usersInThread  	
+    }
+    
+    func removeUserFromThread(user: PossibleKrakenUser) {
+ 		usersInThread.remove(user)
+		messageRecipientsCell?.users = usersInThread
+   		threadHasRecipients = usersInThread.count > 0
+    }
+    
+    // Builds a list of users the logged in user has had recent Seamails with, for populating the Suggestions
+    // cell when there's nothing better to put there.
+    func buildRecentsList() -> Set<PossibleKrakenUser> {
+    	var recentThreadParticipants: Set<KrakenUser> = Set()
+    	if let threads = SeamailDataManager.shared.fetchedData.fetchedObjects {
+	    	for thread in threads {
+	    		// We're not including users in 'large' Seamail chats; they're likely busy (always at top), and the user is 
+	    		// much more likely to want to start a new chat with people they've been having smaller chats with.
+	    		if thread.participants.count < 20 {
+	    			recentThreadParticipants.formUnion(thread.participants)
+				}
+				if recentThreadParticipants.count >= 20 {
+					break
+				}
+    		}
+		}
+		if let currentUser = CurrentUser.shared.loggedInUser {
+			recentThreadParticipants.remove(currentUser)
+		}
+		
+		let recentPossThreadParticipants = Set(recentThreadParticipants.map { return PossibleKrakenUser(user: $0) })
+		return recentPossThreadParticipants
+    }
+    
+// MARK: Actions
+	func textFieldReturnHit(_ textString: String) {
+		addUsernameToThread(username: textString)	
+	}
 
-    func postAction() {
-
+	func suggestedUserTappedAction(user: PossibleKrakenUser, isSelected: Bool) {
+		if isSelected {
+			if let krakenUser = user.user {
+				addUserToThread(user: krakenUser)
+			}
+			else {
+				addUsernameToThread(username: user.username)
+			}
+		}
+	}
+    
+	func userInThreadTappedAction(user: PossibleKrakenUser, isSelected: Bool) {
+		if isSelected {
+			removeUserFromThread(user: user)
+		}
 	}
 	
-	/*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+    func postAction() {
+		print("meh")
+	}
+	
 }

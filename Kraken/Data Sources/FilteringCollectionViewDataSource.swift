@@ -7,6 +7,13 @@
 //
 
 import UIKit
+import os
+
+fileprivate struct Log: LoggingProtocol {	
+	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
+	static var isEnabled = CollectionViewLog.isEnabled && false
+}
+
 
 @objc class FilteringDataSourceSection : NSObject, KrakenDataSourceSectionProtocol {
 	var dataSource: FilteringDataSource?
@@ -60,6 +67,15 @@ import UIKit
 		allCellModels.add(cell)
 	}
 	
+	@discardableResult func insert<T: BaseCellModel>(cell: T, at: Int) -> T {
+		allCellModels.insert(cell, at: at)
+		return cell
+	}
+	
+	func delete(at: Int) {
+		allCellModels.removeObject(at: at)
+	}
+	
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let cellModel = visibleCellModels[indexPath.row]
@@ -77,7 +93,7 @@ import UIKit
 			cellSize = CGSize(width:collectionView.bounds.size.width, height: 50)
 		}
 		
-//		CollectionViewLog.debug("sizeForItemAt", ["height" : cellSize.height, "path" : indexPath])
+		Log.debug("sizeForItemAt", ["height" : cellSize.height, "path" : indexPath])
 		return cellSize
 	}
 	
@@ -116,12 +132,12 @@ import UIKit
 				inserts.append(IndexPath(row: cellIndex, section: sectionOffset))
 			}
 		}
-//		if collectionView != nil {
-//			CollectionViewLog.debug("Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
-//		}
-//		else {
-//			CollectionViewLog.debug("THROWING AWAY Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
-//		}
+		if collectionView != nil {
+			Log.debug("Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+		}
+		else {
+			Log.debug("THROWING AWAY Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+		}
 		collectionView?.deleteItems(at: deletes)
 		collectionView?.insertItems(at: inserts)
 	}
@@ -184,8 +200,8 @@ import UIKit
 				self.visibleSections = NSMutableArray(array: newVisibleSections)
 			
 				//
-//				CollectionViewLog.debug("Start of performBatchUpdates:", ["DS" : self, 
-//						"New Sections" : newVisibleSections.count, "Old Sections" : oldVisibleSections.count])
+				Log.debug("Start of performBatchUpdates:", ["DS" : self, 
+						"New Sections" : newVisibleSections.count, "Old Sections" : oldVisibleSections.count])
 				
 				var deletedSections = IndexSet()
 				var insertedSections = IndexSet()
@@ -201,8 +217,8 @@ import UIKit
 				}
 				cv.deleteSections(deletedSections)
 				cv.insertSections(insertedSections)
-//				CollectionViewLog.debug("SECTIONS: inserted \(insertedSections.count), deleted \(deletedSections.count)", 
-//						["DS" : self])				
+				Log.debug("SECTIONS: inserted \(insertedSections.count), deleted \(deletedSections.count)", 
+						["DS" : self])				
 				
 				for sectionIndex in 0 ..< newVisibleSections.count {
 					let section = newVisibleSections[sectionIndex] 
@@ -221,9 +237,9 @@ import UIKit
 					self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
 				}
 			
-//				CollectionViewLog.debug("End of batch", ["DS" : self])
+				Log.debug("End of batch", ["DS" : self])
 			}, completion: { completed in
-//				CollectionViewLog.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
+				Log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
 				self.itemsToRunAfterBatchUpdates?.forEach { $0() }
 				self.itemsToRunAfterBatchUpdates = nil
 			})
@@ -313,7 +329,7 @@ import UIKit
 
 extension FilteringDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-//		CollectionViewLog.debug("numberOfSections", ["count" : self.visibleSections.count, "DS" : self])
+		Log.debug("numberOfSections", ["count" : self.visibleSections.count, "DS" : self])
     	return visibleSections.count
     }
 

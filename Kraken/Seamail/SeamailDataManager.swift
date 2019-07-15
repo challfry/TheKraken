@@ -163,9 +163,7 @@ class SeamailDataManager: NSObject {
 			do {
 				// Update all the users in all the theads.
 				let allParticipants = threads.flatMap { $0.participants }
-				let appParticipantsDict = Dictionary(allParticipants.map { ($0.username, $0) }, 
-						uniquingKeysWith: { first, _ in first })
-				UserManager.shared.update(users: appParticipantsDict, inContext: context)
+				UserManager.shared.update(users: allParticipants, inContext: context)
 
 				// Fetch all the threads from CD
 				let allThreadIDs = threads.map { $0.id }

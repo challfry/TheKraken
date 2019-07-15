@@ -90,7 +90,14 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	}
 	
 	func createUserCellModel(_ model:KrakenUser) -> BaseCellModel {
-		return SmallUserCellModel(withModel: model, reuse: "SmallUserCell")
+		let cellModel = SmallUserCellModel(withModel: model, reuse: "SmallUserCell")
+		let username = model.username
+		cellModel.selectionCallback = { [weak self] isSelected in
+			if isSelected {
+				self?.viewController?.performSegue(withIdentifier: "UserProfile", sender: username)
+			}
+		}
+		return cellModel
 	}
     
 	override var isSelected: Bool {
@@ -117,23 +124,6 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		}
 	}
 		
-	var customGR: UILongPressGestureRecognizer?
-}
-
-extension SeamailThreadCell: UIGestureRecognizerDelegate {
-
-	func setupGestureRecognizer() {	
-		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(SeamailThreadCell.usersViewTapped))
-		tapper.minimumPressDuration = 0.05
-		tapper.numberOfTouchesRequired = 1
-		tapper.numberOfTapsRequired = 0
-		tapper.allowableMovement = 10.0
-		tapper.delegate = self
-		tapper.name = "SeamailThreadCell Long Press"
-		addGestureRecognizer(tapper)
-		customGR = tapper
-	}
-
 	override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
 		// need to call super if it's not our recognizer
 		if gestureRecognizer != customGR {
@@ -170,57 +160,3 @@ extension SeamailThreadCell: UIGestureRecognizerDelegate {
 	}
 }
 
-
-@objc class SmallUserCellModel: FetchedResultsCellModel {
-	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "SmallUserCell" : SmallUserCell.self ] }
-}
-
-class SmallUserCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
-	@IBOutlet var imageView: UIImageView!
-	@IBOutlet var usernameLabel: UILabel!
-	
-	private static let cellInfo = [ "SmallUserCell" : PrototypeCellInfo("SmallUserCell") ]
-	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SmallUserCell.cellInfo }
-			
-	var model: NSFetchRequestResult? {
-		didSet {
-			if let user = model as? KrakenUser {
-	    		user.loadUserThumbnail()
-	    		user.tell(self, when:"thumbPhoto") { observer, observed in
-					observer.imageView.image = observed.thumbPhoto
-	    		}?.schedule()
-	    		
-	    		usernameLabel.text = "@\(user.username)"
-			}
-		}
-	}
-	
-	override func awakeFromNib() {
-		super.awakeFromNib()
-		fullWidth = false
-	}
-	
-	override var isSelected: Bool {
-		didSet {
-			if isSelected, let userModel = model as? KrakenUser {
-				viewController?.performSegue(withIdentifier: "UserProfile", sender: userModel.username)
-			}
-		}
-	}
-		
-	var highlightAnimation: UIViewPropertyAnimator?
-	override var isHighlighted: Bool {
-		didSet {
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
-			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted ? UIColor(white:0.9, alpha: 1.0) : UIColor.white
-			}
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
-		}
-	}
-}

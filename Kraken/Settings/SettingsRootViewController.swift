@@ -50,8 +50,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		// Preferences
 		let prefsHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
 		prefsHeaderCell.labelText = NSAttributedString(string: "App-wide settings")
-		let processPostsSwitch = settingsSection.append(cell: 
-				DelayPostsSwitchCellModel())
+		settingsSection.append(cell: DelayPostsSwitchCellModel())
 		
 		x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
 		x.labelText = NSAttributedString(string: "Button")

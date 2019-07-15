@@ -23,6 +23,7 @@
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentsAndStars" inverseName="commentedOnUser" inverseEntity="CommentsAndStars" syncable="YES"/>
         <relationship name="commentsAndStars" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CommentsAndStars" inverseName="commentingUser" inverseEntity="CommentsAndStars" syncable="YES"/>
+        <relationship name="fromPotential" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="actualUser" inverseEntity="PotentialUser" syncable="YES"/>
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation" syncable="YES"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction" syncable="YES"/>
         <relationship name="seamailAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="author" inverseEntity="SeamailMessage" syncable="YES"/>
@@ -59,6 +60,11 @@
         <attribute name="sentNetworkCall" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="postOps" inverseEntity="KrakenUser" syncable="YES"/>
     </entity>
+    <entity name="PostOpSeamailThread" representedClassName="PostOpSeamailThread" parentEntity="PostOperation" syncable="YES">
+        <attribute name="subject" attributeType="String" syncable="YES"/>
+        <attribute name="text" attributeType="String" syncable="YES"/>
+        <relationship name="recipient" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inSeamailThread" inverseEntity="PotentialUser" syncable="YES"/>
+    </entity>
     <entity name="PostOpTweet" representedClassName="PostOpTweet" parentEntity="PostOperation" syncable="YES">
         <attribute name="image" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="text" attributeType="String" syncable="YES"/>
@@ -72,6 +78,11 @@
         <attribute name="isAdd" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="reactionWord" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="sourcePost" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="reactionOps" inverseEntity="TwitarrPost" syncable="YES"/>
+    </entity>
+    <entity name="PotentialUser" representedClassName="PotentialUser" syncable="YES">
+        <attribute name="username" attributeType="String" syncable="YES"/>
+        <relationship name="actualUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="fromPotential" inverseEntity="KrakenUser" syncable="YES"/>
+        <relationship name="inSeamailThread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpSeamailThread" inverseName="recipient" inverseEntity="PostOpSeamailThread" syncable="YES"/>
     </entity>
     <entity name="Reaction" representedClassName="Reaction" syncable="YES">
         <attribute name="count" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
@@ -141,7 +152,7 @@
     <fetchRequest name="SeamailThreadsWithIDs" entity="SeamailThread" predicateString="id IN $ids"/>
     <elements>
         <element name="CommentsAndStars" positionX="117" positionY="90" width="128" height="105"/>
-        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="375"/>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="390"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="120"/>
@@ -153,5 +164,7 @@
         <element name="SeamailThread" positionX="153" positionY="153" width="128" height="135"/>
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
+        <element name="PostOpSeamailThread" positionX="117" positionY="117" width="128" height="90"/>
+        <element name="PotentialUser" positionX="126" positionY="126" width="128" height="90"/>
     </elements>
 </model>

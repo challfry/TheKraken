@@ -105,6 +105,16 @@ import CoreData
 	}
 }
 
+// PotentialUser is used by POSTing classes that can create content while offline. A PotentialUser is just a username,
+// although it has a link to the actual KrakenUser if one exists. A Potentialuser *might* be an actual Twitarr account,
+// but it may not have been validated.
+@objc(PotentialUser) public class PotentialUser : KrakenManagedObject {
+	@NSManaged var username: String
+	@NSManaged var actualUser: KrakenUser?
+}
+
+// MARK: - Data Manager
+
 class UserManager : NSObject {
 	static let shared = UserManager()
 	private let coreData = LocalCoreData.shared
@@ -161,7 +171,7 @@ class UserManager : NSObject {
 	func updateProfile(for objectID: NSManagedObjectID?, from profile: TwitarrV2UserProfile) {
 		let context = coreData.networkOperationContext
 		context.perform {
-			do {
+			do {			
 				// If we have an objectID, use it to get the KrakenUser. Else we do a search.
 				var krakenUser: KrakenUser?
 				if let objectID = objectID {
@@ -173,11 +183,10 @@ class UserManager : NSObject {
 					let results = try request.execute()
 					krakenUser = results.first
 				}
-				if let krakenUser = krakenUser {
-					krakenUser.buildFromV2UserProfile(context: context, v2Object: profile)
-					try context.save()
-				}
-				// rcf Shouldn't we create a KrakenUser if none was found?
+				
+				let user = krakenUser ?? KrakenUser(context: context)
+				user.buildFromV2UserProfile(context: context, v2Object: profile)
+				try context.save()
 			}
 			catch {
 				NetworkLog.error("Failure saving user profile data.", ["Error" : error])
@@ -213,17 +222,21 @@ class UserManager : NSObject {
 		return krakenUser
 	}
 	
-	func update(users origUsers: [ String : TwitarrV2UserInfo], inContext context: NSManagedObjectContext) {
+	// Updates a bunch of users at once. The array of UserInfo objects can have duplicates, but is assumed
+	// to be the parsed out of a single network call. Does not save the context.
+	func update(users origUsers: [TwitarrV2UserInfo], inContext context: NSManagedObjectContext) {
 		do {
-			var users = origUsers
-			let usernames = Array(users.keys)
+			// Unique all the users
+			let usersDict = Dictionary(origUsers.map { ($0.username, $0) }, uniquingKeysWith: { (first,_) in first })
+		
+			let usernames = Array(usersDict.keys)
 			let request = coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindUsers", 
 					substitutionVariables: [ "usernames" : usernames ]) as! NSFetchRequest<KrakenUser>
 			let results = try request.execute()
 			var resultDict = Dictionary(uniqueKeysWithValues: zip(results.map { $0.username } , results))
 			
 			// Perform adds and updates on users
-			for user in users.values {
+			for user in usersDict.values {
 				// Users in the user table must always be *created* as LoggedInKrakenUser, so that if that user
 				// logs in on this device we can load them as a LoggedInKrakenUser. Generally we *search* for KrakenUsers,
 				// the superclass.
@@ -231,21 +244,7 @@ class UserManager : NSObject {
 				addingUser.buildFromV2UserInfo(context: context, v2Object: user)
 				resultDict[addingUser.username] = addingUser
 			}
-			
-
-			// Perform updates as necessary on any users already in CD. Remove updated users from our input array.
-			for cdUser in results {
-				if let user = users[cdUser.username] {
-					if user.displayName != cdUser.displayName {
-						cdUser.displayName = user.displayName
-					}
-					if user.lastPhotoUpdated != cdUser.lastPhotoUpdated {
-						cdUser.lastPhotoUpdated = user.lastPhotoUpdated
-					}
-					users.removeValue(forKey: cdUser.username)
-				}
-			}
-			
+						
 			// Results should now have all the users that were passed in.
 			context.userInfo.setObject(resultDict, forKey: "Users" as NSString)
 		}
@@ -254,12 +253,46 @@ class UserManager : NSObject {
 		}
 	}
 	
+	// Updates CD with new users who have the given substring in their names by asking the server.
+	// Calls done closure when complete. Parameter to the done closure is non-nil if the server response
+	// was comprehensive for that substring.
+	func autocorrectUserLookup(for partialName: String, done: @escaping (String?) -> Void) {
+		guard partialName.count > 1 else { done(nil); return }
+		
+		// Input sanitizing:
+		// URLComponents should percent escape partialName to make a valid path; we may want to remove spaces
+		// manually first.
+		
+		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/ac/\(partialName)", query: nil)
+		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+				NetworkLog.error("Error with user autocomplete", ["error" : error])
+			}
+			else if let data = data {
+				let decoder = JSONDecoder()
+				let context = self.coreData.networkOperationContext
+				context.performAndWait {
+					do {
+						let result = try decoder.decode(TwitarrV2UserAutocompleteResponse.self, from: data)
+						UserManager.shared.update(users: result.users, inContext: context)
+						try context.save()
+						let doneString = result.users.count < 10 ? partialName : nil
+						DispatchQueue.main.async { done(doneString) }
+					}
+					catch {
+						NetworkLog.error("Failure parsing UserInfo.", ["Error" : error, "url" : request.url as Any])
+					} 
+				}
+			}
+		}
+	}
+	
 }
 
 
 
 
-
+// MARK: - Twitarr V2 API Encoding/Decoding
 
 // Twittar API V2 UserInfo
 struct TwitarrV2UserInfo: Codable {
@@ -315,3 +348,10 @@ struct TwitarrV2UserProfileResponse: Codable {
 //	let comment: String?
 	
 }
+
+// /api/v2/user/profile/:username
+struct TwitarrV2UserAutocompleteResponse: Codable {
+	let status: String
+	let users: [TwitarrV2UserInfo]
+}
+

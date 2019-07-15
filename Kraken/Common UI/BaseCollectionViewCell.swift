@@ -132,6 +132,7 @@ struct PrototypeCellInfo {
 	var isPrototypeCell: Bool = false
 	var calculatedSize: CGSize = CGSize(width: 0.0, height: 0.0)
 	var isBuildingCell = false
+	var customGR: UILongPressGestureRecognizer?
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
@@ -229,3 +230,50 @@ struct PrototypeCellInfo {
 	}
 	
 }
+
+extension BaseCollectionViewCell: UIGestureRecognizerDelegate {
+
+	func setupGestureRecognizer() {	
+		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(BaseCollectionViewCell.cellTapped))
+		tapper.minimumPressDuration = 0.05
+		tapper.numberOfTouchesRequired = 1
+		tapper.numberOfTapsRequired = 0
+		tapper.allowableMovement = 10.0
+		tapper.delegate = self
+		tapper.name = "BaseCollectionViewCell Long Press"
+		addGestureRecognizer(tapper)
+		customGR = tapper
+	}
+
+	override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+		// need to call super if it's not our recognizer
+		if gestureRecognizer != customGR {
+			return super.gestureRecognizerShouldBegin(gestureRecognizer)
+		}
+		let hitPoint = gestureRecognizer.location(in: self)
+		if !point(inside:hitPoint, with: nil) {
+			return false
+		}		
+		return true
+	}
+
+	@objc func cellTapped(_ sender: UILongPressGestureRecognizer) {
+		if sender.state == .began {
+			isHighlighted = point(inside:sender.location(in: self), with: nil)
+		}
+		else if sender.state == .changed {
+			isHighlighted = point(inside:sender.location(in: self), with: nil)
+		}
+		else if sender.state == .ended {
+			if (isHighlighted) {
+				isSelected = true
+			}
+			isHighlighted = false
+		}
+		else if sender.state == .cancelled {
+			isHighlighted = false	
+		}
+	}
+}
+
+

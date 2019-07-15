@@ -15,6 +15,8 @@ import UIKit
 	dynamic var fieldText: String? { get set }
 	dynamic var errorText: String? { get set }
 	dynamic var isPassword: Bool { get set }
+	dynamic var showClearTextButton: Bool { get set }
+	dynamic var returnButtonHit: ((String) -> Void)? { get set } 
 }
 
 @objc class TextFieldCellModel: BaseCellModel, TextFieldCellProtocol {	
@@ -25,6 +27,8 @@ import UIKit
 	@objc dynamic var fieldText: String?
 	dynamic var errorText: String?
 	dynamic var isPassword: Bool = false
+	dynamic var showClearTextButton: Bool = false
+	dynamic var returnButtonHit: ((String) -> Void)?
 	@objc dynamic var editedText: String?			// Cell fills this in
 	
 	init(_ titleLabel: String, isPassword: Bool = false) {
@@ -73,6 +77,11 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 			textField.isSecureTextEntry = isPassword
 		}
 	}
+	var showClearTextButton: Bool = false {
+		didSet {
+			textField.clearButtonMode = showClearTextButton ? .always : .never
+		}
+	}
 	
 	func textFieldDidBeginEditing(_ textField: UITextField) {
 		if let vc = viewController as? BaseCollectionViewController {
@@ -85,6 +94,7 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 			vc.activeTextEntry = nil
 		}
 	}
+	var returnButtonHit: ((String) -> Void)?
 	
 	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
 		if let model = cellModel as? TextFieldCellModel, var textFieldContents = textField.text {
@@ -107,6 +117,16 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 			model.editedText = textField.text
 		}
 	}
+	
+	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+		returnButtonHit?(textField.text ?? "")
+		textField.text = ""
+		if let model = cellModel as? TextFieldCellModel {
+			model.editedText = textField.text
+		}
+		return false
+	}
+
 
 }
 

@@ -57,6 +57,9 @@
 		EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */; };
 		EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */; };
 		EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */; };
+		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
+		EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456022DC067D00790F97 /* RedDeleteIcon.png */; };
+		EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456222DC9EC700790F97 /* UnknownUser.png */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BE2242D300009F287F /* FirstViewController.swift */; };
 		EAA2E4C12242D300009F287F /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* SecondViewController.swift */; };
@@ -75,6 +78,8 @@
 		EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */; };
 		EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */; };
 		EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */; };
+		EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537422D58FEA00CD1671 /* UserListCell.swift */; };
+		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
 		EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */; };
@@ -173,6 +178,9 @@
 		EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailDataManager.swift; sourceTree = "<group>"; };
 		EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadCell.swift; sourceTree = "<group>"; };
 		EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeamailThreadCell.xib; sourceTree = "<group>"; };
+		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
+		EA90456022DC067D00790F97 /* RedDeleteIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RedDeleteIcon.png; sourceTree = "<group>"; };
+		EA90456222DC9EC700790F97 /* UnknownUser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UnknownUser.png; sourceTree = "<group>"; };
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
 		EA9E693522980CC500B4DC6D /* Kraken.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kraken.entitlements; sourceTree = "<group>"; };
@@ -200,6 +208,8 @@
 		EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SwitchCell.xib; sourceTree = "<group>"; };
 		EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchCell.swift; sourceTree = "<group>"; };
 		EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeSeamailThreadVC.swift; sourceTree = "<group>"; };
+		EAB4537422D58FEA00CD1671 /* UserListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListCell.swift; sourceTree = "<group>"; };
+		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadViewController.swift; sourceTree = "<group>"; };
 		EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailMessageCell.swift; sourceTree = "<group>"; };
@@ -286,10 +296,13 @@
 				EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */,
 				EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */,
 				EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */,
-				EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */,
 				EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */,
 				EA3C630B2290D3E300077E3B /* SeamailSelfMessageCell.xib */,
 				EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */,
+				EAB4537422D58FEA00CD1671 /* UserListCell.swift */,
+				EAB4537522D58FEA00CD1671 /* UserListCell.xib */,
+				EA90455E22DC032C00790F97 /* SmallUserCell.swift */,
+				EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */,
 			);
 			path = Seamail;
 			sourceTree = "<group>";
@@ -400,6 +413,8 @@
 			children = (
 				EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */,
 				EA86ADD32272855000363CBF /* jellyfish.png */,
+				EA90456022DC067D00790F97 /* RedDeleteIcon.png */,
+				EA90456222DC9EC700790F97 /* UnknownUser.png */,
 			);
 			path = Resources;
 			sourceTree = SOURCE_ROOT;
@@ -610,6 +625,7 @@
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
+				EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */,
 				EA86ADD42272855000363CBF /* jellyfish.png in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
@@ -623,12 +639,14 @@
 				EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */,
 				EA86ADEA2279B4E400363CBF /* ProfileCommentCell.xib in Resources */,
 				EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */,
+				EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */,
 				EA86ADDA22730C7300363CBF /* ButtonCell.xib in Resources */,
 				EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */,
 				EA3C63172297EFD400077E3B /* SettingsInfoCell.xib in Resources */,
 				EA444A59229BEC640098DE97 /* EmojiSelectionCell.xib in Resources */,
 				EA86ADE6227983E500363CBF /* SingleValueCell.xib in Resources */,
 				EA86ADE4227983B600363CBF /* ProfileAvatarTopCell.xib in Resources */,
+				EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -657,6 +675,7 @@
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
 				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
+				EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */,
 				EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
@@ -682,6 +701,7 @@
 				EAA62C7122C55CC00031A999 /* Logging.swift in Sources */,
 				EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */,
 				EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */,
+				EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */,
 				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */,
 				EA278A99226A86BE00808AED /* FilteringCollectionViewDataSource.swift in Sources */,
