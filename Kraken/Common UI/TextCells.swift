@@ -45,6 +45,10 @@ import UIKit
 			return false
 		}
 	}
+
+	func getText() -> String? {
+		return editedText ?? fieldText
+	}
 }
 
 class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldDelegate {
@@ -162,6 +166,10 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 		else {
 			return false
 		}
+	}
+	
+	func getText() -> String? {
+		return editedText ?? editText
 	}
 }
 

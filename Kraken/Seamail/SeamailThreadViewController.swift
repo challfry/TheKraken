@@ -17,6 +17,9 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	let filterDataSource = FilteringDataSource()
 	let dataManager = SeamailDataManager.shared
 	private let coreData = LocalCoreData.shared
+	
+	var postingCell = TextViewCellModel("")
+	var sendButtonCell: ButtonCellModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,14 +42,21 @@ class SeamailThreadViewController: BaseCollectionViewController {
 				
 		filterDataSource.collectionView = collectionView
 		filterDataSource.viewController = self
-		filterDataSource.appendSection(named: "PostingSection")
 		filterDataSource.appendSection(section: frcDataSource)
-		collectionView.dataSource = filterDataSource
-		collectionView.delegate = filterDataSource
+		let postingSection = filterDataSource.appendSection(named: "PostingSection")
+		
+		postingSection.append(postingCell)
+		sendButtonCell = ButtonCellModel(title: "Send", action: sendButtonHit)
+		postingSection.append(sendButtonCell!)
+		filterDataSource.register(with: collectionView, viewController: self)
     }
     
 	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {
 			return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
+	}
+	
+	func sendButtonHit() {
+		print ("meh")
 	}
 	
 }

@@ -10,6 +10,7 @@ import UIKit
 
 @objc class ComposeSeamailThreadVC: BaseCollectionViewController {
 	// PostOp for thread creation
+	var threadToEdit: PostOpSeamailThread?
 
 	let dataManager = SeamailDataManager.shared
 	let composeDataSource = FilteringDataSource()
@@ -27,6 +28,7 @@ import UIKit
 	var usersInRecentThreads = Set<PossibleKrakenUser>()
 	var usersInThread = Set<PossibleKrakenUser>()
 	@objc dynamic var threadHasRecipients = false
+	@objc dynamic var isBusyPosting = false
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,11 +63,27 @@ import UIKit
         statusCell.showSpinner = true
         statusCell.statusText = "Sending..."
         postStatusCell = statusCell
-        
+ 		composeSection.append(postStatusCell!)
+       
+        // If we are editing an existing Post operation, fill in from the post 
+        if let thread = threadToEdit {
+        	if let participants = thread.recipient {
+        		for user in participants {
+        			if let actualUser = user.actualUser {
+        				addUserToThread(user: actualUser)
+        			}
+        			else {
+        				addUsernameToThread(username: user.username)
+        			}
+        		}
+        	}
+        	subjectCell?.editText = thread.subject
+			messageCell?.editText = thread.text
+        }
         
         // Let the userSuggestion cell know about changes made to the username text field
         usernameTextCell?.tell(userSuggestionsCell!, when: "editedText") { observer, observed in 
-        	if let text = observed.editedText, !text.isEmpty {
+        	if let text = observed.getText(), !text.isEmpty {
         		observer.usePredicate = true
 	        	observer.predicate = NSPredicate(format: "username CONTAINS[cd] %@", text)
 	        	observer.source = "from partial string match"
@@ -77,10 +95,11 @@ import UIKit
 			}
         }?.execute()
         
-        //
-        self.tell(self, when: ["threadHasRecipients", "subjectCell.editedText", "messageCell.editedText"]) { observer, observed in
-			if let subjectText = observed.subjectCell?.editedText, let messageText = observed.messageCell?.editedText,
-					observed.threadHasRecipients, subjectText.count > 0, messageText.count > 0 {
+        // Enable the Send button iff all the fields are filled in and we're not already sending.
+        self.tell(self, when: ["threadHasRecipients", "subjectCell.editedText", "messageCell.editedText",
+        		"isBusyPosting"]) { observer, observed in
+			if let subjectText = observed.subjectCell?.getText(), let messageText = observed.messageCell?.getText(),
+					observed.threadHasRecipients, subjectText.count > 0, messageText.count > 0, !observed.isBusyPosting {
 				observer.postButtonCell?.button2Enabled = true
 			}
 			else {
@@ -160,7 +179,17 @@ import UIKit
 	}
 	
     func postAction() {
-		print("meh")
+		if let subjectText = subjectCell?.getText(), let messageText = messageCell?.getText(),
+				subjectText.count > 0, messageText.count > 0, usersInThread.count > 0 {
+			SeamailDataManager.shared.queueNewSeamailThreadOp(existingOp: threadToEdit, subject: subjectText, 
+					message: messageText, recipients: usersInThread, done: postQueued)
+			isBusyPosting = true
+			postStatusCell?.shouldBeVisible	= true
+		}
+	}
+	
+	func postQueued(_ post: PostOpSeamailThread?) {
+		
 	}
 	
 }

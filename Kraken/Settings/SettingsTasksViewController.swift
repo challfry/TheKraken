@@ -50,6 +50,10 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 			if let destVC = segue.destination as? ComposeTweetViewController, let tweet = sender as? PostOpTweet {
 				destVC.draftTweet = tweet
 			}
+		case "EditSeamailThread":
+			if let destVC = segue.destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
+				destVC.threadToEdit = thread
+			}
 		default: break 
 		}
 	}
@@ -98,6 +102,13 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			taskSection.append(SettingsInfoCellModel("Delete this Twitarr tweet of yours:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
 			taskSection.append(TaskEditButtonsCellModel(forTask: deleteTask, vc: self))
+		}
+		else if let seamailPostTheadTask = task as? PostOpSeamailThread {
+			let cellModel = SeamailThreadCellModel(withModel: task, reuse: "seamailThread")
+			cellModel.isInteractive = false
+			taskSection.append(SettingsInfoCellModel("Start a new Seamail Thread:", taskIndex: sectionIndex))
+			taskSection.append(cellModel)
+			taskSection.append(TaskEditButtonsCellModel(forTask: seamailPostTheadTask, vc: self))
 		}
 		
 		return taskSection
@@ -182,6 +193,9 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 	func editTaskHit() {
 		if task is PostOpTweet {
 			viewController?.performSegue(withIdentifier: "EditTweet", sender: task)
+		}
+		else if task is PostOpSeamailThread {
+			viewController?.performSegue(withIdentifier: "EditSeamailThread", sender: task)
 		}
 	}
 	

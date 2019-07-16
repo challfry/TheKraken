@@ -16,7 +16,7 @@ import CoreData
 @objc class SeamailThreadCellModel: FetchedResultsCellModel, SeamailThreadCellBindingProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "seamailThread" : SeamailThreadCell.self ] }
 
-	// If false, the tweet cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
+	// If false, the cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
 	// user thumbnail open a user profile panel.
 	@objc dynamic var isInteractive: Bool = true
 	
@@ -33,7 +33,8 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	@IBOutlet var usersView: UICollectionView!
 	@IBOutlet var usersViewHeightConstraint: NSLayoutConstraint!
 
-	var frcDataSource = FetchedResultsControllerDataSource<KrakenUser>()
+	var userCellDataSource = FilteringDataSource()
+	var userCellSection = FilteringDataSourceSection()
 
 	private static let cellInfo = [ "seamailThread" : PrototypeCellInfo("SeamailThreadCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailThreadCell.cellInfo }
@@ -42,45 +43,58 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 
     var model: NSFetchRequestResult? {
 		didSet {
-		
-			let fetchRequest = NSFetchRequest<KrakenUser>(entityName: "KrakenUser")
-			fetchRequest.predicate = NSPredicate(value: false)
-			fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "username", ascending: true)]
-			fetchRequest.fetchBatchSize = 30
-			let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
-					managedObjectContext: LocalCoreData.shared.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
-	
+			
+			// Set the height of the in-cell CollectionView to be at least as tall as its cells.
+			if let protoUser = CurrentUser.shared.loggedInUser {
+				let protoCellModel = SmallUserCellModel(withModel: protoUser, reuse: "SmallUserCell")
+				let protoCell = protoCellModel.makePrototypeCell(for: usersView, indexPath: IndexPath(row: 0, section: 0)) as? SmallUserCell
+				if let newSize = protoCell?.calculateSize(), usersViewHeightConstraint.constant < newSize.height {
+					usersViewHeightConstraint.constant = newSize.height
+				}
+			}
+
+			userCellSection.allCellModels.removeAllObjects()
 			if let thread = model as? SeamailThread {
 				subjectLabel.text = thread.subject
 				postCountLabel.text = "\(thread.messages.count) messages"
 				participantCountLabel.text = "\(thread.participants.count) participants"
 	    		let postDate: TimeInterval = TimeInterval(thread.timestamp) / 1000.0
 	    		lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
-				
-				fetchRequest.predicate = NSPredicate(format: "ANY seamailParticipant.id == %@", thread.id)
+	    		
+	    		let participantArray = thread.participants.sorted { $0.username < $1.username }
+	    		for user in participantArray {
+	    			userCellSection.append(createUserCellModel(user, name: user.username))
+	    		}
+			}
+			else if let postOpThread = model as? PostOpSeamailThread {
+				// A new thread the user created, waiting to be uploaded to the server
+				subjectLabel.text = postOpThread.subject
+				postCountLabel.text = "1 message"			// A yet-to-be-posted thread can only have its initial msg.
+				var participantCountStr = "unknown participants"
+				if let participantCount = postOpThread.recipient?.count {
+					// Why +1? The PostOp doesn't include the sender in the userlist.
+					participantCountStr = "\(participantCount + 1) participants"
+				}
+				participantCountLabel.text = participantCountStr
+	    		lastPostTime.text = "In the near future"
 
-				// Set the height of the in-cell CollectionView to be at least as tall as its cells.
-				if let protoUser = thread.participants.first {
-					let protoCellModel = SmallUserCellModel(withModel: protoUser, reuse: "SmallUserCell")
-					let protoCell = protoCellModel.makePrototypeCell(for: usersView, indexPath: IndexPath(row: 0, section: 0)) as? SmallUserCell
-					if let newSize = protoCell?.calculateSize(), usersViewHeightConstraint.constant < newSize.height {
-						usersViewHeightConstraint.constant = newSize.height
-					}
+				if let loggedInUser = CurrentUser.shared.loggedInUser {
+					userCellSection.append(createUserCellModel(loggedInUser, name: loggedInUser.username))
+				}
+				if let participantArray = postOpThread.recipient?.sorted(by: { $0.username < $1.username }) {
+		    		for user in participantArray {
+		    			userCellSection.allCellModels.add(createUserCellModel(user.actualUser, name: user.username))
+	    			}
 				}
 			}
-			else {
-				fetchRequest.predicate = NSPredicate(value: false)
-			}
-			try? frc.performFetch()
-			frcDataSource.setup(viewController: viewController, collectionView: usersView, frc: frc, createCellModel: 
-					createUserCellModel, reuseID: "SmallUserCell")
 		}
 	}
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
-
-		usersView.register(UINib(nibName: "SmallUserCell", bundle: nil), forCellWithReuseIdentifier: "SmallUserCell")
+		
+		userCellDataSource.register(with: usersView, viewController: viewController as? BaseCollectionViewController)
+		userCellDataSource.appendSection(section: userCellSection)
 		usersView.backgroundColor = UIColor.clear
 		if let layout = usersView.collectionViewLayout as? UICollectionViewFlowLayout {
 			layout.itemSize = CGSize(width: 68, height: 68)
@@ -89,12 +103,13 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		setupGestureRecognizer()		
 	}
 	
-	func createUserCellModel(_ model:KrakenUser) -> BaseCellModel {
+	func createUserCellModel(_ model:KrakenUser?, name: String) -> BaseCellModel {
 		let cellModel = SmallUserCellModel(withModel: model, reuse: "SmallUserCell")
-		let username = model.username
+		cellModel.shouldBeVisible = true
+		cellModel.username = name
 		cellModel.selectionCallback = { [weak self] isSelected in
-			if isSelected {
-				self?.viewController?.performSegue(withIdentifier: "UserProfile", sender: username)
+			if isSelected && self?.isInteractive == true {
+				self?.viewController?.performSegue(withIdentifier: "UserProfile", sender: name)
 			}
 		}
 		return cellModel
@@ -102,7 +117,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
     
 	override var isSelected: Bool {
 		didSet {
-			if isSelected {
+			if isSelected && isInteractive {
 				viewController?.performSegue(withIdentifier: "ShowSeamailThread", sender: model)
 			}
 		}
@@ -111,6 +126,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	var highlightAnimation: UIViewPropertyAnimator?
 	override var isHighlighted: Bool {
 		didSet {
+			if !isInteractive { return }
 			if let oldAnim = highlightAnimation {
 				oldAnim.stopAnimation(true)
 			}

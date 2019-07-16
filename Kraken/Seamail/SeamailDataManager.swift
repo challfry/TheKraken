@@ -185,7 +185,54 @@ class SeamailDataManager: NSObject {
 			}
 		}
 	}
-
+	
+	// Creates a pending POST operation to create a new Seamail thread
+	func queueNewSeamailThreadOp(existingOp: PostOpSeamailThread?, subject: String, message: String, 
+			recipients: Set<PossibleKrakenUser>, done: @escaping (PostOpSeamailThread?) -> Void) {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
+			
+			var existingThread: PostOpSeamailThread?
+			if let existingOp = existingOp {
+				try? existingThread = context.existingObject(with: existingOp.objectID) as? PostOpSeamailThread
+			}
+			
+			let newThread = existingThread ?? PostOpSeamailThread(context: context)
+			newThread.subject = subject
+			newThread.text = message
+			newThread.author = currentUser
+			
+			// Why both possibleUsers and potentialUsers? I didn't want to create the CoreData objects until a 
+			// thread was queued for sending, and I therefore can't create CoreData PotentialUsers while the user is still
+			// selecting thread participants.
+			for possibleUser in recipients {
+				let newPotential = PotentialUser(context: context)
+				newPotential.username = possibleUser.username
+				if let actualUser = possibleUser.user {
+					let actualUserInContext = context.object(with: actualUser.objectID) as? KrakenUser
+					newPotential.actualUser = actualUserInContext
+				}
+				newThread.recipient?.insert(newPotential)
+				
+				// We could at this point do a final search for actual users matching a username that doesn't have 
+				// a KrakenUser attached. But why? If we don't find one, it's still not definitive, it's too late to
+				// tell the user anything useful (they already know there might not be an actual user with this name)
+				// and we're just going to send the name to the server where it'll get validated anyway.
+			}
+						
+			newThread.readyToSend = true
+			do {
+				try context.save()
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: newThread.objectID) as? PostOpSeamailThread 
+				done(mainThreadPost)
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context while creating new Seamail thread.", ["error" : error])
+				done(nil)
+			}
+		}
+	}
 }
 
 // The data manager can have multiple delegates, all of which are watching the same results set.
