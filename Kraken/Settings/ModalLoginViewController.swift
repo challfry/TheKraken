@@ -10,14 +10,14 @@ import UIKit
 
 class ModalLoginViewController: BaseCollectionViewController {
 	
-	let loginDataSource = FilteringDataSource()
+	let loginDataSource = KrakenDataSource()
 	var segueData: LoginSegueWithAction?
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
         loginDataSource.viewController = self
         let loginSection = LoginDataSourceSection()
-        loginDataSource.appendSection(section: loginSection)
+		loginDataSource.append(segment: loginSection)
         
         if let segueData = segueData {
 			loginSection.headerCellText = segueData.promptText
@@ -54,7 +54,7 @@ struct LoginSegueWithAction {
 	// This VC doesn't actually execute either of these. Generally modal login acts as an interstitial for some 
 	// other action the user wants to perform, and these closures let that action continue happening after the user
 	// logs in. But, any UI from those actions should happen in the VC they started in, not the login VC.
-	// So, the persenting VC should grab the closure from the login VC during the unwind segue, and run it there.
+	// So, the presenting VC should grab the closure from the login VC during the unwind segue, and run it there.
 	//
 	// Also: I'm choosing not to differentiate between "User entered creds in this VC and successfully logged in" from
 	// "User transitioned to the logged in state, via any mechanism." So, check CurrentUser to see if someone's logged in.

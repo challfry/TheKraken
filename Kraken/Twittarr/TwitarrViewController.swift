@@ -14,38 +14,32 @@ class TwitarrViewController: BaseCollectionViewController {
 
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
 	var dataManager = TwitarrDataManager.shared
-	var tweetDataSource = FetchedResultsControllerDataSource<TwitarrPost>()
+	var tweetDataSource = KrakenDataSource()
 	
-//	private var collectionViewUpdateBlocks: [() -> Void] = []
-
 	override func viewDidLoad() {
         super.viewDidLoad()
         
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
- 		TwitarrTweetCell.registerCells(with:collectionView)
-		try! self.dataManager.fetchedData.performFetch()
- 		tweetDataSource.setup(viewController: self, collectionView: collectionView, frc: dataManager.fetchedData, 
- 				createCellModel: createCellModel, reuseID: "tweet")
+ 
+ 		tweetDataSource.register(with: collectionView, viewController: self)
+		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
+  		tweetDataSource.append(segment: tweetSegment)
+		tweetSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
 		
         // Do any additional setup after loading the view.
 		startRefresh()
-		
 		title = dataManager.filter ?? "Twitarr"
 		setupGestureRecognizer()
 	}
     
     override func viewWillAppear(_ animated: Bool) {
-		dataManager.addDelegate(tweetDataSource)
+//		dataManager.addDelegate(tweetDataSource)
 		tweetDataSource.enableAnimations = true
 	}
-	
-    override func viewDidAppear(_ animated: Bool) {
-		tweetDataSource.enableAnimations = true
-	}
-	
+		
     override func viewWillDisappear(_ animated: Bool) {
-		dataManager.removeDelegate(tweetDataSource)
+//		dataManager.removeDelegate(tweetDataSource)
 	}
 	
 	func createCellModel(_ model:TwitarrPost) -> BaseCellModel {

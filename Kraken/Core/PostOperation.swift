@@ -242,7 +242,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpSeamailThread) public class PostOpSeamailThread: PostOperation {
 	@NSManaged public var subject: String?
 	@NSManaged public var text: String?
-	@NSManaged public var recipient: Set<PotentialUser>?
+	@NSManaged public var recipients: Set<PotentialUser>?
+}
+
+@objc(PostOpSeamailMessage) public class PostOpSeamailMessage: PostOperation {
+	@NSManaged public var thread: SeamailThread?
+	@NSManaged public var text: String
 }
 
 

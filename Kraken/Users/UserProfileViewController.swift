@@ -10,7 +10,7 @@ import UIKit
 
 
 class UserProfileViewController: BaseCollectionViewController {
-	let dataSource = FilteringDataSource()
+	let dataSource = KrakenDataSource()
 	
 	// The user name is what the VC is 'modeling', not the KrakenUser. This way, even if there's no user with that name,
 	// the VC still appears and is responsible for displaying the error.
@@ -43,7 +43,7 @@ class UserProfileViewController: BaseCollectionViewController {
     
     func setupCellModels() {
 
-    	let section = dataSource.appendSection(named: "UserProfile")
+    	let section = dataSource.appendFilteringSegment(named: "UserProfile")
     	section.append(ProfileAvatarCellModel(user: modelKrakenUser))
 		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email))
 		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation))

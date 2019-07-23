@@ -193,15 +193,15 @@ class UserListCell: BaseCollectionViewCell, UserListCellBindingProtocol {
 		}
 	}
 
-	var userListDataSource = FilteringDataSource()
-	var userSection = FilteringDataSourceSection()
+	var userListDataSource = KrakenDataSource()
+	var userSection = FilteringDataSourceSegment()
 
 	override func awakeFromNib() {
         super.awakeFromNib()
 		userListDataSource.enableAnimations = true
 
 		userListDataSource.register(with: userCollection, viewController: viewController as? BaseCollectionViewController)
-		userListDataSource.appendSection(section: userSection)
+		userListDataSource.append(segment: userSection)
 		if let layout = userCollection.collectionViewLayout as? UICollectionViewFlowLayout {
 			layout.itemSize = CGSize(width: 68, height: 68)
 		}

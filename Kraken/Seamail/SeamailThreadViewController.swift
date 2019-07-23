@@ -13,50 +13,74 @@ class SeamailThreadViewController: BaseCollectionViewController {
 
 	var threadModel: SeamailThread?
 	
-	let frcDataSource = FetchedResultsControllerDataSource<SeamailMessage>()
-	let filterDataSource = FilteringDataSource()
-	let dataManager = SeamailDataManager.shared
+	private let compositeDataSource = KrakenDataSource()
+	private let 	messageSegment = FRCDataSourceSegment<SeamailMessage>()
+	private let 	queuedMsgSegment = FRCDataSourceSegment<PostOpSeamailMessage>()
+	private let 	newMessageSegment = FilteringDataSourceSegment()
+	private let dataManager = SeamailDataManager.shared
 	private let coreData = LocalCoreData.shared
 	
 	var postingCell = TextViewCellModel("")
 	var sendButtonCell: ButtonCellModel?
+	private var isBusyPosting: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
- 		let fetchRequest = NSFetchRequest<SeamailMessage>(entityName: "SeamailMessage")
+                
+   		// Set up the FRCs for the messages in the thread and the messages in the send queue
+   		var messagePredicate: NSPredicate
  		if let model = threadModel {
-			fetchRequest.predicate = NSPredicate(format: "thread.id = '\(model.id)'")
-		} 
-		else {
-			fetchRequest.predicate = NSPredicate(value: false)
+			messagePredicate = NSPredicate(format: "thread.id = '\(model.id)'")
 		}
-		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
-		let fetchedResults = NSFetchedResultsController(fetchRequest: fetchRequest,
-				managedObjectContext: coreData.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
-		try? fetchedResults.performFetch()
-		frcDataSource.setup(viewController: self, collectionView: collectionView, frc: fetchedResults,
-				createCellModel: createMessageCellModel, reuseID: "SeamailMessageCell")
-		collectionView.register(UINib(nibName: "SeamailMessageCell", bundle: nil), forCellWithReuseIdentifier: "SeamailMessageCell")
-		collectionView.register(UINib(nibName: "SeamailSelfMessageCell", bundle: nil), forCellWithReuseIdentifier: "SeamailSelfMessageCell")
-				
-		filterDataSource.collectionView = collectionView
-		filterDataSource.viewController = self
-		filterDataSource.appendSection(section: frcDataSource)
-		let postingSection = filterDataSource.appendSection(named: "PostingSection")
-		
-		postingSection.append(postingCell)
+		else {
+			messagePredicate = NSPredicate(value: false)
+		}
+   		messageSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "timestamp", ascending: true) ],
+   				cellModelFactory: createMessageCellModel)
+   		queuedMsgSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "originalPostTime", ascending:true) ],
+   				cellModelFactory: createMessageOpCellModel)
+							
+		// Next, the filter segment for the new message text field and button.
+		newMessageSegment.append(postingCell)
 		sendButtonCell = ButtonCellModel(title: "Send", action: sendButtonHit)
-		postingSection.append(sendButtonCell!)
-		filterDataSource.register(with: collectionView, viewController: self)
+		newMessageSegment.append(sendButtonCell!)
+
+		// Put everything together in the composite data source
+		compositeDataSource.register(with: collectionView, viewController: self)
+		compositeDataSource.append(segment: messageSegment)
+		compositeDataSource.append(segment: queuedMsgSegment)
+		compositeDataSource.append(segment: newMessageSegment)
+		
+		// When the cells finish getting added to the CV, scroll the CV to the bottom cell.
+		compositeDataSource.scheduleBatchUpdateCompletionBlock {
+			self.collectionView.scrollToItem(at: IndexPath(row: 1, section: 2), at: .bottom, animated: false)
+		}
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+		compositeDataSource.enableAnimations = true
+	}
+
 	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {
 			return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
 	}
 	
+	func createMessageOpCellModel(_ model:PostOpSeamailMessage) -> BaseCellModel {
+			return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
+	}
+	
 	func sendButtonHit() {
-		print ("meh")
+		if let messageText = postingCell.getText(), messageText.count > 0, let thread = threadModel {
+			SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: messageText,
+					thread: thread, done: postQueued)
+			isBusyPosting = true
+			postingCell.editText = "X"
+			postingCell.editText = ""
+		}
+	}
+	
+	func postQueued(_ post: PostOpSeamailMessage?) {
+		
 	}
 	
 }

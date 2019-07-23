@@ -12,7 +12,7 @@ import SystemConfiguration.CaptiveNetwork
 import CoreData
 
 class SettingsRootViewController: BaseCollectionViewController {
-	let dataSource = FilteringDataSource()
+	let dataSource = KrakenDataSource()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,7 +20,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 
   		dataSource.register(with: collectionView, viewController: self)
   		dataSource.viewController = self
-		let settingsSection = dataSource.appendSection(named: "settingsSection")
+		let settingsSection = dataSource.appendFilteringSegment(named: "settingsSection")
 		
 		// Network Info
 		let networkInfoCell = settingsSection.append(cell: SettingsInfoCellModel("Network"))

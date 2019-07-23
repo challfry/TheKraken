@@ -11,32 +11,22 @@ import UIKit
 class PendingTwitarrRepliesVC: BaseCollectionViewController {
 
 	var parentTweet: TwitarrPost?
-	var tweetDataSource = FetchedResultsControllerDataSource<PostOpTweet>()
+	var tweetDataSource = KrakenDataSource()
 
 	override func viewDidLoad() {
         super.viewDidLoad()
-		title = "Pending Replies"       
+		title = "Pending Replies"
+		
+		tweetDataSource.register(with: collectionView, viewController: self)
 
- 		TwitarrTweetCell.registerCells(with:collectionView)
-
-		let fetchRequest = NSFetchRequest<PostOpTweet>(entityName: "PostOpTweet")
-		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "originalPostTime", ascending: true)]
-		fetchRequest.fetchBatchSize = 50
+		let tweetSegment = tweetDataSource.append(segment: FRCDataSourceSegment<PostOpTweet>())
+		var predicate: NSPredicate?
 		if let currentUsername = CurrentUser.shared.loggedInUser?.username, let parent = parentTweet {
-			fetchRequest.predicate = NSPredicate(format: "parent == %@ AND author.username == %@", 
-					parent, currentUsername)
-			let fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, 
-					managedObjectContext: LocalCoreData.shared.mainThreadContext, 
-					sectionNameKeyPath: nil, cacheName: nil)
-			do {
-				try fetchedData.performFetch()
-			}
-			catch {
-				CoreDataLog.error("Couldn't fetch pending replies.", [ "error" : error ])
-			}
-			tweetDataSource.setup(viewController: self, collectionView: collectionView, frc: fetchedData, 
- 					createCellModel: createCellModel, reuseID: "tweet")
+			predicate = NSPredicate(format: "parent == %@ AND author.username == %@", parent, currentUsername)
 		}
+		tweetSegment.activate(predicate: predicate, sort: [NSSortDescriptor(key: "originalPostTime", ascending: true)],
+				cellModelFactory: createCellModel)
+
 		setupGestureRecognizer()
   }
     

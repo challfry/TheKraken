@@ -10,10 +10,17 @@ import UIKit
 import CoreData
 
 @objc class SeamailMessageCellModel: FetchedResultsCellModel {
-	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "SeamailMessageCell" : SeamailMessageCell.self ] }
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
+		return [ "SeamailMessageCell" : SeamailMessageCell.self, "SeamailSelfMessageCell" : SeamailMessageCell.self ] 
+	}
 
 	override func reuseID() -> String {
-		if let message = model as? SeamailMessage, message.author.username == CurrentUser.shared.loggedInUser?.username {
+		guard let username = CurrentUser.shared.loggedInUser?.username else { return "SeamailMessageCell" }
+		
+		if let message = model as? SeamailMessage, message.author.username == username {
+    		return "SeamailSelfMessageCell"
+    	}
+    	else if let _ = model as? PostOpSeamailMessage {
     		return "SeamailSelfMessageCell"
     	}
     	else {
@@ -44,8 +51,9 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 	    		messageLabel.text = message.text
 	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
 	    		let dateString = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
-				authorUsernameLabel?.text = "\(message.author.username), \(dateString)"
-				postTimeLabel?.text = dateString
+				authorUsernameLabel?.attributedText = authorAndTime(author: message.author.username, time: dateString)
+				postTimeLabel?.attributedText = authorAndTime(author: nil, time: dateString)
+				contentView.backgroundColor = UIColor.white
  
 				message.author.loadUserThumbnail()
 				message.author.tell(self, when:"thumbPhoto") { observer, observed in
@@ -53,7 +61,37 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 //					CollectionViewLog.debug("Setting user image for \(observed.username)", ["image" : observed.thumbPhoto])
 				}?.schedule()
 			}
+			else if let message = model as? PostOpSeamailMessage {
+	    		messageLabel.text = message.text
+				postTimeLabel?.attributedText = authorAndTime(author: nil, time: "In the near future")
+				authorUsernameLabel?.text = "\(message.author.username), In the near future"
+				contentView.backgroundColor = UIColor(white:0.94, alpha: 1.0)
+			}
     	}
     }
     
+    func authorAndTime(author: String?, time: String) -> NSAttributedString {
+    	
+ 		let resultString = NSMutableAttributedString()
+ 		if let author = author {
+ 			let authorString = NSAttributedString(string: "\(author), ", attributes: authorTextAttributes())
+ 			resultString.append(authorString)
+		}
+		let timeAttrString = NSAttributedString(string: time, attributes: postTimeTextAttributes())
+		resultString.append(timeAttrString)
+  		return resultString
+    }
+    
+	func authorTextAttributes() -> [ NSAttributedString.Key : Any ] {
+		let authorFont = UIFont(name:"Helvetica-Bold", size: 14)
+		let result: [NSAttributedString.Key : Any] = [ .font : authorFont?.withSize(14) as Any ]
+		return result
+	}
+	
+	func postTimeTextAttributes() -> [ NSAttributedString.Key : Any ] {
+		let postTimeFont = UIFont(name:"Georgia-Italic", size: 14)
+		let postTimeColor = UIColor.lightGray
+		let result: [NSAttributedString.Key : Any] = [ .font : postTimeFont?.withSize(14) as Any, .foregroundColor : postTimeColor ]
+		return result
+	}
 }

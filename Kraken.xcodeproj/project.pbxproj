@@ -16,7 +16,7 @@
 		EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9E2246CDF700017F07 /* Settings.swift */; };
 		EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3BA2224D858700017F07 /* ImageManager.swift */; };
 		EA278A4A226A755400808AED /* OperationStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* OperationStatusCell.xib */; };
-		EA278A99226A86BE00808AED /* FilteringCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringCollectionViewDataSource.swift */; };
+		EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */; };
 		EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA3C630B2290D3E300077E3B /* SeamailSelfMessageCell.xib */; };
 		EA3C630E2293913600077E3B /* ComposeTweetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C630D2293913600077E3B /* ComposeTweetViewController.swift */; };
 		EA3C63102296275F00077E3B /* CollectionFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C630F2296275F00077E3B /* CollectionFlowLayout.swift */; };
@@ -85,7 +85,7 @@
 		EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */; };
 		EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */; };
 		EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696EC2290159000EE6EEB /* StringUtilities.swift */; };
-		EAC71D4A228A13F6002F7BB3 /* FetchedResultsControllerDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC71D49228A13F6002F7BB3 /* FetchedResultsControllerDataSource.swift */; };
+		EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */; };
 		EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */; };
 		EAE5914B229E4A34002B5DEF /* BlueButtonHighlight.png in Resources */ = {isa = PBXBuildFile; fileRef = EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */; };
 		EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */; };
@@ -128,7 +128,7 @@
 		EA1E3BA02248153F00017F07 /* Feature plans.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Feature plans.md"; sourceTree = "<group>"; };
 		EA1E3BA2224D858700017F07 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		EA278A49226A755400808AED /* OperationStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = OperationStatusCell.xib; sourceTree = "<group>"; };
-		EA278A98226A86BE00808AED /* FilteringCollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringCollectionViewDataSource.swift; sourceTree = "<group>"; };
+		EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
 		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		EA3C630B2290D3E300077E3B /* SeamailSelfMessageCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailSelfMessageCell.xib; sourceTree = "<group>"; };
@@ -215,7 +215,7 @@
 		EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailMessageCell.swift; sourceTree = "<group>"; };
 		EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeamailMessageCell.xib; sourceTree = "<group>"; };
 		EAC696EC2290159000EE6EEB /* StringUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtilities.swift; sourceTree = "<group>"; };
-		EAC71D49228A13F6002F7BB3 /* FetchedResultsControllerDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchedResultsControllerDataSource.swift; sourceTree = "<group>"; };
+		EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SmallUserCell.xib; sourceTree = "<group>"; };
 		EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BlueButtonHighlight.png; sourceTree = "<group>"; };
 		EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectionCell.swift; sourceTree = "<group>"; };
@@ -491,8 +491,8 @@
 			isa = PBXGroup;
 			children = (
 				EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */,
-				EAC71D49228A13F6002F7BB3 /* FetchedResultsControllerDataSource.swift */,
-				EA278A98226A86BE00808AED /* FilteringCollectionViewDataSource.swift */,
+				EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */,
+				EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */,
 				EA3C630F2296275F00077E3B /* CollectionFlowLayout.swift */,
 			);
 			path = "Data Sources";
@@ -704,7 +704,7 @@
 				EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */,
 				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */,
-				EA278A99226A86BE00808AED /* FilteringCollectionViewDataSource.swift in Sources */,
+				EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */,
 				EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */,
 				EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */,
 				EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */,
@@ -715,7 +715,7 @@
 				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
-				EAC71D4A228A13F6002F7BB3 /* FetchedResultsControllerDataSource.swift in Sources */,
+				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
 				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,
 				EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */,

@@ -14,8 +14,8 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	var editTweet: TwitarrPost?				// If we're editing a posted tweet, the original
 	var draftTweet: PostOpTweet?			// If we're editing a draft, the draft
 
-	let loginDataSource = FilteringDataSource()
-	let composeDataSource = FilteringDataSource()
+	let loginDataSource = KrakenDataSource()
+	let composeDataSource = KrakenDataSource()
 	var tweetTextCell: TextViewCellModel?
 	var postButtonCell: ButtonCellModel?
 	var postStatusCell: OperationStatusCellModel?
@@ -34,12 +34,12 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
 		loginDataSource.viewController = self
         let loginSection = LoginDataSourceSection()
-        loginDataSource.appendSection(section: loginSection)
+        loginDataSource.append(segment: loginSection)
         loginSection.headerCellText = "You will need to log in before you can post to Twitarr."
         
 		composeDataSource.viewController = self
 //		let referenceSection = composeDataSource.appendSection(named: "ReferenceSection")
-		let composeSection = composeDataSource.appendSection(named: "ComposeSection")
+		let composeSection = composeDataSource.appendFilteringSegment(named: "ComposeSection")
 
 		let replyLabelCellModel = LabelCellModel("In response to:")
 		replyLabelCellModel.shouldBeVisible = parentTweet != nil

@@ -12,30 +12,31 @@ import CoreData
 class SeamailRootViewController: BaseCollectionViewController {
 	@IBOutlet var newThreadButton: UIBarButtonItem!
 
-	let loginDataSource = FilteringDataSource()
-	let frcDataSource = FetchedResultsControllerDataSource<SeamailThread>()
+	let loginDataSource = KrakenDataSource()
+	let threadDataSource = KrakenDataSource()
+	lazy var threadSegment = FRCDataSourceSegment<SeamailThread>(withCustomFRC: dataManager.fetchedData)
 	let dataManager = SeamailDataManager.shared
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
-        loginDataSource.viewController = self
-        let loginSection = LoginDataSourceSection()
-        loginDataSource.appendSection(section: loginSection)
         
+        //
+        let loginSection = LoginDataSourceSection()
+        loginDataSource.append(segment: loginSection)
 		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
-		frcDataSource.setup(viewController: self, collectionView: collectionView, frc: dataManager.fetchedData,
-				createCellModel: createCellModel, reuseID: "seamailThread")
-  		SeamailThreadCell.registerCells(with:collectionView)
+
+		threadDataSource.append(segment: threadSegment)
+		threadSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
        
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
         	if observed.loggedInUser == nil {
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
-				observer.dataManager.removeDelegate(observer.frcDataSource)
+				observer.dataManager.removeDelegate(observer.threadSegment)
 				observer.newThreadButton.isEnabled = false
         	}
         	else {
-         		observer.frcDataSource.register(with: observer.collectionView, viewController: observer)
-  				observer.dataManager.addDelegate(observer.frcDataSource)
+         		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
+  				observer.dataManager.addDelegate(observer.threadSegment)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
 				observer.newThreadButton.isEnabled = true
@@ -48,6 +49,7 @@ class SeamailRootViewController: BaseCollectionViewController {
     
     override func viewDidAppear(_ animated: Bool) {
 		loginDataSource.enableAnimations = true
+		threadDataSource.enableAnimations = true
 	}
 	
 	// Gets called from within collectionView:cellForItemAt:

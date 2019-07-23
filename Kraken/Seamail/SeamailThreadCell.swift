@@ -33,8 +33,8 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	@IBOutlet var usersView: UICollectionView!
 	@IBOutlet var usersViewHeightConstraint: NSLayoutConstraint!
 
-	var userCellDataSource = FilteringDataSource()
-	var userCellSection = FilteringDataSourceSection()
+	var userCellDataSource = KrakenDataSource()
+	var userCellSection = FilteringDataSourceSegment()
 
 	private static let cellInfo = [ "seamailThread" : PrototypeCellInfo("SeamailThreadCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailThreadCell.cellInfo }
@@ -56,7 +56,14 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 			userCellSection.allCellModels.removeAllObjects()
 			if let thread = model as? SeamailThread {
 				subjectLabel.text = thread.subject
-				postCountLabel.text = "\(thread.messages.count) messages"
+				var postCountText = "\(thread.messages.count) messages"
+				if let ops = thread.opsAddingMessages, let currentUsername = CurrentUser.shared.loggedInUser?.username {
+					let addCountThisUser = ops.reduce(0) { $0 + ($1.author.username == currentUsername ? 1 : 0) }
+					if addCountThisUser > 0 {
+						postCountText.append(" (+\(addCountThisUser) pending)")
+					}
+				}
+				postCountLabel.text = postCountText
 				participantCountLabel.text = "\(thread.participants.count) participants"
 	    		let postDate: TimeInterval = TimeInterval(thread.timestamp) / 1000.0
 	    		lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
@@ -71,7 +78,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 				subjectLabel.text = postOpThread.subject
 				postCountLabel.text = "1 message"			// A yet-to-be-posted thread can only have its initial msg.
 				var participantCountStr = "unknown participants"
-				if let participantCount = postOpThread.recipient?.count {
+				if let participantCount = postOpThread.recipients?.count {
 					// Why +1? The PostOp doesn't include the sender in the userlist.
 					participantCountStr = "\(participantCount + 1) participants"
 				}
@@ -81,7 +88,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 				if let loggedInUser = CurrentUser.shared.loggedInUser {
 					userCellSection.append(createUserCellModel(loggedInUser, name: loggedInUser.username))
 				}
-				if let participantArray = postOpThread.recipient?.sorted(by: { $0.username < $1.username }) {
+				if let participantArray = postOpThread.recipients?.sorted(by: { $0.username < $1.username }) {
 		    		for user in participantArray {
 		    			userCellSection.allCellModels.add(createUserCellModel(user.actualUser, name: user.username))
 	    			}
@@ -94,7 +101,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		super.awakeFromNib()
 		
 		userCellDataSource.register(with: usersView, viewController: viewController as? BaseCollectionViewController)
-		userCellDataSource.appendSection(section: userCellSection)
+		userCellDataSource.append(segment: userCellSection)
 		usersView.backgroundColor = UIColor.clear
 		if let layout = usersView.collectionViewLayout as? UICollectionViewFlowLayout {
 			layout.itemSize = CGSize(width: 68, height: 68)

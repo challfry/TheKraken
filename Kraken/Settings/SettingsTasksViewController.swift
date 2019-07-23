@@ -11,12 +11,11 @@ import CoreData
 
 class SettingsTasksViewController: BaseCollectionViewController  {
 	var controller: NSFetchedResultsController<PostOperation>?
-	let dataSource = FilteringDataSource()
+	let dataSource = KrakenDataSource()
 		
     override func viewDidLoad() {
 		super.viewDidLoad()
   		dataSource.register(with: collectionView, viewController: self)
-  		dataSource.viewController = self
 		
 		let context = LocalCoreData.shared.mainThreadContext
 		let fetchRequest = NSFetchRequest<PostOperation>(entityName: "PostOperation")
@@ -32,7 +31,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 				for task in tasks {
 					x = x + 1
 					let newSection = makeNewSection(for: task, sectionIndex: x)
-					dataSource.appendSection(section: newSection)
+					dataSource.append(segment: newSection)
 				}
 			}
 		} catch {
@@ -63,8 +62,8 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 // Each item in the FRC array is a section (usually with 3 cells in it) in the CV.
 extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 
-	func makeNewSection(for task: PostOperation, sectionIndex: Int) -> KrakenDataSourceSectionProtocol {
-		let taskSection = FilteringDataSourceSection()
+	func makeNewSection(for task: PostOperation, sectionIndex: Int) -> KrakenDataSourceSegment {
+		let taskSection = FilteringDataSourceSegment()
 		taskSection.sectionName = "\(sectionIndex)"
 		
 		if let reactionTask = task as? PostOpTweetReaction {
@@ -110,6 +109,13 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			taskSection.append(cellModel)
 			taskSection.append(TaskEditButtonsCellModel(forTask: seamailPostTheadTask, vc: self))
 		}
+		else if let seamailPostMessageTask = task as? PostOpSeamailMessage {
+			let cellModel = SeamailMessageCellModel(withModel: task, reuse: "SeamailSelfMessageCell")
+			// cellModel.isInteractive = false
+			taskSection.append(SettingsInfoCellModel("Send a Seamail Message:", taskIndex: sectionIndex))
+			taskSection.append(cellModel)
+			taskSection.append(TaskEditButtonsCellModel(forTask: seamailPostMessageTask, vc: self))
+		}
 		
 		return taskSection
 	}
@@ -138,14 +144,14 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 		case .insert:
 			guard let newIndexPath = newIndexPath, let task = anObject as? PostOperation else { return }
 			let newSection = makeNewSection(for: task, sectionIndex: newIndexPath.row)
-			dataSource.insertSection(newSection, at: newIndexPath.row)
+			dataSource.insertSegment(newSection, at: newIndexPath.row)
 		case .delete:
 			guard let indexPath = indexPath else { return }
-			dataSource.deleteSection(at: indexPath.row)
+			dataSource.deleteSegment(at: indexPath.row)
 		case .move:
 			guard let indexPath = indexPath,  let newIndexPath = newIndexPath else { return }
-			if let section = dataSource.deleteSection(at: indexPath.row) {
-				dataSource.insertSection(section, at: newIndexPath.row)
+			if let section = dataSource.deleteSegment(at: indexPath.row) {
+				dataSource.insertSegment(section, at: newIndexPath.row)
 			}
 		case .update: break;
 //			guard let indexPath = indexPath else { return }
@@ -156,12 +162,12 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 	}
 
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		dataSource.runUpdates(sectionOffset: 0)
+		dataSource.runUpdates()
 
 		var x = 0
-		for section in dataSource.allSections {
+		for section in dataSource.allSegments {
 			x = x + 1
-			if let filteringSection = section as? FilteringDataSourceSection {
+			if let filteringSection = section as? FilteringDataSourceSegment {
 				for model in filteringSection.allCellModels {
 					if let cellModel = model as? SettingsInfoCellModel {
 						cellModel.taskIndex = x

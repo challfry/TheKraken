@@ -286,7 +286,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 }
 
 
-@objc class LoginDataSourceSection: FilteringDataSourceSection {
+@objc class LoginDataSourceSection: FilteringDataSourceSegment {
 
 	@objc enum Mode: Int {
 		case login, createAccount, forgotPassword

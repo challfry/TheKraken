@@ -47,6 +47,7 @@ import CoreData
     @NSManaged public var participants: Set<KrakenUser>
     @NSManaged public var subject: String
     @NSManaged public var messages: Set<SeamailMessage>
+    @NSManaged public var opsAddingMessages: Set<PostOpSeamailMessage>?
     @NSManaged public var timestamp: Int64					// For threads, time of most recent message posted to thread
     @NSManaged public var hasUnreadMessages: Bool
 
@@ -213,7 +214,7 @@ class SeamailDataManager: NSObject {
 					let actualUserInContext = context.object(with: actualUser.objectID) as? KrakenUser
 					newPotential.actualUser = actualUserInContext
 				}
-				newThread.recipient?.insert(newPotential)
+				newThread.recipients?.insert(newPotential)
 				
 				// We could at this point do a final search for actual users matching a username that doesn't have 
 				// a KrakenUser attached. But why? If we don't find one, it's still not definitive, it's too late to
@@ -233,6 +234,39 @@ class SeamailDataManager: NSObject {
 			}
 		}
 	}
+	
+	// Creates a pending POST operation to create a new Seamail message
+	func queueNewSeamailMessageOp(existingOp: PostOpSeamailMessage?, message: String, 
+			thread: SeamailThread, done: @escaping (PostOpSeamailMessage?) -> Void) {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
+			do {
+				var messageOp: PostOpSeamailMessage
+				if let existingOp = existingOp {
+					try messageOp = context.existingObject(with: existingOp.objectID) as! PostOpSeamailMessage
+				}
+				else {
+					messageOp = PostOpSeamailMessage(context: context)
+				}
+				let threadInContext = try context.existingObject(with: thread.objectID) as? SeamailThread
+				
+				messageOp.text = message
+				messageOp.thread = threadInContext
+				messageOp.author = currentUser
+				messageOp.readyToSend = true
+				try context.save()
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: messageOp.objectID) as? PostOpSeamailMessage 
+				done(mainThreadPost)
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context while creating new Seamail thread.", ["error" : error])
+				done(nil)
+			}
+		}
+	}
+	
+
 }
 
 // The data manager can have multiple delegates, all of which are watching the same results set.

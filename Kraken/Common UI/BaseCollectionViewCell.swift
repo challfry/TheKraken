@@ -145,8 +145,15 @@ struct PrototypeCellInfo {
 	var fullWidthConstraint: NSLayoutConstraint?
 	func collectionViewSizeChanged(to newSize: CGSize) {
 		// Subclasses can set fullWidth in awakeFromNib; this then sets cell width to cv width
-		if fullWidth && fullWidthConstraint == nil {
-			fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: newSize.width)
+		if fullWidth {
+			if let constraint = fullWidthConstraint {
+				if constraint.constant != newSize.width {
+					constraint.constant = newSize.width
+				}
+			}
+			else {
+				fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: newSize.width)
+			}
 		}
 		fullWidthConstraint?.isActive = fullWidth
 	}

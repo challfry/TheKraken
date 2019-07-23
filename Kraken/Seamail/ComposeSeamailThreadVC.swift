@@ -13,7 +13,7 @@ import UIKit
 	var threadToEdit: PostOpSeamailThread?
 
 	let dataManager = SeamailDataManager.shared
-	let composeDataSource = FilteringDataSource()
+	let composeDataSource = KrakenDataSource()
  
  // Recipient Chooser textfield?
  // Recipient List smallUser cells?
@@ -37,7 +37,7 @@ import UIKit
         usersInRecentThreads = buildRecentsList()
 
 		composeDataSource.register(with: collectionView, viewController: self)
-		let composeSection = composeDataSource.appendSection(named: "ComposeSection")
+		let composeSection = composeDataSource.appendFilteringSegment(named: "ComposeSection")
 		usernameTextCell = composeSection.append(cell: TextFieldCellModel("Participants"))
 		usernameTextCell?.showClearTextButton = true
 		usernameTextCell?.returnButtonHit = textFieldReturnHit
@@ -67,7 +67,7 @@ import UIKit
        
         // If we are editing an existing Post operation, fill in from the post 
         if let thread = threadToEdit {
-        	if let participants = thread.recipient {
+        	if let participants = thread.recipients {
         		for user in participants {
         			if let actualUser = user.actualUser {
         				addUserToThread(user: actualUser)

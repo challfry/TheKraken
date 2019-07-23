@@ -12,7 +12,7 @@ import os
 
 fileprivate struct Log: LoggingProtocol {	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
-	static var isEnabled = CollectionViewLog.isEnabled && false
+	static var isEnabled = CollectionViewLog.isEnabled && true
 }
 
 // A simple cell model and binding protocol. Useful for when your cell can set itself up from data in the model object
@@ -46,46 +46,56 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 
 // Note: For some reason I couldn't put protocol conformance into extensions, and I didn't bother trying to figure out why.
 // Why would I do such a terrible thing? Because you can put the methods in the class and move on. 
-class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, NSFetchedResultsControllerDelegate, 
-		UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSourcePrefetching,
-		KrakenDataSourceSectionProtocol where FetchedObjectType : NSFetchRequestResult {
+class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDataSourceSegmentProtocol,
+		NSFetchedResultsControllerDelegate, 
+		UICollectionViewDataSourcePrefetching where FetchedObjectType : NSManagedObject {
 
+	var fetchRequest = NSFetchRequest<FetchedObjectType>()
 	var frc: NSFetchedResultsController<FetchedObjectType>?
 	var cellModels: [BaseCellModel] = []
 	
 	// Clients need to implement this to populate the cell's data from the model.
 	var createCellModel: ((_ fromModel: FetchedObjectType) -> BaseCellModel)?
-	
-	// Clients of this class can set the reuseID of the cells this DS produces. Use this in the case where all the cells
-	// are the same. Or, clients can provide a closure to set a reuse type per cell. The models in a FRC are still all
-	// the same type, but if some of the cells should look different, use this.
-	var reuseID: String?
 		
-	func setup(viewController: UIViewController?, collectionView: UICollectionView, frc: NSFetchedResultsController<FetchedObjectType>,
-			createCellModel: ((_ from: FetchedObjectType) -> BaseCellModel)?, reuseID: String) {
-		//
-		if let objects = frc.fetchedObjects {
-			for fetchedIndex in 0..<objects.count {
-				if let cellModel = createCellModel?(objects[fetchedIndex]) {
-					cellModels.append(cellModel)
-				}
-			}
-		}
-		else {
-			Log.error("No fetched objects during setup.")
-		}
-
-		self.createCellModel = createCellModel
-		self.reuseID = reuseID
-		register(with: collectionView, viewController: viewController as? BaseCollectionViewController)
-		self.frc = frc
-		frc.delegate = self
+	override init() {
+		fetchRequest.entity = FetchedObjectType.entity()
+		fetchRequest.predicate = NSPredicate(value: false)
+		fetchRequest.fetchBatchSize = 50
+		super.init()
 	}
 	
-	func changePredicate(to: NSPredicate?) {
-		let newPredicate = to ?? NSPredicate(value: false)
-		frc?.fetchRequest.predicate = newPredicate
-		try? frc?.performFetch()
+	init(withCustomFRC: NSFetchedResultsController<FetchedObjectType>) {
+		frc = withCustomFRC
+		super.init()
+		frc?.delegate = self
+	}
+		
+	// Configures the Fetch Request, kicks off the FRC, and sets up our cellModels with the initial FRC results.
+	// Call this up front, and again whenever the predicate, sort, or factory function need to change.
+	func activate(predicate: NSPredicate?, sort: [NSSortDescriptor]?, cellModelFactory: ((_ from: FetchedObjectType) -> BaseCellModel)?) {
+		self.createCellModel = cellModelFactory
+		if let pred = predicate {
+			fetchRequest.predicate = pred 
+		}
+		if let sortDescriptors = sort {
+			fetchRequest.sortDescriptors = sortDescriptors
+		}
+
+		if frc == nil {
+			frc = NSFetchedResultsController(fetchRequest: fetchRequest, 
+						managedObjectContext: LocalCoreData.shared.mainThreadContext, 
+						sectionNameKeyPath: nil, cacheName: nil)
+			frc?.delegate = self
+		}
+		
+		do {
+			try frc?.performFetch()
+		}
+		catch {
+			CoreDataLog.error("Couldn't fetch pending replies.", [ "error" : error ])
+		}
+
+		//
 		cellModels.removeAll()
 		if let objects = frc?.fetchedObjects {
 			for fetchedIndex in 0..<objects.count {
@@ -93,10 +103,14 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 					cellModels.append(cellModel)
 				}
 			}
+			insertSections.insert(0)
 		}
-		collectionView?.reloadData()
+		else {
+			Log.error("No fetched objects during setup.")
+		}
+		dataSource?.collectionView?.reloadData()
 	}
-	
+		
 // MARK: FetchedResultsControllerDelegate
 	var insertSections = IndexSet()
 	var deleteSections = IndexSet()
@@ -122,6 +136,8 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 	
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
 			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+			
+		CollectionViewLog.debug("In FRC Callback", ["numCells" : self.cellModels.count])
 
 		switch type {
 		case .insert:
@@ -142,11 +158,13 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 	}
 
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		runUpdates(sectionOffset: 0)
+		dataSource?.runUpdates()
 	}
 
 // MARK: UICollectionView Data Source
     func numberOfSections(in collectionView: UICollectionView) -> Int {
+    	// TODO: This is wrong, and should be based on cellModels (frc changes immediately, cellModel changes
+    	// defer until batchUpdates, this fn needs to return what the CV sees.)
     	return frc?.sections?.count ?? 0
     }
 
@@ -156,18 +174,19 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 //		}
 		Log.debug("numberOfItemsInSection", ["numObjects" : self.cellModels.count, "DS" : self])
 		return cellModels.count
-		
-//		let sectionInfo = sections[section]
-//		Log.debug("numberOfItemsInSection", ["numObjects" : sectionInfo.numberOfObjects, "DS" : self])
-//		return sectionInfo.numberOfObjects
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		Log.d("Asking for cell at indexpath", [ "cellModels" : self.cellModels.count, "indexPath" : indexPath ])
 		if indexPath.row < cellModels.count {
 			let cellModel = cellModels[indexPath.row]
+			let reuseID = cellModel.reuseID()
+			if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
+				dataSource?.registeredCellReuseIDs.insert(reuseID)
+				let classType = type(of: cellModel).validReuseIDDict[reuseID]
+				classType?.registerCells(with: collectionView)
+			}
 			let cell = cellModel.makeCell(for: collectionView, indexPath: indexPath)
-			cell.viewController = viewController
 			return cell
 		}
 		else {
@@ -232,29 +251,25 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 	}
 	
 // MARK: KrakenDataSourceSectionProtocol
-	var dataSource: FilteringDataSource?
-	var sectionName: String = ""
-	@objc dynamic var sectionVisible = true
-
 	func append(_ cell: BaseCellModel) {
 		Log.debug("Can't append cells to this data source")
 	}
 
 	
-	internal override func internalRunUpdates(for collectionView: UICollectionView?, sectionOffset: Int) {
-		func addOffsetToIndexSet(_ indexes: IndexSet) -> IndexSet {
+	internal func internalRunUpdates(for collectionView: UICollectionView?, deleteOffset: Int, insertOffset: Int) {
+		func addOffsetToIndexSet(_ offset: Int, _ indexes: IndexSet) -> IndexSet {
 			var result = IndexSet()
-			for index in indexes { result.insert(index + sectionOffset) }
+			for index in indexes { result.insert(index + offset) }
 			return result
 		}
-		func addSectionOffset(_ paths:[IndexPath]) -> [IndexPath] {
-			let result = paths.map { return IndexPath(row:$0.row, section: $0.section + sectionOffset) }
+		func addSectionOffset(_ offset: Int, _ paths:[IndexPath]) -> [IndexPath] {
+			let result = paths.map { return IndexPath(row:$0.row, section: $0.section + offset) }
 			return result
 		}
 		
 		
-		collectionView?.deleteSections(addOffsetToIndexSet(deleteSections))
-		collectionView?.deleteItems(at: addSectionOffset(deleteCells))
+		collectionView?.deleteSections(addOffsetToIndexSet(deleteOffset, deleteSections))
+		collectionView?.deleteItems(at: addSectionOffset(deleteOffset, deleteCells))
 		
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
 		for index in deleteCells.reversed() {
@@ -262,13 +277,13 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 		}
 		
 		for (from, to) in moveCells {
-			let newFrom = IndexPath(row: from.row, section: from.section + sectionOffset)
-			let newTo = IndexPath(row: to.row, section: to.section + sectionOffset)
+			let newFrom = IndexPath(row: from.row, section: from.section + deleteOffset)
+			let newTo = IndexPath(row: to.row, section: to.section + insertOffset)
 			collectionView?.moveItem(at: newFrom, to: newTo)
 		}
-		collectionView?.reloadItems(at: addSectionOffset(reloadCells))
-		collectionView?.insertSections(addOffsetToIndexSet(insertSections))
-		collectionView?.insertItems(at: addSectionOffset(insertCells))
+		collectionView?.reloadItems(at: addSectionOffset(deleteOffset, reloadCells))
+		collectionView?.insertSections(addOffsetToIndexSet(insertOffset, insertSections))
+		collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
 	
 		// Now add the cells from our CellModel array, in step with what we tell the CV.
 		if let objects = frc?.fetchedObjects {
@@ -278,6 +293,7 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 				}
 			}
 		}
+		numVisibleSections = numVisibleSections + insertSections.count - deleteSections.count
 
 		deleteSections.removeAll()
 		insertSections.removeAll()
@@ -285,13 +301,6 @@ class FetchedResultsControllerDataSource<FetchedObjectType>: KrakenDataSource, N
 		moveCells.removeAll()
 		reloadCells.removeAll()
 		insertCells.removeAll()
-		
-		if internalInvalidateLayout {
-			internalInvalidateLayout = false
-			let context = UICollectionViewFlowLayoutInvalidationContext()
-			context.invalidateFlowLayoutDelegateMetrics = true
-			collectionView?.collectionViewLayout.invalidateLayout(with: context)
-		}
 	}
 
 }
