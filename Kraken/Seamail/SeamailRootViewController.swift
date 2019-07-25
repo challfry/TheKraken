@@ -13,6 +13,7 @@ class SeamailRootViewController: BaseCollectionViewController {
 	@IBOutlet var newThreadButton: UIBarButtonItem!
 
 	let loginDataSource = KrakenDataSource()
+	let loginSection = LoginDataSourceSegment()
 	let threadDataSource = KrakenDataSource()
 	lazy var threadSegment = FRCDataSourceSegment<SeamailThread>(withCustomFRC: dataManager.fetchedData)
 	let dataManager = SeamailDataManager.shared
@@ -21,22 +22,21 @@ class SeamailRootViewController: BaseCollectionViewController {
         super.viewDidLoad()
         
         //
-        let loginSection = LoginDataSourceSection()
         loginDataSource.append(segment: loginSection)
 		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
 
 		threadDataSource.append(segment: threadSegment)
 		threadSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
+		dataManager.addDelegate(threadSegment)
        
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
         	if observed.loggedInUser == nil {
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
-				observer.dataManager.removeDelegate(observer.threadSegment)
 				observer.newThreadButton.isEnabled = false
+				self.navigationController?.popToRootViewController(animated: false)
         	}
         	else {
          		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
-  				observer.dataManager.addDelegate(observer.threadSegment)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
 				observer.newThreadButton.isEnabled = true
@@ -50,6 +50,7 @@ class SeamailRootViewController: BaseCollectionViewController {
     override func viewDidAppear(_ animated: Bool) {
 		loginDataSource.enableAnimations = true
 		threadDataSource.enableAnimations = true
+		loginSection.clearAllSensitiveFields()
 	}
 	
 	// Gets called from within collectionView:cellForItemAt:

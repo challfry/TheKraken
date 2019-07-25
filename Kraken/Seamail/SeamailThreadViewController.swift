@@ -42,7 +42,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 							
 		// Next, the filter segment for the new message text field and button.
 		newMessageSegment.append(postingCell)
-		sendButtonCell = ButtonCellModel(title: "Send", action: sendButtonHit)
+		sendButtonCell = ButtonCellModel(title: "Send", action: weakify(self, type(of: self).sendButtonHit))
 		newMessageSegment.append(sendButtonCell!)
 
 		// Put everything together in the composite data source

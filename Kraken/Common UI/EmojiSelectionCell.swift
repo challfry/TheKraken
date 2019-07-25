@@ -16,7 +16,7 @@ import UIKit
 	private static let validReuseIDs = [ "EmojiSelectionCell" : EmojiSelectionCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 	
-	var textToPasteCallback: (String?) -> Void
+	let textToPasteCallback: (String?) -> Void
 
 	init(paster: @escaping (String?) -> Void) {
 		textToPasteCallback = paster
@@ -72,12 +72,15 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 }
 
 @objc class EmojiButtonCell: UICollectionViewCell, UIGestureRecognizerDelegate, UIPopoverPresentationControllerDelegate {
-	@objc dynamic var ownerCell: EmojiSelectionCell?
+	@objc dynamic weak var ownerCell: EmojiSelectionCell?
 	var emojiButton = UIButton()
 	var emoji: String? {
 		didSet {
 			if let em = emoji {
 				emojiButton.setImage(emojiImage(for:em), for: .normal)
+			}
+			else {
+				emojiButton.setImage(nil, for: .normal)
 			}
 		}
 	}
@@ -163,6 +166,11 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 	func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
 		return .none
 	}
+	
+	override func prepareForReuse() {
+		super.prepareForReuse()
+		emoji = nil
+	}
 }
 
 
@@ -175,7 +183,7 @@ class EmojiPopupViewController: UIViewController {
 	@IBOutlet var button5: UIButton!
 	@IBOutlet var button6: UIButton!
 	
-	var parentButtonCell: EmojiButtonCell?
+	weak var parentButtonCell: EmojiButtonCell?
 	static let swatches = [ "", "\u{1F3FB}", "\u{1F3FC}", "\u{1F3FD}", "\u{1F3FE}",  "\u{1F3FF}" ]
 	
 	var emoji: String? {

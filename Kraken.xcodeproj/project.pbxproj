@@ -60,6 +60,7 @@
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
 		EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456022DC067D00790F97 /* RedDeleteIcon.png */; };
 		EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456222DC9EC700790F97 /* UnknownUser.png */; };
+		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BE2242D300009F287F /* FirstViewController.swift */; };
 		EAA2E4C12242D300009F287F /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* SecondViewController.swift */; };
@@ -184,6 +185,7 @@
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
 		EA9E693522980CC500B4DC6D /* Kraken.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kraken.entitlements; sourceTree = "<group>"; };
+		EAA0E91122E942770077D5D0 /* SwiftUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUtils.swift; sourceTree = "<group>"; };
 		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EAA2E4BE2242D300009F287F /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
@@ -331,6 +333,7 @@
 				EA1E3B9E2246CDF700017F07 /* Settings.swift */,
 				EAC696EC2290159000EE6EEB /* StringUtilities.swift */,
 				EAA62C7022C55CC00031A999 /* Logging.swift */,
+				EAA0E91122E942770077D5D0 /* SwiftUtils.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -684,6 +687,7 @@
 				EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */,
 				EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */,
 				EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */,
+				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* OperationStatusCell.swift in Sources */,

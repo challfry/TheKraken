@@ -131,7 +131,10 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 		return false
 	}
 
-
+	override func prepareForReuse() {
+		textField.text = ""
+		super.prepareForReuse()
+	}
 }
 
 // MARK: - Multi-Line Text Entry Cell

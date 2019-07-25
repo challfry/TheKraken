@@ -16,7 +16,7 @@ class ModalLoginViewController: BaseCollectionViewController {
 	override func viewDidLoad() {
         super.viewDidLoad()
         loginDataSource.viewController = self
-        let loginSection = LoginDataSourceSection()
+        let loginSection = LoginDataSourceSegment()
 		loginDataSource.append(segment: loginSection)
         
         if let segueData = segueData {

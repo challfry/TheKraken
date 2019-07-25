@@ -140,7 +140,7 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 }
 
 @objc class PhotoButtonCell: UICollectionViewCell {
-	@objc dynamic var ownerCell: PhotoSelectionCell?
+	@objc weak dynamic var ownerCell: PhotoSelectionCell?
 	var photoButton = UIButton()
 	var asset: PHAsset? {
 		didSet {
@@ -203,7 +203,7 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 
 class HorizontalLineLayout: UICollectionViewLayout {
 	var privateSelectedIndexPath: IndexPath?
-	var parentCell: PhotoSelectionCell
+	weak var parentCell: PhotoSelectionCell?
 	
 	static let cellWidth = 80
 	static let cellSpacing = 6
@@ -222,7 +222,7 @@ class HorizontalLineLayout: UICollectionViewLayout {
 		if let _ = privateSelectedIndexPath {
 			return collectionView!.bounds.size 
 		}
-		else if let model = parentCell.cellModel as? PhotoSelectionCellModel {
+		else if let model = parentCell?.cellModel as? PhotoSelectionCellModel {
 			let photoCount = model.allPhotos?.count ?? 0
 			return CGSize(width: photoCount * (HorizontalLineLayout.cellStride), height: 80)
 		}
@@ -232,7 +232,7 @@ class HorizontalLineLayout: UICollectionViewLayout {
 
 	override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
 		var result: [UICollectionViewLayoutAttributes] = []
-		let photoCount = (parentCell.cellModel as? PhotoSelectionCellModel)?.allPhotos?.count ?? 0
+		let photoCount = (parentCell?.cellModel as? PhotoSelectionCellModel)?.allPhotos?.count ?? 0
 		if let path = privateSelectedIndexPath {
 			let attrs = UICollectionViewLayoutAttributes(forCellWith: path)
 			attrs.isHidden = false

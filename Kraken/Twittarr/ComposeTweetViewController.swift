@@ -33,7 +33,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
         }
 
 		loginDataSource.viewController = self
-        let loginSection = LoginDataSourceSection()
+        let loginSection = LoginDataSourceSegment()
         loginDataSource.append(segment: loginSection)
         loginSection.headerCellText = "You will need to log in before you can post to Twitarr."
         
@@ -81,7 +81,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		}
         
 		let btnCell = ButtonCellModel()
-		btnCell.setupButton(2, title:"Post", action: postAction)
+		btnCell.setupButton(2, title:"Post", action: weakify(self, ComposeTweetViewController.postAction))
 		postButtonCell = btnCell
 		tweetTextCell?.tell(btnCell, when: "editedText") { observer, observed in 
 			let textString = observed.editedText ?? observed.editText
@@ -97,7 +97,8 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		composeSection.append(textCell)
         composeSection.append(btnCell)
         composeSection.append(statusCell)
-        composeSection.append(EmojiSelectionCellModel(paster: emojiButtonTapped))
+		composeSection.append(EmojiSelectionCellModel(paster: weakify(self, ComposeTweetViewController.emojiButtonTapped)))
+		
         let photoCell = PhotoSelectionCellModel()
         composeSection.append(photoCell)
         photoSelectionCell = photoCell

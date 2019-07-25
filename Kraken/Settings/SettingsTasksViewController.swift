@@ -64,7 +64,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 
 	func makeNewSection(for task: PostOperation, sectionIndex: Int) -> KrakenDataSourceSegment {
 		let taskSection = FilteringDataSourceSegment()
-		taskSection.sectionName = "\(sectionIndex)"
+		taskSection.segmentName = "\(sectionIndex)"
 		
 		if let reactionTask = task as? PostOpTweetReaction {
 			if reactionTask.isAdd {

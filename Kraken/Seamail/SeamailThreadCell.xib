@@ -12,14 +12,14 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="seamailThread" id="gTV-IL-0wX" customClass="SeamailThreadCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="118"/>
+            <rect key="frame" x="0.0" y="0.0" width="375" height="134"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="118"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="134"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Thread Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WCF-XB-1WQ">
-                        <rect key="frame" x="10" y="4" width="283" height="21"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Thread Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WCF-XB-1WQ">
+                        <rect key="frame" x="10" y="4" width="280" height="21"/>
                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
@@ -36,19 +36,19 @@
                         <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="14 participants" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6nt-ki-bhW">
-                        <rect key="frame" x="10" y="28" width="172.5" height="18"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalCompressionResistancePriority="500" text="14 participants" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6nt-ki-bhW">
+                        <rect key="frame" x="10" y="28" width="183.5" height="20"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <collectionView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceHorizontal="YES" showsVerticalScrollIndicator="NO" dataMode="none" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tzs-xV-HxT">
-                        <rect key="frame" x="0.0" y="54" width="375" height="59"/>
+                        <rect key="frame" x="0.0" y="52" width="375" height="80"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="59" id="wsw-Wv-4ee"/>
+                            <constraint firstAttribute="height" constant="80" id="wsw-Wv-4ee"/>
                         </constraints>
                         <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="5P1-Kv-mO9">
-                            <size key="itemSize" width="50" height="50"/>
+                            <size key="itemSize" width="80" height="50"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -59,20 +59,20 @@
             <constraints>
                 <constraint firstItem="IUt-hR-bzr" firstAttribute="firstBaseline" secondItem="WCF-XB-1WQ" secondAttribute="firstBaseline" id="8So-t0-Dls"/>
                 <constraint firstAttribute="trailing" secondItem="IUt-hR-bzr" secondAttribute="trailing" constant="20" id="CC3-QC-fOJ"/>
-                <constraint firstItem="IUt-hR-bzr" firstAttribute="leading" secondItem="WCF-XB-1WQ" secondAttribute="trailing" constant="-3" id="Dku-Et-PGV"/>
+                <constraint firstItem="IUt-hR-bzr" firstAttribute="leading" secondItem="WCF-XB-1WQ" secondAttribute="trailing" id="Dku-Et-PGV"/>
                 <constraint firstItem="WCF-XB-1WQ" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="10" id="Gz1-h2-MB3"/>
                 <constraint firstAttribute="trailing" secondItem="tzs-xV-HxT" secondAttribute="trailing" id="KEp-7c-2us"/>
                 <constraint firstItem="6nt-ki-bhW" firstAttribute="leading" secondItem="WCF-XB-1WQ" secondAttribute="leading" id="NxE-QN-VZ4"/>
-                <constraint firstItem="tzs-xV-HxT" firstAttribute="top" secondItem="6nt-ki-bhW" secondAttribute="bottom" constant="8" id="OHt-tw-Hrk"/>
+                <constraint firstItem="tzs-xV-HxT" firstAttribute="top" secondItem="6nt-ki-bhW" secondAttribute="bottom" constant="4" id="OHt-tw-Hrk"/>
                 <constraint firstItem="6nt-ki-bhW" firstAttribute="top" secondItem="WCF-XB-1WQ" secondAttribute="bottom" constant="3" id="V4g-TC-k9a"/>
                 <constraint firstItem="y5u-s0-Fmn" firstAttribute="trailing" secondItem="IUt-hR-bzr" secondAttribute="trailing" id="W71-bY-PwV"/>
-                <constraint firstItem="y5u-s0-Fmn" firstAttribute="leading" secondItem="6nt-ki-bhW" secondAttribute="trailing" constant="21" id="X7D-ta-57b"/>
+                <constraint firstItem="y5u-s0-Fmn" firstAttribute="leading" secondItem="6nt-ki-bhW" secondAttribute="trailing" constant="10" id="X7D-ta-57b"/>
                 <constraint firstItem="6nt-ki-bhW" firstAttribute="firstBaseline" secondItem="y5u-s0-Fmn" secondAttribute="firstBaseline" id="gVW-rD-Qqe"/>
                 <constraint firstItem="WCF-XB-1WQ" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="4" id="h1t-vm-zn2"/>
-                <constraint firstAttribute="bottom" secondItem="tzs-xV-HxT" secondAttribute="bottom" constant="5" id="irA-VA-Wbl"/>
+                <constraint firstAttribute="bottom" secondItem="tzs-xV-HxT" secondAttribute="bottom" constant="2" id="irA-VA-Wbl"/>
                 <constraint firstItem="tzs-xV-HxT" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="jIh-Jl-jo3"/>
             </constraints>
-            <size key="customSize" width="375" height="118"/>
+            <size key="customSize" width="375" height="134"/>
             <connections>
                 <outlet property="lastPostTime" destination="IUt-hR-bzr" id="mH0-3u-KVf"/>
                 <outlet property="participantCountLabel" destination="6nt-ki-bhW" id="Mcc-Fp-rNP"/>
@@ -81,7 +81,7 @@
                 <outlet property="usersView" destination="tzs-xV-HxT" id="2mQ-5Z-rHI"/>
                 <outlet property="usersViewHeightConstraint" destination="wsw-Wv-4ee" id="q5o-p1-YnF"/>
             </connections>
-            <point key="canvasLocation" x="113.768115942029" y="38.169642857142854"/>
+            <point key="canvasLocation" x="113.768115942029" y="43.526785714285715"/>
         </collectionViewCell>
     </objects>
 </document>

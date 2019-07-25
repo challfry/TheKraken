@@ -42,10 +42,10 @@ import UIKit
 		cell.isBuildingCell = true
 		cell.collectionViewSizeChanged(to: collectionView.bounds.size)	
 		cell.dataSource = collectionView.dataSource as? KrakenDataSource
+		cell.cellModel = self
 		if let prot = self.bindingProtocol {
 			cell.bind(to:self, with: prot)
 		}
-		cell.cellModel = self
 		cell.isBuildingCell = false
 		return cell
 	}
@@ -58,12 +58,14 @@ import UIKit
 		if let classType = type(of: self).validReuseIDDict[id], let cellInfo = classType.validReuseIDDict[id],
 				let cell = cellInfo.prototypeCell {
 
+			cell.isBuildingCell = true
 			cell.collectionViewSizeChanged(to: collectionView.bounds.size)	
 			cell.dataSource = collectionView.dataSource as? KrakenDataSource
+			cell.cellModel = self
 			if let prot = self.bindingProtocol {
 				cell.bind(to:self, with: prot)
 			}
-			cell.cellModel = self
+			cell.isBuildingCell = false
 			
 			if let selection = collectionView.indexPathsForSelectedItems, selection.contains(indexPath) {
 				cell.isSelected = true
@@ -96,6 +98,8 @@ import UIKit
 			cell.unbind(self, from: prot)
 			cell.clearObservations()
 		}
+		cell.cellModel = nil
+		cell.dataSource = nil
 	}
 }
 
@@ -125,7 +129,7 @@ struct PrototypeCellInfo {
 	}
 
 	var cellModel: BaseCellModel? 							// Not all datasources use cell models
-	var dataSource: KrakenDataSource?						// May not be top-level DS
+	weak var dataSource: KrakenDataSource?						
 	@objc dynamic weak var viewController: UIViewController?  // For launching segues
 
 	var observations = Set<EBNObservation>()

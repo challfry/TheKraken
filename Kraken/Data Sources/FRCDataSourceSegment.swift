@@ -267,9 +267,15 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			return result
 		}
 		
+		CollectionViewLog.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections,
+				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells])
 		
-		collectionView?.deleteSections(addOffsetToIndexSet(deleteOffset, deleteSections))
-		collectionView?.deleteItems(at: addSectionOffset(deleteOffset, deleteCells))
+		if deleteSections.count > 0 {
+			collectionView?.deleteSections(addOffsetToIndexSet(deleteOffset, deleteSections))
+		}
+		if deleteCells.count > 0 {
+			collectionView?.deleteItems(at: addSectionOffset(deleteOffset, deleteCells))
+		}
 		
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
 		for index in deleteCells.reversed() {

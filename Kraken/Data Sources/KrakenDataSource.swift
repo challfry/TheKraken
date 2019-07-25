@@ -11,7 +11,7 @@ import os
 
 fileprivate struct Log: LoggingProtocol {	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
-	static var isEnabled = CollectionViewLog.isEnabled && false
+	static var isEnabled = CollectionViewLog.isEnabled && true
 }
 
 
@@ -27,8 +27,8 @@ protocol KrakenDataSourceSegmentProtocol: UICollectionViewDataSource, UICollecti
 }
 
 @objc class KrakenDataSourceSegment: NSObject {	
-	var dataSource: KrakenDataSource? 
-	var sectionName: String = ""
+	weak var dataSource: KrakenDataSource? 
+	var segmentName: String = ""
 	@objc dynamic var numVisibleSections: Int = 0
 	var sectionOffset: Int = 0
 	
@@ -80,8 +80,11 @@ class KrakenDataSource: NSObject {
 		// Changing the data source for a CV causes issues if it happens while a batchUpdates animation block
 		// it taking place. So, we defer the DS change in that case.
 		scheduleBatchUpdateCompletionBlock {
+			Log.debug("Setting new datasource.", ["DS" : self])
+	//		(cv.dataSource as? KrakenDataSource)?.runUpdates()
 			cv.dataSource = self
 			cv.delegate = self
+			cv.reloadData()
 		}
 	}
 	
@@ -94,7 +97,7 @@ class KrakenDataSource: NSObject {
 	@discardableResult func appendFilteringSegment(named: String) -> FilteringDataSourceSegment {
 		let newSegment = FilteringDataSourceSegment()
 		newSegment.dataSource = self
-		newSegment.sectionName = named
+		newSegment.segmentName = named
 		allSegments.add(newSegment)
 		return newSegment
 	}
@@ -124,7 +127,7 @@ class KrakenDataSource: NSObject {
 	// Gets a segment from the array, by name
 	func segment(named: String) -> KrakenDataSourceSegment? {
 		for segment in allSegments {
-			if let segment = segment as? KrakenDataSourceSegment, segment.sectionName == named {
+			if let segment = segment as? KrakenDataSourceSegment, segment.segmentName == named {
 				return segment
 			}
 		}
@@ -194,29 +197,21 @@ class KrakenDataSource: NSObject {
 	}
 	
 	private var updateScheduled = false
+	private var animationsRunning = false
 	func runUpdates() {
 		guard !updateScheduled else { return }
 		updateScheduled = true
 		DispatchQueue.main.async {
-			self.updateScheduled = false
-			
-			// Are we currently the datasource for this collectionView?
-			guard let cv = self.collectionView, cv.dataSource === self else {
-				let allSegments = self.allSegments as! [KrakenDSS]
-				self.visibleSegments = allSegments
-				var sectionOffset = 0
-				for segment in allSegments {
-					segment.sectionOffset = sectionOffset
-					sectionOffset += segment.numVisibleSections
+						
+			let updateBlock = {
+				// Are we currently the datasource for this collectionview? If not, don't tell the CV about
+				// any updates.
+				var cv: UICollectionView?
+				if self.collectionView?.dataSource === self {
+					cv = self.collectionView
 				}
-				return
-			}
-		
-			if !self.enableAnimations {
-				UIView.setAnimationsEnabled(false)
-			}
-
-			cv.performBatchUpdates( {
+				Log.debug("Start of batch", ["DS" : self, "cv" : cv as Any])
+			
 				// Update visible sections, create locals for new and old visible sections for diffing
 				let allSegments = self.allSegments as! [KrakenDSS]
 									
@@ -232,7 +227,7 @@ class KrakenDataSource: NSObject {
 						let allSegment = allSegments[allSegmentIndex]
 						if visibleSegment === allSegment {
 							let preUpdateSections = visibleSegment.numVisibleSections
-							visibleSegment.internalRunUpdates(for: self.collectionView, 
+							visibleSegment.internalRunUpdates(for: cv, 
 									deleteOffset: deleteOffset, insertOffset: insertOffset)
 							deleteOffset += preUpdateSections
 							insertOffset += visibleSegment.numVisibleSections
@@ -259,7 +254,7 @@ class KrakenDataSource: NSObject {
 					if allSegmentIndex < allSegments.count {
 						let allSegment = allSegments[allSegmentIndex]
 						if !self.visibleSegments.contains { $0 === allSegment } {
-							allSegment.internalRunUpdates(for: self.collectionView, 
+							allSegment.internalRunUpdates(for: cv, 
 									deleteOffset: deleteOffset, insertOffset: insertOffset)
 							allSegmentIndex += 1
 							insertOffset += allSegment.numVisibleSections
@@ -268,13 +263,16 @@ class KrakenDataSource: NSObject {
 						Log.error("Shouldn't ever get here. Segment Merge algorithm failed?")
 					}
 				}
-				self.collectionView?.deleteSections(deletedSegmentSections)
+				if deletedSegmentSections.count > 0 {
+					cv?.deleteSections(deletedSegmentSections)
+					Log.debug("Deleting sections due to segment deletion", ["sections" : deletedSegmentSections])
+				}
 				
 				if self.internalInvalidateLayout {
 					self.internalInvalidateLayout = false
 					let context = UICollectionViewFlowLayoutInvalidationContext()
 					context.invalidateFlowLayoutDelegateMetrics = true
-					self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
+					cv?.collectionViewLayout.invalidateLayout(with: context)
 				}
 			
 				self.visibleSegments = allSegments
@@ -285,14 +283,33 @@ class KrakenDataSource: NSObject {
 				}
 
 				Log.debug("End of batch", ["DS" : self])
-			}, completion: { completed in
-				Log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
-				self.itemsToRunAfterBatchUpdates.forEach { $0() }
-				self.itemsToRunAfterBatchUpdates.removeAll()
-			})
+			}
+			
+			if self.collectionView?.dataSource === self {
+				var disabledAnimations = false
+				if !self.enableAnimations {
+					UIView.setAnimationsEnabled(false)
+					disabledAnimations = true
+				}
+				
+				self.collectionView?.performBatchUpdates( {
+					self.animationsRunning = true
+					updateBlock()
+				}, completion: { completed in
+					self.updateScheduled = false
+					self.animationsRunning = false
+					Log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
+					self.itemsToRunAfterBatchUpdates.forEach { $0() }
+					self.itemsToRunAfterBatchUpdates.removeAll()
+				})
 
-			if !self.enableAnimations {
-				UIView.setAnimationsEnabled(true)
+				if disabledAnimations {
+					UIView.setAnimationsEnabled(true)
+				}
+			}
+			else {
+				updateBlock()
+				self.updateScheduled = false
 			}
 		}
 		
@@ -317,12 +334,27 @@ class KrakenDataSource: NSObject {
 		// If we're not the current datasource for this CV, we must tell the *other* datasource to run the block.
 		if let ds = collectionView?.dataSource as? KrakenDataSource {
 			ds.itemsToRunAfterBatchUpdates.append(block)
+			ds.runUpdates()
 			CollectionViewLog.debug("Scheduling block to run later, on addr: \(Unmanaged.passUnretained(ds).toOpaque())")
 		}
 		else {
 			block()
 		}
 	}
+	
+//	override var debugDescription: String {
+//		let mirror = Mirror(reflecting: self)
+//		var result = ""
+//		withUnsafePointer(to: self) {
+//			result += "\(type(of: self)): <\($0))>\n"	
+//			for child in mirror.children {
+//				if let propName = child.label {
+//					result += "    \(propName): \(child.value)\n"
+//				}
+//			}
+//		}
+//		return result
+//	}
 }
 
 extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -341,11 +373,18 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		CollectionViewLog.debug("Asking for cell.", ["DS" : self, "path" : indexPath])
 		if let (segment, _) = segmentAndOffset(forSection: indexPath.section) {
 			let resultCell = segment.collectionView(collectionView, cellForItemAt: indexPath)
 			if let cell = resultCell as? BaseCollectionViewCell, let vc = viewController as? BaseCollectionViewController {
 				cell.viewController = vc
 			}
+			
+			//
+			if resultCell.bounds.size.width > 1000 || resultCell.bounds.size.height > 1000 {
+				CollectionViewLog.debug("This cell has a very strange size.", ["cell" : resultCell])
+			}
+			
 						
 			return resultCell
 		}
@@ -367,6 +406,13 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 					layout: collectionView.collectionViewLayout, sizeForItemAt: indexPath) ??
 					CGSize(width: 50, height: 50)
 		}								
+
+		//
+		if protoSize.width > 1000 || protoSize.height > 1000 {
+			CollectionViewLog.debug("This cell has a very strange size.", ["indexPath" : indexPath])
+		}
+			
+
 		return protoSize
 	}
 

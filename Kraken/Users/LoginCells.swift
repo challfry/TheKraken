@@ -57,28 +57,28 @@ class LoginHeaderCell: BaseCollectionViewCell, LoginHeaderCellProtocol {
 }
 
 class LoginButtonCellModel: ButtonCellModel {
-	var dataSource: LoginDataSourceSection
+	weak var segment: LoginDataSourceSegment?
 
-	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
-		dataSource = ds
+	init(title: String?, action: (() -> Void)?, dss: LoginDataSourceSegment) {
+		segment = dss
 		super.init(alignment: .right)
 		setupButton(1, title: title, action: action)
 
 		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
 			observer.calcButtonEnable()
 		}
-		dataSource.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText"]) { observer, observed in 
+		segment?.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText"]) { observer, observed in 
 			observer.calcButtonEnable()
 		}?.execute()
 		
-		dataSource.tell(self, when: "mode") { observer, observed in 
+		segment?.tell(self, when: "mode") { observer, observed in 
 				observer.shouldBeVisible = observed.mode == .login 
 		}?.execute()
 	}
 	
 	func calcButtonEnable() {
-		button1Enabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
-					dataSource.passwordCellModel.editedText?.isEmpty == false &&
+		button1Enabled = segment?.usernameCellModel.editedText?.isEmpty == false && 
+					segment?.passwordCellModel.editedText?.isEmpty == false &&
 					!CurrentUser.shared.isChangingLoginState
 	}
 }
@@ -86,7 +86,7 @@ class LoginButtonCellModel: ButtonCellModel {
 // MARK: Create Account
 
 class CreateAccountHeaderLabelModel: LabelCellModel {
-	init(dataSource: LoginDataSourceSection) {
+	init(dataSource: LoginDataSourceSegment) {
 		super.init(CreateAccountHeaderLabelModel.buildNewRegistrationHeaderString())
 		
 		dataSource.tell(self, when: "mode") { observer, observed in 
@@ -125,10 +125,10 @@ class CreateAccountHeaderLabelModel: LabelCellModel {
 }
 
 class EditDisplayNameCellModel : TextFieldCellModel {
-	init(dataSource: LoginDataSourceSection) {
+	init(segment: LoginDataSourceSegment) {
 		super.init("Display Name:")
 		
-		dataSource.tell(self, when: "mode") { observer, observed in 
+		segment.tell(self, when: "mode") { observer, observed in 
 				observer.shouldBeVisible = observed.mode == .createAccount 
 		}?.execute()
 
@@ -144,10 +144,10 @@ class EditDisplayNameCellModel : TextFieldCellModel {
 }
 
 class RegistrationCodeCellModel: TextFieldCellModel {
-	init(dataSource: LoginDataSourceSection) {
+	init(segment: LoginDataSourceSegment) {
 		super.init("Registration Code:")
 		
-		dataSource.tell(self, when: "mode") { observer, observed in 
+		segment.tell(self, when: "mode") { observer, observed in 
 				observer.shouldBeVisible = observed.mode == .createAccount || observed.mode == .forgotPassword
 		}?.execute()
 		
@@ -160,38 +160,38 @@ class RegistrationCodeCellModel: TextFieldCellModel {
 }
 
 class ConfirmPasswordCellModel: TextFieldCellModel {
-	init(dataSource: LoginDataSourceSection) {
+	init(segment: LoginDataSourceSegment) {
 		super.init("Confirm Password:", isPassword: true)
 		
-		dataSource.tell(self, when: "mode") { observer, observed in 
+		segment.tell(self, when: "mode") { observer, observed in 
 				observer.shouldBeVisible = observed.mode == .createAccount || observed.mode == .forgotPassword
 		}?.execute()
 	}
 }
 
 class CreateAccountButtonCellModel: ButtonCellModel {
-	var dataSource: LoginDataSourceSection
+	weak var segment: LoginDataSourceSegment?
 
-	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
-		dataSource = ds
+	init(title: String?, action: (() -> Void)?, dss: LoginDataSourceSegment) {
+		segment = dss
 		super.init(alignment: .right)
 		setupButton(1, title: title, action: action)
 
 //		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
 //			observer.calcButtonEnable()
 //		}
-		dataSource.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText"]) { observer, observed in 
+		segment?.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText"]) { observer, observed in 
 			observer.calcButtonEnable()
 		}?.execute()
 
-		dataSource.tell(self, when: "mode") { observer, observed in 
+		segment?.tell(self, when: "mode") { observer, observed in 
 			observer.shouldBeVisible = observed.mode == .createAccount
 		}?.execute()
 	}
 	
 	func calcButtonEnable() {
-		button1Enabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
-					dataSource.passwordCellModel.editedText?.isEmpty == false &&
+		button1Enabled = segment?.usernameCellModel.editedText?.isEmpty == false && 
+					segment?.passwordCellModel.editedText?.isEmpty == false &&
 					!CurrentUser.shared.isChangingLoginState
 	}
 }
@@ -199,31 +199,31 @@ class CreateAccountButtonCellModel: ButtonCellModel {
 // MARK: Forgot Password
 
 class ForgotPasswordButtonCellModel: ButtonCellModel {
-	var dataSource: LoginDataSourceSection
+	weak var segment: LoginDataSourceSegment?
 
-	init(title: String?, action: (() -> Void)?, ds: LoginDataSourceSection) {
-		dataSource = ds
+	init(title: String?, action: (() -> Void)?, dss: LoginDataSourceSegment) {
+		segment = dss
 		super.init(alignment: .right)
 		setupButton(1, title: title, action: action)
 
 		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
 			observer.calcButtonEnable()
 		}
-		dataSource.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText",
+		segment?.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText",
 				"confirmPasswordCellModel.editedText", "registrationCodeCellModel.editedText"]) { observer, observed in 
 			observer.calcButtonEnable()
 		}?.execute()
 
-		dataSource.tell(self, when: "mode") { observer, observed in 
+		segment?.tell(self, when: "mode") { observer, observed in 
 			observer.shouldBeVisible = observed.mode == .forgotPassword
 		}?.execute()
 	}
 	
 	func calcButtonEnable() {
-		button1Enabled = dataSource.usernameCellModel.editedText?.isEmpty == false && 
-					dataSource.passwordCellModel.editedText?.isEmpty == false &&
-					dataSource.confirmPasswordCellModel.editedText?.isEmpty == false &&
-					dataSource.registrationCodeCellModel.editedText?.isEmpty == false &&
+		button1Enabled = segment?.usernameCellModel.editedText?.isEmpty == false && 
+					segment?.passwordCellModel.editedText?.isEmpty == false &&
+					segment?.confirmPasswordCellModel.editedText?.isEmpty == false &&
+					segment?.registrationCodeCellModel.editedText?.isEmpty == false &&
 					!CurrentUser.shared.isChangingLoginState
 	}
 }
@@ -270,23 +270,21 @@ class EditPasswordCellModel: TextFieldCellModel {
 }
 
 class ModeSwitchButtonCellModel: ButtonCellModel {
-	var targetMode: LoginDataSourceSection.Mode = .login
-	var dataSource: LoginDataSourceSection
+	var targetMode: LoginDataSourceSegment.Mode = .login
 
-	init(title: String, forMode: LoginDataSourceSection.Mode, dataSource: LoginDataSourceSection) {
+	init(title: String, forMode: LoginDataSourceSegment.Mode, segment: LoginDataSourceSegment) {
 		targetMode = forMode
-		self.dataSource = dataSource
 		super.init(alignment: .left)
-		setupButton(1, title: title, action: { dataSource.mode = forMode })
+		setupButton(1, title: title, action: { [weak segment] in segment?.mode = forMode })
 		
-		dataSource.tell(self, when: "mode") { observer, observed in 
+		segment.tell(self, when: "mode") { observer, observed in 
 			observer.shouldBeVisible = observed.mode != observer.targetMode
 		}?.execute()
 	}
 }
 
 
-@objc class LoginDataSourceSection: FilteringDataSourceSegment {
+@objc class LoginDataSourceSegment: FilteringDataSourceSegment {
 
 	@objc enum Mode: Int {
 		case login, createAccount, forgotPassword
@@ -311,13 +309,14 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	}
 	var headerCellModel = LoginHeaderCellModel()
 	@objc dynamic lazy var usernameCellModel = EditUsernameCellModel("Username:")
-	@objc dynamic lazy var displayNameCellModel = EditDisplayNameCellModel(dataSource: self)
+	@objc dynamic lazy var displayNameCellModel = EditDisplayNameCellModel(segment: self)
 	@objc dynamic lazy var passwordCellModel = EditPasswordCellModel()
-	@objc dynamic lazy var confirmPasswordCellModel = ConfirmPasswordCellModel(dataSource: self)
-	@objc dynamic lazy var registrationCodeCellModel = RegistrationCodeCellModel(dataSource: self)
+	@objc dynamic lazy var confirmPasswordCellModel = ConfirmPasswordCellModel(segment: self)
+	@objc dynamic lazy var registrationCodeCellModel = RegistrationCodeCellModel(segment: self)
 			
 	override init() {
 		super.init()
+		segmentName = "User Login"
 	
 		append(headerCellModel)
 		append(CreateAccountHeaderLabelModel(dataSource: self))
@@ -326,19 +325,23 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 		append(displayNameCellModel)
 		append(passwordCellModel)
 		append(confirmPasswordCellModel)
-		append(LoginButtonCellModel(title: "Login", action: startLoggingIn, ds: self))
-		append(CreateAccountButtonCellModel(title: "Create Account", action: startAccountCreation, ds: self))
-		append(ForgotPasswordButtonCellModel(title: "Reset Password", action: startResetPassword, ds: self))
+		append(LoginButtonCellModel(title: "Login", action: weakify(self, LoginDataSourceSegment.startLoggingIn), dss: self))
+		append(CreateAccountButtonCellModel(title: "Create Account", 
+				action: weakify(self, LoginDataSourceSegment.startAccountCreation), dss: self))
+		append(ForgotPasswordButtonCellModel(title: "Reset Password", 
+				action: weakify(self, LoginDataSourceSegment.startResetPassword), dss: self))
 		append(LoginStatusCellModel())
-		append(ModeSwitchButtonCellModel(title: "Actually, just let me log in.", forMode: .login, dataSource: self))
-		append(ModeSwitchButtonCellModel(title: "Create a new account", forMode: .createAccount, dataSource: self))
-		append(ModeSwitchButtonCellModel(title: "I've, uh, forgotten my password.", forMode: .forgotPassword, dataSource: self))
-		append(ButtonCellModel(title: "Read Code of Conduct", action: readCodeOfConductAction,  alignment: .left))
+		append(ModeSwitchButtonCellModel(title: "Actually, just let me log in.", forMode: .login, segment: self))
+		append(ModeSwitchButtonCellModel(title: "Create a new account", forMode: .createAccount, segment: self))
+		append(ModeSwitchButtonCellModel(title: "I've, uh, forgotten my password.", forMode: .forgotPassword, segment: self))
+		append(ButtonCellModel(title: "Read Code of Conduct", action: weakify(self, type(of:self).readCodeOfConductAction), 
+				alignment: .left))
 	}
 	
 	func startLoggingIn() {
     	if let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText {
 	    	CurrentUser.shared.loginUser(name: userName, password: password)
+			clearAllSensitiveFields()
 		}
 	}
 	
@@ -356,6 +359,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
     			let regCode = registrationCodeCellModel.editedText {
 	    	let displayName = displayNameCellModel.editedText
 	    	CurrentUser.shared.createNewAccount(name: userName, password: password, displayName: displayName, regCode: regCode)
+			clearAllSensitiveFields()
 		}
 	}
 	
@@ -363,6 +367,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
     	guard let userName = usernameCellModel.editedText, let newPassword = passwordCellModel.editedText,
     			let regCode = registrationCodeCellModel.editedText else { return }
 		CurrentUser.shared.resetPassword(name: userName, regCode: regCode, newPassword: newPassword) {}
+		clearAllSensitiveFields()
 	}
 	
 	func readCodeOfConductAction() {
@@ -371,6 +376,17 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 			textFileVC.fileToLoad = "codeofconduct"
 			dataSource?.viewController?.present(textFileVC, animated: true, completion: nil)
 		}
+	}
+	
+	func clearAllSensitiveFields() {
+		dataSource?.collectionView?.endEditing(true)
+		passwordCellModel.editedText = ""
+		passwordCellModel.fieldText = ""
+		confirmPasswordCellModel.editedText = ""
+		confirmPasswordCellModel.fieldText = ""
+		registrationCodeCellModel.editedText = ""
+		registrationCodeCellModel.fieldText = ""
+
 	}
 		
 }

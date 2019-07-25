@@ -55,8 +55,8 @@ struct LogMessageData {
 	mutating private func buildShortMessage() -> String {
 		var shortMessage = ""
 		if let objects = objects {
-			objects.forEach { key, value in 
-				shortMessage.append("\(key) = \(value) | ")
+			objects.sorted(by: { $0.key < $1.key }).forEach { key, value in 
+				shortMessage.append("\(key) = \(String(reflecting:value)) | ")
 			}
 		}
 		

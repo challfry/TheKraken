@@ -55,7 +55,7 @@ import UIKit
 		composeSection.append(messageCell!)
 		
 		postButtonCell = ButtonCellModel()
-		postButtonCell!.setupButton(2, title:"Send", action: postAction)
+		postButtonCell!.setupButton(2, title:"Send", action: weakify(self, type(of: self).postAction))
 		composeSection.append(postButtonCell!)
 
         let statusCell = OperationStatusCellModel()

@@ -35,7 +35,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		// Login State, login/out
 		settingsSection.append(cell: LoginInfoCellModel())
 		settingsSection.append(cell: LoginAdminInfoCellModel())
-		settingsSection.append(cell: SettingsLoginButtonCellModel(action: loginButtonTapped))
+		settingsSection.append(cell: SettingsLoginButtonCellModel(action: weakify(self, type(of: self).loginButtonTapped)))
 
 		// POST actions waiting to be delivered to the server
 		let delayedPostInfo = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
