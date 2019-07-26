@@ -105,8 +105,18 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		
 		// Can the user tap on a link and open a filtered view?
 		let addLinksToText = viewController?.shouldPerformSegue(withIdentifier: "TweetFilter", sender: self) ?? false
+// Damascus is pretty good; really like Helvetica. Hoefler doesn't work here. Times New Roman isn't bad.
+// 
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Damascus", size: 16.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Helvetica", size: 17.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "HoeflerText-Regular", size: 16.0) as Any ]
+		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "TimesNewRomanPSMT", size: 17.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Verdana", size: 15.0) as Any ]
+		let tweetTextWithLinks = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
+		tweetTextWithLinks.addAttributes(tweetTextAttrs, range: NSRange(location: 0, length: tweetTextWithLinks.length))
+		tweetTextView.attributedText = tweetTextWithLinks
 
-		tweetTextView.attributedText = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
 		let fixedWidth = tweetTextView.frame.size.width
 		let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
 		tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)

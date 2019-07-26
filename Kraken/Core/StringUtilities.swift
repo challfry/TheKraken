@@ -10,7 +10,7 @@ import UIKit
 
 class StringUtilities {
  
-    class func cleanupText(_ text:String, addLinks: Bool = true) -> NSAttributedString {
+    class func cleanupText(_ text:String, addLinks: Bool = true) -> NSMutableAttributedString {
     	let outputString = NSMutableAttributedString()
     	let openTag = CharacterSet(charactersIn: "<")
     	let closeTag = CharacterSet(charactersIn: ">")
