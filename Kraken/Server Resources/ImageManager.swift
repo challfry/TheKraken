@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 import CoreData
+import Photos
+import MobileCoreServices
 
 // Why not just use NSCache? 
 // I have a personal dislike for NSCache's complete lack of transparency and debuggability.
@@ -183,6 +185,8 @@ class ImageManager : NSObject {
 	var largeImageCache = ImageCache(dirName: "largeImageCache", fetchURL: "/api/v2/photo/full/", limit: 1000)
 
 	var userImageCache = ImageCache(dirName: "userImageCache", fetchURL: "/api/v2/user/photo/", limit: 2000)
+
+// MARK: Image Caching
 	
 	// The API contract for this method is: The done block COULD BE CALLED MULTIPLE TIMES. This could happen
 	// if the requested size isn't in the cache, but a smaller size is. The smaller size is returned immediately,
@@ -224,6 +228,74 @@ class ImageManager : NSObject {
 		}
 	}
 
+// MARK: Image Upload Support
+	// Use this to repackage a photo for upload to Twitarr. It also re-formats images to JPEG, PNG or GIF.
+	func resizeImageForUpload(imageContainer: PhotoDataType, 
+			progress: @escaping PHAssetImageProgressHandler, done: @escaping (Data?, String?) -> ()) {
+		let maxImageDimension = 2000
+
+		switch imageContainer {
+		case .library(let asset): 
+			let options = PHImageRequestOptions()
+			options.version = .current
+			options.progressHandler = progress
+			
+			// We're using requestImageData instead of requestImage due to the likely over-optimistic possibility
+			// that we may not need to decompress/recompress the image.
+			let _ = PHImageManager.default().requestImageData(for: asset, 
+					options: options) { imageDataParam, dataUTI, orientation, info in
+				var imageData = imageDataParam
+				if let origImageData = imageData, let uti = dataUTI, let mimeType =
+						UTTypeCopyPreferredTagWithClass(uti as CFString, kUTTagClassMIMEType)?.takeRetainedValue() as String? {
+					
+					// Do we need to recompress to convert the data to something the server can handle?
+					if !["image/jpeg", "image/png", "image/gif"].contains(mimeType) || 
+							asset.pixelWidth > maxImageDimension || asset.pixelHeight > maxImageDimension {
+						let imageScale = min(CGFloat(maxImageDimension) / CGFloat(asset.pixelWidth), 
+								CGFloat(maxImageDimension) / CGFloat(asset.pixelHeight), 1.0)
+						let newImage = UIImage(data: origImageData, scale: imageScale)
+						imageData = newImage?.jpegData(compressionQuality: 0.9)
+					}
+					
+					done(imageData, mimeType)
+					return
+				}
+			}
+
+		case .camera(let capturePhoto):
+			// Currently, the CameraViewController is only configured to take JPEG shots. It doesn't look like
+			// AVCapturePhoto has a way to tell you what file type it makes when you call fileDataRepresentation().
+			// So, if we add new capture file types, we'll have to send the chosen type along to here.
+			if let cgImage = capturePhoto.cgImageRepresentation()?.takeUnretainedValue(),
+					cgImage.width > maxImageDimension || cgImage.height > maxImageDimension {
+				var resizeSize = CGSize(width: maxImageDimension, height: maxImageDimension)
+				if cgImage.width > cgImage.height {
+					resizeSize.height = CGFloat(cgImage.height * maxImageDimension) / CGFloat(cgImage.width)
+				}
+				else {
+					resizeSize.width = CGFloat(cgImage.width * maxImageDimension) / CGFloat(cgImage.height)
+				}
+			
+				let renderer = UIGraphicsImageRenderer(size: resizeSize)
+				let origImage = UIImage(cgImage: cgImage)
+				let newImage = renderer.image { _ in
+					origImage.draw(in: CGRect(origin: CGPoint.zero, size: resizeSize))
+				}
+				if let jpegData = newImage.jpegData(compressionQuality: 0.9) {
+					done(jpegData, "image/jpeg")
+					return
+				}
+			}
+			else {
+				// we either don't need to resize, or can't.
+				let data = capturePhoto.fileDataRepresentation()
+				done(data, "image/jpeg")
+			}
+		}
+		
+		done(nil, nil)
+	}
+	
 }
 
 @objc(PhotoDetails) public class PhotoDetails : KrakenManagedObject {

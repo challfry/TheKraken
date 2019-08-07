@@ -114,6 +114,7 @@ struct LogMessageMultiplexer {
 protocol LoggingProtocol {
 	static var logObject: OSLog { get }
 	static var isEnabled: Bool { get set}
+	var instanceEnabled: Bool { get set }
 
 	@inlinable static func d(_ message:  @escaping @autoclosure () -> String, 
 			_ objects: @escaping @autoclosure () -> [String:Any]?,
@@ -204,34 +205,101 @@ extension LoggingProtocol {
 		#endif
 	}
 	
+	@inlinable public func d(_ message: @escaping @autoclosure () -> String,
+			_ objects: @escaping @autoclosure () -> [String:Any]? = nil,
+			file: StaticString = #file, function: String = #function, line: UInt = #line) {
+		if instanceEnabled {
+			var msgData = LogMessageData(messageClosure: message, objectsClosure: objects, 
+					level: .debug, logObject: Self.logObject, file: file, function: function, line: line)
+			LogMessageMultiplexer.send(&msgData)
+		}
+	}
+	
+	@inlinable public func debug(_ message: @escaping @autoclosure () -> String,
+			_ objects: @escaping @autoclosure () -> [String:Any]? = nil,
+			file: StaticString = #file, function: String = #function, line: UInt = #line) {
+		if instanceEnabled {
+			var msgData = LogMessageData(messageClosure: message, objectsClosure: objects, 
+					level: .debug, logObject: Self.logObject, file: file, function: function, line: line)
+			LogMessageMultiplexer.send(&msgData)
+		}
+	}
+	
+	@inlinable public func error(_ message: @escaping @autoclosure () -> String,
+			_ objects: @escaping @autoclosure () -> [String:Any]? = nil,
+			file: StaticString = #file, function: String = #function, line: UInt = #line) {
+		if instanceEnabled {
+			var msgData = LogMessageData(messageClosure: message, objectsClosure: objects, 
+					level: .debug, logObject: Self.logObject, file: file, function: function, line: line)
+			LogMessageMultiplexer.send(&msgData)
+		}
+	}
+	
+	@inlinable public func info(_ message: @escaping @autoclosure () -> String,
+			_ objects: @escaping @autoclosure () -> [String:Any]? = nil,
+			file: StaticString = #file, function: String = #function, line: UInt = #line) {
+		if instanceEnabled {
+			var msgData = LogMessageData(messageClosure: message, objectsClosure: objects, 
+					level: .debug, logObject: Self.logObject, file: file, function: function, line: line)
+			LogMessageMultiplexer.send(&msgData)
+		}
+	}
+	
+	@inlinable public func fault(_ message: @escaping @autoclosure () -> String,
+			_ objects: @escaping @autoclosure () -> [String:Any]? = nil,
+			file: StaticString = #file, function: String = #function, line: UInt = #line) {
+		if instanceEnabled {
+			var msgData = LogMessageData(messageClosure: message, objectsClosure: objects, 
+					level: .debug, logObject: Self.logObject, file: file, function: function, line: line)
+			LogMessageMultiplexer.send(&msgData)
+		}
+	}
+	
 }
 
 // MARK: - Logging Objects
 //	To use:
 //		NetworkLog.d(message)			// Sends a debug message in the Network category
 
-struct CollectionViewLog: LoggingProtocol {	
+struct CollectionViewLog: LoggingProtocol {
+	var instanceEnabled: Bool
+		
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
 	static var isEnabled = true
 }
 
-struct NetworkLog: LoggingProtocol {	
+struct NetworkLog: LoggingProtocol {
+	var instanceEnabled: Bool
+	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "Network")
 	static var isEnabled = true
 }
 
-struct CoreDataLog: LoggingProtocol {	
+struct CoreDataLog: LoggingProtocol {
+	var instanceEnabled: Bool
+	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CoreData")
 	static var isEnabled = true
 }
 
-struct KeychainLog: LoggingProtocol {	
+struct KeychainLog: LoggingProtocol {
+	var instanceEnabled: Bool
+	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "Keychain")
 	static var isEnabled = true
 }
 
-struct ImageLog: LoggingProtocol {	
+struct ImageLog: LoggingProtocol {
+	var instanceEnabled: Bool
+	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "Image Manager")
+	static var isEnabled = true
+}
+
+struct CameraLog: LoggingProtocol {
+	var instanceEnabled: Bool
+	
+	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "Camera")
 	static var isEnabled = true
 }
 

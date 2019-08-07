@@ -12,6 +12,7 @@ import os
 fileprivate struct Log: LoggingProtocol {	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
 	static var isEnabled = CollectionViewLog.isEnabled && false
+	var instanceEnabled: Bool = false	
 }
 
 

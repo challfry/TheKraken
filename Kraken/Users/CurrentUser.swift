@@ -140,19 +140,17 @@ import CoreData
 		isChangingLoginState = true
 		clearErrors()
 		
-		// Build our auth call's POST data -- Docs say to do it this way for POST, but no.
-		// For POST, you make a HTTP Body request that contains key=value&key=value syntax, like URL params.
-//		let authStruct = TwitarrV2AuthRequestBody(username: name, password: password)
-//		let encoder = JSONEncoder()
-//		let authData = try! encoder.encode(authStruct)
-//		print (String(decoding:authData, as: UTF8.self))
+		let authStruct = TwitarrV2AuthRequestBody(username: name, password: password)
+		let authData = try! JSONEncoder().encode(authStruct)
 		
-		let authQuery = "username=\(name)&password=\(password)".data(using: .utf8)!
+		// For content-type form-data
+//		let authQuery = "username=\(name)&password=\(password)".data(using: .utf8)!
 		
 		// Call /api/v2/user/auth, and then call whoami
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/auth", query: nil)
 		request.httpMethod = "POST"
-		request.httpBody = authQuery
+		request.httpBody = authData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
 				// Login failed.

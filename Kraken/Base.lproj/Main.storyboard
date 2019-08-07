@@ -163,7 +163,7 @@
         <scene sceneID="0uu-32-IUj">
             <objects>
                 <navigationController storyboardIdentifier="Settings" id="RJh-hR-74P" userLabel="Settings" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Settings" id="oPv-H9-ZmL" userLabel="Settings"/>
+                    <tabBarItem key="tabBarItem" title="Settings" image="Settings.png" id="oPv-H9-ZmL" userLabel="Settings"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="b6d-IB-8nx">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -311,7 +311,7 @@
         <scene sceneID="a8R-5v-VDn">
             <objects>
                 <navigationController title="Schedule" id="lVq-Ex-gy3" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Schedule" id="Cdd-be-qvA" userLabel="Schedule"/>
+                    <tabBarItem key="tabBarItem" title="Schedule" image="Schedule.png" id="Cdd-be-qvA" userLabel="Schedule"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="2mz-rg-mYl">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -451,6 +451,8 @@
                         <outlet property="collectionView" destination="elB-bV-rZV" id="H0x-Dj-G2w"/>
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="oPR-Dz-wmr"/>
                         <segue destination="0s5-bb-y2H" kind="show" identifier="TweetFilter" id="jQ6-os-thd"/>
+                        <segue destination="PPA-A5-VUC" kind="showDetail" identifier="Camera" id="BLN-IY-2zK"/>
+                        <segue destination="lP9-ng-3zA" kind="unwind" identifier="dismissCamera" unwindAction="dismissingCamera:" id="tpK-ga-OcW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lFb-xg-kP0" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -507,6 +509,172 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Dc-kL-d2Z" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4335" y="474"/>
+        </scene>
+        <!--Camera View Controller-->
+        <scene sceneID="ZZw-9J-iku">
+            <objects>
+                <viewController id="PPA-A5-VUC" customClass="CameraViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="YpU-N3-dH8">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
+                                <rect key="frame" x="20" y="44" width="54" height="54"/>
+                                <state key="normal" image="CameraClose.png"/>
+                                <state key="highlighted" image="CameraCloseHighlight"/>
+                                <connections>
+                                    <action selector="closeButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="JLB-9K-EQo"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Ly-Dq-bEZ">
+                                <rect key="frame" x="301" y="44" width="54" height="54"/>
+                                <state key="normal" image="CameraRotate.png"/>
+                                <state key="highlighted" image="CameraRotateHighlight.png"/>
+                                <connections>
+                                    <action selector="cameraSwitchButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="Xbq-Kt-G7K"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J6q-HD-IVo">
+                                <rect key="frame" x="20" y="718" width="60" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="7ve-3a-Dyh"/>
+                                    <constraint firstAttribute="width" constant="60" id="IEB-h3-oPt"/>
+                                </constraints>
+                                <state key="normal" image="CameraShutter.png"/>
+                                <state key="highlighted" image="CameraShutter"/>
+                                <connections>
+                                    <action selector="cameraShutterButtonPressedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchUpInside" id="cqh-Kk-iDa"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragEnter" id="2Mg-sk-1aC"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchCancel" id="EPG-aG-zXj"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragInside" id="Ne2-SZ-2Al"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragExit" id="PHM-t7-MqY"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragOutside" id="S0n-Ze-aHA"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDown" id="gPg-af-vV5"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchUpOutside" id="rSR-RN-diO"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PAF-8W-UnY">
+                                <rect key="frame" x="295" y="718" width="60" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="3b0-eW-Qp8"/>
+                                    <constraint firstAttribute="height" constant="60" id="A2O-Ud-Z9r"/>
+                                </constraints>
+                                <state key="normal" image="CameraShutter.png"/>
+                                <connections>
+                                    <action selector="cameraShutterButtonPressedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchUpInside" id="bGX-iR-773"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragEnter" id="IYG-qe-LwL"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchUpOutside" id="IjC-YL-uyS"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchCancel" id="NNo-1f-Dq7"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragExit" id="PxZ-Pl-l5Y"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="valueChanged" id="SFT-9O-jpZ"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDown" id="SkC-t3-eZL"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragInside" id="W1i-T5-1vJ"/>
+                                    <action selector="cameraShutterHighlightedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchDragOutside" id="ene-5O-HOG"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xq6-36-IpK">
+                                <rect key="frame" x="227" y="44" width="54" height="54"/>
+                                <state key="normal" image="NoFlash.png"/>
+                                <state key="selected" image="Flash.png"/>
+                                <state key="highlighted" image="NoFlashHighlight.png"/>
+                                <connections>
+                                    <action selector="flashButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="b3r-i8-iSG"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OMc-Yc-CyC">
+                                <rect key="frame" x="153" y="44" width="54" height="54"/>
+                                <state key="normal" image="PirateSelfie.png"/>
+                                <connections>
+                                    <action selector="pirateButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="Ze6-kc-wer"/>
+                                </connections>
+                            </button>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SDP-aC-uac">
+                                <rect key="frame" x="0.0" y="278" width="375" height="514"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="FkC-iq-TmT">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="449"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="449" id="KtE-Ft-uMl"/>
+                                        </constraints>
+                                    </imageView>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
+                                        <rect key="frame" x="130" y="462" width="115" height="30"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXK-dg-jQa">
+                                                <rect key="frame" x="0.0" y="0.0" width="37" height="30"/>
+                                                <state key="normal" title="Retry"/>
+                                                <connections>
+                                                    <action selector="photoRejectedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchUpInside" id="hR9-6l-dYG"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rVa-o2-31t">
+                                                <rect key="frame" x="85" y="0.0" width="30" height="30"/>
+                                                <state key="normal" title="Use"/>
+                                                <connections>
+                                                    <action selector="photoAcceptedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchUpInside" id="lcN-l4-bwY"/>
+                                                    <segue destination="lP9-ng-3zA" kind="unwind" identifier="dismissCamera" unwindAction="dismissingCamera:" id="NLy-8f-q68"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="rVa-o2-31t" firstAttribute="firstBaseline" secondItem="GXK-dg-jQa" secondAttribute="firstBaseline" id="Ays-oR-e51"/>
+                                            <constraint firstItem="rVa-o2-31t" firstAttribute="leading" secondItem="GXK-dg-jQa" secondAttribute="trailing" constant="48" id="DGA-Z1-LET"/>
+                                            <constraint firstItem="GXK-dg-jQa" firstAttribute="top" secondItem="Leu-aO-PLT" secondAttribute="top" id="LNb-Ao-dlS"/>
+                                            <constraint firstItem="GXK-dg-jQa" firstAttribute="leading" secondItem="Leu-aO-PLT" secondAttribute="leading" id="ORX-YI-BsP"/>
+                                            <constraint firstAttribute="trailing" secondItem="rVa-o2-31t" secondAttribute="trailing" id="lQo-QQ-o41"/>
+                                            <constraint firstAttribute="bottom" secondItem="GXK-dg-jQa" secondAttribute="bottom" id="thi-Sf-ZsP"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="FkC-iq-TmT" secondAttribute="trailing" id="MIc-Ph-InW"/>
+                                    <constraint firstItem="Leu-aO-PLT" firstAttribute="top" secondItem="FkC-iq-TmT" secondAttribute="bottom" constant="13" id="VK2-OB-i4b"/>
+                                    <constraint firstItem="FkC-iq-TmT" firstAttribute="leading" secondItem="SDP-aC-uac" secondAttribute="leading" id="gUa-bL-NYa"/>
+                                    <constraint firstAttribute="bottom" secondItem="Leu-aO-PLT" secondAttribute="bottom" constant="22" id="hgs-10-07G"/>
+                                    <constraint firstItem="Leu-aO-PLT" firstAttribute="centerX" secondItem="SDP-aC-uac" secondAttribute="centerX" id="qaV-Ue-WE7"/>
+                                    <constraint firstItem="FkC-iq-TmT" firstAttribute="top" secondItem="SDP-aC-uac" secondAttribute="top" id="rix-rl-H4g"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="COb-LT-6E8" firstAttribute="trailing" secondItem="PAF-8W-UnY" secondAttribute="trailing" constant="20" id="3al-EZ-qiD"/>
+                            <constraint firstItem="xq6-36-IpK" firstAttribute="leading" secondItem="OMc-Yc-CyC" secondAttribute="trailing" constant="20" id="5Wc-fL-c7p"/>
+                            <constraint firstItem="SDP-aC-uac" firstAttribute="bottom" secondItem="COb-LT-6E8" secondAttribute="bottom" constant="14" id="ANx-Rb-f1N"/>
+                            <constraint firstItem="OMc-Yc-CyC" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="Lor-az-tvN"/>
+                            <constraint firstItem="tAi-G9-tDZ" firstAttribute="leading" secondItem="COb-LT-6E8" secondAttribute="leading" constant="20" id="N0d-75-8C2"/>
+                            <constraint firstItem="6Ly-Dq-bEZ" firstAttribute="leading" secondItem="xq6-36-IpK" secondAttribute="trailing" constant="20" id="Qhh-Ks-ssd"/>
+                            <constraint firstItem="SDP-aC-uac" firstAttribute="leading" secondItem="COb-LT-6E8" secondAttribute="leading" id="VgC-3o-Fep"/>
+                            <constraint firstItem="6Ly-Dq-bEZ" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="Vwo-kt-eeI"/>
+                            <constraint firstItem="COb-LT-6E8" firstAttribute="top" secondItem="tAi-G9-tDZ" secondAttribute="top" id="XJp-I2-hfj"/>
+                            <constraint firstItem="COb-LT-6E8" firstAttribute="trailing" secondItem="6Ly-Dq-bEZ" secondAttribute="trailing" constant="20" id="jmL-uv-Ek3"/>
+                            <constraint firstItem="J6q-HD-IVo" firstAttribute="leading" secondItem="COb-LT-6E8" secondAttribute="leading" constant="20" id="jo4-0a-Xdr"/>
+                            <constraint firstItem="xq6-36-IpK" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="nKN-1R-aeP"/>
+                            <constraint firstItem="COb-LT-6E8" firstAttribute="trailing" secondItem="SDP-aC-uac" secondAttribute="trailing" id="uqk-3h-zwI"/>
+                            <constraint firstItem="PAF-8W-UnY" firstAttribute="centerY" secondItem="J6q-HD-IVo" secondAttribute="centerY" id="vWz-hF-lMi"/>
+                            <constraint firstItem="COb-LT-6E8" firstAttribute="bottom" secondItem="J6q-HD-IVo" secondAttribute="bottom" id="wOw-Gq-C0D"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="COb-LT-6E8"/>
+                    </view>
+                    <connections>
+                        <outlet property="cameraRotateButton" destination="6Ly-Dq-bEZ" id="nPf-9l-tZb"/>
+                        <outlet property="cameraView" destination="YpU-N3-dH8" id="VCp-V0-fVs"/>
+                        <outlet property="capturedPhotoContainerView" destination="SDP-aC-uac" id="yyN-9b-ksL"/>
+                        <outlet property="capturedPhotoView" destination="FkC-iq-TmT" id="9XU-Hd-ddK"/>
+                        <outlet property="capturedPhotoViewHeightConstraint" destination="KtE-Ft-uMl" id="k8K-QE-p3X"/>
+                        <outlet property="closeButton" destination="tAi-G9-tDZ" id="52e-BN-20g"/>
+                        <outlet property="flashButton" destination="xq6-36-IpK" id="2e7-aN-icd"/>
+                        <outlet property="leftShutter" destination="J6q-HD-IVo" id="5uC-H2-ihv"/>
+                        <outlet property="pirateButton" destination="OMc-Yc-CyC" id="e5V-be-xbE"/>
+                        <outlet property="rightShutter" destination="PAF-8W-UnY" id="MpX-Di-haw"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="526-eN-sNa" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="lP9-ng-3zA" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="4333.6000000000004" y="1183.7438423645322"/>
         </scene>
         <!--EmojiPopup-->
         <scene sceneID="zjB-10-Z01">
@@ -670,7 +838,7 @@
         <scene sceneID="fYK-SF-aLC">
             <objects>
                 <navigationController id="r9i-Le-Z25" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Twitarr" id="Wg9-wO-e0g"/>
+                    <tabBarItem key="tabBarItem" title="Twitarr" image="Twitarr.png" id="Wg9-wO-e0g"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="49w-UZ-gDb">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -687,7 +855,7 @@
         <scene sceneID="iBg-Wa-QCF">
             <objects>
                 <navigationController id="lfF-py-CrU" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Seamail" id="TBG-VB-yOs"/>
+                    <tabBarItem key="tabBarItem" title="Seamail" image="Seamail.png" id="TBG-VB-yOs"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iMW-Bo-eZW">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -723,7 +891,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="O1u-W8-tvY"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Forums" image="second" id="cPa-gy-q4n"/>
+                    <tabBarItem key="tabBarItem" title="Forums" image="Forums.png" id="cPa-gy-q4n"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Nw-L8-lE0" sceneMemberID="firstResponder"/>
             </objects>
@@ -752,13 +920,27 @@
         </scene>
     </scenes>
     <resources>
-        <image name="second" width="30" height="30"/>
+        <image name="CameraClose.png" width="54" height="54"/>
+        <image name="CameraCloseHighlight" width="16" height="16"/>
+        <image name="CameraRotate.png" width="54" height="54"/>
+        <image name="CameraRotateHighlight.png" width="54" height="54"/>
+        <image name="CameraShutter" width="16" height="16"/>
+        <image name="CameraShutter.png" width="60" height="60"/>
+        <image name="Flash.png" width="54" height="54"/>
+        <image name="Forums.png" width="36" height="36"/>
+        <image name="NoFlash.png" width="54" height="54"/>
+        <image name="NoFlashHighlight.png" width="54" height="54"/>
+        <image name="PirateSelfie.png" width="54" height="54"/>
+        <image name="Schedule.png" width="36" height="36"/>
+        <image name="Seamail.png" width="36" height="36"/>
+        <image name="Settings.png" width="36" height="36"/>
+        <image name="Twitarr.png" width="23" height="23"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Cci-1G-tOu"/>
+        <segue reference="oPR-Dz-wmr"/>
         <segue reference="ibx-KH-vcj"/>
-        <segue reference="jQ6-os-thd"/>
-        <segue reference="vXi-dK-Rxk"/>
+        <segue reference="wTp-nv-sgn"/>
+        <segue reference="hIj-Jv-E7S"/>
         <segue reference="jdD-6N-h46"/>
     </inferredMetricsTieBreakers>
 </document>

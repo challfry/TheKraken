@@ -24,6 +24,7 @@ class TwitarrViewController: BaseCollectionViewController {
  
  		tweetDataSource.register(with: collectionView, viewController: self)
 		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
+		dataManager.addDelegate(tweetSegment)
   		tweetDataSource.append(segment: tweetSegment)
 		tweetSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
 		
@@ -34,14 +35,9 @@ class TwitarrViewController: BaseCollectionViewController {
 	}
     
     override func viewWillAppear(_ animated: Bool) {
-//		dataManager.addDelegate(tweetDataSource)
 		tweetDataSource.enableAnimations = true
 	}
-		
-    override func viewWillDisappear(_ animated: Bool) {
-//		dataManager.removeDelegate(tweetDataSource)
-	}
-	
+			
 	func createCellModel(_ model:TwitarrPost) -> BaseCellModel {
 		return TwitarrTweetCellModel(withModel: model, reuse: "tweet")
 	}

@@ -20,12 +20,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// Startup tasks. Hopefully they won't interact, but let's keep them in the same order just to be sure.
 		CurrentUser.shared.setInitialLoginState()		// If someone was logged in when the app quit, keeps them logged in. 
 		_ = PostOperationDataManager.shared				// Responsible for POSTs to the server. 
+		RefreshTimers.appForegrounded()
 		return true
 	}
 
 	func applicationWillResignActive(_ application: UIApplication) {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
 		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+		RefreshTimers.appBackgrounded()
 	}
 
 	func applicationDidEnterBackground(_ application: UIApplication) {
@@ -35,6 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func applicationWillEnterForeground(_ application: UIApplication) {
 		// Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+		RefreshTimers.appForegrounded()
 	}
 
 	func applicationDidBecomeActive(_ application: UIApplication) {

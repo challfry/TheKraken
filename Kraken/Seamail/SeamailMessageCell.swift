@@ -41,12 +41,23 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 
 	override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+
+		// Update the relative post time every 10 seconds.
+		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
+				queue: nil) { [weak self] notification in
+    		if let self = self, let message = self.model as? SeamailMessage, !message.isDeleted {
+	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
+	    		let dateString = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
+				self.authorUsernameLabel?.attributedText = self.authorAndTime(author: message.author.username, 
+						time: dateString)
+				self.postTimeLabel?.attributedText = self.authorAndTime(author: nil, time: dateString)
+			}
+		}
     }
     
     var model: NSFetchRequestResult? {
     	didSet {
-    		if let message = model as? SeamailMessage {
+    		if let message = model as? SeamailMessage, !message.isDeleted {
 	    	//	authorUsernameLabel.text = message.author.username
 	    		messageLabel.text = message.text
 	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
@@ -61,7 +72,7 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 //					CollectionViewLog.debug("Setting user image for \(observed.username)", ["image" : observed.thumbPhoto])
 				}?.schedule()
 			}
-			else if let message = model as? PostOpSeamailMessage {
+			else if let message = model as? PostOpSeamailMessage, !message.isDeleted {
 	    		messageLabel.text = message.text
 				postTimeLabel?.attributedText = authorAndTime(author: nil, time: "In the near future")
 				authorUsernameLabel?.text = "\(message.author.username), In the near future"

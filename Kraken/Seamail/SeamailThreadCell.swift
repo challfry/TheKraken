@@ -100,6 +100,15 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		
+		// Update the relative post time every 10 seconds.
+		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
+				queue: nil) { [weak self] notification in
+    		if let self = self, let thread = self.model as? SeamailThread, !thread.isDeleted {
+	    		let postDate: TimeInterval = TimeInterval(thread.timestamp) / 1000.0
+	    		self.lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
+			}
+		}
+
 		userCellDataSource.register(with: usersView, viewController: viewController as? BaseCollectionViewController)
 		userCellDataSource.append(segment: userCellSection)
 		usersView.backgroundColor = UIColor.clear

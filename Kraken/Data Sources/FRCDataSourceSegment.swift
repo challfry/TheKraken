@@ -10,9 +10,10 @@ import UIKit
 import CoreData
 import os
 
-fileprivate struct Log: LoggingProtocol {	
+struct LocalLogType: LoggingProtocol {
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
 	static var isEnabled = CollectionViewLog.isEnabled && true
+	var instanceEnabled: Bool = false	
 }
 
 // A simple cell model and binding protocol. Useful for when your cell can set itself up from data in the model object
@@ -49,6 +50,8 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDataSourceSegmentProtocol,
 		NSFetchedResultsControllerDelegate, 
 		UICollectionViewDataSourcePrefetching where FetchedObjectType : NSManagedObject {
+		
+	var Log = LocalLogType()
 
 	var fetchRequest = NSFetchRequest<FetchedObjectType>()
 	var frc: NSFetchedResultsController<FetchedObjectType>?
@@ -67,32 +70,32 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	init(withCustomFRC: NSFetchedResultsController<FetchedObjectType>) {
 		frc = withCustomFRC
 		super.init()
-		frc?.delegate = self
+//		frc?.delegate = self
 	}
 		
 	// Configures the Fetch Request, kicks off the FRC, and sets up our cellModels with the initial FRC results.
 	// Call this up front, and again whenever the predicate, sort, or factory function need to change.
 	func activate(predicate: NSPredicate?, sort: [NSSortDescriptor]?, cellModelFactory: ((_ from: FetchedObjectType) -> BaseCellModel)?) {
 		self.createCellModel = cellModelFactory
-		if let pred = predicate {
-			fetchRequest.predicate = pred 
-		}
-		if let sortDescriptors = sort {
-			fetchRequest.sortDescriptors = sortDescriptors
-		}
 
 		if frc == nil {
+			if let pred = predicate {
+				fetchRequest.predicate = pred 
+			}
+			if let sortDescriptors = sort {
+				fetchRequest.sortDescriptors = sortDescriptors
+			}
 			frc = NSFetchedResultsController(fetchRequest: fetchRequest, 
 						managedObjectContext: LocalCoreData.shared.mainThreadContext, 
 						sectionNameKeyPath: nil, cacheName: nil)
 			frc?.delegate = self
-		}
 		
-		do {
-			try frc?.performFetch()
-		}
-		catch {
-			CoreDataLog.error("Couldn't fetch pending replies.", [ "error" : error ])
+			do {
+				try frc?.performFetch()
+			}
+			catch {
+				CoreDataLog.error("Couldn't fetch pending replies.", [ "error" : error ])
+			}
 		}
 
 		//
@@ -104,6 +107,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				}
 			}
 			insertSections.insert(0)
+			Log.debug("Initial FRC objects:", ["objects" : objects])
 		}
 		else {
 			Log.error("No fetched objects during setup.")
@@ -257,15 +261,6 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 	
 	internal func internalRunUpdates(for collectionView: UICollectionView?, deleteOffset: Int, insertOffset: Int) {
-		func addOffsetToIndexSet(_ offset: Int, _ indexes: IndexSet) -> IndexSet {
-			var result = IndexSet()
-			for index in indexes { result.insert(index + offset) }
-			return result
-		}
-		func addSectionOffset(_ offset: Int, _ paths:[IndexPath]) -> [IndexPath] {
-			let result = paths.map { return IndexPath(row:$0.row, section: $0.section + offset) }
-			return result
-		}
 		
 		CollectionViewLog.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections,
 				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells])
@@ -278,7 +273,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		}
 		
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
-		for index in deleteCells.reversed() {
+		for index in deleteCells.sorted().reversed() {
 			cellModels.remove(at: index.row)
 		}
 		
@@ -292,8 +287,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
 	
 		// Now add the cells from our CellModel array, in step with what we tell the CV.
+		
 		if let objects = frc?.fetchedObjects {
-			for index in insertCells {
+			for index in insertCells.sorted() {
 				if let cellModel = createCellModel?(objects[index.row]) {
 					cellModels.insert(cellModel, at: index.row)
 				}
@@ -307,6 +303,8 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		moveCells.removeAll()
 		reloadCells.removeAll()
 		insertCells.removeAll()
+
+		CollectionViewLog.debug("End of internalRunUpdates for FRC:", ["cells" : self.cellModels])
 	}
 
 }

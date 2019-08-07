@@ -39,18 +39,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="412" height="80"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xFL-hY-55B">
-                                <rect key="frame" x="85.5" y="25" width="241" height="30"/>
+                                <rect key="frame" x="151" y="24" width="241" height="30"/>
                                 <state key="normal" title="Tap here to authorize photo access"/>
                                 <connections>
                                     <action selector="authButtonTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="E7R-lY-Ljm"/>
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="xFL-hY-55B" firstAttribute="centerX" secondItem="mob-BF-bC7" secondAttribute="centerX" id="6c9-wU-iw6"/>
+                            <constraint firstItem="xFL-hY-55B" firstAttribute="top" secondItem="mob-BF-bC7" secondAttribute="top" constant="24" id="5vY-wi-2BC"/>
                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" id="Jbe-tB-rgw"/>
-                            <constraint firstItem="xFL-hY-55B" firstAttribute="centerY" secondItem="mob-BF-bC7" secondAttribute="centerY" id="VUB-hq-Ck2"/>
+                            <constraint firstAttribute="trailing" secondItem="xFL-hY-55B" secondAttribute="trailing" constant="20" id="zgh-Ru-qI6"/>
                         </constraints>
                     </view>
                 </subviews>

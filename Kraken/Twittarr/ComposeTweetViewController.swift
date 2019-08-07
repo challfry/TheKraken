@@ -8,6 +8,7 @@
 
 import UIKit
 import Photos
+import MobileCoreServices
 
 class ComposeTweetViewController: BaseCollectionViewController {
 	var parentTweet: TwitarrPost?			// If we're composing a reply, the parent
@@ -141,47 +142,42 @@ class ComposeTweetViewController: BaseCollectionViewController {
     
     var didPost = false
     func postAction() {
+    	// No posting without text in the cell; button should be disabled so this can't happen?
+    	guard let _ = tweetTextCell?.editedText ?? tweetTextCell?.editText else { return }
+    
     	didPost = true
     	postButtonCell?.button2Enabled = false
     	postButtonCell?.button2Text = "Posting"
     	postStatusCell?.shouldBeVisible = true
     	tweetTextCell?.isEditable = false
     	
-    	// Need to disable photo selection, too.
+    	// TODO: Need to disable photo selection, too.
     	
-    	if let tweetText = tweetTextCell?.editedText ?? tweetTextCell?.editText {
-    		if photoSelectionCell?.shouldBeVisible == true, let postPhotoAsset = photoSelectionCell?.getSelectedPhoto() {
-    			let options = PHImageRequestOptions()
-    			options.version = .current
-    			options.progressHandler = imageiCloudDownloadProgress
-				let _ = PHImageManager.default().requestImageData(for: postPhotoAsset, 
-						options: options) { image, dataUTI, orientation, info in
-					if let image = image {
-	    				TwitarrDataManager.shared.queuePost(self.draftTweet, withText: tweetText, image: image, 
-	    						inReplyTo: self.parentTweet, editing: self.editTweet, done: self.postEnqueued)
-					}
-					else {
-						var text = "Couldn't post: failed to get photo to attach to post."
-						if let error = info?[PHImageErrorKey]{
-							text.append(" \(error)")
-						}
-    					self.postStatusCell?.errorText = text
-					}
-				} 
-			} else {
-				var image: Data?
-				
-				// If editing a draft (as yet undelivered to server) post, we already have the photo to attach
-				// saved as an NSData, not a PHImage in the photos library. So, we handle it a bit differently.
-				// (also, delivering a post with an attached image should work even if the user disables photo access
-				// after tapping Post).
-    			if !removeDraftImage {
-    				image = draftTweet?.image as Data?
-    			}
-	    		TwitarrDataManager.shared.queuePost(draftTweet, withText: tweetText, image: image, 
-	    				inReplyTo: parentTweet, editing: self.editTweet, done: postEnqueued)
+		if photoSelectionCell?.shouldBeVisible == true, let selectedPhoto = photoSelectionCell?.selectedPhoto {
+			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
+					progress: imageiCloudDownloadProgress) { photoData, mimeType in
+				self.post(withPhoto: photoData, mimeType: mimeType)
 			}
+		} else {
+			var image: Data?
+			var mimeType: String?
+			
+			// If editing a draft (as yet undelivered to server) post, we already have the photo to attach
+			// saved as an NSData, not a PHImage in the photos library. So, we handle it a bit differently.
+			// (also, delivering a post with an attached image should work even if the user disables photo access
+			// after tapping Post).
+			if !removeDraftImage {
+				image = draftTweet?.image as Data?
+				mimeType = draftTweet?.imageMimetype
+			}
+			post(withPhoto: image, mimeType: mimeType)
 		}
+    }
+    
+    func post(withPhoto image: Data?, mimeType: String?) {
+    	guard let tweetText = tweetTextCell?.editedText ?? tweetTextCell?.editText else { return }
+		TwitarrDataManager.shared.queuePost(draftTweet, withText: tweetText, image: image, mimeType: mimeType, 
+				inReplyTo: parentTweet, editing: self.editTweet, done: postEnqueued)    	
     }
     
     func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 
@@ -223,10 +219,21 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
 				destVC.modelUserName = username
 			}
+		case "Camera":
+			break
 		default: break 
     	}
 
     }
+
+	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the
+	// source VC to get the photo that was taken.
+	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
+		guard let sourceVC = segue.source as? CameraViewController else { return }
+		if let photo = sourceVC.capturedPhoto {
+			photoSelectionCell?.cameraPhotos.insert(photo, at: 0)
+		}
+	}	
 
 	override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
 		if identifier == "TweetFilter" {

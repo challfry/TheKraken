@@ -105,6 +105,7 @@ import UIKit
 
 struct PrototypeCellInfo {
 	var nib: UINib? = nil
+	var cellClass: BaseCollectionViewCell.Type?
 	var prototypeCell: BaseCollectionViewCell? = nil
 	
 	init(_ nibName: String?) {
@@ -116,6 +117,12 @@ struct PrototypeCellInfo {
 			}
 		}
 	}
+	
+	init(_ cellClass: BaseCollectionViewCell.Type) {
+		self.cellClass = cellClass
+		prototypeCell = cellClass.init(frame: CGRect(x: 0, y: 0, width: 414, height: 200))
+		prototypeCell?.isPrototypeCell = true
+	}
 }
 
 @objc class BaseCollectionViewCell: UICollectionViewCell {
@@ -124,6 +131,9 @@ struct PrototypeCellInfo {
 		for (reuseID, info) in self.validReuseIDDict {
 			if let nib = info.nib {
 				controller.register(nib, forCellWithReuseIdentifier: reuseID)
+			}
+			else {
+				controller.register(info.cellClass, forCellWithReuseIdentifier: reuseID)
 			}
 		}
 	}
@@ -137,6 +147,14 @@ struct PrototypeCellInfo {
 	var calculatedSize: CGSize = CGSize(width: 0.0, height: 0.0)
 	var isBuildingCell = false
 	var customGR: UILongPressGestureRecognizer?
+	
+	required override init(frame: CGRect) {
+		super.init(frame: frame)
+	}
+	
+	required init?(coder aDecoder: NSCoder) {
+		super.init(coder: aDecoder)
+	}
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()

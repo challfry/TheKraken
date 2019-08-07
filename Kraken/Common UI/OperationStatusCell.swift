@@ -61,7 +61,11 @@ import UIKit
 	}
 }
 
+
+// When errorText is non-nil, it's what's shown in the cell, and status is hidden.
 @objc class OperationStatusCell: BaseCollectionViewCell, OperationStatusCellProtocol {
+	@IBOutlet var errorLabel: UILabel!
+	@IBOutlet var statusView: UIView!
 	@IBOutlet var statusLabel: UILabel!
 	@IBOutlet var spinner: UIActivityIndicatorView!
 	@objc dynamic var collection: UICollectionView?
@@ -77,8 +81,9 @@ import UIKit
 	}
 	var errorText: String? {
 		didSet {
-			let newText = errorText ?? statusText
-			statusLabel.text = newText
+			errorLabel.isHidden = errorText == nil
+			statusView.isHidden = errorText != nil
+			errorLabel.text = errorText
 			self.layer.removeAllAnimations()
 		}
 	}

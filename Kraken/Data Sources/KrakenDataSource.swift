@@ -12,6 +12,7 @@ import os
 fileprivate struct Log: LoggingProtocol {	
 	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
 	static var isEnabled = CollectionViewLog.isEnabled && true
+	var instanceEnabled: Bool = true	
 }
 
 
@@ -35,6 +36,18 @@ protocol KrakenDataSourceSegmentProtocol: UICollectionViewDataSource, UICollecti
 	func pathToLocal(_ global: IndexPath) -> IndexPath {
 		return IndexPath(row: global.row, section: global.section - sectionOffset)
 	}
+	
+	func addOffsetToIndexSet(_ offset: Int, _ indexes: IndexSet) -> IndexSet {
+		var result = IndexSet()
+		for index in indexes { result.insert(index + offset) }
+		return result
+	}
+	
+	func addSectionOffset(_ offset: Int, _ paths:[IndexPath]) -> [IndexPath] {
+		let result = paths.map { return IndexPath(row:$0.row, section: $0.section + offset) }
+		return result
+	}
+	
 }
 typealias KrakenDSS = KrakenDataSourceSegment & KrakenDataSourceSegmentProtocol
 
@@ -202,7 +215,7 @@ class KrakenDataSource: NSObject {
 		guard !updateScheduled else { return }
 		updateScheduled = true
 		DispatchQueue.main.async {
-						
+								
 			let updateBlock = {
 				// Are we currently the datasource for this collectionview? If not, don't tell the CV about
 				// any updates.
@@ -286,6 +299,11 @@ class KrakenDataSource: NSObject {
 			}
 			
 			if self.collectionView?.dataSource === self {
+				if self.animationsRunning {
+					self.updateScheduled = true
+					return
+				}
+			
 				var disabledAnimations = false
 				if !self.enableAnimations {
 					UIView.setAnimationsEnabled(false)
@@ -295,12 +313,16 @@ class KrakenDataSource: NSObject {
 				self.collectionView?.performBatchUpdates( {
 					self.animationsRunning = true
 					updateBlock()
-				}, completion: { completed in
 					self.updateScheduled = false
+				}, completion: { completed in
 					self.animationsRunning = false
 					Log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
 					self.itemsToRunAfterBatchUpdates.forEach { $0() }
 					self.itemsToRunAfterBatchUpdates.removeAll()
+					if self.updateScheduled {
+						Log.debug("Immediately running a new performUpdaets", ["DS" : self])
+						self.runUpdates()
+					}
 				})
 
 				if disabledAnimations {

@@ -245,7 +245,12 @@ class UserManager : NSObject {
 				resultDict[addingUser.username] = addingUser
 			}
 						
-			// Results should now have all the users that were passed in.
+			// Results should now have all the users that were passed in. Add the logged in user, because several
+			// parsers require it.
+			if let currentUser = CurrentUser.shared.loggedInUser, 
+				let userInContext = try? context.existingObject(with: currentUser.objectID) as? KrakenUser {
+				resultDict[currentUser.username] = userInContext
+			}
 			context.userInfo.setObject(resultDict, forKey: "Users" as NSString)
 		}
 		catch {

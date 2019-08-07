@@ -18,7 +18,13 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="38"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HPy-n9-1Oe">
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wQL-Jh-Mob">
+                        <rect key="frame" x="20" y="2" width="335" height="34"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" red="0.72533118210000003" green="0.04477352976" blue="0.04477352976" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HPy-n9-1Oe">
                         <rect key="frame" x="134.5" y="0.0" width="106" height="38"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label Text" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vqZ-tT-T14">
@@ -49,13 +55,20 @@
             </view>
             <constraints>
                 <constraint firstItem="HPy-n9-1Oe" firstAttribute="centerX" secondItem="6nO-0y-aNo" secondAttribute="centerX" id="FDO-8S-69b"/>
+                <constraint firstAttribute="trailing" secondItem="wQL-Jh-Mob" secondAttribute="trailing" constant="20" id="YYq-E8-otO"/>
+                <constraint firstItem="wQL-Jh-Mob" firstAttribute="top" secondItem="6nO-0y-aNo" secondAttribute="top" constant="2" id="b2K-RE-lxc"/>
                 <constraint firstItem="HPy-n9-1Oe" firstAttribute="top" secondItem="6nO-0y-aNo" secondAttribute="top" id="iD0-cI-Eym"/>
                 <constraint firstAttribute="bottom" secondItem="HPy-n9-1Oe" secondAttribute="bottom" id="k4C-jT-ftA"/>
+                <constraint firstItem="wQL-Jh-Mob" firstAttribute="leading" secondItem="6nO-0y-aNo" secondAttribute="leading" constant="20" id="nJo-9J-SFA"/>
+                <constraint firstItem="HPy-n9-1Oe" firstAttribute="width" relation="lessThanOrEqual" secondItem="6nO-0y-aNo" secondAttribute="width" constant="-40" id="sEI-G1-ex3"/>
+                <constraint firstAttribute="bottom" secondItem="wQL-Jh-Mob" secondAttribute="bottom" constant="2" id="yPe-Ya-ShS"/>
             </constraints>
             <size key="customSize" width="357" height="89"/>
             <connections>
+                <outlet property="errorLabel" destination="wQL-Jh-Mob" id="75b-cP-aMX"/>
                 <outlet property="spinner" destination="gn8-Hi-x22" id="jqS-Xr-8pa"/>
                 <outlet property="statusLabel" destination="vqZ-tT-T14" id="i6Z-dS-0Hu"/>
+                <outlet property="statusView" destination="HPy-n9-1Oe" id="cyd-u2-Pls"/>
             </connections>
             <point key="canvasLocation" x="132.60869565217394" y="53.571428571428569"/>
         </collectionViewCell>

@@ -77,7 +77,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost, reuse: "tweet")
 			model.isInteractive = false
 			taskSection.append(model)
-			taskSection.append(TaskEditButtonsCellModel(forTask: reactionTask, vc: self))
+//			taskSection.append(TaskEditButtonsCellModel(forTask: reactionTask, vc: self))
 		}
 		else if let postTask = task as? PostOpTweet {
 			let cellModel = TwitarrTweetCellModel(withModel: postTask, reuse: "tweet")
@@ -93,29 +93,44 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				taskSection.append(SettingsInfoCellModel("Post a new Twitarr tweet:", taskIndex: sectionIndex))
 			}
 			taskSection.append(cellModel)
-			taskSection.append(TaskEditButtonsCellModel(forTask: postTask, vc: self))
+//			taskSection.append(TaskEditButtonsCellModel(forTask: postTask, vc: self))
 		}
 		else if let deleteTask = task as? PostOpTweetDelete {
 			let cellModel = TwitarrTweetCellModel(withModel: deleteTask.tweetToDelete, reuse: "tweet")
 			cellModel.isInteractive = false
 			taskSection.append(SettingsInfoCellModel("Delete this Twitarr tweet of yours:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
-			taskSection.append(TaskEditButtonsCellModel(forTask: deleteTask, vc: self))
+//			taskSection.append(TaskEditButtonsCellModel(forTask: deleteTask, vc: self))
 		}
 		else if let seamailPostTheadTask = task as? PostOpSeamailThread {
-			let cellModel = SeamailThreadCellModel(withModel: task, reuse: "seamailThread")
+			let cellModel = SeamailThreadCellModel(withModel: seamailPostTheadTask, reuse: "seamailThread")
 			cellModel.isInteractive = false
 			taskSection.append(SettingsInfoCellModel("Start a new Seamail Thread:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
-			taskSection.append(TaskEditButtonsCellModel(forTask: seamailPostTheadTask, vc: self))
+//			taskSection.append(TaskEditButtonsCellModel(forTask: seamailPostTheadTask, vc: self))
 		}
 		else if let seamailPostMessageTask = task as? PostOpSeamailMessage {
-			let cellModel = SeamailMessageCellModel(withModel: task, reuse: "SeamailSelfMessageCell")
+			let cellModel = SeamailMessageCellModel(withModel: seamailPostMessageTask, reuse: "SeamailSelfMessageCell")
 			// cellModel.isInteractive = false
 			taskSection.append(SettingsInfoCellModel("Send a Seamail Message:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
-			taskSection.append(TaskEditButtonsCellModel(forTask: seamailPostMessageTask, vc: self))
+//			taskSection.append(TaskEditButtonsCellModel(forTask: seamailPostMessageTask, vc: self))
 		}
+		
+		let labelCell = OperationStatusCellModel()
+		task.tell(labelCell, when: "errorString") { observer, observed in
+			observer.shouldBeVisible = observed.errorString != nil
+			if let error = observed.errorString {
+				var errorText = "Server rejected this change, stating:\n    • \(error)"
+				if TaskEditButtonsCellModel.taskCanBeEdited(task: task) {
+					errorText.append("\n\nYou can try editing this item to fix the error and then re-send.")
+				}
+				observer.errorText = errorText
+			}
+		}?.execute()
+		
+		taskSection.append(labelCell)
+		taskSection.append(TaskEditButtonsCellModel(forTask: task, vc: self))
 		
 		return taskSection
 	}
@@ -188,12 +203,17 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 		viewController = vc
 		super.init(alignment: .right)
 		
-		if task is PostOpTweetReaction || task is PostOpTweetDelete {
-		}
-		else {
+		if TaskEditButtonsCellModel.taskCanBeEdited(task: forTask) {
 			setupButton(1, title: "Edit", action: editTaskHit)
 		}
 		setupButton(2, title: "Cancel", action: cancelTaskHit)
+	}
+	
+	class func taskCanBeEdited(task: PostOperation) -> Bool {
+		if task is PostOpTweetReaction || task is PostOpTweetDelete {
+			return false
+		}
+		return true
 	}
 	
 	func editTaskHit() {

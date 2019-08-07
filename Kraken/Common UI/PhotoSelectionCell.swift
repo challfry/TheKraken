@@ -9,16 +9,25 @@
 import UIKit
 import Photos
 
+enum PhotoDataType {
+	case library(PHAsset)
+	case camera(AVCapturePhoto)
+}
+	
 @objc protocol PhotoSelectionCellProtocol {
 	@objc dynamic var privateSelected: Bool { get set }
-	@objc dynamic var showAuthView: Bool { get set }
+	@objc dynamic var cameraPhotos: [AVCapturePhoto] { get set }
 }
 
 @objc class PhotoSelectionCellModel: BaseCellModel, PhotoSelectionCellProtocol {
 	private static let validReuseIDs = [ "PhotoSelectionCell" : PhotoSelectionCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 	
-	@objc dynamic var showAuthView = PHPhotoLibrary.authorizationStatus() == .notDetermined
+	// Both of these will be nil if no photo selected
+	var selectedPhotoIndexPath: IndexPath?
+	var selectedPhoto: PhotoDataType?
+
+	dynamic var cameraPhotos: [AVCapturePhoto] = []
 	
 	override var shouldBeVisible: Bool {
 		didSet {
@@ -36,39 +45,36 @@ import Photos
 		if status == .restricted || status == .denied {
 			shouldBeVisible = false
 		}
-
-		if !showAuthView {
-			let allPhotosOptions = PHFetchOptions()
-			allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-			allPhotosOptions.includeAssetSourceTypes = [.typeUserLibrary, .typeCloudShared, .typeiTunesSynced] 
-			allPhotos = PHAsset.fetchAssets(with: .image, options: allPhotosOptions)
-		}
-	}
-	
-	// Will be nil if no photo selected
-	var allPhotos: PHFetchResult<PHAsset>?
-	var selectedPhotoIndex: Int?
-	
-	func getSelectedPhoto() -> PHAsset? {
-		if let index = selectedPhotoIndex, let photos = allPhotos, index < photos.count {
-			return photos[index]
-		}	
-		return nil
 	}
 }
 
-class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UICollectionViewDataSource, UICollectionViewDelegate {
+class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 	@IBOutlet var authorizationView: UIView!
 	@IBOutlet var photoCollectionView: UICollectionView!
 	@IBOutlet weak var heightConstraint: NSLayoutConstraint!
 	
 	private static let cellInfo = [ "PhotoSelectionCell" : PrototypeCellInfo("PhotoSelectionCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+	
+	var cameraPhotos: [AVCapturePhoto] = [] {
+		didSet {
+			// Cheezing it, deleting all camera photo cells and rebuilding
+			while cameraSegment.allCellModels.count > 1 {
+				cameraSegment.delete(at: 1)
+			}
+			for photo in cameraPhotos {
+				self.appendCameraPhotoCell(for: photo)
+			}
+		}
+	}
+
+	var photoDataSource = KrakenDataSource()
+	let cameraSegment = FilteringDataSourceSegment()
+	let photoSegment = PhotoDataSourceSegment()
 
 	@objc dynamic var showAuthView: Bool = true {
 		didSet {
 			authorizationView.isHidden = !showAuthView
-			photoCollectionView.isHidden = showAuthView
 		}
 	}
 	
@@ -77,52 +83,71 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
  		lineLayout = HorizontalLineLayout(withParent: self)
 		photoCollectionView.collectionViewLayout = lineLayout!
 		heightConstraint.constant = 400
+		
 
-		photoCollectionView.register(PhotoButtonCell.self, forCellWithReuseIdentifier: "PhotoButtonCell")
-
-		authorizationView.isHidden = !showAuthView
-		photoCollectionView.isHidden = showAuthView
+ 		photoDataSource.register(with: photoCollectionView, viewController: nil)
+  		photoDataSource.append(segment: cameraSegment)
+  		let cameraCell = PhotoCameraCellModel()
+  		cameraCell.buttonHit = { [weak self] cell in
+  			if let self = self {
+	  			self.dataSource?.performSegue(withIdentifier: "Camera", sender: self)
+			}
+  		}
+		cameraSegment.append(cameraCell)
+  		
+  		let status = PHPhotoLibrary.authorizationStatus()
+		showAuthView = status == .notDetermined
+		if status == .authorized {
+			attachPhotoSegment()
+		}
     }
 
 	@IBAction func authButtonTapped(_ sender: Any) {
 		PHPhotoLibrary.requestAuthorization { status in
 			DispatchQueue.main.async {
 				if status == .restricted || status == .denied {
-					self.cellModel?.shouldBeVisible = false
+					self.showAuthView = false
 				}
 				if status == .authorized {
-					(self.cellModel as? PhotoSelectionCellModel)?.showAuthView = false
+					self.attachPhotoSegment()
+					self.showAuthView = false
 				}
 			}
 		}
 	}
 	
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		if let model = cellModel as? PhotoSelectionCellModel {
-			return model.allPhotos?.count ?? 0
-		}
-		return 0
+	func attachPhotoSegment() {
+		guard !((dataSource?.allSegments.first(where: { $0 is PhotoDataSourceSegment })) != nil) else { return }
+		photoDataSource.append(segment: photoSegment)
+		photoSegment.activate(predicate: nil, sort: nil, cellClass: PhotoButtonCell.self, reuseID: "PhotoButtonCell")
+  		photoSegment.buttonHitClosure = { [weak self] cell in
+  			if let self = self {
+	  			self.photoCellTapped(cell)
+			}
+  		}
 	}
-	
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let cell = photoCollectionView.dequeueReusableCell(withReuseIdentifier: "PhotoButtonCell", for: indexPath) as! PhotoButtonCell 
-		if let model = cellModel as? PhotoSelectionCellModel {
-			cell.asset = model.allPhotos?.object(at: indexPath.row)
-		}
-		cell.ownerCell = self
-		return cell
-	}
-	
+		
 	var lineLayout: HorizontalLineLayout?
-	func cellTapped(_ cell: PhotoButtonCell) {
+	func photoCellTapped(_ cell: PhotoCollectionCellProtocol) {
 		if let _ = lineLayout?.privateSelectedIndexPath {
 			lineLayout?.privateSelectedIndexPath = nil
-			(cellModel as? PhotoSelectionCellModel)?.selectedPhotoIndex = nil
+			if let cellModel = cellModel as? PhotoSelectionCellModel {
+				cellModel.selectedPhotoIndexPath = nil
+				cellModel.selectedPhoto = nil
+			}
 		} 
 		else {
-			let indexPath = photoCollectionView.indexPath(for: cell)
-			lineLayout?.privateSelectedIndexPath = indexPath
-			(cellModel as? PhotoSelectionCellModel)?.selectedPhotoIndex = indexPath?.row
+			if let cell = cell as? PhotoButtonCell, let cellModel = cellModel as? PhotoSelectionCellModel,
+					let indexPath = photoCollectionView.indexPath(for: cell) {
+				lineLayout?.privateSelectedIndexPath = indexPath
+				cellModel.selectedPhotoIndexPath = indexPath
+				if let asset = cell.asset {
+					cellModel.selectedPhoto = PhotoDataType.library(asset)
+				}
+				else if let photo = cell.cameraPhoto {
+					cellModel.selectedPhoto = PhotoDataType.camera(photo)
+				}
+			}
 		}
 		UIView.animate(withDuration: 0.3) {
 			self.lineLayout?.invalidateLayout()
@@ -137,11 +162,103 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 		}
 	}
 	
+	func appendCameraPhotoCell(for photo: AVCapturePhoto) {
+		let photoCell = PhotoButtonCellModel(with: photo)
+  		photoCell.buttonHit = { [weak self] cell in
+  			if let self = self {
+	  			self.photoCellTapped(cell)
+			}
+  		}
+		cameraSegment.append(photoCell)
+	}
+	
 }
 
-@objc class PhotoButtonCell: UICollectionViewCell {
-	@objc weak dynamic var ownerCell: PhotoSelectionCell?
+// MARK: -
+@objc protocol PhotoCameraCellProtocol {
+	var buttonHit: ((PhotoCameraCellProtocol) -> Void)? { get set }
+}
+
+@objc class PhotoCameraCellModel: BaseCellModel, PhotoCameraCellProtocol {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
+		return [ "PhotoCameraCell" : PhotoCameraCell.self ] 
+	}
+	dynamic var buttonHit: ((PhotoCameraCellProtocol) -> Void)?
+	
+	init() {
+		super.init(bindingWith: PhotoCameraCellProtocol.self)
+	}
+}
+
+@objc class PhotoCameraCell: BaseCollectionViewCell, PhotoCameraCellProtocol {
+	private static let cellInfo = [ "PhotoCameraCell" : PrototypeCellInfo(PhotoCameraCell.self) ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+	var buttonHit: ((PhotoCameraCellProtocol) -> Void)?
 	var photoButton = UIButton()
+	
+	required init(frame: CGRect) {
+		super.init(frame: frame)
+		fullWidth = false
+
+		// Add the photo as a button; makes highlight and hit detection easier.
+		photoButton.frame = self.bounds
+		addSubview(photoButton)
+		photoButton.addTarget(self, action:#selector(photoButtonHit), for:.touchUpInside)
+		photoButton.adjustsImageWhenHighlighted = true
+		photoButton.adjustsImageWhenDisabled = true
+		photoButton.imageView?.contentMode = .scaleAspectFill
+		photoButton.contentVerticalAlignment = .fill
+		photoButton.contentHorizontalAlignment = .fill
+		photoButton.imageView?.clipsToBounds = true
+		photoButton.clipsToBounds = true
+		
+		photoButton.translatesAutoresizingMaskIntoConstraints = false
+		photoButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10).isActive = true
+		photoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10).isActive = true
+		photoButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10).isActive = true
+		photoButton.topAnchor.constraint(equalTo: topAnchor, constant: 10).isActive = true
+		photoButton.adjustsImageWhenHighlighted = true
+		photoButton.adjustsImageWhenDisabled = true
+		
+		photoButton.setImage(UIImage(named: "CameraIcon3"), for: .normal)
+		photoButton.setImage(UIImage(named: "CameraIcon3Highlight"), for: .highlighted)
+	}
+	
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+	
+    @objc func photoButtonHit() {
+    	buttonHit?(self)
+    }
+}
+
+// MARK: -
+@objc protocol PhotoButtonCellProtocol {
+	var buttonHit: ((PhotoCollectionCellProtocol) -> Void)? { get set }
+	var cameraPhoto: AVCapturePhoto? { get set }
+}
+
+// Model is only used for camera photos. The PhotoLibrary cells operate modelless.
+@objc class PhotoButtonCellModel: BaseCellModel, PhotoButtonCellProtocol {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
+		return [ "PhotoButtonCell" : PhotoCameraCell.self ] 
+	}
+	dynamic var buttonHit: ((PhotoCollectionCellProtocol) -> Void)?
+	dynamic var cameraPhoto: AVCapturePhoto?
+	
+	init(with: AVCapturePhoto) {
+		cameraPhoto = with
+		super.init(bindingWith: PhotoButtonCellProtocol.self)
+	}
+}
+
+@objc class PhotoButtonCell: BaseCollectionViewCell, PhotoCollectionCellProtocol, PhotoButtonCellProtocol {	
+	private static let cellInfo = [ "PhotoButtonCell" : PrototypeCellInfo(PhotoButtonCell.self) ]
+	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+
+	var photoButton = UIButton()
+	var buttonHit: ((PhotoCollectionCellProtocol) -> Void)?
 	var asset: PHAsset? {
 		didSet {
 			guard let asset = asset else { return }
@@ -154,13 +271,28 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
 		}
 	}
 	
-	override init(frame: CGRect) {
+	var cameraPhoto: AVCapturePhoto? {
+		didSet {
+			var counterRotate: UIImage.Orientation = .right
+			if let raw = cameraPhoto?.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
+					let cgOrientation = CGImagePropertyOrientation(rawValue: raw) {
+				counterRotate = UIImage.Orientation(cgOrientation)
+				if let cgImage = cameraPhoto?.cgImageRepresentation()?.takeUnretainedValue() {
+					let image = UIImage(cgImage: cgImage, scale: 1.0, orientation: counterRotate)
+					self.photoButton.setImage(image, for: .normal)
+				}
+			}
+		}
+	}
+	
+	required init(frame: CGRect) {
 		super.init(frame: frame)
+		fullWidth = false
 		
 		// Add the photo as a button; makes highlight and hit detection easier.
 		photoButton.frame = self.bounds
 		addSubview(photoButton)
-		photoButton.addTarget(self, action:#selector(buttonHit), for:.touchUpInside)
+		photoButton.addTarget(self, action:#selector(photoButtonHit), for:.touchUpInside)
 		photoButton.adjustsImageWhenHighlighted = true
 		photoButton.adjustsImageWhenDisabled = true
 		photoButton.imageView?.contentMode = .scaleAspectFill
@@ -192,15 +324,14 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol, UI
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func buttonHit() {
-    	ownerCell?.cellTapped(self)
+    @objc func photoButtonHit() {
+    	buttonHit?(self)
 		photoButton.imageView?.contentMode = photoButton.imageView?.contentMode == .scaleAspectFill ?
 				.scaleAspectFit : .scaleAspectFill
-
     }
 }
 
-
+// MARK: -
 class HorizontalLineLayout: UICollectionViewLayout {
 	var privateSelectedIndexPath: IndexPath?
 	weak var parentCell: PhotoSelectionCell?
@@ -217,39 +348,73 @@ class HorizontalLineLayout: UICollectionViewLayout {
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
+	
+	func totalCellCount(in cv: UICollectionView) -> Int {
+		var cellCount: Int = 0
+		for index in 0..<(cv.dataSource?.numberOfSections?(in: cv) ?? 0) {
+			cellCount += cv.dataSource?.collectionView(cv, numberOfItemsInSection: index) ?? 0
+		}
+		return cellCount
+	}
 
 	override var collectionViewContentSize: CGSize {
-		if let _ = privateSelectedIndexPath {
-			return collectionView!.bounds.size 
+		if let cv = collectionView {
+			if let _ = privateSelectedIndexPath {
+				return cv.bounds.size 
+			}
+			else {
+				let photoCount = totalCellCount(in: cv)
+				return CGSize(width: photoCount * (HorizontalLineLayout.cellStride), height: 80)
+			}
 		}
-		else if let model = parentCell?.cellModel as? PhotoSelectionCellModel {
-			let photoCount = model.allPhotos?.count ?? 0
-			return CGSize(width: photoCount * (HorizontalLineLayout.cellStride), height: 80)
-		}
-		
-		return collectionView!.bounds.size 
+		return CGSize(width: 0, height: 0)
 	}
 
 	override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+		guard let cv = collectionView else { return nil }
+		
 		var result: [UICollectionViewLayoutAttributes] = []
-		let photoCount = (parentCell?.cellModel as? PhotoSelectionCellModel)?.allPhotos?.count ?? 0
 		if let path = privateSelectedIndexPath {
 			let attrs = UICollectionViewLayoutAttributes(forCellWith: path)
 			attrs.isHidden = false
-			attrs.frame = collectionView!.bounds
+			attrs.frame = cv.bounds
 			result.append(attrs)
 		}
-		else {
-			var index = Int(Int(rect.origin.x) / HorizontalLineLayout.cellStride)
-			if index < 0 { index = 0 }
+		else if let ds = cv.dataSource {
+			let photoCount = totalCellCount(in: cv)
+			var first = Int(Int(rect.origin.x) / HorizontalLineLayout.cellStride)
+			if first < 0 { first = 0 }
 			var last = Int(Int(rect.origin.x + rect.size.width) / HorizontalLineLayout.cellStride)
 			if last > photoCount { last = photoCount }
-			while index < last {
-				let val = UICollectionViewLayoutAttributes(forCellWith: IndexPath(row: index, section: 0))
+			
+			var path = IndexPath(row: 0, section: 0)
+			var cellStartIndex = 0
+			var cellsInThisSection = 0
+			let numSections = ds.numberOfSections?(in: cv) ?? 0
+			for sectionIndex in 0..<numSections {
+				let nextSectionStartIndex = cellStartIndex + ds.collectionView(cv, numberOfItemsInSection: sectionIndex)
+				if nextSectionStartIndex > first {
+					path.section = sectionIndex
+					path.row = first - cellStartIndex
+					cellsInThisSection = ds.collectionView(cv, numberOfItemsInSection: sectionIndex)
+					break
+				}
+				cellStartIndex = nextSectionStartIndex
+			}
+			
+			for index in first..<last {
+				if path.row >= cellsInThisSection {
+					path.section += 1
+					path.row = 0
+					cellsInThisSection = ds.collectionView(cv, numberOfItemsInSection: path.section)
+				}
+
+				let val = UICollectionViewLayoutAttributes(forCellWith: path)
 				val.isHidden = false
 				val.frame = CGRect(x: index * HorizontalLineLayout.cellStride, y: 0, width: HorizontalLineLayout.cellWidth, height: 80)
 				result.append(val)
-				index = index + 1
+				
+				path.row += 1
 			}
 		}
 		
@@ -262,9 +427,14 @@ class HorizontalLineLayout: UICollectionViewLayout {
 			result.isHidden = selectedIndexPath != indexPath
 			result.frame = collectionView!.bounds
 		}
-		else {
+		else if let cv = collectionView, let ds = cv.dataSource {
+			var cellFlatIndex = indexPath.row
+			for sectionIndex in 0..<indexPath.section {
+				cellFlatIndex += ds.collectionView(cv, numberOfItemsInSection: sectionIndex)
+			}
+		
 			result.isHidden = false
-			result.frame = CGRect(x: indexPath.row * HorizontalLineLayout.cellStride, y: 0,
+			result.frame = CGRect(x: cellFlatIndex * HorizontalLineLayout.cellStride, y: 0,
 					width: HorizontalLineLayout.cellWidth, height: 80)
 		}
 		return result

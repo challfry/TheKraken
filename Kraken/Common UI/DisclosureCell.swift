@@ -10,6 +10,7 @@ import UIKit
 
 @objc protocol DisclosureCellProtocol {
 	dynamic var title: String? { get set }
+	dynamic var errorString: String? { get set }
 }
 
 @objc class DisclosureCellModel: BaseCellModel, DisclosureCellProtocol {
@@ -17,6 +18,7 @@ import UIKit
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	dynamic var title: String?
+	dynamic var errorString: String?
 	
 	init() {
 		super.init(bindingWith: DisclosureCellProtocol.self)
@@ -25,11 +27,15 @@ import UIKit
 
 class DisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 	@IBOutlet var titleLabel: UILabel!
+	@IBOutlet var errorLabel: UILabel!
 	private static let cellInfo = [ "DisclosureCell" : PrototypeCellInfo("DisclosureCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	var title: String? {
 		didSet { titleLabel.text = title }
+	}
+	var errorString: String? {
+		didSet { errorLabel.text = errorString }
 	}
 	
 	var tapRecognizer: UILongPressGestureRecognizer?

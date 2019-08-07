@@ -38,6 +38,12 @@ import Foundation
 			return "Unknown Error"
 		}
 	}
+	
+	override var debugDescription: String {
+		get {
+			return getErrorString()
+		}
+	}
 }
 
 
@@ -71,9 +77,14 @@ import Foundation
 		session = URLSession.shared
 		super.init()
 	
-		let config = URLSessionConfiguration.background(withIdentifier: "Kraken_twitarrv2_background")
-//		let config = URLSessionConfiguration.default
+//		let config = URLSessionConfiguration.background(withIdentifier: "Kraken_twitarrv2_background")
+		let config = URLSessionConfiguration.default
 		config.allowsCellularAccess	= false
+		
+		// This turns off cookies for this session.
+		config.httpShouldSetCookies = false
+		config.httpCookieAcceptPolicy = .never
+		
 		session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
 		
 		if let hostname = Settings.shared.baseURL.host {
@@ -119,6 +130,27 @@ import Foundation
 		return request
 	}
 	
+	// Depending on what the server wants, this could add a query parameter, a HTTP header, or a cookie.
+	class func addUserCredential(to request: inout URLRequest)  {
+		// We can only add user creds if we're logged in--otherwise, we return request unchanged.
+		guard CurrentUser.shared.isLoggedIn(), let authKey = CurrentUser.shared.twitarrV2AuthKey else {
+			return
+		}
+	
+		if let url = request.url, var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+			var query = components.queryItems ?? [URLQueryItem]()
+			for index in 0..<query.count {
+				if query[index].name == "key" {
+					query.remove(at: index)
+					break
+				}
+			}
+			query.append(URLQueryItem(name: "key", value: authKey))
+			components.queryItems = query
+			request.url = components.url
+		}
+	}
+	
 	// All network calls should funnel through here.
 	func queue(_ request:URLRequest, _ done: @escaping (Data?, URLResponse?) -> Void) {
 
@@ -147,7 +179,7 @@ import Foundation
 		}
 	}
 	
-	// 
+	// Parses the responses as the different type of server errors that can happen.
 	@discardableResult func parseServerError(data: Data?, response: URLResponse?) -> ServerError? {
 		if let response = response as? HTTPURLResponse {
 			if response.statusCode >= 300 {

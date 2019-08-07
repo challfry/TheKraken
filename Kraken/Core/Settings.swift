@@ -17,7 +17,7 @@ import Foundation
 	// Each Settings property should get a copy of these 4 lines, modified appropriately
 	@objc dynamic public var settingsBaseURL: URL {
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://127.0.0.1:3000")!) }
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.1.27:3000")!) }
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.1.20:3000")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
 

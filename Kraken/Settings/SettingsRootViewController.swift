@@ -13,7 +13,20 @@ import CoreData
 
 class SettingsRootViewController: BaseCollectionViewController {
 	let dataSource = KrakenDataSource()
-
+		
+	required init?(coder aDecoder: NSCoder) {
+		super.init(coder: aDecoder)
+		PostOperationDataManager.shared.tell(self, when: "operationsWithErrorsCount") { observer, observed in
+			if observed.operationsWithErrorsCount > 0 {
+				observer.navigationController?.tabBarItem.badgeColor = UIColor.red
+				observer.navigationController?.tabBarItem.badgeValue = "\(observed.operationsWithErrorsCount)"
+			}
+			else {
+				observer.navigationController?.tabBarItem.badgeValue = nil
+			}
+        }?.execute()        
+	}
+	
     override func viewDidLoad() {
         super.viewDidLoad()
 		title = "Settings"
@@ -42,6 +55,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		delayedPostInfo.labelText = NSAttributedString(string: "Changes you've made, waiting to be sent to the Twitarr server.")
 		let delayedPostDisclosure = settingsSection.append(cell: DelayedPostDisclosureCellModel())
 		delayedPostDisclosure.viewController = self
+		
 
 
 		var x = settingsSection.append(cell: SettingsInfoCellModel("Time Zone Info"))
@@ -291,6 +305,14 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 				case 0: observer.title = "No changes waiting to be sent to the server."
 				case 1: observer.title = "1 item to post"
 				default: observer.title = "\(observed.pendingOperationCount) items to post"
+			}
+        }?.execute()        
+
+		PostOperationDataManager.shared.tell(self, when: "operationsWithErrorsCount") { observer, observed in
+			switch observed.operationsWithErrorsCount {
+				case 0: observer.errorString = nil
+				case 1: observer.errorString = "Server rejected 1 change"
+				default: observer.errorString = "Server rejected \(observed.operationsWithErrorsCount) changes"
 			}
         }?.execute()        
 	}

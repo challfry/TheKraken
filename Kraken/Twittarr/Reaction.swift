@@ -12,7 +12,8 @@ import CoreData
 @objc(Reaction) public class Reaction: KrakenManagedObject {
 	@NSManaged public var word: String				// "like" is the most common
 	
-	// How many users have this reaction to this source item. Count is very likely to be larger than the number of specific known users.
+	// How many users have this reaction to this source item. Count is very likely to be larger than the number of 
+	// specific known users.
 	@NSManaged public var count: Int32				// 
 	@NSManaged public var users: Set<KrakenUser> 	// Users known to have given this reaction
 	

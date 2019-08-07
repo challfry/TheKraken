@@ -29,20 +29,32 @@ import UIKit
     @NSManaged public var opsWithThisParent: Set<PostOpTweet>?
     @NSManaged public var opsDeletingThisTweet: Set<PostOpTweetDelete>?	// Still needs to be to-many. Sigh.
     @NSManaged public var opsEditingThisTweet: PostOpTweet?		// I *think* this one can be to-one?
-    
     @NSManaged public var reactionOps: NSMutableSet?
-    @objc dynamic public var reactionOpsCount: Int = 0    
-    @objc dynamic public var reactionDict: NSMutableDictionary?
+
+		// Properties built from reactions
+	@objc dynamic public var reactionDict: NSMutableDictionary?
+	@objc dynamic public var likeReaction: Reaction?
+	
+		// Properties built from reactionOps
+	@objc dynamic public var reactionOpsCount: Int = 0    
   
 // MARK: Methods
 
 	public override func awakeFromFetch() {
 		super.awakeFromFetch()
+
+		// Update derived properties
     	let dict = NSMutableDictionary()
+    	var newLikeReaction: Reaction?
 		for reaction in reactions {
 			dict.setValue(reaction, forKey: reaction.word)
+			if reaction.word == "like" {
+				newLikeReaction = reaction
+			}
 		}
 		reactionDict = dict
+		likeReaction = newLikeReaction
+
 		reactionOpsCount = reactionOps?.count ?? 0
 	}
     
@@ -82,7 +94,20 @@ import UIKit
 			// Not hooking up the parent relationship yet. Not sure if we can, as the parent may not be cached at this point?
 		}
 		
-		for (reactionName, reactionV2Obj) in v2Object.reactions {
+		buildReactionsFromV2(context: context, v2Object: v2Object.reactions)
+	}
+	
+	func buildReactionsFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ReactionsSummary) {
+		// Delete any reactions not in the V2 blob
+		let newReactionWords = Set<String>(v2Object.keys)
+		for reaction in reactions {
+			if !newReactionWords.contains(reaction.word) {
+				reactions.remove(reaction)
+			}
+		}
+		
+		// Add/update
+		for (reactionName, reactionV2Obj) in v2Object {
 			var reaction = reactions.first { object in return object.word == reactionName }
 			if reaction == nil {
 				let r = Reaction(context: context)
@@ -91,7 +116,18 @@ import UIKit
 			}
 			reaction?.buildFromV2(context: context, post: self, v2Object: reactionV2Obj, reactionName: reactionName)
 		}
-
+		
+		// Update derived properties
+    	let dict = NSMutableDictionary()
+    	var newLikeReaction: Reaction?
+		for reaction in reactions {
+			dict.setValue(reaction, forKey: reaction.word)
+			if reaction.word == "like" {
+				newLikeReaction = reaction
+			}
+		}
+		reactionDict = dict		
+		likeReaction = newLikeReaction
 	}
 	
 	func postDate() -> Date {
@@ -111,20 +147,15 @@ import UIKit
 	func setReaction(_ reactionWord: String, to newState: Bool) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
-			guard let currentUser = CurrentUser.shared.loggedInUser,
-					let thisPost = context.object(with: self.objectID) as? TwitarrPost,
-					let thisUser = context.object(with: currentUser.objectID) as? KrakenUser else { return }
+			guard let _ = CurrentUser.shared.loggedInUser,
+					let thisPost = context.object(with: self.objectID) as? TwitarrPost else { return }
 			
 			// Check for existing op for this user, with this word
-			if let existingOp = thisPost.getPendingUserReaction(reactionWord) {
-				existingOp.isAdd = newState
-			}
-			else {
-				let op = PostOpTweetReaction(context: context)
-				op.reactionWord = reactionWord
-				op.sourcePost = thisPost
-				op.isAdd = newState
-			}
+			let op = thisPost.getPendingUserReaction(reactionWord) ?? PostOpTweetReaction(context: context)
+			op.isAdd = newState
+			op.readyToSend = true
+			op.reactionWord = reactionWord
+			op.sourcePost = thisPost
 			
 			do {
 				try context.save()
@@ -132,6 +163,7 @@ import UIKit
 			catch {
 				CoreDataLog.error("Couldn't save context.", ["error" : error])
 			}
+			self.reactionOpsCount = self.reactionOps?.count ?? 0
 		}
 	}
 	
@@ -148,6 +180,7 @@ import UIKit
 						CoreDataLog.error("Couldn't save context.", ["error" : error])
 					}
 				}
+				self.reactionOpsCount = self.reactionOps?.count ?? 0
 			}
 		}
 	}
@@ -180,6 +213,7 @@ import UIKit
 				existingOp = PostOpTweetDelete(context: context)
 				existingOp?.tweetToDelete = thisPost
 			}
+			existingOp?.readyToSend = true
 			
 			do {
 				try context.save()
@@ -269,6 +303,8 @@ class TwitarrDataManager: NSObject {
 	//
 	var lastError : Error?
 	
+// MARK: - Methods
+	
 	init(filterString: String? = nil) {
 		filter = filterString
 		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
@@ -283,6 +319,12 @@ class TwitarrDataManager: NSObject {
 
 		super.init()
 		fetchedData.delegate = self
+		do {
+			try fetchedData.performFetch()
+		}
+		catch {
+			CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
+		}
 	}
 	
 	func addDelegate(_ newDelegate: NSObject & NSFetchedResultsControllerDelegate) {
@@ -383,8 +425,12 @@ class TwitarrDataManager: NSObject {
 			}
 		}
 	}
-		
 	
+	// This is for posts created by the user; the responses from create methods return the post that got made.
+	func addNewPostToStream(post: TwitarrV2Post) {
+		TwitarrDataManager.shared.addPostsToStream(posts: [post], anchorTime: 0, extendsNewer: true, morePostsExist: false)
+	}
+		
 	// The optional AnchorTweet specifies that the given posts are directly adjacent to the anchor (that is, if 
 	// extendsNewer is true, the oldest tweet in posts is the tweet chronologically after anchor. If anchor is nil, 
 	// we can only assume posts can replace the tweets between startTime and endTime.
@@ -466,7 +512,8 @@ class TwitarrDataManager: NSObject {
 	}
 	
 	// For new mainline posts, new posts that are replies, and edits to existing posts
-	func queuePost(_ existingDraft: PostOpTweet?, withText: String, image: Data?, 
+	// Creates a PostOperation, saving all the data needed to post a new tweet, and queues it for posting.
+	func queuePost(_ existingDraft: PostOpTweet?, withText: String, image: Data?, mimeType: String?,
 			inReplyTo: TwitarrPost? = nil, editing: TwitarrPost? = nil, done: @escaping (PostOpTweet?) -> Void) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
@@ -489,6 +536,7 @@ class TwitarrDataManager: NSObject {
 			postToQueue.readyToSend = true
 			postToQueue.author = currentUser
 			postToQueue.image = image as NSData?
+			postToQueue.imageMimetype = mimeType
 			
 			do {
 				try context.save()
@@ -538,13 +586,15 @@ struct TwitarrV2Reactions: Codable {
 	let me: Bool
 }
 
+typealias TwitarrV2ReactionsSummary = [ String : TwitarrV2Reactions ]
+
 struct TwitarrV2Post: Codable {
 	let id: String
 	let author: TwitarrV2UserInfo
 	let locked: Bool
 	let timestamp: Int64
 	let text: String
-	let reactions: [ String: TwitarrV2Reactions ]
+	let reactions: TwitarrV2ReactionsSummary
 	let photo: TwitarrV2PhotoDetails?
 	let parentChain: [String]
 

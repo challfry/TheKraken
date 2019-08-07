@@ -69,10 +69,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
     var model: NSFetchRequestResult? {
     	didSet {
     		clearObservations()
-    		if let tweetModel = model as? TwitarrPost {
+    		if let tweetModel = model as? TwitarrPost, !tweetModel.isDeleted {
     			setup(from: tweetModel)
 			}
-			else if let postOpModel = model as? PostOpTweet {
+			else if let postOpModel = model as? PostOpTweet, !postOpModel.isDeleted {
 				setup(from: postOpModel)
 			}
 			else {
@@ -95,49 +95,62 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		titleAttrString.append(timeAttrString)
 		titleLabel.attributedText = titleAttrString
 		
-		if let likeReaction = tweetModel.reactions.first(where: { reaction in reaction.word == "like" }) {
-			likesLabel.isHidden = false
-			likesLabel.text = "\(likeReaction.count) 💛"
-		}
-		else {
-			likesLabel.isHidden = true
-		}
+		// Show the current number of likes this tweet has.
+		addObservation(tweetModel.tell(self, when: "likeReaction.count") { observer, observed in
+			if let likeCount = tweetModel.likeReaction?.count, likeCount > 0 {
+				observer.likesLabel.isHidden = false
+				observer.likesLabel.text = "\(likeCount) 💛"
+			}
+			else {
+				observer.likesLabel.isHidden = true
+			}
+		}?.execute())
 		
-		// Can the user tap on a link and open a filtered view?
-		let addLinksToText = viewController?.shouldPerformSegue(withIdentifier: "TweetFilter", sender: self) ?? false
-// Damascus is pretty good; really like Helvetica. Hoefler doesn't work here. Times New Roman isn't bad.
-// 
-//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Damascus", size: 16.0) as Any ]
-//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Helvetica", size: 17.0) as Any ]
-//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17.0) as Any ]
-//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "HoeflerText-Regular", size: 16.0) as Any ]
-		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "TimesNewRomanPSMT", size: 17.0) as Any ]
-//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Verdana", size: 15.0) as Any ]
-		let tweetTextWithLinks = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
-		tweetTextWithLinks.addAttributes(tweetTextAttrs, range: NSRange(location: 0, length: tweetTextWithLinks.length))
-		tweetTextView.attributedText = tweetTextWithLinks
+		// Tweet text
+		addObservation(tweetModel.tell(self, when: "text") { observer, observed in 		
+			// Can the user tap on a link and open a filtered view?
+			let addLinksToText = observer.viewController?.shouldPerformSegue(withIdentifier: "TweetFilter", 
+					sender: observer) ?? false
+	// Damascus is pretty good; really like Helvetica. Hoefler doesn't work here. Times New Roman isn't bad.
+	// 
+	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Damascus", size: 16.0) as Any ]
+	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Helvetica", size: 17.0) as Any ]
+	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17.0) as Any ]
+	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "HoeflerText-Regular", size: 16.0) as Any ]
+			let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "TimesNewRomanPSMT", size: 17.0) as Any ]
+	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Verdana", size: 15.0) as Any ]
+			let tweetTextWithLinks = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
+			tweetTextWithLinks.addAttributes(tweetTextAttrs, range: NSRange(location: 0, length: tweetTextWithLinks.length))
+			observer.tweetTextView.attributedText = tweetTextWithLinks
 
-		let fixedWidth = tweetTextView.frame.size.width
-		let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-		tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+			let fixedWidth = observer.tweetTextView.frame.size.width
+			let newSize = observer.tweetTextView.sizeThatFits(CGSize(width: fixedWidth, 
+					height: CGFloat.greatestFiniteMagnitude))
+			observer.tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+		}?.execute())
 		
+		// User Icon
 		tweetModel.author.loadUserThumbnail()
 		addObservation(tweetModel.author.tell(self, when:"thumbPhoto") { observer, observed in
 			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
 			observer.userButton.setTitle("", for: .normal)
-		}?.schedule())
+		}?.execute())
 		
-		if let photo = tweetModel.photoDetails {
-			self.postImage.isHidden = false
-			ImageManager.shared.image(withSize:.medium, forKey: photo.id) { image in
-				self.postImage.image = image
-				self.cellSizeChanged()
+		// Photo, if one's attached
+		addObservation(tweetModel.tell(self, when:"photoDetails.id") { observer, observed in
+			if let photo = tweetModel.photoDetails {
+				observer.postImage.isHidden = false
+				if !observer.isPrototypeCell {
+					ImageManager.shared.image(withSize:.medium, forKey: photo.id) { image in
+						observer.postImage.image = image
+					}
+				}
 			}
-		}
-		else {
-			self.postImage.image = nil
-			self.postImage.isHidden = true
-		}
+			else {
+				observer.postImage.image = nil
+				observer.postImage.isHidden = true
+			}
+		}?.execute())
 		
 		// Watch for login/out, so we can update like/unlike button state
 		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
@@ -190,6 +203,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				// setup observation on 'reactions' to watch for currentUser reacting to this tweet.
 				observation = tweetModel.tell(self, when: "reactionDict.like.users.\(username)") { observer, observed in
 					observer.setLikeButtonState()
+					
+					if !observer.isPrototypeCell {
+						CollectionViewLog.debug("Hit for non-proto cell.")
+					}
 				}?.execute()
 				observer.opsByCurrentUserObservations.append(observation)
 				observer.addObservation(observation)
@@ -276,6 +293,19 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		pendingOpsStackView.isHidden = true				// In case the xib didn't leave this hidden
+
+		// Every 10 seconds, update the post time (the relative time since now that the post happened).
+		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
+				queue: nil) { [weak self] notification in
+    		if let self = self, let tweetModel = self.model as? TwitarrPost, !tweetModel.isDeleted {
+				let titleAttrString = NSMutableAttributedString(string: "\(tweetModel.author.displayName), ", 
+						attributes: self.authorTextAttributes())
+				let timeString = StringUtilities.relativeTimeString(forDate: tweetModel.postDate())
+				let timeAttrString = NSAttributedString(string: timeString, attributes: self.postTimeTextAttributes())
+				titleAttrString.append(timeAttrString)
+				self.titleLabel.attributedText = titleAttrString
+			}
+		}
 	}
 	
 	// Prototype cells have difficulty figuring out their layout while animating.
@@ -308,6 +338,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 		else {
 			likeButton.setTitle("Like", for: .normal)
+		}
+		if !self.isPrototypeCell {
+			CollectionViewLog.debug("like button state change:", ["Title" : self.likeButton.titleLabel!.text,
+					"index" : self.dataSource?.collectionView?.indexPath(for: self)])
 		}
 	}
 	

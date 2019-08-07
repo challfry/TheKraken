@@ -39,9 +39,9 @@ class SeamailRootViewController: BaseCollectionViewController {
          		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
+				}
 				observer.newThreadButton.isEnabled = true
-			}
-       	}
+       		}
         }?.execute()        
 
 		title = "Seamail"

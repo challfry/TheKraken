@@ -127,7 +127,8 @@ class SeamailDataManager: NSObject {
 		queryParams.append(URLQueryItem(name:"after", value: self.lastSeamailCheckTime()))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
 		
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/seamail_threads", query: queryParams)
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/seamail_threads", query: queryParams)
+		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
 				self.lastError = error
@@ -184,6 +185,25 @@ class SeamailDataManager: NSObject {
 			catch {
 				CoreDataLog.error("Failed to add new Seamails.", ["error" : error])
 			}
+		}
+	}
+	
+	func addNewSeamailMessage(context: NSManagedObjectContext, threadID: String, v2Object: TwitarrV2SeamailMessage) {
+		do {
+			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "SeamailThreadsWithIDs", 
+					substitutionVariables: [ "ids" : [threadID] ]) as! NSFetchRequest<SeamailThread>
+			let cdThreads = try request.execute()
+			if let thread = cdThreads.first {
+				UserManager.shared.update(users: v2Object.readUsers, inContext: context)
+
+				// Yes, even if we're adding a new message, check to see if it's already here. Because networking.
+				let message = thread.messages.first { $0.id == v2Object.id } ?? SeamailMessage(context: context)
+				message.buildFromV2(context: context, v2Object: v2Object, newThread: thread)
+				thread.messages.insert(message)
+			}
+		}
+		catch {
+			CoreDataLog.error("Failed to add new Seamail message to CoreData.", ["error" : error])
 		}
 	}
 	
