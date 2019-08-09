@@ -33,6 +33,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	@IBOutlet var likesLabel: UILabel!				
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
+	@IBOutlet var 	postImageHeightConstraint: NSLayoutConstraint!
 	@IBOutlet var userButton: UIButton!
 	
 	@IBOutlet var pendingOpsStackView: UIStackView!
@@ -347,13 +348,20 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	override var privateSelected: Bool {
 		didSet {
-			if privateSelected == oldValue { return }
+			if !isPrototypeCell, privateSelected == oldValue { return }
+			
+			var newImageHeight: CGFloat = 200.0
+			if privateSelected, let tweetModel = model as? TwitarrPost, let photoDetails = tweetModel.photoDetails {
+				newImageHeight = postImage.bounds.width / photoDetails.aspectRatio
+			}
 			if isPrototypeCell {
 				pendingOpsStackView.isHidden = !privateSelected
+				postImageHeightConstraint.constant = newImageHeight
 			}
 			else {
 				UIView.animate(withDuration: 0.3) {
 					self.pendingOpsStackView.isHidden = !self.privateSelected
+					self.postImageHeightConstraint.constant = newImageHeight
 				}
 				cellSizeChanged()
 			}

@@ -245,16 +245,18 @@ class ImageManager : NSObject {
 			let _ = PHImageManager.default().requestImageData(for: asset, 
 					options: options) { imageDataParam, dataUTI, orientation, info in
 				var imageData = imageDataParam
-				if let origImageData = imageData, let uti = dataUTI, let mimeType =
+				if let origImageData = imageData, let uti = dataUTI, var mimeType =
 						UTTypeCopyPreferredTagWithClass(uti as CFString, kUTTagClassMIMEType)?.takeRetainedValue() as String? {
 					
 					// Do we need to recompress to convert the data to something the server can handle?
+					// If we don't need to do this, we go right on through with imageData and mimeType unchanged.
 					if !["image/jpeg", "image/png", "image/gif"].contains(mimeType) || 
 							asset.pixelWidth > maxImageDimension || asset.pixelHeight > maxImageDimension {
 						let imageScale = min(CGFloat(maxImageDimension) / CGFloat(asset.pixelWidth), 
 								CGFloat(maxImageDimension) / CGFloat(asset.pixelHeight), 1.0)
 						let newImage = UIImage(data: origImageData, scale: imageScale)
 						imageData = newImage?.jpegData(compressionQuality: 0.9)
+						mimeType = "image/jpeg"
 					}
 					
 					done(imageData, mimeType)
@@ -335,6 +337,12 @@ class ImageManager : NSObject {
 		set {
 			fullWidth = Int32(newValue?.width ?? 0)
 			fullHeight = Int32(newValue?.height ?? 0)
+		}
+	}
+	
+	var aspectRatio: CGFloat {
+		get {
+			return fullWidth > 0 && fullHeight > 0 ? CGFloat(fullWidth) / CGFloat(fullHeight) : 4.0 / 3.0
 		}
 	}
 

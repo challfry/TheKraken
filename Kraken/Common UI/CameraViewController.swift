@@ -24,7 +24,8 @@ class CameraViewController: UIViewController {
 	@IBOutlet var 	capturedPhotoContainerView: UIView!
 	@IBOutlet var 		capturedPhotoView: UIImageView!
 	@IBOutlet var 		capturedPhotoViewHeightConstraint: NSLayoutConstraint!
-
+	@IBOutlet var 		retryButton: UIButton!
+	@IBOutlet var 		useButton: UIButton!
 	
 	var captureSession = AVCaptureSession()
 	var cameraDevice: AVCaptureDevice?					// The currently active device
@@ -41,14 +42,14 @@ class CameraViewController: UIViewController {
 		setupGestureRecognizer()
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(CameraViewController.deviceRotationNotification), 
-		name: UIDevice.orientationDidChangeNotification, object: nil)
+				name: CoreMotion.OrientationChanged, object: nil)
 	}
     
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		cameraPreview?.frame = cameraView.bounds
-		UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-		   
+		CoreMotion.shared.start()
+		  
 		if let inputDevice = cameraDevice {
 			if verticalSlider == nil {
 				verticalSlider = VerticalSlider(for: inputDevice, frame: CGRect(x: 0, y: 200, width: 40, height: 400))
@@ -61,7 +62,7 @@ class CameraViewController: UIViewController {
 	}
 	
 	override func viewDidDisappear(_ animated: Bool) {
-		UIDevice.current.endGeneratingDeviceOrientationNotifications()
+		CoreMotion.shared.stop()
 		if haveLockOnDevice {
 			cameraDevice?.unlockForConfiguration()
 		}
@@ -72,12 +73,13 @@ class CameraViewController: UIViewController {
 	}
 	
 	@objc func deviceRotationNotification(_ notification: Notification) {
-//		print ("New orientation: \(UIDevice.current.orientation.rawValue)")
+//		print ("New orientation: \(CoreMotion.shared.currentDeviceOrientation.rawValue)")
 		var rotationAngle: CGFloat = 0.0
-		switch UIDevice.current.orientation {
+		var isLandscape = false
+		switch CoreMotion.shared.currentDeviceOrientation {
 			case .portrait, .faceUp, .unknown: rotationAngle = 0.0
-			case .landscapeLeft: rotationAngle = 90.0
-			case .landscapeRight: rotationAngle = -90.0
+			case .landscapeLeft: rotationAngle = 90.0; isLandscape = true
+			case .landscapeRight: rotationAngle = -90.0; isLandscape = true
 			case .portraitUpsideDown, .faceDown: rotationAngle = 180.0
 			default: rotationAngle = 0.0
 		}
@@ -86,7 +88,16 @@ class CameraViewController: UIViewController {
 			self.cameraRotateButton.transform = xform
 			self.flashButton.transform = xform
 			self.pirateButton.transform = xform
+			self.retryButton.transform = xform
+			self.useButton.transform = xform
+			
+			let viewWidth = self.capturedPhotoContainerView.bounds.size.width
+			var imageAspectRatio: CGFloat = 4.0 / 3.0
+			if let image = self.capturedPhotoView.image {
+				imageAspectRatio = image.size.height / image.size.width
+			}
 			self.capturedPhotoView.transform = xform
+			self.capturedPhotoViewHeightConstraint.constant = isLandscape ? viewWidth : viewWidth * imageAspectRatio
 		}
 	}
 	
@@ -177,7 +188,13 @@ class CameraViewController: UIViewController {
 		// Set the orientation of the photo output to match our current UI orientation. 'up' in the photo
 		// then matches the current UI orientation. However, this just sets the "Orientation" EXIF tag.
 		if let photoOutputConnection = photoOutput.connection(with: AVMediaType.video) {
-			photoOutputConnection.videoOrientation = .portrait
+			switch CoreMotion.shared.currentDeviceOrientation {
+				case .portrait, .faceUp, .unknown: photoOutputConnection.videoOrientation = .portrait
+				case .landscapeLeft: photoOutputConnection.videoOrientation = .landscapeRight
+				case .landscapeRight: photoOutputConnection.videoOrientation = .landscapeLeft
+				case .portraitUpsideDown, .faceDown: photoOutputConnection.videoOrientation = .portraitUpsideDown
+				default: photoOutputConnection.videoOrientation = .portrait
+			}
 		}
 
 		//
@@ -213,9 +230,16 @@ extension CameraViewController : AVCapturePhotoCaptureDelegate {
 					let cgOrientation = CGImagePropertyOrientation(rawValue: raw) {
 				counterRotate = UIImage.Orientation(cgOrientation)
 			}
-		
-			let imageViewHeight = CGFloat(cgImage.width) * CGFloat(capturedPhotoView.bounds.width) / CGFloat(cgImage.height)
-			capturedPhotoViewHeightConstraint.constant = imageViewHeight
+			
+			var isLandscape = Set(arrayLiteral: .landscapeRight, .landscapeLeft).contains(CoreMotion.shared.currentDeviceOrientation)
+			let viewWidth = self.capturedPhotoContainerView.bounds.size.width
+			var imageAspectRatio: CGFloat = CGFloat(cgImage.width) / CGFloat(cgImage.height)
+			if Set(arrayLiteral: .up, .down).contains(counterRotate) { 
+//				imageAspectRatio = 1.0 / imageAspectRatio 
+				isLandscape = !isLandscape
+			}
+			capturedPhotoViewHeightConstraint.constant = isLandscape ? viewWidth : viewWidth * imageAspectRatio
+	//		let imageViewHeight = CGFloat(cgImage.width) * CGFloat(capturedPhotoView.bounds.width) / CGFloat(cgImage.height)
 			capturedPhotoView.image = UIImage(cgImage: cgImage, scale: 1.0, orientation: counterRotate)
 			
 			capturedPhoto = photo

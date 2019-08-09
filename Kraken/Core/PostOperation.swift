@@ -121,7 +121,7 @@ import CoreData
 	
 		if let operations = controller.fetchedObjects {
 			for op in operations {
-				if op.readyToSend && !op.sentNetworkCall {
+				if op.readyToSend && op.localReadyToSend && !op.sentNetworkCall && !op.localSentNetworkCall {
 					// Tell the op to send to server here
 					NetworkLog.debug("Sending op to server", ["op" : op])
 					op.post()
@@ -196,6 +196,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var readyToSend: Bool
 	
 		// TRUE if we've sent this op to the server. Can no longer cancel.
+		// Note: We don't actually care about this value getting stored; but we do want it propagated to all MOCs.
 	@NSManaged public var sentNetworkCall: Bool
 	
 		// Since you must be logged in to send any content to the server, including likes/reactions,
@@ -209,6 +210,14 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// If we attempt to send a post to the server and it fails, save the error here
 		// so we can display it to the user later.
 	@NSManaged public var errorString: String?
+	
+	// readyToSend is saved to CD from the network queue; this is a backup in case CD is slow at syncing MOCs.
+	public var localReadyToSend: Bool = true
+	
+	// Same idea with sentNetworkCall.
+	public var localSentNetworkCall = false
+	
+	public var lastNetworkCallTime: Date?
 	
 		// TODO: We'll need a policy for attempting to send content that fails. We can:
 			// - Resend X times, then delete?
@@ -227,7 +236,20 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 	// Sends this post to the server.
 	func post() {
-		// set sentNetworkCall
+		localSentNetworkCall = true
+		
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			do {
+				let opInContext = context.object(with: self.objectID) as! PostOperation
+				opInContext.sentNetworkCall = true
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("A postOp got a CoreData error; couldn't store state change back into op.", 
+						["Error" : error])
+			}
+		}
 	}
 	
 	func queueNetworkPost(request: URLRequest, success: @escaping (Data) -> Void) {
@@ -238,6 +260,22 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			else if let data = data {
 				PostOperationDataManager.shared.remove(op: self)
 				success(data)
+				return
+			}
+			
+			// Network error or server error
+			self.localSentNetworkCall = false
+			let context = LocalCoreData.shared.networkOperationContext
+			context.perform {
+				do {
+					let opInContext = context.object(with: self.objectID) as! PostOperation
+					opInContext.sentNetworkCall = false
+					try context.save()
+				}
+				catch {
+					CoreDataLog.error("A postOp got a server error, which we couldn't store back in the postOp.", 
+							["Error" : error])
+				}
 			}
 		}
 	}
@@ -293,6 +331,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 	func recordServerErrorFailure(_ serverError: ServerError) {
 		let context = LocalCoreData.shared.networkOperationContext
+		
+		// Clear RTS directly on the main-context copy of this object
+		localReadyToSend = false
+		localSentNetworkCall = false
+		
 		context.perform {
 			do {
 				let opInContext = context.object(with: self.objectID) as! PostOperation

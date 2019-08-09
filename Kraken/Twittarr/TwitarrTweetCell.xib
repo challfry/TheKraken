@@ -292,6 +292,7 @@
                 <outlet property="likesLabel" destination="3II-e7-kC3" id="Ngh-ji-tJW"/>
                 <outlet property="pendingOpsStackView" destination="atw-t9-ZLS" id="7k8-7g-ABA"/>
                 <outlet property="postImage" destination="WqQ-lV-DUd" id="Dku-7d-1I0"/>
+                <outlet property="postImageHeightConstraint" destination="Hhz-d3-Ph5" id="nxn-Ri-ud5"/>
                 <outlet property="reactionQueuedLabel" destination="RoI-Cv-j34" id="cVf-OX-u8e"/>
                 <outlet property="reactionQueuedView" destination="Z5p-BY-GCY" id="XqU-F9-pCu"/>
                 <outlet property="replyButton" destination="zKk-L1-jDy" id="1PE-yI-wqO"/>

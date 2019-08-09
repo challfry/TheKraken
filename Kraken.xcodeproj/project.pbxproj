@@ -108,6 +108,7 @@
 		EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */; };
 		EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */; };
 		EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */; };
+		EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */; };
 		EAE5914B229E4A34002B5DEF /* BlueButtonHighlight.png in Resources */ = {isa = PBXBuildFile; fileRef = EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */; };
 		EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */; };
 		EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */; };
@@ -260,6 +261,7 @@
 		EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SmallUserCell.xib; sourceTree = "<group>"; };
 		EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTimers.swift; sourceTree = "<group>"; };
+		EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotion.swift; sourceTree = "<group>"; };
 		EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BlueButtonHighlight.png; sourceTree = "<group>"; };
 		EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectionCell.swift; sourceTree = "<group>"; };
 		EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 			isa = PBXGroup;
 			children = (
 				EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */,
+				EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */,
 				EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */,
 				EA444A532298A9B70098DE97 /* PostOperation.swift */,
 				EA1E3B9E2246CDF700017F07 /* Settings.swift */,
@@ -797,6 +800,7 @@
 				EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */,
 				EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */,
 				EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */,
+				EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */,
 				EAA62C7122C55CC00031A999 /* Logging.swift in Sources */,
 				EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */,
 				EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */,

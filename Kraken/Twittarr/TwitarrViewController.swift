@@ -23,6 +23,14 @@ class TwitarrViewController: BaseCollectionViewController {
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
  
  		tweetDataSource.register(with: collectionView, viewController: self)
+ 		
+ 		let loadingSegment = FilteringDataSourceSegment() 
+ 		let statusCell = OperationStatusCellModel()
+ 		statusCell.statusText = "Loading Twitarr Posts"
+ 		statusCell.shouldBeVisible = true
+ 		loadingSegment.append(statusCell)
+ 		tweetDataSource.append(segment: loadingSegment)
+ 		
 		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
 		dataManager.addDelegate(tweetSegment)
   		tweetDataSource.append(segment: tweetSegment)
