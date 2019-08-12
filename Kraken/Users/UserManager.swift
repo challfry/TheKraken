@@ -92,9 +92,17 @@ import CoreData
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let response = response as? HTTPURLResponse {
 				if response.statusCode < 300, let data = data {
-					DispatchQueue.main.async { 
-						self.thumbPhotoData = data
-						self.thumbPhoto = UIImage(data: data)
+					self.thumbPhoto = UIImage(data: data)
+					let context = LocalCoreData.shared.networkOperationContext
+					context.perform {
+						do {
+							let objectInContext = context.object(with: self.objectID) as! KrakenUser
+							objectInContext.thumbPhotoData = data
+							try context.save()
+						}
+						catch {
+							CoreDataLog.error("Couldn't save context while saving User avatar.", ["error" : error])
+						}
 					}
 				} else 
 				{

@@ -28,8 +28,13 @@ class TwitarrViewController: BaseCollectionViewController {
  		let statusCell = OperationStatusCellModel()
  		statusCell.statusText = "Loading Twitarr Posts"
  		statusCell.shouldBeVisible = true
+ 		statusCell.showSpinner = true
  		loadingSegment.append(statusCell)
  		tweetDataSource.append(segment: loadingSegment)
+ 		dataManager.tell(self, when: "networkUpdateActive") { observer, observed in
+ 			statusCell.shouldBeVisible = observed.networkUpdateActive  		
+ 		}
+ 		
  		
 		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
 		dataManager.addDelegate(tweetSegment)

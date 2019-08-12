@@ -116,17 +116,54 @@ import CoreData
 			NetworkLog.debug("Not sending ops to server; blocked by user setting")
 			return
 		}
-		
-		// TODO: Need to throttle here; otherwise we try to send every op each time an op is mutated.
-	
+			
 		if let operations = controller.fetchedObjects {
+			var earliestCallTime: Date?
 			for op in operations {
-				if op.readyToSend && op.localReadyToSend && !op.sentNetworkCall && !op.localSentNetworkCall {
-					// Tell the op to send to server here
-					NetworkLog.debug("Sending op to server", ["op" : op])
-					op.post()
+				// Test 1: Don't send ops that aren't ready. Ops that received server errors get their RTS set FALSE.
+				if !(op.readyToSend && op.localReadyToSend) {
+					continue
+				} 
+				
+				// Test 2: Don't send ops that are currently being sent (have active network calls)
+				if op.sentNetworkCall || op.localSentNetworkCall {
+					continue
+				}
+				
+				// Test 3: Exponential back off. Don't run an op until its next run date.
+				if let nextCallTime = op.nextNetworkCallTime, nextCallTime > Date() {
+					if earliestCallTime == nil { 
+						earliestCallTime = nextCallTime
+					}
+					else if let earliest = earliestCallTime, nextCallTime < earliest {
+						earliestCallTime = nextCallTime
+					}
+					continue
+				}
+				
+				// Tell the op to send to server here
+				NetworkLog.debug("Sending op to server", ["op" : op])
+				op.post()
+				op.retryCount += 1
+				op.nextNetworkCallTime = Date().addingTimeInterval(TimeInterval(pow(2.0, Double(min(op.retryCount, 5)))))
+				
+				// Throttling: After we send one op, wait 1 second before trying again
+				if let earliest = earliestCallTime {
+					earliestCallTime = min(Date().addingTimeInterval(1.0), earliest)
+				}
+				else {
+					earliestCallTime = Date().addingTimeInterval(1.0)
 				}
 			}
+			
+			// Start a timer that will fire whenever it's time for us to try sending the next op.
+			if let fireTime = earliestCallTime {
+				Timer.scheduledTimer(withTimeInterval: fireTime.timeIntervalSinceNow, repeats: false) { timer in 
+					self.checkForOpsToDeliver()
+				}
+			}
+			
+			// TODO: Should be sure to run the check fn on app foregrounding.
 		}
 	}
 	
@@ -217,7 +254,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	// Same idea with sentNetworkCall.
 	public var localSentNetworkCall = false
 	
-	public var lastNetworkCallTime: Date?
+	// For a poor-man's exponential backoff algorithm. 2s, 4s, 8s, 16s 32s.
+	public var nextNetworkCallTime: Date?
+	public var retryCount = 0
 	
 		// TODO: We'll need a policy for attempting to send content that fails. We can:
 			// - Resend X times, then delete?

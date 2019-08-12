@@ -141,7 +141,8 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
 			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
 			
-		CollectionViewLog.debug("In FRC Callback", ["numCells" : self.cellModels.count])
+		CollectionViewLog.debug("In FRC Callback", ["numCells" : self.cellModels.count, "type" : type.rawValue, 
+				"indexPath" : indexPath ?? newIndexPath ?? "hmm"])
 
 		switch type {
 		case .insert:
@@ -149,6 +150,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			insertCells.append(newIndexPath)
 		case .delete:
 			guard let indexPath = indexPath else { return }
+			if let index = reloadCells.firstIndex(of: indexPath) {
+				reloadCells.remove(at: index)
+			}	
 			deleteCells.append(indexPath)
 		case .move:
 			guard let indexPath = indexPath,  let newIndexPath = newIndexPath else { return }
@@ -263,7 +267,8 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	internal func internalRunUpdates(for collectionView: UICollectionView?, deleteOffset: Int, insertOffset: Int) {
 		
 		CollectionViewLog.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections,
-				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells])
+				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells,
+				"reloadCells" : self.reloadCells, "moves" : self.moveCells])
 		
 		if deleteSections.count > 0 {
 			collectionView?.deleteSections(addOffsetToIndexSet(deleteOffset, deleteSections))

@@ -26,6 +26,12 @@ import Foundation
 		set { setSetting(name: "lastSeamailCheckTime", newValue: newValue) }
 	}
 	
+	// Makes all network calls immediately fail. Sorta like airplane mode, except we'll still detect a newtork.
+	@objc dynamic public var blockNetworkTraffic: Bool {
+		get { return getSetting(name: "blockNetworkTraffic", defaultValue: false) }
+		set { setSetting(name: "blockNetworkTraffic", newValue: newValue) }
+	}
+
 	@objc dynamic public var blockEmptyingPostOpsQueue: Bool {
 		get { return getSetting(name: "blockEmptyingPostOpsQueue", defaultValue: false) }
 		set { setSetting(name: "blockEmptyingPostOpsQueue", newValue: newValue) }

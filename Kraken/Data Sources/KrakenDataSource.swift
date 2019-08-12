@@ -95,6 +95,7 @@ class KrakenDataSource: NSObject {
 		scheduleBatchUpdateCompletionBlock {
 			Log.debug("Setting new datasource.", ["DS" : self])
 	//		(cv.dataSource as? KrakenDataSource)?.runUpdates()
+			self.privateRunUpdates()				// Clear out any updates just before setting ourselves as the DS
 			cv.dataSource = self
 			cv.delegate = self
 			cv.reloadData()
@@ -215,124 +216,129 @@ class KrakenDataSource: NSObject {
 		guard !updateScheduled else { return }
 		updateScheduled = true
 		DispatchQueue.main.async {
+			self.privateRunUpdates()
+		}
+	}
+	
+	fileprivate func privateRunUpdates() {
 								
-			let updateBlock = {
-				// Are we currently the datasource for this collectionview? If not, don't tell the CV about
-				// any updates.
-				var cv: UICollectionView?
-				if self.collectionView?.dataSource === self {
-					cv = self.collectionView
-				}
-				Log.debug("Start of batch", ["DS" : self, "cv" : cv as Any])
-			
-				// Update visible sections, create locals for new and old visible sections for diffing
-				let allSegments = self.allSegments as! [KrakenDSS]
-									
-				// Find deleted segments and delete their sections.
-				var allSegmentIndex = 0
-				var visibleSegmentIndex = 0
-				var deleteOffset = 0
-				var insertOffset = 0
-				var deletedSegmentSections = IndexSet()
-				while visibleSegmentIndex < self.visibleSegments.count || allSegmentIndex < allSegments.count {
-					if visibleSegmentIndex < self.visibleSegments.count, allSegmentIndex < allSegments.count {
-						let visibleSegment = self.visibleSegments[visibleSegmentIndex]
-						let allSegment = allSegments[allSegmentIndex]
-						if visibleSegment === allSegment {
-							let preUpdateSections = visibleSegment.numVisibleSections
-							visibleSegment.internalRunUpdates(for: cv, 
-									deleteOffset: deleteOffset, insertOffset: insertOffset)
-							deleteOffset += preUpdateSections
-							insertOffset += visibleSegment.numVisibleSections
-							visibleSegmentIndex += 1
-							allSegmentIndex += 1
-							continue
-						}
-
-					} 
-					
-					// We can't runUpdates on segments that have been deleted; they may not delete their sections
-					// as they don't know they've been removed.
-					if visibleSegmentIndex < self.visibleSegments.count {
-						let visibleSegment = self.visibleSegments[visibleSegmentIndex]
-						if !allSegments.contains { $0 === visibleSegment } {
-							let nextDeleteOffset = deleteOffset + visibleSegment.numVisibleSections
-							deletedSegmentSections.insert(integersIn: deleteOffset..<nextDeleteOffset)
-							visibleSegmentIndex += 1
-							deleteOffset = nextDeleteOffset
-							continue
-						}
-					}
-
-					if allSegmentIndex < allSegments.count {
-						let allSegment = allSegments[allSegmentIndex]
-						if !self.visibleSegments.contains { $0 === allSegment } {
-							allSegment.internalRunUpdates(for: cv, 
-									deleteOffset: deleteOffset, insertOffset: insertOffset)
-							allSegmentIndex += 1
-							insertOffset += allSegment.numVisibleSections
-							continue
-						}
-						Log.error("Shouldn't ever get here. Segment Merge algorithm failed?")
-					}
-				}
-				if deletedSegmentSections.count > 0 {
-					cv?.deleteSections(deletedSegmentSections)
-					Log.debug("Deleting sections due to segment deletion", ["sections" : deletedSegmentSections])
-				}
-				
-				if self.internalInvalidateLayout {
-					self.internalInvalidateLayout = false
-					let context = UICollectionViewFlowLayoutInvalidationContext()
-					context.invalidateFlowLayoutDelegateMetrics = true
-					cv?.collectionViewLayout.invalidateLayout(with: context)
-				}
-			
-				self.visibleSegments = allSegments
-				var sectionOffset = 0
-				for segment in allSegments {
-					segment.sectionOffset = sectionOffset
-					sectionOffset += segment.numVisibleSections
-				}
-
-				Log.debug("End of batch", ["DS" : self])
-			}
-			
+		let updateBlock = {
+			// Are we currently the datasource for this collectionview? If not, don't tell the CV about
+			// any updates.
+			var cv: UICollectionView?
 			if self.collectionView?.dataSource === self {
-				if self.animationsRunning {
-					self.updateScheduled = true
-					return
-				}
-			
-				var disabledAnimations = false
-				if !self.enableAnimations {
-					UIView.setAnimationsEnabled(false)
-					disabledAnimations = true
-				}
-				
-				self.collectionView?.performBatchUpdates( {
-					self.animationsRunning = true
-					updateBlock()
-					self.updateScheduled = false
-				}, completion: { completed in
-					self.animationsRunning = false
-					Log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
-					self.itemsToRunAfterBatchUpdates.forEach { $0() }
-					self.itemsToRunAfterBatchUpdates.removeAll()
-					if self.updateScheduled {
-						Log.debug("Immediately running a new performUpdaets", ["DS" : self])
-						self.runUpdates()
+				cv = self.collectionView
+			}
+			Log.debug("Start of batch", ["DS" : self, "cv" : cv as Any])
+		
+			// Update visible sections, create locals for new and old visible sections for diffing
+			let allSegments = self.allSegments as! [KrakenDSS]
+								
+			// Find deleted segments and delete their sections.
+			var allSegmentIndex = 0
+			var visibleSegmentIndex = 0
+			var deleteOffset = 0
+			var insertOffset = 0
+			var deletedSegmentSections = IndexSet()
+			while visibleSegmentIndex < self.visibleSegments.count || allSegmentIndex < allSegments.count {
+				if visibleSegmentIndex < self.visibleSegments.count, allSegmentIndex < allSegments.count {
+					let visibleSegment = self.visibleSegments[visibleSegmentIndex]
+					let allSegment = allSegments[allSegmentIndex]
+					if visibleSegment === allSegment {
+						let preUpdateSections = visibleSegment.numVisibleSections
+						visibleSegment.internalRunUpdates(for: cv, 
+								deleteOffset: deleteOffset, insertOffset: insertOffset)
+						deleteOffset += preUpdateSections
+						insertOffset += visibleSegment.numVisibleSections
+						visibleSegmentIndex += 1
+						allSegmentIndex += 1
+						continue
 					}
-				})
 
-				if disabledAnimations {
-					UIView.setAnimationsEnabled(true)
+				} 
+				
+				// We can't runUpdates on segments that have been deleted; they may not delete their sections
+				// as they don't know they've been removed.
+				if visibleSegmentIndex < self.visibleSegments.count {
+					let visibleSegment = self.visibleSegments[visibleSegmentIndex]
+					if !allSegments.contains { $0 === visibleSegment } {
+						let nextDeleteOffset = deleteOffset + visibleSegment.numVisibleSections
+						deletedSegmentSections.insert(integersIn: deleteOffset..<nextDeleteOffset)
+						visibleSegmentIndex += 1
+						deleteOffset = nextDeleteOffset
+						continue
+					}
+				}
+
+				if allSegmentIndex < allSegments.count {
+					let allSegment = allSegments[allSegmentIndex]
+					if !self.visibleSegments.contains { $0 === allSegment } {
+						allSegment.internalRunUpdates(for: cv, 
+								deleteOffset: deleteOffset, insertOffset: insertOffset)
+						allSegmentIndex += 1
+						insertOffset += allSegment.numVisibleSections
+						continue
+					}
+					Log.error("Shouldn't ever get here. Segment Merge algorithm failed?")
 				}
 			}
-			else {
+			if deletedSegmentSections.count > 0 {
+				cv?.deleteSections(deletedSegmentSections)
+				Log.debug("Deleting sections due to segment deletion", ["sections" : deletedSegmentSections])
+			}
+			
+			if self.internalInvalidateLayout {
+				self.internalInvalidateLayout = false
+				let context = UICollectionViewFlowLayoutInvalidationContext()
+				context.invalidateFlowLayoutDelegateMetrics = true
+				cv?.collectionViewLayout.invalidateLayout(with: context)
+			}
+		
+			self.visibleSegments = allSegments
+			var sectionOffset = 0
+			for segment in allSegments {
+				segment.sectionOffset = sectionOffset
+				sectionOffset += segment.numVisibleSections
+			}
+
+			Log.debug("End of batch", ["DS" : self])
+		}
+		
+		if self.collectionView?.dataSource === self {
+			if self.animationsRunning {
+				self.updateScheduled = true
+				return
+			}
+		
+			var disabledAnimations = false
+			if !self.enableAnimations {
+				UIView.setAnimationsEnabled(false)
+				disabledAnimations = true
+			}
+			
+			self.collectionView?.performBatchUpdates( {
+				self.animationsRunning = true
 				updateBlock()
 				self.updateScheduled = false
+			}, completion: { completed in
+				self.animationsRunning = false
+				Log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
+				self.itemsToRunAfterBatchUpdates.forEach { $0() }
+				self.itemsToRunAfterBatchUpdates.removeAll()
+				if self.updateScheduled {
+					Log.debug("Immediately running a new performUpdates", ["DS" : self])
+					self.updateScheduled = false
+					self.runUpdates()
+				}
+			})
+
+			if disabledAnimations {
+				UIView.setAnimationsEnabled(true)
 			}
+		}
+		else {
+			updateBlock()
+			self.updateScheduled = false
 		}
 		
 		// something something TableView

@@ -140,25 +140,6 @@
             </objects>
             <point key="canvasLocation" x="2864.8000000000002" y="475.86206896551727"/>
         </scene>
-        <!--Root View Controller-->
-        <scene sceneID="zGf-wI-VVz">
-            <objects>
-                <tableViewController id="Q5q-yy-3wB" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="gDa-ME-4jv">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <connections>
-                            <outlet property="dataSource" destination="Q5q-yy-3wB" id="kV6-3i-jYq"/>
-                            <outlet property="delegate" destination="Q5q-yy-3wB" id="h5D-95-M08"/>
-                        </connections>
-                    </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="lRw-Do-9ng"/>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="hOf-qh-kqw" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1478" y="1184"/>
-        </scene>
         <!--Settings-->
         <scene sceneID="0uu-32-IUj">
             <objects>
@@ -310,19 +291,57 @@
         <!--Schedule-->
         <scene sceneID="a8R-5v-VDn">
             <objects>
-                <navigationController title="Schedule" id="lVq-Ex-gy3" sceneMemberID="viewController">
+                <navigationController title="Schedule" id="lVq-Ex-gy3" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Schedule" image="Schedule.png" id="Cdd-be-qvA" userLabel="Schedule"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="2mz-rg-mYl">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
-                        <segue destination="Q5q-yy-3wB" kind="relationship" relationship="rootViewController" id="K6L-zc-0sK"/>
+                        <segue destination="itg-Bj-Npc" kind="relationship" relationship="rootViewController" id="WpK-eE-Kmh"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tZY-bA-8wh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="780" y="1185"/>
+        </scene>
+        <!--Schedule-->
+        <scene sceneID="TVm-RF-8Ur">
+            <objects>
+                <viewController title="Schedule" id="itg-Bj-Npc" customClass="ScheduleRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Beq-be-H33">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="OKw-FE-TWM">
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Rfg-Qu-MFx">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="hUv-2L-CtT" firstAttribute="trailing" secondItem="OKw-FE-TWM" secondAttribute="trailing" id="6Nn-rT-TYB"/>
+                            <constraint firstItem="OKw-FE-TWM" firstAttribute="leading" secondItem="hUv-2L-CtT" secondAttribute="leading" id="Awb-1L-heJ"/>
+                            <constraint firstItem="OKw-FE-TWM" firstAttribute="top" secondItem="hUv-2L-CtT" secondAttribute="top" id="fPg-nL-Aqd"/>
+                            <constraint firstItem="hUv-2L-CtT" firstAttribute="bottom" secondItem="OKw-FE-TWM" secondAttribute="bottom" id="yIY-TO-nkc"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="hUv-2L-CtT"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Schedule" id="oag-Kz-Eo9"/>
+                    <connections>
+                        <outlet property="collectionView" destination="OKw-FE-TWM" id="OA8-hF-Swr"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="24O-eg-VPm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1478" y="1184"/>
         </scene>
         <!--Twitarr-->
         <scene sceneID="TRS-gu-OnE">
@@ -519,7 +538,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
-                                <rect key="frame" x="20" y="44" width="16" height="22"/>
+                                <rect key="frame" x="20" y="44" width="54" height="54"/>
                                 <state key="normal" image="CameraClose.png"/>
                                 <state key="highlighted" image="CameraCloseHighlight"/>
                                 <connections>
@@ -527,7 +546,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Ly-Dq-bEZ">
-                                <rect key="frame" x="339" y="44" width="16" height="22"/>
+                                <rect key="frame" x="301" y="44" width="54" height="54"/>
                                 <state key="normal" image="CameraRotate.png"/>
                                 <state key="highlighted" image="CameraRotateHighlight.png"/>
                                 <connections>
@@ -573,7 +592,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xq6-36-IpK">
-                                <rect key="frame" x="303" y="44" width="16" height="22"/>
+                                <rect key="frame" x="227" y="44" width="54" height="54"/>
                                 <state key="normal" image="NoFlash.png"/>
                                 <state key="selected" image="Flash.png"/>
                                 <state key="highlighted" image="NoFlashHighlight.png"/>
@@ -582,7 +601,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OMc-Yc-CyC">
-                                <rect key="frame" x="267" y="44" width="16" height="22"/>
+                                <rect key="frame" x="153" y="44" width="54" height="54"/>
                                 <state key="normal" image="PirateSelfie.png"/>
                                 <connections>
                                     <action selector="pirateButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="Ze6-kc-wer"/>
@@ -839,7 +858,7 @@
         <!--Twitarr-->
         <scene sceneID="fYK-SF-aLC">
             <objects>
-                <navigationController id="r9i-Le-Z25" sceneMemberID="viewController">
+                <navigationController id="r9i-Le-Z25" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Twitarr" image="Twitarr.png" id="Wg9-wO-e0g"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="49w-UZ-gDb">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -850,13 +869,21 @@
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IWM-6y-lKE" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Offline mode -- Can't connect to Twitarr server" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Xqd-Dt-dsv">
+                    <rect key="frame" x="0.0" y="0.0" width="304" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" red="1" green="0.97296501660000001" blue="0.87648429650000004" alpha="0.9492722602739726" colorSpace="custom" customColorSpace="displayP3"/>
+                    <fontDescription key="fontDescription" type="italicSystem" pointSize="14"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </objects>
             <point key="canvasLocation" x="780" y="-857"/>
         </scene>
         <!--Seamail-->
         <scene sceneID="iBg-Wa-QCF">
             <objects>
-                <navigationController id="lfF-py-CrU" sceneMemberID="viewController">
+                <navigationController id="lfF-py-CrU" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Seamail" image="Seamail.png" id="TBG-VB-yOs"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iMW-Bo-eZW">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -939,10 +966,10 @@
         <image name="Twitarr.png" width="23" height="23"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="oPR-Dz-wmr"/>
+        <segue reference="Cci-1G-tOu"/>
         <segue reference="ibx-KH-vcj"/>
         <segue reference="wTp-nv-sgn"/>
         <segue reference="hIj-Jv-E7S"/>
-        <segue reference="jdD-6N-h46"/>
+        <segue reference="hV8-Mc-Uo7"/>
     </inferredMetricsTieBreakers>
 </document>

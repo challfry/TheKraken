@@ -155,8 +155,13 @@ class ComposeTweetViewController: BaseCollectionViewController {
     	
 		if photoSelectionCell?.shouldBeVisible == true, let selectedPhoto = photoSelectionCell?.selectedPhoto {
 			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
-					progress: imageiCloudDownloadProgress) { photoData, mimeType in
-				self.post(withPhoto: photoData, mimeType: mimeType)
+					progress: imageiCloudDownloadProgress) { photoData, mimeType, error in
+				if let err = error {
+					self.postStatusCell?.errorText = err.getErrorString()
+				}
+				else {
+					self.post(withPhoto: photoData, mimeType: mimeType)
+				}
 			}
 		} else {
 			var image: Data?

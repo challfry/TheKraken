@@ -231,7 +231,7 @@ class ImageManager : NSObject {
 // MARK: Image Upload Support
 	// Use this to repackage a photo for upload to Twitarr. It also re-formats images to JPEG, PNG or GIF.
 	func resizeImageForUpload(imageContainer: PhotoDataType, 
-			progress: @escaping PHAssetImageProgressHandler, done: @escaping (Data?, String?) -> ()) {
+			progress: @escaping PHAssetImageProgressHandler, done: @escaping (Data?, String?, ServerError?) -> ()) {
 		let maxImageDimension = 2000
 
 		switch imageContainer {
@@ -259,8 +259,11 @@ class ImageManager : NSObject {
 						mimeType = "image/jpeg"
 					}
 					
-					done(imageData, mimeType)
-					return
+					done(imageData, mimeType, nil)
+				}
+				else {
+					// Couldn't convert the photo?
+					done(nil, nil, ServerError("Couldn't retrieve photo."))
 				}
 			}
 
@@ -284,18 +287,16 @@ class ImageManager : NSObject {
 					origImage.draw(in: CGRect(origin: CGPoint.zero, size: resizeSize))
 				}
 				if let jpegData = newImage.jpegData(compressionQuality: 0.9) {
-					done(jpegData, "image/jpeg")
+					done(jpegData, "image/jpeg", nil)
 					return
 				}
 			}
 			else {
 				// we either don't need to resize, or can't.
 				let data = capturePhoto.fileDataRepresentation()
-				done(data, "image/jpeg")
+				done(data, "image/jpeg", nil)
 			}
 		}
-		
-		done(nil, nil)
 	}
 	
 }

@@ -64,6 +64,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		// Preferences
 		let prefsHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
 		prefsHeaderCell.labelText = NSAttributedString(string: "App-wide settings")
+		settingsSection.append(cell: BlockNetworkSwitchCellModel())
 		settingsSection.append(cell: DelayPostsSwitchCellModel())
 		
 		x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
@@ -324,6 +325,16 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	}
 }
 
+@objc class BlockNetworkSwitchCellModel: SwitchCellModel {
+	init() {
+		super.init(labelText: "Block all network traffic, for testing purposes. When on, all network calls will immediately fail.")
+		switchStateChanged = { 
+			Settings.shared.blockNetworkTraffic = self.switchState
+		}
+		switchState = Settings.shared.blockNetworkTraffic
+	}
+}
+
 @objc class DelayPostsSwitchCellModel: SwitchCellModel {
 	init() {
 		super.init(labelText: "Don't send content changes to server. Content changes will be queued but not sent while this is on.")
@@ -332,6 +343,5 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		}
 		switchState = Settings.shared.blockEmptyingPostOpsQueue
 	}
-	
 }
 

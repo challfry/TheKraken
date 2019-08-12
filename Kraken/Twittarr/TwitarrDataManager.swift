@@ -292,7 +292,10 @@ class TwitarrDataManager: NSObject {
 	fileprivate var recentNetworkCalls: [RecentNetworkCall] = []
 	private let recentNetworkCallsQ = DispatchQueue(label:"RecentNetworkCalls mutation serializer")
 	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
-
+	
+	// TRUE when we've got a network call running to update the stream, or the current filter.
+	@objc dynamic var networkUpdateActive: Bool = false  
+	
 	// Once we've loaded the very first tweet, olderPosts gets .false. If we scroll backwards, get older tweets, 
 	// but not the first ever, it'll get .true. NewerPostsExist is only .true if we scroll forward, load new posts,
 	// and the server returns N new posts but says there's even newer ones available. 
@@ -381,7 +384,9 @@ class TwitarrDataManager: NSObject {
 		}
 		
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/stream", query: queryParams)
+		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			self.networkUpdateActive = false
 			if let response = response as? HTTPURLResponse, response.statusCode < 300,
 					let data = data {
 //				print (String(decoding:data!, as: UTF8.self))
@@ -410,7 +415,9 @@ class TwitarrDataManager: NSObject {
 		let queryParams = [ URLQueryItem(name: "limit", value: "50"), URLQueryItem(name: "page", value: String(fromOffset))]
 
 		let request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/search/tweets/\(escapedQuery)", query: queryParams)
+		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+			self.networkUpdateActive = false
 			if let response = response as? HTTPURLResponse, response.statusCode < 300,
 					let data = data {
 				let decoder = JSONDecoder()

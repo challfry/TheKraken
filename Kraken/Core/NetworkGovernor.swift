@@ -61,6 +61,9 @@ import Foundation
 		case noConnection				// 
 	}
 	@objc dynamic var connectionState = ConnectionState.noConnection
+	
+		// lastError here will ONLY ever refer to networking errors. If we talk to the server and get an HTTP
+		// or other server error, it appears elsewhere.
 	var lastError: Error?
 	
 	// Internal to NetworkGovenor. Associates a SessionTask with its reponse data and who to tell when it's done.
@@ -72,7 +75,7 @@ import Foundation
 	private var activeTasks = [InternalTask]()
 	private let activeTasksQ = DispatchQueue(label:"ActiveTask mutation serializer")
 	
-	
+// MARK: Methods	
 	override init() {
 		session = URLSession.shared
 		super.init()
@@ -154,9 +157,11 @@ import Foundation
 	// All network calls should funnel through here.
 	func queue(_ request:URLRequest, _ done: @escaping (Data?, URLResponse?) -> Void) {
 
-// A quick way to test no-network conditions	
-//		done(nil, nil)
-//		return
+		// A quick way to test no-network conditions	
+		if Settings.shared.blockNetworkTraffic {
+			done(nil, nil)
+			return
+		}
 
 		activeTasksQ.async {
 			// If there's already a request outstanding for this exact URL, de-duplicate it here
@@ -235,6 +240,7 @@ import Foundation
 	
 }
 
+// MARK: URLSessionDelegate
 extension NetworkGovernor: URLSessionDelegate {		
 	//
     public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
@@ -254,6 +260,7 @@ extension NetworkGovernor: URLSessionDelegate {
     }
 }
 
+// MARK: URLSessionTaskDelegate
 extension NetworkGovernor: URLSessionTaskDelegate {
 	//
 	public func urlSession(_ session: URLSession, task: URLSessionTask, willBeginDelayedRequest request: URLRequest, 
@@ -326,6 +333,7 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 	}
 }
 
+// MARK: URLSessionDataDelegate
 extension NetworkGovernor: URLSessionDataDelegate {
 
 	//
