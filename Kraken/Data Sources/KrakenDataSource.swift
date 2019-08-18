@@ -9,12 +9,6 @@
 import UIKit
 import os
 
-fileprivate struct Log: LoggingProtocol {	
-	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
-	static var isEnabled = CollectionViewLog.isEnabled && true
-	var instanceEnabled: Bool = true	
-}
-
 
 @objc protocol KrakenCellBindingProtocol {
 	var privateSelected: Bool { get set }
@@ -64,25 +58,16 @@ class KrakenDataSource: NSObject {
 	var visibleSegments = [KrakenDSS]()
 
 	var registeredCellReuseIDs = Set<String>()
+	var log = CollectionViewLog(instanceEnabled: false)
 
 	override init() {
 		super.init()
 		
 		// Watch for section visibility changes; tell Collection to update
-		allSegments.tell(self, when: "*.numVisibleSections") { observer, observed in
-			observer.runUpdates()
-		}?.execute()
-		
-		// Watch for segments that have updates to cell visibility; run updates.
-//		self.tell(self, when: ["visibleSections.*.oldVisibleCellModels", "oldVisibleSections"]) { observer, observed in
-//			let hasCellChanges = observed.visibleSections.reduce(true) { state, section in 
-//				return state && (section as! FilteringDataSourceSection).oldVisibleCellModels != nil
-//			}
-//			
-//			if observed.oldVisibleSections != nil || hasCellChanges {
-//				observer.runUpdates()
-//			}
-//		}
+//		allSegments.tell(self, when: "*.numVisibleSections") { observer, observed in
+//			observer.runUpdates()
+//			self.log.debug("Scheduling runUpdates due to section visibility change.", ["DS" : self])
+//		}?.execute()
 	}	
 
 	// Sets this DS up at the DS for the given collectionView.
@@ -93,7 +78,7 @@ class KrakenDataSource: NSObject {
 		// Changing the data source for a CV causes issues if it happens while a batchUpdates animation block
 		// it taking place. So, we defer the DS change in that case.
 		scheduleBatchUpdateCompletionBlock {
-			Log.debug("Setting new datasource.", ["DS" : self])
+			self.log.debug("Setting new datasource.", ["DS" : self])
 	//		(cv.dataSource as? KrakenDataSource)?.runUpdates()
 			self.privateRunUpdates()				// Clear out any updates just before setting ourselves as the DS
 			cv.dataSource = self
@@ -172,7 +157,7 @@ class KrakenDataSource: NSObject {
 			} 
 			sectionOffset = nextSectionOffset
 		}
-		CollectionViewLog.error("Couldn't find segment for segmentAndOffset")
+		log.error("Couldn't find segment for segmentAndOffset")
 		return nil
 	}
 	
@@ -229,7 +214,7 @@ class KrakenDataSource: NSObject {
 			if self.collectionView?.dataSource === self {
 				cv = self.collectionView
 			}
-			Log.debug("Start of batch", ["DS" : self, "cv" : cv as Any])
+			self.log.debug("Start of batch", ["DS" : self, "cv" : cv as Any])
 		
 			// Update visible sections, create locals for new and old visible sections for diffing
 			let allSegments = self.allSegments as! [KrakenDSS]
@@ -279,12 +264,12 @@ class KrakenDataSource: NSObject {
 						insertOffset += allSegment.numVisibleSections
 						continue
 					}
-					Log.error("Shouldn't ever get here. Segment Merge algorithm failed?")
+					self.log.error("Shouldn't ever get here. Segment Merge algorithm failed?")
 				}
 			}
 			if deletedSegmentSections.count > 0 {
 				cv?.deleteSections(deletedSegmentSections)
-				Log.debug("Deleting sections due to segment deletion", ["sections" : deletedSegmentSections])
+				self.log.debug("Deleting sections due to segment deletion", ["sections" : deletedSegmentSections])
 			}
 			
 			if self.internalInvalidateLayout {
@@ -301,7 +286,7 @@ class KrakenDataSource: NSObject {
 				sectionOffset += segment.numVisibleSections
 			}
 
-			Log.debug("End of batch", ["DS" : self])
+			self.log.debug("End of batch", ["DS" : self])
 		}
 		
 		if self.collectionView?.dataSource === self {
@@ -322,11 +307,11 @@ class KrakenDataSource: NSObject {
 				self.updateScheduled = false
 			}, completion: { completed in
 				self.animationsRunning = false
-				Log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
+				self.log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
 				self.itemsToRunAfterBatchUpdates.forEach { $0() }
 				self.itemsToRunAfterBatchUpdates.removeAll()
 				if self.updateScheduled {
-					Log.debug("Immediately running a new performUpdates", ["DS" : self])
+					self.log.debug("Immediately running a new performUpdates", ["DS" : self])
 					self.updateScheduled = false
 					self.runUpdates()
 				}
@@ -348,13 +333,13 @@ class KrakenDataSource: NSObject {
 	func sizeChanged(for cellModel: BaseCellModel) {
 		cellModel.cellSize = CGSize(width: 0, height: 0)
 		
-//		CollectionViewLog.debug("scroll pos: \(self.collectionView!.contentOffset.y)")
+//		log.debug("scroll pos: \(self.collectionView!.contentOffset.y)")
 		UIView.animate(withDuration: 0.3) {
 			let context = UICollectionViewFlowLayoutInvalidationContext()
 			context.invalidateFlowLayoutDelegateMetrics = true
 			self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
 		}
-//		CollectionViewLog.debug("scroll pos2: \(self.collectionView!.contentOffset.y)")
+//		log.debug("scroll pos2: \(self.collectionView!.contentOffset.y)")
 	}
 
 	var itemsToRunAfterBatchUpdates: [() -> Void] = []
@@ -363,7 +348,7 @@ class KrakenDataSource: NSObject {
 		if let ds = collectionView?.dataSource as? KrakenDataSource {
 			ds.itemsToRunAfterBatchUpdates.append(block)
 			ds.runUpdates()
-			CollectionViewLog.debug("Scheduling block to run later, on addr: \(Unmanaged.passUnretained(ds).toOpaque())")
+			log.debug("Scheduling block to run later, on addr: \(Unmanaged.passUnretained(ds).toOpaque())")
 		}
 		else {
 			block()
@@ -388,7 +373,7 @@ class KrakenDataSource: NSObject {
 extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
 		let sectionCount = visibleSegments.reduce(0) { $0 + $1.numVisibleSections }
-		Log.debug("numberOfSections", ["count" : sectionCount, "DS" : self])
+		log.debug("numberOfSections", ["count" : sectionCount, "DS" : self])
     	return sectionCount
     }
 
@@ -401,7 +386,7 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		CollectionViewLog.debug("Asking for cell.", ["DS" : self, "path" : indexPath])
+		log.debug("Asking for cell.", ["DS" : self, "path" : indexPath])
 		if let (segment, _) = segmentAndOffset(forSection: indexPath.section) {
 			let resultCell = segment.collectionView(collectionView, cellForItemAt: indexPath)
 			if let cell = resultCell as? BaseCollectionViewCell, let vc = viewController as? BaseCollectionViewController {
@@ -410,13 +395,13 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 			
 			//
 			if resultCell.bounds.size.width > 1000 || resultCell.bounds.size.height > 1000 {
-				CollectionViewLog.debug("This cell has a very strange size.", ["cell" : resultCell])
+				log.debug("This cell has a very strange size.", ["cell" : resultCell])
 			}
 			
 						
 			return resultCell
 		}
-		CollectionViewLog.error("Couldn't create cell.")
+		log.error("Couldn't create cell.")
 		return UICollectionViewCell()
 	}
 	
@@ -437,7 +422,7 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 
 		//
 		if protoSize.width > 1000 || protoSize.height > 1000 {
-			CollectionViewLog.debug("This cell has a very strange size.", ["indexPath" : indexPath])
+			log.debug("This cell has a very strange size.", ["indexPath" : indexPath])
 		}
 			
 
@@ -467,11 +452,11 @@ extension KrakenDataSource: UIScrollViewDelegate {
 			totalHeight += sectionHeight
 			debugString.append("    Section \(sectionIndex): \(cellCount) cells, \(sectionHeight) height.\n")
 		}
-		CollectionViewLog.debug("CV: \(sectionCount) sections, totalHeight: \(totalHeight)\n\(debugString)")
+		log.debug("CV: \(sectionCount) sections, totalHeight: \(totalHeight)\n\(debugString)")
 	}
 	
 //	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//		CollectionViewLog.debug("ContentOffset: \(scrollView.contentOffset.y) ContentSize: \(scrollView.contentSize.height)"
+//		log.debug("ContentOffset: \(scrollView.contentOffset.y) ContentSize: \(scrollView.contentSize.height)"
 //				+ " ViewHeight: \(scrollView.bounds.size.height) MaxOffset: \(scrollView.contentSize.height - scrollView.bounds.size.height)" )
 //	}
 

@@ -10,12 +10,6 @@ import UIKit
 import CoreData
 import os
 
-struct LocalLogType: LoggingProtocol {
-	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "CollectionView")
-	static var isEnabled = CollectionViewLog.isEnabled && true
-	var instanceEnabled: Bool = false	
-}
-
 // A simple cell model and binding protocol. Useful for when your cell can set itself up from data in the model object
 // and can have knowledge of that that object is. Not for use with generic cells that just get told what text to put where,
 // or for cells that have to save state back to their cellModel.
@@ -51,7 +45,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		NSFetchedResultsControllerDelegate, 
 		UICollectionViewDataSourcePrefetching where FetchedObjectType : NSManagedObject {
 		
-	var Log = LocalLogType()
+	var log = CollectionViewLog(instanceEnabled: false)
 
 	var fetchRequest = NSFetchRequest<FetchedObjectType>()
 	var frc: NSFetchedResultsController<FetchedObjectType>?
@@ -107,10 +101,10 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				}
 			}
 			insertSections.insert(0)
-			Log.debug("Initial FRC objects:", ["objects" : objects])
+			log.debug("Initial FRC objects:", ["objects" : objects])
 		}
 		else {
-			Log.error("No fetched objects during setup.")
+			log.error("No fetched objects during setup.")
 		}
 		dataSource?.collectionView?.reloadData()
 	}
@@ -141,7 +135,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
 			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
 			
-		CollectionViewLog.debug("In FRC Callback", ["numCells" : self.cellModels.count, "type" : type.rawValue, 
+		log.debug("In FRC Callback", ["numCells" : self.cellModels.count, "type" : type.rawValue, 
 				"indexPath" : indexPath ?? newIndexPath ?? "hmm"])
 
 		switch type {
@@ -180,12 +174,12 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 //		guard let sections =  frc?.sections else {
 //			fatalError("No sections in fetchedResultsController")
 //		}
-		Log.debug("numberOfItemsInSection", ["numObjects" : self.cellModels.count, "DS" : self])
+		log.debug("numberOfItemsInSection", ["numObjects" : self.cellModels.count, "DS" : self])
 		return cellModels.count
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		Log.d("Asking for cell at indexpath", [ "cellModels" : self.cellModels.count, "indexPath" : indexPath ])
+		log.d("Asking for cell at indexpath", [ "cellModels" : self.cellModels.count, "indexPath" : indexPath ])
 		if indexPath.row < cellModels.count {
 			let cellModel = cellModels[indexPath.row]
 			let reuseID = cellModel.reuseID()
@@ -198,7 +192,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			return cell
 		}
 		else {
-			Log.error("Datasource doesn't have a built cellModel for requested indexPath.")
+			log.error("Datasource doesn't have a built cellModel for requested indexPath.")
 		}
 				
 		return UICollectionViewCell()
@@ -207,31 +201,31 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 // MARK: UICollectionView Data Source Prefetch
 
 	func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-		Log.d("Prefetch at: \(indexPaths)", ["DS" : self])
+		log.d("Prefetch at: \(indexPaths)", ["DS" : self])
 	}
 
 	func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
-		Log.d("Cancel Prefetch at: \(indexPaths)", ["DS" : self])
+		log.d("Cancel Prefetch at: \(indexPaths)", ["DS" : self])
 	}
 		
 // MARK: UICollectionView Delegate
 
 	func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-		Log.debug("shouldSelectItemAt", ["indexPath" : indexPath, "DS" : self])
+		log.debug("shouldSelectItemAt", ["indexPath" : indexPath, "DS" : self])
 		return true
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		Log.debug("didSelectItemAt", ["indexPath" : indexPath, "DS" : self])
+		log.debug("didSelectItemAt", ["indexPath" : indexPath, "DS" : self])
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-		Log.debug("shouldDeselectItemAt", ["indexPath" : indexPath, "DS" : self])
+		log.debug("shouldDeselectItemAt", ["indexPath" : indexPath, "DS" : self])
 		return true
 	}
 
 	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-		Log.debug("didDeselectItemAt", ["indexPath" : indexPath, "DS" : self])
+		log.debug("didDeselectItemAt", ["indexPath" : indexPath, "DS" : self])
 	}
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
@@ -249,7 +243,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				let newSize = protoCell.calculateSize()
 				cellModel.cellSize = newSize
 				cellModel.unbind(cell: protoCell)
-				Log.debug("New size for cell at \(indexPath) is \(newSize)", ["DS" : self])
+				log.debug("New size for cell at \(indexPath) is \(newSize)", ["DS" : self])
 							
 				return newSize
 			}
@@ -260,13 +254,13 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	
 // MARK: KrakenDataSourceSectionProtocol
 	func append(_ cell: BaseCellModel) {
-		Log.debug("Can't append cells to this data source")
+		log.debug("Can't append cells to this data source")
 	}
 
 	
 	internal func internalRunUpdates(for collectionView: UICollectionView?, deleteOffset: Int, insertOffset: Int) {
 		
-		CollectionViewLog.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections,
+		log.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections,
 				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells,
 				"reloadCells" : self.reloadCells, "moves" : self.moveCells])
 		
@@ -309,7 +303,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		reloadCells.removeAll()
 		insertCells.removeAll()
 
-		CollectionViewLog.debug("End of internalRunUpdates for FRC:", ["cells" : self.cellModels])
+		log.debug("End of internalRunUpdates for FRC:", ["cells" : self.cellModels])
 	}
 
 }

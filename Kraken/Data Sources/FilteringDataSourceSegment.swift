@@ -20,6 +20,7 @@ fileprivate struct Log: LoggingProtocol {
 
 	@objc dynamic var allCellModels = NSMutableArray() // [BaseCellModel]()
 	var visibleCellModels = [BaseCellModel]()
+	var log = CollectionViewLog(instanceEnabled: false)
 
 	var forceSectionVisible: Bool? {	// If this is nil, section is visible iff it has any visible cells. T/F overrides.
 		didSet { dataSource?.runUpdates() }
@@ -70,7 +71,7 @@ fileprivate struct Log: LoggingProtocol {
 			cellSize = CGSize(width:collectionView.bounds.size.width, height: 50)
 		}
 		
-		Log.debug("sizeForItemAt", ["height" : cellSize.height, "path" : indexPath])
+		log.debug("sizeForItemAt", ["height" : cellSize.height, "path" : indexPath])
 		return cellSize
 	}
 	
@@ -118,9 +119,11 @@ fileprivate struct Log: LoggingProtocol {
 		}
 		if newShouldBeVisible && numVisibleSections == 0 {
 			collectionView?.insertSections(IndexSet(integer: insertOffset))
+			log.debug("Filtering Segment inserting sections", ["sections" : insertOffset, "DS" : self.dataSource ?? ""])
 		}
 		else if !newShouldBeVisible && numVisibleSections == 1 {
 			collectionView?.deleteSections(IndexSet(integer: deleteOffset))
+			log.debug("Filtering Segment deleting sections", ["sections" : deleteOffset, "DS" : self.dataSource ?? ""])
 		}
 		numVisibleSections = newShouldBeVisible ? 1 : 0
 		
@@ -138,10 +141,10 @@ fileprivate struct Log: LoggingProtocol {
 			}
 		}
 		if collectionView != nil {
-			Log.debug("Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+			log.debug("Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
 		}
 		else {
-			Log.debug("THROWING AWAY Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
+			log.debug("THROWING AWAY Inserts: \(inserts) Deletes: \(deletes) \nModels: \(self.visibleCellModels)")
 		}
 		collectionView?.deleteItems(at: deletes)
 		collectionView?.insertItems(at: inserts)

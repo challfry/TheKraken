@@ -57,6 +57,8 @@
 		EA534E2922FD1B9200FE4787 /* KrakenNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */; };
 		EA534E2C2301FFE500FE4787 /* ScheduleRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2B2301FFE500FE4787 /* ScheduleRootViewController.swift */; };
 		EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2D2302164000FE4787 /* EventsDataManager.swift */; };
+		EA534E31230299AE00FE4787 /* EventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2F230299AE00FE4787 /* EventCell.swift */; };
+		EA534E32230299AE00FE4787 /* EventCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA534E30230299AE00FE4787 /* EventCell.xib */; };
 		EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */; };
 		EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
@@ -84,8 +86,7 @@
 		EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456222DC9EC700790F97 /* UnknownUser.png */; };
 		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
-		EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BE2242D300009F287F /* FirstViewController.swift */; };
-		EAA2E4C12242D300009F287F /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* SecondViewController.swift */; };
+		EAA2E4C12242D300009F287F /* ForumsRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */; };
 		EAA2E4C42242D300009F287F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C22242D300009F287F /* Main.storyboard */; };
 		EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C52242D301009F287F /* Assets.xcassets */; };
 		EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */; };
@@ -206,6 +207,8 @@
 		EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenNavController.swift; sourceTree = "<group>"; };
 		EA534E2B2301FFE500FE4787 /* ScheduleRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleRootViewController.swift; sourceTree = "<group>"; };
 		EA534E2D2302164000FE4787 /* EventsDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsDataManager.swift; sourceTree = "<group>"; };
+		EA534E2F230299AE00FE4787 /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
+		EA534E30230299AE00FE4787 /* EventCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventCell.xib; sourceTree = "<group>"; };
 		EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCoreData.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
@@ -235,8 +238,7 @@
 		EAA0E91122E942770077D5D0 /* SwiftUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUtils.swift; sourceTree = "<group>"; };
 		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		EAA2E4BE2242D300009F287F /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
-		EAA2E4C02242D300009F287F /* SecondViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondViewController.swift; sourceTree = "<group>"; };
+		EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsRootViewController.swift; sourceTree = "<group>"; };
 		EAA2E4C32242D300009F287F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EAA2E4C52242D301009F287F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EAA2E4C82242D301009F287F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -335,6 +337,7 @@
 		EA1E3B8E2245796F00017F07 /* Forums */ = {
 			isa = PBXGroup;
 			children = (
+				EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */,
 			);
 			path = Forums;
 			sourceTree = "<group>";
@@ -501,6 +504,8 @@
 			children = (
 				EA534E2B2301FFE500FE4787 /* ScheduleRootViewController.swift */,
 				EA534E2D2302164000FE4787 /* EventsDataManager.swift */,
+				EA534E2F230299AE00FE4787 /* EventCell.swift */,
+				EA534E30230299AE00FE4787 /* EventCell.xib */,
 			);
 			path = Schedule;
 			sourceTree = "<group>";
@@ -547,8 +552,6 @@
 				EA9E693522980CC500B4DC6D /* Kraken.entitlements */,
 				EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */,
 				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
-				EAA2E4BE2242D300009F287F /* FirstViewController.swift */,
-				EAA2E4C02242D300009F287F /* SecondViewController.swift */,
 				EAA2E4C22242D300009F287F /* Main.storyboard */,
 				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
@@ -736,6 +739,7 @@
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA3ABFAC22F404E100441F99 /* CameraIcon3Highlight@3x.png in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
+				EA534E32230299AE00FE4787 /* EventCell.xib in Resources */,
 				EA3ABFB422F423F600441F99 /* CameraShutter@3x.png in Resources */,
 				EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */,
 				EA3ABFBA22F4FA7E00441F99 /* Flash@3x.png in Resources */,
@@ -815,8 +819,9 @@
 				EA534E2C2301FFE500FE4787 /* ScheduleRootViewController.swift in Sources */,
 				EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */,
 				EA3C63102296275F00077E3B /* CollectionFlowLayout.swift in Sources */,
-				EAA2E4C12242D300009F287F /* SecondViewController.swift in Sources */,
+				EAA2E4C12242D300009F287F /* ForumsRootViewController.swift in Sources */,
 				EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */,
+				EA534E31230299AE00FE4787 /* EventCell.swift in Sources */,
 				EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */,
 				EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */,
 				EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */,
@@ -848,7 +853,6 @@
 				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
-				EAA2E4BF2242D300009F287F /* FirstViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,

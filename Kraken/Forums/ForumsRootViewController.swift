@@ -1,5 +1,5 @@
 //
-//  SecondViewController.swift
+//  ForumsRootViewController.swift
 //  Kraken
 //
 //  Created by Chall Fry on 3/20/19.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SecondViewController: UIViewController {
+class ForumsRootViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()

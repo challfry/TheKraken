@@ -22,6 +22,18 @@ the private data for a different logged-in user is inaccessible, even though Cor
 
 ## Event Manager
 
+Filters
+	- Right Now (events currently running)
+	- Future Soon (events starting 'soon' -- start date > now, advance by half hours until we collect 5+ events?)
+	- Tomorrow, (and today?), for planning the next day's favorites.
+	- On a particular day?
+	- Following/Notification Set, to show stuff you've tagged
+	- Events in a particular room?
+	- Events that are event-like (30-90 mins in length) not open-all-day-like (such as the boardgames area 'event')
+	- Search by name
+	- Official/Shadow?
+	
+
 ## Image Manager
 Cache images. Luckily, it appears that photo IDs can be created and deleted but the photo data for an id cannot be changed.
 
