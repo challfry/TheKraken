@@ -9,13 +9,19 @@
 import UIKit
 import CoreData
 
-class ScheduleRootViewController: BaseCollectionViewController {
+@objc class ScheduleRootViewController: BaseCollectionViewController {
 	@IBOutlet var filterView: UIVisualEffectView!
 	@IBOutlet var filterViewTrailingConstraint: NSLayoutConstraint!
+	@IBOutlet weak var disclosureSlider: UISlider!
+	@IBOutlet weak var searchTextField: UITextField!
+	
+	@IBOutlet weak var locationPickerContainer: UIView!
+	@IBOutlet weak var 	locationPicker: UIPickerView!
 	
 
 	let dataManager = EventsDataManager.shared
 	var scheduleDataSource = KrakenDataSource()
+	var eventsSegment: FRCDataSourceSegment<Event>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,20 +42,29 @@ class ScheduleRootViewController: BaseCollectionViewController {
  			statusCell.shouldBeVisible = observed.networkUpdateActive  		
  		}
  		
- 		let eventsSegment = FRCDataSourceSegment<Event>(withCustomFRC: dataManager.fetchedData)
-		dataManager.addDelegate(eventsSegment)
-  		scheduleDataSource.append(segment: eventsSegment)
+		let events = FRCDataSourceSegment<Event>(withCustomFRC: dataManager.fetchedData)
+		dataManager.addDelegate(events)
+  		scheduleDataSource.append(segment: events)
+		eventsSegment = events
 
 		// Debug Logging
-		scheduleDataSource.log.instanceEnabled = true
-		eventsSegment.log.instanceEnabled = true
-		loadingSegment.log.instanceEnabled = true
+		scheduleDataSource.log.instanceEnabled = false
+		events.log.instanceEnabled = false
+		loadingSegment.log.instanceEnabled = false
 
-		eventsSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
+		events.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
 		scheduleDataSource.register(with: collectionView, viewController: self)
 		
 		filterViewTrailingConstraint.constant = 0 - filterView.bounds.size.width
+		searchTextField.delegate = self
+		locationPicker.dataSource = self
+		locationPicker.delegate = self
+		locationPickerContainer.isHidden = true
     }
+	
+    override func viewDidAppear(_ animated: Bool) {
+		locationPicker.reloadAllComponents()
+	}
         
 	func createCellModel(_ model:Event) -> BaseCellModel {
 		return EventCellModel(withModel: model)
@@ -76,7 +91,56 @@ class ScheduleRootViewController: BaseCollectionViewController {
 	@IBAction func rightNowButtonTapped() {
 		
 	}
-
+	
+	@objc dynamic var disclosureLevel: Int = 5
+	@IBAction func disclosureSliderTapped() {
+		let newLevel = Int(disclosureSlider.value)
+		if newLevel != disclosureLevel {
+			eventsSegment?.cellModels.forEach {
+				if let cell = $0 as? EventCellModel {
+					cell.disclosureLevel = disclosureLevel
+				}
+			}
+			disclosureLevel = newLevel
+			print(disclosureLevel)
+		}
+	}
+	
+	var searchText: String? {
+		didSet {
+			var newPred: NSPredicate
+			if let search = searchText, !search.isEmpty {
+				newPred = NSPredicate(format:
+						"title contains[cd] %@ OR eventDescription contains[cd] %@ OR location contains[cd] %@",
+						search, search, search)
+			}
+			else {
+				newPred = NSPredicate(value: true)
+			}
+			eventsSegment?.changePredicate(to: newPred)
+		}
+	}
+	
+	@IBAction func locationButtonTapped() {
+		locationPickerContainer.isHidden = false
+		filterButtonTapped()
+	}
+	
+	@IBAction func locationDoneButtonTapped() {
+		let index = locationPicker.selectedRow(inComponent: 0)
+		let location = dataManager.allLocations[index]
+		let newPred = NSPredicate(format: "location contains[cd] %@", location)
+		eventsSegment?.changePredicate(to: newPred)
+		locationPickerContainer.isHidden = true
+	}
+	
+	@IBAction func resetButtonTapped() {
+		let newPred = NSPredicate(value: true)
+		eventsSegment?.changePredicate(to: newPred)
+		searchTextField.text = ""
+		searchTextField.resignFirstResponder()
+		filterButtonTapped()
+	}
 
     /*
     // MARK: - Navigation
@@ -99,4 +163,48 @@ class ScheduleRootViewController: BaseCollectionViewController {
 			}
 		}
 	}	
+}
+
+extension ScheduleRootViewController: UITextFieldDelegate {
+	func textFieldDidBeginEditing(_ textField: UITextField) {
+		activeTextEntry = textField
+	}
+	
+	func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+		activeTextEntry = nil
+	}
+	
+	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+		if var textFieldContents = textField.text {
+			let swiftRange: Range<String.Index> = Range(range, in: textFieldContents)!
+			textFieldContents.replaceSubrange(swiftRange, with: string)
+			searchText = textFieldContents
+		}
+		return true
+	}
+
+	func textFieldShouldClear(_ textField: UITextField) -> Bool {
+		searchText = nil
+		return true
+	}
+}
+
+extension ScheduleRootViewController: UIPickerViewDataSource, UIPickerViewDelegate {
+	func numberOfComponents(in pickerView: UIPickerView) -> Int {
+		return 1
+	}
+	
+	func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+		return dataManager.allLocations.count
+	}
+	
+	func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
+		return view.bounds.size.width
+	}
+
+	func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+		return dataManager.allLocations[row]
+	}
+
+
 }

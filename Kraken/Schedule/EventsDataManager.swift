@@ -78,6 +78,7 @@ class EventsDataManager: NSObject {
 		fetchedData.delegate = self
 		do {
 			try fetchedData.performFetch()
+			getAllLocations()
 		}
 		catch {
 			CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
@@ -127,6 +128,7 @@ class EventsDataManager: NSObject {
 				}
 				
 				try context.save()
+				self.getAllLocations()
 			}
 			catch {
 				CoreDataLog.error("Failure adding Schedule events to CD.", ["Error" : error])
@@ -142,6 +144,26 @@ class EventsDataManager: NSObject {
 	
 	func removeDelegate(_ oldDelegate: NSObject & NSFetchedResultsControllerDelegate) {
 		viewDelegates.removeAll(where: { $0 === oldDelegate } )
+	}
+	
+	var allLocations: [String] = []
+	func getAllLocations() {
+		let context = coreData.networkOperationContext
+		context.perform {
+			do {
+				self.allLocations.removeAll()
+				let request = NSFetchRequest<Event>(entityName: "Event")
+				let results = try context.fetch(request)
+				let locationSet = Set(results.compactMap {
+					$0.location?.isEmpty == true ? nil : $0.location
+				})
+				self.allLocations = locationSet.sorted()
+			}
+			catch {
+				CoreDataLog.error(".", ["Error" : error])
+			}
+			print(self.allLocations)
+		}
 	}
 }
 

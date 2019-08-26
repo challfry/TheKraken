@@ -108,6 +108,30 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		}
 		dataSource?.collectionView?.reloadData()
 	}
+	
+	func changePredicate(to: NSPredicate) {
+		frc?.fetchRequest.predicate = to
+		do {
+			try frc?.performFetch()
+			
+			cellModels.removeAll()
+			if let objects = frc?.fetchedObjects {
+				for fetchedIndex in 0..<objects.count {
+					if let cellModel = createCellModel?(objects[fetchedIndex]) {
+						cellModels.append(cellModel)
+					}
+				}
+				insertSections.insert(0)
+				log.debug("Initial FRC objects:", ["objects" : objects])
+			}
+			dataSource?.collectionView?.reloadData()
+
+		}
+		catch {
+			CoreDataLog.error("Couldn't fetch pending replies.", [ "error" : error ])
+		}
+		
+	}
 		
 // MARK: FetchedResultsControllerDelegate
 	var insertSections = IndexSet()
