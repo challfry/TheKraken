@@ -32,9 +32,16 @@ import Foundation
 		set { setSetting(name: "blockNetworkTraffic", newValue: newValue) }
 	}
 
+	// Makes PostOps sit in the queue--we don't try to send them to the server.
 	@objc dynamic public var blockEmptyingPostOpsQueue: Bool {
 		get { return getSetting(name: "blockEmptyingPostOpsQueue", defaultValue: false) }
 		set { setSetting(name: "blockEmptyingPostOpsQueue", newValue: newValue) }
+	}
+
+	// Makes the schedule filters act as if the current time is mid-cruise 2019.
+	@objc dynamic public var debugTimeWarpToCruiseWeek2019: Bool {
+		get { return getSetting(name: "debugTimeWarpToCruiseWeek2019", defaultValue: false) }
+		set { setSetting(name: "debugTimeWarpToCruiseWeek2019", newValue: newValue) }
 	}
 
 

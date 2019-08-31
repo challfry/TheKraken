@@ -42,6 +42,22 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yzT-FW-5Jd">
+                        <rect key="frame" x="0.0" y="0.0" width="16" height="202"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OI9-hx-Xgg">
+                                <rect key="frame" x="-4" y="-8" width="43" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="16" id="6rf-Ee-p6X"/>
+                        </constraints>
+                    </view>
                 </subviews>
             </view>
             <constraints>
@@ -54,16 +70,21 @@
                 <constraint firstItem="3RO-NZ-zFt" firstAttribute="leading" secondItem="gvf-h0-fI8" secondAttribute="leading" id="PS4-t3-dit"/>
                 <constraint firstAttribute="top" secondItem="cpP-Du-eol" secondAttribute="top" constant="2" id="THZ-vL-YLW"/>
                 <constraint firstItem="CVM-Ck-jki" firstAttribute="leading" secondItem="gvf-h0-fI8" secondAttribute="leading" id="Wlw-5b-ezB"/>
+                <constraint firstItem="yzT-FW-5Jd" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="Xyz-Qi-cBb"/>
+                <constraint firstItem="yzT-FW-5Jd" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Y0m-si-98t"/>
                 <constraint firstAttribute="trailing" secondItem="gvf-h0-fI8" secondAttribute="trailing" constant="20" id="dz2-mK-wlT"/>
                 <constraint firstItem="3RO-NZ-zFt" firstAttribute="top" secondItem="CVM-Ck-jki" secondAttribute="bottom" constant="4" id="fxp-2z-PYk"/>
                 <constraint firstItem="cpP-Du-eol" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="n6p-8S-I6J"/>
                 <constraint firstAttribute="trailing" secondItem="CVM-Ck-jki" secondAttribute="trailing" constant="20" id="nzt-4N-zYT"/>
+                <constraint firstAttribute="bottom" secondItem="yzT-FW-5Jd" secondAttribute="bottom" id="ybl-IG-76B"/>
             </constraints>
             <size key="customSize" width="412" height="202"/>
             <connections>
                 <outlet property="descriptionLabel" destination="3RO-NZ-zFt" id="yQ6-nX-7pP"/>
                 <outlet property="eventTimeLabel" destination="CVM-Ck-jki" id="tGq-uo-F37"/>
                 <outlet property="locationLabel" destination="gvf-h0-fI8" id="3Id-iL-6BS"/>
+                <outlet property="ribbonView" destination="yzT-FW-5Jd" id="qkz-u6-AyT"/>
+                <outlet property="ribbonViewLabel" destination="OI9-hx-Xgg" id="xh4-mx-AD0"/>
                 <outlet property="titleLabel" destination="cpP-Du-eol" id="e10-o2-Jap"/>
             </connections>
             <point key="canvasLocation" x="20.289855072463769" y="40.848214285714285"/>

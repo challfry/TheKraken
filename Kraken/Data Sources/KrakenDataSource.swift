@@ -17,8 +17,12 @@ import os
 // All this lets us make a thing where we have a base class that can define vars, a protocol that defines
 // methods subclasses need to implement, and a type that composites the two. Kinda ugly, and it requires that
 // subclasses conform to the protocol, but it gets us close to an ABC as cleanly as possible.
-protocol KrakenDataSourceSegmentProtocol: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+protocol KrakenDataSourceSegmentProtocol: UICollectionViewDelegateFlowLayout {
 	func internalRunUpdates(for collectionView: UICollectionView?, deleteOffset: Int, insertOffset: Int)
+	func cellModel(at indexPath: IndexPath) -> BaseCellModel?
+	
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, offsetPath: IndexPath) -> UICollectionViewCell
 }
 
 @objc class KrakenDataSourceSegment: NSObject {	
@@ -42,6 +46,7 @@ protocol KrakenDataSourceSegmentProtocol: UICollectionViewDataSource, UICollecti
 		return result
 	}
 	
+	func invalidateLayoutCache() { }
 }
 typealias KrakenDSS = KrakenDataSourceSegment & KrakenDataSourceSegmentProtocol
 
@@ -59,6 +64,7 @@ class KrakenDataSource: NSObject {
 
 	var registeredCellReuseIDs = Set<String>()
 	var log = CollectionViewLog(instanceEnabled: false)
+	var buildSupplementaryView: ((UICollectionView, String, IndexPath, BaseCellModel?) -> UICollectionReusableView)?
 
 	override init() {
 		super.init()
@@ -92,7 +98,7 @@ class KrakenDataSource: NSObject {
 		viewController?.performSegue(withIdentifier: withIdentifier, sender: sender)
 	}
 
-// MARK: - Segments	
+// MARK: Segments	
 	@discardableResult func appendFilteringSegment(named: String) -> FilteringDataSourceSegment {
 		let newSegment = FilteringDataSourceSegment()
 		newSegment.dataSource = self
@@ -160,6 +166,20 @@ class KrakenDataSource: NSObject {
 		log.error("Couldn't find segment for segmentAndOffset")
 		return nil
 	}
+
+	private func segmentAndOffset(forIndexPath path: IndexPath) -> (KrakenDSS, IndexPath)? {
+		var sectionOffset = 0
+		for segment in visibleSegments {
+			let nextSectionOffset = sectionOffset + segment.numVisibleSections
+			if nextSectionOffset > path.section {
+				let returnValue = (segment, IndexPath(row: path.row, section: path.section - sectionOffset))
+				return returnValue
+			} 
+			sectionOffset = nextSectionOffset
+		}
+		log.error("Couldn't find segment for segmentAndOffset")
+		return nil
+	}
 	
 	var selectedCell: BaseCellModel?
 	func setCellSelection(cell: BaseCollectionViewCell, newState: Bool) {
@@ -187,11 +207,14 @@ class KrakenDataSource: NSObject {
 		}
 	}
 
-// MARK: - Updating Content
+// MARK: Updating Content
 
 	var internalInvalidateLayout = false
 	func invalidateLayout() {
 		internalInvalidateLayout = true
+		if let segments = allSegments as? [KrakenDSS] {
+			segments.forEach { $0.invalidateLayoutCache() }
+		}
 		runUpdates()
 	}
 	
@@ -370,7 +393,8 @@ class KrakenDataSource: NSObject {
 //	}
 }
 
-extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+// MARK: - CV Datasource
+extension KrakenDataSource: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
 		let sectionCount = visibleSegments.reduce(0) { $0 + $1.numVisibleSections }
 		log.debug("numberOfSections", ["count" : sectionCount, "DS" : self])
@@ -379,16 +403,16 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		var returnValue = 0
-		if let (segment, _) = segmentAndOffset(forSection: section) {
-			returnValue = segment.collectionView(collectionView, numberOfItemsInSection: section)
+		if let (segment, offset) = segmentAndOffset(forSection: section) {
+			returnValue = segment.collectionView(collectionView, numberOfItemsInSection: offset)
 		}
 		return returnValue
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		log.debug("Asking for cell.", ["DS" : self, "path" : indexPath])
-		if let (segment, _) = segmentAndOffset(forSection: indexPath.section) {
-			let resultCell = segment.collectionView(collectionView, cellForItemAt: indexPath)
+		if let (segment, offsetPath) = segmentAndOffset(forIndexPath: indexPath) {
+			let resultCell = segment.collectionView(collectionView, cellForItemAt: indexPath, offsetPath: offsetPath)
 			if let cell = resultCell as? BaseCollectionViewCell, let vc = viewController as? BaseCollectionViewController {
 				cell.viewController = vc
 			}
@@ -398,12 +422,34 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 				log.debug("This cell has a very strange size.", ["cell" : resultCell])
 			}
 			
-						
 			return resultCell
 		}
 		log.error("Couldn't create cell.")
 		return UICollectionViewCell()
 	}
+	
+	// Unlike cells, supplementary view types need to be registered directly with the CV. You also need to
+	// set up a callback.
+	func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, 
+			at indexPath: IndexPath) -> UICollectionReusableView {
+		log.d("Asking for supplementary view at:", [ "indexPath" : indexPath ])
+
+		if let (segment, offsetPath) = segmentAndOffset(forIndexPath: indexPath) {
+			
+			// Get the cell model from the segment; it's okay if it comes back nil
+			let cellModel = segment.cellModel(at: offsetPath)
+			if let result = buildSupplementaryView?(collectionView, kind, indexPath, cellModel) {	
+				return result
+			}
+		}
+		
+		return UICollectionReusableView()	
+	}
+	
+}
+
+// MARK: - CV Delegate
+extension KrakenDataSource: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
 	
 //	func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
 //		let sections = visibleSections as! [KrakenDataSourceSegmentProtocol]
@@ -414,9 +460,9 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
 		var protoSize = CGSize(width: 50, height: 50)
-		if let (segment, _) = segmentAndOffset(forSection: indexPath.section) {
+		if let (segment, offsetPath) = segmentAndOffset(forIndexPath: indexPath) {
 			protoSize = segment.collectionView?(collectionView, 
-					layout: collectionView.collectionViewLayout, sizeForItemAt: indexPath) ??
+					layout: collectionView.collectionViewLayout, sizeForItemAt: offsetPath) ??
 					CGSize(width: 50, height: 50)
 		}								
 
@@ -431,7 +477,7 @@ extension KrakenDataSource: UICollectionViewDataSource, UICollectionViewDelegate
 
 }
 
-// Debugging extensions
+// MARK: - Debugging extensions
 extension KrakenDataSource: UIScrollViewDelegate {
 
 	// Dumps info about cell and CV sizes. Shouldn't be called in the app. To use:

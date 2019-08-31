@@ -441,7 +441,10 @@ class HorizontalLineLayout: UICollectionViewLayout {
 	}
 
 	override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-		return true
+		if let cv = collectionView, newBounds.size.height != cv.bounds.size.height {
+			return true
+		}
+		return false
 	}
 	
 	var exitContentOffset = CGPoint(x:0, y:0)

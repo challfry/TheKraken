@@ -61,9 +61,25 @@ Tabs:
 	Twittar
 	Forums
 	Seamail
+	Schedule
+	Settings
+	
+More Tabs?
+	Deck Maps
+	Karaoke
+	Find Users
+	Search All?
+	Now Tab
+	Onshore tab?
+	About Tab, with an index of topics
+	
+Dynamic Tabs using the UITabBar feature nobody ever uses:
+	Social tab with Twittar, Forums, Seamail cells in it -> Collapses these into 1 tab, frees up space
+	
 	Info
 		Deck Maps 
 			AR Ship
+			Here Button and "You Are Here" - uses iBeacons?
 		Code of Conduct
 		Karaoke
 		Profile

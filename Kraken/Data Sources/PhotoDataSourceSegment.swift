@@ -14,16 +14,21 @@ import Photos
 	var buttonHit: ((PhotoCollectionCellProtocol) -> Void)? { get set }
 }
 
-class PhotoDataSourceSegment: KrakenDataSourceSegment, KrakenDataSourceSegmentProtocol, PHPhotoLibraryChangeObserver {
+class PhotoDataSourceSegment: KrakenDataSourceSegment {
 
 	var allPhotos: PHFetchResult<PHAsset>?
 	var cellClass: BaseCollectionViewCell.Type?
 	var reuseID: String?
 	var buttonHitClosure: ((PhotoCollectionCellProtocol) -> Void)?
 
-	// Will be nil if no photo selected
+	var photoLibChangeObject: PHChange?
+	var insertSections = IndexSet()
+	var deleteSections = IndexSet()
+	
+		// Will be nil if no photo selected
 	var selectedPhotoIndex: Int?
 
+// MARK: Methods
 	func activate(predicate: NSPredicate?, sort: [NSSortDescriptor]?, cellClass: BaseCollectionViewCell.Type,
 			reuseID: String) {
 		self.cellClass = cellClass
@@ -36,35 +41,12 @@ class PhotoDataSourceSegment: KrakenDataSourceSegment, KrakenDataSourceSegmentPr
 		insertSections.insert(0)
 		dataSource?.runUpdates()
 	}
-
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-    	return numVisibleSections
-    }
-
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return allPhotos?.count ?? 0
-	}
 	
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		guard let reuse = reuseID else { return UICollectionViewCell() }
-		if dataSource?.registeredCellReuseIDs.contains(reuse) == false {
-			dataSource?.registeredCellReuseIDs.insert(reuse)
-			cellClass?.registerCells(with: collectionView)
-		}
+}
 
-		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuse, for: indexPath) 
-			as! PhotoCollectionCellProtocol & UICollectionViewCell
-		cell.asset = allPhotos?.object(at: indexPath.row)
-		cell.buttonHit = buttonHitClosure				
-		return cell
-	}
+// MARK: - PHPhotoLibraryChangeObserver
+extension PhotoDataSourceSegment: PHPhotoLibraryChangeObserver {
 
-
-	var photoLibChangeObject: PHChange?
-	var insertSections = IndexSet()
-	var deleteSections = IndexSet()
-	
-	
 	func photoLibraryDidChange(_ changeInstance: PHChange) {
 		DispatchQueue.main.async {
 			if let allPhotos = self.allPhotos, let changes = changeInstance.changeDetails(for: allPhotos) {
@@ -79,7 +61,39 @@ class PhotoDataSourceSegment: KrakenDataSourceSegment, KrakenDataSourceSegmentPr
 			}
 		}
 	}
+}
+
+// MARK: - KrakenDataSourceSegmentProtocol
+extension PhotoDataSourceSegment: KrakenDataSourceSegmentProtocol {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+    	return numVisibleSections
+    }
+
+	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+		return allPhotos?.count ?? 0
+	}
 	
+	// The photo DSS doesn't use cellModels; the underlying model data is PHAsset objects. Just returning nil is okay.
+	func cellModel(at indexPath: IndexPath) -> BaseCellModel? {
+	//	let model = allPhotos?.object(at: indexPath.row)
+		return nil
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, offsetPath: IndexPath) -> UICollectionViewCell {
+		guard let reuse = reuseID else { return UICollectionViewCell() }
+		if dataSource?.registeredCellReuseIDs.contains(reuse) == false {
+			dataSource?.registeredCellReuseIDs.insert(reuse)
+			cellClass?.registerCells(with: collectionView)
+		}
+
+		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuse, for: indexPath) 
+			as! PhotoCollectionCellProtocol & UICollectionViewCell
+		cell.asset = allPhotos?.object(at: offsetPath.row)
+		cell.buttonHit = buttonHitClosure				
+		return cell
+	}
+
+
 	func internalRunUpdates(for cv: UICollectionView?, deleteOffset: Int, insertOffset: Int) {
 	
 		cv?.deleteSections(addOffsetToIndexSet(deleteOffset, deleteSections))

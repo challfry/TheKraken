@@ -49,7 +49,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 	var fetchRequest = NSFetchRequest<FetchedObjectType>()
 	var frc: NSFetchedResultsController<FetchedObjectType>?
-	var cellModels: [BaseCellModel] = []
+	var cellModelSections: [[BaseCellModel]] = []
 	
 	// Clients need to implement this to populate the cell's data from the model.
 	var createCellModel: ((_ fromModel: FetchedObjectType) -> BaseCellModel)?
@@ -63,6 +63,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	
 	init(withCustomFRC: NSFetchedResultsController<FetchedObjectType>) {
 		frc = withCustomFRC
+		fetchRequest = withCustomFRC.fetchRequest
 		super.init()
 //		frc?.delegate = self
 	}
@@ -72,65 +73,123 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	func activate(predicate: NSPredicate?, sort: [NSSortDescriptor]?, cellModelFactory: ((_ from: FetchedObjectType) -> BaseCellModel)?) {
 		self.createCellModel = cellModelFactory
 
+		if let pred = predicate {
+			fetchRequest.predicate = pred 
+			log.d("New predicate \(pred)")
+		}
+		if let sortDescriptors = sort {
+			fetchRequest.sortDescriptors = sortDescriptors
+		}
+		
 		if frc == nil {
-			if let pred = predicate {
-				fetchRequest.predicate = pred 
-			}
-			if let sortDescriptors = sort {
-				fetchRequest.sortDescriptors = sortDescriptors
-			}
 			frc = NSFetchedResultsController(fetchRequest: fetchRequest, 
 						managedObjectContext: LocalCoreData.shared.mainThreadContext, 
 						sectionNameKeyPath: nil, cacheName: nil)
 			frc?.delegate = self
+		}
 		
-			do {
-				try frc?.performFetch()
-			}
-			catch {
-				CoreDataLog.error("Couldn't fetch pending replies.", [ "error" : error ])
-			}
-		}
-
-		//
-		cellModels.removeAll()
-		if let objects = frc?.fetchedObjects {
-			for fetchedIndex in 0..<objects.count {
-				if let cellModel = createCellModel?(objects[fetchedIndex]) {
-					cellModels.append(cellModel)
-				}
-			}
-			insertSections.insert(0)
-			log.debug("Initial FRC objects:", ["objects" : objects])
-		}
-		else {
-			log.error("No fetched objects during setup.")
-		}
-		dataSource?.collectionView?.reloadData()
-	}
-	
-	func changePredicate(to: NSPredicate) {
-		frc?.fetchRequest.predicate = to
 		do {
 			try frc?.performFetch()
-			
-			cellModels.removeAll()
-			if let objects = frc?.fetchedObjects {
-				for fetchedIndex in 0..<objects.count {
-					if let cellModel = createCellModel?(objects[fetchedIndex]) {
-						cellModels.append(cellModel)
-					}
-				}
-				insertSections.insert(0)
-				log.debug("Initial FRC objects:", ["objects" : objects])
-			}
-			dataSource?.collectionView?.reloadData()
-
 		}
 		catch {
 			CoreDataLog.error("Couldn't fetch pending replies.", [ "error" : error ])
 		}
+
+		// performFetch completely changes the result set; any previous adds/removes are no longer valid
+		deleteSections.removeAll()
+		insertSections.removeAll()
+		deleteCells.removeAll()
+		moveCells.removeAll()
+		reloadCells.removeAll()
+		insertCells.removeAll()
+
+		// After performFetch(), the FRC does not send change batches for the initial results.
+		// We don't need to update cellModelSections here, but we do need to gather changes and schedule an update.
+		if cellModelSections.count == 0 {
+			// Easy case, new DS
+			if let sections = frc?.sections {
+				insertSections.insert(integersIn:0..<sections.count)
+			}
+		}
+		else {
+			// TODO: This is still not a great diffing algorithm as it does not detect moves.
+			if let frcSections = frc?.sections {
+				log.d("New fetch found \(frcSections.count) sections")
+			
+				// Step 1: Make a dict of all the objectIDs in the old state
+				var existingCells: [ NSManagedObjectID : IndexPath ] = [:]
+				for (sectionIndex, section) in cellModelSections.enumerated() {
+					for (cellIndex, cellModel) in section.enumerated() {
+						if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
+								let model = frcCellModel.model as? NSManagedObject {
+							existingCells[model.objectID] = IndexPath(row: cellIndex, section: sectionIndex)
+						}
+					}
+				}
+				log.d("existingCells \(existingCells)")
+				
+				// Step 2: Iterate through the new objects, generate differences between old and new. 
+				for (sectionIndex, section) in frcSections.enumerated() {
+					var insertsThisSection: [IndexPath] = []
+					var foundOldCellThisSection: Bool = false
+					if let cellArray = section.objects as? [NSManagedObject] {
+						for (cellIndex, model) in cellArray.enumerated() {
+							//if let model = cellModel as? NSManagedObject {
+								if existingCells.removeValue(forKey: model.objectID) != nil {
+									foundOldCellThisSection = true
+								}
+								else {
+									insertsThisSection.append(IndexPath(row: cellIndex, section: sectionIndex))
+								}
+						//	}
+						}
+					}
+					
+					// If none of the cells in this section are in existingCells, this is a section insert.
+					if foundOldCellThisSection {
+						insertCells.append(contentsOf: insertsThisSection)
+					}
+					else {
+						insertSections.insert(sectionIndex)
+					}
+				}
+				
+				// Step 3: Iterate existingCells--which is now a list of deletes. 
+				let deletedPaths = existingCells.values
+				log.d("deletedpaths \(deletedPaths)")
+				for sectionIndex in 0..<cellModelSections.count {
+					let pathsThisSection = deletedPaths.filter { $0.section == sectionIndex }
+					if pathsThisSection.count == cellModelSections[sectionIndex].count {
+						// All the cells in this section have been deleted
+						deleteSections.insert(sectionIndex)
+					}
+					else if pathsThisSection.count > 0 {
+						deleteCells.append(contentsOf: pathsThisSection)
+					}
+				}
+			}
+		}
+		dataSource?.runUpdates()
+	}
+	
+	func changePredicate(to: NSPredicate) {
+		activate(predicate: to, sort: fetchRequest.sortDescriptors, cellModelFactory: createCellModel)
+	}
+	
+	func indexPathNearest(to: FetchedResultsBindingProtocol) -> IndexPath? {
+		guard let model = to.model as? FetchedObjectType else { return nil }
+	
+		if let exactResult = frc?.indexPath(forObject: model) {
+			return exactResult
+		}
 		
+		if let desc = frc?.fetchRequest.sortDescriptors?[0],
+				let closeObject = frc?.fetchedObjects?.first(where: { desc.compare($0, to: model) != .orderedAscending }),
+				let closeResult = frc?.indexPath(forObject: closeObject) {
+			return closeResult
+		}
+		
+		return nil
 	}
 		
 // MARK: FetchedResultsControllerDelegate
@@ -158,9 +217,10 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
 			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-			
-		log.debug("In FRC Callback", ["numCells" : self.cellModels.count, "type" : type.rawValue, 
-				"indexPath" : indexPath ?? newIndexPath ?? "hmm"])
+		
+		let sec0Count = cellModelSections.count > 0 ? cellModelSections[0].count : 0			
+		log.debug("In FRC Callback", ["numSections" : self.cellModelSections.count, "section0Count" : sec0Count,
+				 "type" : type.rawValue, "indexPath" : indexPath ?? newIndexPath ?? "hmm"])
 
 		switch type {
 		case .insert:
@@ -189,38 +249,46 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 // MARK: UICollectionView Data Source
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-    	// TODO: This is wrong, and should be based on cellModels (frc changes immediately, cellModel changes
-    	// defer until batchUpdates, this fn needs to return what the CV sees.)
-    	return frc?.sections?.count ?? 0
+    	return cellModelSections.count
     }
 
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//		guard let sections =  frc?.sections else {
-//			fatalError("No sections in fetchedResultsController")
-//		}
-		log.debug("numberOfItemsInSection", ["numObjects" : self.cellModels.count, "DS" : self])
-		return cellModels.count
+		guard cellModelSections.count > section else { 
+			log.error("Datasource was asked numberOfItemsInSection for bad section #.")
+			return 0 
+		}
+		
+		let numItems = cellModelSections[section].count
+		log.debug("numberOfItemsInSection", ["offsetSection" : section, "numObjects" : numItems, "DS" : self])
+		return numItems
 	}
 	
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		log.d("Asking for cell at indexpath", [ "cellModels" : self.cellModels.count, "indexPath" : indexPath ])
-		if indexPath.row < cellModels.count {
-			let cellModel = cellModels[indexPath.row]
-			let reuseID = cellModel.reuseID()
-			if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
-				dataSource?.registeredCellReuseIDs.insert(reuseID)
-				let classType = type(of: cellModel).validReuseIDDict[reuseID]
-				classType?.registerCells(with: collectionView)
-			}
-			let cell = cellModel.makeCell(for: collectionView, indexPath: indexPath)
-			return cell
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, offsetPath: IndexPath) -> UICollectionViewCell {
+		guard cellModelSections.count > offsetPath.section else { 
+			log.error("Datasource was asked cellForItemAt for bad section #.")
+			return UICollectionViewCell()
 		}
-		else {
-			log.error("Datasource doesn't have a built cellModel for requested indexPath.")
+		let section = cellModelSections[offsetPath.section]
+		guard section.count > offsetPath.row else { 
+			log.error("Datasource was asked cellForItemAt for bad item #.")
+			return UICollectionViewCell()
 		}
-				
-		return UICollectionViewCell()
+
+		log.d("Asking for cell at indexpath", [ "indexPath" : indexPath ])
+		let cellModel = section[offsetPath.row]
+
+		// If this reuseID isn't registered with the CV yet, ask the cell model to register its cell classes and reuseIDs.
+		let reuseID = cellModel.reuseID()
+		if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
+			dataSource?.registeredCellReuseIDs.insert(reuseID)
+			let classType = type(of: cellModel).validReuseIDDict[reuseID]
+			classType?.registerCells(with: collectionView)
+		}
+		let cell = cellModel.makeCell(for: collectionView, indexPath: indexPath)
+		return cell
 	}
+	
+
 
 // MARK: UICollectionView Data Source Prefetch
 
@@ -254,10 +322,16 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
-		if indexPath.row >= cellModels.count {
+		guard cellModelSections.count > indexPath.section else { 
+			log.error("Datasource was asked sizeForItemAt for bad section #.")
 			return CGSize(width:414, height: 50)
 		}
-		let cellModel = cellModels[indexPath.row]
+		let section = cellModelSections[indexPath.section]
+		guard section.count > indexPath.row else { 
+			log.error("Datasource was asked sizeForItemAt for bad item #.")
+			return CGSize(width:414, height: 50)
+		}
+		let cellModel = section[indexPath.row]
 
 		if cellModel.cellSize.height > 0 {
 			return cellModel.cellSize
@@ -281,6 +355,16 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		log.debug("Can't append cells to this data source")
 	}
 
+	override func invalidateLayoutCache() {
+		cellModelSections.forEach { $0.forEach { $0.cellSize = CGSize(width: 0, height: 0) } }
+	}
+	
+	func cellModel(at indexPath: IndexPath) -> BaseCellModel? {
+		if indexPath.section >= cellModelSections.count { return nil }
+		let section = cellModelSections[indexPath.section]
+		if indexPath.row >= section.count { return nil }
+		return section[indexPath.row]
+	}
 	
 	internal func internalRunUpdates(for collectionView: UICollectionView?, deleteOffset: Int, insertOffset: Int) {
 		
@@ -288,33 +372,57 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells,
 				"reloadCells" : self.reloadCells, "moves" : self.moveCells])
 		
+		// Tell the CV about all the changes. Be sure to offset the section indices by our segment start values.
 		if deleteSections.count > 0 {
 			collectionView?.deleteSections(addOffsetToIndexSet(deleteOffset, deleteSections))
 		}
 		if deleteCells.count > 0 {
 			collectionView?.deleteItems(at: addSectionOffset(deleteOffset, deleteCells))
 		}
-		
-		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
-		for index in deleteCells.sorted().reversed() {
-			cellModels.remove(at: index.row)
-		}
-		
 		for (from, to) in moveCells {
 			let newFrom = IndexPath(row: from.row, section: from.section + deleteOffset)
 			let newTo = IndexPath(row: to.row, section: to.section + insertOffset)
 			collectionView?.moveItem(at: newFrom, to: newTo)
 		}
-		collectionView?.reloadItems(at: addSectionOffset(deleteOffset, reloadCells))
-		collectionView?.insertSections(addOffsetToIndexSet(insertOffset, insertSections))
-		collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
-	
-		// Now add the cells from our CellModel array, in step with what we tell the CV.
+		// Ignore reloads. Our cells are set up to dynamically update and shouldn't need reloading.
+//		collectionView?.reloadItems(at: addSectionOffset(deleteOffset, reloadCells))
+		if insertSections.count > 0 {
+			collectionView?.insertSections(addOffsetToIndexSet(insertOffset, insertSections))
+		}
+		if insertCells.count > 0 {
+			collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
+		}
 		
-		if let objects = frc?.fetchedObjects {
+		// I think we need to decompose moves to apply them to cellModels.
+	
+		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
+		// Luckily, we can delete all the cells first, and then delete sections.
+		for index in deleteCells.sorted().reversed() {
+			cellModelSections[index.section].remove(at: index.row)
+		}
+		for index in deleteSections.sorted().reversed() {
+			cellModelSections.remove(at: index)
+		}
+		
+		// Now add the cells to our CellModel array, in step with what we tell the CV.
+		// Again, we should be able to process all the sections first, then the cells.
+		if let frcSections = frc?.sections {
+			for sectionIndex in insertSections.sorted() {
+				var section: [BaseCellModel] = []
+				if let frcObjects = frcSections[sectionIndex].objects as? [FetchedObjectType] {
+					for item in frcObjects {
+						if let cellModel = createCellModel?(item) {
+							section.append(cellModel)
+						}
+					}
+				}
+				cellModelSections.insert(section, at: sectionIndex)
+				log.debug("Newly inserted section.", ["FRC" : self, "numCells" : section.count, "offsetIndex" : sectionIndex])
+			}
 			for index in insertCells.sorted() {
-				if let cellModel = createCellModel?(objects[index.row]) {
-					cellModels.insert(cellModel, at: index.row)
+				if let frcObjects = frcSections[index.section].objects as? [FetchedObjectType],
+						let cellModel = createCellModel?(frcObjects[index.row]) {
+					cellModelSections[index.section].insert(cellModel, at: index.row)
 				}
 			}
 		}
@@ -327,7 +435,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		reloadCells.removeAll()
 		insertCells.removeAll()
 
-		log.debug("End of internalRunUpdates for FRC:", ["cells" : self.cellModels])
+		log.debug("End of internalRunUpdates for FRC:")
 	}
 
 }

@@ -61,6 +61,8 @@
 		EA534E32230299AE00FE4787 /* EventCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA534E30230299AE00FE4787 /* EventCell.xib */; };
 		EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */; };
 		EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */; };
+		EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */; };
+		EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
 		EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */; };
 		EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD02272813800363CBF /* LoginHeaderCell.xib */; };
@@ -210,6 +212,8 @@
 		EA534E2F230299AE00FE4787 /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
 		EA534E30230299AE00FE4787 /* EventCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventCell.xib; sourceTree = "<group>"; };
 		EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCoreData.swift; sourceTree = "<group>"; };
+		EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventSectionHeaderView.xib; sourceTree = "<group>"; };
+		EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSectionHeaderView.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
 		EA86ADD32272855000363CBF /* jellyfish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jellyfish.png; sourceTree = "<group>"; };
@@ -506,6 +510,8 @@
 				EA534E2D2302164000FE4787 /* EventsDataManager.swift */,
 				EA534E2F230299AE00FE4787 /* EventCell.swift */,
 				EA534E30230299AE00FE4787 /* EventCell.xib */,
+				EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */,
+				EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */,
 			);
 			path = Schedule;
 			sourceTree = "<group>";
@@ -726,6 +732,7 @@
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
 				EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */,
 				EAE5914B229E4A34002B5DEF /* BlueButtonHighlight.png in Resources */,
+				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
 				EA3ABF9E22F3C64000441F99 /* Seamail@3x.png in Resources */,
 				EA3ABFB022F4097900441F99 /* CameraRotate@3x.png in Resources */,
@@ -800,6 +807,7 @@
 				EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */,
 				EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
+				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,

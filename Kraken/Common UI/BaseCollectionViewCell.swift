@@ -148,6 +148,7 @@ struct PrototypeCellInfo {
 	var isBuildingCell = false
 	var customGR: UILongPressGestureRecognizer?
 	
+// MARK: Methods
 	required override init(frame: CGRect) {
 		super.init(frame: frame)
 	}

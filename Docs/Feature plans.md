@@ -57,3 +57,17 @@ Custom url schemes are also a possibility.
 
 ## Twitarr, Seamail, Forums improvements
 Rotate phone to show in a fullscreen view the topmost photo in a tweet/mail/forum post that's on screen.
+
+## One Weeks Later
+Choose one twitarr post the user made each day, offer to share that post to Twitter (the blue bird Twitter, by Twitter.com)
+exactly one week after originally posting it. Since the first twitarr posts are likely to happen around noon Sat, this means that repost
+notificaitons would start popping up around noon the next Sat., a few hours after everyone is done disembarking.
+
+I think we'd use TwitterKit 3 to power this? Dunno. Anyway, it probably works internally by setting a local notification with a one week
+timer every day the user posts to twitarr. When the timer fires we look back at the posts the user made 7 days ago and pick the one with
+the most likes, with a +modifier for posts with pictures and a -modifier for posts with curse words. Might also need to filter out twitarr 
+posts that are too long for Twitter. Anyway, we post a local notification suggesting this post be reposted to Twitter 7 days after it happened, 
+with a "#jococruise" hashtag likely attached (or something).
+
+One notification max per day, don't send notifications between 10:00 PM and 8:00 AM local time, have an option in Settings to turn it off.
+This also means that at most one post per day gets reposted per user.

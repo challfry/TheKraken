@@ -29,6 +29,33 @@ import UIKit
 		startTime = Date(timeIntervalSince1970: Double(startTimestamp) / 1000.0)
 		endTime = Date(timeIntervalSince1970: Double(endTimestamp) / 1000.0)
 	}
+	
+	public func isHappeningNow() -> Bool {
+		var currentTime = Date()
+		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
+			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
+		}
+		
+		if startTime?.compare(currentTime) == .orderedAscending && endTime?.compare(currentTime) == .orderedDescending {
+			return true
+		}
+		
+		return false
+	}
+	
+	public func isHappeningSoon(within: TimeInterval = 60.0 * 60.0) -> Bool {
+		var currentTime = Date()
+		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
+			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
+		}
+		
+		let searchEndTime = Date(timeInterval: within, since: currentTime)
+		if startTime?.compare(currentTime) == .orderedDescending && startTime?.compare(searchEndTime) == .orderedAscending {
+			return true
+		}
+		
+		return false
+	}
 
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Event) {
 		TestAndUpdate(\.id, v2Object.id)
@@ -63,17 +90,34 @@ class EventsDataManager: NSObject {
 	var fetchedData: NSFetchedResultsController<Event>
 	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
 	
+	// This is how much time to add to the current time to use the 2019 cruise schedule.
+	var debugEventsTimeOffset: TimeInterval = 0.0
+	
 	// TRUE when we've got a network call running to update the stream, or the current filter.
 	@objc dynamic var networkUpdateActive: Bool = false  
 
 	override init() {
+		// Just once, calc our debug date offset
+		let currentTime = Date()
+		let tz = TimeZone(abbreviation: "EDT")
+		let components = DateComponents(calendar: Calendar.current, timeZone: tz, year: 2019, month: 3, 
+				day: 16, hour: 9, minute: 0, second: 0, nanosecond: 0)
+		if let cruiseEndDate = components.date {
+			var debugTime = currentTime
+			while cruiseEndDate.compare(debugTime) == .orderedAscending {
+				debugEventsTimeOffset -= 60 * 60 * 24 * 7	// One week
+				debugTime = Date(timeInterval: debugEventsTimeOffset, since: currentTime)
+			}
+		}
+
+
 		let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "startTimestamp", ascending: true),
 				 NSSortDescriptor(key: "endTimestamp", ascending: true),
 				 NSSortDescriptor(key: "title", ascending: true)]
 		fetchRequest.fetchBatchSize	= 50
 		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
-				sectionNameKeyPath: nil, cacheName: nil)
+				sectionNameKeyPath: "startTimestamp", cacheName: nil)
 		super.init()
 		fetchedData.delegate = self
 		do {
@@ -146,6 +190,9 @@ class EventsDataManager: NSObject {
 		viewDelegates.removeAll(where: { $0 === oldDelegate } )
 	}
 	
+	// Processes the events data to build a list of locations, asynchronously. Works by simply putting all
+	// event locations into a set, so near-identical names for the same place won't get uniqued.
+	// AllLocations, once it gets set, is sorted alphabetically by location name.
 	var allLocations: [String] = []
 	func getAllLocations() {
 		let context = coreData.networkOperationContext
@@ -165,6 +212,7 @@ class EventsDataManager: NSObject {
 			print(self.allLocations)
 		}
 	}
+	
 }
 
 extension EventsDataManager : NSFetchedResultsControllerDelegate {

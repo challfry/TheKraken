@@ -67,6 +67,11 @@ class SettingsRootViewController: BaseCollectionViewController {
 		settingsSection.append(cell: BlockNetworkSwitchCellModel())
 		settingsSection.append(cell: DelayPostsSwitchCellModel())
 		
+		// Debug Settings
+		let debugHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
+		debugHeaderCell.labelText = NSAttributedString(string: "Support for Debugging and Testing")
+		settingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
+		
 		x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
 		x.labelText = NSAttributedString(string: "Button")
 		
@@ -342,6 +347,16 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 			Settings.shared.blockEmptyingPostOpsQueue = self.switchState
 		}
 		switchState = Settings.shared.blockEmptyingPostOpsQueue
+	}
+}
+
+@objc class DebugTimeWarpToCruiseWeek2019CellModel: SwitchCellModel {
+	init() {
+		super.init(labelText: "Makes Schedule filters act as if we're in the middle of cruise week 2019. Exact time follows time of week.")
+		switchStateChanged = { 
+			Settings.shared.debugTimeWarpToCruiseWeek2019 = self.switchState
+		}
+		switchState = Settings.shared.debugTimeWarpToCruiseWeek2019
 	}
 }
 

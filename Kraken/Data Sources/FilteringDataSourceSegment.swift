@@ -54,6 +54,11 @@ fileprivate struct Log: LoggingProtocol {
 		allCellModels.removeObject(at: at)
 	}
 	
+	override func invalidateLayoutCache() {
+		let cells = allCellModels as! [BaseCellModel]
+		cells.forEach { $0.cellSize = CGSize(width: 0, height: 0) }
+	}
+
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let cellModel = visibleCellModels[indexPath.row]
@@ -79,8 +84,13 @@ fileprivate struct Log: LoggingProtocol {
 		return visibleCellModels.count
 	}
 	
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let model = visibleCellModels[indexPath.row]
+	func cellModel(at indexPath: IndexPath) -> BaseCellModel? {
+		// This DSS only supports one section
+		return visibleCellModels[indexPath.row]
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, offsetPath: IndexPath) -> UICollectionViewCell {
+		let model = visibleCellModels[offsetPath.row]
 		let reuseID = model.reuseID()
 		
 		if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
