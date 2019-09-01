@@ -30,6 +30,16 @@ import UIKit
 		endTime = Date(timeIntervalSince1970: Double(endTimestamp) / 1000.0)
 	}
 	
+	// TRUE if this event lasts longer than 2 hours. Could be improved in the future, with server support.
+	// The purpose of this fn is really to discriminate between events where you can show up anytime and events
+	// where you should attend the entire thing from the start.
+	public func isAllDayTypeEvent() -> Bool {
+		if let start = self.startTime, let end = self.endTime, end.timeIntervalSince(start) >= 2 * 60 * 60 + 10 {
+			return true
+		}
+		return false
+	}
+	
 	public func isHappeningNow() -> Bool {
 		var currentTime = Date()
 		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
@@ -127,6 +137,48 @@ class EventsDataManager: NSObject {
 		catch {
 			CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
 		}
+	}
+	
+	// Tries to find an event happening now. Specifically:
+	//		1. Ideally, an event of duration <= 2 hours with an end time in the future, start time in the past, and
+	//			the earliest start time.
+	// 		2. Otherwise, the first event in the list (ordered by start time) with an end time in the future.
+	// It's possible with this algorithm to select an event that hasn't started yet, if there are no currently running events.
+	// This algorithm should favor 'active' events over 'all-day' events when an 'active' event is running.
+	func findIndexPathForEventAt(date: Date) -> IndexPath {
+		var currentTime = date
+		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
+			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
+		}
+		
+		var bestResult: IndexPath?
+		if let sections = fetchedData.sections {
+			foundEvent: for (sectionIndex, section) in sections.enumerated() {
+				if let objects = section.objects {
+					for (rowIndex, object) in objects.enumerated() {
+						if let event = object as? Event {
+							// Grab the first result that has an end time in the future.
+							if bestResult == nil, event.endTime?.compare(currentTime) == .orderedDescending {
+								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
+							}
+							
+							if event.endTime?.compare(currentTime) == .orderedDescending, 
+									event.startTime?.compare(currentTime) == .orderedAscending,
+									(event.endTimestamp - event.startTimestamp) / 1000  <= 2 * 60 * 60 {
+								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
+								break foundEvent
+							}
+							
+							if event.startTime?.compare(currentTime) == .orderedDescending {
+								break foundEvent
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return bestResult ?? IndexPath(row: 0, section: 0)
 	}
 	
 	func loadEvents() {

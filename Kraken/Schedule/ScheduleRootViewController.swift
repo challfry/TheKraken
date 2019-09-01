@@ -14,6 +14,7 @@ import CoreData
 	@IBOutlet var filterViewTrailingConstraint: NSLayoutConstraint!
 	@IBOutlet weak var disclosureSlider: UISlider!
 	@IBOutlet weak var searchTextField: UITextField!
+	@IBOutlet weak var showPastEventsSwitch: UISwitch!
 	
 	@IBOutlet weak var locationPickerContainer: UIView!
 	@IBOutlet weak var 	locationPicker: UIPickerView!
@@ -23,6 +24,10 @@ import CoreData
 	let scheduleLayout = ScheduleLayout()
 	var scheduleDataSource = KrakenDataSource()
 	var eventsSegment: FRCDataSourceSegment<Event>?
+	
+	var textPredicate: NSPredicate?
+	var locationPredicate: NSPredicate?
+	var pastEventsPredicate: NSPredicate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,11 +75,30 @@ import CoreData
 		locationPicker.dataSource = self
 		locationPicker.delegate = self
 		locationPickerContainer.isHidden = true
+
+		setupGestureRecognizer()
     }
 	
+	var minuteNotification: Any?
     override func viewDidAppear(_ animated: Bool) {
 		scheduleDataSource.enableAnimations = true
 		locationPicker.reloadAllComponents()
+
+		minuteNotification = NotificationCenter.default.addObserver(forName: RefreshTimers.MinuteUpdateNotification, object: nil,
+				queue: nil) { [weak self] notification in
+    		if let self = self {
+    			// Slightly hackish, as we're using the tapped handler to update the predicate, when the switch didn't change value.
+    			if !self.showPastEventsSwitch.isOn {
+    				self.showPastEventsTapped()
+				}
+			}
+		}
+	}
+	
+	override func viewDidDisappear(_ animated: Bool) {
+		if let mn = minuteNotification	{
+			NotificationCenter.default.removeObserver(mn)
+		}
 	}
         
 	func createCellModel(_ model:Event) -> BaseCellModel {
@@ -92,6 +116,15 @@ import CoreData
 			return newView
 		}
 		return UICollectionReusableView()
+	}
+	
+	func setCompoundPredicate() {
+		var subPreds: [NSPredicate] = []
+		if let textPred = textPredicate { subPreds.append(textPred) }
+		if let locationPred = locationPredicate { subPreds.append(locationPred) }
+		if let pastEventPred = pastEventsPredicate { subPreds.append(pastEventPred) }
+		let compoundPred = NSCompoundPredicate(andPredicateWithSubpredicates: subPreds)
+		eventsSegment?.changePredicate(to: compoundPred)
 	}
 
 // MARK: Actions
@@ -113,12 +146,15 @@ import CoreData
 	}
 	
 	@IBAction func rightNowButtonTapped() {
-		
+		var indexPath = EventsDataManager.shared.findIndexPathForEventAt(date: Date())
+		indexPath.section += 1
+		collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
 	}
 	
-	@objc dynamic var disclosureLevel: Int = 5
+	@objc dynamic var disclosureLevel: Int = 4
 	@IBAction func disclosureSliderTapped() {
-		let newLevel = Int(disclosureSlider.value)
+		let newLevel = Int(disclosureSlider.value + 0.5)
+	//	self.disclosureSlider.value = Float(newLevel)
 		if newLevel != disclosureLevel {
 			eventsSegment?.cellModelSections.forEach {
 				$0.forEach {
@@ -146,6 +182,11 @@ import CoreData
 		}
 	}
 	
+	@IBAction func disclosureSliderTouchUp() {
+		let newLevel = Int(disclosureSlider.value + 0.5)
+		disclosureSlider.value = Float(newLevel)
+	}
+	
 	var searchText: String? {
 		didSet {
 			var newPred: NSPredicate
@@ -157,7 +198,8 @@ import CoreData
 			else {
 				newPred = NSPredicate(value: true)
 			}
-			eventsSegment?.changePredicate(to: newPred)
+			textPredicate = newPred
+			setCompoundPredicate()
 		}
 	}
 	
@@ -170,27 +212,35 @@ import CoreData
 		let index = locationPicker.selectedRow(inComponent: 0)
 		let location = dataManager.allLocations[index]
 		let newPred = NSPredicate(format: "location contains[cd] %@", location)
-		eventsSegment?.changePredicate(to: newPred)
+		locationPredicate = newPred
+		setCompoundPredicate()
 		locationPickerContainer.isHidden = true
 	}
 	
+	@IBAction func showPastEventsTapped() {
+		if showPastEventsSwitch.isOn {
+			pastEventsPredicate = nil
+		}
+		else {
+			let currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: Date())
+			let currentTimeTimestamp: Int64 = Int64(currentTime.timeIntervalSince1970 * 1000.0)
+			pastEventsPredicate = NSPredicate(format: "endTimestamp > %@", argumentArray: [currentTimeTimestamp])
+		}
+		setCompoundPredicate()
+	}
+	
 	@IBAction func resetButtonTapped() {
-		let newPred = NSPredicate(value: true)
-		eventsSegment?.changePredicate(to: newPred)
+		locationPredicate = nil
+		textPredicate = nil
+		pastEventsPredicate	= nil
+		setCompoundPredicate()
 		searchTextField.text = ""
 		searchTextField.resignFirstResponder()
 		filterButtonTapped()
 	}
 
-    /*
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
 		// Try to continue whatever we were doing before having to log in.
@@ -264,18 +314,19 @@ class ScheduleLayout: UICollectionViewLayout {
 	var cellPositions: [[CGRect]] = []
 	var privateContentSize: CGSize = CGSize(width: 0, height: 0)
 	var focusCellModel: EventCellModel?
-	var disclosureLevel: Int = 5
+	var disclosureLevel: Int = 4
 	
 	weak var eventsSegment: FRCDataSourceSegment<Event>?
 		
-	override init() {
-		super.init()
-	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-	
+//	override init() {
+//		super.init()
+//	}
+//	
+//	required init?(coder aDecoder: NSCoder) {
+//		fatalError("init(coder:) has not been implemented")
+//	}
+
+// MARK: Methods	
 	func showingSectionHeaders() -> Bool {
 		return disclosureLevel >= 1
 	}
@@ -421,26 +472,68 @@ class ScheduleLayout: UICollectionViewLayout {
 			return nil
 		}
 		
-		let result = UICollectionViewLayoutAttributes(forCellWith: indexPath)
+		let result = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+							with: indexPath)
 		let cellRect = sectionHeaderPositions[indexPath.section]
 		result.frame = cellRect
 		result.isHidden = false
 		
 		return result
 	}
+	
+// MARK: Insert/Delete handling
+
+	var currentUpdateList: [UICollectionViewUpdateItem]?
+	override func prepare(forCollectionViewUpdates updateItems: [UICollectionViewUpdateItem]) {
+		currentUpdateList = updateItems
+	}
+	override func finalizeCollectionViewUpdates() {
+		currentUpdateList = nil
+	}
 
 	override func indexPathsToInsertForSupplementaryView(ofKind elementKind: String) -> [IndexPath] {
 		if !showingSectionHeaders() {
 			return []
 		}
-
+		
 		var result = [IndexPath]()
-		for index in 1..<sectionHeaderPositions.count {
-			result.append(IndexPath(row: 0, section: index))
+		if let updates = currentUpdateList {
+			for update in updates {
+				if update.updateAction == .insert, update.indexPathAfterUpdate?.count == 1, 
+						let section = update.indexPathAfterUpdate?.section  {
+					result.append(IndexPath(row: 0, section: section))
+				}
+			}
 		}
 		
 		return result
 	}
+	
+	override func indexPathsToDeleteForSupplementaryView(ofKind elementKind: String) -> [IndexPath] {
+		var result = [IndexPath]()
+		if let updates = currentUpdateList {
+			for update in updates {
+				if update.updateAction == .delete, update.indexPathBeforeUpdate?.count == 1, 
+						let section = update.indexPathBeforeUpdate?.section  {
+					result.append(IndexPath(row: 0, section: section))
+				}
+			}
+		}
+		
+		return result
+	}
+	
+//	override func initialLayoutAttributesForAppearingSupplementaryElement(ofKind elementKind: String, 
+//			at elementIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+//				
+//	}
+	
+//	override func finalLayoutAttributesForDisappearingSupplementaryElement(ofKind elementKind: String, 
+//			at elementIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+//			
+//	}
+
+// MARK: Invalidation
 
 	override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
 		if let cv = collectionView, newBounds.size.width != cv.bounds.size.width {
@@ -451,6 +544,10 @@ class ScheduleLayout: UICollectionViewLayout {
 	
 	override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
 		guard let focusCellModel = focusCellModel, let eventsSegment = eventsSegment else { return proposedContentOffset }
+		
+		if currentUpdateList == nil {
+			return proposedContentOffset
+		}
 		
 		if var focusIndexPath = eventsSegment.indexPathNearest(to: focusCellModel) {
 		

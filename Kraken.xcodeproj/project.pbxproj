@@ -63,6 +63,9 @@
 		EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */; };
 		EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */; };
 		EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */; };
+		EA6A8A7E231B4F160071BFEA /* VSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7B231B4F150071BFEA /* VSSlider.swift */; };
+		EA6A8A7F231B4F160071BFEA /* InternalSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7C231B4F150071BFEA /* InternalSlider.swift */; };
+		EA6A8A80231B4F160071BFEA /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = EA6A8A7D231B4F150071BFEA /* LICENSE.txt */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
 		EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */; };
 		EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD02272813800363CBF /* LoginHeaderCell.xib */; };
@@ -214,6 +217,9 @@
 		EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCoreData.swift; sourceTree = "<group>"; };
 		EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventSectionHeaderView.xib; sourceTree = "<group>"; };
 		EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSectionHeaderView.swift; sourceTree = "<group>"; };
+		EA6A8A7B231B4F150071BFEA /* VSSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSSlider.swift; sourceTree = "<group>"; };
+		EA6A8A7C231B4F150071BFEA /* InternalSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InternalSlider.swift; sourceTree = "<group>"; };
+		EA6A8A7D231B4F150071BFEA /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
 		EA86ADD32272855000363CBF /* jellyfish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jellyfish.png; sourceTree = "<group>"; };
@@ -516,6 +522,25 @@
 			path = Schedule;
 			sourceTree = "<group>";
 		};
+		EA6A8A79231B4F150071BFEA /* Third Party */ = {
+			isa = PBXGroup;
+			children = (
+				EA6A8A7A231B4F150071BFEA /* VerticalSteppedSlider */,
+			);
+			name = "Third Party";
+			path = "Kraken/Third Party";
+			sourceTree = "<group>";
+		};
+		EA6A8A7A231B4F150071BFEA /* VerticalSteppedSlider */ = {
+			isa = PBXGroup;
+			children = (
+				EA6A8A7B231B4F150071BFEA /* VSSlider.swift */,
+				EA6A8A7C231B4F150071BFEA /* InternalSlider.swift */,
+				EA6A8A7D231B4F150071BFEA /* LICENSE.txt */,
+			);
+			path = VerticalSteppedSlider;
+			sourceTree = "<group>";
+		};
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -533,6 +558,7 @@
 			isa = PBXGroup;
 			children = (
 				EAA2E4BB2242D300009F287F /* Kraken */,
+				EA6A8A79231B4F150071BFEA /* Third Party */,
 				EA86ADD22272855000363CBF /* Resources */,
 				EA1E3B8A2242F00200017F07 /* Docs */,
 				EAA2E4D22242D301009F287F /* KrakenTests */,
@@ -776,6 +802,7 @@
 				EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */,
 				EA3ABFA022F3C6F000441F99 /* Settings@3x.png in Resources */,
 				EA3ABF9A22F3C32A00441F99 /* Twitarr@3x.png in Resources */,
+				EA6A8A80231B4F160071BFEA /* LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -806,6 +833,7 @@
 				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
 				EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */,
 				EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */,
+				EA6A8A7E231B4F160071BFEA /* VSSlider.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
@@ -818,6 +846,7 @@
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* OperationStatusCell.swift in Sources */,
+				EA6A8A7F231B4F160071BFEA /* InternalSlider.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
