@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -21,6 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		CurrentUser.shared.setInitialLoginState()		// If someone was logged in when the app quit, keeps them logged in. 
 		_ = PostOperationDataManager.shared				// Responsible for POSTs to the server. 
 		RefreshTimers.appForegrounded()
+		UNUserNotificationCenter.current().delegate = Notifications.shared
+		Notifications.appForegrounded()
 		return true
 	}
 
@@ -38,6 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func applicationWillEnterForeground(_ application: UIApplication) {
 		// Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
 		RefreshTimers.appForegrounded()
+		Notifications.appForegrounded()
 	}
 
 	func applicationDidBecomeActive(_ application: UIApplication) {

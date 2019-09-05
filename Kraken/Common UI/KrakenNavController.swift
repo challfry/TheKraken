@@ -8,7 +8,8 @@
 
 import UIKit
 
-class KrakenNavController: UINavigationController {
+
+class KrakenNavController: UINavigationController, GlobalNavEnabled {
 	var networkLabel = UILabel()
 	
 	override func viewDidLoad() {
@@ -28,6 +29,12 @@ class KrakenNavController: UINavigationController {
 		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, governor in
 			observer.networkLabel.isHidden = governor.connectionState == NetworkGovernor.ConnectionState.canConnect			
 		}?.execute()
+    }
+    
+    func globalNavigateTo(packet: [String : Any]) {
+    	if viewControllers.count > 0, let rootVC = viewControllers[0] as? GlobalNavEnabled {
+    		rootVC.globalNavigateTo(packet: packet)
+    	}
     }
 }
 

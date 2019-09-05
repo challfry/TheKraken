@@ -606,6 +606,34 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
+@objc(PostOpEventFollow) public class PostOpEventFollow: PostOperation {
+	@NSManaged public var event: Event?
+	@NSManaged public var newState: Bool
+
+	override func post() {
+		guard let event = event else { 
+			self.recordServerErrorFailure(ServerError("The Schedule Event we were going to follow has disappeared. Perhaps it was deleted on the server?"))
+			return
+		}
+		guard CurrentUser.shared.loggedInUser?.username == author.username else { return }
+		super.post()
+		
+		// POST or DELETE /api/v2/event/:id/favorite
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/event/\(event.id)/favorite", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod =  newState ? "POST" : "DELETE"		
+		self.queueNetworkPost(request: request) { data in
+			do {
+				let response = try JSONDecoder().decode(TwitarrV2EventFavoriteResponse.self, from: data)
+				EventsDataManager.shared.parseEvents([response.event], isFullList: false)
+			}
+			catch {
+				CoreDataLog.error("Failure saving new Schedule Event to Core Data. Was setting follow state on event.", ["Error" : error])
+			}
+		}
+	}
+}
+
 
 
 
@@ -669,4 +697,10 @@ struct TwitarrV2PhotoMeta: Codable {
 	let uploader: String
 	let upload_time: Int64
 	let sizes: [String: String]
+}
+
+// POST or DELETE /api/v2/event/:id/favorite
+struct TwitarrV2EventFavoriteResponse: Codable {
+	let status: String
+	let event: TwitarrV2Event
 }

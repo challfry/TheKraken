@@ -8,11 +8,18 @@
 
 import UIKit
 import CoreData
+import EventKitUI
 
-@objc class ScheduleRootViewController: BaseCollectionViewController {
+@objc class ScheduleRootViewController: BaseCollectionViewController, GlobalNavEnabled {
+	@IBOutlet var filterButton: UIBarButtonItem!
 	@IBOutlet var filterView: UIVisualEffectView!
 	@IBOutlet var filterViewTrailingConstraint: NSLayoutConstraint!
+	
 	@IBOutlet weak var disclosureSlider: UISlider!
+	@IBOutlet weak var 	favoritesFilterButton: UIButton!
+	@IBOutlet weak var	alarmSetFilterButton: UIButton!
+	@IBOutlet weak var	calendarItemFilterButton: UIButton!
+	
 	@IBOutlet weak var searchTextField: UITextField!
 	@IBOutlet weak var showPastEventsSwitch: UISwitch!
 	
@@ -25,10 +32,12 @@ import CoreData
 	var scheduleDataSource = KrakenDataSource()
 	var eventsSegment: FRCDataSourceSegment<Event>?
 	
+	var favoritesPredicate: NSPredicate?
 	var textPredicate: NSPredicate?
 	var locationPredicate: NSPredicate?
 	var pastEventsPredicate: NSPredicate?
-
+	
+// MARK: Methods 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Schedule"
@@ -56,8 +65,11 @@ import CoreData
  		}
  		
 		// Then, the events segment
-		let events = FRCDataSourceSegment<Event>(withCustomFRC: dataManager.fetchedData)
-		dataManager.addDelegate(events)
+		let events = FRCDataSourceSegment<Event>()
+		events.fetchRequest.predicate = NSPredicate(value: true)
+		events.fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "startTimestamp", ascending: true),
+				 NSSortDescriptor(key: "endTimestamp", ascending: true),
+				 NSSortDescriptor(key: "title", ascending: true)]
   		scheduleDataSource.append(segment: events)
 		eventsSegment = events
 		scheduleLayout.eventsSegment = eventsSegment
@@ -67,9 +79,10 @@ import CoreData
 //		events.log.instanceEnabled = true
 //		loadingSegment.log.instanceEnabled = true
 
-		events.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
+		events.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel, sectionNameKeyPath: "startTimestamp")
 		scheduleDataSource.register(with: collectionView, viewController: self)
 		
+		// Hide the filter view
 		filterViewTrailingConstraint.constant = 0 - filterView.bounds.size.width
 		searchTextField.delegate = self
 		locationPicker.dataSource = self
@@ -83,6 +96,9 @@ import CoreData
     override func viewDidAppear(_ animated: Bool) {
 		scheduleDataSource.enableAnimations = true
 		locationPicker.reloadAllComponents()
+		if !self.showPastEventsSwitch.isOn {
+			self.showPastEventsTapped()
+		}
 
 		minuteNotification = NotificationCenter.default.addObserver(forName: RefreshTimers.MinuteUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
@@ -120,6 +136,7 @@ import CoreData
 	
 	func setCompoundPredicate() {
 		var subPreds: [NSPredicate] = []
+		if let favPred = favoritesPredicate { subPreds.append(favPred) }
 		if let textPred = textPredicate { subPreds.append(textPred) }
 		if let locationPred = locationPredicate { subPreds.append(locationPred) }
 		if let pastEventPred = pastEventsPredicate { subPreds.append(pastEventPred) }
@@ -127,7 +144,56 @@ import CoreData
 		eventsSegment?.changePredicate(to: compoundPred)
 	}
 
+	// Tries to find an event happening now. Specifically:
+	//		1. Ideally, an event of duration <= 2 hours with an end time in the future, start time in the past, and
+	//			the earliest start time.
+	// 		2. Otherwise, the first event in the list (ordered by start time) with an end time in the future.
+	// It's possible with this algorithm to select an event that hasn't started yet, if there are no currently running events.
+	// This algorithm should favor 'active' events over 'all-day' events when an 'active' event is running.
+	func findIndexPathForEventAt(date: Date) -> IndexPath {
+		var currentTime = date
+		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
+			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
+		}
+		
+		var bestResult: IndexPath?
+		if let sections = eventsSegment?.frc?.sections {
+			foundEvent: for (sectionIndex, section) in sections.enumerated() {
+				if let objects = section.objects {
+					for (rowIndex, object) in objects.enumerated() {
+						if let event = object as? Event {
+							// Grab the first result that has an end time in the future.
+							if bestResult == nil, event.endTime?.compare(currentTime) == .orderedDescending {
+								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
+							}
+							
+							// Look for a better match--an event < 2 hours long that's currently occuring.
+							if event.endTime?.compare(currentTime) == .orderedDescending, 
+									event.startTime?.compare(currentTime) == .orderedAscending,
+									(event.endTimestamp - event.startTimestamp) / 1000  <= 2 * 60 * 60 {
+								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
+								break foundEvent
+							}
+							
+							if event.startTime?.compare(currentTime) == .orderedDescending {
+								break foundEvent
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return bestResult ?? IndexPath(row: 0, section: 0)
+	}
+	
 // MARK: Actions
+	
+	@IBAction func rightNowButtonTapped() {
+		var indexPath = findIndexPathForEventAt(date: Date())
+		indexPath.section += 1
+		collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+	}
 	
 	@IBAction func filterButtonTapped() {
 		view.layoutIfNeeded()
@@ -143,12 +209,6 @@ import CoreData
 				self.view.layoutIfNeeded()
 			}
 		}
-	}
-	
-	@IBAction func rightNowButtonTapped() {
-		var indexPath = EventsDataManager.shared.findIndexPathForEventAt(date: Date())
-		indexPath.section += 1
-		collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
 	}
 	
 	@objc dynamic var disclosureLevel: Int = 4
@@ -185,6 +245,52 @@ import CoreData
 	@IBAction func disclosureSliderTouchUp() {
 		let newLevel = Int(disclosureSlider.value + 0.5)
 		disclosureSlider.value = Float(newLevel)
+	}
+	
+	// Filters to only show favorited events
+	@IBAction func favoritesButtonTapped() {
+		if !favoritesFilterButton.isSelected {
+			if let currentUser = CurrentUser.shared.loggedInUser {
+				favoritesPredicate = NSPredicate(format: "followedBy contains %@", currentUser)
+			}
+			favoritesFilterButton.isSelected = true
+		}
+		else {
+			favoritesFilterButton.isSelected = false
+		}
+		alarmSetFilterButton.isSelected = false
+		calendarItemFilterButton.isSelected = false
+		
+		setCompoundPredicate()
+	}
+	
+	// Filters to only show alarmclocked events
+	@IBAction func alarmSetButtonTapped() {
+		if !alarmSetFilterButton.isSelected {
+			favoritesPredicate = NSPredicate(format: "localNotificationID != NULL AND localNotificationID != ''")
+			alarmSetFilterButton.isSelected = true
+		}
+		else {
+			favoritesPredicate = nil
+			alarmSetFilterButton.isSelected = false
+		}
+		favoritesFilterButton.isSelected = false
+		calendarItemFilterButton.isSelected = false
+		setCompoundPredicate()
+	}
+	
+	@IBAction func hasCalendarItemButtonTapped() {
+		if !calendarItemFilterButton.isSelected {
+			favoritesPredicate = NSPredicate(format: "ekEventID != NULL AND ekEventID != ''")
+			calendarItemFilterButton.isSelected = true
+		}
+		else {
+			favoritesPredicate = nil
+			calendarItemFilterButton.isSelected = false
+		}
+		favoritesFilterButton.isSelected = false
+		alarmSetFilterButton.isSelected = false
+		setCompoundPredicate()
 	}
 	
 	var searchText: String? {
@@ -229,18 +335,77 @@ import CoreData
 		setCompoundPredicate()
 	}
 	
+	@IBAction func dayOfWeekButtonTapped(sender: UIButton) {
+		var dayOfWeek = 0
+		switch sender.title(for: .normal) {
+		case "Sunday" : 	dayOfWeek = 1
+		case "Monday" : 	dayOfWeek = 2
+		case "Tuesday" : 	dayOfWeek = 3
+		case "Wednesday" : 	dayOfWeek = 4
+		case "Thursday" : 	dayOfWeek = 5
+		case "Friday" : 	dayOfWeek = 6
+		case "Saturday" : 	dayOfWeek = 7
+		default: 			dayOfWeek = 7
+		}
+		
+		if let selectedEvent = eventsSegment?.frc?.fetchedObjects?.first( where: { event in
+					if let startTime = event.startTime {
+						return Calendar.current.component(.weekday, from: startTime) == dayOfWeek
+					}
+					return false
+				}) {
+			
+			if var indexPath = eventsSegment?.frc?.indexPath(forObject: selectedEvent) {
+				indexPath.section += 1
+				collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+			}
+		}
+	}
+	
 	@IBAction func resetButtonTapped() {
+		resetFilters()
+	}
+	
+	func resetFilters() {
+		favoritesPredicate = nil
 		locationPredicate = nil
 		textPredicate = nil
 		pastEventsPredicate	= nil
 		setCompoundPredicate()
 		searchTextField.text = ""
 		searchTextField.resignFirstResponder()
-		filterButtonTapped()
+
+		// Hide the filter panel
+		if filterViewTrailingConstraint.constant == 0 {
+			filterButtonTapped()
+		}
+		view.layoutIfNeeded()
 	}
 
     // MARK: - Navigation
 
+	func globalNavigateTo(packet: [String : Any]) {
+		if let eventID = packet["eventID"] as? String {
+			resetFilters()
+			if let results = eventsSegment?.frc?.fetchedObjects, let event = results.first(where: { $0.id == eventID } ),
+					var indexPath = eventsSegment?.frc?.indexPath(forObject: event) {
+				indexPath.section += 1
+				collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+			}
+		}
+	}
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    	switch segue.identifier {
+    	
+		case "ModalLogin":
+			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
+				destVC.segueData = package
+			}
+			
+		default: break 
+    	}
+    }
 
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
 		// Try to continue whatever we were doing before having to log in.
@@ -297,9 +462,9 @@ extension ScheduleRootViewController: UIPickerViewDataSource, UIPickerViewDelega
 	func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
 		return dataManager.allLocations[row]
 	}
-
-
 }
+
+
 
 // at disclosure 5, cv is 73708 high. 155 sections, 395 cells Av cell height is 186.
 // at 4, cv is 73587 high. still 186 per cell.

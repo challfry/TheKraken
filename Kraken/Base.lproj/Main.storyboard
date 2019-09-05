@@ -364,12 +364,18 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W80-3G-Mj5">
-                                            <rect key="frame" x="5" y="104" width="62" height="30"/>
-                                            <state key="normal" title="Favorites"/>
+                                            <rect key="frame" x="167" y="104" width="65" height="30"/>
+                                            <state key="normal" title="Following"/>
+                                            <connections>
+                                                <action selector="favoritesButtonTapped" destination="itg-Bj-Npc" eventType="touchUpInside" id="Ijt-0K-iUS"/>
+                                            </connections>
                                         </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FoL-DT-qsR">
-                                            <rect key="frame" x="165" y="104" width="67" height="30"/>
-                                            <state key="normal" title="Alarm Set"/>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5Pv-Cy-2BS">
+                                            <rect key="frame" x="5" y="104" width="62" height="30"/>
+                                            <state key="normal" title="Calendar"/>
+                                            <connections>
+                                                <action selector="hasCalendarItemButtonTapped" destination="itg-Bj-Npc" eventType="touchUpInside" id="7hU-fm-mXi"/>
+                                            </connections>
                                         </button>
                                         <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Containing Text" textAlignment="natural" minimumFontSize="17" clearButtonMode="always" translatesAutoresizingMaskIntoConstraints="NO" id="Gve-qP-nbo">
                                             <rect key="frame" x="5" y="143" width="227" height="30"/>
@@ -419,46 +425,79 @@
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SNO-g7-FCT">
                                             <rect key="frame" x="5" y="281" width="62" height="30"/>
                                             <state key="normal" title="Saturday"/>
+                                            <connections>
+                                                <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="Vkq-e4-2Y9"/>
+                                            </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Czl-X1-PIf">
                                             <rect key="frame" x="5" y="313" width="52" height="30"/>
                                             <state key="normal" title="Sunday"/>
+                                            <connections>
+                                                <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="hIu-lx-fQ2"/>
+                                            </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r0e-Wp-Ifm">
                                             <rect key="frame" x="5" y="345" width="55" height="30"/>
                                             <state key="normal" title="Monday"/>
+                                            <connections>
+                                                <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="j9p-Ix-Sjk"/>
+                                            </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3yw-mn-x7F">
                                             <rect key="frame" x="5" y="377" width="58" height="30"/>
                                             <state key="normal" title="Tuesday"/>
+                                            <connections>
+                                                <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="YLQ-EY-mEM"/>
+                                            </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="58u-LP-AwU">
                                             <rect key="frame" x="5" y="409" width="80" height="30"/>
                                             <state key="normal" title="Wednesday"/>
+                                            <connections>
+                                                <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="pQc-Vu-Te2"/>
+                                            </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cKl-3g-SYp">
                                             <rect key="frame" x="5" y="441" width="65" height="30"/>
                                             <state key="normal" title="Thursday"/>
+                                            <connections>
+                                                <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="Kad-eh-aQ6"/>
+                                            </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5pT-u1-1up">
                                             <rect key="frame" x="5" y="473" width="42" height="30"/>
                                             <state key="normal" title="Friday"/>
+                                            <connections>
+                                                <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="hWb-1z-wWE"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FoL-DT-qsR">
+                                            <rect key="frame" x="85" y="104" width="67" height="30"/>
+                                            <state key="normal" title="Alarm Set"/>
+                                            <connections>
+                                                <action selector="alarmSetButtonTapped" destination="itg-Bj-Npc" eventType="touchUpInside" id="vK0-NX-1DS"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="W80-3G-Mj5" firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" id="1Xh-PM-h5g"/>
+                                        <constraint firstItem="5Pv-Cy-2BS" firstAttribute="firstBaseline" secondItem="FoL-DT-qsR" secondAttribute="firstBaseline" id="1ny-Zo-J0A"/>
                                         <constraint firstItem="wb8-og-UMh" firstAttribute="firstBaseline" secondItem="MuJ-ff-C4I" secondAttribute="firstBaseline" id="6by-Ng-mHa"/>
                                         <constraint firstItem="iqh-Ej-4y6" firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" id="7KA-Bg-FJm"/>
                                         <constraint firstItem="zcd-PI-2QY" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="7Xh-Nv-zOf"/>
                                         <constraint firstItem="Czl-X1-PIf" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="7bA-8w-gDl"/>
                                         <constraint firstItem="gX4-Ck-s3L" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="8D6-cn-qiF"/>
+                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="zvh-8G-otx" secondAttribute="trailing" constant="20" id="9Dg-To-S6X"/>
                                         <constraint firstItem="D5f-kc-A93" firstAttribute="centerX" secondItem="Vi6-Eq-qdY" secondAttribute="centerX" id="9g8-z0-7uk"/>
                                         <constraint firstItem="5pT-u1-1up" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="9iD-Ec-MOd"/>
-                                        <constraint firstItem="Gve-qP-nbo" firstAttribute="top" secondItem="W80-3G-Mj5" secondAttribute="bottom" constant="9" id="Dh9-3J-3UL"/>
+                                        <constraint firstItem="5Pv-Cy-2BS" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="CWd-Bm-FpG"/>
                                         <constraint firstItem="SNO-g7-FCT" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="EDZ-QR-KkJ"/>
                                         <constraint firstItem="Czl-X1-PIf" firstAttribute="top" secondItem="SNO-g7-FCT" secondAttribute="bottom" constant="2" id="Ekt-he-vsT"/>
+                                        <constraint firstItem="FoL-DT-qsR" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="5Pv-Cy-2BS" secondAttribute="trailing" constant="10" id="Gfl-Dc-yQC"/>
                                         <constraint firstItem="KSA-m9-MRn" firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" id="KRe-iK-QCt"/>
                                         <constraint firstItem="KSA-m9-MRn" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="LIz-Od-8NZ"/>
                                         <constraint firstItem="4sL-HV-mct" firstAttribute="top" secondItem="zcd-PI-2QY" secondAttribute="bottom" constant="13" id="MQS-5w-Pkh"/>
+                                        <constraint firstItem="FoL-DT-qsR" firstAttribute="firstBaseline" secondItem="W80-3G-Mj5" secondAttribute="firstBaseline" id="Mmv-CZ-fuA"/>
                                         <constraint firstItem="zcd-PI-2QY" firstAttribute="top" secondItem="Gve-qP-nbo" secondAttribute="bottom" constant="13" id="Q06-IS-bTf"/>
                                         <constraint firstItem="3yw-mn-x7F" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="RwG-Le-Zri"/>
                                         <constraint firstItem="Gve-qP-nbo" firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" id="S2v-xO-mA2"/>
@@ -468,16 +507,18 @@
                                         <constraint firstItem="5pT-u1-1up" firstAttribute="top" secondItem="cKl-3g-SYp" secondAttribute="bottom" constant="2" id="WFf-GD-P1s"/>
                                         <constraint firstItem="58u-LP-AwU" firstAttribute="top" secondItem="3yw-mn-x7F" secondAttribute="bottom" constant="2" id="XS3-Vh-mi1"/>
                                         <constraint firstAttribute="trailing" secondItem="gX4-Ck-s3L" secondAttribute="trailing" id="XkI-Yx-0gJ"/>
+                                        <constraint firstItem="wb8-og-UMh" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="MuJ-ff-C4I" secondAttribute="trailing" constant="10" id="Z5L-EH-doj"/>
                                         <constraint firstItem="cKl-3g-SYp" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="a9c-Gs-RJx"/>
+                                        <constraint firstItem="5Pv-Cy-2BS" firstAttribute="top" secondItem="ZbN-y3-wMd" secondAttribute="bottom" constant="6" id="aNz-bz-jU7"/>
                                         <constraint firstItem="Gve-qP-nbo" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="aln-zS-hfx"/>
-                                        <constraint firstItem="W80-3G-Mj5" firstAttribute="top" secondItem="ZbN-y3-wMd" secondAttribute="bottom" constant="6" id="cRF-FM-3Af"/>
+                                        <constraint firstItem="FoL-DT-qsR" firstAttribute="leading" secondItem="5Pv-Cy-2BS" secondAttribute="trailing" priority="250" constant="18" id="cGT-6K-wFL"/>
                                         <constraint firstItem="zvh-8G-otx" firstAttribute="leading" secondItem="zcd-PI-2QY" secondAttribute="trailing" constant="24" id="chl-Eg-1gi"/>
                                         <constraint firstItem="KSA-m9-MRn" firstAttribute="top" secondItem="MuJ-ff-C4I" secondAttribute="bottom" constant="8" id="dYB-ws-f6L"/>
                                         <constraint firstItem="MuJ-ff-C4I" firstAttribute="leading" secondItem="Vi6-Eq-qdY" secondAttribute="leading" constant="5" id="dkE-gk-su3"/>
                                         <constraint firstItem="r0e-Wp-Ifm" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="dpV-Ve-Veo"/>
                                         <constraint firstItem="r0e-Wp-Ifm" firstAttribute="top" secondItem="Czl-X1-PIf" secondAttribute="bottom" constant="2" id="egz-aQ-Mf0"/>
-                                        <constraint firstItem="FoL-DT-qsR" firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" id="fhh-Zz-XmE"/>
                                         <constraint firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" constant="8" id="fpe-O0-i7U"/>
+                                        <constraint firstItem="iqh-Ej-4y6" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="4sL-HV-mct" secondAttribute="trailing" constant="10" id="h4A-4P-NKk"/>
                                         <constraint firstItem="cKl-3g-SYp" firstAttribute="top" secondItem="58u-LP-AwU" secondAttribute="bottom" constant="2" id="i52-I3-faf"/>
                                         <constraint firstItem="58u-LP-AwU" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="jaR-b9-6Wd"/>
                                         <constraint firstItem="ZbN-y3-wMd" firstAttribute="top" secondItem="gX4-Ck-s3L" secondAttribute="bottom" constant="8" id="jda-eY-Byl"/>
@@ -486,11 +527,11 @@
                                         <constraint firstItem="gnR-Jk-d5C" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="meY-Fa-cUM"/>
                                         <constraint firstItem="4sL-HV-mct" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="oDa-1n-bty"/>
                                         <constraint firstItem="SNO-g7-FCT" firstAttribute="top" secondItem="gnR-Jk-d5C" secondAttribute="bottom" constant="2" id="oYz-Kx-zhv"/>
-                                        <constraint firstItem="W80-3G-Mj5" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="pgs-Uq-qE6"/>
+                                        <constraint firstItem="W80-3G-Mj5" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="FoL-DT-qsR" secondAttribute="trailing" constant="10" id="qD7-eH-U8z"/>
                                         <constraint firstItem="D5f-kc-A93" firstAttribute="top" secondItem="4sL-HV-mct" secondAttribute="bottom" constant="8" id="qFg-4O-i7p"/>
+                                        <constraint firstItem="Gve-qP-nbo" firstAttribute="top" secondItem="5Pv-Cy-2BS" secondAttribute="bottom" constant="9" id="qcY-RZ-ee2"/>
                                         <constraint firstItem="iqh-Ej-4y6" firstAttribute="centerY" secondItem="4sL-HV-mct" secondAttribute="centerY" id="qx5-26-nq3"/>
                                         <constraint firstItem="gX4-Ck-s3L" firstAttribute="top" secondItem="KSA-m9-MRn" secondAttribute="bottom" constant="8" id="rwU-pW-af5"/>
-                                        <constraint firstItem="FoL-DT-qsR" firstAttribute="firstBaseline" secondItem="W80-3G-Mj5" secondAttribute="firstBaseline" id="s9v-2k-ic1"/>
                                         <constraint firstItem="3yw-mn-x7F" firstAttribute="top" secondItem="r0e-Wp-Ifm" secondAttribute="bottom" constant="2" id="yoM-Ng-NI0"/>
                                     </constraints>
                                 </view>
@@ -538,6 +579,11 @@
                             <constraint firstItem="hUv-2L-CtT" firstAttribute="bottom" secondItem="OKw-FE-TWM" secondAttribute="bottom" id="yIY-TO-nkc"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="hUv-2L-CtT"/>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="oB1-20-J89"/>
+                            </mask>
+                        </variation>
                     </view>
                     <navigationItem key="navigationItem" title="Schedule" id="oag-Kz-Eo9">
                         <barButtonItem key="leftBarButtonItem" title="Now" id="44s-93-96I">
@@ -552,14 +598,19 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="alarmSetFilterButton" destination="FoL-DT-qsR" id="ohr-H8-CWs"/>
+                        <outlet property="calendarItemFilterButton" destination="5Pv-Cy-2BS" id="gXg-gh-Ab1"/>
                         <outlet property="collectionView" destination="OKw-FE-TWM" id="OA8-hF-Swr"/>
                         <outlet property="disclosureSlider" destination="KSA-m9-MRn" id="Mk7-F8-8AU"/>
+                        <outlet property="favoritesFilterButton" destination="W80-3G-Mj5" id="E2L-n4-bjT"/>
+                        <outlet property="filterButton" destination="vdu-Au-Wah" id="snn-ng-AKg"/>
                         <outlet property="filterView" destination="EoO-hE-rXB" id="UMf-os-c5U"/>
                         <outlet property="filterViewTrailingConstraint" destination="lut-A9-raX" id="8Pg-ug-MvH"/>
                         <outlet property="locationPicker" destination="fXd-s7-uMC" id="7gp-4G-kcW"/>
                         <outlet property="locationPickerContainer" destination="oB1-20-J89" id="y8X-L0-Hm2"/>
                         <outlet property="searchTextField" destination="Gve-qP-nbo" id="y3v-cB-pte"/>
                         <outlet property="showPastEventsSwitch" destination="iqh-Ej-4y6" id="tiA-dV-cqV"/>
+                        <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="Ieo-oe-rtR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="24O-eg-VPm" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -761,7 +812,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
-                                <rect key="frame" x="20" y="44" width="54" height="54"/>
+                                <rect key="frame" x="20" y="44" width="16" height="22"/>
                                 <state key="normal" image="CameraClose.png"/>
                                 <state key="highlighted" image="CameraCloseHighlight"/>
                                 <connections>
@@ -769,7 +820,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Ly-Dq-bEZ">
-                                <rect key="frame" x="301" y="44" width="54" height="54"/>
+                                <rect key="frame" x="339" y="44" width="16" height="22"/>
                                 <state key="normal" image="CameraRotate.png"/>
                                 <state key="highlighted" image="CameraRotateHighlight.png"/>
                                 <connections>
@@ -815,7 +866,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xq6-36-IpK">
-                                <rect key="frame" x="227" y="44" width="54" height="54"/>
+                                <rect key="frame" x="303" y="44" width="16" height="22"/>
                                 <state key="normal" image="NoFlash.png"/>
                                 <state key="selected" image="Flash.png"/>
                                 <state key="highlighted" image="NoFlashHighlight.png"/>
@@ -824,7 +875,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OMc-Yc-CyC">
-                                <rect key="frame" x="153" y="44" width="54" height="54"/>
+                                <rect key="frame" x="267" y="44" width="16" height="22"/>
                                 <state key="normal" image="PirateSelfie.png"/>
                                 <connections>
                                     <action selector="pirateButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="Ze6-kc-wer"/>
@@ -1149,10 +1200,10 @@
             </objects>
             <point key="canvasLocation" x="780" y="-193"/>
         </scene>
-        <!--Tab Bar Controller-->
+        <!--Root Tab Bar View Controller-->
         <scene sceneID="yl2-sM-qoP">
             <objects>
-                <tabBarController id="49e-Tb-3d3" sceneMemberID="viewController">
+                <tabBarController id="49e-Tb-3d3" customClass="RootTabBarViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" id="W28-zg-YXA">
                         <rect key="frame" x="0.0" y="975" width="768" height="49"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -1189,10 +1240,10 @@
         <image name="Twitarr.png" width="23" height="23"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Cci-1G-tOu"/>
-        <segue reference="ibx-KH-vcj"/>
+        <segue reference="NT7-WF-Ano"/>
+        <segue reference="IvN-8v-NRa"/>
         <segue reference="wTp-nv-sgn"/>
-        <segue reference="hIj-Jv-E7S"/>
+        <segue reference="Ieo-oe-rtR"/>
         <segue reference="hV8-Mc-Uo7"/>
     </inferredMetricsTieBreakers>
 </document>

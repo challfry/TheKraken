@@ -70,7 +70,8 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		
 	// Configures the Fetch Request, kicks off the FRC, and sets up our cellModels with the initial FRC results.
 	// Call this up front, and again whenever the predicate, sort, or factory function need to change.
-	func activate(predicate: NSPredicate?, sort: [NSSortDescriptor]?, cellModelFactory: ((_ from: FetchedObjectType) -> BaseCellModel)?) {
+	func activate(predicate: NSPredicate?, sort: [NSSortDescriptor]?, 
+			cellModelFactory: ((_ from: FetchedObjectType) -> BaseCellModel)?, sectionNameKeyPath: String? = nil) {
 		self.createCellModel = cellModelFactory
 
 		if let pred = predicate {
@@ -79,12 +80,13 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		}
 		if let sortDescriptors = sort {
 			fetchRequest.sortDescriptors = sortDescriptors
-		}
+		}		
+		
 		
 		if frc == nil {
 			frc = NSFetchedResultsController(fetchRequest: fetchRequest, 
 						managedObjectContext: LocalCoreData.shared.mainThreadContext, 
-						sectionNameKeyPath: nil, cacheName: nil)
+						sectionNameKeyPath: sectionNameKeyPath, cacheName: nil)
 			frc?.delegate = self
 		}
 		
@@ -332,6 +334,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			return CGSize(width:414, height: 50)
 		}
 		let cellModel = section[indexPath.row]
+		
+		// Give the cell model a chance to update its cache
+		cellModel.updateCachedCellSize()
 
 		if cellModel.cellSize.height > 0 {
 			return cellModel.cellSize

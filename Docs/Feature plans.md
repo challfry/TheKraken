@@ -29,6 +29,17 @@ Tweets should get shown with "2min" or similar, and be time-corrected but otherw
 Seamail could give times as "2:34 PM device/1:34 PM boat" perhaps? (only when device doesn't match boat)
 Calendar should also show both times.
 
+Note that there's 6 cases at play here:
+	1. Time and timezone match, show 1 time
+	2. Times differ, same timezone. Estimate difference between server and device time using /api/v2/time, show both if offset > 20 mins
+	3. Different timezones, same time, timezones have same offset. This can happen with EDT and AST. Only need to show one time,
+		but need to be careful that time calculations from epoch use server tz, not device tz.
+	4. Different timezones, same time. (e.g. EST/AST) User probably updated time instead of changing zone. Only need to show one time,
+		but need to be careful that time calculations from epoch use server tz, not device tz.
+	5. Different timezones, different times, offset matches tz offset. Device time is 'right', just in a different TZ than server. Show both.
+	6. Different TZ, different times, offset doesn't match tz offset. Weep for humanity, show both times by calculating offset from server
+		to device. 
+
 ## Offline mode
 Most everything app has ever downloaded will be avail when not on HAL wifi.
 App tells user at fg time that it's in offline mode, may offer help to join wifi?

@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import EventKit
+import EventKitUI
+import UserNotifications
 
 @objc protocol EventCellBindingProtocol: FetchedResultsBindingProtocol {
 	var isInteractive: Bool { get set }
@@ -29,10 +32,19 @@ class EventCellModel: FetchedResultsCellModel, EventCellBindingProtocol {
 		super.init(withModel: withModel, reuse: "EventCell", bindingWith: EventCellBindingProtocol.self)
 	}
 	
+	override func updateCachedCellSize() {
+		if heightAtDisclosureLevel.count >= 4, !privateSelected {
+	 		let height = heightAtDisclosureLevel[disclosureLevel]
+			cellSize = CGSize(width: cellSize.width, height: height)
+		}
+		else {
+			cellSize = CGSize(width: 0, height: 0)
+		}
+	}
+	
 	// This fn caches cell height at all disclosure levels from the 1 prototype cell. This prevents us from
 	// doing an expensive recalc every time the disclosure level changes.
 	override func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> BaseCollectionViewCell? {
- //		let savedDisclosureLevel = disclosureLevel
  		let protoCell = super.makePrototypeCell(for: collectionView, indexPath: indexPath) as! EventCell
  		if disclosureLevel == 4 && heightAtDisclosureLevel.count < 4 {
 			let newSize = protoCell.calculateSize()
@@ -62,11 +74,22 @@ class EventCellModel: FetchedResultsCellModel, EventCellBindingProtocol {
 
 class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	@IBOutlet var titleLabel: UILabel!
+	@IBOutlet var followLabel: UILabel!
 	@IBOutlet var eventTimeLabel: UILabel!
 	@IBOutlet var locationLabel: UILabel!
 	@IBOutlet var descriptionLabel: UILabel!
 	@IBOutlet var ribbonView: RibbonView!
 	@IBOutlet var ribbonViewLabel: UILabel!
+	
+	@IBOutlet var followPendingView: UIView!
+	@IBOutlet var 	followPendingLabel: UILabel!
+	@IBOutlet var	followPendingCancelButton: UIButton!
+	
+	
+	@IBOutlet var actionBarView: UIView!
+	@IBOutlet var 	followButton: UIButton!
+	@IBOutlet var 	localNotificationButton: UIButton!
+	@IBOutlet var 	addToCalendarButton: UIButton!
 	
 	private static let cellInfo = [ "EventCell" : PrototypeCellInfo("EventCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return EventCell.cellInfo }
@@ -83,6 +106,10 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 				queue: nil) { [weak self] notification in
 			self?.setRibbonStates()
 		}
+		
+		// Make sure the action bar starts off hidden, even if we unhide it in IB.
+		actionBarView.isHidden = true
+		followPendingView.isHidden = true
 	}
 
 	// If false, the cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
@@ -100,8 +127,56 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 
 	var model: NSFetchRequestResult? {
 		didSet {
+    		clearObservations()
 			setLabelStrings()
+
+			// Observe following state, set heart label visibility
+			if let eventModel = model as? Event {
+				addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+					observer.setFollowState()
+				})
+				addObservation(eventModel.tell(self, when:"followCount") { observer, observed in
+					observer.setFollowState()
+				}?.execute())
+				addObservation(eventModel.tell(self, when:"opsFollowingCount") { observer, observed in
+					observer.setFollowPendingState()
+				}?.execute())
+				addObservation(eventModel.tell(self, when:"ekEventID") { observer, observed in
+					let title = observed.ekEventID == nil ? "Add To Calendar" : "Edit Calendar Event"
+					observer.addToCalendarButton.setTitle(title, for: .normal)
+				}?.execute())
+				addObservation(eventModel.tell(self, when:"localNotificationID") { observer, observed in
+					let title = observed.localNotificationID == nil ? "Set Alarm" : "Remove Alarm"
+					observer.localNotificationButton.setTitle(title, for: .normal)
+				}?.execute())
+			}
+			else {
+				setFollowState()
+			}
 		}
+	}
+	
+	func setFollowState() {	
+		if let eventModel = model as? Event, let currentUser = CurrentUser.shared.loggedInUser,
+				eventModel.followedBy.contains( where: { user in user.username == currentUser.username }) {
+			followLabel.isHidden = false
+			followButton.setTitle("Unfollow", for: .normal)
+		} 
+		else {
+			followLabel.isHidden = true
+			followButton.setTitle("Follow", for: .normal)
+		}
+	}
+	
+	func setAlarmButtonState() {
+		var enableButton = false
+		if Settings.shared.debugTestLocalNotificationsForEvents {
+			enableButton = true
+		}
+		if let eventModel = model as? Event, let startTime = eventModel.startTime, startTime > Date() + 300.0 {
+			enableButton = true
+		}
+		localNotificationButton.isEnabled = enableButton
 	}
 	
 	func setLabelStrings() {
@@ -161,9 +236,27 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		}
 	}
 	
+	func setFollowPendingState() {
+		var newState = true
+		if privateSelected == true, 
+				let currentUser = CurrentUser.shared.loggedInUser, 
+				let event = model as? Event,
+				let ops = event.opsFollowing, 
+				let op = ops.first(where: { $0.author.username == currentUser.username }) {
+			followPendingLabel.text = op.newState ? "Follow Pending" : "Unfollow Pending"
+			newState = false
+		}
+		
+		if newState != followPendingView.isHidden {
+			UIView.animate(withDuration: 0.3) {
+				self.followPendingView.isHidden = newState
+			}
+		}
+	}
+	
 	override func calculateSize() -> CGSize {
 		let size: CGSize
-		if let model = cellModel as? EventCellModel, model.heightAtDisclosureLevel.count >= 4 {
+		if let model = cellModel as? EventCellModel, model.heightAtDisclosureLevel.count >= 4, !privateSelected {
 			let effectiveDisclosure = privateSelected ? 4 : disclosureLevel
 			size = CGSize(width: dataSource?.collectionView?.bounds.size.width ?? bounds.size.width,
 					height: model.heightAtDisclosureLevel[effectiveDisclosure])
@@ -195,11 +288,104 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	override var privateSelected: Bool {
 		didSet {
 			if !isPrototypeCell, privateSelected == oldValue { return }
-			setLabelStrings()
+			actionBarView.isHidden = !privateSelected
 			contentView.backgroundColor = privateSelected ? UIColor(white: 0.95, alpha: 1.0) : UIColor.white
+			
+			// Upon selection we actually check the linked calendar event and local notification to see whether they're 
+			// still there.
+			if let event = model as? Event {
+				event.verifyLinkedCalendarEvent()
+				event.verifyLinkedLocalNotification()
+			}
+
+			setLabelStrings()
+			setAlarmButtonState()
+			setFollowPendingState()
+			cellSizeChanged()
+		}
+	}
+	
+// MARK: Actions
+	// Followed, favorited, liked. 
+	@IBAction func favoriteButtonHit() {
+ 		guard isInteractive else { return }
+   		guard let eventModel = model as? Event else { return } 
+   		
+   		var alreadyLikesThis = false
+		if let currentUser = CurrentUser.shared.loggedInUser,
+				eventModel.followedBy.contains(where: { user in return user.username == currentUser.username }) {
+			alreadyLikesThis = true
+		}
+
+		if !CurrentUser.shared.isLoggedIn() {
+ 			let seguePackage = LoginSegueWithAction(promptText: "In order to follow this Schedule event, you'll need to log in first.",
+ 					loginSuccessAction: { eventModel.addFollowOp(newState: true) }, loginFailureAction: nil)
+  			viewController?.performSegue(withIdentifier: "ModalLogin", sender: seguePackage)
+   		}
+   		else {
+			eventModel.addFollowOp(newState: !alreadyLikesThis)
+   		}
+	}
+	
+	@IBAction func cancelFavoriteOpButtonHit() {
+   		guard let eventModel = model as? Event else { return } 
+   		eventModel.cancelFollowOp()
+	}
+	
+	@IBAction func setAlarmButtonHit() {
+   		guard let eventModel = model as? Event else { return }
+   		eventModel.createLocalAlarmNotification(done: localNotificationCreated) 
+	}
+	
+	func localNotificationCreated(notification: UNNotificationRequest) {
+		guard let trigger = notification.trigger as? UNTimeIntervalNotificationTrigger, 
+				let alarmTime = trigger.nextTriggerDate() else { return }
+
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateStyle = .none
+		dateFormatter.timeStyle = .short
+		dateFormatter.locale = Locale(identifier: "en_US")
+		let timeString = dateFormatter.string(from: alarmTime)
+		
+		let alert = UIAlertController(title: "Reminder Alarm Set", 
+				message: "You'll receive a notification at \(timeString), 5 minutes before the event starts." , preferredStyle: .alert)
+		alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+		if let topVC = UIApplication.getTopViewController() {
+			topVC.present(alert, animated: true, completion: nil)
+		}
+	}
+	
+	@IBAction func addToCalendarButtonHit() {
+   		guard let eventModel = model as? Event else { return } 
+   		eventModel.createCalendarEvent(done: eventCreated)
+	}
+	
+	// Called when Add To Calendar successfully makes its event
+	func eventCreated(event: EKEvent?) {
+		guard let ev = event else { return }
+		DispatchQueue.main.async {
+			let vc = EKEventViewController(nibName: nil, bundle: nil)
+			vc.allowsEditing = true
+			vc.allowsCalendarPreview = true
+//			let vc = EKEventEditViewController(nibName: nil, bundle: nil)
+			vc.event = ev
+			vc.delegate = self
+ 			let nav = UINavigationController(rootViewController: vc)
+			self.viewController?.present(nav, animated: true, completion: nil)
+		}
+	}
+	
+}
+
+extension EventCell: EKEventViewDelegate {
+	func eventViewController(_ controller: EKEventViewController, didCompleteWith action: EKEventViewAction) {
+		self.viewController?.dismiss(animated: true, completion: nil)
+		if action == .deleted, let eventModel = model as? Event {
+			eventModel.markCalendarEventDeleted()
 		}
 	}
 }
+
 
 class RibbonView: UIView {
 	var useStripes: Bool = true

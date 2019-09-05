@@ -77,6 +77,10 @@ import UIKit
 		}
 		return nil
 	}
+	
+	func updateCachedCellSize() {
+		// Do nothing by default
+	}
 
 	func cellTapped() {
 		// Do nothing by default

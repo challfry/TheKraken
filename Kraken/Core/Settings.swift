@@ -26,6 +26,13 @@ import Foundation
 		set { setSetting(name: "lastSeamailCheckTime", newValue: newValue) }
 	}
 	
+	// For interacting with the Calendar database via EKEventStore, we make a custom calendar named "JoCo Cruise 2020"
+	// This saves the ID of that calendar.
+	public var customCalendarForEvents: String? {
+		get { return getSetting(name: "customCalendarForEvents", defaultValue: nil) }
+		set { setSetting(name: "customCalendarForEvents", newValue: newValue) }
+	}
+	
 	// Makes all network calls immediately fail. Sorta like airplane mode, except we'll still detect a newtork.
 	@objc dynamic public var blockNetworkTraffic: Bool {
 		get { return getSetting(name: "blockNetworkTraffic", defaultValue: false) }
@@ -42,6 +49,13 @@ import Foundation
 	@objc dynamic public var debugTimeWarpToCruiseWeek2019: Bool {
 		get { return getSetting(name: "debugTimeWarpToCruiseWeek2019", defaultValue: false) }
 		set { setSetting(name: "debugTimeWarpToCruiseWeek2019", newValue: newValue) }
+	}
+	
+	// Makes local notifications for Schedule events fire 10 seconds after they're created, instead of 5 mins before
+	// the event starts.
+	@objc dynamic public var debugTestLocalNotificationsForEvents: Bool {
+		get { return getSetting(name: "debugTestLocalNotificationsForEvents", defaultValue: false) }
+		set { setSetting(name: "debugTestLocalNotificationsForEvents", newValue: newValue) }
 	}
 
 

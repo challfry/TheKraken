@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import EventKit
+import UserNotifications
 
 @objc(Event) public class Event: KrakenManagedObject {
     @NSManaged public var id: String
@@ -15,12 +17,21 @@ import UIKit
 	@NSManaged public var location: String?
     @NSManaged public var official: Bool
     
+    // Note that both the linked Calendar Event and the linked Local Notification are NOT gated on the logged in user!
+    // Both of these are local to the device we're running on, and not attached to the Twitarr user!
+    @NSManaged public var ekEventID: String?				// EventKit calendar item for this event, if any.
+    @NSManaged public var localNotificationID: String?		// Local Notification alert for this event, if any.
+    
     @NSManaged public var startTimestamp: Int64
     @NSManaged public var endTimestamp: Int64
     public var startTime: Date?
     public var endTime: Date?
     
     @NSManaged public var followedBy: Set<KrakenUser>
+    @NSManaged public var opsFollowing: Set<PostOpEventFollow>?
+    
+    @objc dynamic public var followCount: Int = 0
+    @objc dynamic public var opsFollowingCount: Int = 0
     
 	public override func awakeFromFetch() {
 		super.awakeFromFetch()
@@ -28,6 +39,8 @@ import UIKit
 		// Update derived properties
 		startTime = Date(timeIntervalSince1970: Double(startTimestamp) / 1000.0)
 		endTime = Date(timeIntervalSince1970: Double(endTimestamp) / 1000.0)
+		followCount = followedBy.count
+		opsFollowingCount = opsFollowing?.count ?? 0
 	}
 	
 	// TRUE if this event lasts longer than 2 hours. Could be improved in the future, with server support.
@@ -83,20 +96,286 @@ import UIKit
 			if followedBy.contains(currentUser) {
 				if !v2Object.following {
 					followedBy.remove(currentUser)
+					followCount = followedBy.count
 				}
 			}
 			else {
 				if v2Object.following {
 					followedBy.insert(currentUser)
+					followCount = followedBy.count
 				}
+			}
+		}
+	}
+	
+// MARK: Event Operations
+	
+	func addFollowOp(newState: Bool) {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context),
+					let thisEvent = context.object(with: self.objectID) as? Event else { return }
+			
+			// Check for existing op for this user
+			var existingOp: PostOpEventFollow?
+			if let ops = thisEvent.opsFollowing {
+				for op in ops {
+					if op.author.username == currentUser.username {
+						existingOp = op
+					}
+				}
+			}
+			if existingOp == nil {
+				existingOp = PostOpEventFollow(context: context)
+			}
+			
+			existingOp?.newState = newState
+			existingOp?.readyToSend = true
+			existingOp?.event = thisEvent
+			
+			do {
+				try context.save()
+				self.opsFollowingCount = self.opsFollowing?.count ?? 0
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
+			}
+		}
+	}
+	
+	func cancelFollowOp() {
+		guard let currentUsername = CurrentUser.shared.loggedInUser?.username else { return }
+		if let deleteOp = opsFollowing?.first(where: { $0.author.username == currentUsername }) {
+			PostOperationDataManager.shared.remove(op: deleteOp)
+			self.opsFollowingCount = self.opsFollowing?.count ?? 0
+		}
+	}
+	
+	// Only calls the done callback on successful creation, which implies access was granted.
+	var createCalendarEventDoneCallback: ((EKEvent?) -> ())?
+	func createCalendarEvent(done: @escaping (EKEvent?) -> Void) {
+		let eventStore = EventsDataManager.shared.ekEventStore
+		createCalendarEventDoneCallback = done
+		eventStore.requestAccess(to: .event) { access, error in 
+			DispatchQueue.main.async {
+				self.calendarAccessCallback(access, error)
+			}
+		}
+	}
+
+	private func calendarAccessCallback(_ access: Bool, _ error: Error?) {
+		guard access else { return }
+		let eventStore = EventsDataManager.shared.ekEventStore
+		var calendar: EKCalendar?
+		do {
+			if let calendarID = Settings.shared.customCalendarForEvents {
+				calendar = eventStore.calendar(withIdentifier: calendarID)
+			}
+			if calendar == nil {
+				let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
+ 				newCalendar.title = "JoCo Cruise 2020"
+				newCalendar.source = eventStore.sources.first { $0.sourceType.rawValue == EKSourceType.local.rawValue }
+				try eventStore.saveCalendar(newCalendar, commit: true)
+				calendar = newCalendar
+				Settings.shared.customCalendarForEvents = newCalendar.calendarIdentifier
+			}
+		}
+		catch {
+			showErrorAlert(title: "Couldn't create JoCo Calendar in Calendar database.", error: error)
+		}
+		guard let cal = calendar else { return }
+		
+		// Look for an existing event first. Note that we don't update an calendar event's data after creation. 
+		// If the JoCo Schedule changes, an already-created event won't update. 
+		var theEvent: EKEvent?
+		if let existingID = ekEventID {
+			theEvent = eventStore.event(withIdentifier: existingID)
+		}
+		if theEvent == nil {
+			do {
+				// Make a new event, save it to the event store.		
+				let ekEvent = EKEvent(eventStore: eventStore)
+				ekEvent.startDate = startTime
+				ekEvent.endDate = endTime
+				ekEvent.isAllDay = false 			// Even JocCo's 'all day' events aren't all day.
+				if ekEvent.calendar == nil {
+					ekEvent.calendar = cal
+				}
+				ekEvent.title = title
+				ekEvent.location = location
+//				newEvent.timeZone = 
+				ekEvent.url = URL(string: "\(Settings.shared.baseURL)/#/schedule/event/\(id)")
+				ekEvent.notes = eventDescription
+		
+				try eventStore.save(ekEvent, span: .thisEvent)
+				theEvent = ekEvent
+			}
+			catch {
+				showErrorAlert(title: "Couldn't create JoCo Calendar in Calendar database.", error: error)
+			}
+		}
+		
+		// Save the eventID if necessary
+		let eventIdentifier = theEvent?.eventIdentifier
+		if self.ekEventID != eventIdentifier {
+			let context = LocalCoreData.shared.networkOperationContext
+			context.perform {
+				do {
+					if let selfInContext = try context.existingObject(with: self.objectID) as? Event {
+						selfInContext.ekEventID = eventIdentifier
+					}
+					
+					try context.save()
+				}
+				catch {
+					CoreDataLog.error("Couldn't save context.", ["error" : error])
+				}
+			}
+		}
+
+		createCalendarEventDoneCallback?(theEvent)
+		createCalendarEventDoneCallback = nil
+	}
+	
+	// When the event in the Calendar app has been deleted, call this to clear our eventID for it.
+	func markCalendarEventDeleted() {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			do {
+				if let selfInContext = try context.existingObject(with: self.objectID) as? Event {
+					selfInContext.ekEventID = nil
+				}
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
+			}
+		}
+	}
+	
+	// Checks if the EKEvent linked from the ekEventID is still valid. Sets ekEventID to nil if the underlying event is gone.
+	// Note that the user can delete the event from whithin the Calendar app, so the existence of the link doesn't guarantee
+	// there's an event there.
+	func verifyLinkedCalendarEvent() {
+		guard let linkedEvent = ekEventID else { return }
+		var deleteLink = false
+		if  EKEventStore.authorizationStatus(for: .event) == .authorized {
+			let ekEvent = EventsDataManager.shared.ekEventStore.event(withIdentifier: linkedEvent)
+			if ekEvent == nil {
+				deleteLink = true
+			}
+		}
+		else {
+			deleteLink = true
+		}
+		
+		if deleteLink {
+			markCalendarEventDeleted()
+		}
+	}
+		
+	func createLocalAlarmNotification(done: @escaping (UNNotificationRequest) -> Void) {
+		let center = UNUserNotificationCenter.current()
+		center.requestAuthorization(options: [.alert, .sound]) { (granted, error) in
+			if granted {
+				self.createLocalAlarmAuthCallback(done: done)
+			}
+		}
+	}
+	
+	private func createLocalAlarmAuthCallback(done: @escaping (UNNotificationRequest) -> Void) {
+		guard let eventStartTime = startTime else { return }
+	
+		let content = UNMutableNotificationContent()
+		content.title = "JoCo Cruise Event Reminder"
+		content.body = "\"\(title)\" starts in 5 minutes!"
+		content.userInfo = ["eventID" : id]
+		
+		var alarmTime: Date
+		if Settings.shared.debugTestLocalNotificationsForEvents {
+			alarmTime = Date() + 100.0 
+		}
+		else {
+			alarmTime = eventStartTime - 300.0
+		}
+		
+//		let tz = TimeZone.current
+//		let dateComponents = Calendar.current.dateComponents(in: tz, from: alarmTime)
+//		let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+		let trigger = UNTimeIntervalNotificationTrigger(timeInterval: alarmTime.timeIntervalSinceNow, repeats: false)
+
+		let uuidString = UUID().uuidString
+		let request = UNNotificationRequest(identifier: uuidString, content: content, trigger: trigger)
+
+		// Schedule the request with the system.
+		let notificationCenter = UNUserNotificationCenter.current()
+		notificationCenter.add(request) { (error) in
+			if error != nil {
+				CoreDataLog.error("Couldn't create local notification for Event start time.", 
+						["error" : error?.localizedDescription as Any])
+			}
+			else {
+				let context = LocalCoreData.shared.networkOperationContext
+				context.perform {
+					do {
+						if let selfInContext = try context.existingObject(with: self.objectID) as? Event {
+							selfInContext.localNotificationID = uuidString
+						}
+						try context.save()
+					}
+					catch {
+						CoreDataLog.error("Couldn't save context.", ["error" : error])
+					}
+				}
+				
+				// Even if the CD save fails, the notification is scheduled if we get this far.
+				DispatchQueue.main.async {
+					done(request)
+				} 
+			}
+		}
+	}
+	
+	// Checks whether the notification is still scheduled. Deletes the UUID if it's deleted or already fired.
+	func verifyLinkedLocalNotification() {
+		guard let uuidString = localNotificationID else { return }
+		
+		// TODO: Not sure what happens if authorization is turned off. Hopefully, we can still ask about our pending 
+		// notifications and get results back, they just won't ever fire?
+		let notificationCenter = UNUserNotificationCenter.current()
+		notificationCenter.getPendingNotificationRequests { requests in
+			let notificationExists = requests.contains { $0.identifier == uuidString }
+			if !notificationExists {
+				self.markLocalNotificationDeleted()
+			}
+		}
+	}
+		
+	func markLocalNotificationDeleted() {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			do {
+				if let selfInContext = try context.existingObject(with: self.objectID) as? Event {
+					selfInContext.localNotificationID = nil
+				}
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
 			}
 		}
 	}
 }
 
+
+
+
+// MARK: -
 class EventsDataManager: NSObject {
 	static let shared = EventsDataManager()
 	private let coreData = LocalCoreData.shared
+	
+	// 
 	var fetchedData: NSFetchedResultsController<Event>
 	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
 	
@@ -105,6 +384,10 @@ class EventsDataManager: NSObject {
 	
 	// TRUE when we've got a network call running to update the stream, or the current filter.
 	@objc dynamic var networkUpdateActive: Bool = false  
+
+	let ekEventStore = EKEventStore()
+	
+// MARK: Methods
 
 	override init() {
 		// Just once, calc our debug date offset
@@ -135,54 +418,13 @@ class EventsDataManager: NSObject {
 			getAllLocations()
 		}
 		catch {
-			CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
+			CoreDataLog.error("Couldn't fetch events.", [ "error" : error ])
 		}
 	}
-	
-	// Tries to find an event happening now. Specifically:
-	//		1. Ideally, an event of duration <= 2 hours with an end time in the future, start time in the past, and
-	//			the earliest start time.
-	// 		2. Otherwise, the first event in the list (ordered by start time) with an end time in the future.
-	// It's possible with this algorithm to select an event that hasn't started yet, if there are no currently running events.
-	// This algorithm should favor 'active' events over 'all-day' events when an 'active' event is running.
-	func findIndexPathForEventAt(date: Date) -> IndexPath {
-		var currentTime = date
-		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
-			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
-		}
 		
-		var bestResult: IndexPath?
-		if let sections = fetchedData.sections {
-			foundEvent: for (sectionIndex, section) in sections.enumerated() {
-				if let objects = section.objects {
-					for (rowIndex, object) in objects.enumerated() {
-						if let event = object as? Event {
-							// Grab the first result that has an end time in the future.
-							if bestResult == nil, event.endTime?.compare(currentTime) == .orderedDescending {
-								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
-							}
-							
-							if event.endTime?.compare(currentTime) == .orderedDescending, 
-									event.startTime?.compare(currentTime) == .orderedAscending,
-									(event.endTimestamp - event.startTimestamp) / 1000  <= 2 * 60 * 60 {
-								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
-								break foundEvent
-							}
-							
-							if event.startTime?.compare(currentTime) == .orderedDescending {
-								break foundEvent
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return bestResult ?? IndexPath(row: 0, section: 0)
-	}
-	
 	func loadEvents() {
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/event", query: nil)
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/event", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			self.networkUpdateActive = false
@@ -218,16 +460,22 @@ class EventsDataManager: NSObject {
 				}
 			
 				// Add/update
-				for event in events {
-					let coreDataEvent = self.fetchedData.fetchedObjects?.first(where: { $0.id == event.id }) ?? Event(context: context)
-					coreDataEvent.buildFromV2(context: context, v2Object: event)
+				for v2Event in events {
+					var eventInContext: Event?
+					if let event = self.fetchedData.fetchedObjects?.first(where: { $0.id == v2Event.id }) {
+						eventInContext = try? context.existingObject(with: event.objectID) as? Event
+					}
+					if eventInContext == nil {
+						eventInContext = Event(context: context)
+					}
+					eventInContext?.buildFromV2(context: context, v2Object: v2Event)
 				}
 				
 				try context.save()
 				self.getAllLocations()
 			}
 			catch {
-				CoreDataLog.error("Failure adding Schedule events to CD.", ["Error" : error])
+				CoreDataLog.error("Failure adding Schedule events to Core Data.", ["Error" : error])
 			}
 		}
 	}
@@ -261,7 +509,6 @@ class EventsDataManager: NSObject {
 			catch {
 				CoreDataLog.error(".", ["Error" : error])
 			}
-			print(self.allLocations)
 		}
 	}
 	
@@ -294,6 +541,7 @@ extension EventsDataManager : NSFetchedResultsControllerDelegate {
 }
 
 
+// MARK: - API V2 Parsing
 struct TwitarrV2Event: Codable {
 	let id: String
 	let title: String

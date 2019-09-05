@@ -30,10 +30,14 @@
 			<string></string>
 		</dict>
 	</dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Calendar access lets Kraken add events from the official cruise schedule.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera Access lets you take photos to attach to Twitarr posts, and selfies for your user avatar.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library Access lets you choose photos to attach to Twitarr posts, Seamail, and Forum posts.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Reminders access lets Kraken add events from the official cruise schedule.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

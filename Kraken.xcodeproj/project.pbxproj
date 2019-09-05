@@ -63,9 +63,7 @@
 		EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */; };
 		EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */; };
 		EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */; };
-		EA6A8A7E231B4F160071BFEA /* VSSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7B231B4F150071BFEA /* VSSlider.swift */; };
-		EA6A8A7F231B4F160071BFEA /* InternalSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7C231B4F150071BFEA /* InternalSlider.swift */; };
-		EA6A8A80231B4F160071BFEA /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = EA6A8A7D231B4F150071BFEA /* LICENSE.txt */; };
+		EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A81231E212A0071BFEA /* Alerts.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
 		EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */; };
 		EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD02272813800363CBF /* LoginHeaderCell.xib */; };
@@ -89,6 +87,8 @@
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
 		EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456022DC067D00790F97 /* RedDeleteIcon.png */; };
 		EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456222DC9EC700790F97 /* UnknownUser.png */; };
+		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
+		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
 		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4C12242D300009F287F /* ForumsRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */; };
@@ -217,9 +217,7 @@
 		EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCoreData.swift; sourceTree = "<group>"; };
 		EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventSectionHeaderView.xib; sourceTree = "<group>"; };
 		EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSectionHeaderView.swift; sourceTree = "<group>"; };
-		EA6A8A7B231B4F150071BFEA /* VSSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSSlider.swift; sourceTree = "<group>"; };
-		EA6A8A7C231B4F150071BFEA /* InternalSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InternalSlider.swift; sourceTree = "<group>"; };
-		EA6A8A7D231B4F150071BFEA /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		EA6A8A81231E212A0071BFEA /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
 		EA86ADD32272855000363CBF /* jellyfish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jellyfish.png; sourceTree = "<group>"; };
@@ -245,6 +243,9 @@
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
 		EA9E693522980CC500B4DC6D /* Kraken.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kraken.entitlements; sourceTree = "<group>"; };
+		EAA02845232057D900B2B7F1 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabBarViewController.swift; sourceTree = "<group>"; };
+		EAA028492321CF7100B2B7F1 /* Questions for Server Team.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Questions for Server Team.md"; sourceTree = "<group>"; };
 		EAA0E91122E942770077D5D0 /* SwiftUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUtils.swift; sourceTree = "<group>"; };
 		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -325,6 +326,7 @@
 				EA1E3BA02248153F00017F07 /* Feature plans.md */,
 				EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */,
 				EA3ABF8A22F198D000441F99 /* Credits.md */,
+				EAA028492321CF7100B2B7F1 /* Questions for Server Team.md */,
 			);
 			path = Docs;
 			sourceTree = "<group>";
@@ -396,6 +398,7 @@
 				EA444A532298A9B70098DE97 /* PostOperation.swift */,
 				EA1E3B9E2246CDF700017F07 /* Settings.swift */,
 				EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */,
+				EAA02845232057D900B2B7F1 /* Notifications.swift */,
 				EAC696EC2290159000EE6EEB /* StringUtilities.swift */,
 				EAA62C7022C55CC00031A999 /* Logging.swift */,
 				EAA0E91122E942770077D5D0 /* SwiftUtils.swift */,
@@ -480,6 +483,7 @@
 				EA278A49226A755400808AED /* OperationStatusCell.xib */,
 				EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */,
 				EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */,
+				EA6A8A81231E212A0071BFEA /* Alerts.swift */,
 			);
 			path = "Common UI";
 			sourceTree = "<group>";
@@ -525,20 +529,9 @@
 		EA6A8A79231B4F150071BFEA /* Third Party */ = {
 			isa = PBXGroup;
 			children = (
-				EA6A8A7A231B4F150071BFEA /* VerticalSteppedSlider */,
 			);
 			name = "Third Party";
 			path = "Kraken/Third Party";
-			sourceTree = "<group>";
-		};
-		EA6A8A7A231B4F150071BFEA /* VerticalSteppedSlider */ = {
-			isa = PBXGroup;
-			children = (
-				EA6A8A7B231B4F150071BFEA /* VSSlider.swift */,
-				EA6A8A7C231B4F150071BFEA /* InternalSlider.swift */,
-				EA6A8A7D231B4F150071BFEA /* LICENSE.txt */,
-			);
-			path = VerticalSteppedSlider;
 			sourceTree = "<group>";
 		};
 		EA86ADD22272855000363CBF /* Resources */ = {
@@ -585,6 +578,7 @@
 				EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */,
 				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
 				EAA2E4C22242D300009F287F /* Main.storyboard */,
+				EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */,
 				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
 				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
@@ -802,7 +796,6 @@
 				EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */,
 				EA3ABFA022F3C6F000441F99 /* Settings@3x.png in Resources */,
 				EA3ABF9A22F3C32A00441F99 /* Twitarr@3x.png in Resources */,
-				EA6A8A80231B4F160071BFEA /* LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -828,12 +821,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */,
+				EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
 				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
 				EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */,
 				EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */,
-				EA6A8A7E231B4F160071BFEA /* VSSlider.swift in Sources */,
+				EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
@@ -846,7 +840,6 @@
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* OperationStatusCell.swift in Sources */,
-				EA6A8A7F231B4F160071BFEA /* InternalSlider.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
@@ -876,6 +869,7 @@
 				EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */,
 				EA534E2922FD1B9200FE4787 /* KrakenNavController.swift in Sources */,
 				EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */,
+				EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */,
 				EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */,
 				EA86ADF0227D18AD00363CBF /* ServerTextFileViewController.swift in Sources */,
 				EA3C630E2293913600077E3B /* ComposeTweetViewController.swift in Sources */,

@@ -17,8 +17,16 @@ class RefreshTimers: NSObject {
 
 	class func appForegrounded() {
 		// 1. Post notification immediately on fg, to update all time fields before user sees them.
-		// 2. Start update timer, which refreshes all the time fields every 10 seconds.
 		NotificationCenter.default.post(Notification(name: RefreshTimers.TenSecUpdateNotification))
+
+		// If the minute changed, send the minute notification as well
+		let minute = Calendar.current.component(.minute, from: Date())
+		if minute != lastMinuteUpdate {
+			lastMinuteUpdate = minute
+			NotificationCenter.default.post(Notification(name: RefreshTimers.MinuteUpdateNotification))
+		}
+
+		// 2. Start update timer, which refreshes all the time fields every 10 seconds.
 		timeDisplayRefresher = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { timer in
 			NotificationCenter.default.post(Notification(name: RefreshTimers.TenSecUpdateNotification))
 			

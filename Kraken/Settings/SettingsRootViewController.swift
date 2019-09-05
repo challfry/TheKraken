@@ -13,9 +13,11 @@ import CoreData
 
 class SettingsRootViewController: BaseCollectionViewController {
 	let dataSource = KrakenDataSource()
-		
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
+	
+    override func viewDidLoad() {
+        super.viewDidLoad()
+		title = "Settings"
+
 		PostOperationDataManager.shared.tell(self, when: "operationsWithErrorsCount") { observer, observed in
 			if observed.operationsWithErrorsCount > 0 {
 				observer.navigationController?.tabBarItem.badgeColor = UIColor.red
@@ -25,11 +27,6 @@ class SettingsRootViewController: BaseCollectionViewController {
 				observer.navigationController?.tabBarItem.badgeValue = nil
 			}
         }?.execute()        
-	}
-	
-    override func viewDidLoad() {
-        super.viewDidLoad()
-		title = "Settings"
 
   		dataSource.register(with: collectionView, viewController: self)
   		dataSource.viewController = self
@@ -71,6 +68,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		let debugHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
 		debugHeaderCell.labelText = NSAttributedString(string: "Support for Debugging and Testing")
 		settingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
+		settingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
 		
 		x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
 		x.labelText = NSAttributedString(string: "Button")
@@ -357,6 +355,16 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 			Settings.shared.debugTimeWarpToCruiseWeek2019 = self.switchState
 		}
 		switchState = Settings.shared.debugTimeWarpToCruiseWeek2019
+	}
+}
+
+@objc class DebugTestLocalNotificationsForEventsCellModel: SwitchCellModel {
+	init() {
+		super.init(labelText: "Makes Local Notifications for Events fire 10 seconds after creation, instead of 5 mins before the event starts.")
+		switchStateChanged = { 
+			Settings.shared.debugTestLocalNotificationsForEvents = self.switchState
+		}
+		switchState = Settings.shared.debugTestLocalNotificationsForEvents
 	}
 }
 

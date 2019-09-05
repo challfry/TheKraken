@@ -7,14 +7,17 @@
         <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentsAndStars" inverseEntity="KrakenUser" syncable="YES"/>
     </entity>
     <entity name="Event" representedClassName="Event" syncable="YES">
+        <attribute name="ekEventID" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="endTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="eventDescription" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="id" attributeType="String" syncable="YES"/>
+        <attribute name="localNotificationID" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="official" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="startTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="title" attributeType="String" syncable="YES"/>
         <relationship name="followedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="followedEvents" inverseEntity="KrakenUser" syncable="YES"/>
+        <relationship name="opsFollowing" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpEventFollow" inverseName="event" inverseEntity="PostOpEventFollow" syncable="YES"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -75,6 +78,10 @@
         <attribute name="readyToSend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="sentNetworkCall" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="postOps" inverseEntity="KrakenUser" syncable="YES"/>
+    </entity>
+    <entity name="PostOpEventFollow" representedClassName="PostOpEventFollow" parentEntity="PostOperation" syncable="YES">
+        <attribute name="newState" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Event" inverseName="opsFollowing" inverseEntity="Event" syncable="YES"/>
     </entity>
     <entity name="PostOpSeamailMessage" representedClassName="PostOpSeamailMessage" parentEntity="PostOperation" syncable="YES">
         <attribute name="text" attributeType="String" syncable="YES"/>
@@ -174,10 +181,12 @@
     <fetchRequest name="SeamailThreadsWithIDs" entity="SeamailThread" predicateString="id IN $ids"/>
     <elements>
         <element name="CommentsAndStars" positionX="117" positionY="90" width="128" height="105"/>
+        <element name="Event" positionX="117" positionY="117" width="128" height="210"/>
         <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="405"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="120"/>
+        <element name="PostOpEventFollow" positionX="117" positionY="117" width="128" height="75"/>
         <element name="PostOpSeamailMessage" positionX="117" positionY="117" width="128" height="30"/>
         <element name="PostOpSeamailThread" positionX="117" positionY="117" width="128" height="90"/>
         <element name="PostOpTweet" positionX="126" positionY="117" width="128" height="120"/>
@@ -189,6 +198,5 @@
         <element name="SeamailThread" positionX="153" positionY="153" width="128" height="150"/>
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
-        <element name="Event" positionX="117" positionY="117" width="128" height="165"/>
     </elements>
 </model>
