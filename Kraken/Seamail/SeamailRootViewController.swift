@@ -15,7 +15,7 @@ class SeamailRootViewController: BaseCollectionViewController {
 	let loginDataSource = KrakenDataSource()
 	let loginSection = LoginDataSourceSegment()
 	let threadDataSource = KrakenDataSource()
-	lazy var threadSegment = FRCDataSourceSegment<SeamailThread>(withCustomFRC: dataManager.fetchedData)
+	lazy var threadSegment = FRCDataSourceSegment<SeamailThread>()
 	let dataManager = SeamailDataManager.shared
 	
 	override func viewDidLoad() {
@@ -26,21 +26,26 @@ class SeamailRootViewController: BaseCollectionViewController {
 		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
 
 		threadDataSource.append(segment: threadSegment)
-		threadSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
-		dataManager.addDelegate(threadSegment)
+		threadSegment.activate(predicate: nil, sort: [ NSSortDescriptor(key: "timestamp", ascending: false)],
+				cellModelFactory: createCellModel)
        
-        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-        	if observed.loggedInUser == nil {
-				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
-				observer.newThreadButton.isEnabled = false
-				self.navigationController?.popToRootViewController(animated: false)
-        	}
-        	else {
-         		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
+		// When a user is logged in we'll set up the FRC to load the threads which that user can 'see'. Remember, CoreData
+		// stores ALL the seamail we ever download, for any user who logs in on this device.
+        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
+			if let username = observed.loggedInUser?.username {
+ 				observer.threadSegment.changePredicate(to: NSPredicate(format: "ANY participants.username == '\(username)'"))
+        		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
 				}
 				observer.newThreadButton.isEnabled = true
+       		}
+       		else {
+       			// If nobody's logged in, pop to root, show the login cells.
+ 				observer.threadSegment.changePredicate(to: NSPredicate(value: false))
+				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
+				observer.newThreadButton.isEnabled = false
+				self.navigationController?.popToRootViewController(animated: false)
        		}
         }?.execute()        
 

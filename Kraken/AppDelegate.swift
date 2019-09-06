@@ -14,8 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
 	var backgroundSessionCompletionHandler: (() -> Void)?
-
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+	
+	func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 //		LocalCoreData.shared.fullCoreDataReset()
 
 		// Startup tasks. Hopefully they won't interact, but let's keep them in the same order just to be sure.
@@ -27,9 +27,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		return true
 	}
 
+	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+		return true
+	}
+
+	// Sent when the application is about to move from active to inactive state. This can occur for certain types of 
+	// temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application 
+	// and it begins the transition to the background state.
+	// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. 
+	// Games should use this method to pause the game.
 	func applicationWillResignActive(_ application: UIApplication) {
-		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
 		RefreshTimers.appBackgrounded()
 	}
 
@@ -56,6 +63,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, handleEventsForBackgroundURLSession 
   			identifier: String, completionHandler: @escaping () -> Void) {
 		backgroundSessionCompletionHandler = completionHandler
+	}
+	
+// MARK: State Restoration
+	// These 2 methods enable State Restoration in the app.
+	func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
+  		return true
+	}
+
+	func application(_ application: UIApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
+		return true
 	}
 
 }

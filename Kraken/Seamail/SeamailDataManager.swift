@@ -78,49 +78,8 @@ class SeamailDataManager: NSObject {
 	static let shared = SeamailDataManager()
 	
 	private let coreData = LocalCoreData.shared
-	var fetchedData: NSFetchedResultsController<SeamailThread>
-	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
-
-
 	var lastError : ServerError?
 	
-	override init() {
-		// Init the fetched results controller with a fetch that returns nothing. See the observation block below.
-		let fetchRequest = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
-		fetchRequest.predicate = NSPredicate(value: false)
-		fetchRequest.fetchBatchSize = 50
-		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
-		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest,
-				managedObjectContext: coreData.mainThreadContext, sectionNameKeyPath: nil, cacheName: nil)
-		super.init()
-
-		// When a user is logged in we'll set up the FRC to load the threads which that user can 'see'. Remember, CoreData
-		// stores ALL the seamail we ever download, for any user who logs in on this device.
-		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-			if let username = observed.loggedInUser?.username {
-	//			observer.fetchedData.fetchRequest.predicate = NSPredicate(format: "'\(username)' IN participants.username")
-				observer.fetchedData.fetchRequest.predicate = NSPredicate(format: "ANY participants.username == '\(username)'")
-			}
-			else {
-				// No user is logged in
-				observer.fetchedData.fetchRequest.predicate = NSPredicate(value: false)
-			}
-			try? observer.fetchedData.performFetch()
-		}?.execute()
-		
-		fetchedData.delegate = self
-	}
-	
-	func addDelegate(_ newDelegate: NSObject & NSFetchedResultsControllerDelegate) {
-		if !viewDelegates.contains(where: { $0 === newDelegate } ) {
-			viewDelegates.insert(newDelegate, at: 0)
-		}
-	}
-	
-	func removeDelegate(_ oldDelegate: NSObject & NSFetchedResultsControllerDelegate) {
-		viewDelegates.removeAll(where: { $0 === oldDelegate } )
-	}
-
 	func loadSeamails(done: (() -> Void)? = nil) {
 	
 		var queryParams: [URLQueryItem] = []
@@ -285,34 +244,7 @@ class SeamailDataManager: NSObject {
 			}
 		}
 	}
-	
 
-}
-
-// The data manager can have multiple delegates, all of which are watching the same results set.
-extension SeamailDataManager : NSFetchedResultsControllerDelegate {
-
-	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		viewDelegates.forEach( { $0.controllerWillChangeContent?(controller) } )
-	}
-
-	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
-			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-		viewDelegates.forEach( { $0.controller?(controller, didChange: anObject, at: indexPath, for: type, newIndexPath: newIndexPath) } )
-	}
-
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, 
-    		atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-    	viewDelegates.forEach( { $0.controller?(controller, didChange: sectionInfo, atSectionIndex: sectionIndex, for: type) } )		
-	}
-
-	// We can't actually implement this in a multi-delegate model. Also, wth is NSFetchedResultsController doing having a 
-	// delegate method that does this?
- //   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, sectionIndexTitleForSectionName sectionName: String) -> String?
-    
-	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		viewDelegates.forEach( { $0.controllerDidChangeContent?(controller) } )
-	}
 }
 
 

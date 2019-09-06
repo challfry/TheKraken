@@ -84,11 +84,17 @@
 		EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */; };
 		EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */; };
 		EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */; };
+		EA8B986223225B7C00E10156 /* Social@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986123225B7C00E10156 /* Social@3x.png */; };
+		EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986323225E4F00E10156 /* SocialCell.xib */; };
+		EA8B98682322673400E10156 /* Karaoke@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98672322673400E10156 /* Karaoke@3x.png */; };
+		EA8B986B23231C7200E10156 /* RightChevron@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986923231C7200E10156 /* RightChevron@3x.png */; };
+		EA8B986C23231C7200E10156 /* RightChevronGrey@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986A23231C7200E10156 /* RightChevronGrey@3x.png */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
 		EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456022DC067D00790F97 /* RedDeleteIcon.png */; };
 		EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456222DC9EC700790F97 /* UnknownUser.png */; };
 		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
+		EAA0284C2321ED7300B2B7F1 /* SocalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* SocalViewController.swift */; };
 		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4C12242D300009F287F /* ForumsRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */; };
@@ -237,6 +243,11 @@
 		EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailDataManager.swift; sourceTree = "<group>"; };
 		EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadCell.swift; sourceTree = "<group>"; };
 		EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeamailThreadCell.xib; sourceTree = "<group>"; };
+		EA8B986123225B7C00E10156 /* Social@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Social@3x.png"; sourceTree = "<group>"; };
+		EA8B986323225E4F00E10156 /* SocialCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SocialCell.xib; sourceTree = "<group>"; };
+		EA8B98672322673400E10156 /* Karaoke@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Karaoke@3x.png"; sourceTree = "<group>"; };
+		EA8B986923231C7200E10156 /* RightChevron@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "RightChevron@3x.png"; sourceTree = "<group>"; };
+		EA8B986A23231C7200E10156 /* RightChevronGrey@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "RightChevronGrey@3x.png"; sourceTree = "<group>"; };
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
 		EA90456022DC067D00790F97 /* RedDeleteIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RedDeleteIcon.png; sourceTree = "<group>"; };
 		EA90456222DC9EC700790F97 /* UnknownUser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UnknownUser.png; sourceTree = "<group>"; };
@@ -246,6 +257,7 @@
 		EAA02845232057D900B2B7F1 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabBarViewController.swift; sourceTree = "<group>"; };
 		EAA028492321CF7100B2B7F1 /* Questions for Server Team.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Questions for Server Team.md"; sourceTree = "<group>"; };
+		EAA0284B2321ED7300B2B7F1 /* SocalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocalViewController.swift; sourceTree = "<group>"; };
 		EAA0E91122E942770077D5D0 /* SwiftUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUtils.swift; sourceTree = "<group>"; };
 		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -424,6 +436,8 @@
 				EA3ABF9922F3C32900441F99 /* Twitarr@3x.png */,
 				EA3ABF9F22F3C6EF00441F99 /* Settings@3x.png */,
 				EA3ABFA122F3C8DA00441F99 /* Forums@3x.png */,
+				EA8B986123225B7C00E10156 /* Social@3x.png */,
+				EA8B98672322673400E10156 /* Karaoke@3x.png */,
 			);
 			path = "Tab Bar";
 			sourceTree = "<group>";
@@ -543,9 +557,20 @@
 				EA86ADD32272855000363CBF /* jellyfish.png */,
 				EA90456022DC067D00790F97 /* RedDeleteIcon.png */,
 				EA90456222DC9EC700790F97 /* UnknownUser.png */,
+				EA8B986923231C7200E10156 /* RightChevron@3x.png */,
+				EA8B986A23231C7200E10156 /* RightChevronGrey@3x.png */,
 			);
 			path = Resources;
 			sourceTree = SOURCE_ROOT;
+		};
+		EAA0284A2321ED4A00B2B7F1 /* Social */ = {
+			isa = PBXGroup;
+			children = (
+				EAA0284B2321ED7300B2B7F1 /* SocalViewController.swift */,
+				EA8B986323225E4F00E10156 /* SocialCell.xib */,
+			);
+			path = Social;
+			sourceTree = "<group>";
 		};
 		EAA2E4B02242D300009F287F = {
 			isa = PBXGroup;
@@ -583,6 +608,7 @@
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
 				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
 				EAA2E4CA2242D301009F287F /* Info.plist */,
+				EAA0284A2321ED4A00B2B7F1 /* Social */,
 				EA1E3B8D2245795100017F07 /* Twittarr */,
 				EA1E3B8E2245796F00017F07 /* Forums */,
 				EA1E3B8F2245798400017F07 /* Seamail */,
@@ -752,15 +778,19 @@
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
 				EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */,
 				EAE5914B229E4A34002B5DEF /* BlueButtonHighlight.png in Resources */,
+				EA8B986B23231C7200E10156 /* RightChevron@3x.png in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
 				EA3ABF9E22F3C64000441F99 /* Seamail@3x.png in Resources */,
 				EA3ABFB022F4097900441F99 /* CameraRotate@3x.png in Resources */,
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
+				EA8B986223225B7C00E10156 /* Social@3x.png in Resources */,
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EA3ABFB622F434DF00441F99 /* PirateSelfie@3x.png in Resources */,
+				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
 				EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */,
+				EA8B986C23231C7200E10156 /* RightChevronGrey@3x.png in Resources */,
 				EA86ADD42272855000363CBF /* jellyfish.png in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
@@ -780,6 +810,7 @@
 				EA86ADEA2279B4E400363CBF /* ProfileCommentCell.xib in Resources */,
 				EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */,
 				EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */,
+				EA8B98682322673400E10156 /* Karaoke@3x.png in Resources */,
 				EA86ADDA22730C7300363CBF /* ButtonCell.xib in Resources */,
 				EA3ABFAA22F4041200441F99 /* CameraIcon3@3x.png in Resources */,
 				EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */,
@@ -875,6 +906,7 @@
 				EA3C630E2293913600077E3B /* ComposeTweetViewController.swift in Sources */,
 				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
+				EAA0284C2321ED7300B2B7F1 /* SocalViewController.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,

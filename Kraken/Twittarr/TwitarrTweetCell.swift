@@ -205,9 +205,9 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				observation = tweetModel.tell(self, when: "reactionDict.like.users.\(username)") { observer, observed in
 					observer.setLikeButtonState()
 					
-					if !observer.isPrototypeCell {
-						CollectionViewLog.debug("Hit for non-proto cell.")
-					}
+//					if !observer.isPrototypeCell {
+//						CollectionViewLog.debug("Hit for non-proto cell.")
+//					}
 				}?.execute()
 				observer.opsByCurrentUserObservations.append(observation)
 				observer.addObservation(observation)
@@ -340,10 +340,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		else {
 			likeButton.setTitle("Like", for: .normal)
 		}
-		if !self.isPrototypeCell {
-			CollectionViewLog.debug("like button state change:", ["Title" : self.likeButton.titleLabel!.text,
-					"index" : self.dataSource?.collectionView?.indexPath(for: self)])
-		}
+//		if !self.isPrototypeCell {
+//			CollectionViewLog.debug("like button state change:", ["Title" : self.likeButton.titleLabel!.text,
+//					"index" : self.dataSource?.collectionView?.indexPath(for: self)])
+//		}
 	}
 	
 	override var privateSelected: Bool {

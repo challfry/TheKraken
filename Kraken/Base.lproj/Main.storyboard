@@ -13,7 +13,7 @@
         <!--Seamail Root View Controller-->
         <scene sceneID="YOe-gM-TX9">
             <objects>
-                <viewController id="ONr-m0-fD6" customClass="SeamailRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SeamailRootViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="ONr-m0-fD6" customClass="SeamailRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="n7h-uo-QVn">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -143,7 +143,7 @@
         <!--Settings-->
         <scene sceneID="0uu-32-IUj">
             <objects>
-                <navigationController storyboardIdentifier="Settings" id="RJh-hR-74P" userLabel="Settings" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="SettingsNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="RJh-hR-74P" userLabel="Settings" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Settings" image="Settings.png" id="oPv-H9-ZmL" userLabel="Settings"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="b6d-IB-8nx">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -157,10 +157,35 @@
             </objects>
             <point key="canvasLocation" x="780" y="1851"/>
         </scene>
+        <!--Karaoke-->
+        <scene sceneID="MHF-tl-PcW">
+            <objects>
+                <viewController id="bwT-PB-h5y" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Kiu-pg-kre">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Karaoke Goes Here" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fRa-2f-iY1">
+                                <rect key="frame" x="166" y="396" width="148" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="40y-QN-rKa"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Karaoke" image="Karaoke.png" id="yHK-SR-peR"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="H1M-7j-3mG" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="773.60000000000002" y="2567.7339901477835"/>
+        </scene>
         <!--Settings-->
         <scene sceneID="ixO-tU-aDt">
             <objects>
-                <viewController title="Settings" id="vfs-Qk-nbf" customClass="SettingsRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SettingsRootViewController" title="Settings" useStoryboardIdentifierAsRestorationIdentifier="YES" id="vfs-Qk-nbf" customClass="SettingsRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Qal-nM-5XB">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -291,7 +316,7 @@
         <!--Schedule-->
         <scene sceneID="a8R-5v-VDn">
             <objects>
-                <navigationController title="Schedule" id="lVq-Ex-gy3" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="ScheduleNavController" title="Schedule" useStoryboardIdentifierAsRestorationIdentifier="YES" id="lVq-Ex-gy3" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Schedule" image="Schedule.png" id="Cdd-be-qvA" userLabel="Schedule"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="2mz-rg-mYl">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -308,7 +333,7 @@
         <!--Schedule-->
         <scene sceneID="TVm-RF-8Ur">
             <objects>
-                <viewController title="Schedule" id="itg-Bj-Npc" customClass="ScheduleRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ScheduleRootViewController" title="Schedule" useStoryboardIdentifierAsRestorationIdentifier="YES" id="itg-Bj-Npc" customClass="ScheduleRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" alpha="0.94999999999999996" contentMode="scaleToFill" id="Beq-be-H33">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -620,7 +645,7 @@
         <!--Twitarr-->
         <scene sceneID="TRS-gu-OnE">
             <objects>
-                <viewController storyboardIdentifier="TwitarrTweets" id="0s5-bb-y2H" userLabel="Twitarr" customClass="TwitarrViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TwitarrTweets" useStoryboardIdentifierAsRestorationIdentifier="YES" id="0s5-bb-y2H" userLabel="Twitarr" customClass="TwitarrViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Xyc-gJ-nG9">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -812,7 +837,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
-                                <rect key="frame" x="20" y="44" width="16" height="22"/>
+                                <rect key="frame" x="20" y="44" width="54" height="54"/>
                                 <state key="normal" image="CameraClose.png"/>
                                 <state key="highlighted" image="CameraCloseHighlight"/>
                                 <connections>
@@ -820,7 +845,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Ly-Dq-bEZ">
-                                <rect key="frame" x="339" y="44" width="16" height="22"/>
+                                <rect key="frame" x="301" y="44" width="54" height="54"/>
                                 <state key="normal" image="CameraRotate.png"/>
                                 <state key="highlighted" image="CameraRotateHighlight.png"/>
                                 <connections>
@@ -866,7 +891,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xq6-36-IpK">
-                                <rect key="frame" x="303" y="44" width="16" height="22"/>
+                                <rect key="frame" x="227" y="44" width="54" height="54"/>
                                 <state key="normal" image="NoFlash.png"/>
                                 <state key="selected" image="Flash.png"/>
                                 <state key="highlighted" image="NoFlashHighlight.png"/>
@@ -875,7 +900,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OMc-Yc-CyC">
-                                <rect key="frame" x="267" y="44" width="16" height="22"/>
+                                <rect key="frame" x="153" y="44" width="54" height="54"/>
                                 <state key="normal" image="PirateSelfie.png"/>
                                 <connections>
                                     <action selector="pirateButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="Ze6-kc-wer"/>
@@ -1132,7 +1157,7 @@
         <!--Twitarr-->
         <scene sceneID="fYK-SF-aLC">
             <objects>
-                <navigationController id="r9i-Le-Z25" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="TwitarrNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="r9i-Le-Z25" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Twitarr" image="Twitarr.png" id="Wg9-wO-e0g"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="49w-UZ-gDb">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -1157,7 +1182,7 @@
         <!--Seamail-->
         <scene sceneID="iBg-Wa-QCF">
             <objects>
-                <navigationController id="lfF-py-CrU" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="SeamailNavViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="lfF-py-CrU" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Seamail" image="Seamail.png" id="TBG-VB-yOs"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iMW-Bo-eZW">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -1174,7 +1199,7 @@
         <!--Forums-->
         <scene sceneID="wg7-f3-ORb">
             <objects>
-                <viewController id="8rJ-Kc-sve" customClass="ForumsRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ForumsRootViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8rJ-Kc-sve" customClass="ForumsRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="QS5-Rx-YEW">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1200,10 +1225,68 @@
             </objects>
             <point key="canvasLocation" x="780" y="-193"/>
         </scene>
+        <!--Social-->
+        <scene sceneID="7hU-H1-u6J">
+            <objects>
+                <navigationController storyboardIdentifier="SocialNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="FbF-R0-wHc" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Social" image="Social.png" id="NSX-bp-aed"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Wx2-VR-7a7">
+                        <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="Iej-mB-wDe" kind="relationship" relationship="rootViewController" id="qKI-hd-Ym8"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ccl-xV-Gns" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="774" y="-1524"/>
+        </scene>
+        <!--Socal View Controller-->
+        <scene sceneID="2E2-7P-xh6">
+            <objects>
+                <viewController storyboardIdentifier="SocialViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Iej-mB-wDe" customClass="SocalViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="sb3-GG-dkm">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="SMw-rB-8Ab">
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="k1Y-RN-kx6">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="bsT-np-TL5" firstAttribute="bottom" secondItem="SMw-rB-8Ab" secondAttribute="bottom" id="bAW-3m-TRM"/>
+                            <constraint firstItem="SMw-rB-8Ab" firstAttribute="top" secondItem="bsT-np-TL5" secondAttribute="top" id="fg2-4X-FME"/>
+                            <constraint firstItem="bsT-np-TL5" firstAttribute="trailing" secondItem="SMw-rB-8Ab" secondAttribute="trailing" id="h9d-bB-7bx"/>
+                            <constraint firstItem="SMw-rB-8Ab" firstAttribute="leading" secondItem="bsT-np-TL5" secondAttribute="leading" id="hyZ-j0-cOs"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="bsT-np-TL5"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="mlO-jt-9gx"/>
+                    <connections>
+                        <outlet property="collectionView" destination="SMw-rB-8Ab" id="DoK-dT-Z2W"/>
+                        <segue destination="0s5-bb-y2H" kind="show" identifier="Twitarr" id="d2l-zp-S48"/>
+                        <segue destination="8rJ-Kc-sve" kind="show" identifier="Forums" id="pIj-nS-Geu"/>
+                        <segue destination="ONr-m0-fD6" kind="show" identifier="Seamail" id="obm-hj-fmk"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="R26-At-KAA" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1478" y="-1524"/>
+        </scene>
         <!--Root Tab Bar View Controller-->
         <scene sceneID="yl2-sM-qoP">
             <objects>
-                <tabBarController id="49e-Tb-3d3" customClass="RootTabBarViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="RootTabBarViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="49e-Tb-3d3" customClass="RootTabBarViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" id="W28-zg-YXA">
                         <rect key="frame" x="0.0" y="975" width="768" height="49"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -1215,11 +1298,13 @@
                         <segue destination="lfF-py-CrU" kind="relationship" relationship="viewControllers" id="FeF-ZL-OTc"/>
                         <segue destination="lVq-Ex-gy3" kind="relationship" relationship="viewControllers" id="9M4-J3-8MR"/>
                         <segue destination="RJh-hR-74P" kind="relationship" relationship="viewControllers" id="Vtj-2e-m8Y"/>
+                        <segue destination="bwT-PB-h5y" kind="relationship" relationship="viewControllers" id="ULr-9g-gXD"/>
+                        <segue destination="FbF-R0-wHc" kind="relationship" relationship="viewControllers" id="mB2-NL-D0V"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-273" y="474"/>
+            <point key="canvasLocation" x="-1265" y="474"/>
         </scene>
     </scenes>
     <resources>
@@ -1231,19 +1316,23 @@
         <image name="CameraShutter.png" width="60" height="60"/>
         <image name="Flash.png" width="54" height="54"/>
         <image name="Forums.png" width="36" height="36"/>
+        <image name="Karaoke.png" width="36" height="36"/>
         <image name="NoFlash.png" width="54" height="54"/>
         <image name="NoFlashHighlight.png" width="54" height="54"/>
         <image name="PirateSelfie.png" width="54" height="54"/>
         <image name="Schedule.png" width="36" height="36"/>
         <image name="Seamail.png" width="36" height="36"/>
         <image name="Settings.png" width="36" height="36"/>
+        <image name="Social.png" width="36" height="36"/>
         <image name="Twitarr.png" width="23" height="23"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="NT7-WF-Ano"/>
+        <segue reference="pIj-nS-Geu"/>
+        <segue reference="Cci-1G-tOu"/>
         <segue reference="IvN-8v-NRa"/>
-        <segue reference="wTp-nv-sgn"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="d2l-zp-S48"/>
+        <segue reference="hIj-Jv-E7S"/>
         <segue reference="hV8-Mc-Uo7"/>
+        <segue reference="obm-hj-fmk"/>
     </inferredMetricsTieBreakers>
 </document>

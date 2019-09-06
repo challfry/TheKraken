@@ -44,7 +44,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case .Forums: matchingViewController = ForumsRootViewController.self
 		case .Seamail: matchingViewController = SeamailRootViewController.self
 		case .Events: matchingViewController = ScheduleRootViewController.self
-		case .Settings:  matchingViewController = TwitarrViewController.self
+		case .Settings:  matchingViewController = SettingsRootViewController.self
 		}
 		
 		if let vcs = viewControllers {

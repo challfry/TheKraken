@@ -135,8 +135,15 @@ import UIKit
     // Builds a list of users the logged in user has had recent Seamails with, for populating the Suggestions
     // cell when there's nothing better to put there.
     func buildRecentsList() -> Set<PossibleKrakenUser> {
+    	// Grab the 50 most recent seamail threads, scavenge them for usernames.
+    	let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
+    	request.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
+    	request.predicate = NSPredicate(value: true)
+    	request.fetchLimit = 50
+    	let fetchedObjects = try? LocalCoreData.shared.mainThreadContext.fetch(request)
+    
     	var recentThreadParticipants: Set<KrakenUser> = Set()
-    	if let threads = SeamailDataManager.shared.fetchedData.fetchedObjects {
+    	if let threads = fetchedObjects {
 	    	for thread in threads {
 	    		// We're not including users in 'large' Seamail chats; they're likely busy (always at top), and the user is 
 	    		// much more likely to want to start a new chat with people they've been having smaller chats with.

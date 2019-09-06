@@ -173,13 +173,22 @@ struct PrototypeCellInfo {
 	func collectionViewSizeChanged(to newSize: CGSize) {
 		// Subclasses can set fullWidth in awakeFromNib; this then sets cell width to cv width
 		if fullWidth {
+		
+			// We sometimes get called to set up our cells when the CollectionView still has a {0, 0} size.
+			// Returning 0 width cells in this case causes immediate problems, but it appears that the cells are re-fetched
+			// once the CV sizes itself. So, hard-coding 414 *should* be okay here? It won't make other-sized devices look bad?
+			var width = newSize.width
+			if newSize.width == 0 {
+				width = 414
+			}
+		
 			if let constraint = fullWidthConstraint {
-				if constraint.constant != newSize.width {
-					constraint.constant = newSize.width
+				if constraint.constant != width {
+					constraint.constant = width
 				}
 			}
 			else {
-				fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: newSize.width)
+				fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: width)
 			}
 		}
 		fullWidthConstraint?.isActive = fullWidth
