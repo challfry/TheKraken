@@ -44,16 +44,16 @@ GET /api/v2/search/forums/:query
 GET /api/v2/search/events/:query
 
 # Users
-POST /api/v2/user/new
-GET or POST /api/v2/user/auth
-GET or POST /api/v2/user/logout
-GET /api/v2/user/whoami or /api/v2/user/profile
+POST /api/v2/user/new										Create an account. Uses the reg code thing.
+GET or POST /api/v2/user/auth									Log in.
+GET or POST /api/v2/user/logout								Log out.
+GET /api/v2/user/whoami or /api/v2/user/profile					Gets basic acct info for logged in user.
 POST /api/v2/user/profile
 POST /api/v2/user/change_password
 POST /api/v2/user/reset_password
 GET /api/v2/user/mentions
 GET /api/v2/user/ac/:query
-GET /api/v2/user/profile/:username
+GET /api/v2/user/profile/:username								Gets a user's profile. Includes 10 recent tweets by that user.
 POST /api/v2/user/profile/:username/personal_comment
 POST /api/v2/user/profile/:username/star
 GET /api/v2/user/starred

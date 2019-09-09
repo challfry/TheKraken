@@ -313,13 +313,30 @@ class TwitarrDataManager: NSObject {
 		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
 		fetchRequest.fetchBatchSize = 50
-		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
-				sectionNameKeyPath: nil, cacheName: nil)
-		
 		if let filter = filter {
 			fetchRequest.predicate = NSPredicate(format: "text contains %@", filter)
 		}
+		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
+				sectionNameKeyPath: nil, cacheName: nil)
+		
+		super.init()
+		fetchedData.delegate = self
+		do {
+			try fetchedData.performFetch()
+		}
+		catch {
+			CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
+		}
+	}
 
+	init(predicate: NSPredicate?) {
+		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
+		fetchRequest.fetchBatchSize = 50
+		fetchRequest.predicate = predicate
+		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
+				sectionNameKeyPath: nil, cacheName: nil)
+		
 		super.init()
 		fetchedData.delegate = self
 		do {

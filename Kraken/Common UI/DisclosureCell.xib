@@ -35,15 +35,15 @@
                             </label>
                         </subviews>
                     </stackView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="RightChevronGrey.png" highlightedImage="RightChevron.png" translatesAutoresizingMaskIntoConstraints="NO" id="NOy-ow-uFb">
-                        <rect key="frame" x="343" y="6" width="32" height="32"/>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ChevronRightGrey.png" highlightedImage="ChevronRight.png" translatesAutoresizingMaskIntoConstraints="NO" id="NOy-ow-uFb">
+                        <rect key="frame" x="355" y="12" width="20" height="20"/>
                         <constraints>
-                            <constraint firstAttribute="width" constant="32" id="Pkm-Pn-WAA"/>
-                            <constraint firstAttribute="height" constant="32" id="Yea-KY-Nbs"/>
+                            <constraint firstAttribute="width" constant="20" id="Pkm-Pn-WAA"/>
+                            <constraint firstAttribute="height" constant="20" id="Yea-KY-Nbs"/>
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Show" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U11-Fq-nkn">
-                        <rect key="frame" x="78" y="15" width="253" height="14.5"/>
+                        <rect key="frame" x="78" y="15" width="265" height="14.5"/>
                         <fontDescription key="fontDescription" type="italicSystem" pointSize="12"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
@@ -71,7 +71,7 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="RightChevron.png" width="36" height="36"/>
-        <image name="RightChevronGrey.png" width="36" height="36"/>
+        <image name="ChevronRight.png" width="36" height="36"/>
+        <image name="ChevronRightGrey.png" width="36" height="36"/>
     </resources>
 </document>

@@ -87,8 +87,18 @@
 		EA8B986223225B7C00E10156 /* Social@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986123225B7C00E10156 /* Social@3x.png */; };
 		EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986323225E4F00E10156 /* SocialCell.xib */; };
 		EA8B98682322673400E10156 /* Karaoke@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98672322673400E10156 /* Karaoke@3x.png */; };
-		EA8B986B23231C7200E10156 /* RightChevron@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986923231C7200E10156 /* RightChevron@3x.png */; };
-		EA8B986C23231C7200E10156 /* RightChevronGrey@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986A23231C7200E10156 /* RightChevronGrey@3x.png */; };
+		EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */ = {isa = PBXBuildFile; fileRef = EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */; };
+		EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98742323A58100E10156 /* KaraokeSongCell.xib */; };
+		EA8B98772323A73800E10156 /* ArtistIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98762323A73800E10156 /* ArtistIcon@3x.png */; };
+		EA8B987B2323C13B00E10156 /* ChevronRightGrey@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98782323C13B00E10156 /* ChevronRightGrey@3x.png */; };
+		EA8B987C2323C13B00E10156 /* ChevronDownGrey@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98792323C13B00E10156 /* ChevronDownGrey@3x.png */; };
+		EA8B987D2323C13B00E10156 /* ChevronRight@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B987A2323C13B00E10156 /* ChevronRight@3x.png */; };
+		EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */; };
+		EA8B98812324623600E10156 /* ChevronUpGrey@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98802324623600E10156 /* ChevronUpGrey@3x.png */; };
+		EA8B988323247BCA00E10156 /* SongIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B988223247BCA00E10156 /* SongIcon@3x.png */; };
+		EA8B98862324D56D00E10156 /* FavoriteHeart@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98842324D56C00E10156 /* FavoriteHeart@3x.png */; };
+		EA8B98872324D56D00E10156 /* FavoriteHeartGrey@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98852324D56D00E10156 /* FavoriteHeartGrey@3x.png */; };
+		EA8B9889232641DB00E10156 /* KaraokeRootViewControlle2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8B9888232641DB00E10156 /* KaraokeRootViewControlle2.swift */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
 		EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456022DC067D00790F97 /* RedDeleteIcon.png */; };
 		EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456222DC9EC700790F97 /* UnknownUser.png */; };
@@ -246,8 +256,20 @@
 		EA8B986123225B7C00E10156 /* Social@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Social@3x.png"; sourceTree = "<group>"; };
 		EA8B986323225E4F00E10156 /* SocialCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SocialCell.xib; sourceTree = "<group>"; };
 		EA8B98672322673400E10156 /* Karaoke@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Karaoke@3x.png"; sourceTree = "<group>"; };
-		EA8B986923231C7200E10156 /* RightChevron@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "RightChevron@3x.png"; sourceTree = "<group>"; };
-		EA8B986A23231C7200E10156 /* RightChevronGrey@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "RightChevronGrey@3x.png"; sourceTree = "<group>"; };
+		EA8B986E2323282300E10156 /* KaraokeRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeRootViewController.swift; sourceTree = "<group>"; };
+		EA8B987023234AEE00E10156 /* JoCoKaraokeSongCatalog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = JoCoKaraokeSongCatalog.txt; sourceTree = "<group>"; };
+		EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = JoCoKaraokeSongCatalog.lzfse; sourceTree = "<group>"; };
+		EA8B98742323A58100E10156 /* KaraokeSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeSongCell.xib; sourceTree = "<group>"; };
+		EA8B98762323A73800E10156 /* ArtistIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ArtistIcon@3x.png"; sourceTree = "<group>"; };
+		EA8B98782323C13B00E10156 /* ChevronRightGrey@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ChevronRightGrey@3x.png"; sourceTree = "<group>"; };
+		EA8B98792323C13B00E10156 /* ChevronDownGrey@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ChevronDownGrey@3x.png"; sourceTree = "<group>"; };
+		EA8B987A2323C13B00E10156 /* ChevronRight@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ChevronRight@3x.png"; sourceTree = "<group>"; };
+		EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeArtistSectionHeaderView.xib; sourceTree = "<group>"; };
+		EA8B98802324623600E10156 /* ChevronUpGrey@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ChevronUpGrey@3x.png"; sourceTree = "<group>"; };
+		EA8B988223247BCA00E10156 /* SongIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SongIcon@3x.png"; sourceTree = "<group>"; };
+		EA8B98842324D56C00E10156 /* FavoriteHeart@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "FavoriteHeart@3x.png"; sourceTree = "<group>"; };
+		EA8B98852324D56D00E10156 /* FavoriteHeartGrey@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "FavoriteHeartGrey@3x.png"; sourceTree = "<group>"; };
+		EA8B9888232641DB00E10156 /* KaraokeRootViewControlle2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeRootViewControlle2.swift; sourceTree = "<group>"; };
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
 		EA90456022DC067D00790F97 /* RedDeleteIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RedDeleteIcon.png; sourceTree = "<group>"; };
 		EA90456222DC9EC700790F97 /* UnknownUser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UnknownUser.png; sourceTree = "<group>"; };
@@ -553,15 +575,34 @@
 			children = (
 				EA3ABFA622F403DA00441F99 /* Camera */,
 				EA3ABFA522F3CB0500441F99 /* Tab Bar */,
+				EA8B98762323A73800E10156 /* ArtistIcon@3x.png */,
+				EA8B988223247BCA00E10156 /* SongIcon@3x.png */,
+				EA8B98842324D56C00E10156 /* FavoriteHeart@3x.png */,
+				EA8B98852324D56D00E10156 /* FavoriteHeartGrey@3x.png */,
 				EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */,
 				EA86ADD32272855000363CBF /* jellyfish.png */,
 				EA90456022DC067D00790F97 /* RedDeleteIcon.png */,
 				EA90456222DC9EC700790F97 /* UnknownUser.png */,
-				EA8B986923231C7200E10156 /* RightChevron@3x.png */,
-				EA8B986A23231C7200E10156 /* RightChevronGrey@3x.png */,
+				EA8B98792323C13B00E10156 /* ChevronDownGrey@3x.png */,
+				EA8B98802324623600E10156 /* ChevronUpGrey@3x.png */,
+				EA8B987A2323C13B00E10156 /* ChevronRight@3x.png */,
+				EA8B98782323C13B00E10156 /* ChevronRightGrey@3x.png */,
+				EA8B987023234AEE00E10156 /* JoCoKaraokeSongCatalog.txt */,
+				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
 			);
 			path = Resources;
 			sourceTree = SOURCE_ROOT;
+		};
+		EA8B986D232321C500E10156 /* Karaoke */ = {
+			isa = PBXGroup;
+			children = (
+				EA8B986E2323282300E10156 /* KaraokeRootViewController.swift */,
+				EA8B9888232641DB00E10156 /* KaraokeRootViewControlle2.swift */,
+				EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */,
+				EA8B98742323A58100E10156 /* KaraokeSongCell.xib */,
+			);
+			path = Karaoke;
+			sourceTree = "<group>";
 		};
 		EAA0284A2321ED4A00B2B7F1 /* Social */ = {
 			isa = PBXGroup;
@@ -613,6 +654,7 @@
 				EA1E3B8E2245796F00017F07 /* Forums */,
 				EA1E3B8F2245798400017F07 /* Seamail */,
 				EA534E2A2301FFA700FE4787 /* Schedule */,
+				EA8B986D232321C500E10156 /* Karaoke */,
 				EA3C631322975CD100077E3B /* Settings */,
 				EA1E3B962245849B00017F07 /* Users */,
 				EA1E3BA1224D79C400017F07 /* Server Resources */,
@@ -778,21 +820,27 @@
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
 				EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */,
 				EAE5914B229E4A34002B5DEF /* BlueButtonHighlight.png in Resources */,
-				EA8B986B23231C7200E10156 /* RightChevron@3x.png in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
+				EA8B98772323A73800E10156 /* ArtistIcon@3x.png in Resources */,
 				EA3ABF9E22F3C64000441F99 /* Seamail@3x.png in Resources */,
 				EA3ABFB022F4097900441F99 /* CameraRotate@3x.png in Resources */,
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
 				EA8B986223225B7C00E10156 /* Social@3x.png in Resources */,
+				EA8B98812324623600E10156 /* ChevronUpGrey@3x.png in Resources */,
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
+				EA8B988323247BCA00E10156 /* SongIcon@3x.png in Resources */,
 				EA3ABFB622F434DF00441F99 /* PirateSelfie@3x.png in Resources */,
 				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
+				EA8B98872324D56D00E10156 /* FavoriteHeartGrey@3x.png in Resources */,
 				EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */,
-				EA8B986C23231C7200E10156 /* RightChevronGrey@3x.png in Resources */,
+				EA8B987C2323C13B00E10156 /* ChevronDownGrey@3x.png in Resources */,
+				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
 				EA86ADD42272855000363CBF /* jellyfish.png in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
+				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
+				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA3ABFAC22F404E100441F99 /* CameraIcon3Highlight@3x.png in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
@@ -804,6 +852,7 @@
 				EA278A4A226A755400808AED /* OperationStatusCell.xib in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,
+				EA8B987D2323C13B00E10156 /* ChevronRight@3x.png in Resources */,
 				EA3ABFBE22F4FC9C00441F99 /* NoFlashHighlight@3x.png in Resources */,
 				EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */,
 				EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */,
@@ -824,8 +873,10 @@
 				EA86ADE4227983B600363CBF /* ProfileAvatarTopCell.xib in Resources */,
 				EA3ABFB922F4FA7E00441F99 /* FlashHighlight@3x.png in Resources */,
 				EA3ABFA222F3C8DA00441F99 /* Forums@3x.png in Resources */,
+				EA8B98862324D56D00E10156 /* FavoriteHeart@3x.png in Resources */,
 				EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */,
 				EA3ABFA022F3C6F000441F99 /* Settings@3x.png in Resources */,
+				EA8B987B2323C13B00E10156 /* ChevronRightGrey@3x.png in Resources */,
 				EA3ABF9A22F3C32A00441F99 /* Twitarr@3x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -917,6 +968,7 @@
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
+				EA8B9889232641DB00E10156 /* KaraokeRootViewControlle2.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,

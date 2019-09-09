@@ -60,7 +60,7 @@ class UserProfileViewController: BaseCollectionViewController {
 	var filterForNextVC: String?
     func pushUserTweetsView() {
     	if let username = modelUserName {
-	    	filterForNextVC = "@\(username)"
+	    	filterForNextVC = "\(username)"
     		self.performSegue(withIdentifier: "ShowUserTweets", sender: self)
 		}
     }
@@ -77,8 +77,12 @@ class UserProfileViewController: BaseCollectionViewController {
     
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if segue.identifier == "ShowUserTweets", let destVC = segue.destination as? TwitarrViewController {
+		if segue.identifier == "ShowUserMentions", let destVC = segue.destination as? TwitarrViewController {
 			destVC.dataManager = TwitarrDataManager(filterString: filterForNextVC)
+		}
+		if segue.identifier == "ShowUserTweets", let destVC = segue.destination as? TwitarrViewController, 
+				let filterString = filterForNextVC {
+			destVC.dataManager = TwitarrDataManager(predicate: NSPredicate(format: "author.username == %@", filterString))
 		}
     }
     
