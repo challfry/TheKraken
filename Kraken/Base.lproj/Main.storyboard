@@ -182,28 +182,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="ox3-XY-kVW">
-                                <rect key="frame" x="0.0" y="134" width="375" height="595"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="nPK-Uz-ofr">
-                                    <size key="itemSize" width="50" height="50"/>
-                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                </collectionViewFlowLayout>
-                                <cells/>
-                            </collectionView>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="filter artists and songs" textAlignment="natural" minimumFontSize="14" clearButtonMode="always" translatesAutoresizingMaskIntoConstraints="NO" id="zt4-ZB-FP2">
                                 <rect key="frame" x="16" y="96" width="202" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" smartDashesType="no" smartQuotesType="no"/>
                                 <connections>
                                     <action selector="filterTextChanged:" destination="bwT-PB-h5y" eventType="editingChanged" id="seL-9X-Q0V"/>
                                 </connections>
                             </textField>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="3Ou-jk-jhQ">
-                                <rect key="frame" x="230" y="97.333333333333329" width="97" height="29"/>
+                                <rect key="frame" x="230" y="97" width="97" height="29"/>
                                 <segments>
                                     <segment title="Artist"/>
                                     <segment title="Song"/>
@@ -213,7 +202,7 @@
                                 </connections>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z8b-6a-eWh">
-                                <rect key="frame" x="335" y="96.333333333333329" width="30" height="30"/>
+                                <rect key="frame" x="335" y="96" width="30" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="cvJ-es-pP5"/>
                                     <constraint firstAttribute="width" constant="30" id="ob5-cL-oEp"/>
@@ -224,19 +213,33 @@
                                     <action selector="favoriteFilterButtonTapped:" destination="bwT-PB-h5y" eventType="touchUpInside" id="gpe-2g-1H2"/>
                                 </connections>
                             </button>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" keyboardDismissMode="interactive" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="i8Q-9N-8DZ">
+                                <rect key="frame" x="0.0" y="133" width="375" height="596"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </tableView>
+                            <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HiJ-yx-8yB" customClass="KaraokeTableIndexView" customModule="Kraken" customModuleProvider="target">
+                                <rect key="frame" x="359" y="133" width="16" height="596"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="16" id="5Iz-AZ-n0c"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="3Ou-jk-jhQ" firstAttribute="firstBaseline" secondItem="zt4-ZB-FP2" secondAttribute="firstBaseline" id="0iL-6c-Xy7"/>
                             <constraint firstItem="zt4-ZB-FP2" firstAttribute="top" secondItem="40y-QN-rKa" secondAttribute="top" constant="8" id="5CA-tF-hgc"/>
                             <constraint firstItem="z8b-6a-eWh" firstAttribute="centerY" secondItem="3Ou-jk-jhQ" secondAttribute="centerY" id="Bnw-iT-VMm"/>
+                            <constraint firstItem="i8Q-9N-8DZ" firstAttribute="top" secondItem="zt4-ZB-FP2" secondAttribute="bottom" constant="7" id="CzV-fz-qqM"/>
                             <constraint firstItem="zt4-ZB-FP2" firstAttribute="leading" secondItem="40y-QN-rKa" secondAttribute="leading" constant="16" id="EWy-ZF-be7"/>
-                            <constraint firstItem="ox3-XY-kVW" firstAttribute="leading" secondItem="40y-QN-rKa" secondAttribute="leading" id="F5Y-Xw-WzE"/>
-                            <constraint firstItem="40y-QN-rKa" firstAttribute="trailing" secondItem="ox3-XY-kVW" secondAttribute="trailing" id="GvI-WE-S8m"/>
-                            <constraint firstItem="40y-QN-rKa" firstAttribute="bottom" secondItem="ox3-XY-kVW" secondAttribute="bottom" id="OXP-Qa-02p"/>
-                            <constraint firstItem="ox3-XY-kVW" firstAttribute="top" secondItem="zt4-ZB-FP2" secondAttribute="bottom" constant="8" id="bu3-5n-J7o"/>
+                            <constraint firstItem="HiJ-yx-8yB" firstAttribute="top" secondItem="i8Q-9N-8DZ" secondAttribute="top" id="EcD-Ul-Cf8"/>
+                            <constraint firstItem="HiJ-yx-8yB" firstAttribute="trailing" secondItem="i8Q-9N-8DZ" secondAttribute="trailing" id="GUV-qb-tac"/>
+                            <constraint firstItem="40y-QN-rKa" firstAttribute="trailing" secondItem="i8Q-9N-8DZ" secondAttribute="trailing" id="OMx-YB-whK"/>
+                            <constraint firstItem="3Ou-jk-jhQ" firstAttribute="centerY" secondItem="zt4-ZB-FP2" secondAttribute="centerY" id="flb-AF-dWO"/>
+                            <constraint firstItem="40y-QN-rKa" firstAttribute="bottom" secondItem="i8Q-9N-8DZ" secondAttribute="bottom" id="fsW-5z-pwY"/>
                             <constraint firstItem="40y-QN-rKa" firstAttribute="trailing" secondItem="z8b-6a-eWh" secondAttribute="trailing" constant="10" id="gnI-er-pye"/>
+                            <constraint firstItem="i8Q-9N-8DZ" firstAttribute="leading" secondItem="40y-QN-rKa" secondAttribute="leading" id="iIz-Wt-PXQ"/>
                             <constraint firstItem="z8b-6a-eWh" firstAttribute="leading" secondItem="3Ou-jk-jhQ" secondAttribute="trailing" constant="8" id="o3b-Uu-inb"/>
+                            <constraint firstItem="HiJ-yx-8yB" firstAttribute="bottom" secondItem="i8Q-9N-8DZ" secondAttribute="bottom" id="oYB-Cr-JkS"/>
                             <constraint firstItem="3Ou-jk-jhQ" firstAttribute="leading" secondItem="zt4-ZB-FP2" secondAttribute="trailing" constant="12" id="vDu-2H-0eo"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="40y-QN-rKa"/>
@@ -245,9 +248,11 @@
                     <navigationItem key="navigationItem" id="dvv-Mo-Y7p"/>
                     <connections>
                         <outlet property="artistSongSegmentedControl" destination="3Ou-jk-jhQ" id="roK-MX-fyt"/>
-                        <outlet property="collectionView" destination="ox3-XY-kVW" id="A19-HL-6Xc"/>
                         <outlet property="favoriteFilterButton" destination="z8b-6a-eWh" id="fCO-Qc-taq"/>
                         <outlet property="filterTextField" destination="zt4-ZB-FP2" id="gH6-jg-NcJ"/>
+                        <outlet property="tableIndexView" destination="HiJ-yx-8yB" id="hfr-NB-dcQ"/>
+                        <outlet property="tableIndexViewTrailing" destination="GUV-qb-tac" id="V4S-7m-qON"/>
+                        <outlet property="tableView" destination="i8Q-9N-8DZ" id="Qi3-6T-d0M"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="H1M-7j-3mG" userLabel="First Responder" sceneMemberID="firstResponder"/>

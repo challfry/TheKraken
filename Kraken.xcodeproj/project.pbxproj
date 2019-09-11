@@ -54,6 +54,7 @@
 		EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D1322540801008501A3 /* NSDictionary+EBNObservable.m */; };
 		EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D1422540801008501A3 /* EBNObservation.m */; };
 		EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D1522540801008501A3 /* EBNObservable.mm */; };
+		EA4E84EC2328734F0059E5EB /* KaraokeLoadingCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA4E84EB2328734F0059E5EB /* KaraokeLoadingCell.xib */; };
 		EA534E2922FD1B9200FE4787 /* KrakenNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */; };
 		EA534E2C2301FFE500FE4787 /* ScheduleRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2B2301FFE500FE4787 /* ScheduleRootViewController.swift */; };
 		EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2D2302164000FE4787 /* EventsDataManager.swift */; };
@@ -98,7 +99,7 @@
 		EA8B988323247BCA00E10156 /* SongIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B988223247BCA00E10156 /* SongIcon@3x.png */; };
 		EA8B98862324D56D00E10156 /* FavoriteHeart@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98842324D56C00E10156 /* FavoriteHeart@3x.png */; };
 		EA8B98872324D56D00E10156 /* FavoriteHeartGrey@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98852324D56D00E10156 /* FavoriteHeartGrey@3x.png */; };
-		EA8B9889232641DB00E10156 /* KaraokeRootViewControlle2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8B9888232641DB00E10156 /* KaraokeRootViewControlle2.swift */; };
+		EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
 		EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456022DC067D00790F97 /* RedDeleteIcon.png */; };
 		EA90456322DC9EC800790F97 /* UnknownUser.png in Resources */ = {isa = PBXBuildFile; fileRef = EA90456222DC9EC700790F97 /* UnknownUser.png */; };
@@ -225,6 +226,7 @@
 		EA4A1D1422540801008501A3 /* EBNObservation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EBNObservation.m; sourceTree = "<group>"; };
 		EA4A1D1522540801008501A3 /* EBNObservable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EBNObservable.mm; sourceTree = "<group>"; };
 		EA4A1D1F225408DC008501A3 /* EBNDebugUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EBNDebugUtilities.h; sourceTree = "<group>"; };
+		EA4E84EB2328734F0059E5EB /* KaraokeLoadingCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeLoadingCell.xib; sourceTree = "<group>"; };
 		EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenNavController.swift; sourceTree = "<group>"; };
 		EA534E2B2301FFE500FE4787 /* ScheduleRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleRootViewController.swift; sourceTree = "<group>"; };
 		EA534E2D2302164000FE4787 /* EventsDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsDataManager.swift; sourceTree = "<group>"; };
@@ -256,7 +258,6 @@
 		EA8B986123225B7C00E10156 /* Social@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Social@3x.png"; sourceTree = "<group>"; };
 		EA8B986323225E4F00E10156 /* SocialCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SocialCell.xib; sourceTree = "<group>"; };
 		EA8B98672322673400E10156 /* Karaoke@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Karaoke@3x.png"; sourceTree = "<group>"; };
-		EA8B986E2323282300E10156 /* KaraokeRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeRootViewController.swift; sourceTree = "<group>"; };
 		EA8B987023234AEE00E10156 /* JoCoKaraokeSongCatalog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = JoCoKaraokeSongCatalog.txt; sourceTree = "<group>"; };
 		EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = JoCoKaraokeSongCatalog.lzfse; sourceTree = "<group>"; };
 		EA8B98742323A58100E10156 /* KaraokeSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeSongCell.xib; sourceTree = "<group>"; };
@@ -269,7 +270,7 @@
 		EA8B988223247BCA00E10156 /* SongIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SongIcon@3x.png"; sourceTree = "<group>"; };
 		EA8B98842324D56C00E10156 /* FavoriteHeart@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "FavoriteHeart@3x.png"; sourceTree = "<group>"; };
 		EA8B98852324D56D00E10156 /* FavoriteHeartGrey@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "FavoriteHeartGrey@3x.png"; sourceTree = "<group>"; };
-		EA8B9888232641DB00E10156 /* KaraokeRootViewControlle2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeRootViewControlle2.swift; sourceTree = "<group>"; };
+		EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeRootViewController.swift; sourceTree = "<group>"; };
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
 		EA90456022DC067D00790F97 /* RedDeleteIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RedDeleteIcon.png; sourceTree = "<group>"; };
 		EA90456222DC9EC700790F97 /* UnknownUser.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UnknownUser.png; sourceTree = "<group>"; };
@@ -596,10 +597,10 @@
 		EA8B986D232321C500E10156 /* Karaoke */ = {
 			isa = PBXGroup;
 			children = (
-				EA8B986E2323282300E10156 /* KaraokeRootViewController.swift */,
-				EA8B9888232641DB00E10156 /* KaraokeRootViewControlle2.swift */,
+				EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */,
 				EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */,
 				EA8B98742323A58100E10156 /* KaraokeSongCell.xib */,
+				EA4E84EB2328734F0059E5EB /* KaraokeLoadingCell.xib */,
 			);
 			path = Karaoke;
 			sourceTree = "<group>";
@@ -831,6 +832,7 @@
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EA8B988323247BCA00E10156 /* SongIcon@3x.png in Resources */,
 				EA3ABFB622F434DF00441F99 /* PirateSelfie@3x.png in Resources */,
+				EA4E84EC2328734F0059E5EB /* KaraokeLoadingCell.xib in Resources */,
 				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
 				EA8B98872324D56D00E10156 /* FavoriteHeartGrey@3x.png in Resources */,
@@ -968,7 +970,7 @@
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
-				EA8B9889232641DB00E10156 /* KaraokeRootViewControlle2.swift in Sources */,
+				EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,
