@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SocalViewController: BaseCollectionViewController {
+class SocialViewController: BaseCollectionViewController {
 	let dataSource = KrakenDataSource()
 
     override func viewDidLoad() {
@@ -21,15 +21,20 @@ class SocalViewController: BaseCollectionViewController {
 		let threeSocialTypesSection = dataSource.appendFilteringSegment(named: "socalTypes")
 		let topCell = LabelCellModel("\"All three types of social media, all in one place.\"")
 		threeSocialTypesSection.append(topCell)
-		threeSocialTypesSection.append(SocialCellModel("Twittar", imageNamed: "Twitarr", segueID: "Twitarr"))
-		threeSocialTypesSection.append(SocialCellModel("Forums", imageNamed: "Forums", segueID: "Forums"))
-		threeSocialTypesSection.append(SocialCellModel("Seamail", imageNamed: "Seamail", segueID: "Seamail"))
+		threeSocialTypesSection.append(SocialCellModel("Twittar", imageNamed: "Twitarr", 
+					nav: GlobalNavPacket(tab: .twitarr, arguments: [:])))
+		threeSocialTypesSection.append(SocialCellModel("Forums", imageNamed: "Forums",
+					nav: GlobalNavPacket(tab: .forums, arguments: [:])))
+		threeSocialTypesSection.append(SocialCellModel("Seamail", imageNamed: "Seamail",
+					nav: GlobalNavPacket(tab: .seamail, arguments: [:])))
 		
 		//
 		// Tweet Mentions
 		// Forum Mentions
 		// Unread Seamail
 		// Announcements?
+		
+		setupGestureRecognizer()
     }
 
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -51,13 +56,13 @@ class SocalViewController: BaseCollectionViewController {
 
 	dynamic var labelText: String? 
 	dynamic var iconName: String?
-	var segueID: String?
+	var navPacket: GlobalNavPacket
 	
 
-	init(_ titleLabel: String, imageNamed: String, segueID: String) {
+	init(_ titleLabel: String, imageNamed: String, nav: GlobalNavPacket) {
 		labelText = titleLabel
 		iconName = imageNamed
-		self.segueID = segueID
+		self.navPacket = nav
 		super.init(bindingWith: SocialCellProtocol.self)
 	}
 }
@@ -85,8 +90,8 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 	
 	override var isHighlighted: Bool {
 		didSet {
-			if isHighlighted, let segueID = (cellModel as? SocialCellModel)?.segueID  {
-				viewController?.performSegue(withIdentifier: segueID, sender: self)
+			if isHighlighted, let cm = cellModel as? SocialCellModel {
+				RootTabBarViewController.shared?.globalNavigateTo(packet: cm.navPacket)
 			}
 		}
 	}

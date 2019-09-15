@@ -52,11 +52,13 @@ class SettingsRootViewController: BaseCollectionViewController {
 		delayedPostInfo.labelText = NSAttributedString(string: "Changes you've made, waiting to be sent to the Twitarr server.")
 		let delayedPostDisclosure = settingsSection.append(cell: DelayedPostDisclosureCellModel())
 		delayedPostDisclosure.viewController = self
+
+		settingsSection.append(cell: TimeZoneHeaderCellModel())
+		let timeZoneCell = TimeZoneInfoCellModel()
+		settingsSection.append(cell: timeZoneCell)
+		let gmtTimeCell = GMTTimeInfoCellModel()
+		settingsSection.append(cell: gmtTimeCell)
 		
-
-
-		var x = settingsSection.append(cell: SettingsInfoCellModel("Time Zone Info"))
-		x.labelText = NSAttributedString(string: "Clocks Synchronized")
 		
 		// Preferences
 		let prefsHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
@@ -70,7 +72,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		settingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
 		settingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
 		
-		x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
+		let x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
 		x.labelText = NSAttributedString(string: "Button")
 		
 		dataSource.enableAnimations	= true
@@ -130,7 +132,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		}
 	}
 	
-    // MARK: - Navigation
+    // MARK: Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     	switch segue.identifier {
 //		case "PostOperations":
@@ -148,6 +150,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 	}	
 }
 
+// MARK: -
 @objc class ServerAddressEditCellModel: TextFieldCellModel {
 	override var editedText: String? {
 		didSet {
@@ -306,7 +309,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		
 		PostOperationDataManager.shared.tell(self, when: "pendingOperationCount") { observer, observed in
 			switch observed.pendingOperationCount {
-				case 0: observer.title = "No changes waiting to be sent to the server."
+				case 0: observer.title = "No changes waiting."
 				case 1: observer.title = "1 item to post"
 				default: observer.title = "\(observed.pendingOperationCount) items to post"
 			}
@@ -328,6 +331,128 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	}
 }
 
+@objc class TimeZoneHeaderCellModel: SettingsInfoCellModel {
+	init() {
+		super.init("Time Zone Info")
+		labelText = NSAttributedString(string: "Timeline is Synchronized.")
+		
+		ServerTimeUpdater.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
+				"deviceTimeOffset"]) { observer, observed in
+			var timeHeaderString: NSAttributedString
+			if observed.serverTimezone == nil {
+				timeHeaderString = NSAttributedString(string: "Timeline state is: Unknown.")
+			}
+			else if observed.deviceTimezone == observed.serverTimezone && abs(observed.deviceTimeOffset) < 300 {
+				timeHeaderString = NSAttributedString(string: "Timeline is Synchronized.")
+			}
+			else {
+				timeHeaderString = NSAttributedString(string: "Timeline is out of Sync.", attributes: [ .foregroundColor : UIColor.red])
+			}
+			observer.labelText = timeHeaderString
+		}?.execute()
+	}
+}
+
+@objc class TimeZoneInfoCellModel: LabelCellModel {
+
+	init() {
+		super.init("")
+		
+		ServerTimeUpdater.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
+				"deviceTimeOffset"]) { observer, observed in
+			if observed.serverTimezone == nil {
+				observer.labelText = NSAttributedString(string: "We don't yet know what time the server thinks it is.")
+			}
+			else if observed.deviceTimezone == observed.serverTimezone {
+				observer.labelText = NSAttributedString(string: "Device and Server are using the same time zone.")
+			}
+			else if observed.serverTimezoneOffset == observed.deviceTimezoneOffset {
+				if let deviceTZ = TimeZone.current.abbreviation(), let serverTZ = observed.serverTimezone?.abbreviation() {
+					self.labelText = NSAttributedString(string: 
+							"""
+							Time zones don't match, but they have the same offset from GMT. Local time is \(deviceTZ), server time is \(serverTZ).
+							
+							You should still set your device time zone to match the server time zone. 
+							""")
+				}
+				else {
+					self.labelText = NSAttributedString(string: 
+							"""
+							Time zones don't match, but they have the same offset from GMT.
+							
+							You should still set your device time zone to match the server time zone. 
+							""")
+				}
+			}
+			else {
+				if let deviceTZ = TimeZone.current.abbreviation(), let serverTZ = observed.serverTimezone?.abbreviation() {
+					observer.labelText = NSAttributedString(string: """
+							Time zones don't match. Device is set to \(deviceTZ), server time zone is \(serverTZ).
+							""")
+				}
+				else {
+					observer.labelText = NSAttributedString(string: """
+							Device and Server time zones don't match.
+							""")
+				}
+			}
+		}?.execute()
+	}
+	
+}
+
+@objc class GMTTimeInfoCellModel: LabelCellModel {
+
+	init() {
+		super.init("")
+		
+		ServerTimeUpdater.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
+				"deviceTimeOffset"]) { observer, observed in
+			if observed.serverTimezone == nil {
+				observer.shouldBeVisible = false
+				return
+			}
+			observer.shouldBeVisible = true
+			
+			switch observed.deviceTimeOffset {
+			case -10...10:	observer.labelText = NSAttributedString(string: "Device and Server are experiencing time synchronization.")
+			case -60...60:	observer.labelText = NSAttributedString(string: "Device time is within a minute of Server time.")
+			case -300...300: observer.labelText = NSAttributedString(string: "Device Time is close to Server Time--within a few minutes.")
+			case 300...3300: observer.labelText = NSAttributedString(string: "Device Time is way ahead of Server Time--like \(observed.deviceTimeOffset / 60) minutes ahead.")
+			case -3300...(-300): observer.labelText = NSAttributedString(string: "Device Time is way behind Server Time--like \(abs(observed.deviceTimeOffset) / 60) minutes behind.")
+			case 3300...3900: 
+				if abs(Int(observed.deviceTimeOffset) - observed.timeZoneOffset) < 300 {
+					observer.labelText = NSAttributedString(string: """
+							Your device may be showing the same time as wall clocks on the ship, but when it's in a different time zone it means all the events in the Calendar show the wrong time.
+							
+							You need to ensure your device is in the same time zone as the server--just setting the clock time to be the same doesn't entirely work.
+							""")
+				}
+				else {
+					observer.labelText = NSAttributedString(string: "UTC Device Time is an hour ahead of Server Time. You need to ensure your device is in the same time zone as the server--just setting the clock time to be the same doesn't entirely work.")
+				}
+			case -3900...(-3300): 
+				if abs(Int(observed.deviceTimeOffset) - observed.timeZoneOffset) < 300 {
+					observer.labelText = NSAttributedString(string: """
+							Your device may be showing the same time as wall clocks on the ship, but when it's in a different time zone it means all the events in the Calendar show the wrong time.
+							
+							You need to ensure your device is in the same time zone as the server--just setting the clock time to be the same doesn't entirely work.
+							""")
+				}
+				else {
+					observer.labelText = NSAttributedString(string: "UTC Device Time is an hour behind Server Time. You need to ensure your device is in the same time zone as the server--just setting the clock time to be the same doesn't entirely work.")
+				}
+			case ...(-3900): observer.labelText = NSAttributedString(string: "Device Time (converted to UTC) is \(abs(observed.deviceTimeOffset) / 60) minutes behind UTC Server Time. You need to ensure your device is in the same timezone as the server--just setting the clock time to be the same doesn't entirely work.")
+			case 3900...: observer.labelText = NSAttributedString(string: "Device Time (converted to UTC) is \(abs(observed.deviceTimeOffset) / 60) minutes ahead of UTC Server Time. You need to ensure your device is in the same timezone as the server--just setting the clock time to be the same doesn't entirely work.")
+			default: observer.labelText = NSAttributedString(string: "")
+			}
+		}?.execute()
+	}
+	
+}
+
+
+// MARK: - Debug Cells
 @objc class BlockNetworkSwitchCellModel: SwitchCellModel {
 	init() {
 		super.init(labelText: "Block all network traffic, for testing purposes. When on, all network calls will immediately fail.")

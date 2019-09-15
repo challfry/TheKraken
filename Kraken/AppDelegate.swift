@@ -68,11 +68,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 // MARK: State Restoration
 	// These 2 methods enable State Restoration in the app.
 	func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
+		coder.encode(1, forKey: "KrakenArchiveVersion")
   		return true
 	}
 
 	func application(_ application: UIApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
-		return true
+		let archiveVersion = coder.decodeInt32(forKey: "KrakenArchiveVersion")
+		if archiveVersion == 1 {
+			return true
+		}
+		return false
 	}
 
 }

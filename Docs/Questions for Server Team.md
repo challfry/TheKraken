@@ -5,6 +5,5 @@
 3. OneWeeksLater feature?
 4. HTTPS? Want to turn off ATS.
 5. How does the alerts endpoint work with multiple devices/clients? It looks the each client would update the last_checked timestamp, leading to strange behavior.
-
-
+6. For linking out to webpages, are the links canonical? e.g. "/#/stream/"
 

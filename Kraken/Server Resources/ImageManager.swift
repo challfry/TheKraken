@@ -29,6 +29,8 @@ class ImageCache {
 	private var fetchURLPath: String
 	private var cacheName: String
 
+
+// MARK: Methods
 	init(dirName: String, fetchURL: String, limit: Int) {
 		cacheName = dirName
 		if let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(dirName) {
@@ -37,11 +39,12 @@ class ImageCache {
 				fileCacheDir = tempDirURL
 				
 				// May have to spin this off on a Q if it's taking too long.
-				if let tempDirString = fileCacheDir?.absoluteString {
+				if let tempDirString = fileCacheDir?.path {
 					let cachedFilenames = try FileManager.default.contentsOfDirectory(atPath: tempDirString)
 					allCachedFilenames.formUnion(cachedFilenames)
 				}
 			} catch {
+				ImageLog.error("Failed loading in list of cached images at startup.", ["Error" : error, "cacheName" : dirName])
 			}
 		}
 		

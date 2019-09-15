@@ -35,7 +35,10 @@ class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
 	var labelText: NSAttributedString? {
-		didSet { label.attributedText = labelText }
+		didSet { 
+			label.attributedText = labelText 
+			cellSizeChanged()
+		}
 	}
 }
 

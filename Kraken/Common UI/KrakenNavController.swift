@@ -31,7 +31,9 @@ class KrakenNavController: UINavigationController, GlobalNavEnabled {
 		}?.execute()
     }
     
-    func globalNavigateTo(packet: [String : Any]) {
+    // By default, nav controllers just pass global nav actions to their root, or the first VC in their stack
+    // that can handle nav.
+    func globalNavigateTo(packet: GlobalNavPacket) {
     	if viewControllers.count > 0, let rootVC = viewControllers[0] as? GlobalNavEnabled {
     		rootVC.globalNavigateTo(packet: packet)
     	}

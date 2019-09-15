@@ -20,8 +20,7 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 	func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, 
 			withCompletionHandler completionHandler: @escaping () -> Void) {
 		if let eventID = response.notification.request.content.userInfo["eventID"] {
-			RootTabBarViewController.shared?.globalNavigateTo(packet: ["tab" : RootTabBarViewController.Tabs.Events,
-					"eventID" : eventID])
+			RootTabBarViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(tab: .events, arguments: ["eventID" : eventID]))
 		}
 	}
 

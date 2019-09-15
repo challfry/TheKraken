@@ -67,7 +67,7 @@ Tabs:
 More Tabs?
 	Deck Maps
 	Karaoke
-	Find Users
+	Find Users -- really, a Users tab
 	Search All?
 	Now Tab
 	Onshore tab?

@@ -384,8 +384,8 @@ import EventKitUI
 
     // MARK: - Navigation
 
-	func globalNavigateTo(packet: [String : Any]) {
-		if let eventID = packet["eventID"] as? String {
+	func globalNavigateTo(packet: GlobalNavPacket) {
+		if let eventID = packet.arguments["eventID"] as? String {
 			resetFilters()
 			if let results = eventsSegment?.frc?.fetchedObjects, let event = results.first(where: { $0.id == eventID } ),
 					var indexPath = eventsSegment?.frc?.indexPath(forObject: event) {
