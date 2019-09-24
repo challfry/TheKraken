@@ -24,8 +24,23 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	var sendButtonCell: ButtonCellModel?
 	private var isBusyPosting: Bool = false
 
+// MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let participants = threadModel?.participants, let currentUsername = CurrentUser.shared.loggedInUser?.username {
+        	let others = participants.compactMap { $0.username != currentUsername ? $0.username : nil }
+        	if others.count == 1, let otherPerson = others.first {
+        		title = "@\(otherPerson)"
+        	}
+        	else if others.count == 2 {
+        		let sorted = others.sorted()
+        		title = "@\(sorted[0]), @\(sorted[1])"
+        	}
+        	else {
+        		title = "\(participants.count) Seamonkey Chat "
+        	}
+        }
                 
    		// Set up the FRCs for the messages in the thread and the messages in the send queue
    		var messagePredicate: NSPredicate

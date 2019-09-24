@@ -8,7 +8,7 @@
 
 import UIKit
 
-@objc class ComposeSeamailThreadVC: BaseCollectionViewController {
+@objc class ComposeSeamailThreadVC: BaseCollectionViewController, GlobalNavEnabled {
 	// PostOp for thread creation
 	var threadToEdit: PostOpSeamailThread?
 
@@ -30,6 +30,8 @@ import UIKit
 	@objc dynamic var threadHasRecipients = false
 	@objc dynamic var isBusyPosting = false
 	
+	
+// MARK: Methods
 	override func viewDidLoad() {
         super.viewDidLoad()
         title = "New Seamail"
@@ -47,6 +49,7 @@ import UIKit
 		messageRecipientsCell?.selectionCallback = userInThreadTappedAction
 		messageRecipientsCell?.usePredicate = false
 		messageRecipientsCell?.source = "(besides you)"
+    	messageRecipientsCell?.users = usersInThread  	
 
 		subjectCell = TextViewCellModel("Subject:")
 		composeSection.append(subjectCell!)
@@ -197,6 +200,18 @@ import UIKit
 	
 	func postQueued(_ post: PostOpSeamailThread?) {
 		
+	}
+	
+// MARK: Navigation
+	func globalNavigateTo(packet: GlobalNavPacket) {
+		if let userNames = packet.arguments["seamailThreadParticipants"] as? Set<String>, 
+				let currentUsername = CurrentUser.shared.loggedInUser?.username {
+			for userName in userNames {
+				if userName != currentUsername {
+					addUsernameToThread(username: userName)
+				}
+			}
+		}
 	}
 	
 }

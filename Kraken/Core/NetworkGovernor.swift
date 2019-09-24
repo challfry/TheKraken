@@ -191,7 +191,7 @@ import Foundation
 				let resultError = ServerError()
 				resultError.httpStatus = response.statusCode
 				
-				if let data = data {
+				if let data = data, data.count > 0 {
 //					print (String(decoding:data, as: UTF8.self))
 					let decoder = JSONDecoder()
 	
@@ -201,6 +201,8 @@ import Foundation
 					if let errorInfo = try? decoder.decode(TwitarrV2ErrorResponse.self, from: data) {
 						resultError.errorString = errorInfo.error
 					}
+					
+					// Multi Errors, an array of error strings.
 					else if let errorInfo = try? decoder.decode(TwitarrV2ErrorsResponse.self, from: data) {
 						var errorString = ""
 						for multiError in errorInfo.errors {
@@ -208,6 +210,8 @@ import Foundation
 						}
 						resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
 					}
+					
+					// Dictionary Errors. A dict of tagged errors. Tags *usually* refer to form fields.
 					else if let errorInfo = try? decoder.decode(TwitarrV2ErrorDictionaryResponse.self, from: data) {
 					
 						resultError.fieldErrors = errorInfo.errors
@@ -217,6 +221,9 @@ import Foundation
 							let errorString = generalErrors.reduce("") { $0 + $1 + "\n" }
 							resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
 						}
+					}
+					else {
+						resultError.errorString = "HTTP Error \(response.statusCode)"
 					}
 				}
 				else {

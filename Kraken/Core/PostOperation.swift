@@ -79,6 +79,8 @@ import CoreData
 	let controller: NSFetchedResultsController<PostOperation>
 	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
 	
+// MARK: Methods
+	
 	override init() {
 		let context = LocalCoreData.shared.mainThreadContext
 		let fetchRequest = NSFetchRequest<PostOperation>(entityName: "PostOperation")
@@ -112,7 +114,12 @@ import CoreData
 	}
 		
 	func checkForOpsToDeliver() {
-		if Settings.shared.blockEmptyingPostOpsQueue {
+		
+		guard let currentUser = CurrentUser.shared.loggedInUser else { 
+			NetworkLog.debug("Not sending ops to server; nobody is logged in.")
+			return 
+		}
+		guard !Settings.shared.blockEmptyingPostOpsQueue else {
 			NetworkLog.debug("Not sending ops to server; blocked by user setting")
 			return
 		}
@@ -120,17 +127,22 @@ import CoreData
 		if let operations = controller.fetchedObjects {
 			var earliestCallTime: Date?
 			for op in operations {
-				// Test 1: Don't send ops that aren't ready. Ops that received server errors get their RTS set FALSE.
+				// Test 1. Only send ops authored by the logged in user.
+				if op.author.username != currentUser.username {
+					continue
+				}	
+			
+				// Test 2: Don't send ops that aren't ready. Ops that received server errors get their RTS set FALSE.
 				if !(op.readyToSend && op.localReadyToSend) {
 					continue
 				} 
 				
-				// Test 2: Don't send ops that are currently being sent (have active network calls)
+				// Test 3: Don't send ops that are currently being sent (have active network calls)
 				if op.sentNetworkCall || op.localSentNetworkCall {
 					continue
 				}
 				
-				// Test 3: Exponential back off. Don't run an op until its next run date.
+				// Test 4: Exponential back off. Don't run an op until its next run date.
 				if let nextCallTime = op.nextNetworkCallTime, nextCallTime > Date() {
 					if earliestCallTime == nil { 
 						earliestCallTime = nextCallTime
@@ -273,7 +285,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		sentNetworkCall = false
 	}
 	
-	// Sends this post to the server.
+	// Subclasses override this to send this post to the server. They should call super; thie fn marks 
+	// the post as being sent in Core Data.
 	func post() {
 		localSentNetworkCall = true
 		
@@ -297,6 +310,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				self.recordServerErrorFailure(err)
 			}
 			else if let data = data {
+				// The assumption here is that if we get a non-error response from the server, the call worked and 
+				// the server has enacted the change we posted. So, even if we fail to decode and process the response
+				// or save to Core Data, the call still succeeded.
 				PostOperationDataManager.shared.remove(op: self)
 				success(data)
 				return
@@ -390,6 +406,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 }
+
+// MARK: - PostOp Types
 
 @objc(PostOpTweet) public class PostOpTweet: PostOperation {
 	@NSManaged public var text: String
@@ -622,7 +640,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/event/\(event.id)/favorite", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod =  newState ? "POST" : "DELETE"		
-		self.queueNetworkPost(request: request) { data in
+		queueNetworkPost(request: request) { data in
 			do {
 				let response = try JSONDecoder().decode(TwitarrV2EventFavoriteResponse.self, from: data)
 				EventsDataManager.shared.parseEvents([response.event], isFullList: false)
@@ -634,7 +652,46 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
+@objc(PostOpUserComment) public class PostOpUserComment: PostOperation {
+	@NSManaged public var comment: String
+	@NSManaged public var userCommentedOn: KrakenUser?
 
+	override func post() {
+		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
+		guard let userCommentedOn = userCommentedOn else { return }
+		super.post()
+
+		let userCommentStruct = TwitarrV2ChangeUserCommentRequest(comment: comment)
+		let encoder = JSONEncoder()
+		let requestData = try! encoder.encode(userCommentStruct)
+				
+		// POST /api/v2/user/profile/:user/personal_comment
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile/\(userCommentedOn.username)/personal_comment", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "POST"
+		request.httpBody = requestData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		queueNetworkPost(request: request) { data in
+			do {
+				let decoder = JSONDecoder()
+				let response = try decoder.decode(TwitarrV2ChangeUserCommentResponse.self, from: data)
+				if response.status == "ok" {
+					UserManager.shared.updateProfile(for: userCommentedOn.objectID, from: response.user)
+				}
+			}
+			catch {
+				CoreDataLog.error("Failure saving User Comment change to Core Data. (the PostOp succeeded, but we couldn't save the change).", 
+						["Error" : error])
+			}
+		}
+	}
+}
+
+@objc(PostOpUserFavorite) public class PostOpUserFavorite: PostOperation {
+	@NSManaged public var isFavorite: Bool
+
+
+}
 
 
 
@@ -704,3 +761,14 @@ struct TwitarrV2EventFavoriteResponse: Codable {
 	let status: String
 	let event: TwitarrV2Event
 }
+
+// POST /api/v2/user/profile/:username/personal_comment
+struct TwitarrV2ChangeUserCommentRequest: Codable {
+	let comment: String
+}
+
+struct TwitarrV2ChangeUserCommentResponse: Codable {
+	let status: String
+	let user: TwitarrV2UserProfile
+}
+

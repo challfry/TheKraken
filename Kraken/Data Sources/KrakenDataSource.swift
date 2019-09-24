@@ -357,10 +357,11 @@ class KrakenDataSource: NSObject {
 		cellModel.cellSize = CGSize(width: 0, height: 0)
 		
 //		log.debug("scroll pos: \(self.collectionView!.contentOffset.y)")
+		let context = UICollectionViewFlowLayoutInvalidationContext()
+		context.invalidateFlowLayoutDelegateMetrics = true
+		self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
 		UIView.animate(withDuration: 0.3) {
-			let context = UICollectionViewFlowLayoutInvalidationContext()
-			context.invalidateFlowLayoutDelegateMetrics = true
-			self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
+			self.collectionView?.layoutIfNeeded()
 		}
 //		log.debug("scroll pos2: \(self.collectionView!.contentOffset.y)")
 	}

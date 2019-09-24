@@ -29,7 +29,7 @@
                             <action selector="saveButtonTapped" destination="PYY-Ap-JFr" eventType="touchUpInside" id="r9g-cR-JOz"/>
                         </connections>
                     </button>
-                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="200" showsHorizontalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Til-OV-JMZ">
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="200" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Til-OV-JMZ">
                         <rect key="frame" x="20" y="42" width="335" height="197"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -69,7 +69,7 @@
                         <constraints>
                             <constraint firstItem="3ST-Iq-oVF" firstAttribute="leading" secondItem="NBV-QG-iDv" secondAttribute="trailing" constant="10" id="BpT-rJ-KI1"/>
                             <constraint firstItem="HG7-La-o4w" firstAttribute="leading" secondItem="XtJ-eI-wAT" secondAttribute="leading" id="FI4-WB-4oA"/>
-                            <constraint firstAttribute="bottom" secondItem="HG7-La-o4w" secondAttribute="bottom" priority="900" constant="6" id="Fr1-EY-gRv"/>
+                            <constraint firstAttribute="bottom" secondItem="HG7-La-o4w" secondAttribute="bottom" priority="200" constant="6" id="Fr1-EY-gRv"/>
                             <constraint firstItem="3ST-Iq-oVF" firstAttribute="firstBaseline" secondItem="HG7-La-o4w" secondAttribute="firstBaseline" id="d3p-8Q-G3O"/>
                             <constraint firstAttribute="trailing" secondItem="3ST-Iq-oVF" secondAttribute="trailing" priority="900" id="d5S-uv-hCw"/>
                             <constraint firstAttribute="height" constant="30" id="jU4-6Y-UFh"/>

@@ -14,6 +14,7 @@ class BaseCollectionViewController: UIViewController {
 		
 	var customGR: UILongPressGestureRecognizer?
 	var tappedCell: UICollectionViewCell?
+	var indexPathToScrollToVisible: IndexPath?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +32,8 @@ class BaseCollectionViewController: UIViewController {
  
 		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillShow(notification:)), 
 				name: UIResponder.keyboardDidShowNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardDidShowNotification(notification:)), 
+				name: UIResponder.keyboardDidShowNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillHide(notification:)), 
 				name: UIResponder.keyboardDidHideNotification, object: nil)
    }
@@ -41,10 +44,28 @@ class BaseCollectionViewController: UIViewController {
 		}
 	}
 
+    @objc func keyboardDidShowNotification(notification: NSNotification) {
+    	if let indexPath = indexPathToScrollToVisible {
+			collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+		}
+	}
+
 	@objc func keyboardWillHide(notification: NSNotification) {
 		UIView.animate(withDuration: 0.2, animations: {
 			self.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		})
+	}
+	
+	func textViewBecameActive(_ field: UITextInput, inCell: BaseCollectionViewCell) {
+		activeTextEntry = field
+		if let indexPath = collectionView.indexPath(for: inCell) {
+			indexPathToScrollToVisible = indexPath
+		}
+	}
+	
+	func textViewResignedActive(_ field: UITextInput, inCell: BaseCollectionViewCell) {
+		activeTextEntry = nil
+		indexPathToScrollToVisible = nil
 	}
 
 }

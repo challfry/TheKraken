@@ -9,9 +9,18 @@
 import UIKit
 
 
-class KrakenNavController: UINavigationController, GlobalNavEnabled {
+class KrakenNavController: UINavigationController, GlobalNavEnabled, UIViewControllerRestoration {
 	var networkLabel = UILabel()
 	
+	static func viewController(withRestorationIdentifierPath identifierComponents: [String], coder: NSCoder) -> UIViewController? {
+		return nil
+	}
+
+	required init?(coder aDecoder: NSCoder) {
+		super.init(coder: aDecoder)
+		restorationClass = KrakenNavController.self
+	}
+
 	override func viewDidLoad() {
         super.viewDidLoad()
         

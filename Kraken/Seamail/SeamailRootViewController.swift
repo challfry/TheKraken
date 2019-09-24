@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class SeamailRootViewController: BaseCollectionViewController {
+class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 	@IBOutlet var newThreadButton: UIBarButtonItem!
 
 	let loginDataSource = KrakenDataSource()
@@ -17,7 +17,8 @@ class SeamailRootViewController: BaseCollectionViewController {
 	let threadDataSource = KrakenDataSource()
 	lazy var threadSegment = FRCDataSourceSegment<SeamailThread>()
 	let dataManager = SeamailDataManager.shared
-	
+
+// MARK: Methods	
 	override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -64,9 +65,9 @@ class SeamailRootViewController: BaseCollectionViewController {
 		return cellModel
 	}
     
-    // MARK: - Navigation
+    // MARK: Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+	// Set up data in destination view controllers when we're about to segue to them.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "UserProfile", let destVC = segue.destination as? UserProfileViewController,
 				let userName = sender as? String {
@@ -77,4 +78,31 @@ class SeamailRootViewController: BaseCollectionViewController {
 			destVC.threadModel = threadModel
 		}
     }
+    
+	func globalNavigateTo(packet: GlobalNavPacket) {
+		if let userNames = packet.arguments["seamailThreadParticipants"] as? Set<String> {
+			if let nav = self.navigationController, let threads = threadSegment.frc?.fetchedObjects {
+				let storyboard = UIStoryboard(name: "Main", bundle: nil)
+				for thread in threads {
+					let threadParticipantNames = Set(thread.participants.map { $0.username })
+					if threadParticipantNames == userNames {
+						let existingThreadVC = storyboard.instantiateViewController(withIdentifier: "SeamailThread") as! SeamailThreadViewController
+						existingThreadVC.threadModel = thread
+						nav.viewControllers = [nav.viewControllers[0], existingThreadVC]
+						if let globalNav = existingThreadVC as? GlobalNavEnabled {
+							globalNav.globalNavigateTo(packet: packet)
+						}
+						return
+					}
+				}
+				
+				// If we get here, we didn't find an existing seamail thread to the listed user.
+				let newVC = storyboard.instantiateViewController(withIdentifier: "ComposeSeamailThreadVC")
+				nav.viewControllers = [nav.viewControllers[0], newVC]
+				if let globalNav = newVC as? GlobalNavEnabled {
+					globalNav.globalNavigateTo(packet: packet)
+				}
+			}
+		}
+	}
 }

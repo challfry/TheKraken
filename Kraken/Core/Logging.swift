@@ -261,6 +261,13 @@ extension LoggingProtocol {
 //	To use:
 //		NetworkLog.d(message)			// Sends a debug message in the Network category
 
+struct AppLog: LoggingProtocol {
+	var instanceEnabled: Bool
+		
+	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "App")
+	static var isEnabled = true
+}
+
 struct CollectionViewLog: LoggingProtocol {
 	var instanceEnabled: Bool
 		
@@ -305,4 +312,24 @@ struct CameraLog: LoggingProtocol {
 
 func makeAddrString(_ object: AnyObject) -> String {
 	return "\(Unmanaged.passUnretained(object).toOpaque())"
+}
+
+
+// MARK: - Time Debugging
+// This is for when you need to insert a bunch of time checkpoints to time an activity.
+
+// TODO: Should integrate with logging, because of course.
+var globalDebugStartTime: Double = 0
+func gDebugStart(_ str: String) {
+	globalDebugStartTime = ProcessInfo.processInfo.systemUptime
+	print ("START: global clock - \(str) at \(globalDebugStartTime)")
+}
+func gDebugCheckpoint(_ with: String) {
+	guard globalDebugStartTime > 0 else { return }
+	print ("\(with): at \(ProcessInfo.processInfo.systemUptime - globalDebugStartTime)")
+}
+func gDebugEnd(_ with: String) {
+	guard globalDebugStartTime > 0 else { return }
+	print ("END: \(with): at \(ProcessInfo.processInfo.systemUptime - globalDebugStartTime)")
+	globalDebugStartTime = 0
 }

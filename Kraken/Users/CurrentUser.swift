@@ -12,7 +12,8 @@ import CoreData
 @objc(LoggedInKrakenUser) public class LoggedInKrakenUser: KrakenUser {
 
 	// Specific to the logged-in user
-	@NSManaged public var commentsAndStars: [CommentsAndStars]?
+	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
+	@NSManaged public var starredUsers: Set<KrakenUser>?			// Set of users the logged in user has starred.
 	@NSManaged public var lastLogin: Bool
 	
 	func buildFromV2UserAccount(context: NSManagedObjectContext, v2Object: TwitarrV2UserAccount) {
@@ -30,19 +31,66 @@ import CoreData
 //		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
 //		TestAndUpdate(\.emptyPassword, v2Object.emptyPassword)
 	}
+	
+	func getPendingUserCommentOp(commentingOn: KrakenUser, inContext: NSManagedObjectContext) -> PostOpUserComment? {
+		if let ops = postOps {
+			for op in ops {
+				if let commentOp = op as? PostOpUserComment, let userCommentedOn = commentOp.userCommentedOn,
+						userCommentedOn.username == commentingOn.username {
+					let commentOpInContext = try? inContext.existingObject(with: commentOp.objectID) as? PostOpUserComment
+					return commentOpInContext
+				}
+			}
+		}
+		return nil
+	}
+	
+	// The v2Object in this instance is NOT (generally) the logged-in user. It's another userProfile where
+	// it contains data specific to the logged-in user's POV--user comments and stars.
+	func parseV2UserProfileCommentsAndStars(context: NSManagedObjectContext, v2Object: TwitarrV2UserProfile,
+			targetUser: KrakenUser) {
+		guard self == CurrentUser.shared.getLoggedInUser(in: context) else {
+			CoreDataLog.debug("parseV2UserProfileCommentsAndStars can only be called on the current logged in user.")
+			return
+		}
+		
+		var commentToUpdate = userComments?.first(where: { $0.commentedOnUser.username == v2Object.username } )
+		
+		// Only create a comment object if there's some content to put in it
+		if commentToUpdate == nil && v2Object.comment != nil {
+			commentToUpdate = UserComment(context: context)
+		}
+		
+		// We won't ever delete the comment object once one has been created; that's okay--the comment 
+		// itself should become "".
+		commentToUpdate?.build(context: context, userCommentedOn: self, loggedInUser: self, 
+				comment: v2Object.comment)
+					
+		//
+		if let isStarred = v2Object.starred {
+			let currentlyStarred = starredUsers?.contains(targetUser) ?? false
+			if isStarred && !currentlyStarred {
+				if starredUsers == nil {
+					starredUsers = Set<KrakenUser>()
+				}
+				starredUsers?.insert(targetUser)
+			}
+			else {
+				starredUsers?.remove(targetUser)
+			}
+		}
+					
+	}
+
 }
 
-@objc(CommentsAndStars) public class CommentsAndStars : KrakenManagedObject {
+@objc(UserComment) public class UserComment : KrakenManagedObject {
 	@NSManaged public var comment: String?
-	@NSManaged public var isStarred: Bool
 	@NSManaged public var commentingUser: KrakenUser
 	@NSManaged public var commentedOnUser: KrakenUser
 
-	func build(context: NSManagedObjectContext, userCommentedOn: KrakenUser, loggedInUser: KrakenUser, comment: String?, isStarred: Bool?) {
+	func build(context: NSManagedObjectContext, userCommentedOn: KrakenUser, loggedInUser: KrakenUser, comment: String?) {
 		TestAndUpdate(\.comment, comment)
-		if let isStarred = isStarred {
-			TestAndUpdate(\.isStarred, isStarred)
-		}
 		if commentingUser.username != loggedInUser.username  {
 			commentingUser = loggedInUser
 		}
@@ -110,19 +158,19 @@ import CoreData
 		return loggedInUser != nil
 	}
 	
-	func getLoggedInUser(in context: NSManagedObjectContext) -> KrakenUser? {
+	func getLoggedInUser(in context: NSManagedObjectContext) -> LoggedInKrakenUser? {
 		guard let loggedInObjectID = loggedInUser?.objectID, let username = loggedInUser?.username else { return nil }
-		var resultUser: KrakenUser?
+		var resultUser: LoggedInKrakenUser?
 		context.performAndWait {
 			do {
-				resultUser = try context.existingObject(with: loggedInObjectID) as? KrakenUser
+				resultUser = try context.existingObject(with: loggedInObjectID) as? LoggedInKrakenUser
 				
 				if resultUser == nil {
 					let mom = LocalCoreData.shared.persistentContainer.managedObjectModel
 					let request = mom.fetchRequestFromTemplate(withName: "FindAUser", 
 							substitutionVariables: [ "username" : username ]) as! NSFetchRequest<KrakenUser>
 					let results = try request.execute()
-					resultUser = results.first
+					resultUser = results.first as? LoggedInKrakenUser
 				}
 			}
 			catch {
@@ -363,37 +411,40 @@ import CoreData
 	}
 	
 	// This lets the logged in user set a private comment about another user.
-	func setUserComment(_ comment: String, forUser: KrakenUser, done: @escaping () -> Void) {
-		guard isLoggedIn() else { return }
+	func setUserComment(_ comment: String, forUser: KrakenUser) {
+		guard let loggedInUser = loggedInUser else { return }
 		clearErrors()
 		
-		let userCommentStruct = TwitarrV2UserCommentRequest(comment: comment)
-		let encoder = JSONEncoder()
-		let requestData = try! encoder.encode(userCommentStruct)
-				
-		// Call /api/v2/user/change_password
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile/\(forUser.username)/personal_comment", query: nil)
-		request.httpMethod = "POST"
-		request.httpBody = requestData
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
-				self.lastError = error
-			}
-			else {
-				let decoder = JSONDecoder()
-				if let data = data, let response = try? decoder.decode(TwitarrV2UserCommentResponse.self, from: data) {
-					if response.status == "ok" {
-						UserManager.shared.updateProfile(for: forUser.objectID, from: response.user)
-						done()
-					}
-					else
-					{
-						self.lastError = ServerError("Unknown error")
-					}
+		let context = LocalCoreData.shared.networkOperationContext
+		context.performAndWait {
+			do {
+				// get foruser in context
+				let userInContext = try context.existingObject(with: forUser.objectID) as! KrakenUser
+					
+				// Check for existing op for this user
+				let op = loggedInUser.getPendingUserCommentOp(commentingOn: forUser, inContext: context) ?? PostOpUserComment(context: context)
+				op.comment = comment
+				op.userCommentedOn = userInContext
+				op.readyToSend = true
+			
+				try context.save()
+				if let opMain = try? LocalCoreData.shared.mainThreadContext.existingObject(with: op.objectID) as? PostOpUserComment {
+					LocalCoreData.shared.mainThreadContext.refresh(opMain, mergeChanges: true)
 				}
-			} 
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
+			}
 		}
 	}
+	
+	func cancelUserCommentOp(_ op: PostOpUserComment) {
+		// Disallow cancelling other people's ops
+		guard let currentUser = loggedInUser, currentUser.username == op.author.username else { return }
+		
+		PostOperationDataManager.shared.remove(op: op)
+	}
+	
 }
 
 /* Secure storage of user auth data.
@@ -571,16 +622,6 @@ struct TwitarrV2ResetPasswordRequest: Codable {
 struct TwitarrV2ResetPasswordResponse: Codable {
 	let status: String
 	let message: String
-}
-
-// /api/v2/user/profile/:username/personal_comment
-struct TwitarrV2UserCommentRequest: Codable {
-	let comment: String
-}
-
-struct TwitarrV2UserCommentResponse: Codable {
-	let status: String
-	let user: TwitarrV2UserProfile
 }
 
 // /api/v2/user/profile

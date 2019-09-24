@@ -71,7 +71,7 @@
                                     <navigationItem title="Title" id="EKb-KH-u5s"/>
                                 </items>
                             </navigationBar>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1A7-J6-kmJ">
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1A7-J6-kmJ">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Z7h-Nh-09i">
@@ -106,7 +106,7 @@
         <!--Compose Seamail ThreadVC-->
         <scene sceneID="DJQ-yg-G8h">
             <objects>
-                <viewController id="Gfc-pJ-wBA" customClass="ComposeSeamailThreadVC" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ComposeSeamailThreadVC" id="Gfc-pJ-wBA" customClass="ComposeSeamailThreadVC" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Q50-t8-Jcv">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -681,11 +681,6 @@
                             <constraint firstItem="hUv-2L-CtT" firstAttribute="bottom" secondItem="OKw-FE-TWM" secondAttribute="bottom" id="yIY-TO-nkc"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="hUv-2L-CtT"/>
-                        <variation key="default">
-                            <mask key="subviews">
-                                <exclude reference="oB1-20-J89"/>
-                            </mask>
-                        </variation>
                     </view>
                     <navigationItem key="navigationItem" title="Schedule" id="oag-Kz-Eo9">
                         <barButtonItem key="leftBarButtonItem" title="Now" id="44s-93-96I">
@@ -1407,10 +1402,10 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="pIj-nS-Geu"/>
-        <segue reference="NT7-WF-Ano"/>
+        <segue reference="Cci-1G-tOu"/>
         <segue reference="Ona-uX-i7h"/>
         <segue reference="wTp-nv-sgn"/>
-        <segue reference="vXi-dK-Rxk"/>
+        <segue reference="Ieo-oe-rtR"/>
         <segue reference="hV8-Mc-Uo7"/>
         <segue reference="RRQ-tC-exJ"/>
     </inferredMetricsTieBreakers>

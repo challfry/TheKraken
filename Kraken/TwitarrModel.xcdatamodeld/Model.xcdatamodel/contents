@@ -1,23 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="18G95" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="CommentsAndStars" representedClassName="CommentsAndStars" syncable="YES">
-        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="isStarred" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="commentedOnUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentedUpon" inverseEntity="KrakenUser" syncable="YES"/>
-        <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentsAndStars" inverseEntity="KrakenUser" syncable="YES"/>
-    </entity>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14903" systemVersion="18G95" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Event" representedClassName="Event" syncable="YES">
-        <attribute name="ekEventID" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="endTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="eventDescription" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="id" attributeType="String" syncable="YES"/>
-        <attribute name="localNotificationID" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="official" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="startTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="title" attributeType="String" syncable="YES"/>
-        <relationship name="followedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="followedEvents" inverseEntity="KrakenUser" syncable="YES"/>
-        <relationship name="opsFollowing" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpEventFollow" inverseName="event" inverseEntity="PostOpEventFollow" syncable="YES"/>
+        <attribute name="ekEventID" optional="YES" attributeType="String"/>
+        <attribute name="endTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="eventDescription" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="localNotificationID" optional="YES" attributeType="String"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="official" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="startTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="followedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="followedEvents" inverseEntity="KrakenUser"/>
+        <relationship name="opsFollowing" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpEventFollow" inverseName="event" inverseEntity="PostOpEventFollow"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -25,34 +19,38 @@
         </uniquenessConstraints>
     </entity>
     <entity name="KaraokeFavoriteSong" representedClassName="KaraokeFavoriteSong" syncable="YES">
-        <attribute name="artistName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="songTitle" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="artistName" optional="YES" attributeType="String"/>
+        <attribute name="songTitle" optional="YES" attributeType="String"/>
     </entity>
     <entity name="KrakenUser" representedClassName="KrakenUser" syncable="YES">
-        <attribute name="currentLocation" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="displayName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="emailAddress" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="homeLocation" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="lastLogin" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="lastPhotoUpdated" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="numberOfMentions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="numberOfTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="pronouns" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="realName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="role" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="roomNumber" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="thumbPhotoData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
-        <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CommentsAndStars" inverseName="commentedOnUser" inverseEntity="CommentsAndStars" syncable="YES"/>
-        <relationship name="commentsAndStars" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CommentsAndStars" inverseName="commentingUser" inverseEntity="CommentsAndStars" syncable="YES"/>
-        <relationship name="followedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Event" inverseName="followedBy" inverseEntity="Event" syncable="YES"/>
-        <relationship name="fromPotential" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="actualUser" inverseEntity="PotentialUser" syncable="YES"/>
-        <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation" syncable="YES"/>
-        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction" syncable="YES"/>
-        <relationship name="seamailAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="author" inverseEntity="SeamailMessage" syncable="YES"/>
-        <relationship name="seamailParticipant" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="participants" inverseEntity="SeamailThread" syncable="YES"/>
-        <relationship name="seamailReader" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="readUsers" inverseEntity="SeamailMessage" syncable="YES"/>
-        <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="author" inverseEntity="TwitarrPost" syncable="YES"/>
+        <attribute name="currentLocation" optional="YES" attributeType="String"/>
+        <attribute name="displayName" optional="YES" attributeType="String"/>
+        <attribute name="emailAddress" optional="YES" attributeType="String"/>
+        <attribute name="homeLocation" optional="YES" attributeType="String"/>
+        <attribute name="lastLogin" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="lastPhotoUpdated" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numberOfMentions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="numberOfTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="pronouns" optional="YES" attributeType="String"/>
+        <attribute name="realName" optional="YES" attributeType="String"/>
+        <attribute name="role" optional="YES" attributeType="String"/>
+        <attribute name="roomNumber" optional="YES" attributeType="String"/>
+        <attribute name="thumbPhotoData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
+        <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserComment" inverseName="commentedOnUser" inverseEntity="UserComment"/>
+        <relationship name="commentOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserComment" inverseName="userCommentedOn" inverseEntity="PostOpUserComment"/>
+        <relationship name="favoritedByOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserFavorite" inverseName="userFavorited" inverseEntity="PostOpUserFavorite"/>
+        <relationship name="followedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Event" inverseName="followedBy" inverseEntity="Event"/>
+        <relationship name="fromPotential" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="actualUser" inverseEntity="PotentialUser"/>
+        <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation"/>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction"/>
+        <relationship name="seamailAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="author" inverseEntity="SeamailMessage"/>
+        <relationship name="seamailParticipant" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="participants" inverseEntity="SeamailThread"/>
+        <relationship name="seamailReader" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="readUsers" inverseEntity="SeamailMessage"/>
+        <relationship name="starredBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredUsers" inverseEntity="KrakenUser"/>
+        <relationship name="starredUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredBy" inverseEntity="KrakenUser"/>
+        <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="author" inverseEntity="TwitarrPost"/>
+        <relationship name="userComments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserComment" inverseName="commentingUser" inverseEntity="UserComment"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="username"/>
@@ -61,15 +59,15 @@
     </entity>
     <entity name="LoggedInKrakenUser" representedClassName="LoggedInKrakenUser" parentEntity="KrakenUser" syncable="YES"/>
     <entity name="PhotoDetails" representedClassName="PhotoDetails" syncable="YES">
-        <attribute name="animated" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="fullHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="fullWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="mediumHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="mediumWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="thumbHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="thumbWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="postsWithThisPhoto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="photoDetails" inverseEntity="TwitarrPost" syncable="YES"/>
+        <attribute name="animated" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="fullHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="fullWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="mediumHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="mediumWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="thumbHeight" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="thumbWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="postsWithThisPhoto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="photoDetails" inverseEntity="TwitarrPost"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -77,58 +75,66 @@
         </uniquenessConstraints>
     </entity>
     <entity name="PostOperation" representedClassName="PostOperation" syncable="YES">
-        <attribute name="errorString" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="originalPostTime" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="readyToSend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="sentNetworkCall" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="postOps" inverseEntity="KrakenUser" syncable="YES"/>
+        <attribute name="errorString" optional="YES" attributeType="String"/>
+        <attribute name="originalPostTime" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="readyToSend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="sentNetworkCall" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="postOps" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="PostOpEventFollow" representedClassName="PostOpEventFollow" parentEntity="PostOperation" syncable="YES">
-        <attribute name="newState" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Event" inverseName="opsFollowing" inverseEntity="Event" syncable="YES"/>
+        <attribute name="newState" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Event" inverseName="opsFollowing" inverseEntity="Event"/>
     </entity>
     <entity name="PostOpSeamailMessage" representedClassName="PostOpSeamailMessage" parentEntity="PostOperation" syncable="YES">
-        <attribute name="text" attributeType="String" syncable="YES"/>
-        <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="opsAddingMessages" inverseEntity="SeamailThread" syncable="YES"/>
+        <attribute name="text" attributeType="String"/>
+        <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="opsAddingMessages" inverseEntity="SeamailThread"/>
     </entity>
     <entity name="PostOpSeamailThread" representedClassName="PostOpSeamailThread" parentEntity="PostOperation" syncable="YES">
-        <attribute name="subject" attributeType="String" syncable="YES"/>
-        <attribute name="text" attributeType="String" syncable="YES"/>
-        <relationship name="recipients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inSeamailThread" inverseEntity="PotentialUser" syncable="YES"/>
+        <attribute name="subject" attributeType="String"/>
+        <attribute name="text" attributeType="String"/>
+        <relationship name="recipients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inSeamailThread" inverseEntity="PotentialUser"/>
     </entity>
     <entity name="PostOpTweet" representedClassName="PostOpTweet" parentEntity="PostOperation" syncable="YES">
-        <attribute name="image" optional="YES" attributeType="Binary" syncable="YES"/>
-        <attribute name="imageMimetype" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="text" attributeType="String" syncable="YES"/>
-        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsWithThisParent" inverseEntity="TwitarrPost" syncable="YES"/>
-        <relationship name="tweetToEdit" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsEditingThisTweet" inverseEntity="TwitarrPost" syncable="YES"/>
+        <attribute name="image" optional="YES" attributeType="Binary"/>
+        <attribute name="imageMimetype" optional="YES" attributeType="String"/>
+        <attribute name="text" attributeType="String"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsWithThisParent" inverseEntity="TwitarrPost"/>
+        <relationship name="tweetToEdit" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsEditingThisTweet" inverseEntity="TwitarrPost"/>
     </entity>
     <entity name="PostOpTweetDelete" representedClassName="PostOpTweetDelete" parentEntity="PostOperation" syncable="YES">
-        <relationship name="tweetToDelete" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsDeletingThisTweet" inverseEntity="TwitarrPost" syncable="YES"/>
+        <relationship name="tweetToDelete" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsDeletingThisTweet" inverseEntity="TwitarrPost"/>
     </entity>
     <entity name="PostOpTweetReaction" representedClassName="PostOpTweetReaction" parentEntity="PostOperation" syncable="YES">
-        <attribute name="isAdd" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="reactionWord" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="sourcePost" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="reactionOps" inverseEntity="TwitarrPost" syncable="YES"/>
+        <attribute name="isAdd" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="reactionWord" optional="YES" attributeType="String"/>
+        <relationship name="sourcePost" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="reactionOps" inverseEntity="TwitarrPost"/>
+    </entity>
+    <entity name="PostOpUserComment" representedClassName="PostOpUserComment" parentEntity="PostOperation" syncable="YES">
+        <attribute name="comment" attributeType="String"/>
+        <relationship name="userCommentedOn" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentOps" inverseEntity="KrakenUser"/>
+    </entity>
+    <entity name="PostOpUserFavorite" representedClassName="PostOpUserFavorite" parentEntity="PostOperation" syncable="YES">
+        <attribute name="isFavorite" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="userFavorited" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="favoritedByOps" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="PotentialUser" representedClassName="PotentialUser" syncable="YES">
-        <attribute name="username" attributeType="String" syncable="YES"/>
-        <relationship name="actualUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="fromPotential" inverseEntity="KrakenUser" syncable="YES"/>
-        <relationship name="inSeamailThread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpSeamailThread" inverseName="recipients" inverseEntity="PostOpSeamailThread" syncable="YES"/>
+        <attribute name="username" attributeType="String"/>
+        <relationship name="actualUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="fromPotential" inverseEntity="KrakenUser"/>
+        <relationship name="inSeamailThread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpSeamailThread" inverseName="recipients" inverseEntity="PostOpSeamailThread"/>
     </entity>
     <entity name="Reaction" representedClassName="Reaction" syncable="YES">
-        <attribute name="count" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="word" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="sourceTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="reactions" inverseEntity="TwitarrPost" syncable="YES"/>
-        <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="reactions" inverseEntity="KrakenUser" syncable="YES"/>
+        <attribute name="count" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="word" optional="YES" attributeType="String"/>
+        <relationship name="sourceTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="reactions" inverseEntity="TwitarrPost"/>
+        <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="reactions" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="SeamailMessage" representedClassName="SeamailMessage" syncable="YES">
-        <attribute name="id" attributeType="String" syncable="YES"/>
-        <attribute name="text" attributeType="String" syncable="YES"/>
-        <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailAuthor" inverseEntity="KrakenUser" syncable="YES"/>
-        <relationship name="readUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailReader" inverseEntity="KrakenUser" syncable="YES"/>
-        <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="messages" inverseEntity="SeamailThread" syncable="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="text" attributeType="String"/>
+        <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailAuthor" inverseEntity="KrakenUser"/>
+        <relationship name="readUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailReader" inverseEntity="KrakenUser"/>
+        <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="messages" inverseEntity="SeamailThread"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -136,13 +142,13 @@
         </uniquenessConstraints>
     </entity>
     <entity name="SeamailThread" representedClassName="SeamailThread" syncable="YES">
-        <attribute name="hasUnreadMessages" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="id" attributeType="String" syncable="YES"/>
-        <attribute name="subject" attributeType="String" syncable="YES"/>
-        <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="messages" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="thread" inverseEntity="SeamailMessage" syncable="YES"/>
-        <relationship name="opsAddingMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpSeamailMessage" inverseName="thread" inverseEntity="PostOpSeamailMessage" syncable="YES"/>
-        <relationship name="participants" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailParticipant" inverseEntity="KrakenUser" syncable="YES"/>
+        <attribute name="hasUnreadMessages" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="subject" attributeType="String"/>
+        <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="messages" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="thread" inverseEntity="SeamailMessage"/>
+        <relationship name="opsAddingMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpSeamailMessage" inverseName="thread" inverseEntity="PostOpSeamailMessage"/>
+        <relationship name="participants" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailParticipant" inverseEntity="KrakenUser"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -150,31 +156,36 @@
         </uniquenessConstraints>
     </entity>
     <entity name="ServerTextFile" representedClassName="ServerTextFile" syncable="YES">
-        <attribute name="fetchDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="fileName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="jsonData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="fetchDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="fileName" optional="YES" attributeType="String"/>
+        <attribute name="jsonData" optional="YES" attributeType="Binary"/>
     </entity>
     <entity name="TwitarrPost" representedClassName="TwitarrPost" syncable="YES">
-        <attribute name="contigWithOlder" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="id" attributeType="String" syncable="YES"/>
-        <attribute name="locked" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
-        <attribute name="parentID" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
-        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="tweets" inverseEntity="KrakenUser" syncable="YES"/>
-        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="parent" inverseEntity="TwitarrPost" syncable="YES"/>
-        <relationship name="opsDeletingThisTweet" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweetDelete" inverseName="tweetToDelete" inverseEntity="PostOpTweetDelete" syncable="YES"/>
-        <relationship name="opsEditingThisTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="tweetToEdit" inverseEntity="PostOpTweet" syncable="YES"/>
-        <relationship name="opsWithThisParent" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="parent" inverseEntity="PostOpTweet" syncable="YES"/>
-        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="children" inverseEntity="TwitarrPost" syncable="YES"/>
-        <relationship name="photoDetails" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoDetails" inverseName="postsWithThisPhoto" inverseEntity="PhotoDetails" syncable="YES"/>
-        <relationship name="reactionOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweetReaction" inverseName="sourcePost" inverseEntity="PostOpTweetReaction" syncable="YES"/>
-        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="sourceTweet" inverseEntity="Reaction" syncable="YES"/>
+        <attribute name="contigWithOlder" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="locked" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="parentID" optional="YES" attributeType="String"/>
+        <attribute name="text" optional="YES" attributeType="String"/>
+        <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="tweets" inverseEntity="KrakenUser"/>
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="parent" inverseEntity="TwitarrPost"/>
+        <relationship name="opsDeletingThisTweet" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweetDelete" inverseName="tweetToDelete" inverseEntity="PostOpTweetDelete"/>
+        <relationship name="opsEditingThisTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="tweetToEdit" inverseEntity="PostOpTweet"/>
+        <relationship name="opsWithThisParent" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="parent" inverseEntity="PostOpTweet"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="children" inverseEntity="TwitarrPost"/>
+        <relationship name="photoDetails" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoDetails" inverseName="postsWithThisPhoto" inverseEntity="PhotoDetails"/>
+        <relationship name="reactionOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweetReaction" inverseName="sourcePost" inverseEntity="PostOpTweetReaction"/>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="sourceTweet" inverseEntity="Reaction"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
+    </entity>
+    <entity name="UserComment" representedClassName="UserComment" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String"/>
+        <relationship name="commentedOnUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentedUpon" inverseEntity="KrakenUser"/>
+        <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="userComments" inverseEntity="KrakenUser"/>
     </entity>
     <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="username == $username"/>
     <fetchRequest name="FindServerTextFile" entity="ServerTextFile" predicateString="fileName == $fileName"/>
@@ -184,9 +195,9 @@
     <fetchRequest name="SeamailThreadsForUser" entity="SeamailThread" predicateString="$user IN participants"/>
     <fetchRequest name="SeamailThreadsWithIDs" entity="SeamailThread" predicateString="id IN $ids"/>
     <elements>
-        <element name="CommentsAndStars" positionX="117" positionY="90" width="128" height="105"/>
         <element name="Event" positionX="117" positionY="117" width="128" height="210"/>
-        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="405"/>
+        <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="463"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="180"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="120"/>
@@ -196,12 +207,14 @@
         <element name="PostOpTweet" positionX="126" positionY="117" width="128" height="120"/>
         <element name="PostOpTweetDelete" positionX="117" positionY="117" width="128" height="60"/>
         <element name="PostOpTweetReaction" positionX="126" positionY="126" width="128" height="90"/>
+        <element name="PostOpUserComment" positionX="117" positionY="117" width="128" height="75"/>
+        <element name="PostOpUserFavorite" positionX="117" positionY="117" width="128" height="75"/>
         <element name="PotentialUser" positionX="126" positionY="126" width="128" height="90"/>
         <element name="Reaction" positionX="117" positionY="117" width="128" height="105"/>
         <element name="SeamailMessage" positionX="144" positionY="135" width="128" height="135"/>
         <element name="SeamailThread" positionX="153" positionY="153" width="128" height="150"/>
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
-        <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
+        <element name="UserComment" positionX="117" positionY="90" width="128" height="90"/>
     </elements>
 </model>

@@ -64,6 +64,12 @@ class LocalCoreData: NSObject {
 		return container
 	}()
 	
+	override init() {
+		super.init()
+		NotificationCenter.default.addObserver(self, selector: #selector(contextDidSaveNotificationHandler), 
+				name: Notification.Name.NSManagedObjectContextObjectsDidChange, object: nil)
+	}
+	
 	// This returns the single MOC for use by the UI in the main thread.
 	lazy var mainThreadContext: NSManagedObjectContext = {
 		return persistentContainer.viewContext
@@ -74,6 +80,15 @@ class LocalCoreData: NSObject {
 		return persistentContainer.newBackgroundContext()
 	}()
 	
+	// Updates the main context in response to data saves from the network context
+	@objc func contextDidSaveNotificationHandler(notification: Notification) {
+		if let notificationContext = notification.object as? NSManagedObjectContext, notificationContext === networkOperationContext {
+			mainThreadContext.perform {
+				self.mainThreadContext.mergeChanges(fromContextDidSave: notification)
+			}
+		}
+	}
+
 //	func saveContext () {
 //		let context = persistentContainer.viewContext
 //		if context.hasChanges {

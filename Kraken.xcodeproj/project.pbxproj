@@ -123,6 +123,7 @@
 		EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */; };
 		EAA62C7122C55CC00031A999 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C7022C55CC00031A999 /* Logging.swift */; };
 		EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAA62C7222CC57060031A999 /* DraftImageCell.xib */; };
+		EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
 		EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536C22D1F75600CD1671 /* ButtonCell.swift */; };
@@ -309,6 +310,7 @@
 		EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTasksViewController.swift; sourceTree = "<group>"; };
 		EAA62C7022C55CC00031A999 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EAA62C7222CC57060031A999 /* DraftImageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DraftImageCell.xib; sourceTree = "<group>"; };
+		EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCommentCell.swift; sourceTree = "<group>"; };
 		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
 		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
 		EAB4536C22D1F75600CD1671 /* ButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCell.swift; sourceTree = "<group>"; };
@@ -428,6 +430,7 @@
 				EAEF340F224ED88300C7A0D9 /* LoginCells.swift */,
 				EA86ADE12279836D00363CBF /* ProfileAvatarLeftCell.xib */,
 				EA86ADE3227983B600363CBF /* ProfileAvatarTopCell.xib */,
+				EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */,
 				EA86ADE92279B4E400363CBF /* ProfileCommentCell.xib */,
 				EA86ADD02272813800363CBF /* LoginHeaderCell.xib */,
 			);
@@ -658,12 +661,12 @@
 				EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */,
 				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
 				EAA2E4C22242D300009F287F /* Main.storyboard */,
+				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
 				EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */,
 				EA4E84F1232C74D00059E5EB /* DisabledContentViewController.swift */,
 				EA4E84F3232C74FE0059E5EB /* DisabledContentViewController.xib */,
 				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
-				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
 				EAA2E4CA2242D301009F287F /* Info.plist */,
 				EAA0284A2321ED4A00B2B7F1 /* Social */,
 				EA1E3B8D2245795100017F07 /* Twittarr */,
@@ -924,6 +927,7 @@
 				EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */,
 				EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
+				EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
 				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
 				EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */,

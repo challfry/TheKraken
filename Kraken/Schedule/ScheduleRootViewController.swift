@@ -38,7 +38,7 @@ import EventKitUI
 	var pastEventsPredicate: NSPredicate?
 	
 // MARK: Methods 
-    override func viewDidLoad() {
+	override func viewDidLoad() {
         super.viewDidLoad()
         title = "Schedule"
 

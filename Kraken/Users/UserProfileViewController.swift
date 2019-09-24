@@ -26,35 +26,86 @@ class UserProfileViewController: BaseCollectionViewController {
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
 
 		if let userName = modelUserName {
-	        modelKrakenUser = UserManager.shared.loadUserProfile(userName)
+	        modelKrakenUser = UserManager.shared.loadUserProfile(userName) { resultUser in
+				if self.modelKrakenUser != resultUser {
+					self.updateCellModels(to: resultUser)
+				}
+			}
 		}
 		
 		setupCellModels()
-		collectionView.dataSource = dataSource      
-		collectionView.delegate = dataSource      
+		dataSource.register(with: collectionView, viewController: self)
     }
     
     override func viewDidAppear(_ animated: Bool) {
 		dataSource.enableAnimations = true
 	}
     
+    var lastRefreshTime: Date = Date()
 	@objc func startRefresh() {
+		guard Date().timeIntervalSince(lastRefreshTime) > 15.0 else { 
+			collectionView.refreshControl?.endRefreshing()
+			return 
+		}
+		
+		if let userName = modelUserName {
+	        modelKrakenUser = UserManager.shared.loadUserProfile(userName) { resultUser in
+				if self.modelKrakenUser != resultUser {
+					self.modelKrakenUser = resultUser
+					self.updateCellModels(to: resultUser)
+					self.collectionView.refreshControl?.endRefreshing()
+				}
+	        }
+		}
     }
+    
+// MARK: Cell Models
+	var avatarCell: ProfileAvatarCellModel?
+	var emailCell: UserProfileSingleValueCellModel?
+    var homeLocationCell: UserProfileSingleValueCellModel?
+    var roomNumberCell: UserProfileSingleValueCellModel?
+    var currentLocationCell: UserProfileSingleValueCellModel?
+    var authoredTweetsCell: ProfileDisclosureCellModel?
+    var mentionsCell: ProfileDisclosureCellModel?
+    var sendSeamailCell: ProfileDisclosureCellModel?
+    var profileCommentCell: ProfileCommentCellModel?
     
     func setupCellModels() {
 
     	let section = dataSource.appendFilteringSegment(named: "UserProfile")
-    	section.append(ProfileAvatarCellModel(user: modelKrakenUser))
-		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email))
-		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation))
-		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .roomNumber))
-		section.append(UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation))
-		section.append(ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self))
-		section.append(ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self))
-		section.append(ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self))		
-		section.append(ProfileCommentCellModel(user: modelKrakenUser))
-    }
+    	avatarCell = ProfileAvatarCellModel(user: modelKrakenUser)
+		emailCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email)
+		homeLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation)
+		roomNumberCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .roomNumber)
+		currentLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation)
+		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)
+		mentionsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self)
+		sendSeamailCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self)		
+		profileCommentCell = ProfileCommentCellModel(user: modelKrakenUser)
 
+    	section.append(avatarCell!)
+		section.append(emailCell!)
+		section.append(homeLocationCell!)
+		section.append(roomNumberCell!)
+		section.append(currentLocationCell!)
+		section.append(authoredTweetsCell!)
+		section.append(mentionsCell!)
+		section.append(sendSeamailCell!)		
+		section.append(profileCommentCell!)
+    }
+    
+    func updateCellModels(to newUser: KrakenUser?) {
+		self.modelKrakenUser = newUser
+    	avatarCell?.userModel = newUser
+    	emailCell?.userModel = newUser
+		homeLocationCell?.userModel = newUser
+		roomNumberCell?.userModel = newUser
+		currentLocationCell?.userModel = newUser
+		authoredTweetsCell?.userModel = newUser
+		mentionsCell?.userModel = newUser
+		sendSeamailCell?.userModel = newUser
+		profileCommentCell?.userModel = newUser
+	}
     
     // MARK: - Navigation
 	var filterForNextVC: String?
@@ -73,8 +124,16 @@ class UserProfileViewController: BaseCollectionViewController {
     }
     
     func pushSendSeamailView() {
+    	var participants = Set<String>()
+    	if let loggedInUser = CurrentUser.shared.loggedInUser {
+			participants.insert(loggedInUser.username)
+		}
+		if let shownUser = modelKrakenUser {
+			participants.insert(shownUser.username)
+		}
+		let packet = GlobalNavPacket(tab: .seamail, arguments: ["seamailThreadParticipants" : participants ])
+    	RootTabBarViewController.shared?.globalNavigateTo(packet: packet)
     }
-    
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "ShowUserMentions", let destVC = segue.destination as? TwitarrViewController {
@@ -110,7 +169,8 @@ class UserProfileViewController: BaseCollectionViewController {
 	@IBOutlet var realNameLabel: UILabel!
 	@IBOutlet var pronounsLabel: UILabel!
 	@IBOutlet var userAvatar: UIImageView!
-
+	@IBOutlet weak var favoriteButton: UIButton!
+	
 	private static let cellInfo = [ "ProfileAvatarLeft" : PrototypeCellInfo("ProfileAvatarLeftCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
@@ -137,6 +197,11 @@ class UserProfileViewController: BaseCollectionViewController {
 				}?.schedule()
 			}
 		}
+	}
+	
+	
+	@IBAction func favoriteButtonHit(_ sender: Any) {
+		favoriteButton.isSelected = !favoriteButton.isSelected
 	}
 }
 
@@ -213,12 +278,15 @@ class UserProfileViewController: BaseCollectionViewController {
 					user.tell(self, when: "numberOfTweets") { observer, observed in
 						observer.title = String("\(observed.numberOfTweets) Tweets")
 					}?.schedule()
+					shouldBeVisible = true
 			case .mentions:
 					user.tell(self, when: "numberOfMentions") { observer, observed in
 						observer.title = String("\(observed.numberOfMentions) Mentions")
 					}?.schedule()
+					shouldBeVisible = true
 			case .sendSeamail:
 					title = "Send Seamail to \(user.username)"
+					shouldBeVisible = user.username != CurrentUser.shared.loggedInUser?.username
 			}
 		}
 	}
@@ -232,43 +300,4 @@ class UserProfileViewController: BaseCollectionViewController {
 	}
 }
 
-@objc protocol ProfileCommentCellProtocol {
-	dynamic var comment: String? { get set }
-}
 
-@objc class ProfileCommentCellModel: BaseCellModel, ProfileCommentCellProtocol {
-	private static let validReuseIDs = [ "ProfileComment" : ProfileCommentCell.self ]
-	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
-
-	var userModel: KrakenUser?
-	dynamic var comment: String?
-	
-	init(user: KrakenUser?) {
-		userModel = user
-		super.init(bindingWith: ProfileCommentCellProtocol.self)
-
-//		clearObservations()
-//		if let model = userModel as? CellModel, let userModel = model.userModel, let currentUser = CurrentUser.shared.loggedInUser {
-//			if let commentAndStar = currentUser.commentsAndStars?.first(where: { $0.commentedOnUser.username == userModel.username } ) {
-//				commentView.text = commentAndStar.comment
-//			}
-//		}
-	}
-	
-}
-
-
-class ProfileCommentCell: BaseCollectionViewCell, ProfileCommentCellProtocol {
-	@IBOutlet var commentView: UITextView!
-	@IBOutlet var saveButton: UIButton!
-	private static let cellInfo = [ "ProfileComment"  : PrototypeCellInfo("ProfileCommentCell") ]
-	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
-	
-	dynamic var comment: String?
-
-	@IBAction func saveButtonTapped() {
-		if let model = cellModel as? ProfileCommentCellModel, let userModel = model.userModel {
-			CurrentUser.shared.setUserComment(commentView.text, forUser: userModel) {}
-		}
-	}
-}

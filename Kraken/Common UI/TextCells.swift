@@ -213,13 +213,13 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 	
 	func textViewDidBeginEditing(_ textView: UITextView) {
 		if let vc = viewController as? BaseCollectionViewController {
-			vc.activeTextEntry = textView
+			vc.textViewBecameActive(textView, inCell: self)
 		}
 	}
 	
 	func textViewDidEndEditing(_ textView: UITextView) {
 		if let vc = viewController as? BaseCollectionViewController {
-			vc.activeTextEntry = nil
+			vc.textViewResignedActive(textView, inCell: self)
 		}
 	}
 	

@@ -28,11 +28,14 @@ import CoreData
 	@NSManaged public var lastPhotoUpdated: Int64
 	@NSManaged public var thumbPhotoData: Data?
 	
+	@NSManaged public var postOps: Set<PostOperation>?
+	
 	@objc dynamic public var thumbPhoto: UIImage?
 	@objc dynamic weak var fullPhoto: UIImage?
 	
-	// Only follow this link when parsing! This goes to all comments *others* have left, including anyone who logged into this device!
-	@NSManaged private var commentedUpon: Set<CommentsAndStars>?
+	// Only follow these links when parsing! This goes to all comments *others* have left, including anyone who logged into this device!
+	@NSManaged private var commentedUpon: Set<UserComment>?
+	@NSManaged public var commentOps: Set<PostOpUserComment>?
 	
 	func buildFromV2UserInfo(context: NSManagedObjectContext, v2Object: TwitarrV2UserInfo)
 	{
@@ -56,18 +59,10 @@ import CoreData
 		TestAndUpdate(\.numberOfTweets, v2Object.numberOfTweets)
 		TestAndUpdate(\.numberOfMentions, v2Object.numberOfMentions)
 		
+		// If we're logged in, have the logged in user process the comments and stars 
 		if let loggedInUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			var commentToUpdate = commentedUpon?.first(where: { $0.commentingUser.username == loggedInUser.username } )
-			
-			// Only create a comment object if there's some content to put in it
-			if commentToUpdate == nil && (v2Object.comment != nil || v2Object.starred != nil) {
-				commentToUpdate = CommentsAndStars(context: context)
-			}
-			
-			commentToUpdate?.build(context: context, userCommentedOn: self, loggedInUser: loggedInUser, 
-					comment: v2Object.comment, isStarred: v2Object.starred)
+			loggedInUser.parseV2UserProfileCommentsAndStars(context: context, v2Object: v2Object, targetUser: self)
 		}
-
 	}
 
 
@@ -147,13 +142,15 @@ class UserManager : NSObject {
 	}
 	
 	// Calls /api/v2/user/profile to get info on a user. Updates CD with the returned information.
-	func loadUserProfile(_ username: String) -> KrakenUser? {
+	func loadUserProfile(_ username: String, done: ((KrakenUser?) -> Void)? = nil) -> KrakenUser? {
 	
-		// The background context we use to save data parsed from network calls CAN use the object ID but CANNOT reference the object
+		// The background context we use to save data parsed from network calls CAN use the object ID but 
+		// CANNOT reference the object
 		let krakenUser = user(username)
 		let krakenUserID = krakenUser?.objectID
 		
-		let request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/user/profile/\(username)", query: nil)
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/user/profile/\(username)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let response = response as? HTTPURLResponse, response.statusCode < 300,
 					let data = data {
@@ -161,22 +158,24 @@ class UserManager : NSObject {
 				let decoder = JSONDecoder()
 				do {
 					let profileResponse = try decoder.decode(TwitarrV2UserProfileResponse.self, from: data)
-					self.updateProfile(for: krakenUserID, from: profileResponse)
+					if profileResponse.status == "ok" {
+						self.updateProfile(for: krakenUserID, from: profileResponse.user, done: done)
+					}
 				} catch 
 				{
 					NetworkLog.error("Failure loading user profile.", ["Error" : error])
+					done?(nil)
 				} 
 			}
 		}
+		
+		// Note that we return the user object immediately, without waiting for it to be filled in. That's okay.
+		// Note 2, the user may be nil. Also okay.
 		return krakenUser
 	}
 	
-	func updateProfile(for objectID: NSManagedObjectID?, from response: TwitarrV2UserProfileResponse) {
-		guard response.status == "ok" else { return }
-		updateProfile(for: objectID, from: response.user)
-	}
-
-	func updateProfile(for objectID: NSManagedObjectID?, from profile: TwitarrV2UserProfile) {
+	func updateProfile(for objectID: NSManagedObjectID?, from profile: TwitarrV2UserProfile, 
+			done: ((KrakenUser?) -> Void)? = nil) {
 		let context = coreData.networkOperationContext
 		context.perform {
 			do {			
@@ -192,12 +191,21 @@ class UserManager : NSObject {
 					krakenUser = results.first
 				}
 				
+				// Pretty sure we should disallow cases where the usernames don't match. That is, I don't think the
+				// username of a user can be changed.
+				if let ku = krakenUser, ku.username != profile.username {
+					done?(nil)
+					return
+				}
+				
 				let user = krakenUser ?? KrakenUser(context: context)
 				user.buildFromV2UserProfile(context: context, v2Object: profile)
 				try context.save()
+				done?(user)
 			}
 			catch {
 				NetworkLog.error("Failure saving user profile data.", ["Error" : error])
+				done?(nil)
 			}
 		}
 	}

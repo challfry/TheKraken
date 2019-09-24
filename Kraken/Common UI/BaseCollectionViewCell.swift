@@ -167,6 +167,11 @@ struct PrototypeCellInfo {
 		self.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
+//	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 
+//			-> UICollectionViewLayoutAttributes {
+//		return layoutAttributes
+//	}
+	
 	// Called on cell creation and then whenever the cv size changes.
 	var fullWidth: Bool = true
 	var fullWidthConstraint: NSLayoutConstraint?
@@ -189,6 +194,7 @@ struct PrototypeCellInfo {
 			}
 			else {
 				fullWidthConstraint = contentView.widthAnchor.constraint(equalToConstant: width)
+				fullWidthConstraint?.priority = UILayoutPriority(rawValue: 900)
 			}
 		}
 		fullWidthConstraint?.isActive = fullWidth
@@ -237,6 +243,15 @@ struct PrototypeCellInfo {
 			return cell
 		}
 		return nil
+	}
+	
+	func animateIfNotPrototype(withDuration: TimeInterval, block: @escaping () -> Void) {
+		if self.isPrototypeCell {
+			block()
+		}
+		else {
+			UIView.animate(withDuration: withDuration, animations: block)
+		}
 	}
 	
 	func calculateSize() -> CGSize {

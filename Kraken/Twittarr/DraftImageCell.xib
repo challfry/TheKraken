@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -41,10 +39,10 @@
                 </subviews>
             </view>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="ZXP-HH-lej" secondAttribute="trailing" id="B7J-IQ-eSh"/>
+                <constraint firstAttribute="trailing" secondItem="ZXP-HH-lej" secondAttribute="trailing" priority="900" id="B7J-IQ-eSh"/>
                 <constraint firstItem="ZXP-HH-lej" firstAttribute="leading" secondItem="MhD-se-xxN" secondAttribute="leading" id="Ebr-VC-xeL"/>
-                <constraint firstAttribute="trailing" secondItem="ZVG-yN-aNF" secondAttribute="trailing" constant="15" id="NGq-yw-Cui"/>
-                <constraint firstAttribute="bottom" secondItem="ZXP-HH-lej" secondAttribute="bottom" id="T9A-Ak-oIE"/>
+                <constraint firstAttribute="trailing" secondItem="ZVG-yN-aNF" secondAttribute="trailing" priority="900" constant="15" id="NGq-yw-Cui"/>
+                <constraint firstAttribute="bottom" secondItem="ZXP-HH-lej" secondAttribute="bottom" priority="900" id="T9A-Ak-oIE"/>
                 <constraint firstItem="r8q-cE-3yP" firstAttribute="top" secondItem="MhD-se-xxN" secondAttribute="top" constant="6" id="T9l-hc-4k4"/>
                 <constraint firstItem="ZVG-yN-aNF" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="r8q-cE-3yP" secondAttribute="trailing" constant="12" id="ZJQ-Ff-x5q"/>
                 <constraint firstItem="ZXP-HH-lej" firstAttribute="top" secondItem="r8q-cE-3yP" secondAttribute="bottom" constant="12" id="f6M-UT-6GZ"/>

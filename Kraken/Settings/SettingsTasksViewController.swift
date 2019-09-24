@@ -121,6 +121,16 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				cellModel.disclosureLevel = 3
 				taskSection.append(cellModel)
 			}
+			
+		case let userCommentTask as PostOpUserComment:
+			if let commentedOnUsername = userCommentTask.userCommentedOn?.username {
+				taskSection.append(SettingsInfoCellModel("Add a personal User Comment for user \(commentedOnUsername)",
+						taskIndex: sectionIndex))
+			}
+			else {
+				taskSection.append(SettingsInfoCellModel("Add a personal User Comment", taskIndex: sectionIndex))
+			}
+			taskSection.append(LabelCellModel(userCommentTask.comment))
 
 		default:
 			break			

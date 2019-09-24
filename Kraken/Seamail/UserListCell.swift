@@ -43,6 +43,7 @@ class PossibleKrakenUser : NSObject, Comparable {
 	
 	init(username: String) {
 		self.username = username
+		self.user = UserManager.shared.user(username)
 		super.init()
 	}
 	

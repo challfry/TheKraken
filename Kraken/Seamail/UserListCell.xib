@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -48,13 +46,13 @@
             <constraints>
                 <constraint firstItem="2rR-Lj-Uvl" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="AgX-4Z-x2j"/>
                 <constraint firstItem="u4Q-fX-Z62" firstAttribute="top" secondItem="2rR-Lj-Uvl" secondAttribute="bottom" priority="900" constant="2" id="Ga0-tD-xZP"/>
-                <constraint firstAttribute="trailing" secondItem="ozX-qU-39F" secondAttribute="trailing" constant="20" id="Iet-Qq-xVO"/>
+                <constraint firstAttribute="trailing" secondItem="ozX-qU-39F" secondAttribute="trailing" priority="900" constant="20" id="Iet-Qq-xVO"/>
                 <constraint firstItem="ozX-qU-39F" firstAttribute="firstBaseline" secondItem="2rR-Lj-Uvl" secondAttribute="firstBaseline" id="VOM-1R-KNl"/>
-                <constraint firstAttribute="trailing" secondItem="u4Q-fX-Z62" secondAttribute="trailing" id="hjT-K4-uKW"/>
+                <constraint firstAttribute="trailing" secondItem="u4Q-fX-Z62" secondAttribute="trailing" priority="900" id="hjT-K4-uKW"/>
                 <constraint firstItem="u4Q-fX-Z62" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="qwm-xJ-KtY"/>
                 <constraint firstItem="2rR-Lj-Uvl" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="2" id="suB-UR-Lrr"/>
                 <constraint firstItem="ozX-qU-39F" firstAttribute="leading" secondItem="2rR-Lj-Uvl" secondAttribute="trailing" constant="10" id="wiN-Xm-nuF"/>
-                <constraint firstAttribute="bottom" secondItem="u4Q-fX-Z62" secondAttribute="bottom" id="yPy-l9-7mG"/>
+                <constraint firstAttribute="bottom" secondItem="u4Q-fX-Z62" secondAttribute="bottom" priority="900" id="yPy-l9-7mG"/>
             </constraints>
             <size key="customSize" width="417" height="99"/>
             <connections>
