@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -97,12 +95,12 @@
             </view>
             <constraints>
                 <constraint firstItem="WH2-ix-hnU" firstAttribute="leading" secondItem="jGJ-Cc-ovL" secondAttribute="leading" constant="20" id="1Au-il-dVJ"/>
-                <constraint firstAttribute="bottom" secondItem="WH2-ix-hnU" secondAttribute="bottom" id="2ky-zh-F90"/>
-                <constraint firstAttribute="trailing" secondItem="WH2-ix-hnU" secondAttribute="trailing" constant="20" id="ARG-Rj-YFs"/>
+                <constraint firstAttribute="bottom" secondItem="WH2-ix-hnU" secondAttribute="bottom" priority="900" id="2ky-zh-F90"/>
+                <constraint firstAttribute="trailing" secondItem="WH2-ix-hnU" secondAttribute="trailing" priority="900" constant="20" id="ARG-Rj-YFs"/>
                 <constraint firstItem="TCh-v3-S0l" firstAttribute="leading" secondItem="jGJ-Cc-ovL" secondAttribute="leading" id="ICM-qG-l4l"/>
                 <constraint firstItem="WH2-ix-hnU" firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="bottom" constant="4" id="azX-yA-DSW"/>
                 <constraint firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="top" id="nxF-QW-K48"/>
-                <constraint firstAttribute="trailing" secondItem="TCh-v3-S0l" secondAttribute="trailing" id="r6M-Zd-dOt"/>
+                <constraint firstAttribute="trailing" secondItem="TCh-v3-S0l" secondAttribute="trailing" priority="900" id="r6M-Zd-dOt"/>
             </constraints>
             <size key="customSize" width="412" height="106"/>
             <connections>

@@ -1,65 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
-        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ProfileComment" id="PYY-Ap-JFr" userLabel="Comment Cell" customClass="ProfileCommentCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="ProfileComment" id="PYY-Ap-JFr" userLabel="Comment Cell" customClass="ProfileCommentCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="283"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="283"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Personal Comment (only visible to you)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3dC-gn-cMU">
-                        <rect key="frame" x="20" y="20" width="268" height="18"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Personal Comment (only visible to you)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3dC-gn-cMU">
+                        <rect key="frame" x="20" y="10" width="268" height="18"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fQl-d6-dET">
-                        <rect key="frame" x="321" y="14" width="34" height="30"/>
+                        <rect key="frame" x="321" y="4" width="34" height="30"/>
                         <state key="normal" title="Save"/>
                         <connections>
                             <action selector="saveButtonTapped" destination="PYY-Ap-JFr" eventType="touchUpInside" id="r9g-cR-JOz"/>
                         </connections>
                     </button>
-                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Til-OV-JMZ">
-                        <rect key="frame" x="20" y="52" width="335" height="136"/>
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="200" showsHorizontalScrollIndicator="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Til-OV-JMZ">
+                        <rect key="frame" x="20" y="42" width="335" height="197"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="136" id="OuI-d3-4FH"/>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="60" id="OuI-d3-4FH"/>
+                            <constraint firstAttribute="height" priority="200" constant="60" id="hmg-nd-Xe4"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        <connections>
+                            <outlet property="delegate" destination="PYY-Ap-JFr" id="gIO-YA-Qb7"/>
+                        </connections>
                     </textView>
+                    <view clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XtJ-eI-wAT">
+                        <rect key="frame" x="20" y="243" width="335" height="30"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Comment change pending" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HG7-La-o4w">
+                                <rect key="frame" x="0.0" y="6" width="222" height="18"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3ST-Iq-oVF">
+                                <rect key="frame" x="287" y="0.0" width="48" height="30"/>
+                                <state key="normal" title="Cancel"/>
+                                <connections>
+                                    <action selector="cancelEditOp:" destination="PYY-Ap-JFr" eventType="touchUpInside" id="TOC-aF-UmV"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NBV-QG-iDv">
+                                <rect key="frame" x="232" y="0.0" width="45" height="30"/>
+                                <state key="normal" title="Revise"/>
+                                <connections>
+                                    <action selector="reviseEditOp:" destination="PYY-Ap-JFr" eventType="touchUpInside" id="yUE-k6-7nY"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="3ST-Iq-oVF" firstAttribute="leading" secondItem="NBV-QG-iDv" secondAttribute="trailing" constant="10" id="BpT-rJ-KI1"/>
+                            <constraint firstItem="HG7-La-o4w" firstAttribute="leading" secondItem="XtJ-eI-wAT" secondAttribute="leading" id="FI4-WB-4oA"/>
+                            <constraint firstAttribute="bottom" secondItem="HG7-La-o4w" secondAttribute="bottom" priority="900" constant="6" id="Fr1-EY-gRv"/>
+                            <constraint firstItem="3ST-Iq-oVF" firstAttribute="firstBaseline" secondItem="HG7-La-o4w" secondAttribute="firstBaseline" id="d3p-8Q-G3O"/>
+                            <constraint firstAttribute="trailing" secondItem="3ST-Iq-oVF" secondAttribute="trailing" priority="900" id="d5S-uv-hCw"/>
+                            <constraint firstAttribute="height" constant="30" id="jU4-6Y-UFh"/>
+                            <constraint firstItem="HG7-La-o4w" firstAttribute="top" secondItem="XtJ-eI-wAT" secondAttribute="top" constant="6" id="mY4-Ti-zmv"/>
+                            <constraint firstItem="NBV-QG-iDv" firstAttribute="firstBaseline" secondItem="HG7-La-o4w" secondAttribute="firstBaseline" id="vL0-kJ-qxJ"/>
+                            <constraint firstItem="NBV-QG-iDv" firstAttribute="leading" secondItem="HG7-La-o4w" secondAttribute="trailing" constant="10" id="yns-9y-jFd"/>
+                        </constraints>
+                    </view>
                 </subviews>
             </view>
             <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
             <constraints>
                 <constraint firstItem="fQl-d6-dET" firstAttribute="centerY" secondItem="3dC-gn-cMU" secondAttribute="centerY" id="2v4-NS-rOq"/>
-                <constraint firstAttribute="bottom" secondItem="Til-OV-JMZ" secondAttribute="bottom" constant="12" id="3bM-pG-D5U"/>
                 <constraint firstItem="Til-OV-JMZ" firstAttribute="leading" secondItem="PYY-Ap-JFr" secondAttribute="leading" constant="20" id="E9M-No-Omk"/>
                 <constraint firstItem="Til-OV-JMZ" firstAttribute="top" secondItem="fQl-d6-dET" secondAttribute="bottom" constant="8" id="Rng-Jf-ugW"/>
-                <constraint firstItem="3dC-gn-cMU" firstAttribute="top" secondItem="PYY-Ap-JFr" secondAttribute="top" constant="20" id="S40-C5-VEe"/>
+                <constraint firstItem="3dC-gn-cMU" firstAttribute="top" secondItem="PYY-Ap-JFr" secondAttribute="top" constant="10" id="S40-C5-VEe"/>
+                <constraint firstItem="XtJ-eI-wAT" firstAttribute="leading" secondItem="PYY-Ap-JFr" secondAttribute="leading" constant="20" id="TDh-yH-Uqq"/>
                 <constraint firstItem="3dC-gn-cMU" firstAttribute="leading" secondItem="PYY-Ap-JFr" secondAttribute="leading" constant="20" id="YNc-ra-9IA"/>
-                <constraint firstAttribute="trailing" secondItem="Til-OV-JMZ" secondAttribute="trailing" constant="20" id="dJQ-6t-ynO"/>
-                <constraint firstItem="fQl-d6-dET" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="3dC-gn-cMU" secondAttribute="trailing" constant="15" id="hqg-eh-380"/>
-                <constraint firstItem="fQl-d6-dET" firstAttribute="trailing" secondItem="Til-OV-JMZ" secondAttribute="trailing" id="ypL-js-V6w"/>
+                <constraint firstAttribute="trailing" secondItem="Til-OV-JMZ" secondAttribute="trailing" priority="900" constant="20" id="dJQ-6t-ynO"/>
+                <constraint firstAttribute="trailing" secondItem="XtJ-eI-wAT" secondAttribute="trailing" priority="900" constant="20" id="dWV-eZ-93a"/>
+                <constraint firstItem="fQl-d6-dET" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="3dC-gn-cMU" secondAttribute="trailing" priority="900" constant="15" id="hqg-eh-380"/>
+                <constraint firstItem="XtJ-eI-wAT" firstAttribute="top" secondItem="Til-OV-JMZ" secondAttribute="bottom" constant="4" id="xWC-9B-8Lt"/>
+                <constraint firstAttribute="trailing" secondItem="fQl-d6-dET" secondAttribute="trailing" constant="20" id="xiE-2J-nTg"/>
+                <constraint firstItem="XtJ-eI-wAT" firstAttribute="bottom" secondItem="PYY-Ap-JFr" secondAttribute="bottom" priority="900" constant="-10" id="xsO-Kp-IRR"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="PUh-6J-vQO"/>
+            <size key="customSize" width="375" height="283"/>
             <connections>
                 <outlet property="commentView" destination="Til-OV-JMZ" id="GWE-TY-Uok"/>
+                <outlet property="commentViewHeightConstraint" destination="hmg-nd-Xe4" id="ayR-h8-8df"/>
+                <outlet property="postOpCancelButton" destination="3ST-Iq-oVF" id="qQY-8U-o7M"/>
+                <outlet property="postOpHeightConstraint" destination="jU4-6Y-UFh" id="DUo-uu-kmy"/>
+                <outlet property="postOpView" destination="XtJ-eI-wAT" id="os7-gU-fSK"/>
                 <outlet property="saveButton" destination="fQl-d6-dET" id="Kqf-Cu-LLU"/>
+                <outlet property="statusLabel" destination="HG7-La-o4w" id="tM7-KH-icN"/>
             </connections>
+            <point key="canvasLocation" x="103.62318840579711" y="164.39732142857142"/>
         </collectionViewCell>
     </objects>
 </document>

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -41,13 +39,13 @@
             </view>
             <constraints>
                 <constraint firstItem="NGy-cq-kOo" firstAttribute="top" secondItem="Pfb-w4-23j" secondAttribute="bottom" constant="20.5" id="ER0-2o-k8h"/>
-                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="u44-f5-djN" secondAttribute="bottom" constant="8" id="NNJ-uj-sj7"/>
-                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="NGy-cq-kOo" secondAttribute="bottom" constant="8" id="PLZ-72-Pbo"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="u44-f5-djN" secondAttribute="bottom" priority="900" constant="8" id="NNJ-uj-sj7"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="NGy-cq-kOo" secondAttribute="bottom" priority="900" constant="8" id="PLZ-72-Pbo"/>
                 <constraint firstItem="NGy-cq-kOo" firstAttribute="leading" secondItem="Pfb-w4-23j" secondAttribute="leading" id="QhD-N8-fro"/>
                 <constraint firstItem="NGy-cq-kOo" firstAttribute="trailing" secondItem="Pfb-w4-23j" secondAttribute="trailing" id="agm-B7-UiH"/>
                 <constraint firstItem="Pfb-w4-23j" firstAttribute="leading" secondItem="u44-f5-djN" secondAttribute="trailing" constant="8" id="bgK-lB-SHd"/>
                 <constraint firstItem="u44-f5-djN" firstAttribute="leading" secondItem="qPb-4E-PrR" secondAttribute="leading" id="hHd-vY-2mq"/>
-                <constraint firstAttribute="trailing" secondItem="Pfb-w4-23j" secondAttribute="trailing" constant="20" id="oW4-YK-0GL"/>
+                <constraint firstAttribute="trailing" secondItem="Pfb-w4-23j" secondAttribute="trailing" priority="900" constant="20" id="oW4-YK-0GL"/>
                 <constraint firstItem="u44-f5-djN" firstAttribute="top" secondItem="qPb-4E-PrR" secondAttribute="top" constant="8" id="p75-5W-7CM"/>
                 <constraint firstItem="Pfb-w4-23j" firstAttribute="top" secondItem="u44-f5-djN" secondAttribute="top" id="reB-4w-xq1"/>
             </constraints>

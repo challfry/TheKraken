@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -42,15 +40,15 @@
             </view>
             <constraints>
                 <constraint firstItem="0fo-ax-alj" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="qP4-9n-VDs" secondAttribute="leading" constant="2" id="2v7-kj-0v7"/>
-                <constraint firstItem="0fo-ax-alj" firstAttribute="centerX" secondItem="O3j-Q8-3iM" secondAttribute="centerX" id="7Qn-oY-RPE"/>
+                <constraint firstItem="0fo-ax-alj" firstAttribute="centerX" secondItem="O3j-Q8-3iM" secondAttribute="centerX" priority="901" id="7Qn-oY-RPE"/>
                 <constraint firstItem="O3j-Q8-3iM" firstAttribute="top" secondItem="nsK-AY-lBR" secondAttribute="bottom" constant="-10" id="ACv-C9-cT9"/>
                 <constraint firstItem="0fo-ax-alj" firstAttribute="top" secondItem="O3j-Q8-3iM" secondAttribute="bottom" constant="1" id="Brg-XJ-dIK"/>
                 <constraint firstItem="O3j-Q8-3iM" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="qP4-9n-VDs" secondAttribute="leading" constant="10" id="JSb-QK-qvz"/>
-                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="0fo-ax-alj" secondAttribute="trailing" constant="2" id="WbK-jl-XYj"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="0fo-ax-alj" secondAttribute="trailing" priority="900" constant="2" id="WbK-jl-XYj"/>
                 <constraint firstItem="O3j-Q8-3iM" firstAttribute="top" secondItem="qP4-9n-VDs" secondAttribute="top" constant="10" id="irI-TZ-B1c"/>
-                <constraint firstAttribute="bottom" secondItem="0fo-ax-alj" secondAttribute="bottom" constant="2" id="mLM-Zm-aIk"/>
+                <constraint firstAttribute="bottom" secondItem="0fo-ax-alj" secondAttribute="bottom" priority="900" constant="2" id="mLM-Zm-aIk"/>
                 <constraint firstItem="nsK-AY-lBR" firstAttribute="leading" secondItem="O3j-Q8-3iM" secondAttribute="leading" constant="-10" id="nr5-pu-gqD"/>
-                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="O3j-Q8-3iM" secondAttribute="trailing" id="uIH-Qb-FvN"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="O3j-Q8-3iM" secondAttribute="trailing" priority="900" id="uIH-Qb-FvN"/>
             </constraints>
             <size key="customSize" width="86" height="80"/>
             <connections>

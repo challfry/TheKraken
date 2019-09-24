@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -42,7 +40,6 @@
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Message" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aax-xt-iJL">
                                 <rect key="frame" x="2" y="2" width="69" height="20.5"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -59,17 +56,17 @@
                 </subviews>
             </view>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="LGe-9d-rdl" secondAttribute="trailing" constant="11" id="13A-Po-W6q"/>
+                <constraint firstAttribute="trailing" secondItem="LGe-9d-rdl" secondAttribute="trailing" priority="900" constant="11" id="13A-Po-W6q"/>
                 <constraint firstItem="LGe-9d-rdl" firstAttribute="firstBaseline" secondItem="cdR-ea-J2s" secondAttribute="firstBaseline" id="FEC-4b-8SN"/>
                 <constraint firstItem="cdR-ea-J2s" firstAttribute="top" secondItem="a5q-jX-fle" secondAttribute="top" id="Hnr-gH-oFe"/>
                 <constraint firstItem="LGe-9d-rdl" firstAttribute="leading" secondItem="cdR-ea-J2s" secondAttribute="trailing" constant="8" id="LLc-LO-KUl"/>
-                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="GDG-zu-4cq" secondAttribute="trailing" constant="60" id="MqK-LT-MaU"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="GDG-zu-4cq" secondAttribute="trailing" priority="900" constant="60" id="MqK-LT-MaU"/>
                 <constraint firstItem="GDG-zu-4cq" firstAttribute="leading" secondItem="cdR-ea-J2s" secondAttribute="leading" id="ROK-aQ-kRm"/>
                 <constraint firstItem="GDG-zu-4cq" firstAttribute="top" secondItem="cdR-ea-J2s" secondAttribute="bottom" constant="4" id="WPv-nl-9Qt"/>
                 <constraint firstItem="a5q-jX-fle" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="2" id="eym-7v-9li"/>
-                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="a5q-jX-fle" secondAttribute="bottom" constant="2" id="hGX-jO-ucj"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="a5q-jX-fle" secondAttribute="bottom" priority="900" constant="2" id="hGX-jO-ucj"/>
                 <constraint firstItem="a5q-jX-fle" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="2" id="qmy-W0-NOU"/>
-                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="GDG-zu-4cq" secondAttribute="bottom" constant="2" id="ued-51-lmd"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="GDG-zu-4cq" secondAttribute="bottom" priority="900" constant="2" id="ued-51-lmd"/>
                 <constraint firstItem="cdR-ea-J2s" firstAttribute="leading" secondItem="a5q-jX-fle" secondAttribute="trailing" constant="5" id="vA9-14-wOi"/>
             </constraints>
             <size key="customSize" width="377" height="58"/>

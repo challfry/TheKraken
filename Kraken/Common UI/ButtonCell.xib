@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -19,7 +17,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="M9q-On-aV2">
-                        <rect key="frame" x="124" y="8" width="127" height="30"/>
+                        <rect key="frame" x="124" y="8" width="119" height="44"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L03-WC-3TE" userLabel="Button1">
                                 <rect key="frame" x="0.0" y="0.0" width="52" height="44"/>
@@ -37,15 +35,15 @@
                             </button>
                         </subviews>
                         <constraints>
-                            <constraint firstAttribute="height" constant="44" id="TkC-DJ-pUY"/>
+                            <constraint firstAttribute="height" priority="900" constant="44" id="TkC-DJ-pUY"/>
                         </constraints>
                     </stackView>
                 </subviews>
             </view>
             <constraints>
-                <constraint firstItem="M9q-On-aV2" firstAttribute="centerY" secondItem="jyN-Es-fX0" secondAttribute="centerY" id="897-ns-5fy"/>
+                <constraint firstItem="M9q-On-aV2" firstAttribute="centerY" secondItem="jyN-Es-fX0" secondAttribute="centerY" priority="901" id="897-ns-5fy"/>
                 <constraint firstItem="M9q-On-aV2" firstAttribute="top" relation="greaterThanOrEqual" secondItem="jyN-Es-fX0" secondAttribute="top" id="GQ6-7o-uYs"/>
-                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="M9q-On-aV2" secondAttribute="bottom" id="PRl-rT-sn0"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="M9q-On-aV2" secondAttribute="bottom" priority="900" id="PRl-rT-sn0"/>
                 <constraint firstItem="M9q-On-aV2" firstAttribute="centerX" secondItem="jyN-Es-fX0" secondAttribute="centerX" priority="800" id="PSR-xx-bfh"/>
                 <constraint firstItem="M9q-On-aV2" firstAttribute="leading" secondItem="jyN-Es-fX0" secondAttribute="leading" priority="700" constant="20" id="duW-49-6qH"/>
                 <constraint firstAttribute="trailing" secondItem="M9q-On-aV2" secondAttribute="trailing" priority="900" constant="20" id="h1T-RJ-exh"/>

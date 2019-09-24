@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -41,11 +39,11 @@
                 </subviews>
             </view>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="sQc-it-ivw" secondAttribute="bottom" constant="8" id="Cij-Ld-fjZ"/>
+                <constraint firstAttribute="bottom" secondItem="sQc-it-ivw" secondAttribute="bottom" priority="900" constant="8" id="Cij-Ld-fjZ"/>
                 <constraint firstItem="sQc-it-ivw" firstAttribute="leading" secondItem="pPT-Gw-9vG" secondAttribute="leading" constant="8" id="Tod-sH-JLG"/>
                 <constraint firstItem="hh5-8K-LPW" firstAttribute="leading" secondItem="sQc-it-ivw" secondAttribute="trailing" constant="16" id="VJx-vS-z06"/>
                 <constraint firstItem="qny-Hw-RJx" firstAttribute="centerY" secondItem="sQc-it-ivw" secondAttribute="centerY" id="dcc-T6-RTg"/>
-                <constraint firstAttribute="trailing" secondItem="qny-Hw-RJx" secondAttribute="trailing" constant="20" id="iTb-dT-JE9"/>
+                <constraint firstAttribute="trailing" secondItem="qny-Hw-RJx" secondAttribute="trailing" priority="900" constant="20" id="iTb-dT-JE9"/>
                 <constraint firstItem="sQc-it-ivw" firstAttribute="top" secondItem="pPT-Gw-9vG" secondAttribute="top" constant="8" id="n77-eg-bsc"/>
                 <constraint firstItem="hh5-8K-LPW" firstAttribute="centerY" secondItem="sQc-it-ivw" secondAttribute="centerY" id="nEY-tW-7PJ"/>
                 <constraint firstItem="qny-Hw-RJx" firstAttribute="leading" secondItem="hh5-8K-LPW" secondAttribute="trailing" constant="8" id="opT-ab-ZUk"/>

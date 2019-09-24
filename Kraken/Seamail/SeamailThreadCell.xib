@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -58,10 +56,10 @@
             </view>
             <constraints>
                 <constraint firstItem="IUt-hR-bzr" firstAttribute="firstBaseline" secondItem="WCF-XB-1WQ" secondAttribute="firstBaseline" id="8So-t0-Dls"/>
-                <constraint firstAttribute="trailing" secondItem="IUt-hR-bzr" secondAttribute="trailing" constant="20" id="CC3-QC-fOJ"/>
+                <constraint firstAttribute="trailing" secondItem="IUt-hR-bzr" secondAttribute="trailing" priority="900" constant="20" id="CC3-QC-fOJ"/>
                 <constraint firstItem="IUt-hR-bzr" firstAttribute="leading" secondItem="WCF-XB-1WQ" secondAttribute="trailing" id="Dku-Et-PGV"/>
                 <constraint firstItem="WCF-XB-1WQ" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="10" id="Gz1-h2-MB3"/>
-                <constraint firstAttribute="trailing" secondItem="tzs-xV-HxT" secondAttribute="trailing" id="KEp-7c-2us"/>
+                <constraint firstAttribute="trailing" secondItem="tzs-xV-HxT" secondAttribute="trailing" priority="900" id="KEp-7c-2us"/>
                 <constraint firstItem="6nt-ki-bhW" firstAttribute="leading" secondItem="WCF-XB-1WQ" secondAttribute="leading" id="NxE-QN-VZ4"/>
                 <constraint firstItem="tzs-xV-HxT" firstAttribute="top" secondItem="6nt-ki-bhW" secondAttribute="bottom" constant="4" id="OHt-tw-Hrk"/>
                 <constraint firstItem="6nt-ki-bhW" firstAttribute="top" secondItem="WCF-XB-1WQ" secondAttribute="bottom" constant="3" id="V4g-TC-k9a"/>
@@ -69,7 +67,7 @@
                 <constraint firstItem="y5u-s0-Fmn" firstAttribute="leading" secondItem="6nt-ki-bhW" secondAttribute="trailing" constant="10" id="X7D-ta-57b"/>
                 <constraint firstItem="6nt-ki-bhW" firstAttribute="firstBaseline" secondItem="y5u-s0-Fmn" secondAttribute="firstBaseline" id="gVW-rD-Qqe"/>
                 <constraint firstItem="WCF-XB-1WQ" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="4" id="h1t-vm-zn2"/>
-                <constraint firstAttribute="bottom" secondItem="tzs-xV-HxT" secondAttribute="bottom" constant="2" id="irA-VA-Wbl"/>
+                <constraint firstAttribute="bottom" secondItem="tzs-xV-HxT" secondAttribute="bottom" priority="900" constant="2" id="irA-VA-Wbl"/>
                 <constraint firstItem="tzs-xV-HxT" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="jIh-Jl-jo3"/>
             </constraints>
             <size key="customSize" width="375" height="134"/>
