@@ -39,7 +39,7 @@
         <attribute name="username" optional="YES" attributeType="String"/>
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserComment" inverseName="commentedOnUser" inverseEntity="UserComment"/>
         <relationship name="commentOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserComment" inverseName="userCommentedOn" inverseEntity="PostOpUserComment"/>
-        <relationship name="favoritedByOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserFavorite" inverseName="userFavorited" inverseEntity="PostOpUserFavorite"/>
+        <relationship name="favoritedByOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserFavorite" inverseName="userBeingFavorited" inverseEntity="PostOpUserFavorite"/>
         <relationship name="followedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Event" inverseName="followedBy" inverseEntity="Event"/>
         <relationship name="fromPotential" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="actualUser" inverseEntity="PotentialUser"/>
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation"/>
@@ -115,7 +115,7 @@
     </entity>
     <entity name="PostOpUserFavorite" representedClassName="PostOpUserFavorite" parentEntity="PostOperation" syncable="YES">
         <attribute name="isFavorite" attributeType="Boolean" usesScalarValueType="YES"/>
-        <relationship name="userFavorited" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="favoritedByOps" inverseEntity="KrakenUser"/>
+        <relationship name="userBeingFavorited" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="favoritedByOps" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="PotentialUser" representedClassName="PotentialUser" syncable="YES">
         <attribute name="username" attributeType="String"/>
@@ -208,7 +208,7 @@
         <element name="PostOpTweetDelete" positionX="117" positionY="117" width="128" height="60"/>
         <element name="PostOpTweetReaction" positionX="126" positionY="126" width="128" height="90"/>
         <element name="PostOpUserComment" positionX="117" positionY="117" width="128" height="75"/>
-        <element name="PostOpUserFavorite" positionX="117" positionY="117" width="128" height="75"/>
+        <element name="PostOpUserFavorite" positionX="117" positionY="117" width="128" height="73"/>
         <element name="PotentialUser" positionX="126" positionY="126" width="128" height="90"/>
         <element name="Reaction" positionX="117" positionY="117" width="128" height="105"/>
         <element name="SeamailMessage" positionX="144" positionY="135" width="128" height="135"/>

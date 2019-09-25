@@ -53,6 +53,10 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 			if let destVC = segue.destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
 				destVC.threadToEdit = thread
 			}
+		case "showUserProfile":
+			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
+				destVC.modelUserName = username
+			}
 		default: break 
 		}
 	}
@@ -131,6 +135,23 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				taskSection.append(SettingsInfoCellModel("Add a personal User Comment", taskIndex: sectionIndex))
 			}
 			taskSection.append(LabelCellModel(userCommentTask.comment))
+			
+		case let userFavoritedTask as PostOpUserFavorite:
+			if let favoritedUsername = userFavoritedTask.userBeingFavorited?.username {
+				let headerCell = SettingsInfoCellModel("Favorite/Un-favorite a user", taskIndex: sectionIndex)
+				userFavoritedTask.tell(headerCell, when: "isFavorite") { observer, observed in
+					let str = observed.isFavorite ? "• Add \(favoritedUsername) to favorite users" : 
+							"• Remove \(favoritedUsername) from favorite users"
+					observer.labelText = NSAttributedString(string: str)
+				}?.execute()
+				taskSection.append(headerCell)
+				let disclosureCell = DisclosureCellModel()
+				disclosureCell.title = "See profile for \(favoritedUsername)"
+				disclosureCell.tapAction = { 
+					self.performSegue(withIdentifier: "showUserProfile", sender: favoritedUsername)
+				}
+				taskSection.append(disclosureCell)
+			}
 
 		default:
 			break			
@@ -229,7 +250,10 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 	}
 	
 	class func taskCanBeEdited(task: PostOperation) -> Bool {
-		if task is PostOpTweetReaction || task is PostOpTweetDelete || task is PostOpEventFollow {
+		if task is PostOpTweetReaction ||
+				task is PostOpTweetDelete || 
+				task is PostOpUserFavorite || 
+				task is PostOpEventFollow {
 			return false
 		}
 		return true

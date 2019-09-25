@@ -689,7 +689,40 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 
 @objc(PostOpUserFavorite) public class PostOpUserFavorite: PostOperation {
 	@NSManaged public var isFavorite: Bool
+	@NSManaged public var userBeingFavorited: KrakenUser?
 
+	override func post() {
+		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
+		guard let userFavorited = userBeingFavorited else { return }
+		super.post()
+				
+		// POST /api/v2/user/profile/:username/star
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile/\(userFavorited.username)/star", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "POST"
+		queueNetworkPost(request: request) { data in
+			do {
+				let decoder = JSONDecoder()
+				let response = try decoder.decode(TwitarrV2ToggleUserStarResponse.self, from: data)
+				if response.status == "ok" {
+					let context = LocalCoreData.shared.networkOperationContext
+					context.perform {
+						do {
+							currentUser.updateUserStar(context: context, targetUser: userFavorited, newState: response.starred)
+							try context.save()
+						}
+						catch {
+							CoreDataLog.error("Couldn't save context.", ["error" : error])
+						}
+					}
+				}
+			}
+			catch {
+				CoreDataLog.error("Failure saving User Comment change to Core Data. (the PostOp succeeded, but we couldn't save the change).", 
+						["Error" : error])
+			}
+		}
+	}
 
 }
 
@@ -772,3 +805,8 @@ struct TwitarrV2ChangeUserCommentResponse: Codable {
 	let user: TwitarrV2UserProfile
 }
 
+// POST /api/v2/user/profile/:username/star 
+struct TwitarrV2ToggleUserStarResponse: Codable {
+	let status: String
+	let starred: Bool
+}

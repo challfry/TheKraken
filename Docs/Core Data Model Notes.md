@@ -6,7 +6,7 @@ Since the model layer models what we know about app state, and not the results o
 all the info that we can know about a user, even though most of the time we'll fill them in with UserInfo{} objects that have 3 fields.
 
 Some data in User objects from the V2 service is specific to what the logged-in user has commented about the given User.
-That data is modeled separately, in CommentsAndStars objects.
+That data is modeled separately.
 
 ## LoggedInKrakenUser
 

@@ -27,9 +27,7 @@ import CoreData
 	
 	@NSManaged public var lastPhotoUpdated: Int64
 	@NSManaged public var thumbPhotoData: Data?
-	
-	@NSManaged public var postOps: Set<PostOperation>?
-	
+		
 	@objc dynamic public var thumbPhoto: UIImage?
 	@objc dynamic weak var fullPhoto: UIImage?
 	

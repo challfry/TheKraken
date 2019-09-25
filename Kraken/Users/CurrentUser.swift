@@ -12,6 +12,8 @@ import CoreData
 @objc(LoggedInKrakenUser) public class LoggedInKrakenUser: KrakenUser {
 
 	// Specific to the logged-in user
+	@NSManaged public var postOps: Set<PostOperation>?
+
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
 	@NSManaged public var starredUsers: Set<KrakenUser>?			// Set of users the logged in user has starred.
 	@NSManaged public var lastLogin: Bool
@@ -45,6 +47,19 @@ import CoreData
 		return nil
 	}
 	
+	func getPendingUserFavoriteOp(forUser: KrakenUser, inContext: NSManagedObjectContext) -> PostOpUserFavorite? {
+		if let ops = postOps {
+			for op in ops {
+				if let userStarOp = op as? PostOpUserFavorite, let userBeingFavorited = userStarOp.userBeingFavorited,
+						userBeingFavorited.username == forUser.username {
+					let starOpInContext = try? inContext.existingObject(with: userStarOp.objectID) as? PostOpUserFavorite
+					return starOpInContext
+				}
+			}
+		}
+		return nil
+	}
+	
 	// The v2Object in this instance is NOT (generally) the logged-in user. It's another userProfile where
 	// it contains data specific to the logged-in user's POV--user comments and stars.
 	func parseV2UserProfileCommentsAndStars(context: NSManagedObjectContext, v2Object: TwitarrV2UserProfile,
@@ -65,21 +80,21 @@ import CoreData
 		// itself should become "".
 		commentToUpdate?.build(context: context, userCommentedOn: self, loggedInUser: self, 
 				comment: v2Object.comment)
-					
+	
+		updateUserStar(context: context, targetUser: targetUser, newState: v2Object.starred)			
+	}
+	
+	func updateUserStar(context: NSManagedObjectContext, targetUser: KrakenUser, newState: Bool?) {
 		//
-		if let isStarred = v2Object.starred {
+		if let isStarred = newState {
 			let currentlyStarred = starredUsers?.contains(targetUser) ?? false
 			if isStarred && !currentlyStarred {
-				if starredUsers == nil {
-					starredUsers = Set<KrakenUser>()
-				}
 				starredUsers?.insert(targetUser)
 			}
 			else {
 				starredUsers?.remove(targetUser)
 			}
 		}
-					
 	}
 
 }
@@ -428,9 +443,6 @@ import CoreData
 				op.readyToSend = true
 			
 				try context.save()
-				if let opMain = try? LocalCoreData.shared.mainThreadContext.existingObject(with: op.objectID) as? PostOpUserComment {
-					LocalCoreData.shared.mainThreadContext.refresh(opMain, mergeChanges: true)
-				}
 			}
 			catch {
 				CoreDataLog.error("Couldn't save context.", ["error" : error])
@@ -445,6 +457,31 @@ import CoreData
 		PostOperationDataManager.shared.remove(op: op)
 	}
 	
+	// This lets the logged in user favorite another user.
+	func setFavoriteUser(forUser: KrakenUser, to newState: Bool) {
+		guard let loggedInUser = loggedInUser else { return }
+		clearErrors()
+		
+		let context = LocalCoreData.shared.networkOperationContext
+		context.performAndWait {
+			do {
+				// get user in context
+				let userInContext = try context.existingObject(with: forUser.objectID) as! KrakenUser
+					
+				// Check for existing op for this user
+				let op = loggedInUser.getPendingUserFavoriteOp(forUser: forUser, inContext: context) ?? 
+						PostOpUserFavorite(context: context)
+				op.isFavorite = newState
+				op.userBeingFavorited = userInContext
+				op.readyToSend = true
+			
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
+			}
+		}
+	}
 }
 
 /* Secure storage of user auth data.

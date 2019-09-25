@@ -42,18 +42,30 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xia-j1-S8y">
-                        <rect key="frame" x="216" y="95" width="72" height="72"/>
+                        <rect key="frame" x="216" y="95" width="38" height="38"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="38" id="83T-6n-DNF"/>
+                            <constraint firstAttribute="width" constant="38" id="ngI-ot-3I5"/>
+                        </constraints>
                         <state key="normal" image="FavoriteHeartGrey.png"/>
                         <state key="selected" image="FavoriteHeart.png"/>
                         <connections>
                             <action selector="favoriteButtonHit:" destination="Yzs-vX-MlD" eventType="touchUpInside" id="uX1-4C-Aa4"/>
                         </connections>
                     </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Favorite Pending" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nUl-Ua-ynu">
+                        <rect key="frame" x="216" y="141" width="159" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
             </view>
             <constraints>
+                <constraint firstItem="nUl-Ua-ynu" firstAttribute="leading" secondItem="Xia-j1-S8y" secondAttribute="leading" id="0Zh-iG-NJK"/>
                 <constraint firstAttribute="trailing" secondItem="c3W-fd-6JF" secondAttribute="trailing" priority="900" id="6Gd-gg-ih5"/>
                 <constraint firstItem="fnD-RF-C9Q" firstAttribute="top" secondItem="Yzs-vX-MlD" secondAttribute="top" id="Gov-bT-sXt"/>
+                <constraint firstAttribute="trailing" secondItem="nUl-Ua-ynu" secondAttribute="trailing" priority="900" id="HqA-Se-JiO"/>
                 <constraint firstItem="XEF-md-vqj" firstAttribute="top" secondItem="fnD-RF-C9Q" secondAttribute="top" constant="12" id="Ig1-7e-MIa"/>
                 <constraint firstItem="c3W-fd-6JF" firstAttribute="leading" secondItem="XEF-md-vqj" secondAttribute="leading" id="MbP-j8-P6X"/>
                 <constraint firstAttribute="trailing" secondItem="XEF-md-vqj" secondAttribute="trailing" priority="900" id="Nt9-EY-qCS"/>
@@ -65,17 +77,19 @@
                 <constraint firstAttribute="trailing" secondItem="dJr-zb-XnC" secondAttribute="trailing" priority="900" id="kK4-mS-jr8"/>
                 <constraint firstItem="Xia-j1-S8y" firstAttribute="leading" secondItem="dJr-zb-XnC" secondAttribute="leading" id="nJo-7v-Rm4"/>
                 <constraint firstItem="dJr-zb-XnC" firstAttribute="top" secondItem="c3W-fd-6JF" secondAttribute="bottom" constant="6" id="pJG-Ed-YBE"/>
+                <constraint firstItem="nUl-Ua-ynu" firstAttribute="top" secondItem="Xia-j1-S8y" secondAttribute="bottom" constant="8" id="ucs-cj-wJg"/>
                 <constraint firstItem="XEF-md-vqj" firstAttribute="leading" secondItem="fnD-RF-C9Q" secondAttribute="trailing" constant="16" id="zlE-gt-lXH"/>
             </constraints>
             <size key="customSize" width="375" height="200"/>
             <connections>
                 <outlet property="favoriteButton" destination="Xia-j1-S8y" id="QzM-V0-s05"/>
+                <outlet property="favoritePendingLabel" destination="nUl-Ua-ynu" id="3u1-f5-lTp"/>
                 <outlet property="pronounsLabel" destination="dJr-zb-XnC" id="8BL-K0-kg9"/>
                 <outlet property="realNameLabel" destination="c3W-fd-6JF" id="sh0-aE-5yO"/>
                 <outlet property="userAvatar" destination="fnD-RF-C9Q" id="nnI-Z1-hOg"/>
                 <outlet property="userNameLabel" destination="XEF-md-vqj" id="t4H-TI-GOe"/>
             </connections>
-            <point key="canvasLocation" x="131" y="153"/>
+            <point key="canvasLocation" x="129.71014492753625" y="152.67857142857142"/>
         </collectionViewCell>
     </objects>
     <resources>

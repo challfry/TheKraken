@@ -170,23 +170,28 @@ class UserProfileViewController: BaseCollectionViewController {
 	@IBOutlet var pronounsLabel: UILabel!
 	@IBOutlet var userAvatar: UIImageView!
 	@IBOutlet weak var favoriteButton: UIButton!
+	@IBOutlet weak var favoritePendingLabel: UILabel!
 	
 	private static let cellInfo = [ "ProfileAvatarLeft" : PrototypeCellInfo("ProfileAvatarLeftCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
+	
+	override func awakeFromNib() {
+		favoritePendingLabel.isHidden = true
+	}
 
 	dynamic var userModel: KrakenUser? {
 		didSet {
-//			clearObservations()
+			clearObservations()
 			if let userModel = self.userModel {
 				userModel.tell(self, when: "displayName") { observer, observed in
 					observer.userNameLabel.text = String("@\(observed.displayName)")
-				}?.schedule()
+				}?.execute()
 				userModel.tell(self, when: "realName") { observer, observed in
 					observer.realNameLabel.text = observed.realName
-				}?.schedule()
+				}?.execute()
 				userModel.tell(self, when: "pronouns") { observer, observed in
 					observer.pronounsLabel.text = observed.pronouns
-				}?.schedule()
+				}?.execute()
 				userModel.tell(self, when: [ "fullPhoto", "thumbPhoto" ]) { observer, observed in
 					if let fullPhoto = observed.fullPhoto {
 						observer.userAvatar.image = fullPhoto
@@ -194,14 +199,48 @@ class UserProfileViewController: BaseCollectionViewController {
 					else if let thumbPhoto = observed.thumbPhoto {
 						observer.userAvatar.image = thumbPhoto
 					}
-				}?.schedule()
+				}?.execute()
+				
+				CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.postOps.*",
+						"loggedInUser.starredUsers.*", "loggedInUser.postOps.*.isFavorite"]) { observer, observed in
+					var selectFavButton = false
+					if let currentUser = observed.loggedInUser {
+						selectFavButton = currentUser.starredUsers?.contains(where: { $0.username == userModel.username })
+								?? false
+								
+						if let favOp = currentUser.getPendingUserFavoriteOp(forUser: userModel, 
+								inContext: LocalCoreData.shared.mainThreadContext) {
+							selectFavButton = favOp.isFavorite
+							observer.favoritePendingLabel.isHidden = false		
+							observer.favoritePendingLabel.text = favOp.isFavorite ? "Favorite Pending" : "Un-favorite Pending"
+						}
+						else {
+							observer.favoritePendingLabel.isHidden = true		
+						}
+						observer.favoriteButton.isSelected = selectFavButton						
+					}
+					else {
+						observer.favoriteButton.isSelected = false
+						observer.favoritePendingLabel.isHidden = true
+					}
+				}?.execute()
+			}
+			else {
+				userNameLabel.text = ""
+				realNameLabel.text = ""
+				pronounsLabel.text = ""
+				userAvatar.image = nil
+				favoriteButton.isSelected = false
+				favoritePendingLabel.isHidden = true
 			}
 		}
 	}
 	
-	
 	@IBAction func favoriteButtonHit(_ sender: Any) {
-		favoriteButton.isSelected = !favoriteButton.isSelected
+		if let userToFav = userModel {
+			favoriteButton.isSelected = !favoriteButton.isSelected
+			CurrentUser.shared.setFavoriteUser(forUser: userToFav, to: favoriteButton.isSelected)
+		}
 	}
 }
 

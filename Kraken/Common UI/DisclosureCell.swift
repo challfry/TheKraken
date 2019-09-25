@@ -19,9 +19,14 @@ import UIKit
 
 	dynamic var title: String?
 	dynamic var errorString: String?
+	var tapAction: (() -> Void)?
 	
 	init() {
 		super.init(bindingWith: DisclosureCellProtocol.self)
+	}
+
+	override func cellTapped() {
+		tapAction?()
 	}
 }
 
