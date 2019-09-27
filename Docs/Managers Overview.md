@@ -85,7 +85,7 @@ Dynamic Tabs using the UITabBar feature nobody ever uses:
 		Profile
 			PirateVision
 			
-	Now
+	Now Tab
 		Announcements
 		Notifications	
 		Current events
@@ -93,6 +93,14 @@ Dynamic Tabs using the UITabBar feature nobody ever uses:
 		
 	Search ?
 		Announcements
+		
+	Scrapbook
+		Everything you've favorited/starred/followed/reacted to.
+			Tweets						/api/v2/stream, reacted=true
+			Forums						/api/v2/forums/:id/:post_id/react	 Just getting posts may not get reactions?
+			Users						/api/v2/user/starred
+			Events						/api/v2/event/mine/:epoch
+			Karaoke Songs				Favoriting is local.
 
 # Login
 UI is an interstitial, mostly. 

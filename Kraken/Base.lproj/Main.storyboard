@@ -331,6 +331,7 @@
                         <segue destination="Bly-1t-Nf9" kind="show" identifier="EditTweet" id="ibx-KH-vcj"/>
                         <segue destination="Gfc-pJ-wBA" kind="show" identifier="EditSeamailThread" id="jdD-6N-h46"/>
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="showUserProfile" id="ZNA-4Q-2gl"/>
+                        <segue destination="PbB-bw-9Xu" kind="show" identifier="EditUserProfile" id="TWa-ya-eZ5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hhu-Il-zkk" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -346,7 +347,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="EKe-Yu-qws">
-                                <rect key="frame" x="0.0" y="44" width="375" height="714"/>
+                                <rect key="frame" x="0.0" y="57" width="375" height="667"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="V1V-mQ-RXE">
                                     <size key="itemSize" width="50" height="50"/>
@@ -357,7 +358,7 @@
                                 <cells/>
                             </collectionView>
                             <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rwV-VA-RAG">
-                                <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <items>
                                     <navigationItem title="Login" id="FI4-GX-bEm" userLabel="Login">
@@ -372,10 +373,10 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="EKe-Yu-qws" firstAttribute="top" secondItem="nO8-TE-Lck" secondAttribute="top" constant="44" id="7UJ-mw-5Ob"/>
+                            <constraint firstItem="EKe-Yu-qws" firstAttribute="top" secondItem="nO8-TE-Lck" secondAttribute="top" constant="57" id="7UJ-mw-5Ob"/>
                             <constraint firstItem="nO8-TE-Lck" firstAttribute="trailing" secondItem="EKe-Yu-qws" secondAttribute="trailing" id="UE0-2A-H9k"/>
                             <constraint firstItem="EKe-Yu-qws" firstAttribute="leading" secondItem="nO8-TE-Lck" secondAttribute="leading" id="cJL-0B-Y1j"/>
-                            <constraint firstItem="EKe-Yu-qws" firstAttribute="bottom" secondItem="nO8-TE-Lck" secondAttribute="bottom" constant="34" id="gPM-Pe-OvW"/>
+                            <constraint firstItem="EKe-Yu-qws" firstAttribute="bottom" secondItem="nO8-TE-Lck" secondAttribute="bottom" id="gPM-Pe-OvW"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="nO8-TE-Lck"/>
                     </view>
@@ -386,7 +387,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dup-bw-jyk" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="reb-UG-xLg" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="4334" y="-194"/>
+            <point key="canvasLocation" x="4333.6000000000004" y="-194.33497536945814"/>
         </scene>
         <!--Schedule-->
         <scene sceneID="a8R-5v-VDn">
@@ -895,11 +896,52 @@
                         <outlet property="collectionView" destination="uG2-2f-nge" id="YaJ-lQ-ecF"/>
                         <segue destination="0s5-bb-y2H" kind="show" identifier="ShowUserTweets" id="6N4-83-66a"/>
                         <segue destination="0s5-bb-y2H" kind="show" identifier="ShowUserMentions" id="lin-0h-BUN"/>
+                        <segue destination="PbB-bw-9Xu" kind="show" identifier="EditUserProfile" id="K3u-jj-2ul"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Dc-kL-d2Z" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4335" y="474"/>
+        </scene>
+        <!--User Profile Edit View Controller-->
+        <scene sceneID="npL-RT-Vaw">
+            <objects>
+                <viewController id="PbB-bw-9Xu" customClass="UserProfileEditViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="GvS-zZ-pPc">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="BL5-I2-1YT">
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="R8n-YD-tyI">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="xpH-L7-PWI" firstAttribute="bottom" secondItem="BL5-I2-1YT" secondAttribute="bottom" id="PQY-Vn-FHh"/>
+                            <constraint firstItem="xpH-L7-PWI" firstAttribute="trailing" secondItem="BL5-I2-1YT" secondAttribute="trailing" id="djp-Pf-lDj"/>
+                            <constraint firstItem="BL5-I2-1YT" firstAttribute="leading" secondItem="xpH-L7-PWI" secondAttribute="leading" id="gV7-ws-xKX"/>
+                            <constraint firstItem="BL5-I2-1YT" firstAttribute="top" secondItem="xpH-L7-PWI" secondAttribute="top" id="rzW-6q-8xs"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="xpH-L7-PWI"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="RZo-jw-4Dn"/>
+                    <connections>
+                        <outlet property="collectionView" destination="BL5-I2-1YT" id="gd8-Xv-iZ8"/>
+                        <segue destination="qoV-DL-1Y1" kind="unwind" identifier="dismiss" unwindAction="dismissingProfileEditVCWithSegue:" id="tWO-Ok-auu"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jRK-c6-TFd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="qoV-DL-1Y1" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="5372" y="474.38423645320199"/>
         </scene>
         <!--Camera View Controller-->
         <scene sceneID="ZZw-9J-iku">
@@ -1403,9 +1445,10 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="pIj-nS-Geu"/>
+        <segue reference="TWa-ya-eZ5"/>
         <segue reference="ZNA-4Q-2gl"/>
         <segue reference="ibx-KH-vcj"/>
-        <segue reference="wTp-nv-sgn"/>
+        <segue reference="6N4-83-66a"/>
         <segue reference="Ieo-oe-rtR"/>
         <segue reference="jdD-6N-h46"/>
         <segue reference="RRQ-tC-exJ"/>

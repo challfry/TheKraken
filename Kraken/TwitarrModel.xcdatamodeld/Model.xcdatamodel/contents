@@ -117,6 +117,14 @@
         <attribute name="isFavorite" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="userBeingFavorited" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="favoritedByOps" inverseEntity="KrakenUser"/>
     </entity>
+    <entity name="PostOpUserProfileEdit" representedClassName="PostOpUserProfileEdit" parentEntity="PostOperation" syncable="YES">
+        <attribute name="displayName" optional="YES" attributeType="String"/>
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="homeLocation" optional="YES" attributeType="String"/>
+        <attribute name="pronouns" optional="YES" attributeType="String"/>
+        <attribute name="realName" optional="YES" attributeType="String"/>
+        <attribute name="roomNumber" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="PotentialUser" representedClassName="PotentialUser" syncable="YES">
         <attribute name="username" attributeType="String"/>
         <relationship name="actualUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="fromPotential" inverseEntity="KrakenUser"/>
@@ -216,5 +224,6 @@
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
         <element name="UserComment" positionX="117" positionY="90" width="128" height="90"/>
+        <element name="PostOpUserProfileEdit" positionX="117" positionY="117" width="128" height="133"/>
     </elements>
 </model>

@@ -209,21 +209,30 @@ class UserManager : NSObject {
 	}
 	
 	// Only used to update info for logged in user.
-	func updateAccount(from response: TwitarrV2CurrentUserProfileResponse) -> LoggedInKrakenUser? {
-		guard response.status == "ok" else { return nil }
-		
+	@discardableResult func updateLoggedInUserInfo(from userAccount: TwitarrV2UserAccount) -> LoggedInKrakenUser? {			
 		let context = coreData.networkOperationContext
 		var krakenUser: LoggedInKrakenUser?
+		
+		// Needs to be sync, to return the user. This is used by the login mechanism.
 		context.performAndWait {
 			do {
-				// If we have an objectID, use it to get the KrakenUser. Else we do a search.
-				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
-							substitutionVariables: [ "username" : response.userAccount.username ]) as! NSFetchRequest<LoggedInKrakenUser>
-				let results = try request.execute()
-				krakenUser = results.first 
+				if let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == userAccount.username {
+					krakenUser = currentUser
+				}
+				else {
+					// If we have an objectID, use it to get the KrakenUser. Else we do a search.
+					let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
+							substitutionVariables: [ "username" : userAccount.username ]) as! NSFetchRequest<LoggedInKrakenUser>
+					let results = try request.execute()
+					krakenUser = results.first 
+				}
+				
+				if krakenUser == nil {
+					krakenUser = LoggedInKrakenUser(context: context)
+				}
 				
 				if let user = krakenUser {
-					user.buildFromV2UserAccount(context: context, v2Object: response.userAccount)
+					user.buildFromV2UserAccount(context: context, v2Object: userAccount)
 					try context.save()
 				}
 			}
@@ -233,7 +242,11 @@ class UserManager : NSObject {
 			}
 		}
 		
-		return krakenUser
+		if let objectID = krakenUser?.objectID {
+			return try? coreData.mainThreadContext.existingObject(with: objectID) as? LoggedInKrakenUser
+		}
+		
+		return nil
 	}
 	
 	// Updates a bunch of users at once. The array of UserInfo objects can have duplicates, but is assumed

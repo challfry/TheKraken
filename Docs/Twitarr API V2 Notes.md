@@ -51,12 +51,12 @@ GET /api/v2/user/whoami or /api/v2/user/profile					Gets basic acct info for log
 POST /api/v2/user/profile
 POST /api/v2/user/change_password
 POST /api/v2/user/reset_password
-GET /api/v2/user/mentions
+GET /api/v2/user/mentions										Returns # of mentions in tweets and forum posts.
 GET /api/v2/user/ac/:query
 GET /api/v2/user/profile/:username								Gets a user's profile. Includes 10 recent tweets by that user.
 POST /api/v2/user/profile/:username/personal_comment
 POST /api/v2/user/profile/:username/star
-GET /api/v2/user/starred
+GET /api/v2/user/starred										Gets users starred by logged in user.
 GET /api/v2/user/photo/:username
 POST /api/v2/user/photo
 DELETE /api/v2/user/photo

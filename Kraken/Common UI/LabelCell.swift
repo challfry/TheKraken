@@ -50,6 +50,20 @@ class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
 	var value: String? { get set }
 }
 
+@objc class SingleValueCellModel: BaseCellModel, SingleValueCellProtocol {
+	private static let validReuseIDs = [ "SingleValue" : SingleValueCell.self ]
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
+
+	dynamic var title: String?
+	dynamic var value: String?
+	
+	init(_ titleStr: String, _ valueStr: String? = nil) {
+		title = titleStr
+		value = valueStr
+		super.init(bindingWith: SingleValueCellProtocol.self)
+	}
+}
+
 class SingleValueCell: BaseCollectionViewCell, SingleValueCellProtocol {
 	@IBOutlet var titleLabel: UILabel!
 	@IBOutlet var valueLabel: UILabel!

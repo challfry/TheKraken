@@ -726,7 +726,45 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 
 }
 
+@objc(PostOpUserProfileEdit) public class PostOpUserProfileEdit: PostOperation {
+	@NSManaged public var displayName: String?
+	@NSManaged public var realName: String?
+	@NSManaged public var pronouns: String?
+	@NSManaged public var email: String?
+	@NSManaged public var homeLocation: String?
+	@NSManaged public var roomNumber: String?
 
+	override func post() {
+		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
+		super.post()
+		
+		let profileUpdateStruct = TwitarrV2UpdateProfileRequest(displayName: displayName, email: email, 
+				homeLocation: homeLocation, pronouns: pronouns, realName: realName, roomNumber: roomNumber)
+		let encoder = JSONEncoder()
+		let requestData = try! encoder.encode(profileUpdateStruct)
+
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "POST"
+		request.httpBody = requestData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		queueNetworkPost(request: request) { data in
+			do {
+				let decoder = JSONDecoder()
+				let response = try decoder.decode(TwitarrV2UpdateProfileResponse.self, from: data)
+				
+				if response.status == "ok" {
+					UserManager.shared.updateLoggedInUserInfo(from: response.user)
+				}
+			}
+			catch {
+				CoreDataLog.error("Failure saving User Comment change to Core Data. (the PostOp succeeded, but we couldn't save the change).", 
+						["Error" : error])
+			}
+		}
+	}
+
+}
 
 // MARK: - V2 JSON Structs
 
@@ -809,4 +847,28 @@ struct TwitarrV2ChangeUserCommentResponse: Codable {
 struct TwitarrV2ToggleUserStarResponse: Codable {
 	let status: String
 	let starred: Bool
+}
+
+// POST /api/v2/user/profile
+struct TwitarrV2UpdateProfileRequest: Codable {
+	let displayName: String?
+	let email: String?
+	let homeLocation: String?
+	let pronouns: String?
+	let realName: String?
+	let roomNumber: String?
+	
+	enum CodingKeys: String, CodingKey {
+		case displayName = "display_name"
+		case email = "email"
+		case homeLocation = "home_location"
+		case pronouns = "pronouns"
+		case realName = "real_name"
+		case roomNumber = "room_number"
+	}
+}
+
+struct TwitarrV2UpdateProfileResponse: Codable {
+	let status: String
+	let user: TwitarrV2UserAccount
 }

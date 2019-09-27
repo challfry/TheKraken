@@ -60,6 +60,10 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		default: break 
 		}
 	}
+
+	// This is the unwind segue handler for hte profile edit VC
+	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
+	}
 }
 
 // SettingsTasks maps a simple array of tasks from the FRC to an array of sections in the CollectionView.
@@ -151,6 +155,48 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 					self.performSegue(withIdentifier: "showUserProfile", sender: favoritedUsername)
 				}
 				taskSection.append(disclosureCell)
+			}
+			
+		case let userProfileEditTask as PostOpUserProfileEdit:
+			taskSection.append(SettingsInfoCellModel("Update your User Profile"))
+			if let currentUser = CurrentUser.shared.loggedInUser {
+				let displayNameCell = SingleValueCellModel("Display Name:")
+				userProfileEditTask.tell(displayNameCell, when: "displayName") { observer, observed in 
+					observer.value = observed.displayName
+					observer.shouldBeVisible = observed.displayName != currentUser.displayName
+				}?.execute()
+				let realNameCell = SingleValueCellModel("Real Name:")
+				userProfileEditTask.tell(realNameCell, when: "realName") { observer, observed in 
+					observer.value = observed.realName
+					observer.shouldBeVisible = observed.realName != currentUser.realName
+				}?.execute()
+				let pronounsCell = SingleValueCellModel("Pronouns:")
+				userProfileEditTask.tell(pronounsCell, when: "pronouns") { observer, observed in 
+					observer.value = observed.pronouns
+					observer.shouldBeVisible = observed.pronouns != currentUser.pronouns
+				}?.execute()
+				let emailCell = SingleValueCellModel("Email:")
+				userProfileEditTask.tell(emailCell, when: "email") { observer, observed in 
+					observer.value = observed.email
+					observer.shouldBeVisible = observed.email != currentUser.emailAddress
+				}?.execute()
+				let homeLocationCell = SingleValueCellModel("Home Location:")
+				userProfileEditTask.tell(homeLocationCell, when: "homeLocation") { observer, observed in 
+					observer.value = observed.homeLocation
+					observer.shouldBeVisible = observed.homeLocation != currentUser.homeLocation
+				}?.execute()
+				let roomNumberCell = SingleValueCellModel("Room Number:")
+				userProfileEditTask.tell(roomNumberCell, when: "roomNumber") { observer, observed in 
+					observer.value = observed.roomNumber
+					observer.shouldBeVisible = observed.roomNumber != currentUser.roomNumber
+				}?.execute()
+				
+				taskSection.append(displayNameCell)
+				taskSection.append(realNameCell)
+				taskSection.append(pronounsCell)
+				taskSection.append(emailCell)
+				taskSection.append(homeLocationCell)
+				taskSection.append(roomNumberCell)
 			}
 
 		default:
@@ -265,6 +311,9 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 		}
 		else if task is PostOpSeamailThread {
 			viewController?.performSegue(withIdentifier: "EditSeamailThread", sender: task)
+		}
+		else if task is PostOpUserProfileEdit {
+			viewController?.performSegue(withIdentifier: "EditUserProfile", sender: task)
 		}
 	}
 	

@@ -45,6 +45,7 @@
 		EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA444A532298A9B70098DE97 /* PostOperation.swift */; };
 		EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */; };
 		EA444A59229BEC640098DE97 /* EmojiSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */; };
+		EA476732233C41CA00F56E08 /* UserProfileEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA476731233C41CA00F56E08 /* UserProfileEditViewController.swift */; };
 		EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */; };
 		EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0822540801008501A3 /* EBNLazyLoader.mm */; };
 		EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0A22540801008501A3 /* EBNProtocolBinder.mm */; };
@@ -214,6 +215,7 @@
 		EA444A532298A9B70098DE97 /* PostOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostOperation.swift; sourceTree = "<group>"; };
 		EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSelectionCell.swift; sourceTree = "<group>"; };
 		EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EmojiSelectionCell.xib; sourceTree = "<group>"; };
+		EA476731233C41CA00F56E08 /* UserProfileEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileEditViewController.swift; sourceTree = "<group>"; };
 		EA4A1D0522540801008501A3 /* NSArray+EBNObservable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+EBNObservable.h"; sourceTree = "<group>"; };
 		EA4A1D0622540801008501A3 /* EBNLazyLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EBNLazyLoader.h; sourceTree = "<group>"; };
 		EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSSet+EBNObservable.m"; sourceTree = "<group>"; };
@@ -425,6 +427,7 @@
 			isa = PBXGroup;
 			children = (
 				EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */,
+				EA476731233C41CA00F56E08 /* UserProfileEditViewController.swift */,
 				EA1E3B97224584BC00017F07 /* UserManager.swift */,
 				EA1E3B992245CF3000017F07 /* CurrentUser.swift */,
 				EAEF340F224ED88300C7A0D9 /* LoginCells.swift */,
@@ -971,6 +974,7 @@
 				EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */,
 				EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */,
 				EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */,
+				EA476732233C41CA00F56E08 /* UserProfileEditViewController.swift in Sources */,
 				EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */,
 				EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */,
 				EA534E2922FD1B9200FE4787 /* KrakenNavController.swift in Sources */,

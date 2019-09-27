@@ -60,6 +60,19 @@ import CoreData
 		return nil
 	}
 	
+	func getPendingProfileEditOp(inContext: NSManagedObjectContext = LocalCoreData.shared.mainThreadContext) -> PostOpUserProfileEdit? {
+		if let ops = postOps {
+			for op in ops {
+				if let profileEditOp = op as? PostOpUserProfileEdit,
+						profileEditOp.author.username == username {
+					let opInContext = try? inContext.existingObject(with: profileEditOp.objectID) as? PostOpUserProfileEdit
+					return opInContext
+				}
+			}
+		}
+		return nil
+	}
+	
 	// The v2Object in this instance is NOT (generally) the logged-in user. It's another userProfile where
 	// it contains data specific to the logged-in user's POV--user comments and stars.
 	func parseV2UserProfileCommentsAndStars(context: NSManagedObjectContext, v2Object: TwitarrV2UserProfile,
@@ -267,7 +280,7 @@ import CoreData
 				if let data = data,  let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
 					
 					// Adds the user to the cache if it doesn't exist.
-					let krakenUser = UserManager.shared.updateAccount(from: profileResponse)
+					let krakenUser = UserManager.shared.updateLoggedInUserInfo(from: profileResponse.userAccount)
 										
 					// If this is a login action, set the logged in user, their key, and other values 
 					if let keyUsedForLogin = keyToUseDuringLogin {
@@ -482,6 +495,35 @@ import CoreData
 			}
 		}
 	}
+	
+	// 
+	func changeUserProfileFields(displayName: String?, realName: String?, pronouns: String?, email: String?, 
+			homeLocation: String?, roomNumber: String?) {
+		guard let loggedInUser = loggedInUser else { return }
+		
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			do {
+				// Check for existing op for this user
+				let op = loggedInUser.getPendingProfileEditOp(inContext: context) ?? 
+						PostOpUserProfileEdit(context: context)
+				op.displayName = displayName
+				op.realName = realName
+				op.pronouns = pronouns
+				op.email = email
+				op.homeLocation = homeLocation
+				op.roomNumber = roomNumber
+				op.readyToSend = true
+			
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
+			}
+		}
+	}
+	
+	
 }
 
 /* Secure storage of user auth data.

@@ -68,6 +68,7 @@ class UserProfileViewController: BaseCollectionViewController {
     var authoredTweetsCell: ProfileDisclosureCellModel?
     var mentionsCell: ProfileDisclosureCellModel?
     var sendSeamailCell: ProfileDisclosureCellModel?
+    var editProfileCell: ProfileDisclosureCellModel?
     var profileCommentCell: ProfileCommentCellModel?
     
     func setupCellModels() {
@@ -81,6 +82,7 @@ class UserProfileViewController: BaseCollectionViewController {
 		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)
 		mentionsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self)
 		sendSeamailCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self)		
+		editProfileCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.editOwnProfile, vc: self)		
 		profileCommentCell = ProfileCommentCellModel(user: modelKrakenUser)
 
     	section.append(avatarCell!)
@@ -91,6 +93,7 @@ class UserProfileViewController: BaseCollectionViewController {
 		section.append(authoredTweetsCell!)
 		section.append(mentionsCell!)
 		section.append(sendSeamailCell!)		
+		section.append(editProfileCell!)		
 		section.append(profileCommentCell!)
     }
     
@@ -104,10 +107,11 @@ class UserProfileViewController: BaseCollectionViewController {
 		authoredTweetsCell?.userModel = newUser
 		mentionsCell?.userModel = newUser
 		sendSeamailCell?.userModel = newUser
+		editProfileCell?.userModel = newUser
 		profileCommentCell?.userModel = newUser
 	}
     
-    // MARK: - Navigation
+    // MARK: Navigation
 	var filterForNextVC: String?
     func pushUserTweetsView() {
     	if let username = modelUserName {
@@ -134,6 +138,10 @@ class UserProfileViewController: BaseCollectionViewController {
 		let packet = GlobalNavPacket(tab: .seamail, arguments: ["seamailThreadParticipants" : participants ])
     	RootTabBarViewController.shared?.globalNavigateTo(packet: packet)
     }
+    
+    func pushEditProfileView() {
+    	self.performSegue(withIdentifier: "EditUserProfile", sender: modelUserName)
+    }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "ShowUserMentions", let destVC = segue.destination as? TwitarrViewController {
@@ -143,10 +151,19 @@ class UserProfileViewController: BaseCollectionViewController {
 				let filterString = filterForNextVC {
 			destVC.dataManager = TwitarrDataManager(predicate: NSPredicate(format: "author.username == %@", filterString))
 		}
+		if segue.identifier == "EditUserProfile" {
+			// Nothing to do, until we add the admin feature so they can edit other profiles.
+		}
     }
     
+	// This is the unwind segue handler for hte profile edit VC
+	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
+		
+	}
 
 }
+
+// MARK: - Cells
 
 @objc protocol ProfileAvatarCellProtocol {
 	var userModel: KrakenUser? { get set }
@@ -184,7 +201,12 @@ class UserProfileViewController: BaseCollectionViewController {
 			clearObservations()
 			if let userModel = self.userModel {
 				userModel.tell(self, when: "displayName") { observer, observed in
-					observer.userNameLabel.text = String("@\(observed.displayName)")
+					if observed.displayName == observed.username {
+						observer.userNameLabel.text = String("@\(observed.displayName)")
+					}
+					else {
+						observer.userNameLabel.text = String("\(observed.displayName) \n(@\(observed.username))")
+					}
 				}?.execute()
 				userModel.tell(self, when: "realName") { observer, observed in
 					observer.realNameLabel.text = observed.realName
@@ -301,7 +323,8 @@ class UserProfileViewController: BaseCollectionViewController {
 	enum DisplayMode {
 		case authoredTweets
 		case mentions		
-		case sendSeamail		
+		case sendSeamail
+		case editOwnProfile	
 	}
 	dynamic var displayMode: DisplayMode
 	
@@ -314,18 +337,46 @@ class UserProfileViewController: BaseCollectionViewController {
 		if let user = userModel {
 			switch displayMode {
 			case .authoredTweets:
-					user.tell(self, when: "numberOfTweets") { observer, observed in
+				user.tell(self, when: "numberOfTweets") { observer, observed in
+					if observed.numberOfTweets == 0 {
+						observer.title = String("No Tweets")
+					} 
+					if observed.numberOfTweets == 1 {
+						observer.title = String("1 Tweet")
+					}
+					else {
 						observer.title = String("\(observed.numberOfTweets) Tweets")
-					}?.schedule()
-					shouldBeVisible = true
+					}
+				}?.schedule()
+				shouldBeVisible = true
 			case .mentions:
-					user.tell(self, when: "numberOfMentions") { observer, observed in
+				user.tell(self, when: "numberOfMentions") { observer, observed in
+					if observed.numberOfMentions == 0 {
+						observer.title = String("No Mentions")
+					} 
+					else if observed.numberOfMentions == 1 {
+						observer.title = String("\(observed.numberOfMentions) Mention")
+					}
+					else {
 						observer.title = String("\(observed.numberOfMentions) Mentions")
-					}?.schedule()
-					shouldBeVisible = true
+					}
+				}?.schedule()
+				shouldBeVisible = true
 			case .sendSeamail:
-					title = "Send Seamail to \(user.username)"
-					shouldBeVisible = user.username != CurrentUser.shared.loggedInUser?.username
+				title = "Send Seamail to \(user.username)"
+				CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+					self.shouldBeVisible = user.username != observed.loggedInUser?.username
+				}?.execute()
+			case .editOwnProfile:
+				title = "Edit your user profile"
+				CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+					if let loggedInUsername = observed.loggedInUser?.username {
+						self.shouldBeVisible = self.userModel?.username == loggedInUsername
+					}
+					else {
+						self.shouldBeVisible = false
+					}
+				}?.execute()
 			}
 		}
 	}
@@ -335,6 +386,7 @@ class UserProfileViewController: BaseCollectionViewController {
 		case .authoredTweets: viewController?.pushUserTweetsView()
 		case .mentions: viewController?.pushUserMentionsView()
 		case .sendSeamail: viewController?.pushSendSeamailView()
+		case .editOwnProfile: viewController?.pushEditProfileView()
 		}
 	}
 }
