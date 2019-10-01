@@ -57,11 +57,25 @@ import UIKit
 		messageCell = TextViewCellModel("Initial Message:")
 		composeSection.append(messageCell!)
 		
-		postButtonCell = ButtonCellModel()
-		postButtonCell!.setupButton(2, title:"Send", action: weakify(self, type(of: self).postAction))
-		composeSection.append(postButtonCell!)
+		let buttonCell = ButtonCellModel()
+		buttonCell.setupButton(2, title:"Send", action: weakify(self, type(of: self).postAction))
+		composeSection.append(buttonCell)
+		postButtonCell = buttonCell
+		
+		CurrentUser.shared.tell(buttonCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
+			if CurrentUser.shared.isMultiUser(), let currentUser = CurrentUser.shared.loggedInUser {
+				let posterFont = UIFont(name:"Georgia-Italic", size: 14)
+				let posterColor = UIColor.darkGray
+				let textAttrs: [NSAttributedString.Key : Any] = [ .font : posterFont as Any, 
+						.foregroundColor : posterColor ]
+				observer.infoText = NSAttributedString(string: "Posting as: \(currentUser.username)", attributes: textAttrs)
+			}
+			else {
+				observer.infoText = nil
+			}
+		}?.execute()
 
-        let statusCell = OperationStatusCellModel()
+		let statusCell = OperationStatusCellModel()
         statusCell.shouldBeVisible = false
         statusCell.showSpinner = true
         statusCell.statusText = "Sending..."

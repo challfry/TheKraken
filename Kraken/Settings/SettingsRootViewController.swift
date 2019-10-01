@@ -30,50 +30,69 @@ class SettingsRootViewController: BaseCollectionViewController {
 
   		dataSource.register(with: collectionView, viewController: self)
   		dataSource.viewController = self
-		let settingsSection = dataSource.appendFilteringSegment(named: "settingsSection")
+//		let settingsSection = dataSource.appendFilteringSegment(named: "settingsSection")
 		
 		// Network Info
-		let networkInfoCell = settingsSection.append(cell: SettingsInfoCellModel("Network"))
+		let networkInfoSection = dataSource.appendFilteringSegment(named: "networkInfo")
+		let networkInfoCell = networkInfoSection.append(cell: SettingsInfoCellModel("Network"))
 		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, observed in
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
 		}?.schedule()
-		settingsSection.append(ServerAddressEditCellModel("Server URL"))
+		networkInfoSection.append(ServerAddressEditCellModel("Server URL"))
 		let buttonCell = ButtonCellModel(alignment: .center)
 		buttonCell.setupButton(1, title: "Reset Server URL to Default", action: resetServerButtonHit)
-		settingsSection.append(buttonCell)
+		networkInfoSection.append(buttonCell)
 		
 		// Login State, login/out
-		settingsSection.append(cell: LoginInfoCellModel())
-		settingsSection.append(cell: LoginAdminInfoCellModel())
-		settingsSection.append(cell: SettingsLoginButtonCellModel(action: weakify(self, type(of: self).loginButtonTapped)))
+		let loginInfoSection = dataSource.appendFilteringSegment(named: "LoginInfo")
+		CurrentUser.shared.tell(self, when: ["credentialedUsers", "loggedInUser"]) { observer, observed in 
+			loginInfoSection.allCellModels.removeAllObjects()
+			loginInfoSection.append(cell: LoginInfoCellModel())
+			let userArray = CurrentUser.shared.credentialedUsers.sorted(by: { $0.username < $1.username } )
+			for user in userArray {
+				let cell = LoggedInUserCellModel(user: user, action: weakify(self, SettingsRootViewController.userButtonTapped))
+				cell.showUserProfileAction = { [weak self] in
+					self?.performSegue(withIdentifier: "showUserProfile", sender: user)
+				}
+				loginInfoSection.append(cell)
+			}
+			loginInfoSection.append(cell: SettingsLoginButtonCellModel(action: weakify(self, type(of: self).loginButtonTapped)))
+//			settingsSection.append(cell: LoginAdminInfoCellModel())
+		}?.execute()
+		
 
 		// POST actions waiting to be delivered to the server
-		let delayedPostInfo = settingsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
+		let postActionsSection = dataSource.appendFilteringSegment(named: "postActions")
+		let delayedPostInfo = postActionsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
 		delayedPostInfo.labelText = NSAttributedString(string: "Changes you've made, waiting to be sent to the Twitarr server.")
-		let delayedPostDisclosure = settingsSection.append(cell: DelayedPostDisclosureCellModel())
+		let delayedPostDisclosure = postActionsSection.append(cell: DelayedPostDisclosureCellModel())
 		delayedPostDisclosure.viewController = self
 
-		settingsSection.append(cell: TimeZoneHeaderCellModel())
+		// Time Zone section
+		let timezoneSection = dataSource.appendFilteringSegment(named: "Time Zone")
+		timezoneSection.append(cell: TimeZoneHeaderCellModel())
 		let timeZoneCell = TimeZoneInfoCellModel()
-		settingsSection.append(cell: timeZoneCell)
+		timezoneSection.append(cell: timeZoneCell)
 		let gmtTimeCell = GMTTimeInfoCellModel()
-		settingsSection.append(cell: gmtTimeCell)
+		timezoneSection.append(cell: gmtTimeCell)
 		
 		
 		// Preferences
-		let prefsHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
+		let prefsSection = dataSource.appendFilteringSegment(named: "App Prefs")
+		let prefsHeaderCell = prefsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
 		prefsHeaderCell.labelText = NSAttributedString(string: "App-wide settings")
-		settingsSection.append(cell: BlockNetworkSwitchCellModel())
-		settingsSection.append(cell: DelayPostsSwitchCellModel())
+		prefsSection.append(cell: BlockNetworkSwitchCellModel())
+		prefsSection.append(cell: DelayPostsSwitchCellModel())
 		
 		// Debug Settings
-		let debugHeaderCell = settingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
+		let debugSettingsSection = dataSource.appendFilteringSegment(named: "Debug Prefs")
+		let debugHeaderCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
 		debugHeaderCell.labelText = NSAttributedString(string: "Support for Debugging and Testing")
-		settingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
-		settingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
+		debugSettingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
+		debugSettingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
 		
-		let x = settingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
-		x.labelText = NSAttributedString(string: "Button")
+		let clearCacheCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
+		clearCacheCell.labelText = NSAttributedString(string: "Clear Cache")
 		
 		dataSource.enableAnimations	= true
     }
@@ -119,19 +138,14 @@ class SettingsRootViewController: BaseCollectionViewController {
 	}
 	
 	func loginButtonTapped() {
-		if CurrentUser.shared.isLoggedIn() {
-			// TODO: Should warn user if they logout while offline, they can't log in until
-			// they return to the ship. If they have pending posts, that dialog should also
-			// mention posts won't be sent until they're logged back in.
-		
-			CurrentUser.shared.logoutUser()
-		}
-		else {
-			// Show login controller
-			performSegue(withIdentifier: "ShowLogin", sender: self)
-		}
+		// Show login controller
+		performSegue(withIdentifier: "ShowLogin", sender: self)
 	}
 	
+	func userButtonTapped(_ cell: DisclosureCellModel) {
+//		performSegue(withIdentifier: "showUserProfile", sender: loginCell.modelKrakenUser)
+	}
+
     // MARK: Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     	switch segue.identifier {
@@ -140,14 +154,23 @@ class SettingsRootViewController: BaseCollectionViewController {
 //					let controller = sender as? NSFetchedResultsController<PostOperation> {
 //				destVC.controller = controller
 //			}
+		case "showUserProfile":
+			if let destVC = segue.destination as? UserProfileViewController, 
+					let user = sender as? LoggedInKrakenUser {
+				destVC.modelUserName = user.username
+			}
 		default: break 
     	}
     }
 
 	// This fn has to be here so that the login unwind stops here.
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
-	
 	}	
+
+	// This is the unwind segue handler for the profile edit VC
+	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
+	}
+
 }
 
 // MARK: -
@@ -239,10 +262,20 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 
 @objc class LoginInfoCellModel: SettingsInfoCellModel {
 	init() {
-		super.init("Logged In User")
+		super.init("Logged In User(s)")
 		
-		CurrentUser.shared.tell(self, when:"loggedInUser") { observer, observed in
-			if let currentUser = observed.loggedInUser {
+		CurrentUser.shared.tell(self, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
+			if observed.credentialedUsers.count > 1 {
+				var labelStr = "\(observed.credentialedUsers.count) users logged in."
+				if let currentUser = observed.loggedInUser {
+					labelStr.append(" Active User: \(currentUser.username).")
+				}
+				else {
+					labelStr.append(" However, none of them are active, so the app is acting as if you're logged out.")
+				}
+				observer.labelText = NSAttributedString(string: labelStr)
+			}
+			else if let currentUser = observed.loggedInUser {
 				observer.labelText = NSAttributedString(string: "Logged in as: \(currentUser.username)")
 			}
 			else {
@@ -256,17 +289,17 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	init() {
 		super.init("")
 		
-		CurrentUser.shared.tell(self, when:"userRole") { observer, observed in
+		CurrentUser.shared.tell(self, when:"loggedInUser.userRole") { observer, observed in
 			var infoString: String
 			var showCell = true
-			switch observed.userRole {
+			switch observed.loggedInUser?.userRole {
 				case .admin: infoString = "This is an admin account, although Kraken doesn't support many admin features."
 				case .tho: infoString = "This is The Home Office special account"
 				case .moderator: infoString = "This is a moderator account, although Kraken doesn't support many moderator features."
 				case .user: infoString = ""; showCell = false
 				case .muted: infoString = "This account has been temporarily muted"
 				case .banned: infoString = "This account has been banned"
-				case .loggedOut: infoString = ""; showCell = false
+				case .loggedOut, .none: infoString = ""; showCell = false
 			}
 
 			// For Testing
@@ -290,8 +323,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		setupButton(1, title: "Login", action: action)
 		
 		CurrentUser.shared.tell(self, when:"loggedInUser") { observer, observed in
-//			observer.shouldBeVisible = observed.loggedInUser == nil
-			observer.button1Text = observed.loggedInUser == nil ? "Login" : "Log Out"
+			observer.button1Text = observed.loggedInUser == nil ? "Login" : "Login Additional User"
 		}?.schedule()
 		
 		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in

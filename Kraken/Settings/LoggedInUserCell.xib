@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LoggedInUserCell" id="Ty7-4w-yiw" customClass="LoggedInUserCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="417" height="72"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="3KM-uS-dNN">
+                <rect key="frame" x="0.0" y="0.0" width="417" height="72"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6c4-uw-VY8">
+                        <rect key="frame" x="20" y="6" width="84" height="20.5"/>
+                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Admin" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yZ4-Fk-Skx">
+                        <rect key="frame" x="215.5" y="6" width="49" height="20.5"/>
+                        <fontDescription key="fontDescription" type="italicSystem" pointSize="17"/>
+                        <color key="textColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Currently Active" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jvR-Yv-aZe">
+                        <rect key="frame" x="274.5" y="6" width="122.5" height="20.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="tNp-jp-N8B">
+                        <rect key="frame" x="144" y="35" width="253" height="30"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JBr-9H-vHX">
+                                <rect key="frame" x="0.0" y="0.0" width="84" height="30"/>
+                                <state key="normal" title="Make Active"/>
+                                <connections>
+                                    <action selector="makeActiveUserTapped:" destination="Ty7-4w-yiw" eventType="touchUpInside" id="2bC-xz-Fdj"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cLI-zX-O6k">
+                                <rect key="frame" x="104" y="0.0" width="81" height="30"/>
+                                <state key="normal" title="View Profile"/>
+                                <connections>
+                                    <action selector="viewProfileButtonTapped:" destination="Ty7-4w-yiw" eventType="touchUpInside" id="aiv-Vc-g98"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dFi-Kr-I0D">
+                                <rect key="frame" x="205" y="0.0" width="48" height="30"/>
+                                <state key="normal" title="Logout"/>
+                                <connections>
+                                    <action selector="logoutButtonTapped:" destination="Ty7-4w-yiw" eventType="touchUpInside" id="ixO-ox-2CH"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </stackView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="tNp-jp-N8B" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="3KM-uS-dNN" secondAttribute="leading" constant="20" id="45f-LJ-kJ9"/>
+                    <constraint firstItem="6c4-uw-VY8" firstAttribute="top" secondItem="3KM-uS-dNN" secondAttribute="top" constant="6" id="HX9-kR-Osr"/>
+                    <constraint firstAttribute="bottom" secondItem="tNp-jp-N8B" secondAttribute="bottom" priority="200" constant="6" id="L9o-D9-s6X"/>
+                    <constraint firstItem="dFi-Kr-I0D" firstAttribute="top" secondItem="jvR-Yv-aZe" secondAttribute="bottom" constant="8.5" id="NYz-Dk-JMY"/>
+                    <constraint firstItem="yZ4-Fk-Skx" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6c4-uw-VY8" secondAttribute="trailing" constant="10" id="Nkk-78-2Yy"/>
+                    <constraint firstItem="tNp-jp-N8B" firstAttribute="trailing" secondItem="jvR-Yv-aZe" secondAttribute="trailing" priority="200" id="P2I-M3-Idd"/>
+                    <constraint firstItem="jvR-Yv-aZe" firstAttribute="leading" secondItem="yZ4-Fk-Skx" secondAttribute="trailing" constant="10" id="SZY-Bj-KnQ"/>
+                    <constraint firstItem="yZ4-Fk-Skx" firstAttribute="firstBaseline" secondItem="6c4-uw-VY8" secondAttribute="firstBaseline" id="VRQ-QM-d92"/>
+                    <constraint firstAttribute="trailing" secondItem="jvR-Yv-aZe" secondAttribute="trailing" priority="900" constant="20" id="XHW-xM-RrT"/>
+                    <constraint firstItem="6c4-uw-VY8" firstAttribute="leading" secondItem="3KM-uS-dNN" secondAttribute="leading" constant="20" id="wel-PM-YmY"/>
+                    <constraint firstItem="jvR-Yv-aZe" firstAttribute="firstBaseline" secondItem="6c4-uw-VY8" secondAttribute="firstBaseline" id="yVJ-DJ-1hI"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="417" height="72"/>
+            <connections>
+                <outlet property="activeInactiveButton" destination="JBr-9H-vHX" id="mO0-ZZ-dSb"/>
+                <outlet property="adminModLabel" destination="yZ4-Fk-Skx" id="3mo-A5-JGc"/>
+                <outlet property="currentlyActiveLabel" destination="jvR-Yv-aZe" id="bpN-9j-AE4"/>
+                <outlet property="logoutButton" destination="dFi-Kr-I0D" id="eQl-FK-f6m"/>
+                <outlet property="usernameLabel" destination="6c4-uw-VY8" id="Fdy-84-5x5"/>
+                <outlet property="viewProfileButton" destination="cLI-zX-O6k" id="PfQ-0k-1EK"/>
+            </connections>
+            <point key="canvasLocation" x="139.85507246376812" y="61.607142857142854"/>
+        </collectionViewCell>
+    </objects>
+</document>

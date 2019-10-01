@@ -61,7 +61,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		}
 	}
 
-	// This is the unwind segue handler for hte profile edit VC
+	// This is the unwind segue handler for the profile edit VC
 	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
 	}
 }
@@ -151,7 +151,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				taskSection.append(headerCell)
 				let disclosureCell = DisclosureCellModel()
 				disclosureCell.title = "See profile for \(favoritedUsername)"
-				disclosureCell.tapAction = { 
+				disclosureCell.tapAction = { cell in
 					self.performSegue(withIdentifier: "showUserProfile", sender: favoritedUsername)
 				}
 				taskSection.append(disclosureCell)

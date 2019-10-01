@@ -23,10 +23,22 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	var postingCell = TextViewCellModel("")
 	var sendButtonCell: ButtonCellModel?
 	private var isBusyPosting: Bool = false
+	private var postAuthor: String = ""
 
 // MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Save the name of the logged in user at load time; if that user changes dismiss the view.
+        // We *might* loosen this restriction so that if both prev and current user are in the thread
+        // we could stay, but that's awful thin. Obviously, if we transition to logged out or to a user not
+        // in this thread we can't show the thread.
+        postAuthor = CurrentUser.shared.loggedInUser?.username ?? ""
+        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+        	if observer.postAuthor != CurrentUser.shared.loggedInUser?.username {
+        		observer.performSegue(withIdentifier: "dismiss", sender: observer.threadModel)
+        	}
+        }
         
         if let participants = threadModel?.participants, let currentUsername = CurrentUser.shared.loggedInUser?.username {
         	let others = participants.compactMap { $0.username != currentUsername ? $0.username : nil }
@@ -57,7 +69,20 @@ class SeamailThreadViewController: BaseCollectionViewController {
 							
 		// Next, the filter segment for the new message text field and button.
 		newMessageSegment.append(postingCell)
-		sendButtonCell = ButtonCellModel(title: "Send", action: weakify(self, type(of: self).sendButtonHit))
+		let buttonCell = ButtonCellModel(title: "Send", action: weakify(self, type(of: self).sendButtonHit))
+		sendButtonCell = buttonCell
+		CurrentUser.shared.tell(buttonCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
+			if CurrentUser.shared.isMultiUser(), let currentUser = CurrentUser.shared.loggedInUser {
+				let posterFont = UIFont(name:"Georgia-Italic", size: 14)
+				let posterColor = UIColor.darkGray
+				let textAttrs: [NSAttributedString.Key : Any] = [ .font : posterFont as Any, 
+						.foregroundColor : posterColor ]
+				observer.infoText = NSAttributedString(string: "Posting as: \(currentUser.username)", attributes: textAttrs)
+			}
+			else {
+				observer.infoText = nil
+			}
+		}?.execute()
 		newMessageSegment.append(sendButtonCell!)
 
 		// Put everything together in the composite data source

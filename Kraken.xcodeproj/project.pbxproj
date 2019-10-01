@@ -46,6 +46,8 @@
 		EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */; };
 		EA444A59229BEC640098DE97 /* EmojiSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */; };
 		EA476732233C41CA00F56E08 /* UserProfileEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA476731233C41CA00F56E08 /* UserProfileEditViewController.swift */; };
+		EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA4767332341A4B000F56E08 /* LoggedInUserCell.xib */; };
+		EA4767362341E6A700F56E08 /* LoggedInUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4767352341E6A700F56E08 /* LoggedInUserCell.swift */; };
 		EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */; };
 		EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0822540801008501A3 /* EBNLazyLoader.mm */; };
 		EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0A22540801008501A3 /* EBNProtocolBinder.mm */; };
@@ -216,6 +218,8 @@
 		EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSelectionCell.swift; sourceTree = "<group>"; };
 		EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EmojiSelectionCell.xib; sourceTree = "<group>"; };
 		EA476731233C41CA00F56E08 /* UserProfileEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileEditViewController.swift; sourceTree = "<group>"; };
+		EA4767332341A4B000F56E08 /* LoggedInUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoggedInUserCell.xib; sourceTree = "<group>"; };
+		EA4767352341E6A700F56E08 /* LoggedInUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInUserCell.swift; sourceTree = "<group>"; };
 		EA4A1D0522540801008501A3 /* NSArray+EBNObservable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+EBNObservable.h"; sourceTree = "<group>"; };
 		EA4A1D0622540801008501A3 /* EBNLazyLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EBNLazyLoader.h; sourceTree = "<group>"; };
 		EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSSet+EBNObservable.m"; sourceTree = "<group>"; };
@@ -510,6 +514,8 @@
 				EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */,
 				EAF777F622A3B1D000B27803 /* ModalLoginViewController.swift */,
 				EA3C63162297EFD400077E3B /* SettingsInfoCell.xib */,
+				EA4767352341E6A700F56E08 /* LoggedInUserCell.swift */,
+				EA4767332341A4B000F56E08 /* LoggedInUserCell.xib */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -861,6 +867,7 @@
 				EA90456122DC067D00790F97 /* RedDeleteIcon.png in Resources */,
 				EA8B987C2323C13B00E10156 /* ChevronDownGrey@3x.png in Resources */,
 				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
+				EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */,
 				EA86ADD42272855000363CBF /* jellyfish.png in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
@@ -936,6 +943,7 @@
 				EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */,
 				EA444A58229BEC640098DE97 /* EmojiSelectionCell.swift in Sources */,
 				EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */,
+				EA4767362341E6A700F56E08 /* LoggedInUserCell.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,

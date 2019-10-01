@@ -95,9 +95,11 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="1A7-J6-kmJ" id="azs-l9-0ME"/>
+                        <segue destination="8mQ-cw-ZRS" kind="unwind" identifier="dismiss" unwindAction="dismissingSeamailThreadWithSegue:" id="PL9-i9-TfZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Ms-N4-lZA" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="8mQ-cw-ZRS" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="2141.5999999999999" y="475.86206896551727"/>
         </scene>
@@ -290,6 +292,7 @@
                         <outlet property="collectionView" destination="aPE-Dg-ILQ" id="abo-z9-uuA"/>
                         <segue destination="DA5-7s-QTr" kind="presentation" identifier="ShowLogin" id="hIj-Jv-E7S"/>
                         <segue destination="1mH-gG-DrE" kind="show" identifier="PostOperations" id="Yxg-Xl-ZUF"/>
+                        <segue destination="4Kh-NN-fXm" kind="show" identifier="showUserProfile" id="eK7-8I-NMd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LVi-K1-QnL" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1446,10 +1449,10 @@
     <inferredMetricsTieBreakers>
         <segue reference="pIj-nS-Geu"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="ZNA-4Q-2gl"/>
+        <segue reference="eK7-8I-NMd"/>
         <segue reference="ibx-KH-vcj"/>
         <segue reference="6N4-83-66a"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="hIj-Jv-E7S"/>
         <segue reference="jdD-6N-h46"/>
         <segue reference="RRQ-tC-exJ"/>
     </inferredMetricsTieBreakers>

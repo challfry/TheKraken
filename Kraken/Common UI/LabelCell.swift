@@ -29,6 +29,23 @@ import UIKit
 	}
 }
 
+// It turns out we actually need this cell in multiple places.
+@objc class AuthorLabelCellModel: LabelCellModel {
+	init() {
+		super.init("")
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+			if let currentUser = CurrentUser.shared.loggedInUser {
+				observer.labelText = NSAttributedString(string: "Posting as: \(currentUser.username)")
+			}
+		}?.execute()
+		
+		CurrentUser.shared.tell(self, when: "credentialedUsers") { observer, observed in
+			observer.shouldBeVisible = CurrentUser.shared.isMultiUser()
+		}?.execute()
+	}
+}
+
 class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
 	@IBOutlet var label: UILabel!
 	private static let cellInfo = [ "LabelCell" : PrototypeCellInfo("LabelCell") ]

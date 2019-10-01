@@ -21,6 +21,11 @@ import Foundation
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
 
+	public var activeUsername: String? {
+		get { return getSetting(name: "activeUsername", defaultValue: nil) }
+		set { setSetting(name: "activeUsername", newValue: newValue) }
+	}
+	
 	public var lastSeamailCheckTime: Date {
 		get { return getSetting(name: "lastSeamailCheckTime", defaultValue: Date(timeIntervalSince1970: 0)) }
 		set { setSetting(name: "lastSeamailCheckTime", newValue: newValue) }

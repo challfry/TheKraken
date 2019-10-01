@@ -19,6 +19,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	let composeDataSource = KrakenDataSource()
 	var tweetTextCell: TextViewCellModel?
 	var postButtonCell: ButtonCellModel?
+	var postAuthorInfoCell: LabelCellModel?
 	var postStatusCell: OperationStatusCellModel?
 	var photoSelectionCell: PhotoSelectionCellModel?
 	var draftImageCell: DraftImageCellModel?
@@ -88,7 +89,22 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			let textString = observed.editedText ?? observed.editText
 			observer.button2Enabled = !(textString?.isEmpty ?? true)
 		}?.execute()
- 
+		
+		CurrentUser.shared.tell(btnCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
+			if CurrentUser.shared.isMultiUser(), let currentUser = CurrentUser.shared.loggedInUser {
+				let posterFont = UIFont(name:"Georgia-Italic", size: 14)
+				let posterColor = UIColor.darkGray
+				let textAttrs: [NSAttributedString.Key : Any] = [ .font : posterFont as Any, 
+						.foregroundColor : posterColor ]
+				observer.infoText = NSAttributedString(string: "Posting as: \(currentUser.username)", attributes: textAttrs)
+			}
+			else {
+				observer.infoText = nil
+			}
+		}?.execute()
+		
+//		let authorInfoCell = AuthorLabelCellModel()
+		
         let statusCell = OperationStatusCellModel()
         statusCell.shouldBeVisible = false
         statusCell.showSpinner = true
@@ -97,6 +113,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
 		composeSection.append(textCell)
         composeSection.append(btnCell)
+//		composeSection.append(authorInfoCell)
         composeSection.append(statusCell)
 		composeSection.append(EmojiSelectionCellModel(paster: weakify(self, ComposeTweetViewController.emojiButtonTapped)))
 		

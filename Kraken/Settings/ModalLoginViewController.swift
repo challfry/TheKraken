@@ -26,19 +26,21 @@ class ModalLoginViewController: BaseCollectionViewController {
 			loginSection.headerCellText = "Log in to Twitarr here."
 		}
 		
+		loginDataSource.register(with: collectionView, viewController: self)
+
 		// Note that this observation dismisses the VC if the user enters the logged in state *for any reason*, including
 		// if they somehow managed to open a second login window (via another tab, perhaps) and log in there.
-        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-        	if observed.loggedInUser == nil {
-				observer.loginDataSource.register(with: observer.collectionView, viewController: self)
-        	}
-        	else {
+        CurrentUser.shared.tell(self, when: "credentialedUsers") { observer, observed in
+//        	if observed.loggedInUser == nil {
+//				observer.loginDataSource.register(with: observer.collectionView, viewController: self)
+//        	}
+//        	else {
        			observer.dismiss(animated: true, completion: nil)
 				if let segueData = observer.segueData {
 					segueData.loginSuccessAction?()
 				}
-       		}
-        }?.execute()
+//    		}
+        }
     }
 	
     override func viewDidAppear(_ animated: Bool) {

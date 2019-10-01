@@ -159,6 +159,9 @@ class ImageCache {
 				} else 
 				{
 					// Load failed for some reason
+					ImageLog.error("Couldn't load image from server.", ["HTTP Code" : response.statusCode, 
+							"cacheKey" : key])
+					DispatchQueue.main.async { done(nil) }
 				}
 			}
 		}

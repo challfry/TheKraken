@@ -136,7 +136,7 @@ import Foundation
 	// Depending on what the server wants, this could add a query parameter, a HTTP header, or a cookie.
 	class func addUserCredential(to request: inout URLRequest)  {
 		// We can only add user creds if we're logged in--otherwise, we return request unchanged.
-		guard CurrentUser.shared.isLoggedIn(), let authKey = CurrentUser.shared.twitarrV2AuthKey else {
+		guard CurrentUser.shared.isLoggedIn(), let authKey = CurrentUser.shared.loggedInUser?.twitarrV2AuthKey else {
 			return
 		}
 	

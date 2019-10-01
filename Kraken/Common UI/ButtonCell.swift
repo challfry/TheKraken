@@ -18,6 +18,7 @@ import UIKit
 	dynamic var button2Text: String? { get set }
 	dynamic var button2Enabled: Bool { get set } 
 	dynamic var button2Action: (() -> Void)? { get set } 
+	dynamic var infoText: NSAttributedString? { get set }
 }
 
 @objc class ButtonCellModel: BaseCellModel, ButtonCellProtocol {
@@ -32,7 +33,8 @@ import UIKit
 	dynamic var button2Text: String?
 	dynamic var button2Enabled: Bool 
 	dynamic var button2Action: (() -> Void)?
-
+	dynamic var infoText: NSAttributedString?
+	
 	init(alignment: NSTextAlignment = .right) {
 		buttonAlignment = alignment
 		button1Enabled = false
@@ -65,6 +67,7 @@ import UIKit
 }
 
 class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
+	@IBOutlet weak var infoLabel: UILabel!
 	@IBOutlet var button1: UIButton!
 	@IBOutlet var button2: UIButton!
 	@IBOutlet var leftConstraint: NSLayoutConstraint!
@@ -97,6 +100,11 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 	}
 	var button2Enabled: Bool = true { didSet { button2.isEnabled = button2Enabled } } 
 		
+	var infoText: NSAttributedString? {
+		didSet {
+			infoLabel.attributedText = infoText
+		}
+	}
 
 	dynamic var button1Action: (() -> Void)?
 	@IBAction func button1Tapped(_ sender: Any) {

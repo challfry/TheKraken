@@ -11,12 +11,52 @@ import CoreData
 
 @objc(LoggedInKrakenUser) public class LoggedInKrakenUser: KrakenUser {
 
+	@objc enum UserRole: Int {
+		case admin
+		case tho
+		case moderator
+		case user
+		case muted
+		case banned
+		case loggedOut
+		
+		// Done this dumb way because we need to be @objc, therefore Int-backed, not string-backed.
+		static func roleForString(str: String) -> UserRole? {
+			switch str {
+			case "admin": return .admin
+			case "tho": return .tho
+			case "moderator": return .moderator
+			case "user": return .user
+			case "muted": return .muted
+			case "banned": return .banned
+			case "loggedOut": return .loggedOut
+			default: return nil
+			}
+		}
+		static func stringForRole(role: UserRole) -> String {
+			switch role {
+			case .admin: return "admin"
+			case .tho: return "tho"
+			case .moderator: return "moderator"
+			case .user: return "user"
+			case .muted: return "muted"
+			case .banned: return "banned"
+			case .loggedOut: return "loggedOut"
+			}
+		}
+	}
+	
 	// Specific to the logged-in user
 	@NSManaged public var postOps: Set<PostOperation>?
 
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
 	@NSManaged public var starredUsers: Set<KrakenUser>?			// Set of users the logged in user has starred.
-	@NSManaged public var lastLogin: Bool
+	@NSManaged public var lastLogin: Int64
+	
+	var twitarrV2AuthKey: String?
+
+	// Info about the current user that should not be in KrakenUser nor cached to disk.
+	@objc dynamic var userRole: UserRole = .loggedOut
 	
 	func buildFromV2UserAccount(context: NSManagedObjectContext, v2Object: TwitarrV2UserAccount) {
 		TestAndUpdate(\.username, v2Object.username)
@@ -30,7 +70,8 @@ import CoreData
 		TestAndUpdate(\.roomNumber, v2Object.roomNumber)
 
 		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
-//		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
+		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
+		userRole = UserRole.roleForString(str: v2Object.role) ?? .user
 //		TestAndUpdate(\.emptyPassword, v2Object.emptyPassword)
 	}
 	
@@ -132,51 +173,18 @@ import CoreData
 @objc class CurrentUser: NSObject {
 	static let shared = CurrentUser()
 	
-	@objc enum UserRole: Int {
-		case admin
-		case tho
-		case moderator
-		case user
-		case muted
-		case banned
-		case loggedOut
-		
-		// Done this dumb way because we need to be @objc, therefore Int-backed, not string-backed.
-		static func roleForString(str: String) -> UserRole? {
-			switch str {
-			case "admin": return .admin
-			case "tho": return .tho
-			case "moderator": return .moderator
-			case "user": return .user
-			case "muted": return .muted
-			case "banned": return .banned
-			case "loggedOut": return .loggedOut
-			default: return nil
-			}
-		}
-		static func stringForRole(role: UserRole) -> String {
-			switch role {
-			case .admin: return "admin"
-			case .tho: return "tho"
-			case .moderator: return "moderator"
-			case .user: return "user"
-			case .muted: return "muted"
-			case .banned: return "banned"
-			case .loggedOut: return "loggedOut"
-			}
-		}
-	}
-	
+	// This var, right here, is what the whole app looks at to see if someone is logged in, and if so--who.
+	// If nil, the whole app sees 'nobody is logged in'.
+	// This var is widely observed via KVO.
 	@objc dynamic var loggedInUser: LoggedInKrakenUser?
-	var twitarrV2AuthKey: String?
+	
+	// The last error we got from the server. Cleared when we start a new activity.
 	@objc dynamic var isChangingLoginState: Bool = false
-	
-	// Info about the current user that should not be in KrakenUser nor cached to disk.
-	var lastLogin: Int = 0
-	@objc dynamic var userRole: UserRole = .loggedOut
-	
-	// The last error we got from the server. Cleared when we start a new call.
 	@objc dynamic var lastError : ServerError?
+	
+	// This is the set of users that we are holding Twitarr auth keys for. At any time, we can swap one of these
+	// users to become the loggedInUser, without asking for their password or talking to the server.
+	@objc dynamic var credentialedUsers = Set<LoggedInKrakenUser>()
 		
 	func clearErrors() {
 		lastError = nil
@@ -184,6 +192,12 @@ import CoreData
 
 	func isLoggedIn() -> Bool {
 		return loggedInUser != nil
+	}
+	
+	// TRUE iff multiple users are credentialed. If true, we put info cells in posting views telling the user
+	// which account is active (i.e. "This tweet will be posted by @james").
+	func isMultiUser() -> Bool {
+		return credentialedUsers.count > 1
 	}
 	
 	func getLoggedInUser(in context: NSManagedObjectContext) -> LoggedInKrakenUser? {
@@ -206,6 +220,17 @@ import CoreData
 			}
 		}
 		return resultUser
+	}
+	
+	// Sets the active user to one of the credentialed users. 'Active' means the user the app treats as being logged
+	// in in the classic one-user-at-a-time sense. Seamails, likes, reactions, all the user-specific content will 
+	// be shown from the POV and permissions of this user. Note that this fn does not call the server, and can't 
+	// be used to switch to a user that hasn't entered their credentials (that is, logged in).
+	func setActiveUser(to user: LoggedInKrakenUser) {
+		if credentialedUsers.contains(user) {
+			loggedInUser = user
+			Settings.shared.activeUsername = user.username
+		}
 	}
 	
 	func loginUser(name: String, password: String) {
@@ -258,13 +283,14 @@ import CoreData
 	// doesn't log in.
 	func loadProfileInfo(keyToUseDuringLogin: String? = nil) {
 		
-		// Need an auth key or this won't work.
-		guard let key = keyToUseDuringLogin ?? self.twitarrV2AuthKey else {
+		// Need an auth key or this won't work. If we're mid-login, loggedInUser will be nil.
+		guard let key = keyToUseDuringLogin ?? self.loggedInUser?.twitarrV2AuthKey else {
 			return
 		}
 		
 		let queryParams = [ URLQueryItem(name:"key", value:key) ]
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
+	//	NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
 				// HTTP 401 error at this point means the user isn't actually logged in. This can happen if they
@@ -283,12 +309,12 @@ import CoreData
 					let krakenUser = UserManager.shared.updateLoggedInUserInfo(from: profileResponse.userAccount)
 										
 					// If this is a login action, set the logged in user, their key, and other values 
-					if let keyUsedForLogin = keyToUseDuringLogin {
-						self.loggedInUser = krakenUser
-						self.lastLogin = profileResponse.userAccount.lastLogin
-						self.twitarrV2AuthKey = keyUsedForLogin
-						self.userRole = UserRole.roleForString(str: profileResponse.userAccount.role) ?? .user
+					if let keyUsedForLogin = keyToUseDuringLogin, let user = krakenUser {
+						self.credentialedUsers.insert(user)
+						self.loggedInUser = user
+						user.twitarrV2AuthKey = keyUsedForLogin
 						self.saveLoginCredentials()
+						Settings.shared.activeUsername = user.username
 					}
 				}
 				else {
@@ -303,30 +329,48 @@ import CoreData
 		}
 	}
 	
-	func logoutUser() {
+	// Since this app uses auth keys instead of session cookies to maintain logins, the logout API call
+	// doesn't (currently) do anything for us. In order to logout (and requre auth to log in again) we only
+	// have to discard the keys.
+	func logoutUser(_ passedInUser: LoggedInKrakenUser? = nil) {
 		// Only allow one login state change action at a time
 		guard !isChangingLoginState else {
 			return
 		}
+		var user = passedInUser
+		if user == nil {
+			user = loggedInUser
+		}
+		guard let userToLogout = user else  { return }
+		guard credentialedUsers.contains(userToLogout) else { return }
+		
 		isChangingLoginState = true
 		clearErrors()
 		
 		// We send a logout request, but don't care about its result
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/logout")
+		let queryParams = [ URLQueryItem(name: "key", value: userToLogout.twitarrV2AuthKey) ]
+		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/logout", query: queryParams)
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			let _ = NetworkGovernor.shared.parseServerError(data: data, response: response)
 		}
 		
 		// Throw away all login info
-		self.loggedInUser = nil
-		self.lastLogin = 0
-		self.twitarrV2AuthKey = nil
-		self.userRole = .loggedOut
+		credentialedUsers.remove(userToLogout)
+		if loggedInUser?.username == userToLogout.username {
+			if credentialedUsers.count == 1, let stillThereUser = credentialedUsers.first {
+				// If there's exactly one credentialed user, make them active.
+				setActiveUser(to: stillThereUser)
+			}
+			else {
+				self.loggedInUser = nil
+			}
+		}
+		
 		let cookiesToDelete = HTTPCookieStorage.shared.cookies?.filter { $0.name == "_twitarr_session" }
 		for cookie in cookiesToDelete ?? [] {
 			HTTPCookieStorage.shared.deleteCookie(cookie)
 		}
-		removeLoginCredentials()
+		removeLoginCredentials(for: userToLogout.username)
 		
 		// Todo: Tell Seamail and Forums to reap for logout
 		
@@ -385,6 +429,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/change_password", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
+		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
 			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
 				self.lastError = error
@@ -393,7 +438,8 @@ import CoreData
 				let decoder = JSONDecoder()
 				if  let data = data, let response = try? decoder.decode(TwitarrV2ChangePasswordResponse.self, from: data),
 						response.status == "ok" && savedCurrentUserName == self.loggedInUser?.username {
-					self.twitarrV2AuthKey = response.key
+					self.loggedInUser?.twitarrV2AuthKey = response.key
+					self.saveLoginCredentials()
 					done()
 				}
 				else
@@ -415,7 +461,7 @@ import CoreData
 		let encoder = JSONEncoder()
 		let authData = try! encoder.encode(resetPasswordStruct)
 				
-		// Call /api/v2/user/change_password
+		// Call /api/v2/user/reset_password
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/reset_password", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
@@ -437,6 +483,8 @@ import CoreData
 			} 
 		}
 	}
+	
+// MARK: Move these to LoggedInKrakenUser!!!
 	
 	// This lets the logged in user set a private comment about another user.
 	func setUserComment(_ comment: String, forUser: KrakenUser) {
@@ -544,10 +592,11 @@ extension CurrentUser {
 	
 	// Only save login creds as a result of successful server reponse to login.
  	@discardableResult public func saveLoginCredentials() -> Bool {
- 		guard let user = loggedInUser, let authKey = twitarrV2AuthKey, 
+ 		guard let user = loggedInUser, let authKey = user.twitarrV2AuthKey, 
  				let keyData = authKey.data(using:.utf8, allowLossyConversion: false) else { return false }
  				
-		removeLoginCredentials()
+		// Keychain won't let us 'add' creds that already exist--have to either 'update' instead, or delete and re-add.
+		removeLoginCredentials(for: user.username)
  		
  		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
 		let query: [String : Any] = [
@@ -555,7 +604,7 @@ extension CurrentUser {
 				kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
 				kSecAttrAccount as String: user.username,
 				kSecAttrServer as String: keychainObjectKey,
-				kSecAttrSecurityDomain as String: UserRole.stringForRole(role: userRole),	// Heh. Not what SecurityDomain is actually for.
+				kSecAttrSecurityDomain as String: LoggedInKrakenUser.UserRole.stringForRole(role: user.userRole),	// Heh. Not what SecurityDomain is actually for.
 				kSecValueData as String: keyData as NSData]
 
 		let status: OSStatus = SecItemAdd(query as CFDictionary, nil)
@@ -563,11 +612,14 @@ extension CurrentUser {
 		return status == noErr
 	}
 	
-	func removeLoginCredentials() {
+	// loggedInUser may already be nil when this is called, or this may get used to remove creds for users
+	// not the currently logged in user.
+	func removeLoginCredentials(for username: String) {
  		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
 		let query: [String : Any] = [
 				kSecClass as String: kSecClassInternetPassword as String,
 				kSecAttrServer as String: keychainObjectKey,
+				kSecAttrAccount as String: username,
 				kSecReturnData as String: true]
 
         // Delete any existing items, for all accounts on this server.
@@ -577,7 +629,7 @@ extension CurrentUser {
 
 	}
 
-	// Called early on during app launch.
+	// Called early on during app launch. Finds all the users who are logged in, sets up one of them as active.
 	func setInitialLoginState() {
  		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
 		let query: [String : Any] = [
@@ -585,27 +637,47 @@ extension CurrentUser {
 				kSecAttrServer as String : keychainObjectKey,
 				kSecReturnAttributes as String : true,
 				kSecReturnData as String : true,
-				kSecMatchLimit as String : kSecMatchLimitOne]
+				kSecMatchLimit as String : kSecMatchLimitAll]
 
 		var dataTypeRef: AnyObject?
 		let status: OSStatus = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
-		if status == errSecSuccess, let recordDict = dataTypeRef as? [String : Any],
-   				let accountName = recordDict[kSecAttrAccount as String] as? String,
-				let passwordData = recordDict[kSecValueData as String] as? Data,
-    			let authKey = String(data: passwordData, encoding: String.Encoding.utf8),
-    			let userRoleStr = recordDict[kSecAttrSecurityDomain as String] as? String {
-    			
-			//
-			let krakenUser = UserManager.shared.user(accountName) as? LoggedInKrakenUser
-	
-			// 
-			self.loggedInUser = krakenUser
-			self.lastLogin = 0
-			self.twitarrV2AuthKey = authKey
-			self.userRole = UserRole.roleForString(str: userRoleStr) ?? .user
+		if status == errSecSuccess, let recordArray = dataTypeRef as? [[String : Any]] {
+			var usersWithCreds = Set<LoggedInKrakenUser>()
+			for recordDict in recordArray {
+				if let accountName = recordDict[kSecAttrAccount as String] as? String,
+						let passwordData = recordDict[kSecValueData as String] as? Data,
+						let authKey = String(data: passwordData, encoding: String.Encoding.utf8),
+						let userRoleStr = recordDict[kSecAttrSecurityDomain as String] as? String {
 
-			loadProfileInfo()
-			KeychainLog.debug("Logging in as a user at app launch")
+					// In the future (post-2020 cruise?), we should use the creationDate key to find and remove
+					// old passwords.
+
+					//
+					if let krakenUser = UserManager.shared.user(accountName) as? LoggedInKrakenUser {
+						krakenUser.twitarrV2AuthKey = authKey
+						krakenUser.userRole = LoggedInKrakenUser.UserRole.roleForString(str: userRoleStr) ?? .user
+						usersWithCreds.insert(krakenUser)
+					}
+				}
+			}
+			credentialedUsers = usersWithCreds
+
+			if let activeUsername = Settings.shared.activeUsername,
+					let activeUser = usersWithCreds.first(where: { $0.username == activeUsername }) {
+				// 
+				loggedInUser = activeUser
+				loadProfileInfo()
+				KeychainLog.debug("Logging in as a user at app launch")
+			}
+			else if usersWithCreds.count == 1, let activeUser = usersWithCreds.first {
+				loggedInUser = activeUser
+				loadProfileInfo()
+				Settings.shared.activeUsername = activeUser.username
+				KeychainLog.debug("Logging in default credentialed user at app launch")
+			}
+			else {
+				KeychainLog.debug("Found \(credentialedUsers.count) users with creds, but launching inactive.")
+			}
 		}
 		else if status == errSecItemNotFound {	// errSecItemNotFound is -25300
 			// No record found; this is fine. Means we're not logging in as anyone at app launch.
@@ -723,7 +795,7 @@ struct TwitarrV2UserAccount: Codable {
 	let emailAddress: String?
 	let displayName: String
 	let currentLocation: String?
-	let lastLogin: Int
+	let lastLogin: Int64
 	let emptyPassword: Bool
 	let lastPhotoUpdated: Int64
 	let roomNumber: String?

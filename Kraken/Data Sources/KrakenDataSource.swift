@@ -202,9 +202,9 @@ class KrakenDataSource: NSObject {
 			cell.cellModel?.privateSelected = true
 		}
 		
-		if let indexPath = collectionView?.indexPath(for: cell) {
-			collectionView?.selectItem(at: indexPath, animated: false, scrollPosition: [])
-		}
+//		if let indexPath = collectionView?.indexPath(for: cell) {
+//			collectionView?.selectItem(at: indexPath, animated: false, scrollPosition: [])
+//		}
 	}
 
 // MARK: Updating Content

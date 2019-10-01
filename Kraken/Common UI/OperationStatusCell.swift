@@ -46,7 +46,8 @@ import UIKit
 			observer.shouldBeVisible = observed.isChangingLoginState || observed.lastError != nil 
 			observer.showSpinner = observed.isChangingLoginState
 			if observed.isChangingLoginState {
-				observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
+//				observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
+				observer.statusText = "Logging in"
 			}
 			else {
 				if let error = observed.lastError {
