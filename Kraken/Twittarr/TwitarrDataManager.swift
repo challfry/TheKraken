@@ -402,10 +402,12 @@ class TwitarrDataManager: NSObject {
 		
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/stream", query: queryParams)
 		networkUpdateActive = true
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
-			if let response = response as? HTTPURLResponse, response.statusCode < 300,
-					let data = data {
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				NetworkLog.error(error.localizedDescription)
+			}
+			else if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {
@@ -433,10 +435,12 @@ class TwitarrDataManager: NSObject {
 
 		let request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/search/tweets/\(escapedQuery)", query: queryParams)
 		networkUpdateActive = true
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
-			if let response = response as? HTTPURLResponse, response.statusCode < 300,
-					let data = data {
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				NetworkLog.error(error.localizedDescription)
+			}
+			else if let data = package.data {
 				let decoder = JSONDecoder()
 				do {
 					let tweetStream = try decoder.decode(TwitarrV2TweetQueryResult.self, from: data)

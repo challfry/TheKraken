@@ -114,6 +114,19 @@ import CoreData
 		return nil
 	}
 	
+	func getPendingPhotoEditOp(inContext: NSManagedObjectContext = LocalCoreData.shared.mainThreadContext) -> PostOpUserPhoto? {
+		if let ops = postOps {
+			for op in ops {
+				if let profileEditOp = op as? PostOpUserPhoto,
+						profileEditOp.author.username == username {
+					let opInContext = try? inContext.existingObject(with: profileEditOp.objectID) as? PostOpUserPhoto
+					return opInContext
+				}
+			}
+		}
+		return nil
+	}
+	
 	// The v2Object in this instance is NOT (generally) the logged-in user. It's another userProfile where
 	// it contains data specific to the logged-in user's POV--user comments and stars.
 	func parseV2UserProfileCommentsAndStars(context: NSManagedObjectContext, v2Object: TwitarrV2UserProfile,
@@ -150,7 +163,36 @@ import CoreData
 			}
 		}
 	}
+	
+	// Photo should be resized for upload and should be a mime type the server can understand.
+	// Puts the photo data into a postOp.
+	func setUserProfilePhoto(photoData: Data?, mimeType: String) {
+		guard username == CurrentUser.shared.loggedInUser?.username else { return }
+		
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			do {
+				// Check for existing photo update op for this user
+				let op = self.getPendingPhotoEditOp(inContext: context) ?? PostOpUserPhoto(context: context)
+				if let p = photoData {
+					op.image = p as NSData
+				}
+				else {
+					op.image = nil
+				}
+				op.imageMimetype = mimeType
+				op.readyToSend = true
+			
+				try context.save()
+			}
+			catch {
+				CoreDataLog.error("Couldn't save context.", ["error" : error])
+			}
+		}
 
+	}
+
+    
 }
 
 @objc(UserComment) public class UserComment : KrakenManagedObject {
@@ -252,13 +294,13 @@ import CoreData
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.shared.queue(request) { package in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				// Login failed.
 				self.lastError = error
 				self.isChangingLoginState = false
 			}
-			else if let data = data {
+			else if let data = package.data {
 				let decoder = JSONDecoder()
 				if let authResponse = try? decoder.decode(TwitarrV2AuthResponse.self, from: data) {
 					if authResponse.status == "ok" {
@@ -288,22 +330,25 @@ import CoreData
 			return
 		}
 		
+		// If we're not logged in, addUserCredential will do nothing. If we are logged in, addUserCredential
+		// will replace 'key' in the query with the logged in user's key.
 		let queryParams = [ URLQueryItem(name:"key", value:key) ]
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
-	//	NetworkGovernor.addUserCredential(to: &request)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.addUserCredential(to: &request)
+		
+		NetworkGovernor.shared.queue(request) { package in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				// HTTP 401 error at this point means the user isn't actually logged in. This can happen if they
 				// change their password from another device.
 				self.logoutUser()
 				self.lastError = error
 			}
-			else if response == nil {
+			else if package.response == nil {
 				// No response object indicates a network error of some sort (NOT a server error)
 			}
 			else {
 				let decoder = JSONDecoder()
-				if let data = data,  let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
+				if let data = package.data,  let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
 					
 					// Adds the user to the cache if it doesn't exist.
 					let krakenUser = UserManager.shared.updateLoggedInUserInfo(from: profileResponse.userAccount)
@@ -350,8 +395,8 @@ import CoreData
 		// We send a logout request, but don't care about its result
 		let queryParams = [ URLQueryItem(name: "key", value: userToLogout.twitarrV2AuthKey) ]
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/logout", query: queryParams)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			let _ = NetworkGovernor.shared.parseServerError(data: data, response: response)
+		NetworkGovernor.shared.queue(request) { package in
+			let _ = NetworkGovernor.shared.parseServerError(package)
 		}
 		
 		// Throw away all login info
@@ -393,16 +438,16 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/new", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				// CreateUserAccount failed.
 				self.lastError = error
 				self.isChangingLoginState = false
 			}
 			else {
 				let decoder = JSONDecoder()
-				if let data = data, let authResponse = try? decoder.decode(TwitarrV2CreateAccountResponse.self, from: data),
-						authResponse.status == "ok" {
+				if let data = package.data, let authResponse = try? decoder.decode(TwitarrV2CreateAccountResponse.self, 
+						from: data), authResponse.status == "ok" {
 					self.loadProfileInfo(keyToUseDuringLogin: authResponse.key)
 				}
 				else
@@ -430,13 +475,13 @@ import CoreData
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		NetworkGovernor.addUserCredential(to: &request)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
 			}
 			else {
 				let decoder = JSONDecoder()
-				if  let data = data, let response = try? decoder.decode(TwitarrV2ChangePasswordResponse.self, from: data),
+				if  let data = package.data, let response = try? decoder.decode(TwitarrV2ChangePasswordResponse.self, from: data),
 						response.status == "ok" && savedCurrentUserName == self.loggedInUser?.username {
 					self.loggedInUser?.twitarrV2AuthKey = response.key
 					self.saveLoginCredentials()
@@ -465,13 +510,13 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/reset_password", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
 			}
 			else {
 				let decoder = JSONDecoder()
-				if  let data = data, let response = try? decoder.decode(TwitarrV2ResetPasswordResponse.self, from: data) {
+				if  let data = package.data, let response = try? decoder.decode(TwitarrV2ResetPasswordResponse.self, from: data) {
 					if response.status == "ok" {
 						done()
 					}
@@ -488,17 +533,17 @@ import CoreData
 	
 	// This lets the logged in user set a private comment about another user.
 	func setUserComment(_ comment: String, forUser: KrakenUser) {
-		guard let loggedInUser = loggedInUser else { return }
 		clearErrors()
-		
 		let context = LocalCoreData.shared.networkOperationContext
+		guard let loggedInUser = self.getLoggedInUser(in: context) else { return }
+		
 		context.performAndWait {
 			do {
 				// get foruser in context
 				let userInContext = try context.existingObject(with: forUser.objectID) as! KrakenUser
 					
 				// Check for existing op for this user
-				let op = loggedInUser.getPendingUserCommentOp(commentingOn: forUser, inContext: context) ?? PostOpUserComment(context: context)
+				let op = loggedInUser.getPendingUserCommentOp(commentingOn: userInContext, inContext: context) ?? PostOpUserComment(context: context)
 				op.comment = comment
 				op.userCommentedOn = userInContext
 				op.readyToSend = true

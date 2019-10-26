@@ -241,7 +241,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
 				destVC.modelUserName = username
 			}
-		case "Camera":
+		case "fullScreenCamera", "cropCamera":
 			break
 		default: break 
     	}

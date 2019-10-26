@@ -27,6 +27,7 @@ class CameraViewController: UIViewController {
 	@IBOutlet var 		retryButton: UIButton!
 	@IBOutlet var 		useButton: UIButton!
 	
+	// Props we need to run the camera
 	var captureSession = AVCaptureSession()
 	var cameraDevice: AVCaptureDevice?					// The currently active device
 	var haveLockOnDevice: Bool = false					// TRUE if we have a lock on cameraDevice and can config it
@@ -34,6 +35,11 @@ class CameraViewController: UIViewController {
 	var cameraPreview: AVCaptureVideoPreviewLayer?
 	var photoOutput = AVCapturePhotoOutput()
 	var capturedPhoto: AVCapturePhoto?
+	
+	// Configuration
+	var selfieMode: Bool = false						// Set to TRUE to initially use front camera
+	
+// MARK: Methods
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,8 +47,13 @@ class CameraViewController: UIViewController {
 		configureAVSession()
 		setupGestureRecognizer()
 		
+		// CoreMotion is our own device motion manager, a singleton for the whole app. We use it here to get device
+		// orientation without allowing our UI to actually rotate.
 		NotificationCenter.default.addObserver(self, selector: #selector(CameraViewController.deviceRotationNotification), 
 				name: CoreMotion.OrientationChanged, object: nil)
+				
+		// Fix-up Interface Builder values that might get set wrong while editing the VC.
+		capturedPhotoContainerView.isHidden = true
 	}
     
 	override func viewWillAppear(_ animated: Bool) {
@@ -72,7 +83,14 @@ class CameraViewController: UIViewController {
 		return false
 	}
 	
+	// This VC doesn't actually rotate, it technically stays in Portrait all the time. However, it 
+	// rotates a bunch of its UI widgets via affine transforms when device rotation is detected. Also,
+	// the notification this responds to is a custom app notification, not a system one.
 	@objc func deviceRotationNotification(_ notification: Notification) {
+		rotateUIElements(animated: true)
+	}
+	
+	func rotateUIElements(animated: Bool) {
 //		print ("New orientation: \(CoreMotion.shared.currentDeviceOrientation.rawValue)")
 		var rotationAngle: CGFloat = 0.0
 		var isLandscape = false
@@ -84,7 +102,7 @@ class CameraViewController: UIViewController {
 			default: rotationAngle = 0.0
 		}
 		let xform = CGAffineTransform(rotationAngle: CGFloat.pi * rotationAngle / 180.0)
-		UIView.animate(withDuration: 0.3) {
+		let rotationBlock = {
 			self.cameraRotateButton.transform = xform
 			self.flashButton.transform = xform
 			self.pirateButton.transform = xform
@@ -92,12 +110,23 @@ class CameraViewController: UIViewController {
 			self.useButton.transform = xform
 			
 			let viewWidth = self.capturedPhotoContainerView.bounds.size.width
-			var imageAspectRatio: CGFloat = 4.0 / 3.0
+			var imageAspectRatio: CGFloat = 3.0 / 4.0
 			if let image = self.capturedPhotoView.image {
-				imageAspectRatio = image.size.height / image.size.width
+				imageAspectRatio = image.size.width / image.size.height
 			}
-			self.capturedPhotoView.transform = xform
-			self.capturedPhotoViewHeightConstraint.constant = isLandscape ? viewWidth : viewWidth * imageAspectRatio
+			
+			// When the device is landscape we rotate the photo view just like everything else. However, this
+			// view also needs to be resized 
+			let scaleFactor = isLandscape ? imageAspectRatio : 1.0
+			self.capturedPhotoView.transform = xform.scaledBy(x: scaleFactor, y: scaleFactor)
+			self.capturedPhotoViewHeightConstraint.constant = isLandscape ? viewWidth : viewWidth / imageAspectRatio
+		}
+		
+		if animated {
+			UIView.animate(withDuration: 0.3, animations: rotationBlock)
+		}
+		else {
+			rotationBlock()
 		}
 	}
 	
@@ -107,7 +136,7 @@ class CameraViewController: UIViewController {
 		#else
 
 		captureSession.sessionPreset = .photo
-		cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+		cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: selfieMode ? .front : .back)
 		haveLockOnDevice = false
 		do {
 			try cameraDevice?.lockForConfiguration()
@@ -136,7 +165,7 @@ class CameraViewController: UIViewController {
 		#endif
 	}
 	
-// MARK: - Actions
+// MARK: Actions
 	
 	@IBAction func closeButtonTapped() {
 		dismiss(animated: true, completion: nil)
@@ -195,6 +224,10 @@ class CameraViewController: UIViewController {
 				case .portraitUpsideDown, .faceDown: photoOutputConnection.videoOrientation = .portraitUpsideDown
 				default: photoOutputConnection.videoOrientation = .portrait
 			}
+			
+			if photoOutputConnection.isVideoMirroringSupported {
+				photoOutputConnection.isVideoMirrored = cameraInput?.device.position == AVCaptureDevice.Position.front
+			}
 		}
 
 		//
@@ -204,13 +237,19 @@ class CameraViewController: UIViewController {
 	}
 	
 	@IBAction func photoAccepted(sender: UIButton, forEvent event: UIEvent) {
-	//	let photoData = capturedPhoto?.fileDataRepresentation()
-	//	performSegue(withIdentifier: "dismissCamera", sender: photoData)
+		let photoData = capturedPhoto?.fileDataRepresentation()
+		performSegue(withIdentifier: "dismissCamera", sender: photoData)
+
+		leftShutter.isEnabled = true
+		rightShutter.isEnabled = true
 	}
 
 	@IBAction func photoRejected(sender: UIButton, forEvent event: UIEvent) {
 		capturedPhotoContainerView.isHidden = true
 		capturedPhoto = nil
+
+		leftShutter.isEnabled = true
+		rightShutter.isEnabled = true
 	}
 	
 	var zoomGestureRecognizer: UIPanGestureRecognizer?
@@ -221,31 +260,18 @@ class CameraViewController: UIViewController {
 extension CameraViewController : AVCapturePhotoCaptureDelegate {
 	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
 		CameraLog.debug("In didFinishProcessingPhoto.", ["metadata" : photo.metadata])
+				
+		capturedPhoto = photo
+
+		// After a bunch of testing, it appears that fileDataRepresentation() uses the rotation requested 
+		// by setting photoOutputConnection.videoOrientation just before calling capturePhoto, while
+		// cgImageRepresentation() does not.
+		if let photoData = photo.fileDataRepresentation(), let photoImage = UIImage(data: photoData) {
+			capturedPhotoView.image = photoImage
+		}
 		
 		capturedPhotoContainerView.isHidden = false
-		if let cgImage = photo.cgImageRepresentation()?.takeUnretainedValue() {
-			// deal with rotation of the image
-			var counterRotate: UIImage.Orientation = .right
-			if let raw = photo.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
-					let cgOrientation = CGImagePropertyOrientation(rawValue: raw) {
-				counterRotate = UIImage.Orientation(cgOrientation)
-			}
-			
-			var isLandscape = Set(arrayLiteral: .landscapeRight, .landscapeLeft).contains(CoreMotion.shared.currentDeviceOrientation)
-			let viewWidth = self.capturedPhotoContainerView.bounds.size.width
-			var imageAspectRatio: CGFloat = CGFloat(cgImage.width) / CGFloat(cgImage.height)
-			if Set(arrayLiteral: .up, .down).contains(counterRotate) { 
-//				imageAspectRatio = 1.0 / imageAspectRatio 
-				isLandscape = !isLandscape
-			}
-			capturedPhotoViewHeightConstraint.constant = isLandscape ? viewWidth : viewWidth * imageAspectRatio
-	//		let imageViewHeight = CGFloat(cgImage.width) * CGFloat(capturedPhotoView.bounds.width) / CGFloat(cgImage.height)
-			capturedPhotoView.image = UIImage(cgImage: cgImage, scale: 1.0, orientation: counterRotate)
-			
-			capturedPhoto = photo
-		}
-		leftShutter.isEnabled = true
-		rightShutter.isEnabled = true
+		rotateUIElements(animated: false)
 	}
 }
 
@@ -288,6 +314,9 @@ extension CameraViewController: UIGestureRecognizerDelegate {
 
 //MARK: -
 
+// VerticalSlider is a custom UI widget that sets the zoom level on the camera by swiping up and down
+// over the camera preview (anywhere in the preview). The slider shows as a white thumb on the left
+// side of the screen, along with a zoom factor.
 class VerticalSlider: UIView {
 	var input: AVCaptureDevice
 	var baseline: CGFloat = 1.0				// 0 is top, 1.0 is bottom of slider

@@ -43,12 +43,12 @@ class ServerTextFileParser: NSObject {
 		//
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/text/\(named)", query: nil)
 		isFetchingData = true
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
 				self.loadLocallySavedFile(named: named)
 			}
-			else if let data = data {
+			else if let data = package.data {
 				do {
 					let decoder = JSONDecoder()
 					let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: data)

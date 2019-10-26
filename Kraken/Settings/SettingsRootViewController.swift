@@ -83,6 +83,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		prefsHeaderCell.labelText = NSAttributedString(string: "App-wide settings")
 		prefsSection.append(cell: BlockNetworkSwitchCellModel())
 		prefsSection.append(cell: DelayPostsSwitchCellModel())
+		prefsSection.append(cell: FullScreenCameraSwitchCellModel())
 		
 		// Debug Settings
 		let debugSettingsSection = dataSource.appendFilteringSegment(named: "Debug Prefs")
@@ -481,6 +482,22 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		}?.execute()
 	}
 	
+}
+
+// MARK: - Prefs Cells
+
+@objc class FullScreenCameraSwitchCellModel : SwitchCellModel {
+	init() {
+		super.init(labelText: """
+				This switch controls the camera viewfinder style.
+				ON: uses the full screen to present the largest preview.
+				OFF: Shows the cropping boundary of the final image.
+				""")
+		switchStateChanged = { 
+			Settings.shared.useFullscreenCameraViewfinder = self.switchState
+		}
+		switchState = Settings.shared.useFullscreenCameraViewfinder
+	}
 }
 
 

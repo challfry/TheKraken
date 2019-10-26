@@ -426,10 +426,12 @@ class EventsDataManager: NSObject {
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/event", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
-			if let response = response as? HTTPURLResponse, response.statusCode < 300,
-					let data = data {
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				NetworkLog.error(error.localizedDescription)
+			}
+			else if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {
@@ -440,6 +442,10 @@ class EventsDataManager: NSObject {
 					NetworkLog.error("Failure parsing Schedule events.", ["Error" : error, "URL" : request.url as Any])
 				} 
 			}
+			
+			// TODO: Should probably add code here so that, in the case where the load fails due to network or
+			// server errors, we remember it happened and can display a cell telling the user either we don't have
+			// events data yet or we do have data but it's out of date.
 		}
 	}
 	

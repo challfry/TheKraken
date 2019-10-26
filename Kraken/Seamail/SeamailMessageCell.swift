@@ -68,6 +68,7 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
  
 				message.author.loadUserThumbnail()
 				message.author.tell(self, when:"thumbPhoto") { observer, observed in
+					observed.loadUserThumbnail()
 					observer.authorImage.image = observed.thumbPhoto
 //					CollectionViewLog.debug("Setting user image for \(observed.username)", ["image" : observed.thumbPhoto])
 				}?.schedule()

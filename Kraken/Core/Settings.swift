@@ -21,11 +21,19 @@ import Foundation
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
 
+	// Saves the last user to be 'active'. Unless they're logged in with multiple accounts, this will just 
+	// be the user.
 	public var activeUsername: String? {
 		get { return getSetting(name: "activeUsername", defaultValue: nil) }
 		set { setSetting(name: "activeUsername", newValue: newValue) }
 	}
 	
+	// Chooses which viewfinder style to use
+	public var useFullscreenCameraViewfinder: Bool {
+		get { return getSetting(name: "useFullscreenCameraViewfinder", defaultValue: true) }
+		set { setSetting(name: "useFullscreenCameraViewfinder", newValue: newValue) }
+	}
+
 	public var lastSeamailCheckTime: Date {
 		get { return getSetting(name: "lastSeamailCheckTime", defaultValue: Date(timeIntervalSince1970: 0)) }
 		set { setSetting(name: "lastSeamailCheckTime", newValue: newValue) }

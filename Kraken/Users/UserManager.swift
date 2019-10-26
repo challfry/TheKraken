@@ -28,6 +28,9 @@ import CoreData
 	@NSManaged public var lastPhotoUpdated: Int64
 	@NSManaged public var thumbPhotoData: Data?
 		
+		// Cached UIImages of the user avatar, keyed off the lastPhotoUpdated time they were built from.
+		// When the user changes their avatar, lastPhotoUpdated will change, and we should invalidate these.
+	var builtPhotoUpdateTime: Int64 = 0					
 	@objc dynamic public var thumbPhoto: UIImage?
 	@objc dynamic weak var fullPhoto: UIImage?
 	
@@ -35,10 +38,22 @@ import CoreData
 	@NSManaged private var commentedUpon: Set<UserComment>?
 	@NSManaged public var commentOps: Set<PostOpUserComment>?
 	
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		if thumbPhotoData == nil || lastPhotoUpdated != builtPhotoUpdateTime {
+			builtPhotoUpdateTime = 0
+			thumbPhoto = nil
+			fullPhoto = nil
+		}
+	}
+	
 	func buildFromV2UserInfo(context: NSManagedObjectContext, v2Object: TwitarrV2UserInfo)
 	{
 		TestAndUpdate(\.username, v2Object.username)
 		TestAndUpdate(\.displayName, v2Object.displayName)
+		if v2Object.lastPhotoUpdated > lastPhotoUpdated {
+			invalidateUserPhoto(context)
+		}
 		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
 	}
 	
@@ -53,6 +68,9 @@ import CoreData
 		TestAndUpdate(\.currentLocation, v2Object.currentLocation)
 		TestAndUpdate(\.roomNumber, v2Object.roomNumber)
 
+		if v2Object.lastPhotoUpdated > lastPhotoUpdated {
+			invalidateUserPhoto(context)
+		}
 		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
 		TestAndUpdate(\.numberOfTweets, v2Object.numberOfTweets)
 		TestAndUpdate(\.numberOfMentions, v2Object.numberOfMentions)
@@ -69,37 +87,70 @@ import CoreData
 	// lastLogin time
 	// emptyPassword bool
 	// unnoticed_alerts
-		
+	
+	// Note that this method gets called A LOT for user thumbnails that are already built.
 	func loadUserThumbnail() {
 		// Is the UIImage already built?
-		if thumbPhoto != nil {
+		if thumbPhoto != nil && builtPhotoUpdateTime == lastPhotoUpdated {
 			return
 		}
 		
 		// Can we build the photo from the CoreData cache?
 		if thumbPhotoData != nil, let data = thumbPhotoData {
 			thumbPhoto = UIImage(data: data)
+			builtPhotoUpdateTime = lastPhotoUpdated
+			return
 		}
 		
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/photo/\(username)")
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let response = response as? HTTPURLResponse {
-				if response.statusCode < 300, let data = data {
-					self.thumbPhoto = UIImage(data: data)
-					let context = LocalCoreData.shared.networkOperationContext
-					context.perform {
-						do {
-							let objectInContext = context.object(with: self.objectID) as! KrakenUser
-							objectInContext.thumbPhotoData = data
-							try context.save()
-						}
-						catch {
-							CoreDataLog.error("Couldn't save context while saving User avatar.", ["error" : error])
-						}
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				ImageLog.error(error.errorString ?? "Unknown error in /api/v2/user/photo response")
+			}
+			else if let data = package.data {
+				self.thumbPhoto = UIImage(data: data)
+				self.builtPhotoUpdateTime = self.lastPhotoUpdated
+				let context = LocalCoreData.shared.networkOperationContext
+				context.perform {
+					do {
+						let objectInContext = context.object(with: self.objectID) as! KrakenUser
+						objectInContext.thumbPhotoData = data
+						try context.save()
 					}
-				} else 
-				{
-					// Load failed for some reason
+					catch {
+						CoreDataLog.error("Couldn't save context while saving User avatar.", ["error" : error])
+					}
+				}
+			} else 
+			{
+				// Load failed for some reason
+				ImageLog.error("/api/v2/user/photo returned no error, but also no image data.")
+			}
+		}
+	}
+	
+	// Pass in context iff we're already in a context.perform() block
+	func invalidateUserPhoto(_ context: NSManagedObjectContext?) {
+		if let currentUsername = CurrentUser.shared.loggedInUser?.username {
+			ImageManager.shared.userImageCache.invalidateImage(withKey: currentUsername)
+		}
+
+		thumbPhoto = nil
+		fullPhoto = nil
+		builtPhotoUpdateTime = 0
+		
+		if let _ = context {
+			thumbPhotoData = nil
+		}
+		else {
+			let context = LocalCoreData.shared.networkOperationContext
+			context.perform {
+				do {
+					self.thumbPhotoData = nil
+					try context.save()
+				}
+				catch {
+					CoreDataLog.error("Couldn't save context while invalidating User avatar.", ["error" : error])
 				}
 			}
 		}
@@ -149,9 +200,11 @@ class UserManager : NSObject {
 		
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/user/profile/\(username)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let response = response as? HTTPURLResponse, response.statusCode < 300,
-					let data = data {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				AppLog.error(error.errorString ?? "Unknown error in /api/v2/user/profile response")
+			}
+			else if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {
@@ -296,11 +349,11 @@ class UserManager : NSObject {
 		// manually first.
 		
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/ac/\(partialName)", query: nil)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				NetworkLog.error("Error with user autocomplete", ["error" : error])
 			}
-			else if let data = data {
+			else if let data = package.data {
 				let decoder = JSONDecoder()
 				let context = self.coreData.networkOperationContext
 				context.performAndWait {

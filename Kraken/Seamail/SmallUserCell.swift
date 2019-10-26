@@ -47,6 +47,7 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 			if let user = model as? KrakenUser {
 	    		user.loadUserThumbnail()
 	    		user.tell(self, when:"thumbPhoto") { observer, observed in
+					observed.loadUserThumbnail()
 					observer.imageView.image = observed.thumbPhoto
 	    		}?.schedule()
 			}

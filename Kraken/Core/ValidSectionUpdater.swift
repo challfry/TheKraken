@@ -37,9 +37,9 @@ class ValidSectionUpdater: ServerUpdater {
 
 	override func updateMethod() {
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/admin/sections", query: nil)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let response = response as? HTTPURLResponse, response.statusCode < 300,
-					let data = data {
+		NetworkGovernor.shared.queue(request) { networkResponse in
+			if let response = networkResponse.response as? HTTPURLResponse, response.statusCode < 300,
+					let data = networkResponse.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {

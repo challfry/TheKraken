@@ -26,6 +26,10 @@ import UIKit
 	// Cells built from this model can use this to store their state data. State data includes stuff like text entered in text fields.
 	// The dict is indexed by reuseID.
 //	var cellStateStorage: [String : Any] = [:]
+
+	// Setting this string to a non-nil value makes the Data Source code spit out more logging data about
+	// this cell. Useful when you're trying to narrow down an issue that affects this cell specifically.
+	var debugLogEnabler: String?
 	
 	init(bindingWith: Protocol?) {
 		bindingProtocol = bindingWith
@@ -34,6 +38,10 @@ import UIKit
 	func reuseID() -> String { return type(of: self).validReuseIDDict.first?.key ?? "" }
 
 	func makeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> BaseCollectionViewCell {
+		if let str = debugLogEnabler {
+			print("About to create cell: \(str) at indexpath: \(indexPath)")
+		}
+
 		let id = reuseID()
 		// Get a cell and property bind it to the cell model
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! BaseCollectionViewCell 
@@ -255,8 +263,8 @@ struct PrototypeCellInfo {
 	}
 	
 	func calculateSize() -> CGSize {
-		setNeedsLayout()
-		layoutIfNeeded()
+//		setNeedsLayout()
+//		layoutIfNeeded()
 		
 		let size = contentView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
 		calculatedSize = size

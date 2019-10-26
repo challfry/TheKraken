@@ -43,9 +43,13 @@ import UIKit
 
 	override func updateMethod() {
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/time", query: nil)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let response = response as? HTTPURLResponse, response.statusCode < 300,
-					let data = data {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				// Should only be called on app foreground and every 15 mins thereafter. If the call fails,
+				// nothing to do.
+				NetworkLog.error(error.localizedDescription)
+			}
+			else if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {

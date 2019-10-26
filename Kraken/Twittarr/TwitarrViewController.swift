@@ -25,7 +25,7 @@ class TwitarrViewController: BaseCollectionViewController {
  		tweetDataSource.register(with: collectionView, viewController: self)
  		
  		let loadingSegment = FilteringDataSourceSegment() 
- 		let statusCell = OperationStatusCellModel()
+ 		let statusCell = LoadingStatusCellModel()
  		statusCell.statusText = "Loading Twitarr Posts"
  		statusCell.shouldBeVisible = true
  		statusCell.showSpinner = true

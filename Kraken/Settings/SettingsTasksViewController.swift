@@ -198,11 +198,34 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				taskSection.append(homeLocationCell)
 				taskSection.append(roomNumberCell)
 			}
+			
+		case let userPhotoTask as PostOpUserPhoto:
+			let infoCell = SettingsInfoCellModel("Change your User Avatar Photo")
+			let photoCell = SinglePhotoCellModel()
+			taskSection.append(infoCell)
+			taskSection.append(photoCell)
+			
+			userPhotoTask.tell(infoCell, when: "image") { observer, observed in 
+				observer.titleText = observed.image == nil ? "Delete your User Avatar Photo" :
+						"Change your User Avatar Photo"
+				let infoString = observed.image == nil ? "The server will provide a default image." : ""
+				observer.labelText = NSAttributedString(string: infoString)
+			}?.execute()
+			userPhotoTask.tell(photoCell, when: "image") { observer, observed in 
+				observer.shouldBeVisible = observed.image != nil 
+				if let imageData = observed.image {
+					observer.image = UIImage(data: imageData as Data)
+				}
+				else {
+					observer.image = nil
+				}
+			}?.execute()
 
 		default:
 			break			
 		}
 		
+		// For all task types, put a status cell and a edit buttons cell underneath the task description.
 		let labelCell = OperationStatusCellModel()
 		task.tell(labelCell, when: "errorString") { observer, observed in
 			observer.shouldBeVisible = observed.errorString != nil

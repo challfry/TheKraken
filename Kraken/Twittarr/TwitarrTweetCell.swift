@@ -133,6 +133,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		// User Icon
 		tweetModel.author.loadUserThumbnail()
 		addObservation(tweetModel.author.tell(self, when:"thumbPhoto") { observer, observed in
+			observed.loadUserThumbnail()
 			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
 			observer.userButton.setTitle("", for: .normal)
 		}?.execute())
@@ -263,6 +264,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 
 		postOpModel.author.loadUserThumbnail()
 		addObservation(postOpModel.author.tell(self, when:"thumbPhoto") { observer, observed in
+			observed.loadUserThumbnail()
 			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
 			observer.userButton.setTitle("", for: .normal)
 		}?.execute())

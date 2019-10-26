@@ -1,5 +1,5 @@
 //
-//  OperationStatusCell.swift
+//  LoadingStatusCell.swift
 //  Kraken
 //
 //  Created by Chall Fry on 4/25/19.
@@ -10,15 +10,17 @@ import Foundation
 import UIKit
 
 
-// MARK: Status cell; activity name + spinner, or error status on failure
-@objc protocol OperationStatusCellProtocol {
+// LoadingStatusCell is meant to be used to indicate loads in progress. The cell should usually hide when a load
+// isn't in progress, and there's no error state to show. Posts in progress should use the postOpStatusCell instead.
+// Contains: activity name + spinner, or error status on failure
+@objc protocol LoadingStatusCellProtocol {
 	dynamic var statusText: String { get set }
 	dynamic var errorText: String? { get set }
 	dynamic var showSpinner: Bool { get set }
 }
 
-@objc class OperationStatusCellModel: BaseCellModel, OperationStatusCellProtocol {
-	private static let validReuseIDs = [ "OperationStatusCell" : OperationStatusCell.self ]
+@objc class LoadingStatusCellModel: BaseCellModel, LoadingStatusCellProtocol {
+	private static let validReuseIDs = [ "LoadingStatusCell" : LoadingStatusCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	@objc dynamic var errorText: String?
@@ -26,12 +28,12 @@ import UIKit
 	@objc dynamic var showSpinner: Bool = false
 
 	init() {
-		super.init(bindingWith: OperationStatusCellProtocol.self)
+		super.init(bindingWith: LoadingStatusCellProtocol.self)
 	}
 }
 
-@objc class LoginStatusCellModel: BaseCellModel, OperationStatusCellProtocol {	
-	private static let validReuseIDs = [ "OperationStatusCell" : OperationStatusCell.self ]
+@objc class LoginStatusCellModel: BaseCellModel, LoadingStatusCellProtocol {	
+	private static let validReuseIDs = [ "LoadingStatusCell" : LoadingStatusCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	@objc dynamic var statusText: String = ""
@@ -39,7 +41,7 @@ import UIKit
 	@objc dynamic var showSpinner: Bool = false
 
 	init() {
-		super.init(bindingWith: OperationStatusCellProtocol.self)
+		super.init(bindingWith: LoadingStatusCellProtocol.self)
 		
 		CurrentUser.shared.tell(self, when:[ "isChangingLoginState", "lastError" ]) { observer, observed in
 					
@@ -64,14 +66,14 @@ import UIKit
 
 
 // When errorText is non-nil, it's what's shown in the cell, and status is hidden.
-@objc class OperationStatusCell: BaseCollectionViewCell, OperationStatusCellProtocol {
+@objc class LoadingStatusCell: BaseCollectionViewCell, LoadingStatusCellProtocol {
 	@IBOutlet var errorLabel: UILabel!
 	@IBOutlet var statusView: UIView!
 	@IBOutlet var statusLabel: UILabel!
 	@IBOutlet var spinner: UIActivityIndicatorView!
 	@objc dynamic var collection: UICollectionView?
 
-	private static let cellInfo = [ "OperationStatusCell" : PrototypeCellInfo("OperationStatusCell") ]
+	private static let cellInfo = [ "LoadingStatusCell" : PrototypeCellInfo("LoadingStatusCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	var statusText: String = "" {

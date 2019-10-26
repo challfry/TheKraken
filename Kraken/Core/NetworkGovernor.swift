@@ -10,12 +10,14 @@ import SystemConfiguration
 import Foundation
 
 
+// Note 1: This is ONLY for server errors--that is error responses that come from the server, usually with 
+// an HTTP status of 300 or more. NOT for networking errors.
+// Note 2: Error-conforming objects are often enums in Swift, but we don't actually have a use case for this
+// here. UI-level code generally treats all server errors the same, but wants good description strings.
 @objc class ServerError: NSObject, Error {
 	var httpStatus: Int?
 	var errorString: String?
 	dynamic var fieldErrors: [String: [String]]?
-//	let serverResponded: Bool				// TRUE if the error comes from a Twitarr API (error) response.
-//											// FALSE if the error is a server time-out, or network unreachable or such.
 
 	init(_ error: String) {
 		super.init()
@@ -46,6 +48,23 @@ import Foundation
 	}
 }
 
+@objc class NetworkError: NSObject, Error {
+	var errorString: String?
+	
+	init(_ str: String?) {
+		errorString = str
+	}
+}
+
+// The response type passed back from network calls. Note that the network governor does its own handling of
+// network errors, and the results are displayed app-wide. Most handlers can ignore the networkError. If 
+// the network error is set, the response and data are likely nil.
+struct NetworkResponse {
+	var response: URLResponse?
+	var data: Data?
+	var networkError: NetworkError?
+}
+
 
 // All networking calls the app makes should funnel through here. This is so we can do global traffic
 // management, analysis, and logging. 
@@ -67,10 +86,11 @@ import Foundation
 	var lastError: Error?
 	
 	// Internal to NetworkGovenor. Associates a SessionTask with its reponse data and who to tell when it's done.
+	// The Error in the Done Callback will only contain network 
 	fileprivate struct InternalTask {
 		let task: URLSessionTask
 		var responseData: Data
-		var doneCallbacks: [(Data?, URLResponse?) -> Void]
+		var doneCallbacks: [(NetworkResponse) -> Void]
 	}
 	private var activeTasks = [InternalTask]()
 	private let activeTasksQ = DispatchQueue(label:"ActiveTask mutation serializer")
@@ -155,11 +175,11 @@ import Foundation
 	}
 	
 	// All network calls should funnel through here.
-	func queue(_ request:URLRequest, _ done: @escaping (Data?, URLResponse?) -> Void) {
+	func queue(_ request:URLRequest, _ done: @escaping (NetworkResponse) -> Void) {
 
 		// A quick way to test no-network conditions	
 		if Settings.shared.blockNetworkTraffic {
-			done(nil, nil)
+			done(NetworkResponse(response: nil, data: nil, networkError: NetworkError("Error: Testing network blocked condition")))
 			return
 		}
 
@@ -169,7 +189,7 @@ import Foundation
 				if activeTask.task.originalRequest?.url == request.url && 
 						activeTask.task.originalRequest?.httpMethod == request.httpMethod {
 					activeTask.doneCallbacks.append(done)
-					NetworkLog.debug("De-duped network request to \(request.url?.absoluteString ?? "<unknown>")")
+					NetworkLog.debug("De-duped network \(request.httpMethod ?? "") request to \(request.url?.absoluteString ?? "<unknown>")")
 					return
 				}
 			}
@@ -185,13 +205,13 @@ import Foundation
 	}
 	
 	// Parses the responses as the different type of server errors that can happen.
-	@discardableResult func parseServerError(data: Data?, response: URLResponse?) -> ServerError? {
-		if let response = response as? HTTPURLResponse {
+	@discardableResult func parseServerError(_ package: NetworkResponse) -> ServerError? {
+		if let response = package.response as? HTTPURLResponse {
 			if response.statusCode >= 300 {
 				let resultError = ServerError()
 				resultError.httpStatus = response.statusCode
 				
-				if let data = data, data.count > 0 {
+				if let data = package.data, data.count > 0 {
 //					print (String(decoding:data, as: UTF8.self))
 					let decoder = JSONDecoder()
 	
@@ -332,9 +352,13 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		else {
 			connectionState = .canConnect
 		}
+		
+		//
+		let responsePacket = NetworkResponse(response: task.response, data: foundTask.responseData, 
+				networkError: NetworkError(error?.localizedDescription))
 
 		for doneCallback in foundTask.doneCallbacks {
-			doneCallback(foundTask.responseData, task.response)
+			doneCallback(responsePacket)
 		}
 //		print (String(decoding:foundTask.responseData, as: UTF8.self))
 	}

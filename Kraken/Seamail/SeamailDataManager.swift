@@ -88,11 +88,11 @@ class SeamailDataManager: NSObject {
 		
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/seamail_threads", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let error = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
 			}
-			else if let data = data {
+			else if let data = package.data {
 				let decoder = JSONDecoder()
 				do {
 					let newSeamails = try decoder.decode(TwitarrV2GetSeamailResponse.self, from: data)
@@ -131,7 +131,7 @@ class SeamailDataManager: NSObject {
 				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "SeamailThreadsWithIDs", 
 						substitutionVariables: [ "ids" : allThreadIDs ]) as! NSFetchRequest<SeamailThread>
 				let cdThreads = try request.execute()
-				var cdThreadsDict = Dictionary(cdThreads.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+				let cdThreadsDict = Dictionary(cdThreads.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
 
 				for mailThread in threads {
 					let cdThread = cdThreadsDict[mailThread.id] ?? SeamailThread(context: context)

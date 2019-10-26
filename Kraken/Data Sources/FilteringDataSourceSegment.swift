@@ -63,6 +63,9 @@ fileprivate struct Log: LoggingProtocol {
 			sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let cellModel = visibleCellModels[indexPath.row]
 
+		// Give the cell model a chance to update its cache
+		cellModel.updateCachedCellSize()
+
 		var cellSize: CGSize
 		if cellModel.cellSize.height > 0 {
 			cellSize = cellModel.cellSize
@@ -74,6 +77,10 @@ fileprivate struct Log: LoggingProtocol {
 		}
 		else {
 			cellSize = CGSize(width:collectionView.bounds.size.width, height: 50)
+		}
+		
+		if let str = cellModel.debugLogEnabler {
+			print("Cell: \(str) size at sizeForItemAt: time is: \(cellSize)")
 		}
 		
 		log.debug("sizeForItemAt", ["height" : cellSize.height, "path" : indexPath])
@@ -98,7 +105,16 @@ fileprivate struct Log: LoggingProtocol {
 			let classType = type(of: model).validReuseIDDict[reuseID]
 			classType?.registerCells(with: collectionView)
 		}
-		return model.makeCell(for: collectionView, indexPath: indexPath)
+		
+		let resultCell = model.makeCell(for: collectionView, indexPath: indexPath)
+
+		if let str = model.debugLogEnabler {
+			print("Cell: \(str) size at cellForItemAt: time is: \(resultCell.bounds.size)")
+		}
+		
+		resultCell.layoutIfNeeded()
+
+		return resultCell
 	}
 	
 	// Only called by runUpdates, which is only in the top-level datasource. Therefore, only called from within

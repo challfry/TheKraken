@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ProfileAvatarEditCell" id="MNd-mH-7YC" customClass="ProfileAvatarEditCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="418" height="200"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="4VE-nS-U7d">
+                <rect key="frame" x="0.0" y="0.0" width="418" height="200"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hjG-R3-iS4">
+                        <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="200" id="3Ji-KD-mXb"/>
+                            <constraint firstAttribute="width" constant="200" id="vBD-co-gOM"/>
+                        </constraints>
+                    </imageView>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PGf-yQ-3Sz">
+                        <rect key="frame" x="208" y="132" width="142" height="30"/>
+                        <state key="normal" title="Find Photo in Library"/>
+                        <connections>
+                            <action selector="findPhotoInLibraryButtonTapped:" destination="MNd-mH-7YC" eventType="touchUpInside" id="Tzn-um-vCF"/>
+                        </connections>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mHX-yk-dJV">
+                        <rect key="frame" x="208" y="15" width="0.0" height="0.0"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="username" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j3U-A1-hRh">
+                        <rect key="frame" x="208" y="15" width="76" height="20.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IUm-EM-JQc">
+                        <rect key="frame" x="208" y="98" width="86" height="30"/>
+                        <state key="normal" title="Take a Selfie"/>
+                        <connections>
+                            <action selector="cameraButtonTapped:" destination="MNd-mH-7YC" eventType="touchUpInside" id="PyS-uL-ma7"/>
+                        </connections>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Qh-u8-MdG">
+                        <rect key="frame" x="208" y="166" width="149" height="30"/>
+                        <state key="normal" title="Delete Custom Avatar"/>
+                        <connections>
+                            <action selector="deleteAvatarButtonTapped:" destination="MNd-mH-7YC" eventType="touchUpInside" id="SJ1-Bl-MxS"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="hjG-R3-iS4" firstAttribute="top" secondItem="4VE-nS-U7d" secondAttribute="top" id="5QT-83-ivc"/>
+                    <constraint firstItem="PGf-yQ-3Sz" firstAttribute="top" secondItem="IUm-EM-JQc" secondAttribute="bottom" constant="4" id="60L-A2-D7Z"/>
+                    <constraint firstItem="IUm-EM-JQc" firstAttribute="leading" secondItem="j3U-A1-hRh" secondAttribute="leading" id="6rf-EH-RQ8"/>
+                    <constraint firstItem="j3U-A1-hRh" firstAttribute="leading" secondItem="hjG-R3-iS4" secondAttribute="trailing" constant="8" id="DF1-1x-uYi"/>
+                    <constraint firstItem="hjG-R3-iS4" firstAttribute="leading" secondItem="4VE-nS-U7d" secondAttribute="leading" id="SRG-SK-92D"/>
+                    <constraint firstItem="1Qh-u8-MdG" firstAttribute="top" secondItem="PGf-yQ-3Sz" secondAttribute="bottom" constant="4" id="XbD-3V-0KV"/>
+                    <constraint firstItem="1Qh-u8-MdG" firstAttribute="leading" secondItem="j3U-A1-hRh" secondAttribute="leading" id="YQD-8j-LUb"/>
+                    <constraint firstAttribute="bottom" secondItem="1Qh-u8-MdG" secondAttribute="bottom" constant="4" id="k00-Vb-A47"/>
+                    <constraint firstItem="PGf-yQ-3Sz" firstAttribute="leading" secondItem="j3U-A1-hRh" secondAttribute="leading" id="oCg-EL-pw8"/>
+                    <constraint firstAttribute="bottom" secondItem="hjG-R3-iS4" secondAttribute="bottom" priority="900" id="pQe-i0-sIW"/>
+                    <constraint firstItem="j3U-A1-hRh" firstAttribute="top" secondItem="4VE-nS-U7d" secondAttribute="top" constant="15" id="saJ-UH-Isz"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="418" height="200"/>
+            <connections>
+                <outlet property="avatarImageView" destination="hjG-R3-iS4" id="O29-M9-vev"/>
+                <outlet property="deleteCustomAvatarButton" destination="1Qh-u8-MdG" id="hIf-ar-zqr"/>
+                <outlet property="usernameLabel" destination="j3U-A1-hRh" id="QLZ-I1-Rv3"/>
+            </connections>
+            <point key="canvasLocation" x="262.31884057971018" y="22.767857142857142"/>
+        </collectionViewCell>
+    </objects>
+</document>

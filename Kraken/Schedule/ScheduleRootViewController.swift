@@ -53,7 +53,7 @@ import EventKitUI
 
 		// Add the loading segment up top
  		let loadingSegment = FilteringDataSourceSegment() 
- 		let statusCell = OperationStatusCellModel()
+ 		let statusCell = LoadingStatusCellModel()
  		statusCell.statusText = "Loading Events"
  		statusCell.shouldBeVisible = true
  		statusCell.showSpinner = true

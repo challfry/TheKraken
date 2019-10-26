@@ -82,7 +82,7 @@ import CoreData
 // MARK: Methods
 	
 	override init() {
-		let context = LocalCoreData.shared.mainThreadContext
+		let context = LocalCoreData.shared.networkOperationContext
 		let fetchRequest = NSFetchRequest<PostOperation>(entityName: "PostOperation")
 		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "originalPostTime", ascending: true)]
 		controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, 
@@ -90,11 +90,13 @@ import CoreData
 		super.init()
 		controller.delegate = self
 
-		do {
-			try controller.performFetch()
-			controllerDidChangeContent(controller as! NSFetchedResultsController<NSFetchRequestResult>)
-		} catch {
-			CoreDataLog.error("Failed to fetch PostOperations", ["error" : error])
+		context.perform {
+			do {
+				try self.controller.performFetch()
+				self.controllerDidChangeContent(self.controller as! NSFetchedResultsController<NSFetchRequestResult>)
+			} catch {
+				CoreDataLog.error("Failed to fetch PostOperations", ["error" : error])
+			}
 		}
 
 	}
@@ -124,71 +126,77 @@ import CoreData
 			return
 		}
 			
-		if let operations = controller.fetchedObjects {
-			var earliestCallTime: Date?
-			for op in operations {
-				// Test 1. Only send ops authored by the logged in user.
-				if op.author.username != currentUser.username {
-					continue
-				}	
-			
-				// Test 2: Don't send ops that aren't ready. Ops that received server errors get their RTS set FALSE.
-				if !(op.readyToSend && op.localReadyToSend) {
-					continue
-				} 
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			if let operations = self.controller.fetchedObjects {
+				var earliestCallTime: Date?
+				for op in operations {
+					// Test 1. Only send ops authored by the logged in user.
+					if op.author.username != currentUser.username {
+						continue
+					}	
 				
-				// Test 3: Don't send ops that are currently being sent (have active network calls)
-				if op.sentNetworkCall || op.localSentNetworkCall {
-					continue
-				}
-				
-				// Test 4: Exponential back off. Don't run an op until its next run date.
-				if let nextCallTime = op.nextNetworkCallTime, nextCallTime > Date() {
-					if earliestCallTime == nil { 
-						earliestCallTime = nextCallTime
+					// Test 2: Don't send ops that aren't ready. Ops that received server errors get their RTS set FALSE.
+					if !op.readyToSend {
+						continue
+					} 
+					
+					// Test 3: Don't send ops that are currently being sent (have active network calls)
+					if op.sentNetworkCall {
+						continue
 					}
-					else if let earliest = earliestCallTime, nextCallTime < earliest {
-						earliestCallTime = nextCallTime
+					
+					// Test 4: Exponential back off. Don't run an op until its next run date.
+					if let nextCallTime = op.nextNetworkCallTime, nextCallTime > Date() {
+						if earliestCallTime == nil { 
+							earliestCallTime = nextCallTime
+						}
+						else if let earliest = earliestCallTime, nextCallTime < earliest {
+							earliestCallTime = nextCallTime
+						}
+						continue
 					}
-					continue
+					
+					// Tell the op to send to server here
+					NetworkLog.debug("Sending op to server", ["op" : op])
+					op.post()
+					op.retryCount += 1
+					op.nextNetworkCallTime = Date().addingTimeInterval(TimeInterval(pow(2.0, Double(min(op.retryCount, 5)))))
+					
+					// Throttling: After we send one op, wait 1 second before trying again
+					if let earliest = earliestCallTime {
+						earliestCallTime = min(Date().addingTimeInterval(1.0), earliest)
+					}
+					else {
+						earliestCallTime = Date().addingTimeInterval(1.0)
+					}
 				}
 				
-				// Tell the op to send to server here
-				NetworkLog.debug("Sending op to server", ["op" : op])
-				op.post()
-				op.retryCount += 1
-				op.nextNetworkCallTime = Date().addingTimeInterval(TimeInterval(pow(2.0, Double(min(op.retryCount, 5)))))
+				// Start a timer that will fire whenever it's time for us to try sending the next op.
+				if let fireTime = earliestCallTime {
+					Timer.scheduledTimer(withTimeInterval: fireTime.timeIntervalSinceNow, repeats: false) { timer in 
+						self.checkForOpsToDeliver()
+					}
+				}
 				
-				// Throttling: After we send one op, wait 1 second before trying again
-				if let earliest = earliestCallTime {
-					earliestCallTime = min(Date().addingTimeInterval(1.0), earliest)
-				}
-				else {
-					earliestCallTime = Date().addingTimeInterval(1.0)
-				}
+				// TODO: Should be sure to run the check fn on app foregrounding.
 			}
-			
-			// Start a timer that will fire whenever it's time for us to try sending the next op.
-			if let fireTime = earliestCallTime {
-				Timer.scheduledTimer(withTimeInterval: fireTime.timeIntervalSinceNow, repeats: false) { timer in 
-					self.checkForOpsToDeliver()
-				}
-			}
-			
-			// TODO: Should be sure to run the check fn on app foregrounding.
 		}
 	}
 	
-	func countOpsWithErors() {
-		var opsWithErrors = 0
-		if let operations = controller.fetchedObjects {
-			for op in operations {
-				if op.errorString != nil {
-					opsWithErrors += 1
+	fileprivate func countOpsWithErors() {
+		let context = LocalCoreData.shared.networkOperationContext
+		context.perform {
+			var opsWithErrors = 0
+			if let operations = self.controller.fetchedObjects {
+				for op in operations {
+					if op.errorString != nil {
+						opsWithErrors += 1
+					}
 				}
 			}
+			self.operationsWithErrorsCount = opsWithErrors
 		}
-		operationsWithErrorsCount = opsWithErrors
 	}
 		
 
@@ -238,8 +246,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	Usually delivered via HTTP POST.
 */
 @objc(PostOperation) public class PostOperation: KrakenManagedObject {
-		// UniqueID we create per op. Not sent to server.
-//	@NSManaged public var id: String
+		// A descriptive string explaing what this op is going to do. Not saved to CD.
+		// Subclasses should set this value.
+	@objc dynamic var operationDescription: String?
+
+		// A descriptive string explaining what state the op is in. Not saved to CD, deduced from other fields.
+		// Subclasses should set this value.
+	@objc dynamic var operationStatus: String?
 	
 		// TRUE if this post can be delivered to the server
 	@NSManaged public var readyToSend: Bool
@@ -259,13 +272,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// If we attempt to send a post to the server and it fails, save the error here
 		// so we can display it to the user later.
 	@NSManaged public var errorString: String?
-	
-	// readyToSend is saved to CD from the network queue; this is a backup in case CD is slow at syncing MOCs.
-	public var localReadyToSend: Bool = true
-	
-	// Same idea with sentNetworkCall.
-	public var localSentNetworkCall = false
-	
+		
 	// For a poor-man's exponential backoff algorithm. 2s, 4s, 8s, 16s 32s.
 	public var nextNetworkCallTime: Date?
 	public var retryCount = 0
@@ -274,7 +281,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			// - Resend X times, then delete?
 			// - Allow user to resend manually from the list of deferred posts in Settings
 			// - Tell the user immediately, then go to an editor screen?
+
+
+// MARK: Methods
 	
+	// AwakeFromInsert is called when a new PostOp is initialized. NOT called when it's fetched or faulted.
+	// Since we call it from within the context.perform() where the object gets built, we can set up some boilerplate here.
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
 		if let moc = managedObjectContext, let currentUser = CurrentUser.shared.getLoggedInUser(in: moc) {
@@ -285,31 +297,58 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		sentNetworkCall = false
 	}
 	
-	// Subclasses override this to send this post to the server. They should call super; thie fn marks 
-	// the post as being sent in Core Data.
-	func post() {
-		localSentNetworkCall = true
+	// AwakeFromFetch is called every time we fetch or fault this object. 
+	// This is where we set up non-@NSManaged properties.
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
 		
+		// Set the op status
+		if errorString != nil {
+			operationStatus = "Received error from server. Blocked until error is resolved."
+		}
+		else if sentNetworkCall {
+			operationStatus = "Posting to server"
+		}
+		else if nextNetworkCallTime != nil {
+			operationStatus = "Couldn't reach server; will try again soon."
+		}
+		else if !readyToSend {
+			operationStatus = "Not ready to send to the server yet."
+		}
+		else {
+			operationStatus = "Waiting to send"
+		}
+	}
+	
+	// Subclasses override this to send this post to the server. Subclass should call super iff the post can be
+	// sent; this fn marks the post as being sent in Core Data.
+	func post() {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
 			do {
 				let opInContext = context.object(with: self.objectID) as! PostOperation
 				opInContext.sentNetworkCall = true
 				try context.save()
+
+				let opInMainContext = LocalCoreData.shared.mainThreadContext.object(with: self.objectID) as! PostOperation
+				opInMainContext.operationStatus = "Posting to server"
 			}
 			catch {
+				// Not an error that needs to be saved into the op
 				CoreDataLog.error("A postOp got a CoreData error; couldn't store state change back into op.", 
 						["Error" : error])
 			}
 		}
 	}
 	
-	func queueNetworkPost(request: URLRequest, success: @escaping (Data) -> Void) {
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
-			if let err = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+	// Subclasses can call this to get their URLRequest sent to the server. Handles some of the common
+	// error-handling and bookeeping functions.
+	fileprivate func queueNetworkPost(request: URLRequest, success: @escaping (Data) -> Void) {
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let err = NetworkGovernor.shared.parseServerError(package) {
 				self.recordServerErrorFailure(err)
 			}
-			else if let data = data {
+			else if let data = package.data {
 				// The assumption here is that if we get a non-error response from the server, the call worked and 
 				// the server has enacted the change we posted. So, even if we fail to decode and process the response
 				// or save to Core Data, the call still succeeded.
@@ -319,7 +358,6 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			}
 			
 			// Network error or server error
-			self.localSentNetworkCall = false
 			let context = LocalCoreData.shared.networkOperationContext
 			context.perform {
 				do {
@@ -328,6 +366,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 					try context.save()
 				}
 				catch {
+					// Not an error that needs to be saved into the op
 					CoreDataLog.error("A postOp got a server error, which we couldn't store back in the postOp.", 
 							["Error" : error])
 				}
@@ -335,9 +374,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 	
-	func uploadPhoto(photoData: NSData, mimeType: String, done: @escaping (String?, ServerError?) -> Void) {
+	func uploadPhoto(photoData: NSData, mimeType: String, isUserPhoto: Bool, done: @escaping (String?, ServerError?) -> Void) {
 		let filename = "photo.jpg"
-		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/photo", query: nil)
+		let path = isUserPhoto ? "/api/v2/user/photo" : "/api/v2/photo"
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = "POST"
 		
@@ -363,17 +403,22 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		httpBodyData.append(httpTrailerString.data(using: .utf8)!)
 		request.httpBody = httpBodyData
 
-		NetworkGovernor.shared.queue(request) { (data: Data?, response: URLResponse?) in
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			var photoID: String?
 			var serverError: ServerError?
-			if let err = NetworkGovernor.shared.parseServerError(data: data, response: response) {
+			if let err = NetworkGovernor.shared.parseServerError(package) {
 				serverError = err
 			}
-			else if let data = data {
+			else if let data = package.data {
 				let decoder = JSONDecoder()
 				do {
-					let response = try decoder.decode(TwitarrV2PostPhotoResponse.self, from: data)
-					photoID = response.photo.id
+					if isUserPhoto {
+						let _ = try decoder.decode(TwitarrV2UpdateUserPhotoResponse.self, from: data)
+					}
+					else {
+						let response = try decoder.decode(TwitarrV2PostPhotoResponse.self, from: data)
+						photoID = response.photo.id
+					}
 				} catch 
 				{
 					serverError = ServerError("Failure parsing image upload response: \(error)")
@@ -384,12 +429,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 	
+	// Server Error means we got a HTTP response from the server indicating an error condition. Generally
+	// for postOps this means we need to record the error in Core Data and mark the op as not ready until the 
+	// user looks at it (often, they have to edit their post somehow). This is different from network errors,
+	// where we can just keep resubmitting the op with no changes (but with exponential backoff--I'm not a monster).
 	func recordServerErrorFailure(_ serverError: ServerError) {
 		let context = LocalCoreData.shared.networkOperationContext
-		
-		// Clear RTS directly on the main-context copy of this object
-		localReadyToSend = false
-		localSentNetworkCall = false
 		
 		context.perform {
 			do {
@@ -421,7 +466,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 		// If non-nil, this op edits the given tweet.
 	@NSManaged public var tweetToEdit: TwitarrPost?
-	
+			
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Posting a new Twitarr tweet."
+	}
+
 	override func post() {
 		super.post()
 		
@@ -471,7 +521,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// If we have a photo to upload, do that first, then chain the tweet post.
 		if let image = image, let mimetype = imageMimetype {
-			uploadPhoto(photoData: image, mimeType: mimetype) { photoID, error in
+			uploadPhoto(photoData: image, mimeType: mimetype, isUserPhoto: false) { photoID, error in
 				if let err = error {
 					self.recordServerErrorFailure(err)
 				}
@@ -496,7 +546,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// True to add this reaction to this post, false to delete it.
 	@NSManaged public var isAdd: Bool
 	
-	
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Posting a reaction to a Twitarr tweet."
+	}
+
 	override func post() {
 		guard let post = sourcePost else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
@@ -529,6 +583,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 
 @objc(PostOpTweetDelete) public class PostOpTweetDelete: PostOperation {
 	@NSManaged public var tweetToDelete: TwitarrPost?
+
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Deleting a Twitarr tweet."
+	}
 
 	override func post() {
 		guard let post = tweetToDelete else { 
@@ -563,6 +622,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var text: String
 	@NSManaged public var recipients: Set<PotentialUser>?
 
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Creating a new Seamail thread."
+	}
+
 	override func post() {
 		super.post()
 		
@@ -591,6 +655,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpSeamailMessage) public class PostOpSeamailMessage: PostOperation {
 	@NSManaged public var thread: SeamailThread?
 	@NSManaged public var text: String
+
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Post a new Seamail message."
+	}
 
 	override func post() {
 		guard let seamailThread = thread else { 
@@ -628,6 +697,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var event: Event?
 	@NSManaged public var newState: Bool
 
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = newState ? "Follow an Event." : "Unfollow an Event."
+	}
+
 	override func post() {
 		guard let event = event else { 
 			self.recordServerErrorFailure(ServerError("The Schedule Event we were going to follow has disappeared. Perhaps it was deleted on the server?"))
@@ -655,6 +729,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpUserComment) public class PostOpUserComment: PostOperation {
 	@NSManaged public var comment: String
 	@NSManaged public var userCommentedOn: KrakenUser?
+
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Post a private comment about another user."
+	}
 
 	override func post() {
 		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
@@ -690,6 +769,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpUserFavorite) public class PostOpUserFavorite: PostOperation {
 	@NSManaged public var isFavorite: Bool
 	@NSManaged public var userBeingFavorited: KrakenUser?
+
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = isFavorite ? "Pending: favorite another user." : "Pending: unfavorite another user."
+	}
 
 	override func post() {
 		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
@@ -734,6 +818,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var homeLocation: String?
 	@NSManaged public var roomNumber: String?
 
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Pending update to your user profile"
+	}
+
 	override func post() {
 		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
 		super.post()
@@ -763,8 +852,55 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			}
 		}
 	}
-
 }
+
+@objc(PostOpUserPhoto) public class PostOpUserPhoto: PostOperation {
+	@NSManaged @objc dynamic public var image: NSData?
+	@NSManaged @objc dynamic public var imageMimetype: String
+	
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Pending update to your avatar image"
+	}
+
+	override func post() {
+		super.post()
+
+//		self.recordServerErrorFailure(ServerError("This is a test error, for testing."))
+		
+		if let opImage = image {
+			uploadPhoto(photoData: opImage, mimeType: imageMimetype, isUserPhoto: true) { photoID, error in
+				if let err = error {
+					self.recordServerErrorFailure(err)
+				}
+				else {
+					self.author.invalidateUserPhoto(nil)
+					PostOperationDataManager.shared.remove(op: self)
+				}
+			}
+		}
+		else {
+			// We're deleting the image
+			var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/photo", query: nil)
+			NetworkGovernor.addUserCredential(to: &request)
+			request.httpMethod = "DELETE"
+			queueNetworkPost(request: request) { data in
+				do {
+					let decoder = JSONDecoder()
+					let _ = try decoder.decode(TwitarrV2UpdateUserPhotoResponse.self, from: data)
+					
+					self.author.invalidateUserPhoto(nil)
+				}
+				catch {
+					CoreDataLog.error("Failure saving User Photo change to Core Data. (the op succeeded, but we couldn't save the change).", 
+							["Error" : error])
+				}
+			}
+		}
+	}
+	
+}
+
 
 // MARK: - V2 JSON Structs
 
@@ -871,4 +1007,14 @@ struct TwitarrV2UpdateProfileRequest: Codable {
 struct TwitarrV2UpdateProfileResponse: Codable {
 	let status: String
 	let user: TwitarrV2UserAccount
+}
+
+struct TwitarrV2UpdateUserPhotoResponse: Codable {
+	let status: String
+	let md5Hash: String
+
+	enum CodingKeys: String, CodingKey {
+		case status = "status"
+		case md5Hash = "md5_hash"
+	}
 }

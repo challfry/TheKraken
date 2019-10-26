@@ -7,13 +7,16 @@
 //
 
 import UIKit
+import Photos
 
 @objc class UserProfileEditViewController: BaseCollectionViewController {
 	var modelKrakenUser: LoggedInKrakenUser?
 	@objc dynamic var editProfileOp: PostOpUserProfileEdit?
+	@objc dynamic var editPhotoOp: PostOpUserPhoto?
 	
 	let dataSource = KrakenDataSource()
-	var avatarCell: ProfileAvatarCellModel?
+	var avatarCell: ProfileAvatarEditCellModel?
+	var avatarUpdateStatusCell: PostOpStatusCellModel?
 	var displayNameCell: TextFieldCellModel?
 	var realNameCell: TextFieldCellModel?
 	var pronounsCell: TextFieldCellModel?
@@ -37,12 +40,9 @@ import UIKit
 			self.performSegue(withIdentifier: "dismiss", sender: self)
 		}
 		
-		modelKrakenUser?.tell(self, when: "postOps") { observer, observed in
-			observer.editProfileOp = observed.getPendingProfileEditOp()
-		}?.execute()
-
     	let section = dataSource.appendFilteringSegment(named: "UserProfile")
-    	avatarCell = ProfileAvatarCellModel(user: modelKrakenUser)
+    	avatarCell = ProfileAvatarEditCellModel(user: modelKrakenUser)
+    	avatarUpdateStatusCell = PostOpStatusCellModel()
     	let descriptionCell = LabelCellModel("All the fields below are optional. Anything you put in them can be seen by everyone.")
     	
 		displayNameCell = TextFieldCellModel("Display Name")
@@ -77,8 +77,12 @@ import UIKit
 					email: self.emailCell?.getText(), homeLocation: self.homeLocationCell?.getText(), 
 					roomNumber: self.roomNumberCell?.getText())
 		})
+		
+		// Debug
+//		avatarUpdateStatusCell?.debugLogEnabler = "avatarUpdateStatusCell"
 
 		section.append(avatarCell!)
+		section.append(avatarUpdateStatusCell!)
 		section.append(descriptionCell)
 		section.append(displayNameCell!)
 		section.append(realNameCell!)
@@ -87,10 +91,60 @@ import UIKit
 		section.append(homeLocationCell!)
 		section.append(roomNumberCell!)
 		section.append(saveButtonCell)
+
+		// This makes the editProfileOp property always match any profile operation in progress.
+		modelKrakenUser?.tell(self, when: "postOps") { observer, observed in
+			observer.editProfileOp = observed.getPendingProfileEditOp()
+			observer.editPhotoOp = observed.getPendingPhotoEditOp()
+			observer.avatarUpdateStatusCell?.postOp = observer.editPhotoOp
+		}?.execute()
+
 	}
  
     override func viewDidAppear(_ animated: Bool) {
 		dataSource.enableAnimations = true
 	}
 	
+	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    	switch segue.identifier {
+		case "fullScreenCamera", "cropCamera": 
+			if let destVC = segue.destination as? CameraViewController {
+				destVC.selfieMode = true
+			}
+		default: break 
+		}
+	}
+	
+	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the
+	// source VC to get the photo that was taken.
+	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
+		guard let sourceVC = segue.source as? CameraViewController else { return }
+		if let photo = sourceVC.capturedPhoto {
+			let photoContainer = PhotoDataType.camera(photo)
+			prepareImageForUpload(photoContainer: photoContainer)
+		}
+	}	
+	
+    func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 
+    		_ info: [AnyHashable : Any]?) {
+		if let error = error {
+			self.avatarUpdateStatusCell?.errorText = error.localizedDescription
+		}
+		else if let resultInCloud = info?[PHImageResultIsInCloudKey] as? NSNumber, resultInCloud.boolValue == true {
+			self.avatarUpdateStatusCell?.statusText = "Downloading full-sized photo from iCloud"
+		}
+	}
+	
+	func prepareImageForUpload(photoContainer: PhotoDataType) {
+		ImageManager.shared.resizeImageForUpload(imageContainer: photoContainer, 
+				progress: imageiCloudDownloadProgress) { jpegData, mimeType, error in 
+			if let err = error {
+				self.avatarUpdateStatusCell?.errorText = err.getErrorString()
+			}
+			else if let data = jpegData, let user = self.modelKrakenUser {
+				user.setUserProfilePhoto(photoData: data, mimeType: mimeType ?? "image/jpeg")
+			}
+		}
+	}
 }
+

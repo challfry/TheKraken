@@ -7,7 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */; };
+		EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */; };
 		EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */; };
+		EA1B9FE623514E8100BFEB46 /* PostOpStatusCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */; };
+		EA1B9FE723514E8100BFEB46 /* PostOpStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */; };
 		EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */; };
 		EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */; };
 		EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B97224584BC00017F07 /* UserManager.swift */; };
@@ -15,7 +19,7 @@
 		EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */; };
 		EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9E2246CDF700017F07 /* Settings.swift */; };
 		EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3BA2224D858700017F07 /* ImageManager.swift */; };
-		EA278A4A226A755400808AED /* OperationStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* OperationStatusCell.xib */; };
+		EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* LoadingStatusCell.xib */; };
 		EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */; };
 		EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */; };
 		EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */; };
@@ -48,6 +52,7 @@
 		EA476732233C41CA00F56E08 /* UserProfileEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA476731233C41CA00F56E08 /* UserProfileEditViewController.swift */; };
 		EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA4767332341A4B000F56E08 /* LoggedInUserCell.xib */; };
 		EA4767362341E6A700F56E08 /* LoggedInUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4767352341E6A700F56E08 /* LoggedInUserCell.swift */; };
+		EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA47673723435CC600F56E08 /* ProfileAvatarEditCell.xib */; };
 		EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */; };
 		EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0822540801008501A3 /* EBNLazyLoader.mm */; };
 		EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0A22540801008501A3 /* EBNProtocolBinder.mm */; };
@@ -78,7 +83,7 @@
 		EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD02272813800363CBF /* LoginHeaderCell.xib */; };
 		EA86ADD42272855000363CBF /* jellyfish.png in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD32272855000363CBF /* jellyfish.png */; };
 		EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */; };
-		EA86ADD82272BAD300363CBF /* OperationStatusCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADD72272BAD300363CBF /* OperationStatusCell.swift */; };
+		EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */; };
 		EA86ADDA22730C7300363CBF /* ButtonCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD922730C7300363CBF /* ButtonCell.xib */; };
 		EA86ADDC22745A5800363CBF /* BaseCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */; };
 		EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADDD2275BD3500363CBF /* LabelCell.xib */; };
@@ -142,6 +147,7 @@
 		EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696EC2290159000EE6EEB /* StringUtilities.swift */; };
 		EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */; };
 		EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */; };
+		EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */; };
 		EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */; };
 		EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */; };
 		EAE5914B229E4A34002B5DEF /* BlueButtonHighlight.png in Resources */ = {isa = PBXBuildFile; fileRef = EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */; };
@@ -173,7 +179,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglePhotoCell.swift; sourceTree = "<group>"; };
+		EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SinglePhotoCell.xib; sourceTree = "<group>"; };
 		EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionViewCell.swift; sourceTree = "<group>"; };
+		EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostOpStatusCell.swift; sourceTree = "<group>"; };
+		EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PostOpStatusCell.xib; sourceTree = "<group>"; };
 		EA1E3B8B2242F04600017F07 /* Twitarr API V2 Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Twitarr API V2 Notes.md"; sourceTree = "<group>"; };
 		EA1E3B8C22430A7D00017F07 /* Managers Overview.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Managers Overview.md"; sourceTree = "<group>"; };
 		EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrViewController.swift; sourceTree = "<group>"; };
@@ -184,7 +194,7 @@
 		EA1E3B9E2246CDF700017F07 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		EA1E3BA02248153F00017F07 /* Feature plans.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Feature plans.md"; sourceTree = "<group>"; };
 		EA1E3BA2224D858700017F07 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
-		EA278A49226A755400808AED /* OperationStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = OperationStatusCell.xib; sourceTree = "<group>"; };
+		EA278A49226A755400808AED /* LoadingStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingStatusCell.xib; sourceTree = "<group>"; };
 		EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
 		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
@@ -220,6 +230,7 @@
 		EA476731233C41CA00F56E08 /* UserProfileEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileEditViewController.swift; sourceTree = "<group>"; };
 		EA4767332341A4B000F56E08 /* LoggedInUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoggedInUserCell.xib; sourceTree = "<group>"; };
 		EA4767352341E6A700F56E08 /* LoggedInUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInUserCell.swift; sourceTree = "<group>"; };
+		EA47673723435CC600F56E08 /* ProfileAvatarEditCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileAvatarEditCell.xib; sourceTree = "<group>"; };
 		EA4A1D0522540801008501A3 /* NSArray+EBNObservable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+EBNObservable.h"; sourceTree = "<group>"; };
 		EA4A1D0622540801008501A3 /* EBNLazyLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EBNLazyLoader.h; sourceTree = "<group>"; };
 		EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSSet+EBNObservable.m"; sourceTree = "<group>"; };
@@ -257,7 +268,7 @@
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
 		EA86ADD32272855000363CBF /* jellyfish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jellyfish.png; sourceTree = "<group>"; };
 		EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextFieldCell.xib; sourceTree = "<group>"; };
-		EA86ADD72272BAD300363CBF /* OperationStatusCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationStatusCell.swift; sourceTree = "<group>"; };
+		EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingStatusCell.swift; sourceTree = "<group>"; };
 		EA86ADD922730C7300363CBF /* ButtonCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ButtonCell.xib; sourceTree = "<group>"; };
 		EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BaseCollectionViewController.swift; path = "Kraken/Common UI/BaseCollectionViewController.swift"; sourceTree = SOURCE_ROOT; };
 		EA86ADDD2275BD3500363CBF /* LabelCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LabelCell.xib; sourceTree = "<group>"; };
@@ -332,6 +343,7 @@
 		EAC696EC2290159000EE6EEB /* StringUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtilities.swift; sourceTree = "<group>"; };
 		EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SmallUserCell.xib; sourceTree = "<group>"; };
+		EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarEditCell.swift; sourceTree = "<group>"; };
 		EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTimers.swift; sourceTree = "<group>"; };
 		EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotion.swift; sourceTree = "<group>"; };
 		EAE5914A229E4A34002B5DEF /* BlueButtonHighlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BlueButtonHighlight.png; sourceTree = "<group>"; };
@@ -437,6 +449,8 @@
 				EAEF340F224ED88300C7A0D9 /* LoginCells.swift */,
 				EA86ADE12279836D00363CBF /* ProfileAvatarLeftCell.xib */,
 				EA86ADE3227983B600363CBF /* ProfileAvatarTopCell.xib */,
+				EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */,
+				EA47673723435CC600F56E08 /* ProfileAvatarEditCell.xib */,
 				EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */,
 				EA86ADE92279B4E400363CBF /* ProfileCommentCell.xib */,
 				EA86ADD02272813800363CBF /* LoginHeaderCell.xib */,
@@ -536,13 +550,17 @@
 				EAB4536822D1F63900CD1671 /* LabelCell.swift */,
 				EA86ADDD2275BD3500363CBF /* LabelCell.xib */,
 				EA86ADE5227983E500363CBF /* SingleValueCell.xib */,
+				EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */,
+				EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */,
 				EAB4536A22D1F6DF00CD1671 /* TextCells.swift */,
 				EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */,
 				EA3C63112296BE7800077E3B /* TextViewCell.xib */,
 				EAB4536C22D1F75600CD1671 /* ButtonCell.swift */,
 				EA86ADD922730C7300363CBF /* ButtonCell.xib */,
-				EA86ADD72272BAD300363CBF /* OperationStatusCell.swift */,
-				EA278A49226A755400808AED /* OperationStatusCell.xib */,
+				EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */,
+				EA278A49226A755400808AED /* LoadingStatusCell.xib */,
+				EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */,
+				EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */,
 				EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */,
 				EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */,
 				EA6A8A81231E212A0071BFEA /* Alerts.swift */,
@@ -846,8 +864,10 @@
 			files = (
 				EA3ABFAF22F4097900441F99 /* CameraRotateHighlight@3x.png in Resources */,
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
+				EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */,
 				EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */,
 				EAE5914B229E4A34002B5DEF /* BlueButtonHighlight.png in Resources */,
+				EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
 				EA8B98772323A73800E10156 /* ArtistIcon@3x.png in Resources */,
@@ -857,6 +877,7 @@
 				EA8B986223225B7C00E10156 /* Social@3x.png in Resources */,
 				EA8B98812324623600E10156 /* ChevronUpGrey@3x.png in Resources */,
 				EA4E84F4232C74FE0059E5EB /* DisabledContentViewController.xib in Resources */,
+				EA1B9FE723514E8100BFEB46 /* PostOpStatusCell.xib in Resources */,
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EA8B988323247BCA00E10156 /* SongIcon@3x.png in Resources */,
 				EA3ABFB622F434DF00441F99 /* PirateSelfie@3x.png in Resources */,
@@ -881,7 +902,7 @@
 				EA3ABFBA22F4FA7E00441F99 /* Flash@3x.png in Resources */,
 				EA4E84FA232CEBFB0059E5EB /* Disabled@3x.png in Resources */,
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
-				EA278A4A226A755400808AED /* OperationStatusCell.xib in Resources */,
+				EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,
 				EA8B987D2323C13B00E10156 /* ChevronRight@3x.png in Resources */,
@@ -950,13 +971,15 @@
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
 				EA4E84EE232A2CE70059E5EB /* ServerTimeUpdater.swift in Sources */,
+				EA1B9FE623514E8100BFEB46 /* PostOpStatusCell.swift in Sources */,
 				EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */,
 				EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */,
 				EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */,
+				EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */,
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
-				EA86ADD82272BAD300363CBF /* OperationStatusCell.swift in Sources */,
+				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
@@ -1008,6 +1031,7 @@
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
 				EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
+				EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,
 				EAF777F722A3B1D000B27803 /* ModalLoginViewController.swift in Sources */,

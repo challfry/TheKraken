@@ -9,11 +9,18 @@
 import UIKit
 import Photos
 
+// A photo selected by the PhotoSelectionCell. The datatype is dependent on whether the source is the 
+// camera or the library, so: enums to the rescue.
 enum PhotoDataType {
 	case library(PHAsset)
 	case camera(AVCapturePhoto)
+	case image(UIImage)
 }
 	
+// PhotoSelectionCell, its model protocol, are a CollectionView cell that contains a horizontally scrolling
+// collectionView. The horiz CollectionView contains a camera cell for opening the camera, and than photos
+// from the user's photo library, in reverse chronological order. 
+// The cell manages auth for photo lib access and camera access. It is designed for single selection only.
 @objc protocol PhotoSelectionCellProtocol {
 	@objc dynamic var privateSelected: Bool { get set }
 	@objc dynamic var cameraPhotos: [AVCapturePhoto] { get set }
@@ -90,7 +97,12 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
   		let cameraCell = PhotoCameraCellModel()
   		cameraCell.buttonHit = { [weak self] cell in
   			if let self = self {
-	  			self.dataSource?.performSegue(withIdentifier: "Camera", sender: self)
+  				if Settings.shared.useFullscreenCameraViewfinder {
+		  			self.dataSource?.performSegue(withIdentifier: "fullScreenCamera", sender: self)
+				}
+				else {
+					self.dataSource?.performSegue(withIdentifier: "cropCamera", sender: self)
+				}
 			}
   		}
 		cameraSegment.append(cameraCell)
@@ -175,6 +187,8 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 }
 
 // MARK: -
+
+// PhotoCameraCell is a 'small' cell that has a cell-sized button that shows a camera icon.
 @objc protocol PhotoCameraCellProtocol {
 	var buttonHit: ((PhotoCameraCellProtocol) -> Void)? { get set }
 }
@@ -273,15 +287,18 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 	
 	var cameraPhoto: AVCapturePhoto? {
 		didSet {
-			var counterRotate: UIImage.Orientation = .right
-			if let raw = cameraPhoto?.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
-					let cgOrientation = CGImagePropertyOrientation(rawValue: raw) {
-				counterRotate = UIImage.Orientation(cgOrientation)
-				if let cgImage = cameraPhoto?.cgImageRepresentation()?.takeUnretainedValue() {
-					let image = UIImage(cgImage: cgImage, scale: 1.0, orientation: counterRotate)
-					self.photoButton.setImage(image, for: .normal)
-				}
+			if let data = cameraPhoto?.fileDataRepresentation(), let image = UIImage(data: data) {
+				self.photoButton.setImage(image, for: .normal)
 			}
+//			var counterRotate: UIImage.Orientation = .right
+//			if let raw = cameraPhoto?.metadata[String(kCGImagePropertyOrientation)] as? UInt32,
+//					let cgOrientation = CGImagePropertyOrientation(rawValue: raw) {
+//				counterRotate = UIImage.Orientation(cgOrientation)
+//				if let cgImage = cameraPhoto?.cgImageRepresentation()?.takeUnretainedValue() {
+//					let image = UIImage(cgImage: cgImage, scale: 1.0, orientation: counterRotate)
+//					self.photoButton.setImage(image, for: .normal)
+//				}
+//			}
 		}
 	}
 	

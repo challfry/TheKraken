@@ -49,13 +49,17 @@ class EventCellModel: FetchedResultsCellModel, EventCellBindingProtocol {
  		if disclosureLevel == 4 && heightAtDisclosureLevel.count < 4 {
 			let newSize = protoCell.calculateSize()
 			heightAtDisclosureLevel.removeAll()
-			heightAtDisclosureLevel.append(newSize.height - protoCell.eventTimeLabel.bounds.size.height - 
-					protoCell.locationLabel.bounds.size.height - protoCell.descriptionLabel.bounds.size.height)
-			heightAtDisclosureLevel.append(newSize.height - protoCell.eventTimeLabel.bounds.size.height - 
-					protoCell.locationLabel.bounds.size.height - protoCell.descriptionLabel.bounds.size.height)
-			heightAtDisclosureLevel.append(newSize.height - protoCell.locationLabel.bounds.size.height - 
-					protoCell.descriptionLabel.bounds.size.height)
-			heightAtDisclosureLevel.append(newSize.height - protoCell.descriptionLabel.bounds.size.height)
+			
+			let timeSize = protoCell.eventTimeLabel.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+			let locationSize = protoCell.locationLabel.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+			let descriptionSize = protoCell.descriptionLabel.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+
+			heightAtDisclosureLevel.append(newSize.height - timeSize.height - locationSize.height - 
+					descriptionSize.height)
+			heightAtDisclosureLevel.append(newSize.height - timeSize.height - locationSize.height - 
+					descriptionSize.height)
+			heightAtDisclosureLevel.append(newSize.height - locationSize.height - descriptionSize.height)
+			heightAtDisclosureLevel.append(newSize.height - descriptionSize.height)
 			heightAtDisclosureLevel.append(newSize.height)
 		}
 		
