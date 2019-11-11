@@ -9,13 +9,13 @@
 import UIKit
 
 
-class UserProfileViewController: BaseCollectionViewController {
+@objc class UserProfileViewController: BaseCollectionViewController {
 	let dataSource = KrakenDataSource()
 	
 	// The user name is what the VC is 'modeling', not the KrakenUser. This way, even if there's no user with that name,
 	// the VC still appears and is responsible for displaying the error.
 	var modelUserName : String?
-	fileprivate var modelKrakenUser: KrakenUser?
+	@objc dynamic fileprivate var modelKrakenUser: KrakenUser?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,6 +64,7 @@ class UserProfileViewController: BaseCollectionViewController {
 	var emailCell: UserProfileSingleValueCellModel?
     var homeLocationCell: UserProfileSingleValueCellModel?
     var roomNumberCell: UserProfileSingleValueCellModel?
+    var mapRoomCell: ButtonCellModel?
     var currentLocationCell: UserProfileSingleValueCellModel?
     var authoredTweetsCell: ProfileDisclosureCellModel?
     var mentionsCell: ProfileDisclosureCellModel?
@@ -78,17 +79,28 @@ class UserProfileViewController: BaseCollectionViewController {
 		emailCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email)
 		homeLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation)
 		roomNumberCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .roomNumber)
+		mapRoomCell = ButtonCellModel(title: "Show Room On Map", action: mapButtonTapped, alignment: .center)
+		
 		currentLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation)
 		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)
 		mentionsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self)
 		sendSeamailCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self)		
 		editProfileCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.editOwnProfile, vc: self)		
 		profileCommentCell = ProfileCommentCellModel(user: modelKrakenUser)
+		
+		self.tell(mapRoomCell!, when: "modelKrakenUser.roomNumber") { observer, observed in
+			if let room = observed.modelKrakenUser?.roomNumber {
+				observer.shouldBeVisible = DeckDataManager.shared.isValidRoom(name: room)
+			} else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
 
     	section.append(avatarCell!)
 		section.append(emailCell!)
 		section.append(homeLocationCell!)
 		section.append(roomNumberCell!)
+		section.append(mapRoomCell!)
 		section.append(currentLocationCell!)
 		section.append(authoredTweetsCell!)
 		section.append(mentionsCell!)
@@ -110,6 +122,10 @@ class UserProfileViewController: BaseCollectionViewController {
 		editProfileCell?.userModel = newUser
 		profileCommentCell?.userModel = newUser
 	}
+	
+	func mapButtonTapped() {
+		pushMapView()
+	}
     
     // MARK: Navigation
 	var filterForNextVC: String?
@@ -125,6 +141,12 @@ class UserProfileViewController: BaseCollectionViewController {
 	    	filterForNextVC = "@\(username)"
     		self.performSegue(withIdentifier: "ShowUserMentions", sender: self)
 		}
+    }
+    
+    func pushMapView() {
+    	if let user = modelKrakenUser {
+			self.performSegue(withIdentifier: "ShowRoomOnDeckMap", sender: user)
+    	}
     }
     
     func pushSendSeamailView() {
@@ -147,12 +169,16 @@ class UserProfileViewController: BaseCollectionViewController {
 		if segue.identifier == "ShowUserMentions", let destVC = segue.destination as? TwitarrViewController {
 			destVC.dataManager = TwitarrDataManager(filterString: filterForNextVC)
 		}
-		if segue.identifier == "ShowUserTweets", let destVC = segue.destination as? TwitarrViewController, 
+		else if segue.identifier == "ShowUserTweets", let destVC = segue.destination as? TwitarrViewController, 
 				let filterString = filterForNextVC {
 			destVC.dataManager = TwitarrDataManager(predicate: NSPredicate(format: "author.username == %@", filterString))
 		}
-		if segue.identifier == "EditUserProfile" {
+		else if segue.identifier == "EditUserProfile" {
 			// Nothing to do, until we add the admin feature so they can edit other profiles.
+		}
+		else if segue.identifier == "ShowRoomOnDeckMap", let destVC = segue.destination as? DeckMapViewController,
+				let user = sender as? KrakenUser, let roomNum = user.roomNumber {
+			destVC.pointAtRoomNamed(roomNum)
 		}
     }
     

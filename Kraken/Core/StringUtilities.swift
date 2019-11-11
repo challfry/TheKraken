@@ -21,7 +21,7 @@ class StringUtilities {
      	let scanner = Scanner(string: text)
      	scanner.charactersToBeSkipped = emptySet
 		while !scanner.isAtEnd {
-			if let tempString = scanner.scanUpToCharactersFrom(openTag) {
+			if let tempString = scanner.KscanUpToCharactersFrom(openTag) {
 				if tagStack.isEmpty || !addLinks {
 					let attrString = NSAttributedString(string: tempString)
 					outputString.append(attrString)
@@ -33,7 +33,7 @@ class StringUtilities {
 				}
 			}
 			scanner.scanString("<", into: nil)
-	   		if let tagContents = scanner.scanUpToCharactersFrom(closeTag) {
+	   		if let tagContents = scanner.KscanUpToCharactersFrom(closeTag) {
 	   			let firstSpace = tagContents.firstIndex(of: " ") ?? tagContents.endIndex
 				let tagName = tagContents[..<firstSpace]
 				if tagName.hasPrefix("/") {
@@ -63,27 +63,42 @@ class StringUtilities {
 	}
 }
 
+// I think they finally fixed the junky API for Scanner in iOS 13, but I can't use it yet.
+// The fns in this extension are API glue to make Scanner fns return optionals.
+// The "K" prefixes are so that, years from now, someone can USE THE REFACTOR TOOL to get rid of this code
+// and call the too-new iOS APIs directly (it makes it obvious which fns are local, and keeps us from
+// interfering with the framework methods).
 extension Scanner {
   
-  @discardableResult func scanUpToCharactersFrom(_ set: CharacterSet) -> String? {
-    var result: NSString?                                                           
-    return scanUpToCharacters(from: set, into: &result) ? (result as String?) : nil 
-  }
-  
-  @discardableResult func scanCharactersFrom(_ set: CharacterSet) -> String? {
-    var result: NSString?                                                           
-    return scanCharacters(from: set, into: &result) ? (result as String?) : nil 
-  }
-  
-  func scanUpTo(_ string: String) -> String? {
-    var result: NSString?
-    return self.scanUpTo(string, into: &result) ? (result as String?) : nil
-  }
-  
-  func scanDouble() -> Double? {
-    var double: Double = 0
-    return scanDouble(&double) ? double : nil
-  }
+	@discardableResult func KscanUpToCharactersFrom(_ set: CharacterSet) -> String? {
+		var result: NSString?                                                           
+		return scanUpToCharacters(from: set, into: &result) ? (result as String?) : nil 
+	}
+
+	@discardableResult func KscanCharactersFrom(_ set: CharacterSet) -> String? {
+		var result: NSString?                                                           
+		return scanCharacters(from: set, into: &result) ? (result as String?) : nil 
+	}
+
+	@discardableResult func KscanUpTo(_ string: String) -> String? {
+		var result: NSString?
+		return self.scanUpTo(string, into: &result) ? (result as String?) : nil
+	}
+
+	@discardableResult func KscanString(_ string: String) -> String? {
+		var result: NSString?
+		return self.scanString(string, into: &result) ? (result as String?) : nil
+	}
+
+	@discardableResult func KscanDouble() -> Double? {
+		var double: Double = 0
+		return scanDouble(&double) ? double : nil
+	}
+	
+	@discardableResult func KscanInt() -> Int? {
+		var intVal: Int = 0
+		return scanInt(&intVal) ? intVal : nil
+	}
 }
 
 // rcf copied from https://gist.github.com/mwaterfall/25b4a6a06dc3309d9555
@@ -175,7 +190,7 @@ extension String {
     	scanner.charactersToBeSkipped = CharacterSet(charactersIn: "")
     	while !scanner.isAtEnd {
 			let foundAmpersand = scanner.scanString("&", into: nil)
-    		let entityString = scanner.scanUpToCharactersFrom(CharacterSet(charactersIn: "&;"))
+    		let entityString = scanner.KscanUpToCharactersFrom(CharacterSet(charactersIn: "&;"))
     		let foundSemicolon = scanner.scanString(";", into: nil)
     		
     		if foundAmpersand, foundSemicolon, let entityString = entityString {

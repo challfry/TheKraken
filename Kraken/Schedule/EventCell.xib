@@ -92,24 +92,31 @@
                                 <rect key="frame" x="0.0" y="204" width="372" height="44"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="o9L-xR-AW5">
-                                        <rect key="frame" x="130" y="0.0" width="242" height="44"/>
+                                        <rect key="frame" x="90" y="0.0" width="282" height="44"/>
                                         <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BTX-Ie-csc" userLabel="Map Button">
+                                                <rect key="frame" x="0.0" y="0.0" width="30" height="44"/>
+                                                <state key="normal" title="Map"/>
+                                                <connections>
+                                                    <action selector="mapButtonHit" destination="gTV-IL-0wX" eventType="touchUpInside" id="qP9-gU-dCh"/>
+                                                </connections>
+                                            </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7Yd-j4-LbC">
-                                                <rect key="frame" x="0.0" y="0.0" width="111" height="44"/>
+                                                <rect key="frame" x="40" y="0.0" width="111" height="44"/>
                                                 <state key="normal" title="Add to Calendar"/>
                                                 <connections>
                                                     <action selector="addToCalendarButtonHit" destination="gTV-IL-0wX" eventType="touchUpInside" id="AqW-CC-fxQ"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HEV-3D-6c7">
-                                                <rect key="frame" x="121" y="0.0" width="67" height="44"/>
+                                                <rect key="frame" x="161" y="0.0" width="67" height="44"/>
                                                 <state key="normal" title="Set Alarm"/>
                                                 <connections>
                                                     <action selector="setAlarmButtonHit" destination="gTV-IL-0wX" eventType="touchUpInside" id="n84-fe-vHk"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vZS-ui-ipD">
-                                                <rect key="frame" x="198" y="0.0" width="44" height="44"/>
+                                                <rect key="frame" x="238" y="0.0" width="44" height="44"/>
                                                 <state key="normal" title="Follow"/>
                                                 <connections>
                                                     <action selector="favoriteButtonHit" destination="gTV-IL-0wX" eventType="touchUpInside" id="i1h-5S-HS3"/>
@@ -168,6 +175,7 @@
                 <outlet property="followPendingView" destination="nWw-G0-qFe" id="GUc-wG-6Ni"/>
                 <outlet property="localNotificationButton" destination="HEV-3D-6c7" id="raP-GV-NpY"/>
                 <outlet property="locationLabel" destination="gvf-h0-fI8" id="3Id-iL-6BS"/>
+                <outlet property="mapButton" destination="BTX-Ie-csc" id="6AA-Ry-4Bp"/>
                 <outlet property="ribbonView" destination="yzT-FW-5Jd" id="qkz-u6-AyT"/>
                 <outlet property="ribbonViewLabel" destination="OI9-hx-Xgg" id="xh4-mx-AD0"/>
                 <outlet property="titleLabel" destination="cpP-Du-eol" id="e10-o2-Jap"/>

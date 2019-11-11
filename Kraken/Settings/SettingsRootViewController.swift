@@ -84,6 +84,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		prefsSection.append(cell: BlockNetworkSwitchCellModel())
 		prefsSection.append(cell: DelayPostsSwitchCellModel())
 		prefsSection.append(cell: FullScreenCameraSwitchCellModel())
+		prefsSection.append(cell: DisplayStyleCell())
 		
 		// Debug Settings
 		let debugSettingsSection = dataSource.appendFilteringSegment(named: "Debug Prefs")
@@ -485,6 +486,19 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 }
 
 // MARK: - Prefs Cells
+
+@objc class DisplayStyleCell : SegmentCellModel {
+	init() {
+		super.init(titles: ["Normal", "Dark Mode", "Deep Sea Mode"])
+		stateChanged = { 
+			if let newStyle = Settings.DisplayStyle(rawValue: self.selectedSegment) {
+				Settings.shared.uiDisplayStyle = newStyle
+			}
+		}
+		selectedSegment = Settings.shared.uiDisplayStyle.rawValue
+		cellTitle = "This sets the overall look of the app."
+	}
+}
 
 @objc class FullScreenCameraSwitchCellModel : SwitchCellModel {
 	init() {

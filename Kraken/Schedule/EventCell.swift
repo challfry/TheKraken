@@ -94,6 +94,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	@IBOutlet var 	followButton: UIButton!
 	@IBOutlet var 	localNotificationButton: UIButton!
 	@IBOutlet var 	addToCalendarButton: UIButton!
+	@IBOutlet var 	mapButton: UIButton!
 	
 	private static let cellInfo = [ "EventCell" : PrototypeCellInfo("EventCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return EventCell.cellInfo }
@@ -152,6 +153,15 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 				addObservation(eventModel.tell(self, when:"localNotificationID") { observer, observed in
 					let title = observed.localNotificationID == nil ? "Set Alarm" : "Remove Alarm"
 					observer.localNotificationButton.setTitle(title, for: .normal)
+				}?.execute())
+				addObservation(eventModel.tell(self, when:"location") { observer, observed in
+					// Hides the map buton for events with no location, and events that are "Whole Ship"
+					if let title = observed.location {
+						observer.mapButton.isHidden = (title == "Whole Ship" || title == "")
+					}
+					else {
+						observer.mapButton.isHidden = true
+					}
 				}?.execute())
 			}
 			else {
@@ -376,6 +386,12 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 			vc.delegate = self
  			let nav = UINavigationController(rootViewController: vc)
 			self.viewController?.present(nav, animated: true, completion: nil)
+		}
+	}
+	
+	@IBAction func mapButtonHit() {
+		if let eventModel = model as? Event {
+			viewController?.performSegue(withIdentifier: "ShowRoomOnDeckMap", sender: eventModel)
 		}
 	}
 	

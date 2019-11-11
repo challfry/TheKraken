@@ -403,6 +403,12 @@ import EventKitUI
 				destVC.segueData = package
 			}
 			
+		case "ShowRoomOnDeckMap":
+			if let destVC = segue.destination as? DeckMapViewController, let event = sender as? Event,
+					let location = event.location {
+				destVC.pointAtRoomNamed(location)
+			}
+			
 		default: break 
     	}
     }

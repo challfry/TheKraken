@@ -11,6 +11,10 @@ import Foundation
 @objc class Settings: NSObject, Codable {
 	static let shared = Settings()
 	
+	@objc enum DisplayStyle: Int {
+		case normalMode = 0, darkMode, deepSeaMode
+	}
+	
 	// Settings that can't be changed once we initialize, but can be mutated for the next launch declared here.
 	@objc dynamic public lazy var baseURL = settingsBaseURL
 	
@@ -28,6 +32,18 @@ import Foundation
 		set { setSetting(name: "activeUsername", newValue: newValue) }
 	}
 	
+	// 
+	@objc dynamic public var uiDisplayStyle: DisplayStyle {
+		get { 
+			if let newValue = Settings.DisplayStyle(rawValue: getSetting(name: "uiDisplayStyle", 
+					defaultValue: Settings.DisplayStyle.normalMode.rawValue)) {
+				return newValue	
+			}
+			return .normalMode
+		}
+		set { setSetting(name: "uiDisplayStyle", newValue: newValue.rawValue) }
+	}
+
 	// Chooses which viewfinder style to use
 	public var useFullscreenCameraViewfinder: Bool {
 		get { return getSetting(name: "useFullscreenCameraViewfinder", defaultValue: true) }

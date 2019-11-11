@@ -79,6 +79,11 @@
 		EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */; };
 		EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A81231E212A0071BFEA /* Alerts.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
+		EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6A2366332E0042C0DC /* SegmentCell.swift */; };
+		EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA83FC6C2366334A0042C0DC /* SegmentCell.xib */; };
+		EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6E2368F01D0042C0DC /* Styler.swift */; };
+		EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC7123693A800042C0DC /* DeckMapViewController.swift */; };
+		EA83FC8B236E33450042C0DC /* DeckDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC8A236E33450042C0DC /* DeckDataManager.swift */; };
 		EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */; };
 		EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD02272813800363CBF /* LoginHeaderCell.xib */; };
 		EA86ADD42272855000363CBF /* jellyfish.png in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD32272855000363CBF /* jellyfish.png */; };
@@ -131,6 +136,7 @@
 		EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */; };
 		EAA62C7122C55CC00031A999 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C7022C55CC00031A999 /* Logging.swift */; };
 		EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAA62C7222CC57060031A999 /* DraftImageCell.xib */; };
+		EAA8A577236F963E0021C43C /* Decks.pdf in Resources */ = {isa = PBXBuildFile; fileRef = EAA8A576236F963E0021C43C /* Decks.pdf */; };
 		EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
@@ -265,6 +271,11 @@
 		EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSectionHeaderView.swift; sourceTree = "<group>"; };
 		EA6A8A81231E212A0071BFEA /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
+		EA83FC6A2366332E0042C0DC /* SegmentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentCell.swift; sourceTree = "<group>"; };
+		EA83FC6C2366334A0042C0DC /* SegmentCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SegmentCell.xib; sourceTree = "<group>"; };
+		EA83FC6E2368F01D0042C0DC /* Styler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styler.swift; sourceTree = "<group>"; };
+		EA83FC7123693A800042C0DC /* DeckMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckMapViewController.swift; sourceTree = "<group>"; };
+		EA83FC8A236E33450042C0DC /* DeckDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckDataManager.swift; sourceTree = "<group>"; };
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
 		EA86ADD32272855000363CBF /* jellyfish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jellyfish.png; sourceTree = "<group>"; };
 		EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextFieldCell.xib; sourceTree = "<group>"; };
@@ -327,6 +338,7 @@
 		EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTasksViewController.swift; sourceTree = "<group>"; };
 		EAA62C7022C55CC00031A999 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EAA62C7222CC57060031A999 /* DraftImageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DraftImageCell.xib; sourceTree = "<group>"; };
+		EAA8A576236F963E0021C43C /* Decks.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Decks.pdf; sourceTree = "<group>"; };
 		EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCommentCell.swift; sourceTree = "<group>"; };
 		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
 		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
@@ -541,6 +553,7 @@
 				EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */,
 				EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */,
 				EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */,
+				EA83FC6E2368F01D0042C0DC /* Styler.swift */,
 				EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */,
 				EA86ADE72279B49400363CBF /* DisclosureCell.xib */,
 				EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */,
@@ -557,6 +570,8 @@
 				EA3C63112296BE7800077E3B /* TextViewCell.xib */,
 				EAB4536C22D1F75600CD1671 /* ButtonCell.swift */,
 				EA86ADD922730C7300363CBF /* ButtonCell.xib */,
+				EA83FC6A2366332E0042C0DC /* SegmentCell.swift */,
+				EA83FC6C2366334A0042C0DC /* SegmentCell.xib */,
 				EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */,
 				EA278A49226A755400808AED /* LoadingStatusCell.xib */,
 				EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */,
@@ -613,6 +628,25 @@
 			name = "Third Party";
 			path = "Kraken/Third Party";
 			sourceTree = "<group>";
+		};
+		EA83FC7023693A560042C0DC /* Deck Maps */ = {
+			isa = PBXGroup;
+			children = (
+				EA83FC7123693A800042C0DC /* DeckMapViewController.swift */,
+				EA83FC8A236E33450042C0DC /* DeckDataManager.swift */,
+				EA83FC7323693D760042C0DC /* Deck Plans */,
+			);
+			path = "Deck Maps";
+			sourceTree = "<group>";
+		};
+		EA83FC7323693D760042C0DC /* Deck Plans */ = {
+			isa = PBXGroup;
+			children = (
+				EAA8A576236F963E0021C43C /* Decks.pdf */,
+			);
+			name = "Deck Plans";
+			path = "Resources/Deck Plans";
+			sourceTree = SOURCE_ROOT;
 		};
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
@@ -703,6 +737,7 @@
 				EA8B986D232321C500E10156 /* Karaoke */,
 				EA3C631322975CD100077E3B /* Settings */,
 				EA1E3B962245849B00017F07 /* Users */,
+				EA83FC7023693A560042C0DC /* Deck Maps */,
 				EA1E3BA1224D79C400017F07 /* Server Resources */,
 				EAC71D48228A13BC002F7BB3 /* Data Sources */,
 				EA4A1D0422540801008501A3 /* EBNObservable */,
@@ -893,12 +928,14 @@
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
+				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA3ABFAC22F404E100441F99 /* CameraIcon3Highlight@3x.png in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
 				EA534E32230299AE00FE4787 /* EventCell.xib in Resources */,
 				EA3ABFB422F423F600441F99 /* CameraShutter@3x.png in Resources */,
 				EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */,
+				EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */,
 				EA3ABFBA22F4FA7E00441F99 /* Flash@3x.png in Resources */,
 				EA4E84FA232CEBFB0059E5EB /* Disabled@3x.png in Resources */,
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
@@ -979,6 +1016,7 @@
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
+				EA83FC8B236E33450042C0DC /* DeckDataManager.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
@@ -1015,17 +1053,20 @@
 				EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */,
 				EA86ADF0227D18AD00363CBF /* ServerTextFileViewController.swift in Sources */,
 				EA3C630E2293913600077E3B /* ComposeTweetViewController.swift in Sources */,
+				EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */,
 				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
 				EAA0284C2321ED7300B2B7F1 /* SocialViewController.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
+				EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
 				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,
 				EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */,
 				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
+				EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */,
 				EA4E84F2232C74D00059E5EB /* DisabledContentViewController.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,

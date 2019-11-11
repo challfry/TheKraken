@@ -9,6 +9,7 @@ Show the user's approximate location using iBeacons.
 ~100 beacons, distribute around ship
 Probably need coordination from both THO and HAL 
 Need server support to make an almanac of where each beacon is
+Need drop mode to install beacons - tells server where beacon is (room name) and its ID
 Need pickup mode to retrieve beacons
 
 ## Local notifications
@@ -61,6 +62,7 @@ AR Pokemon Go -- distribute QR code paper around ship, scan to see pokemon and t
 Offline mode, especially so that events can be viewed onshore
 Happening Now view
 Maybe filter by location onboard?
+Daily buttons, with a # of favorited events for each day, so users can see what days to do planning for.
 
 ## Inbound links
 Make the app the handler for links, maybe? Universal links require the super-fun app site association file.
@@ -82,3 +84,7 @@ with a "#jococruise" hashtag likely attached (or something).
 
 One notification max per day, don't send notifications between 10:00 PM and 8:00 AM local time, have an option in Settings to turn it off.
 This also means that at most one post per day gets reposted per user.
+
+## Dark Mode, Dynamic Type
+
+Bread and butter features. But, I want to implement them with traversing view stylers. 
