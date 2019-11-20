@@ -23,7 +23,8 @@ class StringUtilities {
 		while !scanner.isAtEnd {
 			if let tempString = scanner.KscanUpToCharactersFrom(openTag) {
 				if tagStack.isEmpty || !addLinks {
-					let attrString = NSAttributedString(string: tempString)
+    				let textAttrs: [NSAttributedString.Key : Any] = [ .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
+					let attrString = NSAttributedString(string: tempString, attributes: textAttrs)
 					outputString.append(attrString)
 				}
 				else {

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -20,7 +21,7 @@
                     <nil key="highlightedColor"/>
                 </label>
             </subviews>
-            <color key="backgroundColor" red="0.99942404029999998" green="0.98359910100000003" blue="0.76005993149999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" name="Info Title Background"/>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="4Bw-CY-Na3" secondAttribute="bottom" priority="900" constant="3" id="55e-QN-HSy"/>
                 <constraint firstItem="4Bw-CY-Na3" firstAttribute="leading" secondItem="5a2-ad-OrK" secondAttribute="leading" constant="20" id="aLk-vL-XkB"/>
@@ -32,4 +33,9 @@
             <point key="canvasLocation" x="220" y="-380"/>
         </collectionReusableView>
     </objects>
+    <resources>
+        <namedColor name="Info Title Background">
+            <color red="1" green="0.97299998998641968" blue="0.87599998712539673" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
 </document>

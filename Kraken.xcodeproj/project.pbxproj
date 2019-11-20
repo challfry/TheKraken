@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA027020237CE55900071C5E /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA02701F237CE55900071C5E /* Colors.xcassets */; };
 		EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */; };
 		EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */; };
 		EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */; };
@@ -185,6 +186,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EA02701F237CE55900071C5E /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglePhotoCell.swift; sourceTree = "<group>"; };
 		EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SinglePhotoCell.xib; sourceTree = "<group>"; };
 		EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -727,6 +729,7 @@
 				EA4E84F1232C74D00059E5EB /* DisabledContentViewController.swift */,
 				EA4E84F3232C74FE0059E5EB /* DisabledContentViewController.xib */,
 				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
+				EA02701F237CE55900071C5E /* Colors.xcassets */,
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
 				EAA2E4CA2242D301009F287F /* Info.plist */,
 				EAA0284A2321ED4A00B2B7F1 /* Social */,
@@ -931,6 +934,7 @@
 				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA3ABFAC22F404E100441F99 /* CameraIcon3Highlight@3x.png in Resources */,
+				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
 				EA534E32230299AE00FE4787 /* EventCell.xib in Resources */,
 				EA3ABFB422F423F600441F99 /* CameraShutter@3x.png in Resources */,

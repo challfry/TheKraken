@@ -581,7 +581,7 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 	func setup(_ vc: KaraokeRootViewController) {
 		viewController = vc
 		let label = UILabel()
-		label.backgroundColor = UIColor.white
+		label.backgroundColor = UIColor(named: "Overlay Label Background")
 		label.textAlignment	= .right
 		label.isHidden = true
 		self.addSubview(label)
@@ -593,15 +593,22 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 	}
 	
 	override func draw(_ rect: CGRect) {
+		// Background first
+		if let color = UIColor(named: "VC Background")?.cgColor {
+			UIGraphicsGetCurrentContext()?.setFillColor(color)
+			UIGraphicsGetCurrentContext()?.fill(rect)
+		}
+		
 		// 
 		var indexString = KaraokeTableIndexView.fullIndexChars
 		if bounds.size.height < 360 {
 			indexString = KaraokeTableIndexView.halfIndexChars
 		}
 		let stepSize = bounds.size.height / CGFloat(indexString.count)
+		let textAttrs: [NSAttributedString.Key : Any] = [ .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
 		for index in 0..<indexString.count {
 		
-			let str = NSAttributedString(string: String(Array(indexString)[index]))
+			let str = NSAttributedString(string: String(Array(indexString)[index]), attributes: textAttrs)
 			let strSize = str.size()
 			let position = CGPoint(x: 8 - (strSize.width / 2), y: CGFloat(index) * stepSize)
 			str.draw(at: position)
@@ -611,7 +618,8 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 	func positionLabel(yPos: CGFloat) {
 		let percentage = yPos / (bounds.size.height - 10)
 		if let stringToShow = viewController?.itemNameAt(percentage: percentage), let label = floatingLabel {
-			let labelString = NSAttributedString(string: stringToShow)
+			let textAttrs: [NSAttributedString.Key : Any] = [ .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
+			let labelString = NSAttributedString(string: stringToShow, attributes: textAttrs)
 			label.attributedText = labelString
 			label.sizeToFit()
 

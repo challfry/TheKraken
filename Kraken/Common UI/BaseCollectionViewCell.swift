@@ -173,24 +173,8 @@ struct PrototypeCellInfo {
 		super.awakeFromNib()
 		contentView.translatesAutoresizingMaskIntoConstraints = false
 		self.translatesAutoresizingMaskIntoConstraints = false
+	}
 		
-		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in
-			observer.changeDisplayStyle(to: observed.uiDisplayStyle)
-		}
-	}
-	
-	func changeDisplayStyle(to newStyle: Settings.DisplayStyle) {
-		UIView.animate(withDuration: 0.3) {
-			switch newStyle {
-			case .normalMode:
-				self.backgroundColor = .white
-			case .darkMode, .deepSeaMode: 
-				self.backgroundColor = .black
-			}
-			
-		}
-	}
-	
 //	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 
 //			-> UICollectionViewLayoutAttributes {
 //		return layoutAttributes

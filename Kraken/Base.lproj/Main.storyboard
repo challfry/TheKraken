@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -18,7 +19,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="bzJ-CE-5yu">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="Ubm-4Q-2rn">
                                     <size key="itemSize" width="320" height="0.0"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -28,7 +29,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="wGd-eA-BOI" firstAttribute="top" secondItem="bzJ-CE-5yu" secondAttribute="top" id="4n0-Gd-bm6"/>
                             <constraint firstItem="wGd-eA-BOI" firstAttribute="bottom" secondItem="bzJ-CE-5yu" secondAttribute="bottom" id="aAh-HV-5My"/>
@@ -71,7 +72,7 @@
                             </navigationBar>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1A7-J6-kmJ">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Z7h-Nh-09i">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -81,7 +82,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="3lF-Kl-OKu" firstAttribute="trailing" secondItem="1A7-J6-kmJ" secondAttribute="trailing" id="6HV-jB-twx"/>
                             <constraint firstItem="3lF-Kl-OKu" firstAttribute="top" secondItem="m1y-8I-aF2" secondAttribute="top" constant="44" id="6UY-El-94s"/>
@@ -113,7 +114,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="PX9-hx-nIP">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="UWz-Xl-bGC">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -123,7 +124,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="PX9-hx-nIP" firstAttribute="top" secondItem="I1N-2Z-8aV" secondAttribute="top" id="4Gz-bO-cAb"/>
                             <constraint firstItem="PX9-hx-nIP" firstAttribute="leading" secondItem="I1N-2Z-8aV" secondAttribute="leading" id="G7L-7v-Nge"/>
@@ -214,7 +215,7 @@
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" keyboardDismissMode="interactive" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="i8Q-9N-8DZ">
                                 <rect key="frame" x="0.0" y="137" width="375" height="592"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                             </tableView>
                             <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HiJ-yx-8yB" customClass="KaraokeTableIndexView" customModule="Kraken" customModuleProvider="target">
                                 <rect key="frame" x="359" y="137" width="16" height="592"/>
@@ -224,7 +225,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="zt4-ZB-FP2" firstAttribute="top" secondItem="40y-QN-rKa" secondAttribute="top" constant="8" id="5CA-tF-hgc"/>
                             <constraint firstItem="z8b-6a-eWh" firstAttribute="centerY" secondItem="3Ou-jk-jhQ" secondAttribute="centerY" id="Bnw-iT-VMm"/>
@@ -407,7 +408,7 @@
                                 <blurEffect style="regular"/>
                             </visualEffectView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="EaD-4u-kMi" firstAttribute="trailing" secondItem="HOt-Ml-zyR" secondAttribute="trailing" id="63s-9b-m0W"/>
                             <constraint firstItem="EaD-4u-kMi" firstAttribute="trailing" secondItem="3pO-ce-PFD" secondAttribute="trailing" id="App-jC-zat"/>
@@ -452,7 +453,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="aPE-Dg-ILQ">
                                 <rect key="frame" x="0.0" y="88" width="375" height="724"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Tsj-qU-yep">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -462,7 +463,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="aPE-Dg-ILQ" firstAttribute="leading" secondItem="pXM-1t-7ay" secondAttribute="leading" id="5bn-fv-kum"/>
                             <constraint firstItem="pXM-1t-7ay" firstAttribute="trailing" secondItem="aPE-Dg-ILQ" secondAttribute="trailing" id="FAv-2v-ihY"/>
@@ -493,7 +494,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="BL1-Gv-xud">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="02G-b6-Wnp">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -503,7 +504,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="1Tf-SC-In5" firstAttribute="bottom" secondItem="BL1-Gv-xud" secondAttribute="bottom" id="8S4-Do-pOu"/>
                             <constraint firstItem="1Tf-SC-In5" firstAttribute="trailing" secondItem="BL1-Gv-xud" secondAttribute="trailing" id="FR7-W4-x8f"/>
@@ -535,7 +536,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="EKe-Yu-qws">
                                 <rect key="frame" x="0.0" y="57" width="375" height="667"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="V1V-mQ-RXE">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -558,7 +559,7 @@
                                 </items>
                             </navigationBar>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="EKe-Yu-qws" firstAttribute="top" secondItem="nO8-TE-Lck" secondAttribute="top" constant="57" id="7UJ-mw-5Ob"/>
                             <constraint firstItem="nO8-TE-Lck" firstAttribute="trailing" secondItem="EKe-Yu-qws" secondAttribute="trailing" id="UE0-2A-H9k"/>
@@ -597,13 +598,13 @@
         <scene sceneID="TVm-RF-8Ur">
             <objects>
                 <viewController storyboardIdentifier="ScheduleRootViewController" title="Schedule" useStoryboardIdentifierAsRestorationIdentifier="YES" id="itg-Bj-Npc" customClass="ScheduleRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" alpha="0.94999999999999996" contentMode="scaleToFill" id="Beq-be-H33">
+                    <view key="view" contentMode="scaleToFill" id="Beq-be-H33">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="OKw-FE-TWM">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Rfg-Qu-MFx">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -852,7 +853,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="hUv-2L-CtT" firstAttribute="trailing" secondItem="OKw-FE-TWM" secondAttribute="trailing" id="6Nn-rT-TYB"/>
                             <constraint firstItem="OKw-FE-TWM" firstAttribute="leading" secondItem="hUv-2L-CtT" secondAttribute="leading" id="Awb-1L-heJ"/>
@@ -910,7 +911,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="WjH-ZR-Co6">
                                 <rect key="frame" x="0.0" y="24" width="375" height="754"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="1" id="Z2z-Vn-jpX">
                                     <size key="itemSize" width="375" height="147"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -924,7 +925,7 @@
                                 </connections>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="4br-fN-lFd" firstAttribute="top" secondItem="WjH-ZR-Co6" secondAttribute="top" constant="64" id="2Yi-PJ-8fe"/>
                             <constraint firstItem="WjH-ZR-Co6" firstAttribute="bottom" secondItem="4br-fN-lFd" secondAttribute="bottom" constant="49" id="IaM-lg-Nhw"/>
@@ -965,7 +966,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="MSn-xv-JmA">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="UgV-kM-oTw">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -975,7 +976,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="MSn-xv-JmA" firstAttribute="top" secondItem="Ses-dA-iqg" secondAttribute="top" id="BnW-mB-ZXg"/>
                             <constraint firstItem="Ses-dA-iqg" firstAttribute="bottom" secondItem="MSn-xv-JmA" secondAttribute="bottom" id="Dgg-ys-e5x"/>
@@ -1004,7 +1005,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="elB-bV-rZV">
                                 <rect key="frame" x="0.0" y="88" width="375" height="675"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="pEB-Qn-cdv">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -1014,7 +1015,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="elB-bV-rZV" firstAttribute="top" secondItem="MDe-Ec-225" secondAttribute="top" id="PCh-Mr-JCP"/>
                             <constraint firstItem="elB-bV-rZV" firstAttribute="bottom" secondItem="MDe-Ec-225" secondAttribute="bottom" constant="34" id="X4B-Kt-ULV"/>
@@ -1057,7 +1058,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="uG2-2f-nge">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="VIl-sM-GDe">
                                     <size key="itemSize" width="375" height="200"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -1071,7 +1072,7 @@
                                 </connections>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="MoN-1t-XKK" firstAttribute="bottom" secondItem="uG2-2f-nge" secondAttribute="bottom" id="8x8-RB-XrU"/>
                             <constraint firstItem="uG2-2f-nge" firstAttribute="leading" secondItem="MoN-1t-XKK" secondAttribute="leading" id="Zib-FG-7P8"/>
@@ -1103,7 +1104,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="BL5-I2-1YT">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="R8n-YD-tyI">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -1113,7 +1114,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="xpH-L7-PWI" firstAttribute="bottom" secondItem="BL5-I2-1YT" secondAttribute="bottom" id="PQY-Vn-FHh"/>
                             <constraint firstItem="xpH-L7-PWI" firstAttribute="trailing" secondItem="BL5-I2-1YT" secondAttribute="trailing" id="djp-Pf-lDj"/>
@@ -1607,7 +1608,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="0h4-xi-YN3" secondAttribute="trailing" id="2Xg-gx-Ibc"/>
                             <constraint firstItem="0h4-xi-YN3" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" id="77k-HN-LZc"/>
@@ -1729,7 +1730,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="SMw-rB-8Ab">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="k1Y-RN-kx6">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -1739,7 +1740,7 @@
                                 <cells/>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="bsT-np-TL5" firstAttribute="bottom" secondItem="SMw-rB-8Ab" secondAttribute="bottom" id="bAW-3m-TRM"/>
                             <constraint firstItem="SMw-rB-8Ab" firstAttribute="top" secondItem="bsT-np-TL5" secondAttribute="top" id="fg2-4X-FME"/>
@@ -1806,20 +1807,26 @@
         <image name="Settings.png" width="36" height="36"/>
         <image name="Social.png" width="36" height="36"/>
         <image name="Twitarr.png" width="23" height="23"/>
-        <image name="map" catalog="system" width="64" height="58"/>
-        <image name="map.fill" catalog="system" width="64" height="54"/>
+        <image name="map" catalog="system" width="64" height="56"/>
+        <image name="map.fill" catalog="system" width="64" height="56"/>
+        <namedColor name="CollectionView Background">
+            <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="VC Background">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="lzU-1b-eKA"/>
+        <segue reference="pIj-nS-Geu"/>
         <segue reference="ahu-jQ-Nlo"/>
         <segue reference="Xin-A8-aio"/>
-        <segue reference="K3u-jj-2ul"/>
-        <segue reference="oPR-Dz-wmr"/>
+        <segue reference="TWa-ya-eZ5"/>
+        <segue reference="ZNA-4Q-2gl"/>
         <segue reference="ibx-KH-vcj"/>
         <segue reference="lin-0h-BUN"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="hIj-Jv-E7S"/>
         <segue reference="llS-CN-BhZ"/>
         <segue reference="jdD-6N-h46"/>
-        <segue reference="RRQ-tC-exJ"/>
+        <segue reference="obm-hj-fmk"/>
     </inferredMetricsTieBreakers>
 </document>

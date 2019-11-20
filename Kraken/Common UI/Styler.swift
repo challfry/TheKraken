@@ -8,8 +8,8 @@
 
 import UIKit
 
-class Styler: NSObject {
 
+class Styler: NSObject {
 }
 
 extension UILabel {

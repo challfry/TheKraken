@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -23,7 +23,7 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="yNF-Qi-gMR">
+                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" apportionsSegmentWidthsByContent="YES" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="yNF-Qi-gMR">
                         <rect key="frame" x="20" y="38.5" width="381" height="41.5"/>
                         <segments>
                             <segment title="First"/>
@@ -37,7 +37,7 @@
                 <constraints>
                     <constraint firstItem="Rh7-fg-9VH" firstAttribute="top" secondItem="Qk9-bW-zuX" secondAttribute="top" constant="8" id="6Ts-Sg-bta"/>
                     <constraint firstItem="yNF-Qi-gMR" firstAttribute="leading" secondItem="Qk9-bW-zuX" secondAttribute="leading" constant="20" id="8eL-2W-X72"/>
-                    <constraint firstAttribute="trailing" secondItem="yNF-Qi-gMR" secondAttribute="trailing" constant="20" id="J4j-cm-goV"/>
+                    <constraint firstAttribute="trailing" secondItem="yNF-Qi-gMR" secondAttribute="trailing" priority="900" constant="20" id="J4j-cm-goV"/>
                     <constraint firstItem="yNF-Qi-gMR" firstAttribute="top" secondItem="Rh7-fg-9VH" secondAttribute="bottom" constant="10" id="Ywd-Te-zyB"/>
                     <constraint firstItem="Rh7-fg-9VH" firstAttribute="leading" secondItem="Qk9-bW-zuX" secondAttribute="leading" constant="20" id="aDd-cT-nyp"/>
                     <constraint firstAttribute="trailing" secondItem="Rh7-fg-9VH" secondAttribute="trailing" priority="900" constant="20" id="pF0-ZL-FV7"/>

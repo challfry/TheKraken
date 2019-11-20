@@ -72,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   		return true
 	}
 
-	func application(_ application: UIApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
+	func application(_ application: UIApplication, shouldRestoreSecureApplicationState coder: NSCoder) -> Bool {
 		let archiveVersion = coder.decodeInt32(forKey: "KrakenArchiveVersion")
 		if archiveVersion == 1 {
 			AppLog.debug("Restoring Application State.")

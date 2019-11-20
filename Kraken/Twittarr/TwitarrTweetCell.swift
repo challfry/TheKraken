@@ -367,7 +367,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				}
 				cellSizeChanged()
 			}
-			contentView.backgroundColor = privateSelected ? UIColor(white: 0.95, alpha: 1.0) : UIColor.white
+			contentView.backgroundColor = privateSelected ? UIColor(named: "Cell Background Selected") : 
+					UIColor(named: "Cell Background")
 		}
 	}
 	
@@ -378,7 +379,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				oldAnim.stopAnimation(true)
 			}
 			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted || self.privateSelected ? UIColor(white:0.95, alpha: 1.0) : UIColor.white
+				self.contentView.backgroundColor = self.isHighlighted || self.privateSelected ? 
+						UIColor(named: "Cell Background Selected") : UIColor(named: "Cell Background")
 			}
 			anim.isUserInteractionEnabled = true
 			anim.isInterruptible = true
@@ -389,14 +391,16 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	func authorTextAttributes() -> [ NSAttributedString.Key : Any ] {
 		let authorFont = UIFont(name:"Helvetica-Bold", size: 14)
-		let result: [NSAttributedString.Key : Any] = [ .font : authorFont?.withSize(14) as Any ]
+		let result: [NSAttributedString.Key : Any] = [ .font : authorFont?.withSize(14) as Any, 
+				.foregroundColor : UIColor(named: "Kraken Username Text") as Any ]
 		return result
 	}
 	
 	func postTimeTextAttributes() -> [ NSAttributedString.Key : Any ] {
 		let postTimeFont = UIFont(name:"Georgia-Italic", size: 14)
-		let postTimeColor = UIColor.lightGray
-		let result: [NSAttributedString.Key : Any] = [ .font : postTimeFont?.withSize(14) as Any, .foregroundColor : postTimeColor ]
+		let postTimeColor = UIColor(named: "Kraken Secondary Text")
+		let result: [NSAttributedString.Key : Any] = [ .font : postTimeFont?.withSize(14) as Any, 
+				.foregroundColor : postTimeColor as Any ]
 		return result
 	}
 	

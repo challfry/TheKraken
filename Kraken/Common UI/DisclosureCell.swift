@@ -52,7 +52,8 @@ class DisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 				oldAnim.stopAnimation(true)
 			}
 			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted || self.privateSelected ? UIColor(white:0.95, alpha: 1.0) : UIColor.white
+				self.contentView.backgroundColor = self.isHighlighted || self.privateSelected ? 
+						UIColor(named: "Cell Background Selected") : UIColor(named: "Cell Background")
 			}
 			anim.isUserInteractionEnabled = true
 			anim.isInterruptible = true
@@ -73,7 +74,7 @@ class DisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 		super.awakeFromNib()
 		setupGestureRecognizer()
 	}
-	
+		
 	// Either the cell or its model can override cellTapped to handle taps in the cell.
 	func cellTapped() {
 		if let model = cellModel as? DisclosureCellModel {

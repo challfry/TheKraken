@@ -89,7 +89,8 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 				oldAnim.stopAnimation(true)
 			}
 			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted ? UIColor(white:0.9, alpha: 1.0) : UIColor.white
+				self.contentView.backgroundColor = self.isHighlighted ? UIColor(named: "Cell Background Selected") : 
+						UIColor(named: "Cell Background")
 			}
 			anim.isUserInteractionEnabled = true
 			anim.isInterruptible = true

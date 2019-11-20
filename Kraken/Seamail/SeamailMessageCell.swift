@@ -64,7 +64,7 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 	    		let dateString = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
 				authorUsernameLabel?.attributedText = authorAndTime(author: message.author.username, time: dateString)
 				postTimeLabel?.attributedText = authorAndTime(author: nil, time: dateString)
-				contentView.backgroundColor = UIColor.white
+				contentView.backgroundColor = UIColor(named: "Cell Background")
  
 				message.author.loadUserThumbnail()
 				message.author.tell(self, when:"thumbPhoto") { observer, observed in
@@ -77,7 +77,7 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 	    		messageLabel.text = message.text
 				postTimeLabel?.attributedText = authorAndTime(author: nil, time: "In the near future")
 				authorUsernameLabel?.text = "\(message.author.username), In the near future"
-				contentView.backgroundColor = UIColor(white:0.94, alpha: 1.0)
+				contentView.backgroundColor = UIColor(named: "Cell Background Selected")
 			}
     	}
     }

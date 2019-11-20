@@ -24,7 +24,7 @@ class KrakenNavController: UINavigationController, GlobalNavEnabled, UIViewContr
 	override func viewDidLoad() {
         super.viewDidLoad()
         
-        networkLabel.backgroundColor = UIColor(red: 1.0, green: 240.0 / 255.0, blue: 210.0 / 255.0, alpha: 0.90)
+        networkLabel.backgroundColor = UIColor(named: "Network Alert Background")
 		networkLabel.font = UIFont.italicSystemFont(ofSize: 14)
 		networkLabel.text = "No network — Can't connect to the Twitarr server"
 		networkLabel.textAlignment = .center

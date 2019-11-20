@@ -84,7 +84,19 @@ class SettingsRootViewController: BaseCollectionViewController {
 		prefsSection.append(cell: BlockNetworkSwitchCellModel())
 		prefsSection.append(cell: DelayPostsSwitchCellModel())
 		prefsSection.append(cell: FullScreenCameraSwitchCellModel())
-		prefsSection.append(cell: DisplayStyleCell())
+		if #available(iOS 13.0, *) {
+			let darkModeCell = DisplayStyleCellModel()
+			prefsSection.append(cell: darkModeCell)
+			darkModeCell.stateChanged = {
+				switch darkModeCell.selectedSegment {
+				case 0: self.view.window?.overrideUserInterfaceStyle = .unspecified
+				case 1: self.view.window?.overrideUserInterfaceStyle = .light
+				case 2: self.view.window?.overrideUserInterfaceStyle = .dark
+				case 3: self.view.window?.overrideUserInterfaceStyle = .dark
+				default: break					
+				}
+			}
+		}
 		
 		// Debug Settings
 		let debugSettingsSection = dataSource.appendFilteringSegment(named: "Debug Prefs")
@@ -487,14 +499,14 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 
 // MARK: - Prefs Cells
 
-@objc class DisplayStyleCell : SegmentCellModel {
+@objc class DisplayStyleCellModel : SegmentCellModel {
 	init() {
-		super.init(titles: ["Normal", "Dark Mode", "Deep Sea Mode"])
-		stateChanged = { 
-			if let newStyle = Settings.DisplayStyle(rawValue: self.selectedSegment) {
-				Settings.shared.uiDisplayStyle = newStyle
-			}
-		}
+		super.init(titles: ["System", "Light Mode", "Dark Mode", "Deep Sea Mode"])
+//		stateChanged = { 
+//			if let newStyle = Settings.DisplayStyle(rawValue: self.selectedSegment) {
+//				Settings.shared.uiDisplayStyle = newStyle
+//			}
+//		}
 		selectedSegment = Settings.shared.uiDisplayStyle.rawValue
 		cellTitle = "This sets the overall look of the app."
 	}
