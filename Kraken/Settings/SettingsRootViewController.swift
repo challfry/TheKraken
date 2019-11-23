@@ -270,6 +270,11 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	var activityText: String? {
 		didSet { activityLabel.text = activityText }
 	}
+	
+	override func awakeFromNib() {
+		infoLabel.styleFor(.body)
+		titleLabel.styleFor(.body)
+	}
 }
 
 

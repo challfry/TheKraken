@@ -236,6 +236,7 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 		
 		photoButton.setImage(UIImage(named: "CameraIcon3"), for: .normal)
 		photoButton.setImage(UIImage(named: "CameraIcon3Highlight"), for: .highlighted)
+		photoButton.imageView?.tintColor = UIColor(named: "Icon Foreground")
 	}
 	
 	required init?(coder aDecoder: NSCoder) {

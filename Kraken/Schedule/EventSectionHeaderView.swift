@@ -11,6 +11,13 @@ import UIKit
 class EventSectionHeaderView: UICollectionReusableView {
 	@IBOutlet var timeLabel: UILabel!
 	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+
+		// Font styling
+		timeLabel.styleFor(.body)
+	}
+
 	func setTime(to displayTime: Date) {
 		let dateFormatter = DateFormatter()
 		dateFormatter.locale = Locale(identifier: "en_US")

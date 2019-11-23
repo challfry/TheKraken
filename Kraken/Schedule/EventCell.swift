@@ -27,13 +27,18 @@ class EventCellModel: FetchedResultsCellModel, EventCellBindingProtocol {
 	@objc dynamic var specialHighlight: Bool = false
 	
 	var heightAtDisclosureLevel: [CGFloat] = []
+	var cachedTraitCollectionSizeClass: UIContentSizeCategory?
 	
 	init(withModel: NSFetchRequestResult?) {
 		super.init(withModel: withModel, reuse: "EventCell", bindingWith: EventCellBindingProtocol.self)
 	}
 	
-	override func updateCachedCellSize() {
-		if heightAtDisclosureLevel.count >= 4, !privateSelected {
+	// The datasouce calls this fn when it needs to know the cell size. We cache cell sizes at all the disclosure
+	// levels, and can set cellSize appropriately when the level changes. But if the cache has gone stale, 
+	// we return 0, 0 so the datasource will do a full re-calc.
+	override func updateCachedCellSize(for collectionView: UICollectionView) {
+		if cachedTraitCollectionSizeClass == collectionView.traitCollection.preferredContentSizeCategory,
+				heightAtDisclosureLevel.count >= 4, !privateSelected {
 	 		let height = heightAtDisclosureLevel[disclosureLevel]
 			cellSize = CGSize(width: cellSize.width, height: height)
 		}
@@ -46,6 +51,15 @@ class EventCellModel: FetchedResultsCellModel, EventCellBindingProtocol {
 	// doing an expensive recalc every time the disclosure level changes.
 	override func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> BaseCollectionViewCell? {
  		let protoCell = super.makePrototypeCell(for: collectionView, indexPath: indexPath) as! EventCell
+ 		
+ 		// If the size class changes, we need to dump the cache as it's no longer fresh.
+ 		if cachedTraitCollectionSizeClass != collectionView.traitCollection.preferredContentSizeCategory {
+			heightAtDisclosureLevel.removeAll()
+			cachedTraitCollectionSizeClass = nil
+ 		}
+ 		
+ 		// We only create the cache at full disclosure. This way, we can use the protoCell metrics to calculate
+ 		// the cell size at all the other disclosure levels.
  		if disclosureLevel == 4 && heightAtDisclosureLevel.count < 4 {
 			let newSize = protoCell.calculateSize()
 			heightAtDisclosureLevel.removeAll()
@@ -61,6 +75,9 @@ class EventCellModel: FetchedResultsCellModel, EventCellBindingProtocol {
 			heightAtDisclosureLevel.append(newSize.height - locationSize.height - descriptionSize.height)
 			heightAtDisclosureLevel.append(newSize.height - descriptionSize.height)
 			heightAtDisclosureLevel.append(newSize.height)
+			
+			// Save the size class that we used when building the cache
+			cachedTraitCollectionSizeClass = collectionView.traitCollection.preferredContentSizeCategory
 		}
 		
  		return protoCell
@@ -103,6 +120,22 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 // MARK: Methods	
 	override func awakeFromNib() {
 		super.awakeFromNib()
+
+		// Font styling
+		titleLabel.styleFor(.body)
+		followLabel.styleFor(.body)
+		eventTimeLabel.styleFor(.body)
+		locationLabel.styleFor(.body)
+		descriptionLabel.styleFor(.body)
+		ribbonViewLabel.styleFor(.body)
+		followPendingLabel.styleFor(.body)
+		followPendingCancelButton.styleFor(.body)
+		followButton.styleFor(.body)
+		localNotificationButton.styleFor(.body)
+		addToCalendarButton.styleFor(.body)
+		mapButton.styleFor(.body)
+
+		// Set up the ribbon view -- the colored label on the left edge
 		ribbonViewLabel.layer.anchorPoint = CGPoint(x: 0.0, y: 0.0)
 		ribbonViewLabel.transform = CGAffineTransform(rotationAngle: .pi / 2)
 		

@@ -64,6 +64,14 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		let cellModel = SeamailThreadCellModel(withModel: model, reuse: "seamailThread")
 		return cellModel
 	}
+	
+	// Since there are 2 different ThreadCells for different content sizes, we need to reload when the trait
+	// environment changes. Re-layout probably won't cut it, as we may need to change an existing cell from one
+	// xib to the other.
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		// There's a good chance we can limit this to changes to content size (read: font size) and size class (read: landscape)
+		collectionView.reloadData()
+	}
     
     // MARK: Navigation
 

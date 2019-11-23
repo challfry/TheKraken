@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -18,7 +19,7 @@
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wQL-Jh-Mob">
                         <rect key="frame" x="20" y="2" width="335" height="34"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <color key="textColor" red="0.72533118210000003" green="0.04477352976" blue="0.04477352976" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="textColor" name="Red Alert Text"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HPy-n9-1Oe">
@@ -30,14 +31,14 @@
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="78" id="RHJ-Iw-wj6"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="italicSystem" pointSize="17"/>
-                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="gn8-Hi-x22">
                                 <rect key="frame" x="86" y="9" width="20" height="20"/>
                             </activityIndicatorView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="Overlay Label Background"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="gn8-Hi-x22" secondAttribute="trailing" id="4y8-G0-odW"/>
                             <constraint firstItem="gn8-Hi-x22" firstAttribute="centerY" secondItem="vqZ-tT-T14" secondAttribute="centerY" id="H6o-14-anf"/>
@@ -50,6 +51,7 @@
                     </view>
                 </subviews>
             </view>
+            <color key="backgroundColor" name="Cell Background"/>
             <constraints>
                 <constraint firstItem="HPy-n9-1Oe" firstAttribute="centerX" secondItem="6nO-0y-aNo" secondAttribute="centerX" id="FDO-8S-69b"/>
                 <constraint firstAttribute="trailing" secondItem="wQL-Jh-Mob" secondAttribute="trailing" priority="900" constant="20" id="YYq-E8-otO"/>
@@ -70,4 +72,18 @@
             <point key="canvasLocation" x="132.60869565217394" y="53.571428571428569"/>
         </collectionViewCell>
     </objects>
+    <resources>
+        <namedColor name="Cell Background">
+            <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Kraken Secondary Text">
+            <color red="0.66600000000000004" green="0.66600000000000004" blue="0.66600000000000004" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Overlay Label Background">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Red Alert Text">
+            <color red="0.72533118210000003" green="0.04477352976" blue="0.04477352976" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
 </document>

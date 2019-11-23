@@ -485,6 +485,15 @@ class KaraokeSongCell: UITableViewCell {
 	weak var vc: KaraokeRootViewController?
 	var song: KaraokeSong?
 	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+
+		// Font styling
+		songNameLabel.styleFor(.body)
+		artistNameLabel.styleFor(.body)
+		favoriteButton.styleFor(.body)
+	}
+
 	func setup(_ song: KaraokeSong, showArtist: Bool) {
 		self.song = song
 		songNameLabel.text = song.songTitle
@@ -532,6 +541,14 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 	
 	weak var viewController: KaraokeRootViewController?
 	weak var artist: KaraokeArtist?
+
+	override func awakeFromNib() {
+		super.awakeFromNib()
+
+		// Font styling
+		artistLabel.styleFor(.body)
+		disclosureButton.styleFor(.body)
+	}
 
 	func setup(for artist: KaraokeArtist, vc: KaraokeRootViewController) {
 		self.artist = artist

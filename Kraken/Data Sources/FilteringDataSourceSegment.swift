@@ -64,7 +64,7 @@ fileprivate struct Log: LoggingProtocol {
 		let cellModel = visibleCellModels[indexPath.row]
 
 		// Give the cell model a chance to update its cache
-		cellModel.updateCachedCellSize()
+		cellModel.updateCachedCellSize(for: collectionView)
 
 		var cellSize: CGSize
 		if cellModel.cellSize.height > 0 {
@@ -98,7 +98,7 @@ fileprivate struct Log: LoggingProtocol {
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, offsetPath: IndexPath) -> UICollectionViewCell {
 		let model = visibleCellModels[offsetPath.row]
-		let reuseID = model.reuseID()
+		let reuseID = model.reuseID(traits: collectionView.traitCollection)
 		
 		if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
 			dataSource?.registeredCellReuseIDs.insert(reuseID)

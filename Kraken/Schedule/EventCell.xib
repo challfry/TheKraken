@@ -17,6 +17,13 @@
                 <rect key="frame" x="0.0" y="0.0" width="412" height="202"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p7H-X1-Ops">
+                        <rect key="frame" x="0.0" y="0.0" width="412" height="1"/>
+                        <color key="backgroundColor" name="Kraken Secondary Text"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="PtI-at-YXD"/>
+                        </constraints>
+                    </view>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="KeK-lK-1hP">
                         <rect key="frame" x="20" y="2" width="372" height="248"/>
                         <subviews>
@@ -155,10 +162,13 @@
                 </subviews>
             </view>
             <constraints>
+                <constraint firstItem="p7H-X1-Ops" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="4EL-96-uMM"/>
+                <constraint firstItem="p7H-X1-Ops" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="SMw-3q-qqu"/>
                 <constraint firstItem="yzT-FW-5Jd" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="Xyz-Qi-cBb"/>
                 <constraint firstItem="yzT-FW-5Jd" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Y0m-si-98t"/>
                 <constraint firstAttribute="bottom" secondItem="KeK-lK-1hP" secondAttribute="bottom" priority="200" constant="2" id="lKY-5N-Ny3"/>
                 <constraint firstItem="KeK-lK-1hP" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="2" id="mYE-zC-Rpf"/>
+                <constraint firstAttribute="trailing" secondItem="p7H-X1-Ops" secondAttribute="trailing" id="swB-er-PhV"/>
                 <constraint firstItem="KeK-lK-1hP" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="u1B-E7-eil"/>
                 <constraint firstAttribute="trailing" secondItem="KeK-lK-1hP" secondAttribute="trailing" priority="900" constant="20" id="v9K-qp-zUI"/>
                 <constraint firstAttribute="bottom" secondItem="yzT-FW-5Jd" secondAttribute="bottom" id="ybl-IG-76B"/>
@@ -187,6 +197,9 @@
     <resources>
         <namedColor name="Kraken Label Text">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Secondary Text">
+            <color red="0.66600000000000004" green="0.66600000000000004" blue="0.66600000000000004" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Pending Op Background">
             <color red="1" green="0.97100001573562622" blue="0.74199998378753662" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

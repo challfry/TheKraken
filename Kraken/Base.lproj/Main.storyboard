@@ -1789,10 +1789,10 @@
     <resources>
         <image name="BlueButtonHighlight.png" width="57.599998474121094" height="57.599998474121094"/>
         <image name="CameraClose.png" width="54" height="54"/>
-        <image name="CameraCloseHighlight" width="16" height="16"/>
+        <image name="CameraCloseHighlight" width="36" height="36"/>
         <image name="CameraRotate.png" width="54" height="54"/>
         <image name="CameraRotateHighlight.png" width="54" height="54"/>
-        <image name="CameraShutter" width="16" height="16"/>
+        <image name="CameraShutter" width="60" height="60"/>
         <image name="CameraShutter.png" width="60" height="60"/>
         <image name="FavoriteHeart.png" width="24" height="24"/>
         <image name="Flash.png" width="54" height="54"/>

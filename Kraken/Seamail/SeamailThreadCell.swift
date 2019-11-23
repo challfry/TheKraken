@@ -14,7 +14,9 @@ import CoreData
 }
 
 @objc class SeamailThreadCellModel: FetchedResultsCellModel, SeamailThreadCellBindingProtocol {
-	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "seamailThread" : SeamailThreadCell.self ] }
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
+		return [ "seamailThread" : SeamailThreadCell.self, "seamailLargeThread" : SeamailThreadCell.self ] 
+	}
 
 	// If false, the cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
 	// user thumbnail open a user profile panel.
@@ -22,6 +24,24 @@ import CoreData
 	
 	override init(withModel: NSFetchRequestResult?, reuse: String, bindingWith: Protocol = SeamailThreadCellBindingProtocol.self) {
 		super.init(withModel: withModel, reuse: reuse, bindingWith: bindingWith)
+	}
+	
+	override func reuseID(traits: UITraitCollection) -> String {
+		let currentTextSize = traits.preferredContentSizeCategory
+		if currentTextSize > UIContentSizeCategory.accessibilityLarge {
+			return "seamailLargeThread"
+		}
+
+		if let threadModel = model as? SeamailThread {
+			let sizingFont = UIFont.preferredFont(forTextStyle: .body)
+			let subjectRect = threadModel.subject.boundingRect(with: CGSize(width: 1000, height: 100), 
+					options: NSStringDrawingOptions.usesLineFragmentOrigin, 
+					attributes: [NSAttributedString.Key.font: sizingFont], context: nil)
+			if subjectRect.size.width < 280 {
+				return "seamailThread"
+			}
+		}
+		return "seamailLargeThread"
 	}
 }
 
@@ -36,7 +56,8 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	var userCellDataSource = KrakenDataSource()
 	var userCellSection = FilteringDataSourceSegment()
 
-	private static let cellInfo = [ "seamailThread" : PrototypeCellInfo("SeamailThreadCell") ]
+	private static let cellInfo = [ "seamailThread" : PrototypeCellInfo("SeamailThreadCell"),
+			"seamailLargeThread" : PrototypeCellInfo("SeamailLargeThreadCell"),]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailThreadCell.cellInfo }
 	
 	var isInteractive: Bool = true
@@ -100,6 +121,12 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		
+		// Font styling
+		subjectLabel.styleFor(.body)
+		lastPostTime.styleFor(.body)
+		postCountLabel.styleFor(.body)
+		participantCountLabel.styleFor(.body)
+
 		// Update the relative post time every 10 seconds.
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in

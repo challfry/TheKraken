@@ -116,6 +116,10 @@ import EventKitUI
 			NotificationCenter.default.removeObserver(mn)
 		}
 	}
+	
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		collectionView.collectionViewLayout.invalidateLayout()
+	}
         
 	func createCellModel(_ model:Event) -> BaseCellModel {
 		return EventCellModel(withModel: model)
@@ -134,6 +138,8 @@ import EventKitUI
 		return UICollectionReusableView()
 	}
 	
+	// This is the filter predicate that controls which events are shown. It ANDs together multiple sub-predicates
+	// to build an overall filter that selects events to show in the list.
 	func setCompoundPredicate() {
 		var subPreds: [NSPredicate] = []
 		if let favPred = favoritesPredicate { subPreds.append(favPred) }
@@ -489,14 +495,6 @@ class ScheduleLayout: UICollectionViewLayout {
 	
 	weak var eventsSegment: FRCDataSourceSegment<Event>?
 		
-//	override init() {
-//		super.init()
-//	}
-//	
-//	required init?(coder aDecoder: NSCoder) {
-//		fatalError("init(coder:) has not been implemented")
-//	}
-
 // MARK: Methods	
 	func showingSectionHeaders() -> Bool {
 		return disclosureLevel >= 1

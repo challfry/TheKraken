@@ -34,7 +34,7 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 		self.shouldBeVisible = model != nil
 	}
 	
-	override func reuseID() -> String {
+	override func reuseID(traits: UITraitCollection) -> String {
 		return reuse
 	}
 }
@@ -280,7 +280,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		let cellModel = section[offsetPath.row]
 
 		// If this reuseID isn't registered with the CV yet, ask the cell model to register its cell classes and reuseIDs.
-		let reuseID = cellModel.reuseID()
+		let reuseID = cellModel.reuseID(traits: collectionView.traitCollection)
 		if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
 			dataSource?.registeredCellReuseIDs.insert(reuseID)
 			let classType = type(of: cellModel).validReuseIDDict[reuseID]
@@ -336,7 +336,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		let cellModel = section[indexPath.row]
 		
 		// Give the cell model a chance to update its cache
-		cellModel.updateCachedCellSize()
+		cellModel.updateCachedCellSize(for: collectionView)
 
 		if cellModel.cellSize.height > 0 {
 			return cellModel.cellSize

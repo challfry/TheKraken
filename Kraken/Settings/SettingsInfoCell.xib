@@ -11,14 +11,14 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="jGJ-Cc-ovL" customClass="SettingsInfoCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="412" height="106"/>
+            <rect key="frame" x="0.0" y="0.0" width="412" height="88"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                <rect key="frame" x="0.0" y="0.0" width="412" height="106"/>
+                <rect key="frame" x="0.0" y="0.0" width="412" height="88"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TCh-v3-S0l">
-                        <rect key="frame" x="0.0" y="0.0" width="412" height="25"/>
+                        <rect key="frame" x="0.0" y="0.0" width="412" height="24.5"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hUQ-Yg-tDo" userLabel="Top Line View">
                                 <rect key="frame" x="0.0" y="0.0" width="412" height="1"/>
@@ -27,11 +27,8 @@
                                     <constraint firstAttribute="height" constant="1" id="bs9-Vc-D5X"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PXc-AJ-FuA">
-                                <rect key="frame" x="8" y="2" width="85" height="21"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="gfH-de-MgT"/>
-                                </constraints>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" text="Title Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PXc-AJ-FuA">
+                                <rect key="frame" x="8" y="2" width="396" height="20.5"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -40,24 +37,25 @@
                         <color key="backgroundColor" name="Info Title Background"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="hUQ-Yg-tDo" secondAttribute="trailing" id="FLc-CH-uPy"/>
-                            <constraint firstItem="PXc-AJ-FuA" firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="top" constant="2" id="M76-JN-2X9"/>
                             <constraint firstItem="hUQ-Yg-tDo" firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="top" id="NLt-oY-2s1"/>
+                            <constraint firstAttribute="bottom" secondItem="PXc-AJ-FuA" secondAttribute="bottom" constant="2" id="a5J-WX-fTP"/>
+                            <constraint firstItem="PXc-AJ-FuA" firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="top" constant="2" id="cZa-jt-qIz"/>
                             <constraint firstItem="PXc-AJ-FuA" firstAttribute="leading" secondItem="TCh-v3-S0l" secondAttribute="leading" constant="8" id="jbZ-qz-qmB"/>
-                            <constraint firstAttribute="bottom" secondItem="PXc-AJ-FuA" secondAttribute="bottom" constant="2" id="rlt-Gm-FeQ"/>
+                            <constraint firstAttribute="trailing" secondItem="PXc-AJ-FuA" secondAttribute="trailing" constant="8" id="nIn-b6-H1n"/>
                             <constraint firstItem="hUQ-Yg-tDo" firstAttribute="leading" secondItem="TCh-v3-S0l" secondAttribute="leading" id="we6-L6-0SY"/>
                         </constraints>
                     </view>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="WH2-ix-hnU">
-                        <rect key="frame" x="20" y="29" width="372" height="77"/>
+                        <rect key="frame" x="20" y="28.5" width="372" height="53.5"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Info Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7qb-k5-RSS">
-                                <rect key="frame" x="0.0" y="0.0" width="372" height="44"/>
+                                <rect key="frame" x="0.0" y="0.0" width="372" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Label Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Rlv-9I-gXR" userLabel="Activity View">
-                                <rect key="frame" x="0.0" y="44" width="372" height="33"/>
+                                <rect key="frame" x="0.0" y="20.5" width="372" height="33"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z6z-bJ-EId" userLabel="Centering View">
                                         <rect key="frame" x="58.5" y="0.0" width="255" height="33"/>
@@ -97,21 +95,21 @@
             <color key="backgroundColor" name="Cell Background"/>
             <constraints>
                 <constraint firstItem="WH2-ix-hnU" firstAttribute="leading" secondItem="jGJ-Cc-ovL" secondAttribute="leading" constant="20" id="1Au-il-dVJ"/>
-                <constraint firstAttribute="bottom" secondItem="WH2-ix-hnU" secondAttribute="bottom" priority="900" id="2ky-zh-F90"/>
                 <constraint firstAttribute="trailing" secondItem="WH2-ix-hnU" secondAttribute="trailing" priority="900" constant="20" id="ARG-Rj-YFs"/>
                 <constraint firstItem="TCh-v3-S0l" firstAttribute="leading" secondItem="jGJ-Cc-ovL" secondAttribute="leading" id="ICM-qG-l4l"/>
                 <constraint firstItem="WH2-ix-hnU" firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="bottom" constant="4" id="azX-yA-DSW"/>
                 <constraint firstAttribute="top" secondItem="TCh-v3-S0l" secondAttribute="top" id="nxF-QW-K48"/>
                 <constraint firstAttribute="trailing" secondItem="TCh-v3-S0l" secondAttribute="trailing" priority="900" id="r6M-Zd-dOt"/>
+                <constraint firstAttribute="bottom" secondItem="WH2-ix-hnU" secondAttribute="bottom" priority="900" constant="6" id="yqy-zl-c2T"/>
             </constraints>
-            <size key="customSize" width="412" height="106"/>
+            <size key="customSize" width="412" height="88"/>
             <connections>
                 <outlet property="activityLabel" destination="X3g-xI-UUM" id="tkG-Rg-Xt3"/>
                 <outlet property="activityView" destination="Rlv-9I-gXR" id="YqQ-FZ-32k"/>
                 <outlet property="infoLabel" destination="7qb-k5-RSS" id="b9v-zl-Tqz"/>
                 <outlet property="titleLabel" destination="PXc-AJ-FuA" id="RV1-JT-JeR"/>
             </connections>
-            <point key="canvasLocation" x="231.8840579710145" y="21.428571428571427"/>
+            <point key="canvasLocation" x="231.8840579710145" y="15.401785714285714"/>
         </collectionViewCell>
     </objects>
     <resources>

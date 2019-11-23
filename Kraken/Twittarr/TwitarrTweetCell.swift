@@ -118,8 +118,13 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Helvetica", size: 17.0) as Any ]
 	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17.0) as Any ]
 	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "HoeflerText-Regular", size: 16.0) as Any ]
-			let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "TimesNewRomanPSMT", size: 17.0) as Any ]
+	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "TimesNewRomanPSMT", size: 17.0) as Any ]
 	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Verdana", size: 15.0) as Any ]
+
+			let tweetTextFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
+			let scaledTweetFont = UIFontMetrics(forTextStyle: .body).scaledFont(for: tweetTextFont)
+			let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : scaledTweetFont as Any ]
+
 			let tweetTextWithLinks = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
 			tweetTextWithLinks.addAttributes(tweetTextAttrs, range: NSRange(location: 0, length: tweetTextWithLinks.length))
 			observer.tweetTextView.attributedText = tweetTextWithLinks
@@ -297,6 +302,24 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		super.awakeFromNib()
 		pendingOpsStackView.isHidden = true				// In case the xib didn't leave this hidden
 
+		// Font styling
+		likesLabel.styleFor(.body)
+		userButton.styleFor(.body)
+		deleteQueuedLabel.styleFor(.body)
+		cancelQueuedDeleteButton.styleFor(.body)
+		editQueuedLabel.styleFor(.body)
+		cancelQueuedEditButton.styleFor(.body)
+		replyQueuedLabel.styleFor(.body)
+		viewQueuedRepliesButton.styleFor(.body)
+		reactionQueuedLabel.styleFor(.body)
+		cancelQueuedReactionButton.styleFor(.body)
+		likeButton.styleFor(.body)
+		editButton.styleFor(.body)
+		replyButton.styleFor(.body)
+		deleteButton.styleFor(.body)
+		
+		tweetTextView.adjustsFontForContentSizeCategory = true
+
 		// Every 10 seconds, update the post time (the relative time since now that the post happened).
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
@@ -390,16 +413,20 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 	
 	func authorTextAttributes() -> [ NSAttributedString.Key : Any ] {
-		let authorFont = UIFont(name:"Helvetica-Bold", size: 14)
-		let result: [NSAttributedString.Key : Any] = [ .font : authorFont?.withSize(14) as Any, 
+		let metrics = UIFontMetrics(forTextStyle: .body)
+		let baseFont = UIFont(name:"Helvetica-Bold", size: 14) ?? UIFont.preferredFont(forTextStyle: .body)
+		let authorFont = metrics.scaledFont(for: baseFont)
+		let result: [NSAttributedString.Key : Any] = [ .font : authorFont as Any, 
 				.foregroundColor : UIColor(named: "Kraken Username Text") as Any ]
 		return result
 	}
 	
 	func postTimeTextAttributes() -> [ NSAttributedString.Key : Any ] {
-		let postTimeFont = UIFont(name:"Georgia-Italic", size: 14)
+		let metrics = UIFontMetrics(forTextStyle: .body)
+		let baseFont = UIFont(name:"Georgia-Italic", size: 14) ?? UIFont.preferredFont(forTextStyle: .body)
+		let postTimeFont = metrics.scaledFont(for: baseFont)
 		let postTimeColor = UIColor(named: "Kraken Secondary Text")
-		let result: [NSAttributedString.Key : Any] = [ .font : postTimeFont?.withSize(14) as Any, 
+		let result: [NSAttributedString.Key : Any] = [ .font : postTimeFont as Any, 
 				.foregroundColor : postTimeColor as Any ]
 		return result
 	}

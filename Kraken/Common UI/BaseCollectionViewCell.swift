@@ -35,14 +35,14 @@ import UIKit
 		bindingProtocol = bindingWith
 	}
 	
-	func reuseID() -> String { return type(of: self).validReuseIDDict.first?.key ?? "" }
+	func reuseID(traits: UITraitCollection) -> String { return type(of: self).validReuseIDDict.first?.key ?? "" }
 
 	func makeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> BaseCollectionViewCell {
 		if let str = debugLogEnabler {
 			print("About to create cell: \(str) at indexpath: \(indexPath)")
 		}
 
-		let id = reuseID()
+		let id = reuseID(traits: collectionView.traitCollection)
 		// Get a cell and property bind it to the cell model
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! BaseCollectionViewCell 
 		CollectionViewLog.assert(cell.reuseIdentifier != nil, "Just dequeued a cell that has no reuseID.")
@@ -61,7 +61,7 @@ import UIKit
 	// Makes a prototype cell, binds the cell to the cellModel. By overriding reuseID, subclasses can
 	// have a single model that spawns different cell classes.
 	func makePrototypeCell(for collectionView: UICollectionView, indexPath: IndexPath) -> BaseCollectionViewCell? {
-		let id = reuseID()
+		let id = reuseID(traits: collectionView.traitCollection)
 		
 		if let classType = type(of: self).validReuseIDDict[id], let cellInfo = classType.validReuseIDDict[id],
 				let cell = cellInfo.prototypeCell {
@@ -86,7 +86,7 @@ import UIKit
 		return nil
 	}
 	
-	func updateCachedCellSize() {
+	func updateCachedCellSize(for collectionView: UICollectionView) {
 		// Do nothing by default
 	}
 
@@ -174,6 +174,12 @@ struct PrototypeCellInfo {
 		contentView.translatesAutoresizingMaskIntoConstraints = false
 		self.translatesAutoresizingMaskIntoConstraints = false
 	}
+	
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+		cellSizeChanged()
+	}
+
 		
 //	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 
 //			-> UICollectionViewLayoutAttributes {

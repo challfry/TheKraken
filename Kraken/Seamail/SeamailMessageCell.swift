@@ -14,7 +14,7 @@ import CoreData
 		return [ "SeamailMessageCell" : SeamailMessageCell.self, "SeamailSelfMessageCell" : SeamailMessageCell.self ] 
 	}
 
-	override func reuseID() -> String {
+	override func reuseID(traits: UITraitCollection) -> String {
 		guard let username = CurrentUser.shared.loggedInUser?.username else { return "SeamailMessageCell" }
 		
 		if let message = model as? SeamailMessage, message.author.username == username {
@@ -31,6 +31,8 @@ import CoreData
 
 class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol {
 	@IBOutlet var authorImage: UIImageView!
+	
+	// IMPORTANT that these are optional! The xib for self messages doesn't have a username!
 	@IBOutlet var authorUsernameLabel: UILabel?
 	@IBOutlet var postTimeLabel: UILabel?
 	@IBOutlet var messageLabel: UILabel!
@@ -41,6 +43,11 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 
 	override func awakeFromNib() {
         super.awakeFromNib()
+
+		// Font styling
+		authorUsernameLabel?.styleFor(.body)
+		postTimeLabel?.styleFor(.body)
+		messageLabel.styleFor(.body)
 
 		// Update the relative post time every 10 seconds.
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
