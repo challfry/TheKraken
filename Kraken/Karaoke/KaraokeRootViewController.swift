@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Compression
 
 class KaraokeRootViewController: UIViewController {
 	@IBOutlet weak var filterTextField: UITextField!
@@ -17,20 +16,8 @@ class KaraokeRootViewController: UIViewController {
 	@IBOutlet weak var tableIndexView: KaraokeTableIndexView!
 	@IBOutlet weak var tableIndexViewTrailing: NSLayoutConstraint!
 	
-	enum FileLoadingError: String {
-		case findFileError = "Error: Couldn't find compressed Karaoke Song file."
-		case decodeError   = "Error: Decoding Karaoke Songs file failed."
-	}
-
-	var fileLoadError: FileLoadingError?
-	var loadingComplete: Bool = false
-
-	private let backgroundQ = DispatchQueue(label:"Karaoke Songfile decompressor")
-	
-	// These represent the full state of the song catalog.
-	var artists: [String : KaraokeArtist] = [:]
-	var artistArray: [String] = []							// All artists, sorted alphabetically
-	var songsArray: [KaraokeSong] = []							// All songs, sorted alphabetically
+	// Our connection to the song data
+	let songData = KaraokeDataManager.shared
 	
 	// These represent the state of the current filter
 	var filterArtistArray: [String] = []					// These are filtered, but not reordered from the full lists
@@ -39,13 +26,27 @@ class KaraokeRootViewController: UIViewController {
 	// These represent other table state
 	var sortByArtists = true								// Mirrors state of Artist/Song segmented control
 	var expandedArtistSections: Set<String> = Set()			// Which artists have expanded sections.
+	
+	var sectionHeaderPrototype: KaraokeArtistSectionHeaderView?
 
+// MARK: Methods
 	override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Karaoke"
 
 //		compressSongFile()
-		loadSongFile()
+		songData.loadSongFile {
+			if let err = self.songData.fileLoadError {
+				self.showErrorState(err)
+				return
+			}
+			
+			self.filterArtistArray = self.songData.artistArray
+			self.filterSongsArray = self.songData.songsArray
+			self.tableView.reloadData()
+			self.showHideTableIndex()
+			self.estimateHeights()
+		}
 		
 		tableView.dataSource = self
 		tableView.delegate = self
@@ -53,17 +54,68 @@ class KaraokeRootViewController: UIViewController {
 		tableView.estimatedRowHeight = 44.0
 		tableView.register(UINib(nibName: "KaraokeLoadingCell", bundle: nil), forCellReuseIdentifier: "KaraokeLoadingCell")
 		tableView.register(UINib(nibName: "KaraokeSongCell", bundle: nil), forCellReuseIdentifier: "KaraokeSongCell")
-		tableView.register(UINib(nibName: "KaraokeArtistSectionHeaderView", bundle: nil), 
-				forHeaderFooterViewReuseIdentifier: "KaraokeArtistSectionHeaderView")
+		let headerViewNib = UINib(nibName: "KaraokeArtistSectionHeaderView", bundle: nil)
+		tableView.register(headerViewNib, forHeaderFooterViewReuseIdentifier: "KaraokeArtistSectionHeaderView")
 				
 		tableIndexView.setup(self)
 		
 		// Here is where we setup initial state that *could* be done in IB, but doing so makes it hard to edit the views in IB
 		tableIndexViewTrailing.constant = tableIndexView.bounds.size.width
+		
+		let headerViewContents = headerViewNib.instantiate(withOwner: nil, options: nil)
+		sectionHeaderPrototype = headerViewContents[0] as? KaraokeArtistSectionHeaderView
+		sectionHeaderPrototype?.contentView.widthAnchor.constraint(equalToConstant: 414).isActive = true
+		sectionHeaderPrototype?.isHidden = true
+		self.view.addSubview(sectionHeaderPrototype!)
+
+		// Set reasonable defaults for cell and section header sizes
+		tableView.sectionHeaderHeight = 0
+		tableView.estimatedSectionHeaderHeight = 0
+		tableView.rowHeight = UITableView.automaticDimension
+		tableView.estimatedRowHeight = 44
+	}
+	
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+		DispatchQueue.main.async {
+			self.estimateHeights()
+		}
+	}
+	
+	func estimateHeights() {
+		if songData.loadingComplete, let proto = sectionHeaderPrototype {
+			if sortByArtists {
+				let protoArtist = KaraokeArtist(artistName: "Proto Proto Proto Proto Proto Proto Proto Proto")
+				proto.setup(for: protoArtist, vc: self)
+				var labelHeight = proto.artistLabel.font.lineHeight
+				
+				// All section headers are the same size. Make that size be 2 lines of text for large fonts,
+				// one line for smaller fonts. Note: Self-sizing headers *works*, but it unacceptably slow
+				// for the ~6000 sections our dataset has.
+				if tableView.traitCollection.preferredContentSizeCategory > .extraExtraLarge {
+					labelHeight = labelHeight * 2.05 + 4 + 4
+				}
+				else {
+					labelHeight = labelHeight + 4 + 4
+				}
+				tableView.sectionHeaderHeight = labelHeight < 44 ? 44 : labelHeight
+				tableView.estimatedSectionHeaderHeight = labelHeight < 44 ? 44 : labelHeight
+			}
+			else {
+				tableView.sectionHeaderHeight = 0
+				tableView.estimatedSectionHeaderHeight = 0
+			}
+			tableView.reloadData()
+	//		print("Size is now \(tableView.traitCollection.preferredContentSizeCategory), font lineheight is \(proto.artistLabel.font.lineHeight)")
+		} 
+		else {
+			self.tableView.estimatedSectionHeaderHeight = 44.0
+		}
+		
 	}
 	
 	// Only works for File Load errors. The cell that displays the error goes away once the load succeeds.
-	func showErrorState(_ error: FileLoadingError) {
+	func showErrorState(_ error: KaraokeDataManager.FileLoadingError) {
 		DispatchQueue.main.async {
 			if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? KaraokeLoadingCell {
 				cell.showErrorState(error)
@@ -71,123 +123,6 @@ class KaraokeRootViewController: UIViewController {
 		}
 	}
    
-
-	func loadSongFile() {
-		backgroundQ.async {
-//			let startTime = ProcessInfo.processInfo.systemUptime
-		
-			// Step 1: Get the file contents into memory
-			guard let fileUrl = Bundle.main.url(forResource: "JoCoKaraokeSongCatalog", withExtension: "lzfse"),
-						let encodedFileHandle = try? FileHandle(forReadingFrom: fileUrl) else { 
-					self.showErrorState(.findFileError); return 
-			}
-			
-			let encodedSourceData = encodedFileHandle.readDataToEndOfFile()
-			
-			// Step 2: Use Apple's Compression lib to decode the LZFSE file
-			let fileStr: String = encodedSourceData.withUnsafeBytes { (encodedSourceBuffer: UnsafeRawBufferPointer) -> String in
-				let decodedCapacity = 8000000
-				let decodedDestinationBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: decodedCapacity)
-				let unsafeBufferPointer = encodedSourceBuffer.bindMemory(to: UInt8.self)
-				let encodedSourcePtr = unsafeBufferPointer.baseAddress!
-				let decodedCharCount = compression_decode_buffer(decodedDestinationBuffer, decodedCapacity,
-						encodedSourcePtr, encodedSourceData.count, nil,  COMPRESSION_LZFSE)
-				if decodedCharCount == 0 {
-					self.fileLoadError = .decodeError
-					return ""
-				}
-
-				return String(cString: decodedDestinationBuffer)
-			}
-//			print ("Decode Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
-			
-			// Step 3: Parse the file, creating local versions of the 'full state' vars.
-			var threadSongs: [KaraokeSong] = []
-			var threadArtists: [String : KaraokeArtist] = [:]
-			var threadArtistArray: [String] = []
-			let scanner = Scanner(string: fileStr)
-			while !scanner.isAtEnd, let nextLine = scanner.KscanUpToCharactersFrom(CharacterSet.newlines) {
-				let parts = nextLine.split(separator: "\t")
-				if parts.count >= 2 {
-					let artistName = String(parts[0])
-					let modifier: String? = parts.count >= 3 ? String(parts[2]) : nil
-					let newSong = KaraokeSong(artistName: String(artistName), songTitle: String(parts[1]), 
-							whateverThisModifierIs: modifier)
-					threadSongs.append(newSong)
-					
-					var artist = threadArtists[artistName]
-					if artist == nil {
-						artist = KaraokeArtist(artistName: artistName)
-						threadArtists[artistName] = artist
-					}
-					artist?.allSongs.append(newSong)
-					artist?.filterSongs.append(newSong)
-				}
-			}
-			
-			// Step 4: Set up favorites
-			let context = LocalCoreData.shared.mainThreadContext
-			context.performAndWait {
-				do {
-					let fetchRequest = NSFetchRequest<KaraokeFavoriteSong>(entityName: "KaraokeFavoriteSong")
-					let cdFavoriteSongs = try context.fetch(fetchRequest)
-					
-					for favoriteSong in cdFavoriteSongs {
-						if let artist = threadArtists[favoriteSong.artistName] {
-							artist.numFavoriteSongs += 1
-							if let song = artist.allSongs.first(where: { $0.songTitle == favoriteSong.songTitle }) {
-								song.isFavorite = true
-							}
-						}
-					}
-				}	
-				catch {
-					CoreDataLog.error("Couldn't load Favorite Karaoke Songs from Core Data.", ["Error" : error])
-				}
-			}
-
-			// Step 5: Sort the arrays
-			threadArtistArray = threadArtists.keys.sorted { $0.caseInsensitiveCompare($1) == .orderedAscending }
-			threadSongs = threadSongs.sorted { $0.songTitle.caseInsensitiveCompare($1.songTitle) == .orderedAscending }
-//			print ("Total Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
-			
-			// Step 5: Write data back, on the main thread.
-			DispatchQueue.main.async {
-				self.artists = threadArtists
-				self.artistArray = threadArtistArray
-				self.songsArray = threadSongs
-				self.filterArtistArray = self.artistArray
-				self.filterSongsArray = self.songsArray
-				self.loadingComplete = true
-				self.tableView.reloadData()
-				self.showHideTableIndex()
-			}
-		}
-	}
-	
-	func saveFavoriteSongs() {
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			do {
-				let fetchRequest = NSFetchRequest<KaraokeFavoriteSong>(entityName: "KaraokeFavoriteSong")
-				let cdFavoriteSongs = try context.fetch(fetchRequest)
-				for song in cdFavoriteSongs {
-					context.delete(song)
-				}
-				let favoriteSongs = self.songsArray.filter { $0.isFavorite == true }
-				for fav in favoriteSongs {
-					let newSong = KaraokeFavoriteSong(context: context)
-					newSong.artistName = fav.artistName
-					newSong.songTitle = fav.songTitle
-				}
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save Favorite Karaoke Songs to Core Data.", ["Error" : error])
-			}
-		}
-	}
-	
 	func setDisclosureState(forArtist artistName: String, to newState: Bool) {
 		if newState {
 			expandedArtistSections.insert(artistName)
@@ -197,7 +132,7 @@ class KaraokeRootViewController: UIViewController {
 		}
 
 		if sortByArtists {
-			let songCount = artists[artistName]?.filterSongs.count ?? 0
+			let songCount = songData.artists[artistName]?.filterSongs.count ?? 0
 			
 			for (index, artist) in filterArtistArray.enumerated() {
 				if artist == artistName {
@@ -211,11 +146,12 @@ class KaraokeRootViewController: UIViewController {
 							tableView.deleteRows(at: indexes, with: .fade)
 						}
 					}, completion: { completed in
-					
+						self.tableView.scrollToRow(at: IndexPath(row: NSNotFound, section: index), at: .none, animated: false)
 					})
 					break
 				}
 			}
+			
 		}
 	}
 	
@@ -227,8 +163,8 @@ class KaraokeRootViewController: UIViewController {
 		var newSongsFilter: [KaraokeSong] = []
 		
 		if let filterString = filterString?.lowercased(), filterString.count > 0 {
-			for artistName in artistArray {
-				guard let artist = artists[artistName] else { continue }
+			for artistName in songData.artistArray {
+				guard let artist = songData.artists[artistName] else { continue }
 				var songsToAdd: [KaraokeSong]
 				if artistName.lowercased().contains(filterString) {
 					songsToAdd = artist.allSongs.filter({ onlyFavorites ? $0.isFavorite : true })
@@ -248,8 +184,8 @@ class KaraokeRootViewController: UIViewController {
 			}
 		}
 		else if onlyFavorites {
-			for artistName in artistArray {
-				guard let artist = artists[artistName] else { continue }
+			for artistName in songData.artistArray {
+				guard let artist = songData.artists[artistName] else { continue }
 				let songsToAdd = artist.allSongs.filter({ $0.isFavorite }) 
 				if songsToAdd.count > 0 {
 					newArtistsFilter.append(artistName)
@@ -262,9 +198,9 @@ class KaraokeRootViewController: UIViewController {
 			}
 		}
 		else {
-			newArtistsFilter = artistArray
-			newSongsFilter = songsArray
-			for (_, artist) in artists {
+			newArtistsFilter = songData.artistArray
+			newSongsFilter = songData.songsArray
+			for (_, artist) in songData.artists {
 				artist.filterSongs = artist.allSongs
 			}
 		}
@@ -333,7 +269,7 @@ class KaraokeRootViewController: UIViewController {
 
 	@IBAction func artistSongToggleTapped() {
 		sortByArtists = artistSongSegmentedControl.selectedSegmentIndex == 0
-		tableView.reloadData()
+		estimateHeights()
 	}
 
 	@IBAction func favoriteFilterButtonTapped(_ sender: Any) {
@@ -345,7 +281,7 @@ class KaraokeRootViewController: UIViewController {
 
 extension KaraokeRootViewController: UITableViewDataSource, UITableViewDelegate {
 	func numberOfSections(in tableView: UITableView) -> Int {
-		if !loadingComplete {
+		if !songData.loadingComplete {
 			return 1
 		} 
 		else if sortByArtists {
@@ -357,13 +293,13 @@ extension KaraokeRootViewController: UITableViewDataSource, UITableViewDelegate 
     }
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		if !loadingComplete {
+		if !songData.loadingComplete {
 			return 1
 		} 
 		else if sortByArtists {
 			let artistName = filterArtistArray[section]
 			if expandedArtistSections.contains(artistName) {
-				return artists[artistName]?.filterSongs.count ?? 0
+				return songData.artists[artistName]?.filterSongs.count ?? 0
 			}
 		}
 		else {
@@ -374,32 +310,31 @@ extension KaraokeRootViewController: UITableViewDataSource, UITableViewDelegate 
 	}
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		if !loadingComplete {
+		if !songData.loadingComplete {
   			let cell = tableView.dequeueReusableCell(withIdentifier: "KaraokeLoadingCell", for: indexPath)
 			return cell
 		}
 		
   		let cell = tableView.dequeueReusableCell(withIdentifier: "KaraokeSongCell", for: indexPath) as! KaraokeSongCell
 		if sortByArtists {
-			if let song = artists[filterArtistArray[indexPath.section]]?.filterSongs[indexPath.row] {
+			if let song = songData.artists[filterArtistArray[indexPath.section]]?.filterSongs[indexPath.row] {
 				cell.setup(song, showArtist: false)
 			}
 		}
 		else {
 			cell.setup(filterSongsArray[indexPath.row], showArtist: true)
 		}
-		cell.vc = self
 		return cell
 	}
 
 	func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-		if !loadingComplete {
+		if !songData.loadingComplete {
 			return nil
 		}
 		
 		if sortByArtists, let newView = tableView.dequeueReusableHeaderFooterView(withIdentifier:"KaraokeArtistSectionHeaderView")
 				as? KaraokeArtistSectionHeaderView {
-			if let artist = artists[filterArtistArray[section]] {
+			if let artist = songData.artists[filterArtistArray[section]] {
 				newView.setup(for: artist, vc: self)
 			}
 			return newView
@@ -407,61 +342,16 @@ extension KaraokeRootViewController: UITableViewDataSource, UITableViewDelegate 
 		return nil
 	}
 	
-	func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-		if loadingComplete && sortByArtists {
-			return 44.0
-		} 
-		else {
-			return 0.0
-		}
-	}
+	// For self-sizing cells to work, I believe these methods need to remain unimplemented.
+//	func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//	}
 	
-	func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-		return 44.0
-	}
+//	func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+//		return 44.0
+//	}
 
-	func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
-		if loadingComplete &&  sortByArtists {
-			return 44.0
-		} 
-		else {
-			return 0.0
-		}
-	}
-}
-
-// MARK: -
-class KaraokeArtist: NSObject {
-	var artistName: String
-	var numFavoriteSongs: Int = 0
-	var allSongs: [KaraokeSong] = []
-	var filterSongs: [KaraokeSong] = []
-
-	init(artistName: String) {
-		self.artistName = artistName
-		numFavoriteSongs = 0
-		super.init()
-	}
-}
-
-class KaraokeSong: NSObject {
-	var artistName: String
-	var songTitle: String
-	var whateverThisModifierIs: String?
-	var isFavorite: Bool
-	
-	init(artistName: String, songTitle: String, whateverThisModifierIs: String?) {
-		self.artistName = artistName
-		self.songTitle = songTitle
-		self.whateverThisModifierIs	= whateverThisModifierIs
-		isFavorite = false
-		super.init()
-	}
-}
-
-@objc(KaraokeFavoriteSong) public class KaraokeFavoriteSong: KrakenManagedObject {
-    @NSManaged public var artistName: String
-    @NSManaged public var songTitle: String
+//	func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+//	}
 }
 
 //
@@ -469,7 +359,14 @@ class KaraokeLoadingCell: UITableViewCell {
 	@IBOutlet weak var loadingLabel: UILabel!
 	@IBOutlet weak var spinner: UIActivityIndicatorView!
 	
-	func showErrorState(_ error: KaraokeRootViewController.FileLoadingError) {
+	override func awakeFromNib() {
+		super.awakeFromNib()
+
+		// Font styling
+		loadingLabel.styleFor(.body)
+	}
+	
+	func showErrorState(_ error: KaraokeDataManager.FileLoadingError) {
 		spinner.isHidden = true
 		loadingLabel.text = error.rawValue
 	}
@@ -482,7 +379,6 @@ class KaraokeSongCell: UITableViewCell {
 	@IBOutlet weak var favoriteButton: UIButton!
 	@IBOutlet weak var songNameLabelTopConstraint: NSLayoutConstraint!
 	
-	weak var vc: KaraokeRootViewController?
 	var song: KaraokeSong?
 	
 	override func awakeFromNib() {
@@ -501,35 +397,33 @@ class KaraokeSongCell: UITableViewCell {
 		artistNameLabel.text = showArtist ? "By: \(song.artistName)" : ""
 		self.setNeedsLayout()
 		self.layoutIfNeeded()
-		if songNameLabel.bounds.size.height > 25 {
-			songNameLabelTopConstraint.constant = 2
+		
+		// If the song name takes 2 lines, 
+		if songNameLabel.bounds.size.height > 36 {
+			songNameLabelTopConstraint.priority = UILayoutPriority(rawValue: 700)
+//			songNameLabelTopConstraint.constant = 2
 			
 			// If we're crunched for space and need to show the artist, rejigger w/smaller font and all in 1 label.
-			if vc?.sortByArtists == false {
-				let longNameAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 14) as Any ]
-				songNameLabelTopConstraint.constant = 2
-				let combinedString = NSMutableAttributedString(string: song.songTitle, attributes: longNameAttrs)
-				let greyAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 14) as Any, 
-						.foregroundColor : UIColor.gray]
-				combinedString.append(NSAttributedString(string: " By: \(song.artistName)", attributes: greyAttrs))
-				songNameLabel.attributedText = combinedString
-				artistNameLabel.text = ""
-			}
+//			if showArtist {
+//				let longNameAttrs: [NSAttributedString.Key : Any] = [ .font : songNameLabel.font as Any ]
+//				songNameLabelTopConstraint.constant = 2
+//				let combinedString = NSMutableAttributedString(string: song.songTitle, attributes: longNameAttrs)
+//				let greyAttrs: [NSAttributedString.Key : Any] = [ .font : songNameLabel.font as Any, 
+//						.foregroundColor : UIColor.gray]
+//				combinedString.append(NSAttributedString(string: " By: \(song.artistName)", attributes: greyAttrs))
+//				songNameLabel.attributedText = combinedString
+//				artistNameLabel.text = ""
+//			}
 		}
 		else {
-			songNameLabelTopConstraint.constant = showArtist ? 2 : 11.5
+//			songNameLabelTopConstraint.constant = showArtist ? 2 : 11.5
+			songNameLabelTopConstraint.priority = UILayoutPriority(rawValue: 200)
 		}
 	}
 	
 	@IBAction func favoriteButtonTapped() {
 		favoriteButton.isSelected = !favoriteButton.isSelected
-		if let song = song {
-			song.isFavorite = favoriteButton.isSelected
-			if let artist = vc?.artists[song.artistName] {
-				artist.numFavoriteSongs += favoriteButton.isSelected ? 1 : -1
-			}
-			vc?.saveFavoriteSongs()
-		}
+		KaraokeDataManager.shared.setFavoriteSongStatus(for: song, to: favoriteButton.isSelected)
 	}
 }
 
@@ -548,6 +442,7 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 		// Font styling
 		artistLabel.styleFor(.body)
 		disclosureButton.styleFor(.body)
+		numFavoritesLabel.styleFor(.body)
 	}
 
 	func setup(for artist: KaraokeArtist, vc: KaraokeRootViewController) {
@@ -564,7 +459,9 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 		else {
 			numFavoritesLabel.isHidden = true
 		}
-		
+		self.contentView.backgroundColor = self.disclosureButton.isSelected ? UIColor(named: "VC Background") : 
+				UIColor(named: "Cell Background")
+
 	}
 
 	@IBAction func disclosureButtonTapped(_ sender: UIButton) {
@@ -572,6 +469,7 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 		if let artistName = artistLabel.text {
 			viewController?.setDisclosureState(forArtist: artistName, to: disclosureButton.isSelected)
 		}
+		
 		
 		UIView.animate(withDuration: 0.3) {
 			self.disclosureButton.imageView?.transform = CGAffineTransform(rotationAngle: self.disclosureButton.isSelected ? .pi : 0.0)
@@ -582,6 +480,10 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 			else {
 				self.numFavoritesLabel.isHidden = true
 			}
+
+			//
+			self.contentView.backgroundColor = self.disclosureButton.isSelected ? UIColor(named: "VC Background") : 
+					UIColor(named: "Cell Background")
 		}
 	}
 		
@@ -594,7 +496,8 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 
 	weak var viewController: KaraokeRootViewController?
 	var floatingLabel: UILabel?
-	
+	var floatingLabelTextAttrs:  [NSAttributedString.Key : Any] = [:]
+		
 	func setup(_ vc: KaraokeRootViewController) {
 		viewController = vc
 		let label = UILabel()
@@ -603,6 +506,11 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 		label.isHidden = true
 		self.addSubview(label)
 		floatingLabel = label
+
+		let baseFont =  UIFont.systemFont(ofSize: 17)
+		let authorFont = UIFontMetrics(forTextStyle: .body).scaledFont(for: baseFont, maximumPointSize: 36.0)
+		floatingLabelTextAttrs = [ .foregroundColor : UIColor(named: "Kraken Label Text") as Any,
+				.font : authorFont as Any ]
 	}
 	
 	func filterUpdated() {
@@ -635,8 +543,7 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 	func positionLabel(yPos: CGFloat) {
 		let percentage = yPos / (bounds.size.height - 10)
 		if let stringToShow = viewController?.itemNameAt(percentage: percentage), let label = floatingLabel {
-			let textAttrs: [NSAttributedString.Key : Any] = [ .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
-			let labelString = NSAttributedString(string: stringToShow, attributes: textAttrs)
+			let labelString = NSAttributedString(string: stringToShow, attributes: floatingLabelTextAttrs)
 			label.attributedText = labelString
 			label.sizeToFit()
 
@@ -644,23 +551,32 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 					width: label.bounds.size.width, height: label.bounds.size.height)
 		}
 	}
-	
+
+// UIResponder Methods	
+	var touchEventForUs: UIEvent?
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if let touch = touches.first {
 			floatingLabel?.isHidden = false
 			positionLabel(yPos: touch.location(in: self).y) 
+			touchEventForUs = event
 		}
 	}
 
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if let touch = touches.first {
+		if let touch = touches.first, event == touchEventForUs {
 			positionLabel(yPos: touch.location(in: self).y) 
+			
+			// If the user moves far enough off the the left of our view, stop interacting with this event.
+			if touch.location(in:self).x < -200 {
+				floatingLabel?.isHidden = true
+				touchEventForUs = nil
+			}
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		floatingLabel?.isHidden = true
-		if let touch = touches.first {
+		if let touch = touches.first, event == touchEventForUs {
 			let percentage = touch.location(in: self).y / (bounds.size.height - 10)
 			viewController?.scrollToPercentage(percentage)
 		}
@@ -670,34 +586,4 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 		floatingLabel?.isHidden = true
 	}
 
-}
-
-
-// MARK: - Special Use Code
-extension KaraokeRootViewController {
-	// DO NOT CALL THIS METHOD AS PART OF NORMAL APP EXECUTION!
-	// This is a utility fn that's here to compress the Karaoke source file. To use, add the Karaoke TEXT file
-	// to the app as a Resource file, add a call to this method somewhere, and run the app on the simulator. 
-	// After this method runs, look at the console output and grab the file URL to the compressed file (which will point 
-	// to somewhere inside /Library/Developer/CoreSimulator) and copy the new compressed file into the Git repo.
-	func compressSongFile() {
-		do {
-			if let fileUrl = Bundle.main.url(forResource: "JoCoKaraokeSongCatalog", withExtension: "txt"),
-					let fileContents = try? String(contentsOf: fileUrl, encoding: .utf8) {
-				var sourceBuffer = Array(fileContents.utf8)
-				let destinationBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: sourceBuffer.count)
-				let compressedSize = compression_encode_buffer(destinationBuffer, sourceBuffer.count,
-						&sourceBuffer, sourceBuffer.count, nil, COMPRESSION_LZFSE)
-				print(compressedSize)
-				
-				let writeUrl = fileUrl.deletingPathExtension().appendingPathExtension("lzfse")
-				let compressedData = Data(bytes: destinationBuffer, count: compressedSize)
-				try compressedData.write(to: writeUrl)
-				print (writeUrl)
-			}
-		}
-		catch {
-			print("Songlist compression failed, somehow.")
-		}
-	}
 }

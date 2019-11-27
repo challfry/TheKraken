@@ -37,31 +37,33 @@
                             <action selector="favoriteButtonTapped" destination="9Sx-uO-ey5" eventType="touchUpInside" id="TlF-y0-k0P"/>
                         </connections>
                     </button>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Sq-RL-U3D">
-                        <rect key="frame" x="66" y="32" width="272" height="18"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                        <color key="textColor" name="Kraken Secondary Text"/>
-                        <nil key="highlightedColor"/>
-                    </label>
                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mXt-br-eyb">
-                        <rect key="frame" x="66" y="11.5" width="272" height="20.5"/>
+                        <rect key="frame" x="66" y="1.5" width="272" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="700" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Sq-RL-U3D">
+                        <rect key="frame" x="66" y="22" width="272" height="18"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" name="Kraken Secondary Text"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="mXt-br-eyb" firstAttribute="centerY" secondItem="MgF-nI-bUN" secondAttribute="centerY" priority="500" id="5bE-5K-MVL"/>
                     <constraint firstItem="mXt-br-eyb" firstAttribute="leading" secondItem="MgF-nI-bUN" secondAttribute="trailing" constant="10" id="6w6-fQ-VjE"/>
-                    <constraint firstItem="mXt-br-eyb" firstAttribute="top" secondItem="t1n-Go-ova" secondAttribute="top" constant="11.5" id="A44-rv-r4z"/>
                     <constraint firstItem="oQj-sn-4AY" firstAttribute="leading" secondItem="mXt-br-eyb" secondAttribute="trailing" constant="10" id="GU4-iZ-LKT"/>
+                    <constraint firstAttribute="bottom" secondItem="0Sq-RL-U3D" secondAttribute="bottom" priority="900" constant="4" id="P1V-MK-rsR"/>
                     <constraint firstItem="0Sq-RL-U3D" firstAttribute="trailing" secondItem="mXt-br-eyb" secondAttribute="trailing" id="Vc6-RI-V7t"/>
                     <constraint firstItem="0Sq-RL-U3D" firstAttribute="top" secondItem="mXt-br-eyb" secondAttribute="bottom" id="Xwf-Sm-9sT"/>
                     <constraint firstItem="MgF-nI-bUN" firstAttribute="leading" secondItem="t1n-Go-ova" secondAttribute="leading" constant="20" id="XzY-nA-Lo1"/>
+                    <constraint firstItem="mXt-br-eyb" firstAttribute="top" secondItem="MgF-nI-bUN" secondAttribute="top" priority="200" id="hx2-pU-3ts"/>
                     <constraint firstItem="0Sq-RL-U3D" firstAttribute="leading" secondItem="mXt-br-eyb" secondAttribute="leading" id="lnj-tY-7MY"/>
                     <constraint firstItem="oQj-sn-4AY" firstAttribute="centerY" secondItem="MgF-nI-bUN" secondAttribute="centerY" id="pNp-uG-LY6"/>
                     <constraint firstItem="MgF-nI-bUN" firstAttribute="top" secondItem="t1n-Go-ova" secondAttribute="top" constant="4" id="swR-I6-OVk"/>
                     <constraint firstAttribute="trailing" secondItem="oQj-sn-4AY" secondAttribute="trailing" priority="900" constant="30" id="yh2-0h-Z5J"/>
-                    <constraint firstAttribute="bottom" secondItem="MgF-nI-bUN" secondAttribute="bottom" priority="900" constant="4" id="yvO-pe-R9p"/>
+                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="MgF-nI-bUN" secondAttribute="bottom" priority="900" constant="4" id="yvO-pe-R9p"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" name="Cell Background"/>
@@ -69,7 +71,7 @@
                 <outlet property="artistNameLabel" destination="0Sq-RL-U3D" id="xE1-xY-5yc"/>
                 <outlet property="favoriteButton" destination="oQj-sn-4AY" id="V8b-W8-gRf"/>
                 <outlet property="songNameLabel" destination="mXt-br-eyb" id="dFy-pK-53D"/>
-                <outlet property="songNameLabelTopConstraint" destination="A44-rv-r4z" id="gNh-IR-vgD"/>
+                <outlet property="songNameLabelTopConstraint" destination="hx2-pU-3ts" id="CrJ-Z8-cIK"/>
             </connections>
             <point key="canvasLocation" x="224.63768115942031" y="-7.3660714285714279"/>
         </tableViewCell>
@@ -88,7 +90,7 @@
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Kraken Secondary Text">
-            <color red="0.66600000000000004" green="0.66600000000000004" blue="0.66600000000000004" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+            <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
     </resources>
 </document>

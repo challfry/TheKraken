@@ -52,15 +52,17 @@
                     </subviews>
                     <color key="backgroundColor" name="Cell Background"/>
                     <constraints>
+                        <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="4D7-Dx-1B8" secondAttribute="bottom" priority="900" constant="4" id="2Db-Yq-SRK"/>
                         <constraint firstItem="fHS-H1-qFG" firstAttribute="top" secondItem="FwB-Vc-dzB" secondAttribute="top" constant="4" id="7m1-d6-sDl"/>
                         <constraint firstItem="4D7-Dx-1B8" firstAttribute="leading" secondItem="fHS-H1-qFG" secondAttribute="trailing" constant="10" id="CDp-Yo-eN5"/>
                         <constraint firstItem="gqV-Hg-Cus" firstAttribute="centerY" secondItem="fHS-H1-qFG" secondAttribute="centerY" id="Glo-ga-eTQ"/>
-                        <constraint firstItem="4D7-Dx-1B8" firstAttribute="centerY" secondItem="fHS-H1-qFG" secondAttribute="centerY" id="X1T-GE-ZjB"/>
+                        <constraint firstItem="4D7-Dx-1B8" firstAttribute="centerY" secondItem="fHS-H1-qFG" secondAttribute="centerY" priority="200" id="YDV-bk-jfE"/>
                         <constraint firstAttribute="trailing" secondItem="gqV-Hg-Cus" secondAttribute="trailing" constant="30" id="gl8-bz-320"/>
                         <constraint firstItem="Dmb-gn-4Io" firstAttribute="firstBaseline" secondItem="4D7-Dx-1B8" secondAttribute="firstBaseline" id="mAo-cx-TiY"/>
                         <constraint firstItem="fHS-H1-qFG" firstAttribute="leading" secondItem="FwB-Vc-dzB" secondAttribute="leading" constant="10" id="n4K-bW-r84"/>
-                        <constraint firstAttribute="bottom" secondItem="fHS-H1-qFG" secondAttribute="bottom" constant="4" id="nGR-6R-v5o"/>
+                        <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="fHS-H1-qFG" secondAttribute="bottom" constant="4" id="nGR-6R-v5o"/>
                         <constraint firstItem="gqV-Hg-Cus" firstAttribute="leading" secondItem="Dmb-gn-4Io" secondAttribute="trailing" id="oFr-uq-TPv"/>
+                        <constraint firstItem="4D7-Dx-1B8" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fHS-H1-qFG" secondAttribute="top" id="tIV-ee-yYU"/>
                         <constraint firstItem="Dmb-gn-4Io" firstAttribute="leading" secondItem="4D7-Dx-1B8" secondAttribute="trailing" constant="10" id="u1K-hZ-8Lk"/>
                     </constraints>
                 </view>

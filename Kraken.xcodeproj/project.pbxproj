@@ -91,6 +91,7 @@
 		EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */; };
 		EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */; };
 		EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */; };
+		EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
 		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
@@ -253,6 +254,7 @@
 		EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeArtistSectionHeaderView.xib; sourceTree = "<group>"; };
 		EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeRootViewController.swift; sourceTree = "<group>"; };
 		EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailLargeThreadCell.xib; sourceTree = "<group>"; };
+		EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeDataManager.swift; sourceTree = "<group>"; };
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
@@ -568,6 +570,7 @@
 			isa = PBXGroup;
 			children = (
 				EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */,
+				EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */,
 				EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */,
 				EA8B98742323A58100E10156 /* KaraokeSongCell.xib */,
 				EA4E84EB2328734F0059E5EB /* KaraokeLoadingCell.xib */,
@@ -904,6 +907,7 @@
 				EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */,
 				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */,
+				EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */,
 				EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */,
 				EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */,
 				EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */,
