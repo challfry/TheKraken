@@ -10,6 +10,10 @@
 		EA027020237CE55900071C5E /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA02701F237CE55900071C5E /* Colors.xcassets */; };
 		EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */; };
 		EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */; };
+		EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */; };
+		EA1099F8239663C100F5172D /* ForumsLoadTimeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA1099F7239663C100F5172D /* ForumsLoadTimeCell.xib */; };
+		EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1099F92397375000F5172D /* ForumsThreadCell.swift */; };
+		EA1099FC2397376700F5172D /* ForumsThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA1099FB2397376700F5172D /* ForumsThreadCell.xib */; };
 		EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */; };
 		EA1B9FE623514E8100BFEB46 /* PostOpStatusCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */; };
 		EA1B9FE723514E8100BFEB46 /* PostOpStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */; };
@@ -20,6 +24,7 @@
 		EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */; };
 		EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9E2246CDF700017F07 /* Settings.swift */; };
 		EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3BA2224D858700017F07 /* ImageManager.swift */; };
+		EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */; };
 		EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* LoadingStatusCell.xib */; };
 		EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */; };
 		EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */; };
@@ -62,6 +67,9 @@
 		EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */; };
 		EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A81231E212A0071BFEA /* Alerts.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
+		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
+		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
+		EA7E455A2398A9B10015C7CB /* ForumPostCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA7E45592398A9B10015C7CB /* ForumPostCell.xib */; };
 		EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6A2366332E0042C0DC /* SegmentCell.swift */; };
 		EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA83FC6C2366334A0042C0DC /* SegmentCell.xib */; };
 		EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6E2368F01D0042C0DC /* Styler.swift */; };
@@ -159,6 +167,10 @@
 		EA02701F237CE55900071C5E /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglePhotoCell.swift; sourceTree = "<group>"; };
 		EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SinglePhotoCell.xib; sourceTree = "<group>"; };
+		EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsLoadTimeCell.swift; sourceTree = "<group>"; };
+		EA1099F7239663C100F5172D /* ForumsLoadTimeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ForumsLoadTimeCell.xib; path = Kraken/Forums/ForumsLoadTimeCell.xib; sourceTree = SOURCE_ROOT; };
+		EA1099F92397375000F5172D /* ForumsThreadCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsThreadCell.swift; sourceTree = "<group>"; };
+		EA1099FB2397376700F5172D /* ForumsThreadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ForumsThreadCell.xib; sourceTree = "<group>"; };
 		EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionViewCell.swift; sourceTree = "<group>"; };
 		EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostOpStatusCell.swift; sourceTree = "<group>"; };
 		EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PostOpStatusCell.xib; sourceTree = "<group>"; };
@@ -172,6 +184,7 @@
 		EA1E3B9E2246CDF700017F07 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		EA1E3BA02248153F00017F07 /* Feature plans.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Feature plans.md"; sourceTree = "<group>"; };
 		EA1E3BA2224D858700017F07 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
+		EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsDataManager.swift; sourceTree = "<group>"; };
 		EA278A49226A755400808AED /* LoadingStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingStatusCell.xib; sourceTree = "<group>"; };
 		EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -225,6 +238,9 @@
 		EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSectionHeaderView.swift; sourceTree = "<group>"; };
 		EA6A8A81231E212A0071BFEA /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
+		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
+		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
+		EA7E45592398A9B10015C7CB /* ForumPostCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ForumPostCell.xib; sourceTree = "<group>"; };
 		EA83FC6A2366332E0042C0DC /* SegmentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentCell.swift; sourceTree = "<group>"; };
 		EA83FC6C2366334A0042C0DC /* SegmentCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SegmentCell.xib; sourceTree = "<group>"; };
 		EA83FC6E2368F01D0042C0DC /* Styler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styler.swift; sourceTree = "<group>"; };
@@ -369,6 +385,14 @@
 			isa = PBXGroup;
 			children = (
 				EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */,
+				EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */,
+				EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */,
+				EA1099F7239663C100F5172D /* ForumsLoadTimeCell.xib */,
+				EA1099F92397375000F5172D /* ForumsThreadCell.swift */,
+				EA1099FB2397376700F5172D /* ForumsThreadCell.xib */,
+				EA7E45572398A99C0015C7CB /* ForumPostCell.swift */,
+				EA7E45592398A9B10015C7CB /* ForumPostCell.xib */,
+				EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */,
 			);
 			path = Forums;
 			sourceTree = "<group>";
@@ -795,6 +819,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
+				EA1099FC2397376700F5172D /* ForumsThreadCell.xib in Resources */,
 				EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */,
 				EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */,
 				EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */,
@@ -810,6 +835,7 @@
 				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
 				EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */,
 				EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */,
+				EA1099F8239663C100F5172D /* ForumsLoadTimeCell.xib in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
@@ -817,6 +843,7 @@
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
+				EA7E455A2398A9B10015C7CB /* ForumPostCell.xib in Resources */,
 				EA534E32230299AE00FE4787 /* EventCell.xib in Resources */,
 				EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */,
 				EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */,
@@ -871,6 +898,8 @@
 				EA4767362341E6A700F56E08 /* LoggedInUserCell.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
+				EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */,
+				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
@@ -930,14 +959,17 @@
 				EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
+				EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */,
 				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,
 				EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */,
 				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
 				EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */,
 				EA4E84F2232C74D00059E5EB /* DisabledContentViewController.swift in Sources */,
+				EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
+				EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */,
 				EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
 				EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */,

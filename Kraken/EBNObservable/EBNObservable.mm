@@ -1666,7 +1666,7 @@ NSObject						*EBN_InvalidPropertyKey;
 	ebn_handleCoreDataFault
 	
 	When Core Data turns an object into a fault, it sets the values of every managed property to nil.
-	However, the property values didn't *change*, you just can't seem them right now, meaning we don't
+	However, the property values didn't *change*, you just can't see them right now, meaning we don't
 	call observers when this happens. Observable has to take any keypaths that go through this object 
 	and nil out the rest of the keypath.
 	

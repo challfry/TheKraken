@@ -335,6 +335,9 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 
 	override var privateSelected: Bool {
 		didSet {
+			if let oldAnim = highlightAnimation {
+				oldAnim.stopAnimation(true)
+			}
 			if !isPrototypeCell, privateSelected == oldValue { return }
 			actionBarView.isHidden = !privateSelected
 			contentView.backgroundColor = privateSelected ? UIColor(named: "Cell Background Selected") :

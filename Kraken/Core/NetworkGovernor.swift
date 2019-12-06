@@ -154,6 +154,8 @@ struct NetworkResponse {
 	}
 	
 	// Depending on what the server wants, this could add a query parameter, a HTTP header, or a cookie.
+	// Currently it works by adding a URL query parameter, but the idea is that it can mutate the request however
+	// necessary.
 	class func addUserCredential(to request: inout URLRequest)  {
 		// We can only add user creds if we're logged in--otherwise, we return request unchanged.
 		guard CurrentUser.shared.isLoggedIn(), let authKey = CurrentUser.shared.loggedInUser?.twitarrV2AuthKey else {

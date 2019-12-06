@@ -114,7 +114,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		}
 	}
 	
-	// This is the unwind segue handler for the thread view
+	// This is the unwind segue handler for the thread view. It needs to exist, but doesn't need to do anything.
 	@IBAction func dismissingSeamailThread(segue: UIStoryboardSegue) {
 	}
 

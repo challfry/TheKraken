@@ -463,78 +463,72 @@ class TwitarrDataManager: NSObject {
 	// extendsNewer is true, the oldest tweet in posts is the tweet chronologically after anchor. If anchor is nil, 
 	// we can only assume posts can replace the tweets between startTime and endTime.
 	fileprivate func addPostsToStream(posts: [TwitarrV2Post], anchorTime: Int64, extendsNewer: Bool, morePostsExist: Bool) {
-		let context = coreData.networkOperationContext
-		context.perform {
-			do {
-				// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
-				// relationship links to the already-established sub-objects. 
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure adding stream tweets to Core Data.")
 			
-				// Make a uniqued list of users from the posts, and get them inserted/updated.
-				let userArray = posts.map { $0.author }
-				UserManager.shared.update(users: userArray, inContext: context)
-				
-				// Photos, same idea
-				let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },
-						uniquingKeysWith: { first,_ in first })
-				ImageManager.shared.update(photoDetails: tweetPhotos, inContext: context)
-				
-				// Reactions
-				
-				// Get the CD cached posts for the same timeframe as the network call. 			
-				let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
-				let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
-				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
-						substitutionVariables: [ "startDate" : startDate, "endDate" : endDate ]) as! NSFetchRequest<TwitarrPost>
-				request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
-		//		let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
-				let cdResults = try request.execute()
+			// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
+			// relationship links to the already-established sub-objects. 
+		
+			// Make a uniqued list of users from the posts, and get them inserted/updated.
+			let userArray = posts.map { $0.author }
+			UserManager.shared.update(users: userArray, inContext: context)
+			
+			// Photos, same idea
+			let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },
+					uniquingKeysWith: { first,_ in first })
+			ImageManager.shared.update(photoDetails: tweetPhotos, inContext: context)
+			
+			// Reactions
+			
+			// Get the CD cached posts for the same timeframe as the network call. 			
+			let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
+			let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
+			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
+					substitutionVariables: [ "startDate" : startDate, "endDate" : endDate ]) as! NSFetchRequest<TwitarrPost>
+			request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
+	//		let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+			let cdResults = try request.execute()
 
-				// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
-				// completed in order, or that we haven't made the same call twice somehow.
-				var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
-				var mostRecent: TwitarrPost?
-				var earliest: TwitarrPost?
-				for post in posts {
-					let cdPost = cdPostsDict.removeValue(forKey: post.id) ?? TwitarrPost(context: context)
-					cdPost.buildFromV2(context: context, v2Object: post)
+			// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
+			// completed in order, or that we haven't made the same call twice somehow.
+			var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+			var mostRecent: TwitarrPost?
+			var earliest: TwitarrPost?
+			for post in posts {
+				let cdPost = cdPostsDict.removeValue(forKey: post.id) ?? TwitarrPost(context: context)
+				cdPost.buildFromV2(context: context, v2Object: post)
+				
+				if post.id == posts.first!.id {
+					mostRecent = cdPost
+				}
+				else if post.id == posts.last!.id {
+					earliest = cdPost
 					
-					if post.id == posts.first!.id {
-						mostRecent = cdPost
-					}
-					else if post.id == posts.last!.id {
-						earliest = cdPost
-						
-						if !extendsNewer && morePostsExist && cdPost.isInserted && self.filter == nil {
-							cdPost.contigWithOlder = false
-						}
-					} else if self.filter == nil {
-						// Note: This weird construction is necessary to keep CoreData from over-saving the store.
-						cdPost.contigWithOlder == false ? cdPost.contigWithOlder = true : nil
-					}
-					
-					// When there's a filter, we don't know if posts we add to the stream are contiguous. 
-					if cdPost.isInserted && self.filter != nil {
+					if !extendsNewer && morePostsExist && cdPost.isInserted && self.filter == nil {
 						cdPost.contigWithOlder = false
 					}
+				} else if self.filter == nil {
+					// Note: This weird construction is necessary to keep CoreData from over-saving the store.
+					cdPost.contigWithOlder == false ? cdPost.contigWithOlder = true : nil
 				}
 				
-				// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
-				if self.filter == nil {
-					cdPostsDict.forEach( {key, value in context.delete(value) } )
+				// When there's a filter, we don't know if posts we add to the stream are contiguous. 
+				if cdPost.isInserted && self.filter != nil {
+					cdPost.contigWithOlder = false
 				}
-				
-				if let earliest = earliest, let mostRecent = mostRecent {
-					let newNetworkResults = RecentNetworkCall(mostRecent: mostRecent, earliest: earliest)
-					self.recentNetworkCallsQ.async {
-						self.recentNetworkCalls.insert(newNetworkResults, at: 0)
-						self.recentNetworkCalls.forEach( { $0.updateIndices(frc: self.fetchedData) } )
-					}
-				}
-								
-				try context.save()
 			}
-			catch {
-				CoreDataLog.error("Failure adding stream tweets to CD.", ["Error" : error])
+			
+			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
+			if self.filter == nil {
+				cdPostsDict.forEach( {key, value in context.delete(value) } )
+			}
+			
+			if let earliest = earliest, let mostRecent = mostRecent {
+				let newNetworkResults = RecentNetworkCall(mostRecent: mostRecent, earliest: earliest)
+				self.recentNetworkCallsQ.async {
+					self.recentNetworkCalls.insert(newNetworkResults, at: 0)
+					self.recentNetworkCalls.forEach( { $0.updateIndices(frc: self.fetchedData) } )
+				}
 			}
 		}
 	}

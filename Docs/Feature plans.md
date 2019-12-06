@@ -74,7 +74,7 @@ Rotate phone to show in a fullscreen view the topmost photo in a tweet/mail/foru
 ## One Weeks Later
 Choose one twitarr post the user made each day, offer to share that post to Twitter (the blue bird Twitter, by Twitter.com)
 exactly one week after originally posting it. Since the first twitarr posts are likely to happen around noon Sat, this means that repost
-notificaitons would start popping up around noon the next Sat., a few hours after everyone is done disembarking.
+notifications would start popping up around noon the next Sat., a few hours after everyone is done disembarking.
 
 I think we'd use TwitterKit 3 to power this? Dunno. Anyway, it probably works internally by setting a local notification with a one week
 timer every day the user posts to twitarr. When the timer fires we look back at the posts the user made 7 days ago and pick the one with
@@ -88,3 +88,17 @@ This also means that at most one post per day gets reposted per user.
 ## Dark Mode, Dynamic Type
 
 Bread and butter features. But, I want to implement them with traversing view stylers. 
+
+## Forums Improvements
+Biggest problem I remember with Forums was how fast the forums list updated. Made it near impossible to track a thread--there were too 
+many active threads going. I was hoping Forum Categories would mitigate this--with ~10 categories each one would have ~1/10th the
+churn.
+
+Instead, what about Forum History? Each forum in CD gets a last viewed time, and a History view shows what you've looked at previously.
+This could be added to the API-supported concept of filtering only forums you've posted in.
+Plus, we could have a favorites filter.
+
+All
+Favorites
+History
+Search

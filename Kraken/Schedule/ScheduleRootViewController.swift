@@ -650,12 +650,43 @@ class ScheduleLayout: UICollectionViewLayout {
 		return result
 	}
 	
+	// This makes the selection animations work correctly. 
+	override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+		guard cellPositions.count > itemIndexPath.section else { return nil }
+		let section = cellPositions[itemIndexPath.section]
+		guard section.count > itemIndexPath.row else { return nil }
+		
+		let val = UICollectionViewLayoutAttributes(forCellWith: itemIndexPath)
+		val.isHidden = false
+		val.frame = section[itemIndexPath.row]
+//		print("IndexPath: \(itemIndexPath)")
+		return val
+	}
+	
+	// This makes the selection animations work correctly. 
+	override func initialLayoutAttributesForAppearingSupplementaryElement(ofKind elementKind: String, 
+			at elementIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+		guard cellPositions.count > elementIndexPath.section else { return nil }
+
+		if !showingSectionHeaders() {
+			return nil
+		}
+		
+		let sectionHeaderRect = sectionHeaderPositions[elementIndexPath.section]
+		let val = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+				with: IndexPath(row: 0, section: elementIndexPath.section))
+		val.isHidden = false
+		val.frame = sectionHeaderRect
+		return val
+	}
+
 // MARK: Insert/Delete handling
 
 	var currentUpdateList: [UICollectionViewUpdateItem]?
 	override func prepare(forCollectionViewUpdates updateItems: [UICollectionViewUpdateItem]) {
 		currentUpdateList = updateItems
 	}
+	
 	override func finalizeCollectionViewUpdates() {
 		currentUpdateList = nil
 	}

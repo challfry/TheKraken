@@ -41,6 +41,12 @@ extension TestAndSettable where Self : KrakenManagedObject {
 
 class LocalCoreData: NSObject {
 	static let shared = LocalCoreData()
+	
+	// To use: throw LocalCoreData.Error(failureExplanation: "Failure parsing Forums response.", coreDataError: err)
+	struct Error: Swift.Error {
+		let failureExplanation: String 		// What were you trying to do when the error happened? 
+		let coreDataError: NSError?			// The underlying Core Data error, if any
+	}
 
 	lazy var persistentContainer: NSPersistentContainer = {
 		guard let modelURL = Bundle.main.url(forResource: "TwitarrModel", withExtension:"momd"),
@@ -79,6 +85,39 @@ class LocalCoreData: NSObject {
 	lazy var networkOperationContext: NSManagedObjectContext = {
 		return persistentContainer.newBackgroundContext()
 	}()
+	
+	// Wraps some boilerplate when parsing server responses and adding the response contents to Core Data.
+	// Runs the given block within the thread provided by the NetworkOperationContext, and inside a do...catch block.
+	// While parsing you can push/pop operation failure strings to explaing what's being parsed; this can help
+	// track down where we're throwing parse errors.
+	//
+	// Use is optional; roll your own for cases where you need to do something special, such as run code after 
+	// a successful CD save.
+	func performNetworkParsing(_ block: @escaping (NSManagedObjectContext) throws -> Void) {
+		let context = networkOperationContext
+		context.perform {
+			do {
+				try block(context)
+				context.pushOpErrorExplanation("Failed to Save Network Core Data Context.")
+				try context.save()
+			}
+			catch let error as LocalCoreData.Error {
+				CoreDataLog.error(error.failureExplanation, ["error" : error])
+			}
+			catch {
+				if let opStrings = context.userInfo["currentOpError"] as? [String] {
+					var errString = "Core Data errors:\n"
+					opStrings.forEach { errString.append( "\($0)\n") }
+					CoreDataLog.error(errString, ["error" : error])
+				}
+				else {
+					CoreDataLog.error("Unknown Error while processing a network packet.", ["error" : error])
+				}
+			}
+			context.userInfo.removeAllObjects()
+		}
+	}
+
 	
 	// Updates the main context in response to data saves from the network context
 	@objc func contextDidSaveNotificationHandler(notification: Notification) {
@@ -119,4 +158,24 @@ class LocalCoreData: NSObject {
 
 	}
 
+}
+
+extension NSManagedObjectContext {
+
+	// Sets a textual description of the current operation, used in the case where the current op fails and throws.
+	// Set to a string such as "Failed to parse Forum threads and add to Core Data."
+	func pushOpErrorExplanation(_ str: String) {
+		if var opStack = userInfo["currentOpError"] as? Array<String> {
+			opStack.append(str)
+			userInfo["currentOpError"] = opStack
+		} else {
+			userInfo["currentOpError"] = [str]
+		}
+	}
+	
+	func popOpErrorExplanation() {
+		if var opStack = userInfo["currentOpError"] as? Array<String> {
+			userInfo["currentOpError"] = opStack.removeLast()
+		}
+	}
 }

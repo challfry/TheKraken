@@ -352,16 +352,10 @@ import UserNotifications
 	}
 		
 	func markLocalNotificationDeleted() {
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			do {
-				if let selfInContext = try context.existingObject(with: self.objectID) as? Event {
-					selfInContext.localNotificationID = nil
-				}
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving change to a Scheduled Ship Event Notification. (the network call succeeded, but we couldn't save the change).")
+			if let selfInContext = try context.existingObject(with: self.objectID) as? Event {
+				selfInContext.localNotificationID = nil
 			}
 		}
 	}
@@ -452,37 +446,31 @@ class EventsDataManager: NSObject {
 	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
 	// not in the new list. Otherwise it only adds/updates events.
 	func parseEvents(_ events: [TwitarrV2Event], isFullList: Bool) {
-		let context = coreData.networkOperationContext
-		context.perform {
-			do {
-				if isFullList {
-					// Delete events not in the new event list
-					let newEventIds = Set(events.map( { $0.id } ))
-					self.fetchedData.fetchedObjects?.forEach { event in
-						if !newEventIds.contains(event.id) {
-							context.delete(event)
-						}
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
+			if isFullList {
+				// Delete events not in the new event list
+				let newEventIds = Set(events.map( { $0.id } ))
+				self.fetchedData.fetchedObjects?.forEach { event in
+					if !newEventIds.contains(event.id) {
+						context.delete(event)
 					}
 				}
-			
-				// Add/update
-				for v2Event in events {
-					var eventInContext: Event?
-					if let event = self.fetchedData.fetchedObjects?.first(where: { $0.id == v2Event.id }) {
-						eventInContext = try? context.existingObject(with: event.objectID) as? Event
-					}
-					if eventInContext == nil {
-						eventInContext = Event(context: context)
-					}
-					eventInContext?.buildFromV2(context: context, v2Object: v2Event)
+			}
+		
+			// Add/update
+			for v2Event in events {
+				var eventInContext: Event?
+				if let event = self.fetchedData.fetchedObjects?.first(where: { $0.id == v2Event.id }) {
+					eventInContext = try? context.existingObject(with: event.objectID) as? Event
 				}
+				if eventInContext == nil {
+					eventInContext = Event(context: context)
+				}
+				eventInContext?.buildFromV2(context: context, v2Object: v2Event)
+			}
 				
-				try context.save()
-				self.getAllLocations()
-			}
-			catch {
-				CoreDataLog.error("Failure adding Schedule events to Core Data.", ["Error" : error])
-			}
+			self.getAllLocations()
 		}
 	}
 	

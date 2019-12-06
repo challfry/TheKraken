@@ -258,7 +258,8 @@ class ImageManager : NSObject {
 		userImageCache.invalidateImage(withKey: withKey)
 	}
 	
-	// Must be inside a context.perform
+	// Must be inside a context.perform. Adds the given photoDetails to CD, sets the "PhotoDetails" key
+	// in the context's UserInfo to a dict keyed by the photoDetails IDs
 	func update(photoDetails: [String : TwitarrV2PhotoDetails], inContext context: NSManagedObjectContext) {
 		do {
 			var photoIds = Set(photoDetails.keys)

@@ -565,17 +565,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		
 		self.queueNetworkPost(request: request) { data in
-			let context = LocalCoreData.shared.networkOperationContext
-			context.perform {
-				do {
-					let response = try JSONDecoder().decode(TwitarrV2TweetReactionResponse.self, from: data)
-					let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
-					postInContext.buildReactionsFromV2(context: context, v2Object: response.reactions)
-					try context.save()
-				}
-				catch {
-					CoreDataLog.error("Failure saving change to tweet reaction.", ["Error" : error])
-				}
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving change to tweet reaction.")
+				
+				let response = try JSONDecoder().decode(TwitarrV2TweetReactionResponse.self, from: data)
+				let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
+				postInContext.buildReactionsFromV2(context: context, v2Object: response.reactions)
 			}
 		}
 	}
@@ -602,16 +597,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.httpMethod = "DELETE"
 		
 		self.queueNetworkPost(request: request) { data in
-			let context = LocalCoreData.shared.networkOperationContext
-			context.perform {
-				do {
-					let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
-					context.delete(postInContext)
-					try context.save()
-				}
-				catch {
-					CoreDataLog.error("Failure saving tweet deletion back to Core Data.", ["Error" : error])
-				}
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving tweet deletion back to Core Data.")
+				let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
+				context.delete(postInContext)
 			}
 		}
 	}
@@ -641,12 +630,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
 		self.queueNetworkPost(request: request) { data in
-			do {
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving new Seamail thread to Core Data.")
 				let response = try JSONDecoder().decode(TwitarrV2NewSeamailThreadResponse.self, from: data)
-				SeamailDataManager.shared.addNewSeamails(from: [response.seamail])
-			}
-			catch {
-				CoreDataLog.error("Failure saving new Seamail thread to Core Data.", ["Error" : error])
+				SeamailDataManager.shared.loadNetworkSeamails(from: [response.seamail])
 			}
 		}
 	}
@@ -678,16 +665,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
 		self.queueNetworkPost(request: request) { data in
-			let context = LocalCoreData.shared.networkOperationContext
-			context.perform {
-				do {
-					let response = try JSONDecoder().decode(TwitarrV2NewSeamailMessageResponse.self, from: data)
-					SeamailDataManager.shared.addNewSeamailMessage(context: context, 
-							threadID: seamailThread.id, v2Object: response.seamail_message)
-				}
-				catch {
-					CoreDataLog.error("Failure saving new Seamail thread to Core Data.", ["Error" : error])
-				}
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving new Seamail message to Core Data.")
+				let response = try JSONDecoder().decode(TwitarrV2NewSeamailMessageResponse.self, from: data)
+				SeamailDataManager.shared.addNewSeamailMessage(context: context, 
+						threadID: seamailThread.id, v2Object: response.seamail_message)
 			}
 		}
 	}
@@ -715,12 +697,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod =  newState ? "POST" : "DELETE"		
 		queueNetworkPost(request: request) { data in
-			do {
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving new Schedule Event to Core Data. Was setting follow state on event.")
 				let response = try JSONDecoder().decode(TwitarrV2EventFavoriteResponse.self, from: data)
 				EventsDataManager.shared.parseEvents([response.event], isFullList: false)
-			}
-			catch {
-				CoreDataLog.error("Failure saving new Schedule Event to Core Data. Was setting follow state on event.", ["Error" : error])
 			}
 		}
 	}
@@ -751,16 +731,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.httpBody = requestData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		queueNetworkPost(request: request) { data in
-			do {
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving User Comment change to Core Data. (the PostOp succeeded, but we couldn't save the change).")
 				let decoder = JSONDecoder()
 				let response = try decoder.decode(TwitarrV2ChangeUserCommentResponse.self, from: data)
 				if response.status == "ok" {
 					UserManager.shared.updateProfile(for: userCommentedOn.objectID, from: response.user)
 				}
-			}
-			catch {
-				CoreDataLog.error("Failure saving User Comment change to Core Data. (the PostOp succeeded, but we couldn't save the change).", 
-						["Error" : error])
 			}
 		}
 	}
@@ -785,25 +762,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = "POST"
 		queueNetworkPost(request: request) { data in
-			do {
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving User Favorite change to Core Data. (the network call succeeded, but we couldn't save the change).")
 				let decoder = JSONDecoder()
 				let response = try decoder.decode(TwitarrV2ToggleUserStarResponse.self, from: data)
 				if response.status == "ok" {
-					let context = LocalCoreData.shared.networkOperationContext
-					context.perform {
-						do {
-							currentUser.updateUserStar(context: context, targetUser: userFavorited, newState: response.starred)
-							try context.save()
-						}
-						catch {
-							CoreDataLog.error("Couldn't save context.", ["error" : error])
-						}
-					}
+					currentUser.updateUserStar(context: context, targetUser: userFavorited, newState: response.starred)
 				}
-			}
-			catch {
-				CoreDataLog.error("Failure saving User Comment change to Core Data. (the PostOp succeeded, but we couldn't save the change).", 
-						["Error" : error])
 			}
 		}
 	}
@@ -847,7 +812,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				}
 			}
 			catch {
-				CoreDataLog.error("Failure saving User Comment change to Core Data. (the PostOp succeeded, but we couldn't save the change).", 
+				CoreDataLog.error("Failure parsing User Profile Edit response. (the network call succeeded, but we couldn't save the change locally).", 
 						["Error" : error])
 			}
 		}

@@ -98,7 +98,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		
 		// Show the current number of likes this tweet has.
 		addObservation(tweetModel.tell(self, when: "likeReaction.count") { observer, observed in
-			if let likeCount = tweetModel.likeReaction?.count, likeCount > 0 {
+			if let likeCount = observed.likeReaction?.count, likeCount > 0 {
 				observer.likesLabel.isHidden = false
 				observer.likesLabel.text = "\(likeCount) 💛"
 			}

@@ -334,7 +334,7 @@ class UserManager : NSObject {
 			context.userInfo.setObject(resultDict, forKey: "Users" as NSString)
 		}
 		catch {
-			CoreDataLog.error("Couldn't add users to CD.", ["Error" : error])
+			CoreDataLog.error("Couldn't add users to Core Data.", ["Error" : error])
 		}
 	}
 	

@@ -96,7 +96,7 @@ class SeamailDataManager: NSObject {
 				let decoder = JSONDecoder()
 				do {
 					let newSeamails = try decoder.decode(TwitarrV2GetSeamailResponse.self, from: data)
-					self.addNewSeamails(from: newSeamails.seamailThreads)
+					self.loadNetworkSeamails(from: newSeamails.seamailThreads)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])
@@ -118,7 +118,7 @@ class SeamailDataManager: NSObject {
 	
 	}
 	
-	func addNewSeamails(from threads: [TwitarrV2SeamailThread]) {
+	func loadNetworkSeamails(from threads: [TwitarrV2SeamailThread]) {
 		let context = coreData.networkOperationContext
 		context.perform {
 			do {
