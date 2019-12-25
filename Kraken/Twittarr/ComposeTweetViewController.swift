@@ -46,7 +46,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		let replyLabelCellModel = LabelCellModel("In response to:")
 		replyLabelCellModel.shouldBeVisible = parentTweet != nil
 		composeSection.append(replyLabelCellModel)
-		let replySourceCellModel = TwitarrTweetCellModel(withModel: parentTweet, reuse: "tweet")
+		let replySourceCellModel = TwitarrTweetCellModel(withModel: parentTweet)
 		composeSection.append(replySourceCellModel)
 		
 		let editSourceLabelModel = LabelCellModel("Your original post:")
@@ -55,11 +55,13 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		}
 		editSourceLabelModel.shouldBeVisible = editTweet != nil || draftTweet != nil
 		composeSection.append(editSourceLabelModel)
- 		let editSourceCellModel = TwitarrTweetCellModel(withModel: editTweet, reuse: "tweet")
- 		if draftTweet != nil {
- 			editSourceCellModel.model = draftTweet
- 		}
+ 		
+ 		// Only one of edit or draft should end up being visible (we're either editing a posted tweet or 
+ 		// editing a draft not yet delivered to the server)
+ 		let editSourceCellModel = TwitarrTweetCellModel(withModel: editTweet)
+ 		let draftSourceCellModel = TwitarrTweetOpCellModel(withModel: draftTweet)
 		composeSection.append(editSourceCellModel)
+		composeSection.append(draftSourceCellModel)
 
 		var writingPrompt = "What do you want to say?"
 		if editTweet != nil || draftTweet != nil {
@@ -138,6 +140,8 @@ class ComposeTweetViewController: BaseCollectionViewController {
         		observer.composeDataSource.register(with: observer.collectionView, viewController: observer)
 			}
         }?.execute()        
+
+		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -256,14 +260,6 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			photoSelectionCell?.cameraPhotos.insert(photo, at: 0)
 		}
 	}	
-
-	override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-		if identifier == "TweetFilter" {
-			return false
-		}
-		
-		return true
-	}
 
 }
 

@@ -68,10 +68,10 @@ import MobileCoreServices
 	
 	@IBAction func cameraButtonTapped(_ sender: Any) {
 		if Settings.shared.useFullscreenCameraViewfinder {
-			self.dataSource?.performSegue(withIdentifier: "fullScreenCamera", sender: self)
+			self.dataSource?.performKrakenSegue(.fullScreenCamera, sender: self)
 		}
 		else {
-			self.dataSource?.performSegue(withIdentifier: "cropCamera", sender: self)
+			self.dataSource?.performKrakenSegue(.cropCamera, sender: self)
 		}
 	}
 	

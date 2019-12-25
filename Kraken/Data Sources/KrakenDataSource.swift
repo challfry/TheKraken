@@ -93,9 +93,10 @@ class KrakenDataSource: NSObject {
 		}
 	}
 	
-	
-	func performSegue(withIdentifier: String, sender: AnyObject) {
-		viewController?.performSegue(withIdentifier: withIdentifier, sender: sender)
+	func performKrakenSegue(_ id: GlobalKnownSegue, sender: Any?) {
+		if let vc = viewController as? BaseCollectionViewController {
+			vc.performKrakenSegue(id, sender: sender)
+		}
 	}
 
 // MARK: Segments	
@@ -127,6 +128,11 @@ class KrakenDataSource: NSObject {
 		let result = allSegments[index] as? KrakenDataSourceSegment
 		allSegments.removeObject(at: index)
 		return result
+	}
+	
+	// Don't delete visibleSegments directly; this happens during performUpdates().
+	func deleteAllSegments() {
+		allSegments.removeAllObjects()
 	}
 	
 	// Gets a segment from the array, by name
@@ -457,6 +463,15 @@ extension KrakenDataSource: UICollectionViewDelegate, UICollectionViewDelegateFl
 //		let model = sections[indexPath.section].visibleCellModels[indexPath.row]
 //		model.cellTapped()
 //	}
+
+	func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+		log.debug("shouldSelectItemAt", ["indexPath" : indexPath, "DS" : self])
+		return true
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		log.debug("didSelectItemAt", ["indexPath" : indexPath, "DS" : self])
+	}
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
 			sizeForItemAt indexPath: IndexPath) -> CGSize {

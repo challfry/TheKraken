@@ -37,7 +37,7 @@ import Photos
 		// text entered in the fields apply to the new user.
 		modelKrakenUser = CurrentUser.shared.loggedInUser
 		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-			self.performSegue(withIdentifier: "dismiss", sender: self)
+			observer.performKrakenSegue(.dismiss, sender: self)
 		}
 		
     	let section = dataSource.appendFilteringSegment(named: "UserProfile")
@@ -99,6 +99,7 @@ import Photos
 			observer.avatarUpdateStatusCell?.postOp = observer.editPhotoOp
 		}?.execute()
 
+		knownSegues = Set([.fullScreenCamera, .cropCamera])
 	}
  
     override func viewDidAppear(_ animated: Bool) {

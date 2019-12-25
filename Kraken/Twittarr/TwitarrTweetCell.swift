@@ -9,26 +9,341 @@
 import UIKit
 import CoreData
 
-@objc protocol TwitarrTweetCellBindingProtocol: FetchedResultsBindingProtocol {
-	var isInteractive: Bool { get set }
+@objc enum LikeOpKind: Int {
+	case none
+	case like
+	case unlike
 }
 
-@objc class TwitarrTweetCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {
+@objc protocol TwitarrTweetCellBindingProtocol: FetchedResultsBindingProtocol {
+
+	var isInteractive: Bool { get set }
+	
+	var author: KrakenUser? { get set }
+	var postTime: Date? { get set }
+	
+	var numLikes: Int32 { get set }
+	var postText: String? { get set }
+	var photos: [PhotoDetails]? { get set }
+	var photoImages: [Data]? { get set }			// For ops, where there's no PhotoDetails yet.
+	
+	var loggedInUserIsAuthor: Bool { get set }		// False if no logged in user
+	
+	// Reply, Edit, Delete, Like
+	var currentUserReplyOpCount: Int32 { get set }
+	var currentUserHasDeleteOp: Bool { get set }
+	var currentUserHasEditOp: Bool { get set }
+	var currentUserReactOpCount: Int32 { get set }
+	var currentUserHasLikeOp: LikeOpKind { get set }
+	var currentUserLikesThis: Bool { get set }
+	
+	var isDeleted: Bool { get set }
+	
+	// 
+	func linkTextTapped(link: String)
+	func authorIconTapped()
+	func likeButtonTapped()
+	func replyButtonTapped()
+	func editButtonTapped()
+	func deleteButtonTapped()
+	func cancelDeleteOpButtonTapped()
+	func cancelEditOpButtonTapped()
+	func viewPendingRepliesButtonTapped()
+	func cancelReactionOpButtonTapped()
+}
+
+@objc class TwitarrTweetCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {	
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "tweet" : TwitarrTweetCell.self ] }
 
 	// If false, the tweet cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
 	// user thumbnail open a user profile panel.
 	@objc dynamic var isInteractive: Bool = true
 	
-	override init(withModel: NSFetchRequestResult?, reuse: String, bindingWith: Protocol = TwitarrTweetCellBindingProtocol.self) {
-		super.init(withModel: withModel, reuse: reuse, bindingWith: bindingWith)
+	dynamic var author: KrakenUser?
+	dynamic var postTime: Date?
+	
+	dynamic var numLikes: Int32 = 0
+	dynamic var postText: String?
+	dynamic var photos: [PhotoDetails]?
+	dynamic var photoImages: [Data]? 
+	dynamic var loggedInUserIsAuthor: Bool = false		// False if no logged in user
+
+	// Reply, Edit, Delete, Like
+	dynamic var currentUserReplyOpCount: Int32 = 0
+	dynamic var currentUserHasDeleteOp: Bool = false
+	dynamic var currentUserHasEditOp: Bool = false
+	dynamic var currentUserReactOpCount: Int32 = 0
+	dynamic var currentUserHasLikeOp: LikeOpKind = .none
+	dynamic var currentUserLikesThis: Bool = false
+
+	dynamic var isDeleted: Bool = false
+	
+    override var model: NSFetchRequestResult? {
+    	didSet {
+    		clearObservations()
+    		if let tweetModel = model as? TwitarrPost, !tweetModel.isDeleted {
+    			setup(from: tweetModel)
+			}
+			else {
+				author = nil
+				postTime = nil
+				postText = nil				
+  				photos = nil
+  				isDeleted = true
+  				shouldBeVisible = false
+			}
+		}
 	}
+	
+	var viewController: BaseCollectionViewController?
+	
+	func setup(from tweetModel: TwitarrPost) {
+	
+		author = tweetModel.author
+		postTime = tweetModel.postDate()
+					
+		// Show the current number of likes this tweet has.
+		addObservation(tweetModel.tell(self, when: "likeReaction.count") { observer, observed in
+			observer.numLikes = observed.likeReaction?.count ?? 0
+		}?.execute())
+		
+		// Tweet text
+		addObservation(tweetModel.tell(self, when: "text") { observer, observed in 	
+			observer.postText = observed.text
+		}?.execute())
+							
+		// Photo, if one's attached
+		addObservation(tweetModel.tell(self, when: "photoDetails.id") { observer, observed in
+			if let photo = observed.photoDetails {
+				observer.photos = [photo]
+			}
+			else {
+				observer.photos = []
+			}
+		}?.execute())
+		
+		// Watch for login/out, so we can update like/unlike button state
+		let authorUsername = author?.username ?? ""
+		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.loggedInUserIsAuthor = authorUsername == currentUsername
+		
+			// When the current user changes, need to re-evaluate: Replies, DeleteOps, EditOps, Likes, LikeOps
+			observer.currentUserReplyOpCount = tweetModel.opsWithThisParent?.reduce(0) { (result, operation) in 
+				return operation.author.username == currentUsername ? result + 1 : result 
+			} ?? 0
+			observer.currentUserHasDeleteOp = tweetModel.opsDeletingThisTweet?.contains { 
+				$0.author.username == currentUsername 
+			} ?? false
+			observer.currentUserHasEditOp = tweetModel.opsEditingThisTweet?.author.username == currentUsername
+			observer.currentUserLikesThis = tweetModel.likeReaction?.users.contains { $0.username == currentUsername } ?? false
+			if let likeOp = tweetModel.getPendingUserReaction("like") {
+				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
+			}
+			else {
+				observer.currentUserHasLikeOp = .none
+			}
+			
+		}?.execute())
+		
+		// Reply ops for replies that are children of this tweet
+		addObservation(tweetModel.tell(self, when: "opsWithThisParent.count") { observer, observed in 
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.currentUserReplyOpCount = observed.opsWithThisParent?.reduce(0) { (result, operation) in 
+				return operation.author.username == currentUsername ? result + 1 : result
+			} ?? 0
+		}?.execute())
+		
+		// Ops deleting this tweet
+		addObservation(tweetModel.tell(self, when: "opsDeletingThisTweet") { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.currentUserHasDeleteOp = observed.opsDeletingThisTweet?.contains { 
+				$0.author.username == currentUsername 
+			} ?? false
+		}?.execute())
+		
+		// Ops editing this tweet
+		addObservation(tweetModel.tell(self, when: "opsEditingThisTweet") { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.currentUserHasEditOp = observed.opsEditingThisTweet?.author.username == currentUsername
+		}?.execute())
+		
+		// Likes
+		addObservation(tweetModel.tell(self, when: "reactionDict.like.users.count") { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.currentUserLikesThis = observed.likeReaction?.users.contains 
+					{ $0.username == currentUsername } ?? false
+		}?.execute())
+							
+		// Like/Unlike ops
+		addObservation(tweetModel.tell(self, when: "reactionOpsCount") { observer, observed in
+			if let likeOp = tweetModel.getPendingUserReaction("like") {
+				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
+			}
+			else {
+				observer.currentUserHasLikeOp = .none
+			}
+		}?.execute())
+	}
+	
+	init(withModel: TwitarrPost?) {
+		super.init(withModel: nil, reuse: "tweet", bindingWith: TwitarrTweetCellBindingProtocol.self)
+		model = withModel
+	}
+
+//MARK: Action Handlers
+	func linkTextTapped(link: String) {
+ 		viewController?.performKrakenSegue(.tweetFilter, sender: link)
+	}
+	
+	func authorIconTapped() {
+		if let tweetModel = model as? TwitarrPost {
+			viewController?.performKrakenSegue(.userProfile, sender: tweetModel.author.username)
+		}
+	}
+	
+	func likeButtonTapped() {
+ 		guard isInteractive else { return }
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+
+		// FIXME: Still not sure what to do in the case where the user, once logged in, already likes the post.
+		// When nobody is logged in we still enable and show the Like button. Tapping it opens the login panel, 
+		// with a successAction that performs the like action.
+		if !CurrentUser.shared.isLoggedIn() {
+ 			let seguePackage = LoginSegueWithAction(promptText: "In order to like this post, you'll need to log in first.",
+					loginSuccessAction: { tweetModel.setReaction("like", to: !self.currentUserLikesThis) }, 
+					loginFailureAction: nil)
+  			viewController?.performKrakenSegue(.modalLogin, sender: seguePackage)
+   		}
+   		else {
+			tweetModel.setReaction("like", to: !currentUserLikesThis)
+   		}
+	}
+	
+	func replyButtonTapped() {
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+		viewController?.performKrakenSegue(.composeReplyTweet, sender: tweetModel)
+	}
+	
+	func editButtonTapped() {
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+		viewController?.performKrakenSegue(.editTweet, sender: tweetModel)
+	}
+	
+	func deleteButtonTapped() {
+   		guard let tweetModel = model as? TwitarrPost else { return } 
+		tweetModel.addDeleteTweetOp()
+	}
+	
+	func cancelDeleteOpButtonTapped() {
+		guard let tweetModel = model as? TwitarrPost else { return } 
+		tweetModel.cancelDeleteOp()   		
+	}
+	
+	func cancelEditOpButtonTapped() {
+		guard let tweetModel = model as? TwitarrPost else { return } 
+		tweetModel.cancelEditOp()   		
+	}
+	
+	func viewPendingRepliesButtonTapped() {
+		guard let tweetModel = model as? TwitarrPost else { return } 
+		viewController?.performKrakenSegue(.pendingReplies, sender: tweetModel)
+	}
+	
+	func cancelReactionOpButtonTapped() {
+		guard let tweetModel = model as? TwitarrPost else { return } 
+		tweetModel.cancelReactionOp("like")   		
+	}
+
 }
 
+@objc class TwitarrTweetOpCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "tweet" : TwitarrTweetCell.self ] }
 
+	// If false, the tweet cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
+	// user thumbnail open a user profile panel.
+	@objc dynamic var isInteractive: Bool = false
+	
+	dynamic var author: KrakenUser?
+	dynamic var postTime: Date?
+	
+	dynamic var numLikes: Int32 = 0
+	dynamic var postText: String?
+	dynamic var photos: [PhotoDetails]?
+	dynamic var photoImages: [Data]? 
+	dynamic var loggedInUserIsAuthor: Bool = false		// False if no logged in user
+
+	// Reply, Edit, Delete, Like
+	dynamic var currentUserReplyOpCount: Int32 = 0
+	dynamic var currentUserHasDeleteOp: Bool = false
+	dynamic var currentUserHasEditOp: Bool = false
+	dynamic var currentUserReactOpCount: Int32 = 0
+	dynamic var currentUserHasLikeOp: LikeOpKind = .none
+	dynamic var currentUserLikesThis: Bool = false
+
+	dynamic var isDeleted: Bool = false
+	
+    override var model: NSFetchRequestResult? {
+    	didSet {
+    		clearObservations()
+    		if let tweetModel = model as? PostOpTweet, !tweetModel.isDeleted {
+    			setup(from: tweetModel)
+			}
+			else {
+				author = nil
+				postTime = nil
+				postText = nil				
+  				photos = nil
+  				isDeleted = true
+  				shouldBeVisible = false
+  			}
+		}
+	}
+
+	init(withModel: PostOpTweet?) {
+		super.init(withModel: nil, reuse: "tweet", bindingWith: TwitarrTweetCellBindingProtocol.self)
+		model = withModel
+	}
+	
+	func setup(from tweetOpModel: PostOpTweet) {
+		author = tweetOpModel.author
+		postTime = tweetOpModel.originalPostTime
+		numLikes = 0
+		
+		// Tweet text
+		addObservation(tweetOpModel.tell(self, when: "text") { observer, observed in 	
+			observer.postText = observed.text
+		}?.execute())
+							
+		// Photo, if one's attached. Tweets can only have 1 photo.
+		addObservation(tweetOpModel.tell(self, when: "image") { observer, observed in
+			if let photoData = observed.image {
+				observer.photoImages = [(photoData as Data)]
+			}
+			else {
+				observer.photoImages = []
+			}
+		}?.execute())
+		
+		// Pending Ops cannot have replies, deleteOps, editOps, LikeOps, or reactOps applied to them, so there are all false
+	}
+	
+	func linkTextTapped(link: String) {	}
+	func authorIconTapped() { }
+	func likeButtonTapped() { }
+	func replyButtonTapped() { }
+	func editButtonTapped() { }
+	func deleteButtonTapped() { }
+	func cancelDeleteOpButtonTapped() {	}
+	func cancelEditOpButtonTapped() { }
+	func viewPendingRepliesButtonTapped() { }
+	func cancelReactionOpButtonTapped() { }
+}
+
+// MARK: -
 class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol, UITextViewDelegate {
 	
-// MARK: - Declarations
+// MARK: Declarations
 	@IBOutlet var titleLabel: UITextView!			// Author and timestamp
 	@IBOutlet var likesLabel: UILabel!				
 	@IBOutlet var tweetTextView: UITextView!
@@ -56,62 +371,67 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	@IBOutlet var 			replyButton: UIButton!
 	@IBOutlet var 			deleteButton: UIButton!
 
-	private var opsByCurrentUserObservations: [EBNObservation?] = []
-
-	@objc dynamic var loggedInUserHasLikedThis: Bool = false
-
 	private static let cellInfo = [ "tweet" : PrototypeCellInfo("TwitarrTweetCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return TwitarrTweetCell.cellInfo }
 	
+	private var opsByCurrentUserObservations: [EBNObservation?] = []
+	@objc dynamic var loggedInUserHasLikedThis: Bool = false
+
+// MARK: Binding Protocol Vars
+
 	var isInteractive: Bool = true
-
-// MARK: - Methods
-
+	
+	// 
     var model: NSFetchRequestResult? {
     	didSet {
-    		clearObservations()
-    		if let tweetModel = model as? TwitarrPost, !tweetModel.isDeleted {
-    			setup(from: tweetModel)
-			}
-			else if let postOpModel = model as? PostOpTweet, !postOpModel.isDeleted {
-				setup(from: postOpModel)
-			}
-			else {
-				titleLabel.attributedText = nil
-				tweetTextView.attributedText = nil
-				postImage.image = nil
-				userButton.setBackgroundImage(nil, for: .normal)				
-  				self.postImage.isHidden = true
-				self.postImage.image = nil
-  			}
+//    		clearObservations()
 		}
 	}
   			
-	func setup(from tweetModel: TwitarrPost) {
-    		
-		let titleAttrString = NSMutableAttributedString(string: "\(tweetModel.author.displayName), ", 
-				attributes: authorTextAttributes())
-		let timeString = StringUtilities.relativeTimeString(forDate: tweetModel.postDate())
-		let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
-		titleAttrString.append(timeAttrString)
-		titleLabel.attributedText = titleAttrString
-		
-		// Show the current number of likes this tweet has.
-		addObservation(tweetModel.tell(self, when: "likeReaction.count") { observer, observed in
-			if let likeCount = observed.likeReaction?.count, likeCount > 0 {
-				observer.likesLabel.isHidden = false
-				observer.likesLabel.text = "\(likeCount) 💛"
+	var authorIconObservation: EBNObservation?
+	var author: KrakenUser? {
+		didSet {
+			// Author's name, and also post time.
+			buildTitleLabel()
+			
+			// Author's user icon. loadUserThumbnail() starts a network call for the image, if necessary.
+			userButton.setTitle("", for: .normal)
+			if let author = author {
+				author.loadUserThumbnail()
+				authorIconObservation?.stopObservations()
+				authorIconObservation = author.tell(self, when:"thumbPhoto") { observer, observed in
+					observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
+				}?.execute()
+			}
+		}
+	}
+	
+	var postTime: Date? {
+		didSet {
+			buildTitleLabel()
+		}
+	}
+	
+	var numLikes: Int32 = 0 {
+		didSet {
+			if numLikes > 0 {
+				likesLabel.isHidden = false
+				likesLabel.text = "\(numLikes) 💛"
 			}
 			else {
-				observer.likesLabel.isHidden = true
+				likesLabel.isHidden = true
 			}
-		}?.execute())
-		
-		// Tweet text
-		addObservation(tweetModel.tell(self, when: "text") { observer, observed in 		
+		}
+	}
+	
+	var postText: String? {
+		didSet {
 			// Can the user tap on a link and open a filtered view?
-			let addLinksToText = observer.viewController?.shouldPerformSegue(withIdentifier: "TweetFilter", 
-					sender: observer) ?? false
+			var addLinksToText = isPrototypeCell
+			if isInteractive, let vc = viewController as? BaseCollectionViewController {
+				addLinksToText = vc.canPerformSegue(.tweetFilter)
+			}
+					
 	// Damascus is pretty good; really like Helvetica. Hoefler doesn't work here. Times New Roman isn't bad.
 	// 
 	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Damascus", size: 16.0) as Any ]
@@ -125,179 +445,111 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			let scaledTweetFont = UIFontMetrics(forTextStyle: .body).scaledFont(for: tweetTextFont)
 			let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : scaledTweetFont as Any ]
 
-			let tweetTextWithLinks = StringUtilities.cleanupText(tweetModel.text, addLinks: addLinksToText)
+			let tweetTextWithLinks = StringUtilities.cleanupText(postText ?? "", addLinks: addLinksToText)
 			tweetTextWithLinks.addAttributes(tweetTextAttrs, range: NSRange(location: 0, length: tweetTextWithLinks.length))
-			observer.tweetTextView.attributedText = tweetTextWithLinks
-
-			let fixedWidth = observer.tweetTextView.frame.size.width
-			let newSize = observer.tweetTextView.sizeThatFits(CGSize(width: fixedWidth, 
+			tweetTextView.attributedText = tweetTextWithLinks
+			
+			let fixedWidth = tweetTextView.frame.size.width
+			let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, 
 					height: CGFloat.greatestFiniteMagnitude))
-			observer.tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-		}?.execute())
-		
-		// User Icon
-		tweetModel.author.loadUserThumbnail()
-		addObservation(tweetModel.author.tell(self, when:"thumbPhoto") { observer, observed in
-			observed.loadUserThumbnail()
-			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
-			observer.userButton.setTitle("", for: .normal)
-		}?.execute())
-		
-		// Photo, if one's attached
-		addObservation(tweetModel.tell(self, when:"photoDetails.id") { observer, observed in
-			if let photo = tweetModel.photoDetails {
-				observer.postImage.isHidden = false
-				if !observer.isPrototypeCell {
-					ImageManager.shared.image(withSize:.medium, forKey: photo.id) { image in
-						observer.postImage.image = image
-					}
-				}
-			}
-			else {
-				observer.postImage.image = nil
-				observer.postImage.isHidden = true
-			}
-		}?.execute())
-		
-		// Watch for login/out, so we can update like/unlike button state
-		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-			let currentUserWroteThis = tweetModel.author.username == CurrentUser.shared.loggedInUser?.username
-			observer.editButton.isHidden = !currentUserWroteThis
-			observer.deleteButton.isHidden = !currentUserWroteThis
-			observer.setLikeButtonState()
-			
-			// If we're logged in, observe a bunch of stuff
-			if let username = CurrentUser.shared.loggedInUser?.username {
-
-				// setup observation on 'replyOps' to watch for currentUser replying to this tweet.
-				var observation = tweetModel.tell(self, when: "opsWithThisParent.count") { observer, observed in
-					let replyCount = observed.opsWithThisParent?.reduce(0) { result, operation in 
-						return operation.author.username == username ? result + 1 : result
-					} ?? 0
-					observer.setViewVisibility(view: observer.replyQueuedView, showIf: replyCount != 0)
-					if replyCount == 1 {
-						observer.replyQueuedLabel.text = "Reply pending"
-					}
-					else if replyCount > 1 {
-						observer.replyQueuedLabel.text = "\(replyCount) replies pending"
-					}
-				}?.execute()
-				observer.opsByCurrentUserObservations.append(observation)
-				observer.addObservation(observation)
-				
-				if currentUserWroteThis { 
-					// Observe "opsDeletingThisTweet" 
-					observation = tweetModel.tell(self, when: "opsDeletingThisTweet") { observer, observed in
-						let opCount = observed.opsDeletingThisTweet?.count ?? 0
-						observer.setViewVisibility(view: observer.deleteQueuedView, showIf: opCount > 0)
-					}?.execute()
-					observer.opsByCurrentUserObservations.append(observation)
-					observer.addObservation(observation)
-				
-					// Observe "opsEditingThisTweet" to find edits
-					observation = tweetModel.tell(self, when: "opsEditingThisTweet") { observer, observed in
-						observer.setViewVisibility(view: observer.editQueuedView, 
-							showIf: observed.opsEditingThisTweet != nil)
-					}?.execute()
-					observer.opsByCurrentUserObservations.append(observation)
-					observer.addObservation(observation)
-				}
-				else {
-					observer.deleteQueuedView.isHidden = true
-					observer.editQueuedView.isHidden = true
-				}
-			
-				// setup observation on 'reactions' to watch for currentUser reacting to this tweet.
-				observation = tweetModel.tell(self, when: "reactionDict.like.users.\(username)") { observer, observed in
-					observer.setLikeButtonState()
-					
-//					if !observer.isPrototypeCell {
-//						CollectionViewLog.debug("Hit for non-proto cell.")
-//					}
-				}?.execute()
-				observer.opsByCurrentUserObservations.append(observation)
-				observer.addObservation(observation)
-				
-				// and watch ReactionOps to look for pending reactions; show/hide the Pending Reaction card.
-				observation = tweetModel.tell(self, when: "reactionOpsCount") { observer, observed in
-					if let likeReaction = tweetModel.getPendingUserReaction("like") {
-						observer.setViewVisibility(view: observer.reactionQueuedView, showIf: true)
-						observer.reactionQueuedLabel.text = likeReaction.isAdd ? "\"Like\" pending" : "\"Unlike\" pending"
-						observer.likeButton.isEnabled = false
-					}
-					else {
-						observer.setViewVisibility(view: observer.reactionQueuedView, showIf: false)
-						observer.likeButton.isEnabled = true
-					}
-				}?.execute()
-				observer.opsByCurrentUserObservations.append(observation)
-				observer.addObservation(observation)
-			}
-			else {
-				// Nobody's logged in. Hide all the queued action views, don't bother observing CurrentUser things.
-				observer.opsByCurrentUserObservations.forEach { observation in 
-					observer.removeObservation(observation)
-				}
-				observer.deleteQueuedView.isHidden = true
-				observer.editQueuedView.isHidden = true
-				observer.replyQueuedView.isHidden = true
-				observer.reactionQueuedView.isHidden = true
-				observer.likeButton.isEnabled = true
-			}
-		}?.execute())
-		
-		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+			tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+		}
 	}
 	
-	func setup(from postOpModel: PostOpTweet) {
-		let titleAttrString = NSMutableAttributedString(string: "\(postOpModel.author.displayName), ", 
+	var photos: [PhotoDetails]? {
+		didSet {
+			if let photoArray = photos, photoArray.count > 0 {
+				postImage.isHidden = false
+				if !isPrototypeCell {
+					ImageManager.shared.image(withSize:.medium, forKey: photoArray[0].id) { image in
+						self.postImage.image = image
+					}
+				}
+			}
+			else {
+				postImage.image = nil
+				postImage.isHidden = true
+			}
+		}
+	}
+	
+	dynamic var photoImages: [Data]? {
+		didSet {
+			if let photoArray = photoImages, photoArray.count > 0 {
+				postImage.isHidden = false
+				if !isPrototypeCell {
+					self.postImage.image = UIImage(data: photoArray[0])
+				}
+			}
+			else {
+				postImage.image = nil
+				postImage.isHidden = true
+			}
+		}
+	}
+	
+	var currentUserReplyOpCount: Int32 = 0 {
+		didSet {
+			setViewVisibility(view: replyQueuedView, showIf: currentUserReplyOpCount != 0)
+			if currentUserReplyOpCount == 1 {
+				replyQueuedLabel.text = "Reply pending"
+			}
+			else if currentUserReplyOpCount > 1 {
+				replyQueuedLabel.text = "\(currentUserReplyOpCount) replies pending"
+			}
+		}
+	}
+	
+	var currentUserHasDeleteOp: Bool = false {
+		didSet {
+			setViewVisibility(view: deleteQueuedView, showIf: currentUserHasDeleteOp)
+		}
+	}
+	
+	var currentUserHasEditOp: Bool = false {
+		didSet {
+			setViewVisibility(view: editQueuedView, showIf: currentUserHasEditOp)
+		}
+	}
+	
+	var currentUserReactOpCount: Int32 = 0 {
+		didSet {
+		}
+	}
+	
+	var currentUserHasLikeOp: LikeOpKind = .none {
+		didSet {
+			setViewVisibility(view: reactionQueuedView, showIf: currentUserHasLikeOp != .none)
+			reactionQueuedLabel.text = currentUserHasLikeOp == .like ? "\"Like\" pending" : "\"Unlike\" pending"
+			likeButton.isEnabled = currentUserHasLikeOp == .none
+		}
+	}
+	
+	var currentUserLikesThis: Bool = false {
+		didSet {
+			let newText = currentUserLikesThis ? "Unlike" : "Like"
+			likeButton.setTitle(newText, for: .normal)
+		}
+	}
+	
+	var loggedInUserIsAuthor: Bool = false
+	var isDeleted: Bool	= false
+
+// MARK: Methods
+
+	func buildTitleLabel() {
+		let authorDisplayName: String = author?.displayName ?? ""
+		let titleAttrString = NSMutableAttributedString(string: "\(authorDisplayName), ", 
 				attributes: authorTextAttributes())
-		let timeString = "In the near future"
-		let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
-		titleAttrString.append(timeAttrString)
+
+		if let time = postTime {
+			let timeString = StringUtilities.relativeTimeString(forDate: time)
+			let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
+			titleAttrString.append(timeAttrString)
+		}
 		titleLabel.attributedText = titleAttrString
-		
-		likesLabel.isHidden = true
-
-		addObservation(postOpModel.tell(self, when:"text") { observer, observed in
-			observer.tweetTextView.attributedText = StringUtilities.cleanupText(observed.text, addLinks: false)
-		}?.execute())
-		let fixedWidth = tweetTextView.frame.size.width
-		let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-		tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-
-		postOpModel.author.loadUserThumbnail()
-		addObservation(postOpModel.author.tell(self, when:"thumbPhoto") { observer, observed in
-			observed.loadUserThumbnail()
-			observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
-			observer.userButton.setTitle("", for: .normal)
-		}?.execute())
-
-		addObservation(postOpModel.tell(self, when:"image") { observer, observed in
-			if let imageData = observed.image, let image = UIImage(data: imageData as Data) {
-				observer.postImage.isHidden = false
-				observer.postImage.image = image
-				observer.cellSizeChanged()
-			}
-			else {
-				observer.postImage.image = nil
-				observer.postImage.isHidden = true
-				observer.cellSizeChanged()
-			}
-		}?.execute())
-		
-		deleteQueuedView.isHidden = true
-		editQueuedView.isHidden = true
-		replyQueuedView.isHidden = true
-		reactionQueuedView.isHidden = true
-		likeButton.isHidden = true
-		replyButton.isHidden = true
-				
-		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 	}
-	
+		
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		pendingOpsStackView.isHidden = true				// In case the xib didn't leave this hidden
@@ -320,6 +572,9 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		
 		tweetTextView.adjustsFontForContentSizeCategory = true
 
+		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+
 		// Every 10 seconds, update the post time (the relative time since now that the post happened).
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
@@ -334,7 +589,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 	}
 	
-	// Prototype cells have difficulty figuring out their layout while animating.
+	// Prototype cells have difficulty figuring out their layout while animating. This fn shows/hides subviews immediately
+	// for proto cells, but animates for normal cells.
 	func setViewVisibility(view: UIView, showIf: Bool) {
 		if showIf != view.isHidden { return }
 		if isPrototypeCell {
@@ -349,34 +605,14 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			}
 		}
 	}
-	
-	func setLikeButtonState() {
-		guard let currentUser = CurrentUser.shared.loggedInUser, let tweetModel = model as? TwitarrPost else {
-			likeButton.setTitle("Like", for: .normal)
-			return
-		}
 		
-		// If the current logged in user already likes this tweet, set the like button to unlike
-		if let likeReaction = tweetModel.reactionDict?["like"] as? Reaction {
-			if likeReaction.users.contains(where: { user in return user.username == currentUser.username }) {
-				likeButton.setTitle("Unlike", for: .normal)
-			}
-		}
-		else {
-			likeButton.setTitle("Like", for: .normal)
-		}
-//		if !self.isPrototypeCell {
-//			CollectionViewLog.debug("like button state change:", ["Title" : self.likeButton.titleLabel!.text,
-//					"index" : self.dataSource?.collectionView?.indexPath(for: self)])
-//		}
-	}
-	
 	override var privateSelected: Bool {
 		didSet {
 			if !isPrototypeCell, privateSelected == oldValue { return }
 			
 			var newImageHeight: CGFloat = 200.0
-			if privateSelected, let tweetModel = model as? TwitarrPost, let photoDetails = tweetModel.photoDetails {
+			if privateSelected, let photos = photos, photos.count == 1 {
+				let photoDetails = photos[0] 
 				newImageHeight = postImage.bounds.width / photoDetails.aspectRatio
 			}
 			if isPrototypeCell {
@@ -439,15 +675,20 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			interaction: UITextItemInteraction) -> Bool {
  //		UIApplication.shared.open(URL, options: [:])
  		guard isInteractive else { return false }
- 		viewController?.performSegue(withIdentifier: "TweetFilter", sender: URL.absoluteString)
+ 		linkTextTapped(link: URL.absoluteString)
         return false
     }
+    
+    func linkTextTapped(link: String) {
+ 		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.linkTextTapped(link: link)
+		}
+	}
         
-   	@IBAction func showUserProfile() {
+   	@IBAction func authorIconTapped() {
  		guard isInteractive else { return }
-   		if let tweetModel = model as? TwitarrPost {
-   			let userName = tweetModel.author.username
-   			viewController?.performSegue(withIdentifier: "UserProfile", sender: userName)
+ 		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.authorIconTapped()
 		}
    	}
    	
@@ -455,43 +696,30 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
    	
    	@IBAction func likeButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-   		var alreadyLikesThis = false
-		if let currentUser = CurrentUser.shared.loggedInUser,
-				let likeReaction = tweetModel.reactionDict?["like"] as? Reaction,
-				likeReaction.users.contains(where: { user in return user.username == currentUser.username }) {
-			alreadyLikesThis = true
+ 		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.likeButtonTapped()
 		}
-
-		if !CurrentUser.shared.isLoggedIn() {
- 			let seguePackage = LoginSegueWithAction(promptText: "In order to like this post, you'll need to log in first.",
- 					loginSuccessAction: { tweetModel.setReaction("like", to: !alreadyLikesThis) }, loginFailureAction: nil)
-  			viewController?.performSegue(withIdentifier: "ModalLogin", sender: seguePackage)
-   		}
-   		else {
-    		if let tweetModel = model as? TwitarrPost {
-    			tweetModel.setReaction("like", to: !alreadyLikesThis)
-    		}
-   		}
    	}
    	
 	@IBAction func replyButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-		viewController?.performSegue(withIdentifier: "ComposeReplyTweet", sender: tweetModel)
+ 		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.replyButtonTapped()
+		}
 	}
   	
 	@IBAction func editButtonTapped() {
  		guard isInteractive else { return }
-   		if let tweetModel = model as? TwitarrPost {
-			viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetModel)
+   		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.editButtonTapped()
 		}
-		else if let tweetOpModel = model as? PostOpTweet {
-			viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetOpModel)
-		}
+
+//		else if let tweetOpModel = model as? PostOpTweet {
+//			viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetOpModel)
+//		}
 	}
 	
-	@IBAction func eliteDeleteTweetButtonTapped() {
+	@IBAction func deleteButtonTapped() {
  		guard isInteractive else { return }
  		
  		var deleteConfirmationMessage: String
@@ -512,12 +740,12 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 	
 	func eliteDeleteTweetConfirmationComplete(_ action: UIAlertAction) {
-   		if let tweetModel = model as? TwitarrPost {
-			tweetModel.addDeleteTweetOp()
+   		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.deleteButtonTapped()
 		}
-		else if let postOpModel = model as? PostOpTweet {
-			PostOperationDataManager.shared.remove(op: postOpModel)
-		}
+//		else if let postOpModel = model as? PostOpTweet {
+//			PostOperationDataManager.shared.remove(op: postOpModel)
+//		}
 	}
 	
 // MARK: Buttons in pending state change views
@@ -525,26 +753,30 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
    	@IBAction func cancelDeleteOpButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-   		tweetModel.cancelDeleteOp()   		
+   		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.cancelDeleteOpButtonTapped()
+		}
    	}
 		
    	@IBAction func cancelEditOpButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-   		tweetModel.cancelEditOp()   		
+   		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.cancelEditOpButtonTapped()
+		}
    	}
 		
    	@IBAction func viewPendingRepliesButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-		viewController?.performSegue(withIdentifier: "PendingReplies", sender: tweetModel)
+   		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.viewPendingRepliesButtonTapped()
+		}
    	}
 		
    	@IBAction func cancelReactionOpButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-   		tweetModel.cancelReactionOp("like")   		
+   		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.cancelReactionOpButtonTapped()
+		}
    	}
 		
 }

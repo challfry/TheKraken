@@ -278,7 +278,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 		log.d("Asking for cell at indexpath", [ "indexPath" : indexPath ])
 		let cellModel = section[offsetPath.row]
-
+		
 		// If this reuseID isn't registered with the CV yet, ask the cell model to register its cell classes and reuseIDs.
 		let reuseID = cellModel.reuseID(traits: collectionView.traitCollection)
 		if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
@@ -398,7 +398,15 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
 		}
 		
-		// I think we need to decompose moves to apply them to cellModels.
+		// Decompose moves into deletes and inserts to apply them to cellModels. While doing it, preserve
+		// the cells being moved. insertsAndMoves contains nil for actual inserts, or the cell being moved for moves.
+		var insertsAndMoves = [(IndexPath, BaseCellModel?)]()
+		insertCells.forEach { insertsAndMoves.append(($0, nil)) }
+		moveCells.forEach { 
+			deleteCells.append($0) 
+			let cm = cellModelSections[$0.section][$0.row]
+			insertsAndMoves.append(($1, cm))
+		}
 	
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
 		// Luckily, we can delete all the cells first, and then delete sections.
@@ -424,10 +432,16 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				cellModelSections.insert(section, at: sectionIndex)
 				log.debug("Newly inserted section.", ["FRC" : self, "numCells" : section.count, "offsetIndex" : sectionIndex])
 			}
-			for index in insertCells.sorted() {
-				if let frcObjects = frcSections[index.section].objects as? [FetchedObjectType],
-						let cellModel = createCellModel?(frcObjects[index.row]) {
-					cellModelSections[index.section].insert(cellModel, at: index.row)
+			
+			let sortedInsertsAndMoves = insertsAndMoves.sorted { $0.0 < $1.0 }
+			for (insertIndexPath, insertObject) in sortedInsertsAndMoves {
+				// If we have an object to insert this is actually a move
+				if let movingCellModel = insertObject {
+					cellModelSections[insertIndexPath.section].insert(movingCellModel, at: insertIndexPath.row)
+				}
+				else if let frcSection = frcSections[insertIndexPath.section].objects as? [FetchedObjectType],
+						let cellModel = createCellModel?(frcSection[insertIndexPath.row]) {
+					cellModelSections[insertIndexPath.section].insert(cellModel, at: insertIndexPath.row)
 				}
 			}
 		}

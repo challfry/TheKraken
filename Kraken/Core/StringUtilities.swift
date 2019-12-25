@@ -28,7 +28,8 @@ class StringUtilities {
 					outputString.append(attrString)
 				}
 				else {
-    				let tagAttrs: [NSAttributedString.Key : Any] = [ .link : tempString ]
+    				let tagAttrs: [NSAttributedString.Key : Any] = [ .link : tempString,
+    						 .foregroundColor : UIColor.blue as Any]
 					let attrString = NSAttributedString(string: tempString, attributes: tagAttrs)
 					outputString.append(attrString)
 				}

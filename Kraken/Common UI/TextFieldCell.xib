@@ -41,7 +41,7 @@
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="100" verticalCompressionResistancePriority="500" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dr-Xc-8rl">
                         <rect key="frame" x="20" y="48" width="335" height="24"/>
                         <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
-                        <color key="textColor" red="0.83386843765483176" green="0.13037952783677625" blue="0.17990947416034478" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <color key="textColor" name="Red Alert Text"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
@@ -76,6 +76,9 @@
         </namedColor>
         <namedColor name="Kraken Text Entry">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Red Alert Text">
+            <color red="0.72500002384185791" green="0.045000001788139343" blue="0.045000001788139343" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
     </resources>
 </document>

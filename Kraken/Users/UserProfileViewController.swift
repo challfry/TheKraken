@@ -21,6 +21,7 @@ import UIKit
         super.viewDidLoad()
         dataSource.collectionView = collectionView
         self.title = String("User: \(modelUserName ?? "")")
+		knownSegues = Set([.showUserTweets, .showUserMentions, .showRoomOnDeckMap, .editUserProfile])
 
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
@@ -128,24 +129,21 @@ import UIKit
 	}
     
     // MARK: Navigation
-	var filterForNextVC: String?
     func pushUserTweetsView() {
     	if let username = modelUserName {
-	    	filterForNextVC = "\(username)"
-    		self.performSegue(withIdentifier: "ShowUserTweets", sender: self)
+    		self.performKrakenSegue(.showUserTweets, sender: "\(username)")
 		}
     }
     
     func pushUserMentionsView() {
     	if let username = modelUserName {
-	    	filterForNextVC = "@\(username)"
-    		self.performSegue(withIdentifier: "ShowUserMentions", sender: self)
+    		self.performKrakenSegue(.showUserMentions, sender: "@\(username)")
 		}
     }
     
     func pushMapView() {
-    	if let user = modelKrakenUser {
-			self.performSegue(withIdentifier: "ShowRoomOnDeckMap", sender: user)
+    	if let user = modelKrakenUser, let roomNumber = user.roomNumber {
+			self.performKrakenSegue(.showRoomOnDeckMap, sender: roomNumber)
     	}
     }
     
@@ -162,22 +160,23 @@ import UIKit
     }
     
     func pushEditProfileView() {
-    	self.performSegue(withIdentifier: "EditUserProfile", sender: modelUserName)
+    	self.performKrakenSegue(.editUserProfile, sender: nil)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if segue.identifier == "ShowUserMentions", let destVC = segue.destination as? TwitarrViewController {
-			destVC.dataManager = TwitarrDataManager(filterString: filterForNextVC)
+		if segue.identifier == "ShowUserMentions", let destVC = segue.destination as? TwitarrViewController,
+				let filterString = sender as? String {
+			destVC.dataManager = TwitarrDataManager(filterString: filterString)
 		}
 		else if segue.identifier == "ShowUserTweets", let destVC = segue.destination as? TwitarrViewController, 
-				let filterString = filterForNextVC {
+				let filterString = sender as? String {
 			destVC.dataManager = TwitarrDataManager(predicate: NSPredicate(format: "author.username == %@", filterString))
 		}
 		else if segue.identifier == "EditUserProfile" {
 			// Nothing to do, until we add the admin feature so they can edit other profiles.
 		}
 		else if segue.identifier == "ShowRoomOnDeckMap", let destVC = segue.destination as? DeckMapViewController,
-				let user = sender as? KrakenUser, let roomNum = user.roomNumber {
+				let roomNum = sender as? String {
 			destVC.pointAtRoomNamed(roomNum)
 		}
     }

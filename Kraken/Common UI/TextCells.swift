@@ -201,7 +201,9 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 		}
 	}
 	var errorText: String? {
-		didSet {  //errorLabel.text = errorText
+		didSet {  
+			errorLabel.text = errorText
+			errorLabel.isHidden = errorText == nil
 		}
 	}
 	
@@ -209,6 +211,14 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 		didSet {
 			textView.isEditable = isEditable
 		}
+	}
+	
+	override func awakeFromNib() {
+		errorLabel.isHidden = true
+		
+		// Font styling
+		label.styleFor(.body)
+		errorLabel.styleFor(.body)
 	}
 	
 	func textViewDidBeginEditing(_ textView: UITextView) {

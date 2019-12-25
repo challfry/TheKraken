@@ -322,9 +322,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="175" y="87.999999999999986" width="200" height="200.66666666666663"/>
+                                <rect key="frame" x="175" y="88" width="200" height="200"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.66666666666663"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -477,9 +477,9 @@
                     <navigationItem key="navigationItem" title="Settings" id="nbh-EO-E01"/>
                     <connections>
                         <outlet property="collectionView" destination="aPE-Dg-ILQ" id="abo-z9-uuA"/>
-                        <segue destination="DA5-7s-QTr" kind="presentation" identifier="ShowLogin" id="hIj-Jv-E7S"/>
+                        <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="hIj-Jv-E7S"/>
                         <segue destination="1mH-gG-DrE" kind="show" identifier="PostOperations" id="Yxg-Xl-ZUF"/>
-                        <segue destination="4Kh-NN-fXm" kind="show" identifier="showUserProfile" id="eK7-8I-NMd"/>
+                        <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="eK7-8I-NMd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LVi-K1-QnL" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -518,9 +518,9 @@
                     <navigationItem key="navigationItem" title="Tasks" id="P87-Oa-JRg"/>
                     <connections>
                         <outlet property="collectionView" destination="BL1-Gv-xud" id="3kg-Nq-U9o"/>
-                        <segue destination="Bly-1t-Nf9" kind="show" identifier="EditTweet" id="ibx-KH-vcj"/>
-                        <segue destination="Gfc-pJ-wBA" kind="show" identifier="EditSeamailThread" id="jdD-6N-h46"/>
-                        <segue destination="4Kh-NN-fXm" kind="show" identifier="showUserProfile" id="ZNA-4Q-2gl"/>
+                        <segue destination="Bly-1t-Nf9" kind="show" identifier="EditTweetOp" id="ibx-KH-vcj"/>
+                        <segue destination="Gfc-pJ-wBA" kind="show" identifier="EditSeamailThreadOp" id="jdD-6N-h46"/>
+                        <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="ZNA-4Q-2gl"/>
                         <segue destination="PbB-bw-9Xu" kind="show" identifier="EditUserProfile" id="TWa-ya-eZ5"/>
                     </connections>
                 </viewController>
@@ -1069,11 +1069,73 @@
                                 </collectionViewFlowLayout>
                                 <cells/>
                             </collectionView>
+                            <visualEffectView opaque="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Q04-gy-jHS">
+                                <rect key="frame" x="104" y="80" width="167" height="240"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="H1c-fe-MKf">
+                                    <rect key="frame" x="0.0" y="0.0" width="167" height="240"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <stackView opaque="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="EVv-J2-BL5">
+                                            <rect key="frame" x="10" y="10" width="147" height="150"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eUf-Ic-ErC">
+                                                    <rect key="frame" x="0.0" y="0.0" width="147" height="30"/>
+                                                    <state key="normal" title="All Forums">
+                                                        <color key="titleColor" name="Kraken Label Text"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="allForumsButtonTapped" destination="SZu-Xt-If2" eventType="touchUpInside" id="RVJ-2j-bV7"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="psJ-5c-P0Z">
+                                                    <rect key="frame" x="0.0" y="40" width="147" height="30"/>
+                                                    <state key="normal" title="Forum History">
+                                                        <color key="titleColor" name="Kraken Label Text"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="forumHistoryButtonTapped" destination="SZu-Xt-If2" eventType="touchUpInside" id="fFD-hL-2i6"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fs9-bY-gsK">
+                                                    <rect key="frame" x="0.0" y="80" width="147" height="30"/>
+                                                    <state key="normal" title="Favorite Forums">
+                                                        <color key="titleColor" name="Kraken Label Text"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="favoriteForumsButtonTapped" destination="SZu-Xt-If2" eventType="touchUpInside" id="m7p-CJ-EWt"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4mH-yu-gsj">
+                                                    <rect key="frame" x="0.0" y="120" width="147" height="30"/>
+                                                    <state key="normal" title="Forums I've Posted In">
+                                                        <color key="titleColor" name="Kraken Label Text"/>
+                                                    </state>
+                                                    <connections>
+                                                        <action selector="postedForumsButtonTapped" destination="SZu-Xt-If2" eventType="touchUpInside" id="XxI-L0-doE"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="EVv-J2-BL5" firstAttribute="top" secondItem="H1c-fe-MKf" secondAttribute="top" constant="10" id="XIn-3D-1zZ"/>
+                                        <constraint firstAttribute="trailing" secondItem="EVv-J2-BL5" secondAttribute="trailing" constant="10" id="fX0-Pe-G6C"/>
+                                        <constraint firstItem="EVv-J2-BL5" firstAttribute="leading" secondItem="H1c-fe-MKf" secondAttribute="leading" constant="10" id="jeM-qc-GmT"/>
+                                        <constraint firstAttribute="bottom" secondItem="EVv-J2-BL5" secondAttribute="bottom" priority="200" constant="10" id="vpK-WK-rJb"/>
+                                    </constraints>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="240" id="IUH-y1-gJP"/>
+                                </constraints>
+                                <blurEffect style="light"/>
+                            </visualEffectView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="g60-2P-8DA" firstAttribute="top" secondItem="n4s-4n-evs" secondAttribute="top" id="413-tq-kkq"/>
                             <constraint firstItem="g60-2P-8DA" firstAttribute="leading" secondItem="n4s-4n-evs" secondAttribute="leading" id="6Dy-kE-Epq"/>
+                            <constraint firstItem="n4s-4n-evs" firstAttribute="top" secondItem="Q04-gy-jHS" secondAttribute="top" constant="8" id="abc-80-db8"/>
+                            <constraint firstItem="Q04-gy-jHS" firstAttribute="centerX" secondItem="n4s-4n-evs" secondAttribute="centerX" id="haz-BT-CpG"/>
                             <constraint firstItem="n4s-4n-evs" firstAttribute="trailing" secondItem="g60-2P-8DA" secondAttribute="trailing" id="hh2-p7-z40"/>
                             <constraint firstItem="n4s-4n-evs" firstAttribute="bottom" secondItem="g60-2P-8DA" secondAttribute="bottom" id="tS8-GK-c9x"/>
                         </constraints>
@@ -1084,12 +1146,17 @@
                     </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="g60-2P-8DA" id="sEd-zf-U8Z"/>
+                        <outlet property="forumsFilterContainerView" destination="H1c-fe-MKf" id="rAg-Uz-sjE"/>
+                        <outlet property="forumsFilterHeightConstraint" destination="IUH-y1-gJP" id="WJW-Cr-o9K"/>
+                        <outlet property="forumsFilterStackView" destination="EVv-J2-BL5" id="80R-d3-0uS"/>
+                        <outlet property="forumsFilterView" destination="Q04-gy-jHS" id="exv-cg-YIS"/>
+                        <outlet property="forumsFilterViewTop" destination="abc-80-db8" id="634-l5-vKg"/>
                         <segue destination="ppy-9j-Eyt" kind="show" identifier="ShowForumThread" id="Cz0-pb-xEd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QAX-Jp-bJg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1601" y="451"/>
+            <point key="canvasLocation" x="1600.8" y="450.73891625615767"/>
         </scene>
         <!--Thread-->
         <scene sceneID="PEh-2V-E2n">
@@ -1120,9 +1187,13 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="1Ec-hf-QrT"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Thread" id="wfQ-pb-xTp"/>
+                    <navigationItem key="navigationItem" title="Thread" id="wfQ-pb-xTp">
+                        <barButtonItem key="rightBarButtonItem" title="Post" id="qnY-wk-1iY"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="0Hl-xU-4TH" id="qMa-2p-xWw"/>
+                        <outlet property="postButton" destination="qnY-wk-1iY" id="I0U-Ya-qvF"/>
+                        <segue destination="0s5-bb-y2H" kind="show" identifier="tweetFilter" id="yZ3-I6-e7Y"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NQ2-e3-oN1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1883,6 +1954,9 @@
         <namedColor name="CollectionView Background">
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <namedColor name="VC Background">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
@@ -1891,12 +1965,12 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="oPR-Dz-wmr"/>
+        <segue reference="ZNA-4Q-2gl"/>
         <segue reference="ibx-KH-vcj"/>
-        <segue reference="6N4-83-66a"/>
-        <segue reference="hIj-Jv-E7S"/>
+        <segue reference="yZ3-I6-e7Y"/>
+        <segue reference="Ieo-oe-rtR"/>
         <segue reference="llS-CN-BhZ"/>
-        <segue reference="hV8-Mc-Uo7"/>
+        <segue reference="jdD-6N-h46"/>
         <segue reference="obm-hj-fmk"/>
     </inferredMetricsTieBreakers>
 </document>

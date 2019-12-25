@@ -36,7 +36,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
         postAuthor = CurrentUser.shared.loggedInUser?.username ?? ""
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
         	if observer.postAuthor != CurrentUser.shared.loggedInUser?.username {
-        		observer.performSegue(withIdentifier: "dismiss", sender: observer.threadModel)
+        		observer.performKrakenSegue(.dismiss, sender: observer.threadModel)
         	}
         }
         

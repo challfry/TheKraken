@@ -15,6 +15,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		
     override func viewDidLoad() {
 		super.viewDidLoad()
+		knownSegues = Set([.userProfile, .editTweetOp, .editSeamailThreadOp])
   		dataSource.register(with: collectionView, viewController: self)
 		
 		let context = LocalCoreData.shared.mainThreadContext
@@ -23,20 +24,32 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, 
 				sectionNameKeyPath: nil, cacheName: nil)
 		controller?.delegate = self
-		do {
-			try controller?.performFetch()
-			
-			if let tasks = controller?.fetchedObjects {
-				var x = 0
-				for task in tasks {
-					x = x + 1
-					let newSection = makeNewSection(for: task, sectionIndex: x)
-					dataSource.append(segment: newSection)
-				}
+
+		// Rebuild the entire table if the logged in user changes.
+		CurrentUser.shared.tell(self, when: "loggedInUser.username") { observer, observed in
+			if let currentUsername = CurrentUser.shared.loggedInUser?.username {
+				fetchRequest.predicate = NSPredicate(format: "author.username == %@", currentUsername)
 			}
-		} catch {
-			CoreDataLog.error("Failed to fetch entities for PostOp tasks.", ["error" : error])
-		}
+			else {
+				fetchRequest.predicate = NSPredicate(value: false)
+			}
+		
+			do {
+				observer.dataSource.deleteAllSegments()
+				try observer.controller?.performFetch()
+				
+				if let tasks = observer.controller?.fetchedObjects {
+					var x = 0
+					for task in tasks {
+						x = x + 1
+						let newSection = observer.makeNewSection(for: task, sectionIndex: x)
+						observer.dataSource.append(segment: newSection)
+					}
+				}
+			} catch {
+				CoreDataLog.error("Failed to fetch entities for PostOp tasks.", ["error" : error])
+			}
+		}?.execute()
 	}	
 		
     override func viewWillAppear(_ animated: Bool) {
@@ -45,7 +58,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 	
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     	switch segue.identifier {
-		case "EditTweet":
+		case "EditTweetOp":
 			if let destVC = segue.destination as? ComposeTweetViewController, let tweet = sender as? PostOpTweet {
 				destVC.draftTweet = tweet
 			}
@@ -53,7 +66,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 			if let destVC = segue.destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
 				destVC.threadToEdit = thread
 			}
-		case "showUserProfile":
+		case "UserProfile":
 			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
 				destVC.modelUserName = username
 			}
@@ -83,12 +96,12 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				taskSection.append(SettingsInfoCellModel("Cancel the \"Like\" on this tweet:", taskIndex: sectionIndex))
 			}
 			
-			let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost, reuse: "tweet")
+			let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost)
 			model.isInteractive = false
 			taskSection.append(model)
 
 		case let postTask as PostOpTweet:
-			let cellModel = TwitarrTweetCellModel(withModel: postTask, reuse: "tweet")
+			let cellModel = TwitarrTweetOpCellModel(withModel: postTask)
 			cellModel.isInteractive = false
 			if postTask.tweetToEdit != nil {
 				taskSection.append(SettingsInfoCellModel("Post an edit to your tweet:", taskIndex: sectionIndex))
@@ -103,7 +116,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			taskSection.append(cellModel)
 		
 		case let deleteTask as PostOpTweetDelete:
-			let cellModel = TwitarrTweetCellModel(withModel: deleteTask.tweetToDelete, reuse: "tweet")
+			let cellModel = TwitarrTweetCellModel(withModel: deleteTask.tweetToDelete)
 			cellModel.isInteractive = false
 			taskSection.append(SettingsInfoCellModel("Delete this Twitarr tweet of yours:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
@@ -152,7 +165,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				let disclosureCell = DisclosureCellModel()
 				disclosureCell.title = "See profile for \(favoritedUsername)"
 				disclosureCell.tapAction = { cell in
-					self.performSegue(withIdentifier: "showUserProfile", sender: favoritedUsername)
+					self.performKrakenSegue(.userProfile, sender: favoritedUsername)
 				}
 				taskSection.append(disclosureCell)
 			}
@@ -330,13 +343,13 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 	
 	func editTaskHit() {
 		if task is PostOpTweet {
-			viewController?.performSegue(withIdentifier: "EditTweet", sender: task)
+			viewController?.performKrakenSegue(.editTweetOp, sender: task)
 		}
 		else if task is PostOpSeamailThread {
-			viewController?.performSegue(withIdentifier: "EditSeamailThread", sender: task)
+			viewController?.performKrakenSegue(.editSeamailThreadOp, sender: task)
 		}
 		else if task is PostOpUserProfileEdit {
-			viewController?.performSegue(withIdentifier: "EditUserProfile", sender: task)
+			viewController?.performKrakenSegue(.editUserProfile, sender: task)
 		}
 	}
 	

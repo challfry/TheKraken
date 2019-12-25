@@ -25,7 +25,7 @@
                         </constraints>
                         <state key="normal" title="Avatar"/>
                         <connections>
-                            <action selector="showUserProfile" destination="jfs-vB-cbw" eventType="touchUpInside" id="ZOO-ls-dcV"/>
+                            <action selector="authorIconTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="vpa-h2-Gzx"/>
                         </connections>
                     </button>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="yR2-EL-Eir">
@@ -218,7 +218,7 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="45" height="44"/>
                                                         <state key="normal" title="Delete"/>
                                                         <connections>
-                                                            <action selector="eliteDeleteTweetButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="5pj-sJ-zRb"/>
+                                                            <action selector="deleteButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="aAe-xb-uIV"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gAH-td-gvz">

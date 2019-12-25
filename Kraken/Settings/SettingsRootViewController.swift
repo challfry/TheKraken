@@ -17,6 +17,7 @@ class SettingsRootViewController: BaseCollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		title = "Settings"
+		knownSegues = Set([.userProfile, .postOperations, .modalLogin])
 
 		PostOperationDataManager.shared.tell(self, when: "operationsWithErrorsCount") { observer, observed in
 			if observed.operationsWithErrorsCount > 0 {
@@ -52,7 +53,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 			for user in userArray {
 				let cell = LoggedInUserCellModel(user: user, action: weakify(self, SettingsRootViewController.userButtonTapped))
 				cell.showUserProfileAction = { [weak self] in
-					self?.performSegue(withIdentifier: "showUserProfile", sender: user)
+					self?.performKrakenSegue(.userProfile, sender: user.username)
 				}
 				loginInfoSection.append(cell)
 			}
@@ -153,7 +154,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 	
 	func loginButtonTapped() {
 		// Show login controller
-		performSegue(withIdentifier: "ShowLogin", sender: self)
+		performKrakenSegue(.modalLogin, sender: nil)
 	}
 	
 	func userButtonTapped(_ cell: DisclosureCellModel) {
@@ -168,10 +169,9 @@ class SettingsRootViewController: BaseCollectionViewController {
 //					let controller = sender as? NSFetchedResultsController<PostOperation> {
 //				destVC.controller = controller
 //			}
-		case "showUserProfile":
-			if let destVC = segue.destination as? UserProfileViewController, 
-					let user = sender as? LoggedInKrakenUser {
-				destVC.modelUserName = user.username
+		case "UserProfile":
+			if let destVC = segue.destination as? UserProfileViewController, let user = sender as? String {
+				destVC.modelUserName = user
 			}
 		default: break 
     	}
@@ -377,7 +377,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	
 	override func cellTapped() {
 		if PostOperationDataManager.shared.pendingOperationCount > 0 {
-			viewController?.performSegue(withIdentifier: "PostOperations", sender: self)
+			viewController?.performKrakenSegue(.postOperations, sender: nil)
 		}
 	}
 }

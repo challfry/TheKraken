@@ -32,11 +32,15 @@
         </uniquenessConstraints>
     </entity>
     <entity name="ForumReadCount" representedClassName="ForumReadCount" syncable="YES">
+        <attribute name="isFavorite" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastReadTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="numPostsRead" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="userPosted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="forumThread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="readCount" inverseEntity="ForumThread"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="forumReadCount" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="ForumThread" representedClassName="ForumThread" syncable="YES">
+        <attribute name="firstPostTime" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="lastPostTime" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="locked" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -248,8 +252,8 @@
     <elements>
         <element name="Event" positionX="117" positionY="117" width="128" height="210"/>
         <element name="ForumPost" positionX="126" positionY="126" width="128" height="133"/>
-        <element name="ForumReadCount" positionX="135" positionY="135" width="128" height="88"/>
-        <element name="ForumThread" positionX="117" positionY="117" width="128" height="178"/>
+        <element name="ForumReadCount" positionX="135" positionY="135" width="128" height="133"/>
+        <element name="ForumThread" positionX="117" positionY="117" width="128" height="193"/>
         <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
         <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="508"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>

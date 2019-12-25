@@ -32,7 +32,7 @@ import UIKit
     @NSManaged public var reactionOps: NSMutableSet?
 
 		// Properties built from reactions
-	@objc dynamic public var reactionDict: NSMutableDictionary?
+	@objc dynamic public var reactionDict: NSMutableDictionary?			// the reactions set, keyed by reaction.word
 	@objc dynamic public var likeReaction: Reaction?
 	
 		// Properties built from reactionOps

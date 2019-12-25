@@ -372,7 +372,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		if !CurrentUser.shared.isLoggedIn() {
  			let seguePackage = LoginSegueWithAction(promptText: "In order to follow this Schedule event, you'll need to log in first.",
  					loginSuccessAction: { eventModel.addFollowOp(newState: true) }, loginFailureAction: nil)
-  			viewController?.performSegue(withIdentifier: "ModalLogin", sender: seguePackage)
+  			dataSource?.performKrakenSegue(.modalLogin, sender: seguePackage)
    		}
    		else {
 			eventModel.addFollowOp(newState: !alreadyLikesThis)
@@ -428,8 +428,8 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	}
 	
 	@IBAction func mapButtonHit() {
-		if let eventModel = model as? Event {
-			viewController?.performSegue(withIdentifier: "ShowRoomOnDeckMap", sender: eventModel)
+		if let eventModel = model as? Event, let locationName = eventModel.location {
+			dataSource?.performKrakenSegue(.showRoomOnDeckMap, sender: locationName)
 		}
 	}
 	

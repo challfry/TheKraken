@@ -20,6 +20,7 @@ import UIKit
     @NSManaged public var lastPoster: KrakenUser
     @NSManaged public var readCount: Set<ForumReadCount>
     
+
     // Sets reasonable default values for properties that could conceivably not change during buildFromV2 methods.
 	public override func awakeFromInsert() {
 		super.awakeFromInsert()
@@ -44,9 +45,11 @@ import UIKit
 			}
 		}
 		
-		//
-//		ForumReadCount.numPostsRead = postCount - v2Object.count
-
+		// Set up the associated ForumReadCount object if we have a postCount to update
+		if let newPostCount = v2Object.count, let readCountObject = getReadCountObject(context: context) {
+			readCountObject.numPostsRead = postCount - newPostCount
+		}
+		
 	}
     
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ForumThread) {
@@ -67,6 +70,73 @@ import UIKit
 			}
 			existingPost.buildFromV2(context: context, v2Object: post, thread: self)
 		}
+		
+		internalUpdateLastReadTime(context: context, toNewTime: v2Object.latestRead)
+	}
+	
+	// Creates the RCO for this user+forum if it doesn't exist. Remember that every user has an RCO for every forum they
+	// interact with. Will be nil if no logged in user.
+	func getReadCountObject(context: NSManagedObjectContext) -> ForumReadCount? {
+		guard self.managedObjectContext === context else { 
+			CoreDataLog.error("ForumThread needs to be in the nextworkOperationContext.", nil)
+			return nil
+		}
+		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return nil }
+		
+		var readCountObject = readCount.first { $0.user.username == currentUser.username }
+		if readCountObject == nil {
+			readCountObject = ForumReadCount(context: context)
+			readCountObject?.user = currentUser
+			readCountObject?.forumThread = self
+		}
+		return readCountObject
+	}
+	
+	// External method, called by the UI to update the view time of a forum. Call this just as the user finishes
+	// looking at the forum.
+	func updateLastReadTime() {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failed to update forum read time.")
+			if let selfInContext = try context.existingObject(with: self.objectID) as? ForumThread,
+					let rco = selfInContext.getReadCountObject(context: context) {
+				rco.lastReadTime = Date()
+				
+				// Note that we're not updating the number of posts read to == postCount. postCount is how many
+				// posts the forum has in total. posts.count is how many we've downloaded--the user cannot have
+				// (locally) read more than that. They may not even have read all the downloaded posts--we could 
+				// modify this fn and the UI to track how far the user scrolled.
+				if rco.numPostsRead	< Int64(self.posts.count) {
+					rco.numPostsRead = Int64(self.posts.count)
+				}
+			}
+		}		
+	}
+	
+	// For use during parsing. Updates last read time server-provided timestamp of when user last viewed the thread.
+	// Note that LastReadTime is the *previous* time we loaded this thread.
+	func internalUpdateLastReadTime(context: NSManagedObjectContext, toNewTime: Int64?) {
+		if let newTime = toNewTime, let rco = self.getReadCountObject(context: context) {
+			let lastReadTime = Date(timeIntervalSince1970: Double(newTime) / 1000.0)
+			if let objectLRT = rco.lastReadTime, lastReadTime <= objectLRT {
+				// Do nothing -- the object already has a LRT that's more recent than the new value
+			}
+			else {
+				rco.lastReadTime = lastReadTime
+			}
+		}
+	}
+	
+	func setForumFavoriteStatus(to: Bool) {
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			context.pushOpErrorExplanation("Failed to update forum favorite status.")
+			if let selfInContext = try context.existingObject(with: self.objectID) as? ForumThread,
+					let rco = selfInContext.getReadCountObject(context: context) {
+				rco.isFavorite = to
+				let isLocked = selfInContext.locked
+				selfInContext.locked = !isLocked
+				selfInContext.locked = isLocked
+			}
+		}		
 	}
 }
 
@@ -76,7 +146,7 @@ import UIKit
     @NSManaged public var timestamp: Int64
     
     @NSManaged public var author: KrakenUser
-    @NSManaged public var forum: ForumThread
+    @NSManaged public var thread: ForumThread
 //	@NSManaged public var photos: Set<PhotoDetails>
     @NSManaged public var photos: NSMutableOrderedSet	// PhotoDetails
     
@@ -84,12 +154,20 @@ import UIKit
 		TestAndUpdate(\.id, v2Object.id)
 		TestAndUpdate(\.text, v2Object.text)
 		TestAndUpdate(\.timestamp, v2Object.timestamp)
-		TestAndUpdate(\.forum, thread)
+		TestAndUpdate(\.thread, thread)
 		
+		// Set the author
 		if author.username != v2Object.author.username {
 			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
 			if let cdAuthor = userPool[v2Object.author.username] {
 				author = cdAuthor
+			}
+		}
+		
+		// If the author of this post is the current user, mark that they've posted in the thread
+		if author.username == CurrentUser.shared.loggedInUser?.username {
+			if let rco = thread.getReadCountObject(context: context), rco.userPosted != true {
+				rco.userPosted = true
 			}
 		}
 		
@@ -114,8 +192,12 @@ import UIKit
 				photos.add(newPhoto)
 			}
 		}
-	
 	}
+
+	func postDate() -> Date {
+		return Date(timeIntervalSince1970: Double(timestamp) / 1000.0)
+	}
+	
 }
 
 // Tracks the number of posts that the given user has read in the given thread.
@@ -123,8 +205,19 @@ import UIKit
     @NSManaged public var numPostsRead: Int64		// How many posts this user has read in this thread.
     												// May not be == to the number of posts we've loaded.
 
+	@NSManaged public var lastReadTime: Date?		// The last time this user looked at this forum on this device.
+													// Not saved to server.
+	
+	@NSManaged public var isFavorite: Bool 			// If TRUE, the user has favorited this forum. Note that the server
+													// doesn't support favorites for forum threads (only posts).
+
+	@NSManaged public var userPosted: Bool			// TRUE iff .user has authored a post in .forumThread.
+
     @NSManaged public var forumThread: ForumThread
     @NSManaged public var user: KrakenUser
+    
+//	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ForumThread) {
+//	}
 
 }
 
@@ -189,6 +282,10 @@ class ForumsDataManager: NSObject {
 	
 	// Requests the posts in a forum thread, merges the response into CoreData's store.
 	func loadThreadPosts(for thread: ForumThread, fromOffset: Int, done: @escaping () -> Void) {
+		guard !thread.id.isEmpty else {
+			NetworkLog.error("Cannot call /api/v2/forums/:id, id is nil.", ["thread" : thread])
+			return
+		}
 	
 		var queryParams: [URLQueryItem] = []
 		queryParams.append(URLQueryItem(name:"page", value: "\(fromOffset / 20)"))
@@ -255,7 +352,7 @@ struct TwitarrV2ForumThreadMeta: Codable {
 	let timestamp: Int64
 	let lastPostPage: Int64
 	let count: Int64?
-	let newPosts: Bool?
+	let newPosts: Int64?
 	
 	enum CodingKeys: String, CodingKey {
 		case id, subject, sticky, locked, posts, timestamp, count
@@ -272,7 +369,7 @@ struct TwitarrV2ForumThread: Codable {
 	let sticky: Bool
 	let locked: Bool
 	let postCount: Int64
-	let latestRead: Int64
+	let latestRead: Int64?
 	let posts: [TwitarrV2ForumPost]
 	
 	let nextPage: Int64?
@@ -298,7 +395,7 @@ struct TwitarrV2ForumPost: Codable {
 	let text: String
 	let timestamp: Int64
 	let photos: [TwitarrV2PhotoDetails]
-	let new: Bool
+	let new: Bool?
 	
 	enum CodingKeys: String, CodingKey {
 		case id, author, text, timestamp, photos, new

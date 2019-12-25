@@ -28,6 +28,7 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
 				cellModelFactory: createCellModel)
 
 		setupGestureRecognizer()
+		knownSegues = Set([.userProfile, .editTweetOp])
   }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -35,7 +36,8 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
 	}
 
 	func createCellModel(_ model:PostOpTweet) -> BaseCellModel {
-		return TwitarrTweetCellModel(withModel: model, reuse: "tweet")
+		let cellModel =  TwitarrTweetOpCellModel(withModel: model)
+		return cellModel
 	}
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

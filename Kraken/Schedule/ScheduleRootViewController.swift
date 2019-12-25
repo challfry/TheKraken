@@ -90,6 +90,7 @@ import EventKitUI
 		locationPickerContainer.isHidden = true
 
 		setupGestureRecognizer()
+		knownSegues = Set([.modalLogin, .showRoomOnDeckMap])
     }
 	
 	var minuteNotification: Any?
@@ -410,8 +411,7 @@ import EventKitUI
 			}
 			
 		case "ShowRoomOnDeckMap":
-			if let destVC = segue.destination as? DeckMapViewController, let event = sender as? Event,
-					let location = event.location {
+			if let destVC = segue.destination as? DeckMapViewController, let location = sender as? String {
 				destVC.pointAtRoomNamed(location)
 			}
 			

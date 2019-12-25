@@ -69,7 +69,6 @@
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
-		EA7E455A2398A9B10015C7CB /* ForumPostCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA7E45592398A9B10015C7CB /* ForumPostCell.xib */; };
 		EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6A2366332E0042C0DC /* SegmentCell.swift */; };
 		EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA83FC6C2366334A0042C0DC /* SegmentCell.xib */; };
 		EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6E2368F01D0042C0DC /* Styler.swift */; };
@@ -240,7 +239,6 @@
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
-		EA7E45592398A9B10015C7CB /* ForumPostCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ForumPostCell.xib; sourceTree = "<group>"; };
 		EA83FC6A2366332E0042C0DC /* SegmentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentCell.swift; sourceTree = "<group>"; };
 		EA83FC6C2366334A0042C0DC /* SegmentCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SegmentCell.xib; sourceTree = "<group>"; };
 		EA83FC6E2368F01D0042C0DC /* Styler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styler.swift; sourceTree = "<group>"; };
@@ -391,7 +389,6 @@
 				EA1099F92397375000F5172D /* ForumsThreadCell.swift */,
 				EA1099FB2397376700F5172D /* ForumsThreadCell.xib */,
 				EA7E45572398A99C0015C7CB /* ForumPostCell.swift */,
-				EA7E45592398A9B10015C7CB /* ForumPostCell.xib */,
 				EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */,
 			);
 			path = Forums;
@@ -843,7 +840,6 @@
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
-				EA7E455A2398A9B10015C7CB /* ForumPostCell.xib in Resources */,
 				EA534E32230299AE00FE4787 /* EventCell.xib in Resources */,
 				EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */,
 				EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */,

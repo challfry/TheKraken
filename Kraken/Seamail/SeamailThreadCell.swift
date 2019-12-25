@@ -152,7 +152,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		cellModel.username = name
 		cellModel.selectionCallback = { [weak self] isSelected in
 			if isSelected && self?.isInteractive == true {
-				self?.viewController?.performSegue(withIdentifier: "UserProfile", sender: name)
+				self?.dataSource?.performKrakenSegue(.userProfile, sender: name)
 			}
 		}
 		return cellModel
@@ -161,7 +161,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	override var isSelected: Bool {
 		didSet {
 			if isSelected && isInteractive {
-				viewController?.performSegue(withIdentifier: "ShowSeamailThread", sender: model)
+				dataSource?.performKrakenSegue(.showSeamailThread, sender: model)
 			}
 		}
 	}

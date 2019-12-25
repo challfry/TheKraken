@@ -118,6 +118,31 @@ class LocalCoreData: NSObject {
 		}
 	}
 
+	func performLocalCoreDataChange(_ block: @escaping (NSManagedObjectContext, KrakenUser) throws -> Void) {
+		let context = networkOperationContext
+		context.perform {
+			do {
+				guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
+				try block(context, currentUser)
+				context.pushOpErrorExplanation("Failed to Save Core Data Context.")
+				try context.save()
+			}
+			catch let error as LocalCoreData.Error {
+				CoreDataLog.error(error.failureExplanation, ["error" : error])
+			}
+			catch {
+				if let opStrings = context.userInfo["currentOpError"] as? [String] {
+					var errString = "Core Data errors:\n"
+					opStrings.forEach { errString.append( "\($0)\n") }
+					CoreDataLog.error(errString, ["error" : error])
+				}
+				else {
+					CoreDataLog.error("Unknown Error while processing a network packet.", ["error" : error])
+				}
+			}
+			context.userInfo.removeAllObjects()
+		}
+	}
 	
 	// Updates the main context in response to data saves from the network context
 	@objc func contextDidSaveNotificationHandler(notification: Notification) {

@@ -45,6 +45,9 @@ class TwitarrViewController: BaseCollectionViewController {
 		startRefresh()
 		title = dataManager.filter ?? "Twitarr"
 		setupGestureRecognizer()
+		
+		knownSegues = Set([.tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
+				.composeTweet])
 	}
     
     override func viewWillAppear(_ animated: Bool) {
@@ -52,7 +55,9 @@ class TwitarrViewController: BaseCollectionViewController {
 	}
 			
 	func createCellModel(_ model:TwitarrPost) -> BaseCellModel {
-		return TwitarrTweetCellModel(withModel: model, reuse: "tweet")
+		let cellModel =  TwitarrTweetCellModel(withModel: model)
+		cellModel.viewController = self
+		return cellModel
 	}
     
 	@objc func startRefresh() {

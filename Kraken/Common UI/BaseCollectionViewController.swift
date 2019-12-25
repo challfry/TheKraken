@@ -8,6 +8,69 @@
 
 import UIKit
 
+enum GlobalKnownSegue: String {
+	case dismiss =					"dismiss"
+	case dismissCamera =			"dismissCamera"
+	
+	case modalLogin = 				"ModalLogin"
+
+	case tweetFilter = 				"TweetFilter"
+	case pendingReplies = 			"PendingReplies"
+	case composeReplyTweet = 		"ComposeReplyTweet"
+	case editTweet = 				"EditTweet"
+	case editTweetOp = 				"EditTweetOp"
+	case composeTweet = 			"ComposeTweet"
+	case showUserTweets = 			"ShowUserTweets"
+	case showUserMentions = 		"ShowUserMentions"
+	
+	case showForumThread = 			"ShowForumThread"
+	
+	case showSeamailThread = 		"ShowSeamailThread"
+	case editSeamailThreadOp = 		"EditSeamailThreadOp"
+
+	case userProfile = 				"UserProfile"
+	case editUserProfile = 			"EditUserProfile"
+	
+	case postOperations =			"PostOperations"
+	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
+	case fullScreenCamera = 		"fullScreenCamera"
+	case cropCamera = 				"cropCamera"
+	
+	var senderType: Any.Type {
+		switch self {
+		case .dismiss: return Any.self
+		case .dismissCamera: return Data?.self
+		
+		case .modalLogin: return LoginSegueWithAction.self
+
+		case .tweetFilter: return String.self
+		case .pendingReplies: return TwitarrPost.self
+		case .composeReplyTweet: return TwitarrPost.self
+		case .editTweet: return TwitarrPost.self
+		case .editTweetOp: return PostOpTweet.self
+		case .composeTweet: return Void.self
+		case .showUserTweets: return String.self
+		case .showUserMentions: return String.self
+		
+		case .showForumThread: return ForumThread.self
+		
+		case .showSeamailThread: return SeamailThread.self
+		case .editSeamailThreadOp: return PostOpSeamailThread.self
+		
+		case .userProfile: return String.self
+		case .editUserProfile: return PostOpUserProfileEdit.self
+
+		case .postOperations: return Any.self
+		
+		case .showRoomOnDeckMap: return String.self
+		case .fullScreenCamera: return BaseCollectionViewCell.self
+		case .cropCamera: return BaseCollectionViewCell.self
+
+//		@unknown default: return Void.self
+		}
+	}
+}
+
 class BaseCollectionViewController: UIViewController {
 	@IBOutlet var collectionView: UICollectionView!
 	@objc dynamic var activeTextEntry: UITextInput?
@@ -15,6 +78,42 @@ class BaseCollectionViewController: UIViewController {
 	var customGR: UILongPressGestureRecognizer?
 	var tappedCell: UICollectionViewCell?
 	var indexPathToScrollToVisible: IndexPath?
+	
+	var knownSegues: Set<GlobalKnownSegue> = Set()
+	
+	// FFS Apple should provide this as part of their API. This is used by collectionView cells to see if they're
+	// attached to a ViewController that supports launching a given segue; if not they generally hide/disable buttons.
+	// This only matters if you make cells that are usable in multiple VCs, which Apple apparently recommends against --
+	// a recommendation about as useful as Q-Tips recommending you not use Q-Tips in your ears.
+	func canPerformSegue(_ segue: GlobalKnownSegue) -> Bool {
+		return knownSegues.contains(segue)
+	}
+	
+	func performKrakenSegue(_ id: GlobalKnownSegue, sender: Any?) {
+		guard canPerformSegue(id) else {
+			let vcType = type(of: self)
+			AppLog.error("VC \(vcType) doesn't claim to support segue \(id.rawValue)")
+			return 
+		}
+	
+		if let senderValue = sender {
+			let expectedType = id.senderType
+			var typeIsValid =  type(of: senderValue) == expectedType || expectedType == Any.self
+			if !typeIsValid {
+				let seq = sequence(first: Mirror(reflecting: senderValue), next: { $0.superclassMirror })
+				typeIsValid = seq.contains { $0.subjectType == expectedType }
+			}
+			
+			if typeIsValid {
+				let segueName = id.rawValue
+				performSegue(withIdentifier: segueName, sender: sender)
+			}
+		}
+		else {
+			// Always allow segues with nil senders. This doesn't mean prepare(for segue) will like it.
+			performSegue(withIdentifier: id.rawValue, sender: sender)
+		}
+	}
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +135,7 @@ class BaseCollectionViewController: UIViewController {
 				name: UIResponder.keyboardDidShowNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillHide(notification:)), 
 				name: UIResponder.keyboardDidHideNotification, object: nil)
-   }
+	}
         
     @objc func keyboardWillShow(notification: NSNotification) {
 		if let keyboardHeight = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height {

@@ -34,12 +34,16 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 	@IBOutlet weak var postCountLabel: UILabel!
 	@IBOutlet weak var lastPosterLabel: UILabel!
 	@IBOutlet weak var lastPostTimeLabel: UILabel!
+	@IBOutlet weak var stickyIcon: UIImageView!
+	@IBOutlet weak var lockedIcon: UIImageView!
+	@IBOutlet weak var favoriteButton: UIButton!
 	
 	var isInteractive: Bool = true
 
 	override func awakeFromNib() {
 		super.awakeFromNib()
-setupGestureRecognizer()	
+		setupGestureRecognizer()
+			
 		// Font styling
 		subjectLabel.styleFor(.body)
 		lastPosterLabel.styleFor(.body)
@@ -54,6 +58,8 @@ setupGestureRecognizer()
 			}
 		}
 	}
+	
+	@objc dynamic public var currentUserReadCount: ForumReadCount?
 
     var model: NSFetchRequestResult? {
 		didSet {
@@ -76,9 +82,29 @@ setupGestureRecognizer()
 					observer.lastPosterLabel.text = "Last Post: \(observed.lastPoster.displayName)"
 				}?.execute())
 				
-				addObservation(thread.tell(self, when: "lastPostTime") { observer, observed in
-					observer.updatePostTime()
+				addObservation(thread.tell(self, when: "locked") { observer, observed in
+					observer.lockedIcon.isHidden = !observed.locked
 				}?.execute())
+				
+				addObservation(thread.tell(self, when: "sticky") { observer, observed in
+					observer.stickyIcon.isHidden = !observed.sticky
+				}?.execute())
+								
+				CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
+					if let curUsername = observed.loggedInUser?.username {
+					// TODO: thread acces wrong
+						observer.currentUserReadCount = thread.readCount.first { $0.user.username == curUsername }
+					}
+					else {
+						observer.currentUserReadCount = nil
+					}
+				}?.execute()
+
+				addObservation(self.tell(self, when: "currentUserReadCount.isFavorite") { observer, observed in
+					observer.favoriteButton.isSelected = observed.currentUserReadCount?.isFavorite ?? false
+				}?.execute())
+				
+				updatePostTime()
 			}
 		}
 	}
@@ -111,8 +137,40 @@ setupGestureRecognizer()
 	override var isSelected: Bool {
 		didSet {
 			if isSelected, isInteractive, let threadModel = model as? ForumThread {
-				dataSource?.performSegue(withIdentifier: "ShowForumThread", sender: threadModel)
+				dataSource?.performKrakenSegue(.showForumThread, sender: threadModel)
 			}
 		}
+	}
+	
+	@IBAction func favoriteButtonHit() {
+ 		guard isInteractive else { return }
+		if let thread = model as? ForumThread {
+			// FIXME: Still not sure what to do in the case where the user, once logged in, already likes the thread.
+			// When nobody is logged in we still enable and show the Like button. Tapping it opens the login panel, 
+			// with a successAction that performs the like action.
+			if CurrentUser.shared.isLoggedIn() {
+				thread.setForumFavoriteStatus(to: !favoriteButton.isSelected)
+			}
+			else if let vc = viewController as? BaseCollectionViewController {
+				let seguePackage = LoginSegueWithAction(promptText: "In order to like this forum thread, you'll need to log in first.",
+						loginSuccessAction: { thread.setForumFavoriteStatus(to: !self.favoriteButton.isSelected) }, 
+						loginFailureAction: nil)
+				vc.performKrakenSegue(.modalLogin, sender: seguePackage)
+			}
+		}
+	}
+	
+	override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+		// need to call super if it's not our recognizer
+		if gestureRecognizer != customGR {
+			return super.gestureRecognizerShouldBegin(gestureRecognizer)
+		}
+		
+		let hitPoint = gestureRecognizer.location(in: favoriteButton)
+		if favoriteButton.point(inside:hitPoint, with: nil) {
+			return false
+		}		
+		
+		return super.gestureRecognizerShouldBegin(gestureRecognizer)
 	}
 }
