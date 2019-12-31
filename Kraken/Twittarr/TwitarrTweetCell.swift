@@ -184,7 +184,7 @@ import CoreData
 		}?.execute())
 							
 		// Like/Unlike ops
-		addObservation(tweetModel.tell(self, when: "reactionOpsCount") { observer, observed in
+		addObservation(tweetModel.tell(self, when: "reactionOps.count") { observer, observed in
 			if let likeOp = tweetModel.getPendingUserReaction("like") {
 				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
 			}
@@ -465,33 +465,34 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	var photos: [PhotoDetails]? {
 		didSet {
-			if let photoArray = photos, photoArray.count > 0 {
-				postImage.isHidden = false
-				if !isPrototypeCell {
-					ImageManager.shared.image(withSize:.medium, forKey: photoArray[0].id) { image in
-						self.postImage.image = image
-					}
-				}
-			}
-			else {
-				postImage.image = nil
-				postImage.isHidden = true
-			}
+			setupPhotos()
 		}
 	}
 	
 	dynamic var photoImages: [Data]? {
 		didSet {
-			if let photoArray = photoImages, photoArray.count > 0 {
-				postImage.isHidden = false
-				if !isPrototypeCell {
-					self.postImage.image = UIImage(data: photoArray[0])
+			setupPhotos()
+		}
+	}
+	
+	func setupPhotos() {
+		if let photoArray = photos, photoArray.count > 0 {
+			postImage.isHidden = false
+			if !isPrototypeCell {
+				ImageManager.shared.image(withSize:.medium, forKey: photoArray[0].id) { image in
+					self.postImage.image = image
 				}
 			}
-			else {
-				postImage.image = nil
-				postImage.isHidden = true
+		}
+		else if let photoArray = photoImages, photoArray.count > 0 {
+			postImage.isHidden = false
+			if !isPrototypeCell {
+				self.postImage.image = UIImage(data: photoArray[0])
 			}
+		}
+		else {
+			postImage.image = nil
+			postImage.isHidden = true
 		}
 	}
 	

@@ -34,9 +34,6 @@ import UIKit
 		// Properties built from reactions
 	@objc dynamic public var reactionDict: NSMutableDictionary?			// the reactions set, keyed by reaction.word
 	@objc dynamic public var likeReaction: Reaction?
-	
-		// Properties built from reactionOps
-	@objc dynamic public var reactionOpsCount: Int = 0    
   
 // MARK: Methods
 
@@ -54,8 +51,6 @@ import UIKit
 		}
 		reactionDict = dict
 		likeReaction = newLikeReaction
-
-		reactionOpsCount = reactionOps?.count ?? 0
 	}
     
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Post) {
@@ -145,59 +140,34 @@ import UIKit
 	}
 	
 	func setReaction(_ reactionWord: String, to newState: Bool) {
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			guard let _ = CurrentUser.shared.loggedInUser,
-					let thisPost = context.object(with: self.objectID) as? TwitarrPost else { return }
-			
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			guard let thisPost = context.object(with: self.objectID) as? TwitarrPost else { return }
+
 			// Check for existing op for this user, with this word
 			let op = thisPost.getPendingUserReaction(reactionWord) ?? PostOpTweetReaction(context: context)
 			op.isAdd = newState
 			op.readyToSend = true
 			op.reactionWord = reactionWord
 			op.sourcePost = thisPost
-			
-			do {
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
-			}
-			self.reactionOpsCount = self.reactionOps?.count ?? 0
 		}
 	}
 	
 	func cancelReactionOp(_ reactionWord: String) {
-		if let existingOp = getPendingUserReaction(reactionWord) {
-			let context = LocalCoreData.shared.networkOperationContext
-			context.perform {
-				if let reaction = context.object(with: existingOp.objectID) as? PostOpTweetReaction, !reaction.sentNetworkCall {
-					context.delete(reaction)
-					do {
-						try context.save()
-					}
-					catch {
-						CoreDataLog.error("Couldn't save context.", ["error" : error])
-					}
-				}
-				self.reactionOpsCount = self.reactionOps?.count ?? 0
-			}
-		}
+		guard let existingOp = getPendingUserReaction(reactionWord) else { return }
+		PostOperationDataManager.shared.remove(op: existingOp)
 	}
 	
 	// Currently only works for deletes where the author is the current user--not for admin deletes.
 	func addDeleteTweetOp() {
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context),
-					let thisPost = context.object(with: self.objectID) as? TwitarrPost else { return }
-			
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			guard let thisPost = context.object(with: self.objectID) as? TwitarrPost else { return }
+
 			// Until we add support for admin deletes
 			guard currentUser.username == thisPost.author.username else { 
 				CoreDataLog.debug("Kraken can't do admin deletes of twitarr posts.")
 				return
 			}
-			
+
 			// Check for existing op for this post
 			var existingOp: PostOpTweetDelete?
 			if let existingOps = thisPost.opsDeletingThisTweet {
@@ -214,13 +184,6 @@ import UIKit
 				existingOp?.tweetToDelete = thisPost
 			}
 			existingOp?.readyToSend = true
-			
-			do {
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
-			}
 		}
 	}
 	

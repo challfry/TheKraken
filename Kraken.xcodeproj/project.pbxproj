@@ -126,6 +126,7 @@
 		EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537422D58FEA00CD1671 /* UserListCell.swift */; };
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
+		EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113123BB3090007583EC /* ObjCUtils.m */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
 		EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */; };
 		EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */; };
@@ -306,6 +307,8 @@
 		EAB4537422D58FEA00CD1671 /* UserListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListCell.swift; sourceTree = "<group>"; };
 		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		EAC6113123BB3090007583EC /* ObjCUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCUtils.m; sourceTree = "<group>"; };
+		EAC6113323BB31DF007583EC /* ObjCUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCUtils.h; sourceTree = "<group>"; };
 		EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadViewController.swift; sourceTree = "<group>"; };
 		EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailMessageCell.swift; sourceTree = "<group>"; };
 		EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeamailMessageCell.xib; sourceTree = "<group>"; };
@@ -449,6 +452,8 @@
 				EAC696EC2290159000EE6EEB /* StringUtilities.swift */,
 				EAA62C7022C55CC00031A999 /* Logging.swift */,
 				EAA0E91122E942770077D5D0 /* SwiftUtils.swift */,
+				EAC6113323BB31DF007583EC /* ObjCUtils.h */,
+				EAC6113123BB3090007583EC /* ObjCUtils.m */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -952,6 +957,7 @@
 				EAA0284C2321ED7300B2B7F1 /* SocialViewController.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
+				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,
 				EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,

@@ -121,22 +121,21 @@ import UIKit
 //			observer.currentUserHasEditOp = observed.opsEditingThisTweet?.author.username == currentUsername
 //		}?.execute())
 //		
-//		// Likes
-//		addObservation(tweetModel.tell(self, when: "reactionDict.like.users.count") { observer, observed in
-//			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-//			observer.currentUserLikesThis = observed.likeReaction?.users.contains 
-//					{ $0.username == currentUsername } ?? false
-//		}?.execute())
-//							
-//		// Like/Unlike ops
-//		addObservation(tweetModel.tell(self, when: "reactionOpsCount") { observer, observed in
-//			if let likeOp = tweetModel.getPendingUserReaction("like") {
-//				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
-//			}
-//			else {
-//				observer.currentUserHasLikeOp = .none
-//			}
-//		}?.execute())
+		// Likes by current user
+		addObservation(postModel.tell(self, when: "likedByUsers.count") { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.currentUserLikesThis = observed.likedByUsers.contains  { $0.username == currentUsername }
+		}?.execute())
+							
+		// Like/Unlike ops
+		addObservation(postModel.tell(self, when: "reactionOps.count") { observer, observed in
+			if let likeOp = observed.getPendingUserReaction("like") {
+				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
+			}
+			else {
+				observer.currentUserHasLikeOp = .none
+			}
+		}?.execute())
 	}
 	
 	init(withModel: ForumPost?) {
@@ -150,32 +149,34 @@ import UIKit
 	}
 	
 	func authorIconTapped() {
-		if let tweetModel = model as? TwitarrPost {
-			viewController?.performKrakenSegue(.userProfile, sender: tweetModel.author.username)
+		if let postModel = model as? ForumPost {
+			viewController?.performKrakenSegue(.userProfile, sender: postModel.author.username)
 		}
 	}
 	
 	func likeButtonTapped() {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
+   		guard let postModel = model as? ForumPost else { return } 
 
 		// FIXME: Still not sure what to do in the case where the user, once logged in, already likes the post.
 		// When nobody is logged in we still enable and show the Like button. Tapping it opens the login panel, 
 		// with a successAction that performs the like action.
 		if !CurrentUser.shared.isLoggedIn() {
- 			let seguePackage = LoginSegueWithAction(promptText: "In order to like this post, you'll need to log in first.",
-					loginSuccessAction: { tweetModel.setReaction("like", to: !self.currentUserLikesThis) }, 
+ 			let seguePackage = LoginSegueWithAction(promptText: "In order to like this Forum post, you'll need to log in first.",
+					loginSuccessAction: { postModel.setReaction("like", to: !self.currentUserLikesThis) }, 
 					loginFailureAction: nil)
   			viewController?.performKrakenSegue(.modalLogin, sender: seguePackage)
    		}
    		else {
-			tweetModel.setReaction("like", to: !currentUserLikesThis)
+			postModel.setReaction("like", to: !currentUserLikesThis)
    		}
 	}
 	
 	func replyButtonTapped() {
 		// Reply button should be hidden when used with this cell model.
 	}
+	
+////
 	
 	func editButtonTapped() {
    		guard let tweetModel = model as? TwitarrPost else { return } 
@@ -197,13 +198,12 @@ import UIKit
 	}
 	
 	func viewPendingRepliesButtonTapped() {
-		guard let tweetModel = model as? TwitarrPost else { return } 
-		viewController?.performKrakenSegue(.pendingReplies, sender: tweetModel)
+		// Forum posts don't have replies in this sense (they have posts that come after them in their thread).
 	}
 	
 	func cancelReactionOpButtonTapped() {
-		guard let tweetModel = model as? TwitarrPost else { return } 
-		tweetModel.cancelReactionOp("like")   		
+   		guard let postModel = model as? ForumPost else { return } 
+		postModel.cancelReactionOp("like")   		
 	}
 
 }

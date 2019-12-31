@@ -20,7 +20,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-		knownSegues = Set([.tweetFilter])
+		knownSegues = Set([.tweetFilter, .userProfile])
 		title = threadModel?.subject ?? "Thread"
 
 		threadDataSource.append(segment: loadingSegment)

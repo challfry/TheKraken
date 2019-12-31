@@ -7,5 +7,6 @@
 #import "EBNObservation.h"
 #import "EBNLazyLoader.h"
 #import "EBNProtocolBinder.h"
+#import "ObjCUtils.h"
 
 void EBN_RunLoopObserverCallBack(CFRunLoopObserverRef observer, int activity, void *info);

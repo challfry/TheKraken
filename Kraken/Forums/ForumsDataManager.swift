@@ -88,6 +88,7 @@ import UIKit
 			readCountObject = ForumReadCount(context: context)
 			readCountObject?.user = currentUser
 			readCountObject?.forumThread = self
+			readCountObject?.isFavorite = false
 		}
 		return readCountObject
 	}
@@ -144,12 +145,18 @@ import UIKit
     @NSManaged public var id: String
     @NSManaged public var text: String
     @NSManaged public var timestamp: Int64
+    @NSManaged public var totalLikes: Int64		// How many users like this post. 0 if unknown. This will
+    											// be unknown for most posts.
     
     @NSManaged public var author: KrakenUser
     @NSManaged public var thread: ForumThread
 //	@NSManaged public var photos: Set<PhotoDetails>
     @NSManaged public var photos: NSMutableOrderedSet	// PhotoDetails
-    
+    @NSManaged public var reactionOps: NSMutableSet?
+    @NSManaged public var likedByUsers: Set<KrakenUser>
+   
+// MARK: Methods
+
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ForumPost, thread: ForumThread) {
 		TestAndUpdate(\.id, v2Object.id)
 		TestAndUpdate(\.text, v2Object.text)
@@ -194,9 +201,59 @@ import UIKit
 		}
 	}
 
+	// Note that for forum posts, we're not putting in the effort to model reactions fully, as the server API
+	// isn't set up such that we can really use reactions fully. Mostly, the only way to get the full set of reactions
+	// to a post is to make a special API call, one that must be made for EACH post.
+	func buildReactionsFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ReactionsSummary) {
+
+		// Find the 'like' reaction, set count, add/remove current user from set of likers.
+		if let likeReaction = v2Object["like"] {
+			totalLikes = Int64(likeReaction.count)
+			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+				if likeReaction.me && !likedByUsers.contains(currentUser) {
+					likedByUsers.insert(currentUser)
+				}
+				else if !likeReaction.me && likedByUsers.contains(currentUser) {
+					likedByUsers.remove(currentUser)
+				}
+			}
+		}
+	}
+
 	func postDate() -> Date {
 		return Date(timeIntervalSince1970: Double(timestamp) / 1000.0)
 	}
+	
+	// Always returns nil if nobody's logged in.
+	func getPendingUserReaction(_ named: String) -> PostOpForumPostReaction? {
+		if let username = CurrentUser.shared.loggedInUser?.username, let reaction = reactionOps?.first(where: { reaction in
+				guard let r = reaction as? PostOpForumPostReaction else { return false }
+				return r.author.username == username && r.reactionWord == named }) {
+			return reaction as? PostOpForumPostReaction
+		}
+		return nil
+	}
+	
+	// This func lets you set any reaction you like, however our data model only stores 'like' reactions for 
+	// Forum posts. This is okay. The server keeps track of other reactions, even if we don't.
+	func setReaction(_ reactionWord: String, to newState: Bool) {
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			guard let thisPost = context.object(with: self.objectID) as? ForumPost else { return }
+			
+			// Check for existing op for this user, with this word
+			let op = thisPost.getPendingUserReaction(reactionWord) ?? PostOpForumPostReaction(context: context)
+			op.isAdd = newState
+			op.readyToSend = true
+			op.reactionWord = reactionWord
+			op.sourcePost = thisPost
+		}
+	}
+
+	func cancelReactionOp(_ reactionWord: String) {
+		guard let existingOp = getPendingUserReaction(reactionWord) else { return }
+		PostOperationDataManager.shared.remove(op: existingOp)
+	}
+	
 	
 }
 
@@ -215,6 +272,14 @@ import UIKit
 
     @NSManaged public var forumThread: ForumThread
     @NSManaged public var user: KrakenUser
+    
+    // Sets reasonable default values for properties that could conceivably not change during buildFromV2 methods.
+	public override func awakeFromInsert() {
+		super.awakeFromInsert()
+		numPostsRead = 0
+		isFavorite = false
+		userPosted = false
+	}
     
 //	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ForumThread) {
 //	}

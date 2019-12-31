@@ -21,6 +21,16 @@ func showErrorAlert(title: String, error: Error) {
 	}
 }
 
+func showDelayedTextAlert(title: String, message: String) {
+	DispatchQueue.main.async {
+		let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+		alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+		if let topVC = UIApplication.getTopViewController() {
+			topVC.present(alert, animated: true, completion: nil)
+		}
+	}
+}
+
 extension UIApplication {
 
     class func getTopViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {

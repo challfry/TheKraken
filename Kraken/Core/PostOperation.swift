@@ -101,6 +101,8 @@ import CoreData
 
 	}
 		
+	// Does not check whether this op is authored by the current user.
+	// Can be called with an op object in the main context.
 	func remove(op: PostOperation) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
@@ -606,6 +608,46 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
+@objc(PostOpForumPostReaction) public class PostOpForumPostReaction: PostOperation {
+	@NSManaged public var reactionWord: String
+		
+		// Parent tweet, if this is a response. Can be nil.
+	@NSManaged public var sourcePost: ForumPost?
+	
+		// True to add this reaction to this post, false to delete it.
+	@NSManaged public var isAdd: Bool
+	
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Posting a reaction to a Forums post."
+	}
+
+	override func post() {
+		guard let post = sourcePost else { 
+			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
+			return
+		}
+		super.post()
+		
+		// POST/DELETE /api/v2/forums/:id/:post_id/react/:type
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: 
+				"/api/v2/forums/\(post.thread.id)\(post.id)/react/\(reactionWord)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = isAdd ? "POST" : "DELETE"
+		
+		self.queueNetworkPost(request: request) { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving change to Forum Post reaction.")
+				
+				let response = try JSONDecoder().decode(TwitarrV2ForumPostReactionResponse.self, from: data)
+				let postInContext = try context.existingObject(with: post.objectID) as! ForumPost
+				postInContext.buildReactionsFromV2(context: context, v2Object: response.reactions)
+			}
+		}
+	}
+}
+
+
 @objc(PostOpSeamailThread) public class PostOpSeamailThread: PostOperation {
 	@NSManaged public var subject: String
 	@NSManaged public var text: String
@@ -888,6 +930,12 @@ struct TwitarrV2NewTweetResponse: Codable {		// Both new and edits use this resp
 
 // POST /api/v2/tweet/:id/react/:type -- request has no body
 struct TwitarrV2TweetReactionResponse: Codable {
+	let status: String
+	let reactions: TwitarrV2ReactionsSummary
+}
+
+// POST /api/v2/forums/:id/:post_id/react/:type -- request has no body
+struct TwitarrV2ForumPostReactionResponse: Codable {
 	let status: String
 	let reactions: TwitarrV2ReactionsSummary
 }

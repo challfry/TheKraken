@@ -59,13 +59,38 @@ class LocalCoreData: NSObject {
 		// This way, each different server you connect to gets its own cache.
 		let serverURL = Settings.shared.baseURL
 		let containerName = "TwitarrCoreData_\(serverURL.host ?? "")_\(serverURL.port ?? 80)_\(serverURL.path)"
-		let container = NSPersistentContainer(name: "TwitarrModel", managedObjectModel: model)
+		let container = NSPersistentContainer(name: containerName, managedObjectModel: model)
 		container.loadPersistentStores(completionHandler: { (storeDescription, error) in
 			if let error = error as NSError? {
-				fatalError("Unresolved error \(error), \(error.userInfo)")
+				showDelayedTextAlert(title: "Core Data Storage Corrupt", message: """
+				Something went wrong and we couldn't load our local database. To recover, we had to reset the database and try again. 
+				
+				The database is mostly a cache of server data we can re-fetch, but any changes not sent to the server have been lost.
+				
+				Error: \(error.localizedDescription)
+				""")
+				
+				// Reset, and try opening it again. A second failure is fatal.
+				for desc in container.persistentStoreDescriptions {
+					do {
+						if let storeURL = desc.url {
+							try FileManager.default.removeItem(at: storeURL)
+						}
+					}
+					catch {
+						fatalError("Couldn't init CoreData, then couldn't reset CoreData stores. This is a fatal error. \(error)")
+					}
+				}
+				container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+					if let error = error as NSError? {
+						fatalError("Unresolved error \(error), \(error.userInfo)")
+					}
+					container.viewContext.automaticallyMergesChangesFromParent = true
+				})
 			}
-			
-			container.viewContext.automaticallyMergesChangesFromParent = true
+			else {
+				container.viewContext.automaticallyMergesChangesFromParent = true
+			}
 		})
 		return container
 	}()
@@ -118,6 +143,10 @@ class LocalCoreData: NSObject {
 		}
 	}
 
+	// Wraps code that wants to change to Core Data, initiated by a user action (as opposed to a network load).
+	// That is, use this for *changing* semantic state, no just loading and caching data from the server.
+	// The wrapper checks for a logged-in user, and won't execute the change if nobody's logged in. If you
+	// really need to make a change with nobody logged in just roll your own. 
 	func performLocalCoreDataChange(_ block: @escaping (NSManagedObjectContext, KrakenUser) throws -> Void) {
 		let context = networkOperationContext
 		context.perform {

@@ -25,12 +25,16 @@ class ForumsRootViewController: BaseCollectionViewController {
 		case history					// Shows the last forums visited, most recent at top.
 		case userHasPosted				// Forums the user has posted into.
 	}
+	var currentFilterType: FilterType = .allWithActivitySort
 	
 	let threadDataSource = KrakenDataSource()
 	var loadingSegment = FilteringDataSourceSegment()
 	var threadSegment = FRCDataSourceSegment<ForumThread>()
 	var readCountSegment = FRCDataSourceSegment<ForumReadCount>()
     var filterPopupVC: EmojiPopupViewController?
+    
+
+// MARK: Methods
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -71,7 +75,6 @@ class ForumsRootViewController: BaseCollectionViewController {
 		forumsNavTitleButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
 		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Label Text"), for: .normal)
 		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Secondary Text"), for: .highlighted)
-		forumsNavTitleButton.setImage(UIImage(named: "ChevronDownGrey"), for: .normal)
 		forumsNavTitleButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
 		navigationItem.titleView = forumsNavTitleButton
 		forumsNavTitleButton.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
@@ -79,45 +82,59 @@ class ForumsRootViewController: BaseCollectionViewController {
 		forumsFilterView.layer.cornerRadius = 8.0
 		forumsFilterView.layer.masksToBounds = true
 		forumsFilterHeightConstraint.constant = 0
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+			if observed.isLoggedIn() {
+				observer.forumsNavTitleButton.setImage(UIImage(named: "ChevronDownGrey"), for: .normal)
+			}
+			else {
+				observer.forumsNavTitleButton.setImage(nil, for: .normal)
+				observer.setFilterType(.allWithActivitySort)
+			}
+		}?.execute()
 	}
 	
 	func setFilterType(_ newType: FilterType) {
-		switch(newType) {
-		case .allWithActivitySort:
-			threadSegment.activate(predicate: NSPredicate(value: true), 
-					sort: [NSSortDescriptor(key: "sticky", ascending: false),
-					NSSortDescriptor(key: "lastPostTime", ascending: false)], 
-					cellModelFactory: createCellModel)
-			readCountSegment.activate(predicate: NSPredicate(value: false), 
-					sort: [ NSSortDescriptor(key: "lastReadTime", ascending: false)], 
-					cellModelFactory: createReadCountCellModel)
-			forumsNavTitleButton.setTitle("All Forums", for: .normal)
-		case .history:
-			threadSegment.activate(predicate: NSPredicate(value: false), 
-					sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], 
-					cellModelFactory: createCellModel)
-			readCountSegment.activate(predicate: NSPredicate(value: true), 
-					sort: [ NSSortDescriptor(key: "lastReadTime", ascending: false)], 
-					cellModelFactory: createReadCountCellModel)
-			forumsNavTitleButton.setTitle("Forum History", for: .normal)
-		case .favorites:
-			threadSegment.activate(predicate: NSPredicate(value: false), 
-					sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], 
-					cellModelFactory: createCellModel)
-			readCountSegment.activate(predicate: NSPredicate(format: "isFavorite == TRUE"), 
-					sort: [ NSSortDescriptor(key: "forumThread.sticky", ascending: false),
-					NSSortDescriptor(key: "forumThread.lastPostTime", ascending: false) ], 
-					cellModelFactory: createReadCountCellModel)
-			forumsNavTitleButton.setTitle("Favorite Forums", for: .normal)
-		case .userHasPosted:
-			threadSegment.activate(predicate: NSPredicate(value: false), 
-					sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], 
-					cellModelFactory: createCellModel)
-			readCountSegment.activate(predicate: NSPredicate(format: "userPosted == TRUE"), 
-					sort: [ NSSortDescriptor(key: "forumThread.sticky", ascending: false),
-					NSSortDescriptor(key: "forumThread.lastPostTime", ascending: false) ], 
-					cellModelFactory: createReadCountCellModel)
-			forumsNavTitleButton.setTitle("Forums You Posted To", for: .normal)
+	
+		if newType != currentFilterType {
+			currentFilterType = newType
+			switch(newType) {
+			case .allWithActivitySort:
+				threadSegment.activate(predicate: NSPredicate(value: true), 
+						sort: [NSSortDescriptor(key: "sticky", ascending: false),
+						NSSortDescriptor(key: "lastPostTime", ascending: false)], 
+						cellModelFactory: createCellModel)
+				readCountSegment.activate(predicate: NSPredicate(value: false), 
+						sort: [ NSSortDescriptor(key: "lastReadTime", ascending: false)], 
+						cellModelFactory: createReadCountCellModel)
+				forumsNavTitleButton.setTitle("All Forums", for: .normal)
+			case .history:
+				threadSegment.activate(predicate: NSPredicate(value: false), 
+						sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], 
+						cellModelFactory: createCellModel)
+				readCountSegment.activate(predicate: NSPredicate(value: true), 
+						sort: [ NSSortDescriptor(key: "lastReadTime", ascending: false)], 
+						cellModelFactory: createReadCountCellModel)
+				forumsNavTitleButton.setTitle("Forum History", for: .normal)
+			case .favorites:
+				threadSegment.activate(predicate: NSPredicate(value: false), 
+						sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], 
+						cellModelFactory: createCellModel)
+				readCountSegment.activate(predicate: NSPredicate(format: "isFavorite == TRUE"), 
+						sort: [ NSSortDescriptor(key: "forumThread.sticky", ascending: false),
+						NSSortDescriptor(key: "forumThread.lastPostTime", ascending: false) ], 
+						cellModelFactory: createReadCountCellModel)
+				forumsNavTitleButton.setTitle("Favorite Forums", for: .normal)
+			case .userHasPosted:
+				threadSegment.activate(predicate: NSPredicate(value: false), 
+						sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], 
+						cellModelFactory: createCellModel)
+				readCountSegment.activate(predicate: NSPredicate(format: "userPosted == TRUE"), 
+						sort: [ NSSortDescriptor(key: "forumThread.sticky", ascending: false),
+						NSSortDescriptor(key: "forumThread.lastPostTime", ascending: false) ], 
+						cellModelFactory: createReadCountCellModel)
+				forumsNavTitleButton.setTitle("Forums You Posted To", for: .normal)
+			}
 		}
 		
 		forumsNavTitleButton.frame = CGRect(origin: CGPoint(x: 0, y: 0), size: forumsNavTitleButton.intrinsicContentSize)
@@ -166,6 +183,11 @@ class ForumsRootViewController: BaseCollectionViewController {
     
     // This is the button in the title area of the navbar.
 	@objc func filterButtonTapped() {
+		guard CurrentUser.shared.isLoggedIn() else {
+			setFilterType(.allWithActivitySort)
+			return
+		}
+	
 		if forumsFilterHeightConstraint.constant == 0 {
 			forumsFilterHeightConstraint.constant = forumsFilterStackView.bounds.size.height + 10
 		}
