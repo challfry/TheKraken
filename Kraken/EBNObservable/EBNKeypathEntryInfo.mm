@@ -154,7 +154,7 @@
 - (BOOL) ebn_updateKeypathAtIndex:(NSInteger) index from:(id) fromObj to:(id) toObj
 {
 	BOOL result = NO;
-	if (index >= _keyPath.count) 
+	if (index >= _keyPath.count || (!fromObj && !toObj)) 
 		return result;
 
 	// Get the property name we'll be updating

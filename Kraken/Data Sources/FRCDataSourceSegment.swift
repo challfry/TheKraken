@@ -17,6 +17,18 @@ import os
 	var model: NSFetchRequestResult? { get set }
 }
 
+fileprivate class FRCDifference {
+	var id: NSManagedObjectID
+	var isInsertOrDelete: Bool
+	var oldIndexPath: IndexPath?
+	var newIndexPath: IndexPath?
+	
+	init(_ objectID: NSManagedObjectID) {
+		id = objectID
+		isInsertOrDelete = false
+	}
+}
+
 class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 	@objc dynamic var model: NSFetchRequestResult? {
 		didSet {
@@ -114,61 +126,131 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			}
 		}
 		else {
-			// TODO: This is still not a great diffing algorithm as it does not detect moves.
 			if let frcSections = frc?.sections {
 				log.d("New fetch found \(frcSections.count) sections")
+				log.d("    sectionNames: \(frcSections.map { $0.name  })")
 			
 				// Step 1: Make a dict of all the objectIDs in the old state
-				var existingCells: [ NSManagedObjectID : IndexPath ] = [:]
+				var oldCellDict: [ NSManagedObjectID : FRCDifference ] = [:]
 				for (sectionIndex, section) in cellModelSections.enumerated() {
 					for (cellIndex, cellModel) in section.enumerated() {
 						if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
 								let model = frcCellModel.model as? NSManagedObject {
-							existingCells[model.objectID] = IndexPath(row: cellIndex, section: sectionIndex)
+							let diff = FRCDifference(model.objectID)
+							diff.oldIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+							oldCellDict[model.objectID] = diff
 						}
 					}
 				}
-				log.d("existingCells \(existingCells)")
+				log.d("oldCellDict \(oldCellDict)")
 				
 				// Step 2: Iterate through the new objects, generate differences between old and new. 
+				var newCellArray: [FRCDifference] = []
+				var commonCells: [ NSManagedObjectID : FRCDifference ] = [:]
 				for (sectionIndex, section) in frcSections.enumerated() {
 					var insertsThisSection: [IndexPath] = []
 					var foundOldCellThisSection: Bool = false
 					if let cellArray = section.objects as? [NSManagedObject] {
 						for (cellIndex, model) in cellArray.enumerated() {
-							//if let model = cellModel as? NSManagedObject {
-								if existingCells.removeValue(forKey: model.objectID) != nil {
-									foundOldCellThisSection = true
-								}
-								else {
-									insertsThisSection.append(IndexPath(row: cellIndex, section: sectionIndex))
-								}
-						//	}
+							if let commonDiffObject = oldCellDict.removeValue(forKey: model.objectID) {
+								// This is a cell common to old and new
+								commonDiffObject.newIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+								newCellArray.append(commonDiffObject) 
+								commonCells.updateValue(commonDiffObject, forKey: model.objectID)
+								foundOldCellThisSection = true
+							}
+							else {
+								// Cells in new that aren't in old are inserts
+								insertsThisSection.append(IndexPath(row: cellIndex, section: sectionIndex))
+								let insertObj = FRCDifference(model.objectID)
+								insertObj.isInsertOrDelete = true
+								insertObj.newIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+								newCellArray.append(insertObj)
+							}
 						}
 					}
 					
-					// If none of the cells in this section are in existingCells, this is a section insert.
-					if foundOldCellThisSection {
+					// If none of the cells in this section are in old, this is a section insert.
+//					if foundOldCellThisSection {
 						insertCells.append(contentsOf: insertsThisSection)
-					}
-					else {
-						insertSections.insert(sectionIndex)
+//					}
+//					else {
+//						insertSections.insert(sectionIndex)
+//					}
+				}
+				
+				// Step 3: Iterate the old cells again, mark deletes
+				var oldCellArray: [FRCDifference] = []
+				for (sectionIndex, section) in cellModelSections.enumerated() {
+					for (cellIndex, cellModel) in section.enumerated() {
+						var deletesThisSection: [IndexPath] = []
+					//	var foundCommonCellThisSection: Bool = false
+						if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
+								let model = frcCellModel.model as? NSManagedObject {
+							if let commonDiffObject = commonCells[model.objectID] {
+								commonDiffObject.oldIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+								oldCellArray.append(commonDiffObject) 
+						//		foundCommonCellThisSection = true
+							} 
+							else if let oldDiffObject = oldCellDict[model.objectID] {
+								oldDiffObject.isInsertOrDelete = true
+								oldCellArray.append(oldDiffObject)
+								if let oldPath = oldDiffObject.oldIndexPath {
+									deletesThisSection.append(oldPath)
+								}
+							}
+							else {
+								log.error("Diffing error. Each cell got put into one of 2 dictionaries, and now this cell is in neither of them.")
+							}
+						}
+						
+						deleteCells.append(contentsOf: deletesThisSection)
 					}
 				}
 				
-				// Step 3: Iterate existingCells--which is now a list of deletes. 
-				let deletedPaths = existingCells.values
-				log.d("deletedpaths \(deletedPaths)")
-				for sectionIndex in 0..<cellModelSections.count {
-					let pathsThisSection = deletedPaths.filter { $0.section == sectionIndex }
-					if pathsThisSection.count == cellModelSections[sectionIndex].count {
-						// All the cells in this section have been deleted
-						deleteSections.insert(sectionIndex)
+				// Step 4: Dual Iterate. New until common cell, then old until common cell, then either Move Op to the
+				// index in new, or increment both old and new if they're the same cell.
+				var newIterator = newCellArray.makeIterator()
+				var oldIterator = oldCellArray.makeIterator()
+				var newValue: FRCDifference? = newIterator.next()
+				var oldValue: FRCDifference? = oldIterator.next()
+				while newValue != nil || oldValue != nil {
+					while let nv = newValue, nv.isInsertOrDelete {
+						newValue = newIterator.next()
 					}
-					else if pathsThisSection.count > 0 {
-						deleteCells.append(contentsOf: pathsThisSection)
+					while let ov = oldValue, ov.isInsertOrDelete {
+						oldValue = oldIterator.next()
+					}
+					if oldValue?.id == newValue?.id {
+						// TODO: Check the case where this cell is 'next' in both new and old, and yet we need to perform a
+						// move because it crosses sections in one but not the other.
+					
+						newValue = newIterator.next()
+						oldValue = oldIterator.next()
+					}
+					else {
+						if let nv = newValue, let newIndexPath = nv.newIndexPath, let oldIndexPath = nv.oldIndexPath {
+							moveCells.append((oldIndexPath, newIndexPath))
+							newValue = newIterator.next()
+							nv.isInsertOrDelete	= true
+						}
+						
 					}
 				}
+				
+				// Step 5: Iterate old cells a third time, process deletes, look for deleted sections?. 
+//				let deletedPaths = oldCellDict.values
+//				log.d("deletedpaths \(deletedPaths)")
+//				for sectionIndex in 0..<cellModelSections.count {
+//					let pathsThisSection = deletedPaths.filter { $0.section == sectionIndex }
+//					if pathsThisSection.count == cellModelSections[sectionIndex].count {
+//						// All the cells in this section have been deleted
+//						deleteSections.insert(sectionIndex)
+//					}
+//					else if pathsThisSection.count > 0 {
+//						deleteCells.append(contentsOf: pathsThisSection)
+//					}
+//				}
 			}
 		}
 		dataSource?.runUpdates()
@@ -246,11 +328,18 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	}
 
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		dataSource?.runUpdates()
+//		if insertCells.count > 0 || moveCells.count > 0 || deleteCells.count > 0 ||
+//				insertSections.count > 0 || deleteSections.count > 0 {
+			dataSource?.runUpdates()
+//		}
+//		else {
+//			log.d("Not scheduling update in response to FRC content change; change is only reloads.")
+//		}
 	}
 
 // MARK: UICollectionView Data Source
     func numberOfSections(in collectionView: UICollectionView) -> Int {
+		log.debug("NumberOfSections for FRC: \(cellModelSections.count)")
     	return cellModelSections.count
     }
 
@@ -388,6 +477,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			let newFrom = IndexPath(row: from.row, section: from.section + deleteOffset)
 			let newTo = IndexPath(row: to.row, section: to.section + insertOffset)
 			collectionView?.moveItem(at: newFrom, to: newTo)
+			print ("Definitely moved from \(newFrom) to \(newTo)")
 		}
 		// Ignore reloads. Our cells are set up to dynamically update and shouldn't need reloading.
 //		collectionView?.reloadItems(at: addSectionOffset(deleteOffset, reloadCells))
@@ -411,7 +501,11 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
 		// Luckily, we can delete all the cells first, and then delete sections.
 		for index in deleteCells.sorted().reversed() {
-			cellModelSections[index.section].remove(at: index.row)
+			let elem = cellModelSections[index.section].remove(at: index.row)
+			let path = IndexPath(row: index.row, section: index.section + deleteOffset)
+//			if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
+//				elem.unbind(cell: cell)
+///			}
 		}
 		for index in deleteSections.sorted().reversed() {
 			cellModelSections.remove(at: index)
@@ -446,6 +540,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			}
 		}
 		numVisibleSections = numVisibleSections + insertSections.count - deleteSections.count
+		log.debug("Inside internalRunUpdates: \(numVisibleSections) sections.")
 
 		deleteSections.removeAll()
 		insertSections.removeAll()

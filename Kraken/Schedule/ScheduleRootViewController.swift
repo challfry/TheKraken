@@ -245,7 +245,6 @@ import EventKitUI
 			
 			scheduleLayout.disclosureLevel = newLevel
 			scheduleDataSource.invalidateLayout()
-			print("Setting all cell levels to \(newLevel)")
 		}
 	}
 	
@@ -659,7 +658,6 @@ class ScheduleLayout: UICollectionViewLayout {
 		let val = UICollectionViewLayoutAttributes(forCellWith: itemIndexPath)
 		val.isHidden = false
 		val.frame = section[itemIndexPath.row]
-//		print("IndexPath: \(itemIndexPath)")
 		return val
 	}
 	

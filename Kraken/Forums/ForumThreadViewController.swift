@@ -21,6 +21,7 @@ class ForumThreadViewController: BaseCollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		knownSegues = Set([.tweetFilter])
+		title = threadModel?.subject ?? "Thread"
 
 		threadDataSource.append(segment: loadingSegment)
 		loadingSegment.append(ForumsLoadTimeCellModel())
@@ -41,6 +42,10 @@ class ForumThreadViewController: BaseCollectionViewController {
 //		knownSegues = Set([.showForumThread])
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+		threadDataSource.enableAnimations = true
+	}
+			
 	override func viewDidAppear(_ animated: Bool) {
 		if let tm = threadModel {
 			postButton.isEnabled = !tm.locked
@@ -72,6 +77,16 @@ class ForumThreadViewController: BaseCollectionViewController {
 		case "TweetFilter":
 			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
 				destVC.dataManager = TwitarrDataManager(filterString: filterString)
+			}
+			
+		case "UserProfile":
+			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
+				destVC.modelUserName = username
+			}
+
+		case "ModalLogin":
+			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
+				destVC.segueData = package
 			}
 			
 		default: break 

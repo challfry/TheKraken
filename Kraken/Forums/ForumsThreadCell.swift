@@ -10,18 +10,49 @@ import UIKit
 
 @objc protocol ForumsThreadBindingProtocol: FetchedResultsBindingProtocol {
 	var isInteractive: Bool { get set }
+	var thread: ForumThread? { get set }
+	var readCount: ForumReadCount? { get set }
 }
 
 @objc class ForumsThreadCellModel: FetchedResultsCellModel, ForumsThreadBindingProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
 		return [ "ForumsThreadCell" : ForumsThreadCell.self ] 
 	}
+	
+	@objc dynamic var thread: ForumThread?
+	@objc dynamic var readCount: ForumReadCount?			// The current user's read count object for this thread.
 
 	// If false, the cell doesn't show text links and isn't selectable.
 	@objc dynamic var isInteractive: Bool = true
 	
 	init(with model: ForumThread) {
 		super.init(withModel: model, reuse: "ForumsThreadCell", bindingWith: ForumsThreadBindingProtocol.self)
+		thread = model
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
+			if let curUsername = observed.loggedInUser?.username {
+				observer.readCount = observer.thread?.readCount.first { $0.user.username == curUsername }
+			}
+			else {
+				observer.readCount = nil
+			}
+		}?.execute()
+		
+	}
+	
+	init(with model: ForumReadCount) {
+		super.init(withModel: model, reuse: "ForumsThreadCell", bindingWith: ForumsThreadBindingProtocol.self)
+		readCount = model
+		thread = model.forumThread
+
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
+			if let curUsername = observed.loggedInUser?.username {
+				observer.readCount = observer.thread?.readCount.first { $0.user.username == curUsername }
+			}
+			else {
+				observer.readCount = nil
+			}
+		}
 	}
 }
 
@@ -39,7 +70,7 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 	@IBOutlet weak var favoriteButton: UIButton!
 	
 	var isInteractive: Bool = true
-
+	
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		setupGestureRecognizer()
@@ -59,12 +90,12 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 		}
 	}
 	
-	@objc dynamic public var currentUserReadCount: ForumReadCount?
+	var model: NSFetchRequestResult? 
 
-    var model: NSFetchRequestResult? {
+    var thread: ForumThread? {
 		didSet {
     		clearObservations()
-			if let thread = model as? ForumThread {
+			if let thread = thread {
 				addObservation(thread.tell(self, when: "subject") { observer, observed in
 					observer.subjectLabel.text = observed.subject
 				}?.execute())
@@ -90,27 +121,30 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 					observer.stickyIcon.isHidden = !observed.sticky
 				}?.execute())
 								
-				CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
-					if let curUsername = observed.loggedInUser?.username {
-					// TODO: thread acces wrong
-						observer.currentUserReadCount = thread.readCount.first { $0.user.username == curUsername }
-					}
-					else {
-						observer.currentUserReadCount = nil
-					}
-				}?.execute()
-
-				addObservation(self.tell(self, when: "currentUserReadCount.isFavorite") { observer, observed in
-					observer.favoriteButton.isSelected = observed.currentUserReadCount?.isFavorite ?? false
-				}?.execute())
-				
 				updatePostTime()
 			}
 		}
 	}
 	
+	var readCountObservation: EBNObservation?
+	var readCount: ForumReadCount? {
+		didSet {
+			if let rc = readCount {
+				if let rco = readCountObservation {
+					rco.stopObservations()
+				}
+				readCountObservation = rc.tell(self, when: "isFavorite") { observer, observed in
+					observer.favoriteButton.isSelected = observed.isFavorite
+				}?.execute()
+			}
+			else {
+				favoriteButton.isSelected = false
+			}
+		}
+	}
+	
 	func updatePostTime() {
-		if let thread = model as? ForumThread {
+		if let thread = thread {
 			let postDate: TimeInterval = TimeInterval(thread.lastPostTime) / 1000.0
 			self.lastPostTimeLabel.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
 		}
@@ -136,7 +170,7 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 	
 	override var isSelected: Bool {
 		didSet {
-			if isSelected, isInteractive, let threadModel = model as? ForumThread {
+			if isSelected, isInteractive, let threadModel = thread {
 				dataSource?.performKrakenSegue(.showForumThread, sender: threadModel)
 			}
 		}
@@ -144,7 +178,7 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 	
 	@IBAction func favoriteButtonHit() {
  		guard isInteractive else { return }
-		if let thread = model as? ForumThread {
+		if let thread = thread {
 			// FIXME: Still not sure what to do in the case where the user, once logged in, already likes the thread.
 			// When nobody is logged in we still enable and show the Like button. Tapping it opens the login panel, 
 			// with a successAction that performs the like action.

@@ -208,7 +208,7 @@
 	
 	for (EBNKeypathEntryInfo *entryInfo in entriesToRemove)
 	{
-		[entryInfo ebn_updateKeypathAtIndex:0 from:self to:nil];
+		[entryInfo ebn_removeObservation];
 	}
 }
 

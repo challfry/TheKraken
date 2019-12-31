@@ -1193,7 +1193,8 @@
                     <connections>
                         <outlet property="collectionView" destination="0Hl-xU-4TH" id="qMa-2p-xWw"/>
                         <outlet property="postButton" destination="qnY-wk-1iY" id="I0U-Ya-qvF"/>
-                        <segue destination="0s5-bb-y2H" kind="show" identifier="tweetFilter" id="yZ3-I6-e7Y"/>
+                        <segue destination="0s5-bb-y2H" kind="show" identifier="TweetFilter" id="yZ3-I6-e7Y"/>
+                        <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="ZaT-fl-KcI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NQ2-e3-oN1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1965,10 +1966,10 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="ZNA-4Q-2gl"/>
-        <segue reference="ibx-KH-vcj"/>
+        <segue reference="ZaT-fl-KcI"/>
+        <segue reference="YAp-ch-2PT"/>
         <segue reference="yZ3-I6-e7Y"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="vXi-dK-Rxk"/>
         <segue reference="llS-CN-BhZ"/>
         <segue reference="jdD-6N-h46"/>
         <segue reference="obm-hj-fmk"/>

@@ -21,19 +21,24 @@ class StringUtilities {
      	let scanner = Scanner(string: text)
      	scanner.charactersToBeSkipped = emptySet
 		while !scanner.isAtEnd {
+			// Scan to the start of the next tag. If tagStack is empty, it's text 'outside' of all tags. 
+			// Else, it's text that's 'inside' all the tags in the stack.
 			if let tempString = scanner.KscanUpToCharactersFrom(openTag) {
+				let cleanedTempString = tempString.decodeHTMLEntities()
 				if tagStack.isEmpty || !addLinks {
     				let textAttrs: [NSAttributedString.Key : Any] = [ .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
-					let attrString = NSAttributedString(string: tempString, attributes: textAttrs)
+					let attrString = NSAttributedString(string: cleanedTempString, attributes: textAttrs)
 					outputString.append(attrString)
 				}
 				else {
     				let tagAttrs: [NSAttributedString.Key : Any] = [ .link : tempString,
     						 .foregroundColor : UIColor.blue as Any]
-					let attrString = NSAttributedString(string: tempString, attributes: tagAttrs)
+					let attrString = NSAttributedString(string: cleanedTempString, attributes: tagAttrs)
 					outputString.append(attrString)
 				}
 			}
+			
+			// Now scan the tag and whatever junk is in it, from '<' to '>'
 			scanner.scanString("<", into: nil)
 	   		if let tagContents = scanner.KscanUpToCharactersFrom(closeTag) {
 	   			let firstSpace = tagContents.firstIndex(of: " ") ?? tagContents.endIndex

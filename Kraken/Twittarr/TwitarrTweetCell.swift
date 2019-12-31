@@ -36,6 +36,9 @@ import CoreData
 	var currentUserReactOpCount: Int32 { get set }
 	var currentUserHasLikeOp: LikeOpKind { get set }
 	var currentUserLikesThis: Bool { get set }
+	var canReply: Bool { get set }
+	var canEdit: Bool { get set }
+	var canDelete: Bool { get set }
 	
 	var isDeleted: Bool { get set }
 	
@@ -75,6 +78,9 @@ import CoreData
 	dynamic var currentUserReactOpCount: Int32 = 0
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
 	dynamic var currentUserLikesThis: Bool = false
+	dynamic var canReply: Bool = true
+	dynamic var canEdit: Bool = true
+	dynamic var canDelete: Bool = true
 
 	dynamic var isDeleted: Bool = false
 	
@@ -127,6 +133,8 @@ import CoreData
 		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
 			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
 			observer.loggedInUserIsAuthor = authorUsername == currentUsername
+			observer.canEdit = observer.loggedInUserIsAuthor
+			observer.canDelete = observer.loggedInUserIsAuthor
 		
 			// When the current user changes, need to re-evaluate: Replies, DeleteOps, EditOps, Likes, LikeOps
 			observer.currentUserReplyOpCount = tweetModel.opsWithThisParent?.reduce(0) { (result, operation) in 
@@ -280,6 +288,9 @@ import CoreData
 	dynamic var currentUserReactOpCount: Int32 = 0
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
 	dynamic var currentUserLikesThis: Bool = false
+	dynamic var canReply: Bool = false
+	dynamic var canEdit: Bool = true
+	dynamic var canDelete: Bool = true
 
 	dynamic var isDeleted: Bool = false
 	
@@ -382,11 +393,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	var isInteractive: Bool = true
 	
 	// 
-    var model: NSFetchRequestResult? {
-    	didSet {
-//    		clearObservations()
-		}
-	}
+    var model: NSFetchRequestResult? 
   			
 	var authorIconObservation: EBNObservation?
 	var author: KrakenUser? {
@@ -427,7 +434,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	var postText: String? {
 		didSet {
 			// Can the user tap on a link and open a filtered view?
-			var addLinksToText = isPrototypeCell
+			var addLinksToText = !isPrototypeCell
 			if isInteractive, let vc = viewController as? BaseCollectionViewController {
 				addLinksToText = vc.canPerformSegue(.tweetFilter)
 			}
@@ -529,6 +536,24 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		didSet {
 			let newText = currentUserLikesThis ? "Unlike" : "Like"
 			likeButton.setTitle(newText, for: .normal)
+		}
+	}
+	
+	var canReply: Bool = false {
+		didSet {
+			replyButton.isHidden = !canReply
+		}
+	}
+	
+	var canEdit: Bool = false {
+		didSet {
+			editButton.isHidden = !canEdit
+		}
+	}
+	
+	var canDelete: Bool = false {
+		didSet {
+			deleteButton.isHidden = !canDelete
 		}
 	}
 	

@@ -54,6 +54,10 @@ class ForumsRootViewController: BaseCollectionViewController {
 		knownSegues = Set([.showForumThread, .modalLogin])
 	}
 		
+    override func viewWillAppear(_ animated: Bool) {
+		threadDataSource.enableAnimations = true
+	}
+			
 	override func viewDidAppear(_ animated: Bool) {
 		ForumsDataManager.shared.loadForumThreads(fromOffset: 0) {
 			
@@ -135,7 +139,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 	
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
 	func createReadCountCellModel(_ model: ForumReadCount) -> BaseCellModel {
-		let cellModel = ForumsThreadCellModel(with: model.forumThread)
+		let cellModel = ForumsThreadCellModel(with: model)
 		return cellModel
 	}
 	

@@ -31,6 +31,9 @@ import UIKit
 	dynamic var currentUserReactOpCount: Int32 = 0
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
 	dynamic var currentUserLikesThis: Bool = false
+	dynamic var canReply: Bool = false
+	dynamic var canEdit: Bool = true
+	dynamic var canDelete: Bool = true
 
 	dynamic var isDeleted: Bool = false
 	
@@ -83,7 +86,9 @@ import UIKit
 		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
 			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
 			observer.loggedInUserIsAuthor = authorUsername == currentUsername
-		
+			observer.canEdit = observer.loggedInUserIsAuthor
+			observer.canDelete = observer.loggedInUserIsAuthor
+			
 			// When the current user changes, need to re-evaluate: DeleteOps, EditOps, Likes, LikeOps
 //			observer.currentUserHasDeleteOp = postModel.opsDeletingThisTweet?.contains { 
 //				$0.author.username == currentUsername 
@@ -169,6 +174,7 @@ import UIKit
 	}
 	
 	func replyButtonTapped() {
+		// Reply button should be hidden when used with this cell model.
 	}
 	
 	func editButtonTapped() {
