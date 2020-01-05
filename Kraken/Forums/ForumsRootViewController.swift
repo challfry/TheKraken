@@ -33,6 +33,13 @@ class ForumsRootViewController: BaseCollectionViewController {
 	var readCountSegment = FRCDataSourceSegment<ForumReadCount>()
     var filterPopupVC: EmojiPopupViewController?
     
+    lazy var loadingStatusCell: LoadingStatusCellModel = {
+    	let cell = LoadingStatusCellModel()
+    	cell.statusText = "Loading Forum Threads"
+    	cell.showSpinner = true
+    	return cell
+    }()
+    
 
 // MARK: Methods
 	
@@ -41,6 +48,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 		buildFilterView()		
 
 		threadDataSource.append(segment: loadingSegment)
+		loadingSegment.append(loadingStatusCell)
 		loadingSegment.append(ForumsLoadTimeCellModel())
 		
 		threadDataSource.append(segment: threadSegment)
@@ -159,25 +167,6 @@ class ForumsRootViewController: BaseCollectionViewController {
 		let cellModel = ForumsThreadCellModel(with: model)
 		return cellModel
 	}
-	
-	
-	
-// MARK: Navigation
-	
-	// Set up data in destination view controllers when we're about to segue to them.
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-		case "ShowForumThread":
-			if let destVC = segue.destination as? ForumThreadViewController, let threadModel = sender as? ForumThread {
-				destVC.threadModel = threadModel
-			}
-		case "ModalLogin":
-			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
-				destVC.segueData = package
-			}
-		default: break 
-		}
-    }
     
 // MARK: Actions
     

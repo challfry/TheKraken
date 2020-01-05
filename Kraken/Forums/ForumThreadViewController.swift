@@ -43,10 +43,10 @@ class ForumThreadViewController: BaseCollectionViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+    	super.viewWillAppear(animated)
+    	
 		threadDataSource.enableAnimations = true
-	}
-			
-	override func viewDidAppear(_ animated: Bool) {
+
 		if let tm = threadModel {
 			postButton.isEnabled = !tm.locked
 			ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: 0) {
@@ -67,30 +67,6 @@ class ForumThreadViewController: BaseCollectionViewController {
 		let cellModel = ForumPostCellModel(withModel: model)
 		cellModel.viewController = self
 		return cellModel
-	}
-
-// MARK: - Navigation
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-			// A filtered view of the tweet stream.
-		case "TweetFilter":
-			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
-				destVC.dataManager = TwitarrDataManager(filterString: filterString)
-			}
-			
-		case "UserProfile":
-			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
-				destVC.modelUserName = username
-			}
-
-		case "ModalLogin":
-			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
-				destVC.segueData = package
-			}
-			
-		default: break 
-		}
 	}
 
 }

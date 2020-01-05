@@ -127,6 +127,7 @@
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
 		EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113123BB3090007583EC /* ObjCUtils.m */; };
+		EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
 		EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */; };
 		EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */; };
@@ -309,6 +310,7 @@
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		EAC6113123BB3090007583EC /* ObjCUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCUtils.m; sourceTree = "<group>"; };
 		EAC6113323BB31DF007583EC /* ObjCUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCUtils.h; sourceTree = "<group>"; };
+		EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumComposeViewController.swift; sourceTree = "<group>"; };
 		EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadViewController.swift; sourceTree = "<group>"; };
 		EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailMessageCell.swift; sourceTree = "<group>"; };
 		EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeamailMessageCell.xib; sourceTree = "<group>"; };
@@ -387,6 +389,7 @@
 			children = (
 				EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */,
 				EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */,
+				EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */,
 				EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */,
 				EA1099F7239663C100F5172D /* ForumsLoadTimeCell.xib */,
 				EA1099F92397375000F5172D /* ForumsThreadCell.swift */,
@@ -921,6 +924,7 @@
 				EAA62C6D22C2B5FA0031A999 /* DisclosureCell.swift in Sources */,
 				EA86ADDC22745A5800363CBF /* BaseCollectionViewController.swift in Sources */,
 				EA86ADEE227D188A00363CBF /* ServerTextFileParser.swift in Sources */,
+				EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */,
 				EA534E2C2301FFE500FE4787 /* ScheduleRootViewController.swift in Sources */,
 				EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */,
 				EA3C63102296275F00077E3B /* CollectionFlowLayout.swift in Sources */,

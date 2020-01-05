@@ -39,21 +39,5 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
 		let cellModel =  TwitarrTweetOpCellModel(withModel: model)
 		return cellModel
 	}
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-		case "UserProfile":
-			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
-				destVC.modelUserName = username
-			}
-
-		case "EditTweet":
-			if let destVC = segue.destination as? ComposeTweetViewController, let original = sender as? PostOpTweet {
-				destVC.draftTweet = original
-			}
-			
-		default: break 
-    	}
-    }
 }
 

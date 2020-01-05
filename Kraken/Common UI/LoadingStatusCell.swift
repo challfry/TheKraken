@@ -94,5 +94,11 @@ import UIKit
 	var showSpinner: Bool = false { 
 		didSet { spinner.isHidden = !showSpinner }
 	}
+	
+	override func awakeFromNib() {		
+		// Font styling
+		errorLabel.styleFor(.body)
+		statusLabel.styleFor(.body)
+	}
 }
 

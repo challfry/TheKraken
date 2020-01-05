@@ -27,6 +27,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
         
         // If we have a tweet to edit, but no parent set, and the tweet we're editing is a response (that is, has a parent)
         // set that tweet as the parent.
@@ -93,20 +94,17 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		}?.execute()
 		
 		CurrentUser.shared.tell(btnCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
-			if CurrentUser.shared.isMultiUser(), let currentUser = CurrentUser.shared.loggedInUser {
-				let posterFont = UIFont(name:"Georgia-Italic", size: 14)
-				let posterColor = UIColor.darkGray
-				let textAttrs: [NSAttributedString.Key : Any] = [ .font : posterFont as Any, 
-						.foregroundColor : posterColor ]
+			if CurrentUser.shared.isMultiUser(), let currentUser = CurrentUser.shared.loggedInUser,
+					let posterFont = UIFont(name:"Georgia-Italic", size: 14),
+					let posterColor = UIColor(named: "Kraken Secondary Text") {	
+				let textAttrs: [NSAttributedString.Key : Any] = [ .font : posterFont, .foregroundColor : posterColor ]
 				observer.infoText = NSAttributedString(string: "Posting as: \(currentUser.username)", attributes: textAttrs)
 			}
 			else {
 				observer.infoText = nil
 			}
 		}?.execute()
-		
-//		let authorInfoCell = AuthorLabelCellModel()
-		
+				
         let statusCell = OperationStatusCellModel()
         statusCell.shouldBeVisible = false
         statusCell.showSpinner = true
@@ -115,7 +113,6 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
 		composeSection.append(textCell)
         composeSection.append(btnCell)
-//		composeSection.append(authorInfoCell)
         composeSection.append(statusCell)
 		composeSection.append(EmojiSelectionCellModel(paster: weakify(self, ComposeTweetViewController.emojiButtonTapped)))
 		
@@ -141,7 +138,6 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			}
         }?.execute()        
 
-		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -238,19 +234,6 @@ class ComposeTweetViewController: BaseCollectionViewController {
     }
     
 // MARK: - Navigation
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-		case "UserProfile":
-			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
-				destVC.modelUserName = username
-			}
-		case "fullScreenCamera", "cropCamera":
-			break
-		default: break 
-    	}
-
-    }
 
 	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the
 	// source VC to get the photo that was taken.

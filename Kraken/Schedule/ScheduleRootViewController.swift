@@ -401,23 +401,6 @@ import EventKitUI
 		}
 	}
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-    	
-		case "ModalLogin":
-			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
-				destVC.segueData = package
-			}
-			
-		case "ShowRoomOnDeckMap":
-			if let destVC = segue.destination as? DeckMapViewController, let location = sender as? String {
-				destVC.pointAtRoomNamed(location)
-			}
-			
-		default: break 
-    	}
-    }
-
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
 		// Try to continue whatever we were doing before having to log in.
 		if let loginVC = segue.source as? ModalLoginViewController {

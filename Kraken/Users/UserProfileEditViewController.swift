@@ -107,12 +107,16 @@ import Photos
 	}
 	
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-		case "fullScreenCamera", "cropCamera": 
-			if let destVC = segue.destination as? CameraViewController {
-				destVC.selfieMode = true
+		if let segueID = prepareGlobalSegue(for: segue, sender: sender) {
+			
+			// Override default camera behavior when we're the source, so the camera starts in selfie mode.
+			switch segueID {
+			case .fullScreenCamera, .cropCamera: 
+				if let destVC = segue.destination as? CameraViewController {
+					destVC.selfieMode = true
+				}
+			default: break 
 			}
-		default: break 
 		}
 	}
 	

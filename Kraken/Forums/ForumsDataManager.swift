@@ -154,6 +154,7 @@ import UIKit
     @NSManaged public var photos: NSMutableOrderedSet	// PhotoDetails
     @NSManaged public var reactionOps: NSMutableSet?
     @NSManaged public var likedByUsers: Set<KrakenUser>
+    @NSManaged public var editedBy: PostOpForumPost?
    
 // MARK: Methods
 
@@ -292,6 +293,10 @@ class ForumsDataManager: NSObject {
 
 	private let coreData = LocalCoreData.shared
 	var lastError : ServerError?
+	
+	func userViewingAllThreads(_ thread: ForumThread) {
+		
+	}
 
 	func loadForumThreads(fromOffset: Int, done: @escaping () -> Void) {
 	
@@ -379,26 +384,30 @@ class ForumsDataManager: NSObject {
 	
 	func parseNewThreadPosts(from thread: TwitarrV2ForumThread) {
 		LocalCoreData.shared.performNetworkParsing { context in 
-			context.pushOpErrorExplanation("Failed to parse Forum thread and add its posts to Core Data.")
-			
-			// Make sure all the post authors get added to our User table
-			// Note that this also sets "Users" on our context's userInfo.
-			let postAuthors = thread.posts.map { $0.author }
-			UserManager.shared.update(users: postAuthors, inContext: context)
-			
-			// Get all the photos atached to all the posts into a Photos set.
-			let allPhotos = thread.posts.flatMap { $0.photos }
-			let forumPhotos = Dictionary( allPhotos.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first } )
-			ImageManager.shared.update(photoDetails: forumPhotos, inContext: context)
-			
-			// Fetch threads from CD that match the ids in the given theads
-			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "ForumThreadsWithIds", 
-					substitutionVariables: [ "ids" : [thread.id] ]) as! NSFetchRequest<ForumThread>
-			let cdThreads = try request.execute()
-			let forumThread = cdThreads.first ?? ForumThread(context: context)
-
-			forumThread.buildFromV2(context: context, v2Object: thread)
+			try self.internalParseNewThreadPosts(context: context, from: thread)
 		}		
+	}
+	
+	func internalParseNewThreadPosts(context: NSManagedObjectContext, from thread: TwitarrV2ForumThread) throws {
+		context.pushOpErrorExplanation("Failed to parse Forum thread and add its posts to Core Data.")
+		
+		// Make sure all the post authors get added to our User table
+		// Note that this also sets "Users" on our context's userInfo.
+		let postAuthors = thread.posts.map { $0.author }
+		UserManager.shared.update(users: postAuthors, inContext: context)
+		
+		// Get all the photos atached to all the posts into a Photos set.
+		let allPhotos = thread.posts.flatMap { $0.photos }
+		let forumPhotos = Dictionary( allPhotos.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first } )
+		ImageManager.shared.update(photoDetails: forumPhotos, inContext: context)
+		
+		// Fetch threads from CD that match the ids in the given theads
+		let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "ForumThreadsWithIds", 
+				substitutionVariables: [ "ids" : [thread.id] ]) as! NSFetchRequest<ForumThread>
+		let cdThreads = try request.execute()
+		let forumThread = cdThreads.first ?? ForumThread(context: context)
+
+		forumThread.buildFromV2(context: context, v2Object: thread)
 	}
 	
 

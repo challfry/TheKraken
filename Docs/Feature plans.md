@@ -85,10 +85,6 @@ with a "#jococruise" hashtag likely attached (or something).
 One notification max per day, don't send notifications between 10:00 PM and 8:00 AM local time, have an option in Settings to turn it off.
 This also means that at most one post per day gets reposted per user.
 
-## Dark Mode, Dynamic Type
-
-Bread and butter features. But, I want to implement them with traversing view stylers. 
-
 ## Forums Improvements
 Biggest problem I remember with Forums was how fast the forums list updated. Made it near impossible to track a thread--there were too 
 many active threads going. I was hoping Forum Categories would mitigate this--with ~10 categories each one would have ~1/10th the
@@ -102,3 +98,37 @@ All
 Favorites
 History
 Search
+
+## Daily Agenda Modals
+
+First foreground of the day, pop a fullscreen modal with the days' agenda -- the port, if any, and the day's theme. Also, highlight one
+app feature per day to nudge the user to explore the app.
+
+Before the cruise, pop the modal with X days until Boat! info.
+
+After the cruise, show a modal reminding users that we'll wipe data 4? months after the cruise.
+
+## Scrapbook
+
+Everything the user liked.
+
+*	Tweets
+*	Forum Posts
+*	Events
+*	Karaoke Songs
+* 	Users
+
+## Lighter Mode
+
+A video of a lighter flame. That's it.
+
+## Tabletop Game list
+
+Ask Jenn Ellis if we can include this.
+
+## Performers List?
+
+~37 performers listed on the site. I'd *definitely* need THO to okay this idea, as it looks like the headshots and bios come
+from the performers themselves. Anyway, it's just more reference material that we can make static for viewing on-ship.
+
+Although, really, why not just dupe the site pages onto the server? Hmm, either nobody's thought of this or it's already been nixed.

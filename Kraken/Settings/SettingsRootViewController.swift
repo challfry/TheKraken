@@ -88,15 +88,6 @@ class SettingsRootViewController: BaseCollectionViewController {
 		if #available(iOS 13.0, *) {
 			let darkModeCell = DisplayStyleCellModel()
 			prefsSection.append(cell: darkModeCell)
-			darkModeCell.stateChanged = {
-				switch darkModeCell.selectedSegment {
-				case 0: self.view.window?.overrideUserInterfaceStyle = .unspecified
-				case 1: self.view.window?.overrideUserInterfaceStyle = .light
-				case 2: self.view.window?.overrideUserInterfaceStyle = .dark
-				case 3: self.view.window?.overrideUserInterfaceStyle = .dark
-				default: break					
-				}
-			}
 		}
 		
 		// Debug Settings
@@ -162,20 +153,6 @@ class SettingsRootViewController: BaseCollectionViewController {
 	}
 
     // MARK: Navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-//		case "PostOperations":
-//			if let destVC = segue.destination as? SettingsTasksViewController, 
-//					let controller = sender as? NSFetchedResultsController<PostOperation> {
-//				destVC.controller = controller
-//			}
-		case "UserProfile":
-			if let destVC = segue.destination as? UserProfileViewController, let user = sender as? String {
-				destVC.modelUserName = user
-			}
-		default: break 
-    	}
-    }
 
 	// This fn has to be here so that the login unwind stops here.
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
@@ -504,14 +481,14 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 
 // MARK: - Prefs Cells
 
-@objc class DisplayStyleCellModel : SegmentCellModel {
+@objc class DisplayStyleCellModel : SegmentCellModel {	
 	init() {
 		super.init(titles: ["System", "Light Mode", "Dark Mode", "Deep Sea Mode"])
-//		stateChanged = { 
-//			if let newStyle = Settings.DisplayStyle(rawValue: self.selectedSegment) {
-//				Settings.shared.uiDisplayStyle = newStyle
-//			}
-//		}
+		stateChanged = {
+			if let newStyle = Settings.DisplayStyle(rawValue: self.selectedSegment) {
+				Settings.shared.uiDisplayStyle = newStyle
+			}
+		}
 		selectedSegment = Settings.shared.uiDisplayStyle.rawValue
 		cellTitle = "This sets the overall look of the app."
 	}

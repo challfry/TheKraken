@@ -39,6 +39,7 @@ class TwitarrViewController: BaseCollectionViewController {
 		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
 		dataManager.addDelegate(tweetSegment)
   		tweetDataSource.append(segment: tweetSegment)
+		tweetSegment.loaderDelegate = dataManager
 		tweetSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
 		
         // Do any additional setup after loading the view.
@@ -66,46 +67,6 @@ class TwitarrViewController: BaseCollectionViewController {
 		}
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-			// A filtered view of the tweet stream.
-		case "TweetFilter":
-			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
-				destVC.dataManager = TwitarrDataManager(filterString: filterString)
-			}
-			
-			// PostOpTweets by this user, that are replies to a given tweet.
-		case "PendingReplies":
-			if let destVC = segue.destination as? PendingTwitarrRepliesVC, let parent = sender as? TwitarrPost {
-				destVC.parentTweet = parent
-			}
-			
-		case "UserProfile":
-			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
-				destVC.modelUserName = username
-			}
-
-		case "ModalLogin":
-			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
-				destVC.segueData = package
-			}
-			
-		case "ComposeReplyTweet":
-			if let destVC = segue.destination as? ComposeTweetViewController, let parent = sender as? TwitarrPost {
-				destVC.parentTweet = parent
-			}
-			
-		case "EditTweet":
-			if let destVC = segue.destination as? ComposeTweetViewController, let original = sender as? TwitarrPost {
-				destVC.editTweet = original
-			}
-			
-		// Some segues legit don't need us to do anything.
-		case "ComposeTweet": break
-		default: break 
-    	}
-    }
-    
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
 		// Try to continue whatever we were doing before having to log in.
 		if let loginVC = segue.source as? ModalLoginViewController {

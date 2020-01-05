@@ -202,44 +202,6 @@ import UIKit
 	}
 }
 
-fileprivate class RecentNetworkCall : NSObject {
-	var mostRecent: TwitarrPost 
-	var earliest: TwitarrPost
-	var mostRecentIndex: Int = -1
-	var earliestIndex: Int = -1
-	let callTime: Date
-	
-	init(mostRecent: TwitarrPost, earliest: TwitarrPost) {
-		self.mostRecent = mostRecent
-		self.earliest = earliest
-		self.callTime = Date()
-	}
-	
-	func updateIndices(frc: NSFetchedResultsController<TwitarrPost>) {
-		if let mostRecentIndexPath = frc.indexPath(forObject: mostRecent)
-		{
-			mostRecentIndex = mostRecentIndexPath.last!
-		}
-		else {
-			mostRecentIndex = -1
-		}
-		if let earliestIndexPath = frc.indexPath(forObject: earliest)
-		{
-			earliestIndex = earliestIndexPath.last!
-		}
-		else {
-			earliestIndex = -1
-		}
-	}
-	
-	func covers(index: Int) -> Bool {
-		guard earliestIndex != -1 && mostRecentIndex != -1 else {
-			return false
-		}
-		return index >= earliestIndex && index <= mostRecentIndex 
-	}
-}
-
 // TwitarrDataManager provides access to tweets.
 //
 // That is, it is responsible for initiating and processing server calls to get tweets and associated data; it maintains 
@@ -252,8 +214,6 @@ class TwitarrDataManager: NSObject {
 	private let coreData = LocalCoreData.shared
 	var filter: String?
 	var fetchedData: NSFetchedResultsController<TwitarrPost>
-	fileprivate var recentNetworkCalls: [RecentNetworkCall] = []
-	private let recentNetworkCallsQ = DispatchQueue(label:"RecentNetworkCalls mutation serializer")
 	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
 	
 	// TRUE when we've got a network call running to update the stream, or the current filter.
@@ -265,6 +225,13 @@ class TwitarrDataManager: NSObject {
 	var newerPostsExist: Bool? 
 	var olderPostsExist: Bool?
 	var totalTweets: Int = 0
+	
+	// These are used to track what tweets we've loaded recently; used to prevent duplicate loads.
+	// Said differently, this tells us when we need to perform a load because the data is missing or stale.
+	fileprivate var recentNetworkCalls: [TwitarrRecentNetworkCall] = []
+	private let recentNetworkCallsQ = DispatchQueue(label:"RecentNetworkCalls mutation serializer")
+	var nextRecalculateTime: Date = Date()
+	var coveredIndices: IndexSet = IndexSet()
 	
 	//
 	var lastError : Error?
@@ -292,7 +259,8 @@ class TwitarrDataManager: NSObject {
 		}
 	}
 
-	init(predicate: NSPredicate?) {
+	init(predicate: NSPredicate?, titleString: String?) {
+		filter = titleString
 		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
 		fetchRequest.fetchBatchSize = 50
@@ -331,21 +299,6 @@ class TwitarrDataManager: NSObject {
 			recentTwitarrPostDrafts[replyingTo ?? ""] = text
 		}
 	}
-
-	func requestTweet(atIndex requestIndex: Int) {
-		// Check our recent network calls to see if we've requested this tweet from the server recently
-		recentNetworkCallsQ.async {
-			let cutoffDate = Date(timeIntervalSinceNow: -60 * 5)
-			self.recentNetworkCalls = self.recentNetworkCalls.compactMap( { $0.callTime > cutoffDate ? $0 : nil } )
-			let indexCovered = self.recentNetworkCalls.reduce( false, { $0 || $1.covers(index: requestIndex) } )
-
-			if !indexCovered {
-				
-			}	
-		}
-		
-	}
-	
 	
 	func loadNewestTweets(done: (() -> Void)? = nil) {
 		loadStreamTweets(anchorTweet: nil) {	
@@ -354,6 +307,10 @@ class TwitarrDataManager: NSObject {
 	}
 	
 	func loadStreamTweets(anchorTweet: TwitarrPost?, newer: Bool = false, done: (() -> Void)? = nil) {
+		//
+		let newNetworkResults = TwitarrRecentNetworkCall(anchor: anchorTweet, count: 50, newer: newer, frc: fetchedData)
+		recalculateCoveredTweets(adding: newNetworkResults)
+	
 		var queryParams = [ URLQueryItem(name:"newer_posts", value:newer ? "true" : "false") ]
 		queryParams.append(URLQueryItem(name:"limit", value:"50"))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
@@ -443,12 +400,19 @@ class TwitarrDataManager: NSObject {
 			
 			// Reactions
 			
+			// 
+			let newPostIDs = posts.map { $0.id }
+			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsWithIDs", 
+					substitutionVariables: [ "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
+			request.fetchLimit = posts.count + 10 
+			
+			
 			// Get the CD cached posts for the same timeframe as the network call. 			
-			let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
-			let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
-			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
-					substitutionVariables: [ "startDate" : startDate, "endDate" : endDate ]) as! NSFetchRequest<TwitarrPost>
-			request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
+//			let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
+//			let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
+//			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
+//					substitutionVariables: [ "startDate" : startDate, "endDate" : endDate ]) as! NSFetchRequest<TwitarrPost>
+//			request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
 	//		let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
 			let cdResults = try request.execute()
 
@@ -458,7 +422,8 @@ class TwitarrDataManager: NSObject {
 			var mostRecent: TwitarrPost?
 			var earliest: TwitarrPost?
 			for post in posts {
-				let cdPost = cdPostsDict.removeValue(forKey: post.id) ?? TwitarrPost(context: context)
+				let removedValue = cdPostsDict.removeValue(forKey: post.id)
+				let cdPost = removedValue ?? TwitarrPost(context: context)
 				cdPost.buildFromV2(context: context, v2Object: post)
 				
 				if post.id == posts.first!.id {
@@ -483,15 +448,16 @@ class TwitarrDataManager: NSObject {
 			
 			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
 			if self.filter == nil {
-				cdPostsDict.forEach( {key, value in context.delete(value) } )
-			}
-			
-			if let earliest = earliest, let mostRecent = mostRecent {
-				let newNetworkResults = RecentNetworkCall(mostRecent: mostRecent, earliest: earliest)
-				self.recentNetworkCallsQ.async {
-					self.recentNetworkCalls.insert(newNetworkResults, at: 0)
-					self.recentNetworkCalls.forEach( { $0.updateIndices(frc: self.fetchedData) } )
+				let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
+				let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
+				let dateRangeRequest = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsToDelete", 
+						substitutionVariables: [ "startDate" : startDate, "endDate" : endDate, "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
+				dateRangeRequest.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
+				let dateRangeResults = try dateRangeRequest.execute()
+				if dateRangeResults.count > 0 {
+					print ("meh")
 				}
+				dateRangeResults.forEach( { context.delete($0) } )
 			}
 		}
 	}
@@ -538,7 +504,7 @@ class TwitarrDataManager: NSObject {
 }
 
 // The data manager can have multiple delegates, all of which are watching the same results set.
-extension TwitarrDataManager : NSFetchedResultsControllerDelegate {
+extension TwitarrDataManager: NSFetchedResultsControllerDelegate {
 
 	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
 		viewDelegates.forEach( { $0.controllerWillChangeContent?(controller) } )
@@ -562,6 +528,133 @@ extension TwitarrDataManager : NSFetchedResultsControllerDelegate {
 		viewDelegates.forEach( { $0.controllerDidChangeContent?(controller) } )
 	}
 }
+
+extension TwitarrDataManager: FRCDataSourceLoaderDelegate {
+	func userIsViewingCell(at indexPath: IndexPath) {
+		checkLoadRequiredFor(index: indexPath.row)
+	}
+}
+
+// Stores info about recent successful calls that loaded tweets. 
+fileprivate class TwitarrRecentNetworkCall: NSObject {
+
+	// For each call, there's an anchor post we use for the timestamp, and we request numPosts posts either earlier
+	// or later than the anchor.
+	var anchor: TwitarrPost?
+	var numPosts: Int
+	var isNewer: Bool
+	
+	var indexRange: Range<Int>
+	let callTime: Date
+	
+	init(anchor: TwitarrPost?, count: Int, newer: Bool, frc: NSFetchedResultsController<TwitarrPost>) {
+		self.anchor = anchor
+		numPosts = count
+		isNewer = newer
+		self.callTime = Date()
+		indexRange = 0 ..< 0
+		super.init()
+		updateIndices(frc: frc)
+	}
+	
+	// Returns false if the indices can't be updated (perhaps one of the posts has been deleted?)
+	@discardableResult func updateIndices(frc: NSFetchedResultsController<TwitarrPost>) -> Bool {
+		if let anchor = anchor, let indexPath = frc.indexPath(forObject: anchor)
+		{
+			if isNewer {
+				indexRange = indexPath.row - numPosts ..< indexPath.row
+			}
+			else {
+				indexRange = indexPath.row ..< indexPath.row + numPosts
+			}	
+			return true
+		}
+		else {
+			indexRange = 0 ..< numPosts
+			return true
+		}
+	}
+	
+	override var description: String {
+		var returnString = ""
+		if let anchor = anchor {
+			returnString.append("Anchor at: \(anchor.id) timestamp: \(anchor.timestamp). ")
+		} 
+		returnString.append("\(numPosts) posts. isNewer: \(isNewer). Range: \(indexRange)")
+		return returnString
+	}
+}
+
+// 5 minute freshness period.
+let tweetCacheFreshTime = 300.0
+
+fileprivate extension TwitarrDataManager  {
+	func recalculateCoveredTweets(adding newCall: TwitarrRecentNetworkCall? = nil) {
+		recentNetworkCallsQ.async {
+			if let newNetworkCall = newCall {
+				self.recentNetworkCalls.append(newNetworkCall)
+			}
+			var newCoveredIndices = IndexSet()
+			self.recentNetworkCalls = self.recentNetworkCalls.filter {
+				if $0.callTime > Date(timeIntervalSinceNow: 0 - tweetCacheFreshTime) {
+					return $0.updateIndices(frc: self.fetchedData)
+				}
+				else {
+					return false
+				}
+			}
+			let earliestCall = self.recentNetworkCalls.reduce(Date()) { min($0, $1.callTime) } 
+			self.nextRecalculateTime = Date(timeInterval: tweetCacheFreshTime, since: earliestCall) 
+			for call in self.recentNetworkCalls {
+				var clampedRange = call.indexRange
+				if clampedRange.lowerBound < 0 {
+					clampedRange = 0..<clampedRange.upperBound
+				}
+				newCoveredIndices.insert(integersIn: clampedRange)
+			}
+			self.coveredIndices = newCoveredIndices
+		}
+	}
+	
+	struct CallToMake {
+		var index: Int
+		var directionIsNewer: Bool
+	}
+	
+	func checkLoadRequiredFor(index: Int) {
+		if Date() > nextRecalculateTime {
+			recalculateCoveredTweets()
+		}
+		var callAnchor: CallToMake?
+		recentNetworkCallsQ.sync {
+			if !self.coveredIndices.contains(integersIn: index ..< index + 11) {
+				let uncovered = IndexSet(index ..< index + 11).subtracting(self.coveredIndices)
+				if let firstUncovered = uncovered.min() {
+					callAnchor = CallToMake(index: firstUncovered - 1, directionIsNewer: false)
+				}
+			}
+			let prevCheckRange = max(index - 10, 0) ..< index
+			if callAnchor == nil, !prevCheckRange.isEmpty, !self.coveredIndices.contains(integersIn: prevCheckRange) {
+				let uncovered = IndexSet(prevCheckRange).subtracting(self.coveredIndices)
+				if let firstUncovered = uncovered.max() {
+					callAnchor = CallToMake(index: firstUncovered + 1, directionIsNewer: true)
+				}
+			}
+		} 
+		
+		// NOTE: Currently, increasing indices always indicates decreasing timestamps. That is,
+		// all sort orders are (... "timestamp", ascending: false). If that changes we need to change logic here.
+		
+		if let anchor = callAnchor, let numFRCResults = fetchedData.fetchedObjects?.count,
+				anchor.index >= 0, anchor.index < numFRCResults {
+			let anchorTweet = fetchedData.object(at: IndexPath(row: anchor.index, section: 0))
+			print("NEED TO LOAD: Anchor Index: \(anchor.index), newer: \(anchor.directionIsNewer)")
+			loadStreamTweets(anchorTweet: anchorTweet, newer: anchor.directionIsNewer, done: nil)
+		}
+		
+	}
+}
+
 
 
 // MARK: - V2 API Decoding

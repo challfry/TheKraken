@@ -608,6 +608,148 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
+// Used for both creating NEW forum threads and for adding posts to EXISTING threads.
+@objc(PostOpForumPost) public class PostOpForumPost: PostOperation {
+	@NSManaged public var subject: String?
+	@NSManaged public var text: String?
+	
+	@NSManaged public var photos: NSOrderedSet?			// PostOpForum_Photo
+	@NSManaged public var thread: ForumThread?			// If nil, this is a new thread (and subject must be non-nil).
+	@NSManaged public var editPost: ForumPost?
+		
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		if thread != nil {
+			operationDescription = "Posting a Forums post."
+		}
+		else {
+			operationDescription = "Posting a new Forum thread."
+		}
+	}
+
+	override func post() {
+		guard let postText = text else { return }
+		guard subject != nil || thread != nil else { return }
+		super.post()
+
+		// Upload any photos first, then chain the post call.
+		// Declared as a placeholder closure, then redefined immediately as it references itself.
+		var postingBlock: ([String]) -> Void = { _ in return }
+		postingBlock = { (inputPhotoIDs: [String]) in
+			var photoIDs: [String] = inputPhotoIDs
+			if let photoSet = self.photos, photoSet.count > photoIDs.count {
+				let photoUpload = photoSet[photoIDs.count] as! PostOpForum_Photo
+				self.uploadPhoto(photoData: photoUpload.image as NSData, mimeType: photoUpload.mimetype, 
+						isUserPhoto: false) { photoID, error in
+					if let err = error {
+						self.recordServerErrorFailure(err)
+					}
+					else if let id = photoID {
+						photoIDs.append(id)
+						postingBlock(photoIDs)
+					}
+				}
+			
+				// If we're uploading a photo we can't send the forum post yet. The photo completion handler
+				// will chain this block again.
+				return
+			}
+
+			// POST /api/v2/forums							For new thread, or
+			// POST /api/v2/forums/:thread_id				For new post in existing thread, or 
+			// POST /api/v2/vorums/:thread_id/:post_id		To edit existing post.
+			var path = "/api/v2/forums"
+			var isNewThread = true
+			if let editingPost = self.editPost {
+				// Request/Response contents for post edits are almost exactly the same as new posts, except
+				// there's no as_admin or as_mod fields. Luckily, we don't use them.
+				path.append("/\(editingPost.thread.id)/\(editingPost.id)")
+				isNewThread = false
+			}
+			else if let parentThread = self.thread {
+				// If thread is set, this is a 
+				path.append("/\(parentThread.id)")
+				isNewThread = false
+			}
+			var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
+			NetworkGovernor.addUserCredential(to: &request)
+			request.httpMethod = "POST"
+			
+			let postRequestStruct = TwitarrV2ForumNewPostRequest(subject: self.subject, text: postText,
+					photos: photoIDs, as_mod: nil, as_admin: nil)
+			
+			let newThreadData = try! JSONEncoder().encode(postRequestStruct)
+			request.httpBody = newThreadData
+			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+			self.queueNetworkPost(request: request) { data in
+				LocalCoreData.shared.performNetworkParsing { context in 
+					if isNewThread {
+						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Thread.")
+						let response = try JSONDecoder().decode(TwitarrV2ForumNewThreadResponse.self, from: data)
+						try ForumsDataManager.shared.internalParseNewThreadPosts(context: context, from: response.forum_thread)
+					}
+					else {
+						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Post.")
+						let response = try JSONDecoder().decode(TwitarrV2ForumNewPostResponse.self, from: data)
+						
+						// Only build CD objects out of the response if this is an edit. For new posts, we don't know
+						// whether there were intervening posts betwen the last post we know about and this new post.
+						// Therefore, don't show the new post until we do a normal load on the thread.
+						if let editingPost = self.editPost, editingPost.id == response.forum_post.id {
+							editingPost.buildFromV2(context: context, v2Object: response.forum_post, thread: editingPost.thread)
+						}
+					}
+				}
+			}
+		}
+		
+		// Call the posting block to start things off. This block uploads photos until they're all uploaded, then
+		// does the forum POST, passing in the ids of any photos uploaded.
+		postingBlock([])
+		
+	}
+}
+
+// Photo data attached to a forum post. 
+@objc(PostOpForum_Photo) public class PostOpForum_Photo: KrakenManagedObject {
+	@NSManaged public var image: Data
+	@NSManaged public var mimetype: String
+	@NSManaged public var parentOp: PostOpForumPost
+}
+
+@objc(PostOpForumPostDelete) public class PostOpForumPostDelete: PostOperation {
+	@NSManaged public var postToDelete: ForumPost?
+
+	override public func awakeFromFetch() {
+		super.awakeFromFetch()
+		operationDescription = "Deleting a Forum Post."
+	}
+
+	override func post() {
+		guard let post = postToDelete else { 
+			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
+			return
+		}
+		super.post()
+		
+		// DELETE  /api/v2/forums/:id/:post_id
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/forums/\(post.thread.id)/\(post.id)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "DELETE"
+		
+		self.queueNetworkPost(request: request) { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving forum post deletion back to Core Data.")
+				if let postInContext = try context.existingObject(with: post.objectID) as? TwitarrPost {
+					context.delete(postInContext)
+				}
+			}
+		}
+	}
+}
+
+
 @objc(PostOpForumPostReaction) public class PostOpForumPostReaction: PostOperation {
 	@NSManaged public var reactionWord: String
 		
@@ -933,6 +1075,26 @@ struct TwitarrV2TweetReactionResponse: Codable {
 	let status: String
 	let reactions: TwitarrV2ReactionsSummary
 }
+
+// POST /api/v2/forums, or POST /api/v2/forums/:id
+struct TwitarrV2ForumNewPostRequest: Codable {
+	let subject: String?								// Only if this is a new thread.
+	let text: String
+	let photos: [String]?
+	let as_mod: Bool?
+	let as_admin: Bool?
+}
+
+struct TwitarrV2ForumNewThreadResponse: Codable {
+	let status: String
+	let forum_thread: TwitarrV2ForumThread
+}
+
+struct TwitarrV2ForumNewPostResponse: Codable {
+	let status: String
+	let forum_post: TwitarrV2ForumPost
+}
+
 
 // POST /api/v2/forums/:id/:post_id/react/:type -- request has no body
 struct TwitarrV2ForumPostReactionResponse: Codable {

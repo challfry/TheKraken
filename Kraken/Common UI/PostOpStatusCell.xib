@@ -51,8 +51,8 @@
             </view>
             <color key="backgroundColor" name="Pending Op Background"/>
             <constraints>
+                <constraint firstItem="7G2-YV-v4C" firstAttribute="firstBaseline" secondItem="7s5-4e-W56" secondAttribute="firstBaseline" id="24Q-Mm-Nom"/>
                 <constraint firstAttribute="trailing" secondItem="7G2-YV-v4C" secondAttribute="trailing" constant="20" id="C5c-2q-SOS"/>
-                <constraint firstItem="7G2-YV-v4C" firstAttribute="centerY" secondItem="7s5-4e-W56" secondAttribute="centerY" id="CVE-a6-bFx"/>
                 <constraint firstItem="cKr-kf-R3T" firstAttribute="leading" secondItem="7s5-4e-W56" secondAttribute="leading" id="NYX-Fr-YAC"/>
                 <constraint firstAttribute="bottom" secondItem="cKr-kf-R3T" secondAttribute="bottom" priority="200" constant="8" id="OZD-VP-95x"/>
                 <constraint firstItem="xMt-Wf-JTw" firstAttribute="top" secondItem="7s5-4e-W56" secondAttribute="bottom" constant="8" id="PeC-4x-Z8l"/>

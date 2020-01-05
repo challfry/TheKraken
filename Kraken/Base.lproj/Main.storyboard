@@ -1142,7 +1142,11 @@
                         <viewLayoutGuide key="safeArea" id="n4s-4n-evs"/>
                     </view>
                     <navigationItem key="navigationItem" title="Forums" id="155-a7-n9p">
-                        <barButtonItem key="rightBarButtonItem" title="New" id="MLM-Fn-mq8"/>
+                        <barButtonItem key="rightBarButtonItem" title="New" id="MLM-Fn-mq8">
+                            <connections>
+                                <segue destination="H8G-Ue-1rY" kind="show" identifier="ComposeForumThread" id="J5Z-VR-bxK"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="g60-2P-8DA" id="sEd-zf-U8Z"/>
@@ -1200,6 +1204,44 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NQ2-e3-oN1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2388" y="450.73891625615767"/>
+        </scene>
+        <!--Forum Compose View Controller-->
+        <scene sceneID="epZ-nC-oSk">
+            <objects>
+                <viewController id="H8G-Ue-1rY" customClass="ForumComposeViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="nvR-Pn-Rc2">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="atV-Z9-rSE">
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="CnF-5j-GN1">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" name="VC Background"/>
+                        <constraints>
+                            <constraint firstItem="atV-Z9-rSE" firstAttribute="top" secondItem="tIY-Kc-GIc" secondAttribute="top" id="6AB-OI-jpx"/>
+                            <constraint firstItem="atV-Z9-rSE" firstAttribute="leading" secondItem="tIY-Kc-GIc" secondAttribute="leading" id="XJZ-OZ-Ypi"/>
+                            <constraint firstItem="tIY-Kc-GIc" firstAttribute="bottom" secondItem="atV-Z9-rSE" secondAttribute="bottom" id="fsO-Bb-hmz"/>
+                            <constraint firstItem="tIY-Kc-GIc" firstAttribute="trailing" secondItem="atV-Z9-rSE" secondAttribute="trailing" id="rgP-Md-ZNY"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="tIY-Kc-GIc"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="hUF-aY-RHw"/>
+                    <connections>
+                        <outlet property="collectionView" destination="atV-Z9-rSE" id="2qG-1j-4zM"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="GZx-mv-QNE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3205.5999999999999" y="450.73891625615767"/>
         </scene>
         <!--Forums-->
         <scene sceneID="0AG-No-C8o">
@@ -1966,7 +2008,7 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="ZaT-fl-KcI"/>
+        <segue reference="NT7-WF-Ano"/>
         <segue reference="YAp-ch-2PT"/>
         <segue reference="yZ3-I6-e7Y"/>
         <segue reference="vXi-dK-Rxk"/>

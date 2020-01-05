@@ -36,13 +36,6 @@ class SocialViewController: BaseCollectionViewController {
 		
 		setupGestureRecognizer()
     }
-
-	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-			default: 
-				print("huh.")
-		}
-	}
 }
 
 @objc protocol SocialCellProtocol {

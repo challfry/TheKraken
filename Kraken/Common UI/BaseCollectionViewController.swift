@@ -24,6 +24,7 @@ enum GlobalKnownSegue: String {
 	case showUserMentions = 		"ShowUserMentions"
 	
 	case showForumThread = 			"ShowForumThread"
+	case composeForumThread = 		"ComposeForumThread"
 	
 	case showSeamailThread = 		"ShowSeamailThread"
 	case editSeamailThreadOp = 		"EditSeamailThreadOp"
@@ -53,6 +54,7 @@ enum GlobalKnownSegue: String {
 		case .showUserMentions: return String.self
 		
 		case .showForumThread: return ForumThread.self
+		case .composeForumThread: return Void.self 
 		
 		case .showSeamailThread: return SeamailThread.self
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
@@ -81,6 +83,72 @@ class BaseCollectionViewController: UIViewController {
 	
 	var knownSegues: Set<GlobalKnownSegue> = Set()
 	
+    override func viewDidLoad() {
+        super.viewDidLoad()
+     	let keyboardCanceler = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:)))
+ //    	keyboardCanceler.cancelsTouchesInView = false
+	 	view.addGestureRecognizer(keyboardCanceler)
+               
+ 		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+			layout.itemSize = UICollectionViewFlowLayout.automaticSize
+			let width = self.view.frame.size.width
+			layout.estimatedItemSize = CGSize(width: width, height: 52 )
+			
+			layout.minimumLineSpacing = 0
+		}
+ 
+		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillShow(notification:)), 
+				name: UIResponder.keyboardDidShowNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardDidShowNotification(notification:)), 
+				name: UIResponder.keyboardDidShowNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillHide(notification:)), 
+				name: UIResponder.keyboardDidHideNotification, object: nil)
+
+		let bgImage = UIImageView(frame: view.frame)
+		view.addSubview(bgImage)
+		view.sendSubviewToBack(bgImage)
+		bgImage.image = UIImage(named: "octo1")
+		bgImage.contentMode = .scaleAspectFill
+		
+		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
+			UIView.animate(withDuration: 0.3) {
+				bgImage.alpha = observed.uiDisplayStyle == .deepSeaMode ? 1.0 : 0.0
+			}
+		}?.execute()
+	}
+        
+    @objc func keyboardWillShow(notification: NSNotification) {
+		if let keyboardHeight = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height {
+			collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
+		}
+	}
+
+    @objc func keyboardDidShowNotification(notification: NSNotification) {
+    	if let indexPath = indexPathToScrollToVisible {
+			collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+		}
+	}
+
+	@objc func keyboardWillHide(notification: NSNotification) {
+		UIView.animate(withDuration: 0.2, animations: {
+			self.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		})
+	}
+	
+	func textViewBecameActive(_ field: UITextInput, inCell: BaseCollectionViewCell) {
+		activeTextEntry = field
+		if let indexPath = collectionView.indexPath(for: inCell) {
+			indexPathToScrollToVisible = indexPath
+		}
+	}
+	
+	func textViewResignedActive(_ field: UITextInput, inCell: BaseCollectionViewCell) {
+		activeTextEntry = nil
+		indexPathToScrollToVisible = nil
+	}
+	
+	// MARK: - Navigation
+
 	// FFS Apple should provide this as part of their API. This is used by collectionView cells to see if they're
 	// attached to a ViewController that supports launching a given segue; if not they generally hide/disable buttons.
 	// This only matters if you make cells that are usable in multiple VCs, which Apple apparently recommends against --
@@ -115,57 +183,120 @@ class BaseCollectionViewController: UIViewController {
 		}
 	}
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-     	let keyboardCanceler = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:)))
- //    	keyboardCanceler.cancelsTouchesInView = false
-	 	view.addGestureRecognizer(keyboardCanceler)
-               
- 		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-			layout.itemSize = UICollectionViewFlowLayout.automaticSize
-			let width = self.view.frame.size.width
-			layout.estimatedItemSize = CGSize(width: width, height: 52 )
+	// Most global segues are only dependent on their destination VC and info in the sender parameter.
+	// We handle most of them here. Subclasses can override this to handle segues with special needs.
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    	if let _ = prepareGlobalSegue(for: segue, sender: sender) {
+    		return
+    	}
+    }
+    
+	// Set up data in destination view controllers when we're about to segue to them.
+	// Note: This fn has knowledge of a bunch of its subclasses. A cooler solution would be some sort of 
+	// registration system but boy is that needlessly complicated.
+    func prepareGlobalSegue(for segue: UIStoryboardSegue, sender: Any?) -> GlobalKnownSegue? {
+    	guard let segueName = segue.identifier, let id = GlobalKnownSegue(rawValue: segueName) else {
+    		return nil
+    	}
+    	
+    	switch id {
+
+// Twittar
+		// A filtered view of the tweet stream.
+		case .tweetFilter:
+			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
+				destVC.dataManager = TwitarrDataManager(filterString: filterString)
+			}
+				
+		// PostOpTweets by this user, that are replies to a given tweet.
+		case .pendingReplies:
+			if let destVC = segue.destination as? PendingTwitarrRepliesVC, let parent = sender as? TwitarrPost {
+				destVC.parentTweet = parent
+			}
 			
-			layout.minimumLineSpacing = 0
-		}
- 
-		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillShow(notification:)), 
-				name: UIResponder.keyboardDidShowNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardDidShowNotification(notification:)), 
-				name: UIResponder.keyboardDidShowNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillHide(notification:)), 
-				name: UIResponder.keyboardDidHideNotification, object: nil)
-	}
-        
-    @objc func keyboardWillShow(notification: NSNotification) {
-		if let keyboardHeight = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height {
-			collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
-		}
-	}
+		case .showUserMentions:
+			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
+				destVC.dataManager = TwitarrDataManager(filterString: filterString)
+			}
+			
+		case .showUserTweets:
+			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
+				destVC.dataManager = TwitarrDataManager(predicate: NSPredicate(format: "author.username == %@", filterString),
+						titleString: "Author: \(filterString)")
+			}
+			
+		case .composeTweet: break
+		
+		case .composeReplyTweet:
+			if let destVC = segue.destination as? ComposeTweetViewController, let parent = sender as? TwitarrPost {
+				destVC.parentTweet = parent
+			}
+			
+		case .editTweet, .editTweetOp:
+			if let destVC = segue.destination as? ComposeTweetViewController {
+				if let original = sender as? TwitarrPost {
+					destVC.editTweet = original
+				}
+				else if let original = sender as? PostOpTweet {
+					destVC.draftTweet = original
+				}
+			}
+			
+// Forums
+		case .showForumThread:
+			if let destVC = segue.destination as? ForumThreadViewController, let thread = sender as? ForumThread {
+				destVC.threadModel = thread
+			}
+			
+		case .composeForumThread:
+			if let destVC = segue.destination as? ForumComposeViewController, let threadModel = sender as? ForumThread {
+				destVC.thread = threadModel
+			}
+			
+// Seamail
+		case .showSeamailThread:
+			if let destVC = segue.destination as? SeamailThreadViewController,
+					let threadModel = sender as? SeamailThread {
+				destVC.threadModel = threadModel
+			}
+			
+		case .editSeamailThreadOp:
+			if let destVC = segue.destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
+				destVC.threadToEdit = thread
+			}
+			
+// Maps
+		case .showRoomOnDeckMap:
+			if let destVC = segue.destination as? DeckMapViewController, let location = sender as? String {
+				destVC.pointAtRoomNamed(location)
+			}
 
-    @objc func keyboardDidShowNotification(notification: NSNotification) {
-    	if let indexPath = indexPathToScrollToVisible {
-			collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+// Users
+		case .userProfile:
+			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
+				destVC.modelUserName = username
+			}
+			
+		case .editUserProfile:
+			break
+			
+		case .modalLogin:
+			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
+				destVC.segueData = package
+			}
+			
+// Settings
+		case .postOperations: break
+		
+		case .fullScreenCamera, .cropCamera:
+			break
+			
+		default: break 
 		}
-	}
-
-	@objc func keyboardWillHide(notification: NSNotification) {
-		UIView.animate(withDuration: 0.2, animations: {
-			self.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-		})
-	}
-	
-	func textViewBecameActive(_ field: UITextInput, inCell: BaseCollectionViewCell) {
-		activeTextEntry = field
-		if let indexPath = collectionView.indexPath(for: inCell) {
-			indexPathToScrollToVisible = indexPath
-		}
-	}
-	
-	func textViewResignedActive(_ field: UITextInput, inCell: BaseCollectionViewCell) {
-		activeTextEntry = nil
-		indexPathToScrollToVisible = nil
-	}
+		
+		return id
+    }
+    
 
 }
 

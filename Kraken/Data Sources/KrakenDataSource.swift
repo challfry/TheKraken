@@ -85,10 +85,13 @@ class KrakenDataSource: NSObject {
 		// it taking place. So, we defer the DS change in that case.
 		scheduleBatchUpdateCompletionBlock {
 			self.log.debug("Setting new datasource.", ["DS" : self])
-	//		(cv.dataSource as? KrakenDataSource)?.runUpdates()
 			self.privateRunUpdates()				// Clear out any updates just before setting ourselves as the DS
 			cv.dataSource = self
 			cv.delegate = self
+
+			// It appears (rdar://47325370) that prefetch may not work if estimatedSize is set.
+//			cv.prefetchDataSource = self
+//			cv.isPrefetchingEnabled = true
 			cv.reloadData()
 		}
 	}
@@ -455,6 +458,20 @@ extension KrakenDataSource: UICollectionViewDataSource {
 	
 }
 
+// MARK: CV Datasource Prefetch
+extension KrakenDataSource: UICollectionViewDataSourcePrefetching {
+
+	// Not currently used. 
+	func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+		log.d("Prefetch at: \(indexPaths)", ["DS" : self])
+	}
+
+	func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+		log.d("Cancel Prefetch at: \(indexPaths)", ["DS" : self])
+	}
+}
+	
+
 // MARK: - CV Delegate
 extension KrakenDataSource: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
 	
@@ -489,6 +506,12 @@ extension KrakenDataSource: UICollectionViewDelegate, UICollectionViewDelegateFl
 			
 
 		return protoSize
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+		if let (segment, offsetPath) = segmentAndOffset(forIndexPath: indexPath) {
+			segment.collectionView?(collectionView, willDisplay: cell, forItemAt: offsetPath)
+		}								
 	}
 
 }

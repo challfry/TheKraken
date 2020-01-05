@@ -56,24 +56,6 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		dataSource.enableAnimations = true
 	}
 	
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	switch segue.identifier {
-		case "EditTweetOp":
-			if let destVC = segue.destination as? ComposeTweetViewController, let tweet = sender as? PostOpTweet {
-				destVC.draftTweet = tweet
-			}
-		case "EditSeamailThread":
-			if let destVC = segue.destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
-				destVC.threadToEdit = thread
-			}
-		case "UserProfile":
-			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
-				destVC.modelUserName = username
-			}
-		default: break 
-		}
-	}
-
 	// This is the unwind segue handler for the profile edit VC
 	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
 	}

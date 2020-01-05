@@ -67,9 +67,9 @@ GET /api/v2/forums/													Returns a page of forum threads.
 POST /api/v2/forums													Creates a forum thread and its first post.
 GET /api/v2/forums/:id													Returns a forum thread and its posts.
 POST /api/v2/forums/:id												Creates a new post in the thread.
-DELETE /api/v2/forums/:id												Deletes an entire forum thread.
-POST /api/v2/forum/:id/sticky/:sticky										Changes sticky status for a forum thread.
-POST /api/v2/forum/:id/locked/:locked									Changes locked status for a forum thread.
+DELETE /api/v2/forums/:id												Deletes an entire forum thread. Mods only.
+POST /api/v2/forum/:id/sticky/:sticky										Changes sticky status for a forum thread. Admin only.
+POST /api/v2/forum/:id/locked/:locked									Changes locked status for a forum thread. Mods only.
 GET /api/v2/forums/:id/:post_id											Returns a single post from a forum thread.
 POST /api/v2/forums/:id/:post_id										Edits a post in the thread.
 DELETE /api/v2/forums/:id/:post_id										Deletes a post from a thread.

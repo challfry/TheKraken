@@ -51,6 +51,10 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 	}
 }
 
+protocol FRCDataSourceLoaderDelegate {
+	func userIsViewingCell(at: IndexPath)
+}
+
 // Note: For some reason I couldn't put protocol conformance into extensions, and I didn't bother trying to figure out why.
 // Why would I do such a terrible thing? Because you can put the methods in the class and move on. 
 class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDataSourceSegmentProtocol,
@@ -65,6 +69,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	
 	// Clients need to implement this to populate the cell's data from the model.
 	var createCellModel: ((_ fromModel: FetchedObjectType) -> BaseCellModel)?
+	
+	// 
+	var loaderDelegate: FRCDataSourceLoaderDelegate? = nil
 		
 	override init() {
 		fetchRequest.entity = FetchedObjectType.entity()
@@ -383,6 +390,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 // MARK: UICollectionView Data Source Prefetch
 
+	// Not currently used.
 	func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
 		log.d("Prefetch at: \(indexPaths)", ["DS" : self])
 	}
@@ -409,6 +417,11 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
 		log.debug("didDeselectItemAt", ["indexPath" : indexPath, "DS" : self])
+	}
+
+	func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, 
+			forItemAt indexPath: IndexPath) {
+		loaderDelegate?.userIsViewingCell(at: indexPath)
 	}
 
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 

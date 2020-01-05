@@ -24,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		RefreshTimers.appForegrounded()
 		UNUserNotificationCenter.current().delegate = Notifications.shared
 		Notifications.appForegrounded()
+		watchForStateChanges()
 		return true
 	}
 
@@ -83,3 +84,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AppDelegate {
+	func watchForStateChanges() {
+		if #available(iOS 13.0, *) {
+			Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
+				switch observed.uiDisplayStyle {
+				case .systemDefault: observer.window?.overrideUserInterfaceStyle = .unspecified
+				case .normalMode: observer.window?.overrideUserInterfaceStyle = .light
+				case .darkMode: observer.window?.overrideUserInterfaceStyle = .dark
+				case .deepSeaMode: observer.window?.overrideUserInterfaceStyle = .dark
+				default: break					
+				}
+			}?.execute()
+		}
+	}
+}

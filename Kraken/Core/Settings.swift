@@ -12,7 +12,7 @@ import Foundation
 	static let shared = Settings()
 	
 	@objc enum DisplayStyle: Int {
-		case normalMode = 0, darkMode, deepSeaMode
+		case systemDefault = 0, normalMode, darkMode, deepSeaMode
 	}
 	
 	// Settings that can't be changed once we initialize, but can be mutated for the next launch declared here.

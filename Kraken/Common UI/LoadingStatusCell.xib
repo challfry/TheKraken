@@ -36,6 +36,7 @@
                             </label>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="gn8-Hi-x22">
                                 <rect key="frame" x="86" y="9" width="20" height="20"/>
+                                <color key="color" name="Kraken Label Text"/>
                             </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" name="Overlay Label Background"/>
@@ -76,14 +77,17 @@
         <namedColor name="Cell Background">
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <namedColor name="Kraken Secondary Text">
-            <color red="0.66600000000000004" green="0.66600000000000004" blue="0.66600000000000004" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+            <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Overlay Label Background">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="Red Alert Text">
-            <color red="0.72533118210000003" green="0.04477352976" blue="0.04477352976" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+            <color red="0.72500002384185791" green="0.045000001788139343" blue="0.045000001788139343" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
     </resources>
 </document>

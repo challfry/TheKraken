@@ -162,24 +162,6 @@ import UIKit
     func pushEditProfileView() {
     	self.performKrakenSegue(.editUserProfile, sender: nil)
     }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if segue.identifier == "ShowUserMentions", let destVC = segue.destination as? TwitarrViewController,
-				let filterString = sender as? String {
-			destVC.dataManager = TwitarrDataManager(filterString: filterString)
-		}
-		else if segue.identifier == "ShowUserTweets", let destVC = segue.destination as? TwitarrViewController, 
-				let filterString = sender as? String {
-			destVC.dataManager = TwitarrDataManager(predicate: NSPredicate(format: "author.username == %@", filterString))
-		}
-		else if segue.identifier == "EditUserProfile" {
-			// Nothing to do, until we add the admin feature so they can edit other profiles.
-		}
-		else if segue.identifier == "ShowRoomOnDeckMap", let destVC = segue.destination as? DeckMapViewController,
-				let roomNum = sender as? String {
-			destVC.pointAtRoomNamed(roomNum)
-		}
-    }
     
 	// This is the unwind segue handler for hte profile edit VC
 	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {

@@ -75,18 +75,6 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	}
     
     // MARK: Navigation
-
-	// Set up data in destination view controllers when we're about to segue to them.
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if segue.identifier == "UserProfile", let destVC = segue.destination as? UserProfileViewController,
-				let userName = sender as? String {
-			destVC.modelUserName = userName
-		}
-		else if segue.identifier == "ShowSeamailThread", let destVC = segue.destination as? SeamailThreadViewController,
-				let threadModel = sender as? SeamailThread {
-			destVC.threadModel = threadModel
-		}
-    }
     
 	func globalNavigateTo(packet: GlobalNavPacket) {
 		if let userNames = packet.arguments["seamailThreadParticipants"] as? Set<String> {
