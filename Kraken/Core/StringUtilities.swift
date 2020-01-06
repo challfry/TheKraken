@@ -57,6 +57,10 @@ class StringUtilities {
     }
     
 	class func relativeTimeString(forDate: Date) -> String {
+		if forDate.timeIntervalSinceNow > -1.0 {
+			return "a second ago"
+		}
+	
 		let formatter = DateComponentsFormatter()
 		formatter.unitsStyle = .full
 		formatter.maximumUnitCount = 1

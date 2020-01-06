@@ -20,7 +20,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-		knownSegues = Set([.tweetFilter, .userProfile])
+		knownSegues = Set([.composeForumPost, .editForumPost, .tweetFilter, .userProfile])
 		title = threadModel?.subject ?? "Thread"
 
 		threadDataSource.append(segment: loadingSegment)
@@ -69,4 +69,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 		return cellModel
 	}
 
+	@IBAction func postButtonTapped(_ sender: Any) {
+		performKrakenSegue(.composeForumPost, sender: threadModel)
+	}
 }

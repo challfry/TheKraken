@@ -288,18 +288,20 @@ import UIKit
 }
 
 
-class ForumsDataManager: NSObject {
+@objc class ForumsDataManager: NSObject {
 	static let shared = ForumsDataManager()
-
 	private let coreData = LocalCoreData.shared
-	var lastError : ServerError?
 	
-	func userViewingAllThreads(_ thread: ForumThread) {
-		
-	}
-
+	// Used by UI to show loading cell and error cell.
+	@objc dynamic var lastError : ServerError?
+	@objc dynamic var isPerformingLoad: Bool = false
+	
+	// Used by UI to show time of last refresh--defined as a successful network load of threads from offset 0.
+	@objc dynamic var lastForumRefreshTime: Date = Date()
+	
 	func loadForumThreads(fromOffset: Int, done: @escaping () -> Void) {
-	
+		isPerformingLoad = true
+		
 		var queryParams: [URLQueryItem] = []
 		queryParams.append(URLQueryItem(name:"page", value: "\(fromOffset / 20)"))
 		queryParams.append(URLQueryItem(name:"limit", value: "20"))
@@ -311,6 +313,7 @@ class ForumsDataManager: NSObject {
 				self.lastError = error
 			}
 			else if let data = package.data {
+				self.lastError = nil
 			//	print (String(data: data, encoding: .utf8))
 				let decoder = JSONDecoder()
 				do {
@@ -319,8 +322,13 @@ class ForumsDataManager: NSObject {
 				}
 				catch {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
-				} 
+				}
+				
+				if fromOffset == 0 {
+					self.lastForumRefreshTime = Date()
+				}
 			}
+			self.isPerformingLoad = false
 		}
 	}
 	
@@ -356,7 +364,8 @@ class ForumsDataManager: NSObject {
 			NetworkLog.error("Cannot call /api/v2/forums/:id, id is nil.", ["thread" : thread])
 			return
 		}
-	
+		isPerformingLoad = true
+
 		var queryParams: [URLQueryItem] = []
 		queryParams.append(URLQueryItem(name:"page", value: "\(fromOffset / 20)"))
 		queryParams.append(URLQueryItem(name:"limit", value: "20"))
@@ -368,6 +377,7 @@ class ForumsDataManager: NSObject {
 				self.lastError = error
 			}
 			else if let data = package.data {
+				self.lastError = nil
 			//	print (String(data: data, encoding: .utf8))
 				let decoder = JSONDecoder()
 				do {
@@ -378,6 +388,7 @@ class ForumsDataManager: NSObject {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
 				} 
 			}
+			self.isPerformingLoad = false
 		}
 	}
 	

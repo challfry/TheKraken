@@ -419,19 +419,12 @@ class TwitarrDataManager: NSObject {
 			// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
 			// completed in order, or that we haven't made the same call twice somehow.
 			var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
-			var mostRecent: TwitarrPost?
-			var earliest: TwitarrPost?
 			for post in posts {
 				let removedValue = cdPostsDict.removeValue(forKey: post.id)
 				let cdPost = removedValue ?? TwitarrPost(context: context)
 				cdPost.buildFromV2(context: context, v2Object: post)
 				
-				if post.id == posts.first!.id {
-					mostRecent = cdPost
-				}
-				else if post.id == posts.last!.id {
-					earliest = cdPost
-					
+				if post.id == posts.last!.id {					
 					if !extendsNewer && morePostsExist && cdPost.isInserted && self.filter == nil {
 						cdPost.contigWithOlder = false
 					}
@@ -447,6 +440,9 @@ class TwitarrDataManager: NSObject {
 			}
 			
 			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
+			// That is, we asked for "The next 50 posts before/after this timestamp." Get the time range from anchor post time
+			// to the post farthest from the anchor; any posts in Core Data in that same time range that aren't in the call results
+			// must be posts deleted serverside.
 			if self.filter == nil {
 				let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
 				let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
@@ -627,17 +623,22 @@ fileprivate extension TwitarrDataManager  {
 		}
 		var callAnchor: CallToMake?
 		recentNetworkCallsQ.sync {
-			if !self.coveredIndices.contains(integersIn: index ..< index + 11) {
-				let uncovered = IndexSet(index ..< index + 11).subtracting(self.coveredIndices)
-				if let firstUncovered = uncovered.min() {
-					callAnchor = CallToMake(index: firstUncovered - 1, directionIsNewer: false)
-				}
+			if self.coveredIndices.isEmpty {
+				callAnchor = CallToMake(index: max (0, index - 25), directionIsNewer: false)
 			}
-			let prevCheckRange = max(index - 10, 0) ..< index
-			if callAnchor == nil, !prevCheckRange.isEmpty, !self.coveredIndices.contains(integersIn: prevCheckRange) {
-				let uncovered = IndexSet(prevCheckRange).subtracting(self.coveredIndices)
-				if let firstUncovered = uncovered.max() {
-					callAnchor = CallToMake(index: firstUncovered + 1, directionIsNewer: true)
+			else {
+				if !self.coveredIndices.contains(integersIn: index ..< index + 11) {
+					let uncovered = IndexSet(index ..< index + 11).subtracting(self.coveredIndices)
+					if let firstUncovered = uncovered.min() {
+						callAnchor = CallToMake(index: firstUncovered - 1, directionIsNewer: false)
+					}
+				}
+				let prevCheckRange = max(index - 10, 0) ..< index
+				if callAnchor == nil, !prevCheckRange.isEmpty, !self.coveredIndices.contains(integersIn: prevCheckRange) {
+					let uncovered = IndexSet(prevCheckRange).subtracting(self.coveredIndices)
+					if let firstUncovered = uncovered.max() {
+						callAnchor = CallToMake(index: firstUncovered + 1, directionIsNewer: true)
+					}
 				}
 			}
 		} 
@@ -648,7 +649,6 @@ fileprivate extension TwitarrDataManager  {
 		if let anchor = callAnchor, let numFRCResults = fetchedData.fetchedObjects?.count,
 				anchor.index >= 0, anchor.index < numFRCResults {
 			let anchorTweet = fetchedData.object(at: IndexPath(row: anchor.index, section: 0))
-			print("NEED TO LOAD: Anchor Index: \(anchor.index), newer: \(anchor.directionIsNewer)")
 			loadStreamTweets(anchorTweet: anchorTweet, newer: anchor.directionIsNewer, done: nil)
 		}
 		

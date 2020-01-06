@@ -39,6 +39,18 @@ import MobileCoreServices
 	let composeDataSource = KrakenDataSource()
 	var didPost = false
 	
+	lazy var threadTitleReferenceCell: LabelCellModel = {
+		var titleString = ""
+		if let forumThread = thread {
+			titleString = "In thread \"\(forumThread.subject)\""
+		}
+		let cell = LabelCellModel(titleString)
+		if thread == nil && editPost == nil && draftPost == nil {
+			cell.shouldBeVisible = false
+		}
+		return cell
+	}()
+	
 	@objc dynamic lazy var threadTitleEditCell: TextViewCellModel = {
 		var writingPrompt = "Title of your Forum Thread:"
 		//		if editTweet != nil || draftTweet != nil {
@@ -47,7 +59,12 @@ import MobileCoreServices
 		//		else if parentTweet != nil {
 		//			writingPrompt = "What do you want to say?"
 		//		}
-		return TextViewCellModel(writingPrompt)
+		
+		let cell =  TextViewCellModel(writingPrompt)
+		if thread != nil || editPost != nil || draftPost != nil {
+			cell.shouldBeVisible = false
+		}
+		return cell
 	}()
 	
 	@objc dynamic lazy var postTextCell: TextViewCellModel = {
@@ -94,6 +111,7 @@ import MobileCoreServices
     override func viewDidLoad() {
         super.viewDidLoad()
 		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
+		title = "New Post"
 
 		// We have 2 data sources and we swap between them. First up is the Login DS.
 		loginDataSource.viewController = self
@@ -104,6 +122,8 @@ import MobileCoreServices
 		// Then the Compose DS, which hosts all the 'main' content.
 		composeDataSource.viewController = self
 		let composeSection = composeDataSource.appendFilteringSegment(named: "ComposeSection")
+		composeSection.append(threadTitleReferenceCell)
+
 		composeSection.append(threadTitleEditCell)
 		composeSection.append(postTextCell)
         composeSection.append(postButtonCell)

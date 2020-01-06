@@ -179,8 +179,8 @@ import UIKit
 ////
 	
 	func editButtonTapped() {
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-		viewController?.performKrakenSegue(.editTweet, sender: tweetModel)
+   		guard let postModel = model as? ForumPost else { return } 
+		viewController?.performKrakenSegue(.editForumPost, sender: postModel)
 	}
 	
 	func deleteButtonTapped() {

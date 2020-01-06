@@ -26,6 +26,9 @@
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XNx-gR-xCY">
                         <rect key="frame" x="284" y="10.5" width="88" height="30"/>
                         <state key="normal" title="Refresh Now"/>
+                        <connections>
+                            <action selector="refreshNotButtonTapped:" destination="BOB-P6-82P" eventType="touchUpInside" id="Hfe-tv-jgY"/>
+                        </connections>
                     </button>
                 </subviews>
                 <constraints>
@@ -38,6 +41,10 @@
                 </constraints>
             </collectionViewCellContentView>
             <size key="customSize" width="392" height="50"/>
+            <connections>
+                <outlet property="lastRefreshLabel" destination="ecQ-YH-zfs" id="LwZ-ZK-2LI"/>
+                <outlet property="refreshNowButton" destination="XNx-gR-xCY" id="Ftv-sl-MfE"/>
+            </connections>
             <point key="canvasLocation" x="208.69565217391306" y="-20.089285714285712"/>
         </collectionViewCell>
     </objects>

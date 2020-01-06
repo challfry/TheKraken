@@ -37,6 +37,25 @@ class ForumsRootViewController: BaseCollectionViewController {
     	let cell = LoadingStatusCellModel()
     	cell.statusText = "Loading Forum Threads"
     	cell.showSpinner = true
+    	
+    	ForumsDataManager.shared.tell(cell, when: ["isPerformingLoad", "lastError"]) { observer, observed in 
+    		observer.shouldBeVisible = observed.isPerformingLoad || observed.lastError != nil
+    		observer.errorText = observed.lastError?.getErrorString()
+    	}?.execute()
+     	
+    	return cell
+    }()
+    
+    lazy var loadTimeCellModel: ForumsLoadTimeCellModel = {
+    	let cell = ForumsLoadTimeCellModel()
+    	cell.refreshButtonAction = {
+			ForumsDataManager.shared.loadForumThreads(fromOffset: 0) {
+			}
+    	}
+    	
+    	ForumsDataManager.shared.tell(cell, when: "lastForumRefreshTime") { observer, observed in 
+    		observer.lastLoadTime = observed.lastForumRefreshTime
+    	}?.execute()
     	return cell
     }()
     
@@ -49,7 +68,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 
 		threadDataSource.append(segment: loadingSegment)
 		loadingSegment.append(loadingStatusCell)
-		loadingSegment.append(ForumsLoadTimeCellModel())
+		loadingSegment.append(loadTimeCellModel)
 		
 		threadDataSource.append(segment: threadSegment)
 		threadSegment.activate(predicate: NSPredicate(value: true), 
@@ -68,12 +87,6 @@ class ForumsRootViewController: BaseCollectionViewController {
 		
     override func viewWillAppear(_ animated: Bool) {
 		threadDataSource.enableAnimations = true
-	}
-			
-	override func viewDidAppear(_ animated: Bool) {
-		ForumsDataManager.shared.loadForumThreads(fromOffset: 0) {
-			
-		}
 	}
 	
 	func buildFilterView () {
@@ -143,6 +156,9 @@ class ForumsRootViewController: BaseCollectionViewController {
 						cellModelFactory: createReadCountCellModel)
 				forumsNavTitleButton.setTitle("Forums You Posted To", for: .normal)
 			}
+			
+			// Only show the refresh time cell if we're showing all forums
+			loadTimeCellModel.shouldBeVisible = newType == .allWithActivitySort
 		}
 		
 		forumsNavTitleButton.frame = CGRect(origin: CGPoint(x: 0, y: 0), size: forumsNavTitleButton.intrinsicContentSize)

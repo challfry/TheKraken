@@ -25,6 +25,8 @@ enum GlobalKnownSegue: String {
 	
 	case showForumThread = 			"ShowForumThread"
 	case composeForumThread = 		"ComposeForumThread"
+	case composeForumPost = 		"ComposeForumPost"
+	case editForumPost = 			"EditForumPost"
 	
 	case showSeamailThread = 		"ShowSeamailThread"
 	case editSeamailThreadOp = 		"EditSeamailThreadOp"
@@ -55,6 +57,8 @@ enum GlobalKnownSegue: String {
 		
 		case .showForumThread: return ForumThread.self
 		case .composeForumThread: return Void.self 
+		case .composeForumPost: return ForumThread.self 
+		case .editForumPost: return ForumPost.self 
 		
 		case .showSeamailThread: return SeamailThread.self
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
@@ -253,6 +257,16 @@ class BaseCollectionViewController: UIViewController {
 				destVC.thread = threadModel
 			}
 			
+		case .composeForumPost:
+			if let destVC = segue.destination as? ForumComposeViewController, let threadModel = sender as? ForumThread {
+				destVC.thread = threadModel
+			}
+			
+		case .editForumPost:
+			if let destVC = segue.destination as? ForumComposeViewController, let postModel = sender as? ForumPost {
+				destVC.editPost = postModel
+			}
+	
 // Seamail
 		case .showSeamailThread:
 			if let destVC = segue.destination as? SeamailThreadViewController,

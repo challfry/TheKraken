@@ -1192,13 +1192,19 @@
                         <viewLayoutGuide key="safeArea" id="1Ec-hf-QrT"/>
                     </view>
                     <navigationItem key="navigationItem" title="Thread" id="wfQ-pb-xTp">
-                        <barButtonItem key="rightBarButtonItem" title="Post" id="qnY-wk-1iY"/>
+                        <barButtonItem key="rightBarButtonItem" title="Post" id="qnY-wk-1iY">
+                            <connections>
+                                <action selector="postButtonTapped:" destination="ppy-9j-Eyt" id="oWo-tb-6HE"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="0Hl-xU-4TH" id="qMa-2p-xWw"/>
                         <outlet property="postButton" destination="qnY-wk-1iY" id="I0U-Ya-qvF"/>
                         <segue destination="0s5-bb-y2H" kind="show" identifier="TweetFilter" id="yZ3-I6-e7Y"/>
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="ZaT-fl-KcI"/>
+                        <segue destination="H8G-Ue-1rY" kind="show" identifier="ComposeForumPost" id="7hu-nA-wtf"/>
+                        <segue destination="H8G-Ue-1rY" kind="show" identifier="EditForumPost" id="Wbs-WK-1Tg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NQ2-e3-oN1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2008,7 +2014,8 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="NT7-WF-Ano"/>
+        <segue reference="ZaT-fl-KcI"/>
+        <segue reference="Wbs-WK-1Tg"/>
         <segue reference="YAp-ch-2PT"/>
         <segue reference="yZ3-I6-e7Y"/>
         <segue reference="vXi-dK-Rxk"/>
