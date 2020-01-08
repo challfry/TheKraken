@@ -27,6 +27,7 @@ enum GlobalKnownSegue: String {
 	case composeForumThread = 		"ComposeForumThread"
 	case composeForumPost = 		"ComposeForumPost"
 	case editForumPost = 			"EditForumPost"
+	case editForumPostDraft = 		"EditForumPostDraft"
 	
 	case showSeamailThread = 		"ShowSeamailThread"
 	case editSeamailThreadOp = 		"EditSeamailThreadOp"
@@ -59,6 +60,7 @@ enum GlobalKnownSegue: String {
 		case .composeForumThread: return Void.self 
 		case .composeForumPost: return ForumThread.self 
 		case .editForumPost: return ForumPost.self 
+		case .editForumPostDraft: return PostOpForumPost.self 
 		
 		case .showSeamailThread: return SeamailThread.self
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
@@ -113,12 +115,59 @@ class BaseCollectionViewController: UIViewController {
 		view.sendSubviewToBack(bgImage)
 		bgImage.image = UIImage(named: "octo1")
 		bgImage.contentMode = .scaleAspectFill
+		bgImage.alpha = 0.0
 		
 		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
 			UIView.animate(withDuration: 0.3) {
 				bgImage.alpha = observed.uiDisplayStyle == .deepSeaMode ? 1.0 : 0.0
 			}
 		}?.execute()
+	}
+	
+	var photoCoveringView: UIVisualEffectView?
+	
+	func showImageInOverlay(image: UIImage) {
+		let imageSize = image.size
+		let hScaleFactor: CGFloat = view.bounds.size.width / imageSize.width
+		let vScaleFactor: CGFloat = view.bounds.size.height / imageSize.height
+		let scaleFactor = hScaleFactor < vScaleFactor ? hScaleFactor : vScaleFactor
+		let imageViewSize = CGSize(width: imageSize.width * scaleFactor, height: imageSize.height * scaleFactor)
+		
+		if let win = view.window {
+			var effectStyle = UIBlurEffect.Style.dark
+			if #available(iOS 13.0, *) {
+				effectStyle = .systemUltraThinMaterialDark
+			}
+			let coveringView = UIVisualEffectView(effect: nil)
+			coveringView.frame = win.frame
+			win.addSubview(coveringView)
+
+			let overlayImageView = UIImageView()
+			overlayImageView.translatesAutoresizingMaskIntoConstraints = false
+			coveringView.contentView.addSubview(overlayImageView)
+			let constraints = [
+					overlayImageView.widthAnchor.constraint(equalToConstant: imageViewSize.width),
+					overlayImageView.heightAnchor.constraint(equalToConstant: imageViewSize.height),
+					overlayImageView.centerYAnchor.constraint(equalTo: coveringView.centerYAnchor),
+					overlayImageView.centerXAnchor.constraint(equalTo: coveringView.centerXAnchor) ]
+			NSLayoutConstraint.activate(constraints)
+			overlayImageView.image = image
+			
+			UIView.animate(withDuration: 1) {
+				coveringView.effect = UIBlurEffect(style: effectStyle)
+			}
+			
+			let photoTap = UITapGestureRecognizer(target: self, action: #selector(BaseCollectionViewController.photoTapped(_:)))
+			coveringView.contentView.addGestureRecognizer(photoTap)
+			photoCoveringView = coveringView
+		}
+	}
+	
+	@objc func photoTapped(_ sender: UITapGestureRecognizer) {
+		if let coveringView = photoCoveringView {
+			coveringView.removeFromSuperview()
+			photoCoveringView = nil
+		}
 	}
         
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -265,6 +314,11 @@ class BaseCollectionViewController: UIViewController {
 		case .editForumPost:
 			if let destVC = segue.destination as? ForumComposeViewController, let postModel = sender as? ForumPost {
 				destVC.editPost = postModel
+			}
+
+		case .editForumPostDraft:
+			if let destVC = segue.destination as? ForumComposeViewController, let postModel = sender as? PostOpForumPost {
+				destVC.draftPost = postModel
 			}
 	
 // Seamail

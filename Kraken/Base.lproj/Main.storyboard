@@ -522,6 +522,7 @@
                         <segue destination="Gfc-pJ-wBA" kind="show" identifier="EditSeamailThreadOp" id="jdD-6N-h46"/>
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="ZNA-4Q-2gl"/>
                         <segue destination="PbB-bw-9Xu" kind="show" identifier="EditUserProfile" id="TWa-ya-eZ5"/>
+                        <segue destination="H8G-Ue-1rY" kind="show" identifier="EditForumPostDraft" id="nVa-Wl-Nva"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hhu-Il-zkk" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2014,11 +2015,11 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="ZaT-fl-KcI"/>
-        <segue reference="Wbs-WK-1Tg"/>
-        <segue reference="YAp-ch-2PT"/>
+        <segue reference="ZNA-4Q-2gl"/>
+        <segue reference="nVa-Wl-Nva"/>
+        <segue reference="ibx-KH-vcj"/>
         <segue reference="yZ3-I6-e7Y"/>
-        <segue reference="vXi-dK-Rxk"/>
+        <segue reference="Ieo-oe-rtR"/>
         <segue reference="llS-CN-BhZ"/>
         <segue reference="jdD-6N-h46"/>
         <segue reference="obm-hj-fmk"/>

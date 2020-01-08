@@ -29,7 +29,7 @@
                         </connections>
                     </button>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="yR2-EL-Eir">
-                        <rect key="frame" x="58" y="2" width="315" height="541"/>
+                        <rect key="frame" x="58" y="2" width="315" height="737.5"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1wj-CQ-Zuk">
                                 <rect key="frame" x="0.0" y="0.0" width="315" height="67"/>
@@ -67,27 +67,48 @@
                                     <outlet property="delegate" destination="jfs-vB-cbw" id="ym4-nX-5eH"/>
                                 </connections>
                             </textView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WqQ-lV-DUd">
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WqQ-lV-DUd">
                                 <rect key="frame" x="0.0" y="102.5" width="315" height="200"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="Hhz-d3-Ph5"/>
                                 </constraints>
                             </imageView>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="none" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aR0-m4-BV6">
+                                <rect key="frame" x="0.0" y="302.5" width="315" height="200"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="200" id="Ml8-0X-cMs"/>
+                                </constraints>
+                                <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="RfX-Xk-oaI">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                            </collectionView>
+                            <pageControl opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" hidesForSinglePage="YES" numberOfPages="3" translatesAutoresizingMaskIntoConstraints="NO" id="HiW-gZ-Jug">
+                                <rect key="frame" x="0.0" y="502.5" width="315" height="15"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="15" id="U3d-zB-7TV"/>
+                                </constraints>
+                                <color key="pageIndicatorTintColor" name="Icon Foreground"/>
+                                <color key="currentPageIndicatorTintColor" name="Blue Selection"/>
+                            </pageControl>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="atw-t9-ZLS" userLabel="Pending Ops Stack View">
-                                <rect key="frame" x="0.0" y="302.5" width="315" height="238.5"/>
+                                <rect key="frame" x="0.0" y="517.5" width="315" height="220"/>
                                 <subviews>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dLu-at-n7Y" userLabel="Delete Queued View">
-                                        <rect key="frame" x="0.0" y="0.0" width="315" height="50"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="315" height="44"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" verticalCompressionResistancePriority="100" text="Delete pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xzz-ln-yBN">
-                                                <rect key="frame" x="154" y="16.5" width="98" height="17"/>
+                                                <rect key="frame" x="154" y="13.5" width="98" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ayi-Sy-Xej">
-                                                <rect key="frame" x="262" y="10.5" width="45" height="29"/>
+                                                <rect key="frame" x="262" y="7.5" width="45" height="29"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <state key="normal" title="Cancel"/>
                                                 <connections>
@@ -111,16 +132,16 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fD8-Qm-cMp" userLabel="Edit Queued View">
-                                        <rect key="frame" x="0.0" y="50" width="315" height="50"/>
+                                        <rect key="frame" x="0.0" y="44" width="315" height="44"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" verticalCompressionResistancePriority="200" text="Edit pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DaO-Pu-p9M">
-                                                <rect key="frame" x="170.5" y="16.5" width="81.5" height="17"/>
+                                                <rect key="frame" x="170.5" y="13.5" width="81.5" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RT0-4d-xLb">
-                                                <rect key="frame" x="262" y="10.5" width="45" height="29"/>
+                                                <rect key="frame" x="262" y="7.5" width="45" height="29"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <state key="normal" title="Cancel"/>
                                                 <connections>
@@ -144,16 +165,16 @@
                                         </constraints>
                                     </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qao-VE-b6f" userLabel="Reply Queued View">
-                                        <rect key="frame" x="0.0" y="100" width="315" height="50"/>
+                                        <rect key="frame" x="0.0" y="88" width="315" height="44"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" verticalCompressionResistancePriority="200" text="Reply pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVH-7E-xXY">
-                                                <rect key="frame" x="159.5" y="16.5" width="92.5" height="17"/>
+                                                <rect key="frame" x="159.5" y="13.5" width="92.5" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jx8-8r-22C">
-                                                <rect key="frame" x="275" y="10.5" width="32" height="29"/>
+                                                <rect key="frame" x="275" y="7.5" width="32" height="29"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <state key="normal" title="View"/>
                                                 <connections>
@@ -177,16 +198,16 @@
                                         </constraints>
                                     </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z5p-BY-GCY">
-                                        <rect key="frame" x="0.0" y="150" width="315" height="44.5"/>
+                                        <rect key="frame" x="0.0" y="132" width="315" height="44"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="&quot;Like&quot; pending" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RoI-Cv-j34">
-                                                <rect key="frame" x="157.5" y="14" width="94.5" height="17"/>
+                                                <rect key="frame" x="157.5" y="13.5" width="94.5" height="17"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KLu-bJ-VTi">
-                                                <rect key="frame" x="262" y="8" width="45" height="29"/>
+                                                <rect key="frame" x="262" y="7.5" width="45" height="29"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <state key="normal" title="Cancel"/>
                                                 <connections>
@@ -209,7 +230,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5gF-dv-jyP">
-                                        <rect key="frame" x="0.0" y="194.5" width="315" height="44"/>
+                                        <rect key="frame" x="0.0" y="176" width="315" height="44"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="wD7-pt-H3w">
                                                 <rect key="frame" x="105" y="0.0" width="210" height="44"/>
@@ -290,8 +311,10 @@
                 <outlet property="likeButton" destination="KMk-Wd-mQa" id="Ocg-9J-Bic"/>
                 <outlet property="likesLabel" destination="3II-e7-kC3" id="Ngh-ji-tJW"/>
                 <outlet property="pendingOpsStackView" destination="atw-t9-ZLS" id="7k8-7g-ABA"/>
+                <outlet property="photoPageControl" destination="HiW-gZ-Jug" id="kQV-jl-sEF"/>
                 <outlet property="postImage" destination="WqQ-lV-DUd" id="Dku-7d-1I0"/>
                 <outlet property="postImageHeightConstraint" destination="Hhz-d3-Ph5" id="nxn-Ri-ud5"/>
+                <outlet property="postImagesCollection" destination="aR0-m4-BV6" id="pbw-eM-Q0f"/>
                 <outlet property="reactionQueuedLabel" destination="RoI-Cv-j34" id="cVf-OX-u8e"/>
                 <outlet property="reactionQueuedView" destination="Z5p-BY-GCY" id="XqU-F9-pCu"/>
                 <outlet property="replyButton" destination="zKk-L1-jDy" id="1PE-yI-wqO"/>
@@ -306,8 +329,14 @@
         </collectionViewCell>
     </objects>
     <resources>
+        <namedColor name="Blue Selection">
+            <color red="0.69982264910214143" green="0.70244285914085591" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <namedColor name="Cell Background">
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Icon Foreground">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Pending Op Background">
             <color red="1" green="0.97100001573562622" blue="0.74199998378753662" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

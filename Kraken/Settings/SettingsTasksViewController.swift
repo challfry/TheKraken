@@ -15,7 +15,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		
     override func viewDidLoad() {
 		super.viewDidLoad()
-		knownSegues = Set([.userProfile, .editTweetOp, .editSeamailThreadOp])
+		knownSegues = Set([.userProfile, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp])
   		dataSource.register(with: collectionView, viewController: self)
 		
 		let context = LocalCoreData.shared.mainThreadContext
@@ -70,6 +70,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 		taskSection.segmentName = "\(sectionIndex)"
 		
 		switch task {
+// Twittar
 		case let reactionTask as PostOpTweetReaction:
 			if reactionTask.isAdd {
 				taskSection.append(SettingsInfoCellModel("Add a \"Like\" reaction to this tweet:", taskIndex: sectionIndex))
@@ -102,7 +103,33 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			cellModel.isInteractive = false
 			taskSection.append(SettingsInfoCellModel("Delete this Twitarr tweet of yours:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
-		
+
+
+// Forums
+		case let postTask as PostOpForumPost:
+			let cellModel = ForumPostOpCellModel(withModel: postTask)
+			cellModel.isInteractive = false
+			if postTask.editPost != nil {
+				taskSection.append(SettingsInfoCellModel("Make an edit to your post:", taskIndex: sectionIndex))
+			}
+			else if let thread = postTask.thread {
+				let infoCell = SettingsInfoCellModel("Post a reply in Forum thread", taskIndex: sectionIndex)
+				let labelText = NSMutableAttributedString(string: "Title: ", attributes: [.font : UIFont.boldSystemFont(ofSize: 17.0) as Any])
+				labelText.append(NSMutableAttributedString(string: thread.subject, attributes: [.font : UIFont.systemFont(ofSize: 17.0) as Any]))
+				taskSection.append(infoCell)
+			}
+			else if let subject = postTask.subject {
+				let infoCell = SettingsInfoCellModel("Post a new Forum thread", taskIndex: sectionIndex)
+				let labelText = NSMutableAttributedString(string: "Title: ", attributes: [.font : UIFont.boldSystemFont(ofSize: 17.0) as Any])
+				labelText.append(NSMutableAttributedString(string: subject, attributes: [.font : UIFont.systemFont(ofSize: 17.0) as Any]))
+				infoCell.labelText = labelText
+				taskSection.append(infoCell)
+			}
+			taskSection.append(cellModel)
+
+
+
+// Seamail		
 		case let seamailPostTheadTask as PostOpSeamailThread:
 			let cellModel = SeamailThreadCellModel(withModel: seamailPostTheadTask, reuse: "seamailThread")
 			cellModel.isInteractive = false
@@ -115,6 +142,9 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			taskSection.append(SettingsInfoCellModel("Send a Seamail Message:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
 
+
+
+// Events
 		case let eventFollowTask as PostOpEventFollow:
 			taskSection.append(SettingsInfoCellModel(eventFollowTask.newState ? "Follow a Scheduled Event:" :
 					"Unfollow a Scheduled Event", taskIndex: sectionIndex))
@@ -124,6 +154,9 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 				cellModel.disclosureLevel = 3
 				taskSection.append(cellModel)
 			}
+
+
+
 			
 		case let userCommentTask as PostOpUserComment:
 			if let commentedOnUsername = userCommentTask.userCommentedOn?.username {
@@ -326,6 +359,9 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 	func editTaskHit() {
 		if task is PostOpTweet {
 			viewController?.performKrakenSegue(.editTweetOp, sender: task)
+		}
+		else if task is PostOpForumPost {
+			viewController?.performKrakenSegue(.editForumPostDraft, sender: task)
 		}
 		else if task is PostOpSeamailThread {
 			viewController?.performKrakenSegue(.editSeamailThreadOp, sender: task)

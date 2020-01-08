@@ -51,31 +51,57 @@ import MobileCoreServices
 		return cell
 	}()
 	
+	lazy var editSourceCell: LabelCellModel = {
+		var labelText = "Your original post:"
+		if draftPost != nil {
+			labelText = "Your original draft:"
+		}
+		let cell = LabelCellModel(labelText)
+		cell.shouldBeVisible = editPost != nil || draftPost != nil
+		return cell
+	}()
+	
+	lazy var originalPostCell: ForumPostCellModel = {
+		let cell = ForumPostCellModel(withModel: editPost)
+		cell.isInteractive = false
+		return cell
+	}()
+	
+	lazy var originalDraftCell: ForumPostOpCellModel = {
+		let cell = ForumPostOpCellModel(withModel: draftPost)
+		cell.isInteractive = false
+		return cell
+	}()
+	
 	@objc dynamic lazy var threadTitleEditCell: TextViewCellModel = {
-		var writingPrompt = "Title of your Forum Thread:"
-		//		if editTweet != nil || draftTweet != nil {
-		//			writingPrompt = "What do you want to say instead?"
-		//		}
-		//		else if parentTweet != nil {
-		//			writingPrompt = "What do you want to say?"
-		//		}
-		
+		var writingPrompt = "Title of your Forum Thread:"		
 		let cell =  TextViewCellModel(writingPrompt)
-		if thread != nil || editPost != nil || draftPost != nil {
+		
+		// Show the thread title edit field if: This is not a post in an existing thread, not an edit to 
+		// an existing post, and either not a draft or a draft edit where the draft is a draft of a new thread.
+		if thread != nil || editPost != nil || draftPost?.thread != nil {
 			cell.shouldBeVisible = false
+		}
+		
+		if let draft = draftPost {
+			cell.editText = draft.subject
 		}
 		return cell
 	}()
 	
 	@objc dynamic lazy var postTextCell: TextViewCellModel = {
 		var writingPrompt = "What do you want to say?"
-		//		if editTweet != nil || draftTweet != nil {
-		//			writingPrompt = "What do you want to say instead?"
-		//		}
-		//		else if parentTweet != nil {
-		//			writingPrompt = "What do you want to say?"
-		//		}
-		return TextViewCellModel(writingPrompt)
+		if editPost != nil || draftPost != nil {
+			writingPrompt = "What do you want to say instead?"
+		}
+		let cell = TextViewCellModel(writingPrompt)
+		if let edit = editPost {
+			cell.editText = edit.text
+		}
+		else if let draft = draftPost {
+			cell.editText = draft.text
+		}
+		return cell
 	}()
 	
 	lazy var postButtonCell: ButtonCellModel = {
@@ -111,7 +137,25 @@ import MobileCoreServices
     override func viewDidLoad() {
         super.viewDidLoad()
 		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
-		title = "New Post"
+		
+		var viewTitle = "New Thread"
+		if draftPost != nil {
+			viewTitle = "Edit Draft"
+		}
+		else if editPost != nil {
+			viewTitle = "Edit Post"
+		}
+		else if thread != nil {
+			viewTitle = "New Post"
+		}
+		title = viewTitle
+		
+		if let dr = draftPost {
+			thread = dr.thread
+		}
+		else if let edit = editPost {
+			thread = edit.thread
+		}
 
 		// We have 2 data sources and we swap between them. First up is the Login DS.
 		loginDataSource.viewController = self
@@ -123,6 +167,9 @@ import MobileCoreServices
 		composeDataSource.viewController = self
 		let composeSection = composeDataSource.appendFilteringSegment(named: "ComposeSection")
 		composeSection.append(threadTitleReferenceCell)
+		composeSection.append(editSourceCell)
+		composeSection.append(originalPostCell)
+		composeSection.append(originalDraftCell)
 
 		composeSection.append(threadTitleEditCell)
 		composeSection.append(postTextCell)
@@ -144,11 +191,20 @@ import MobileCoreServices
 		self.tell(self, when: ["threadTitleEditCell.editedText", "postTextCell.editedText"]) { observer, observed in 
 			let titleString = observed.threadTitleEditCell.editedText ?? observed.threadTitleEditCell.editText ?? ""
 			let contentString = observed.postTextCell.editedText ?? observed.postTextCell.editText ?? ""
-			observer.postButtonCell.button2Enabled = (observer.thread != nil || !titleString.isEmpty) &&
-					!contentString.isEmpty
+			observer.postButtonCell.button2Enabled = (observer.thread != nil || observer.draftPost?.thread != nil ||
+					!titleString.isEmpty) && !contentString.isEmpty
 		}?.execute()
 	}
 	
+    override func viewDidAppear(_ animated: Bool) {
+		loginDataSource.enableAnimations = true
+		composeDataSource.enableAnimations = true
+		
+		if let textCell = composeDataSource.cell(forModel: postTextCell) as? TextViewCell {
+			textCell.textView.becomeFirstResponder()
+		}
+	}
+
     func postAction() {
     	// No posting without text in the cell; button should be disabled so this can't happen?
     	guard let _ = postTextCell.editedText ?? postTextCell.editText else { return }
@@ -159,8 +215,39 @@ import MobileCoreServices
     	statusCell.shouldBeVisible = true
     	threadTitleEditCell.isEditable = false
     	postTextCell.isEditable = false
+    	
+    	// TODO: Photos
+    	
+    	postWithPreparedImages(nil)
 	}
 	
+    func postWithPreparedImages(_ images: [PhotoUploadPackage]?) {
+    	guard let postText = postTextCell.editedText ?? postTextCell.editText else { return }
+    	var subjectText: String?
+    	if threadTitleEditCell.shouldBeVisible {
+    		subjectText =  threadTitleEditCell.editedText ?? postTextCell.editText 
+		}
+    	
+    	if let edit = editPost {
+    		// This is an edit of an existing post.
+			ForumsDataManager.shared.queuePostEditOp(for: edit, newText: postText, images: images, done: postEnqueued)    	
+    	}
+		else {
+			// This is a new post in an existing thread, or a new thread, or an update to a draft of a post.
+			ForumsDataManager.shared.queuePost(existingDraft: draftPost, inThread: thread, titleText: subjectText,
+					postText: postText, images: images, done: postEnqueued)
+		}
+    }
+
+    func postEnqueued(post: PostOpForumPost?) {
+    	if post == nil {
+    		statusCell.statusText = "Couldn't assemble a post."
+    	}
+    	else {
+    		statusCell.statusText = "Sending post to server."
+		}
+    }
+
     func emojiButtonTapped(withEmojiString: String?) {
     	if let emoji = withEmojiString, let range = activeTextEntry?.selectedTextRange {
     		activeTextEntry?.replace(range, withText: emoji)

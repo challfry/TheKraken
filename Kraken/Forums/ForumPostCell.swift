@@ -73,11 +73,11 @@ import UIKit
 							
 		// Photos
 		addObservation(postModel.tell(self, when: "photos") { observer, observed in
-			if observed.photos.count > 0, let photo = observed.photos[0] as? PhotoDetails {
-				observer.photos = [photo]
+			if observed.photos.count > 0, let photoArray = observed.photos.array as? [PhotoDetails] {
+				observer.photos = photoArray
 			}
 			else {
-				observer.photos = []
+				observer.photos = nil
 			}
 		}?.execute())
 		
@@ -204,6 +204,128 @@ import UIKit
 	func cancelReactionOpButtonTapped() {
    		guard let postModel = model as? ForumPost else { return } 
 		postModel.cancelReactionOp("like")   		
+	}
+
+}
+
+@objc class ForumPostOpCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {	
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "tweet" : TwitarrTweetCell.self ] }
+
+	// If false, the tweet cell doesn't show text links, the like/reply/delete/edit buttons, nor does tapping the 
+	// user thumbnail open a user profile panel.
+	@objc dynamic var isInteractive: Bool = false
+	
+	dynamic var author: KrakenUser?
+	dynamic var postTime: Date?
+	
+	dynamic var numLikes: Int32 = 0
+	dynamic var postText: String?
+	dynamic var photos: [PhotoDetails]?
+	dynamic var photoImages: [Data]? 
+	dynamic var loggedInUserIsAuthor: Bool = false		// False if no logged in user
+
+	// Reply, Edit, Delete, Like
+	dynamic var currentUserReplyOpCount: Int32 = 0
+	dynamic var currentUserHasDeleteOp: Bool = false
+	dynamic var currentUserHasEditOp: Bool = false
+	dynamic var currentUserReactOpCount: Int32 = 0
+	dynamic var currentUserHasLikeOp: LikeOpKind = .none
+	dynamic var currentUserLikesThis: Bool = false
+	dynamic var canReply: Bool = false
+	dynamic var canEdit: Bool = true
+	dynamic var canDelete: Bool = true
+
+	dynamic var isDeleted: Bool = false
+	
+    override var model: NSFetchRequestResult? {
+    	didSet {
+    		clearObservations()
+    		if let postModel = model as? PostOpForumPost, !postModel.isDeleted {
+    			setup(from: postModel)
+			}
+			else {
+				author = nil
+				postTime = nil
+				postText = nil				
+  				photos = nil
+  				isDeleted = true
+  				shouldBeVisible = false
+			}
+		}
+	}
+	
+	var viewController: BaseCollectionViewController?
+	
+	func setup(from postModel: PostOpForumPost) {
+	
+		// Directly set some stuff that can't change.
+		author = postModel.author
+		postTime = nil
+					
+		// We can't show the current number of likes this post has, as the API support is kinda lacking.
+		// (There's a separate call to get the likes for a post, but it's per-post).
+		numLikes = 0
+		
+		// Post text
+		addObservation(postModel.tell(self, when: "text") { observer, observed in 	
+			observer.postText = observed.text
+		}?.execute())
+							
+		// Photos
+		addObservation(postModel.tell(self, when: "photos") { observer, observed in
+			if let photoArray = observed.photos?.array as? [PhotoDetails], photoArray.count > 0 {
+				observer.photos = photoArray
+			}
+			else {
+				observer.photos = nil
+			}
+		}?.execute())
+		
+		// Watch for login/out
+		let authorUsername = author?.username ?? ""
+		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.loggedInUserIsAuthor = authorUsername == currentUsername
+		}?.execute())
+		
+		// Reply ops for replies that are children of this post
+		currentUserReplyOpCount = 0
+	}
+	
+	init(withModel: PostOpForumPost?) {
+		super.init(withModel: nil, reuse: "tweet", bindingWith: TwitarrTweetCellBindingProtocol.self)
+		model = withModel
+	}
+
+//MARK: Action Handlers
+	func linkTextTapped(link: String) {
+	}
+	
+	func authorIconTapped() {
+	}
+	
+	func likeButtonTapped() {
+	}
+	
+	func replyButtonTapped() {
+	}
+		
+	func editButtonTapped() {
+	}
+	
+	func deleteButtonTapped() {
+	}
+	
+	func cancelDeleteOpButtonTapped() {
+	}
+	
+	func cancelEditOpButtonTapped() {
+	}
+	
+	func viewPendingRepliesButtonTapped() {
+	}
+	
+	func cancelReactionOpButtonTapped() {
 	}
 
 }

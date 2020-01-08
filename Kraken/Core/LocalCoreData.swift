@@ -121,10 +121,12 @@ class LocalCoreData: NSObject {
 	func performNetworkParsing(_ block: @escaping (NSManagedObjectContext) throws -> Void) {
 		let context = networkOperationContext
 		context.perform {
+			var saveSucceeded = false
 			do {
 				try block(context)
 				context.pushOpErrorExplanation("Failed to Save Network Core Data Context.")
 				try context.save()
+				saveSucceeded = true
 			}
 			catch let error as LocalCoreData.Error {
 				CoreDataLog.error(error.failureExplanation, ["error" : error])
@@ -139,8 +141,15 @@ class LocalCoreData: NSObject {
 					CoreDataLog.error("Unknown Error while processing a network packet.", ["error" : error])
 				}
 			}
+			if let afterSaveClosure = context.userInfo["afterSaveClosure"] as? (Bool) -> Void {
+				afterSaveClosure(saveSucceeded)
+			}
 			context.userInfo.removeAllObjects()
 		}
+	}
+	
+	func setAfterSaveBlock(for context: NSManagedObjectContext, block: @escaping (Bool) -> Void) {
+		context.userInfo["afterSaveClosure"] = block
 	}
 
 	// Wraps code that wants to change to Core Data, initiated by a user action (as opposed to a network load).

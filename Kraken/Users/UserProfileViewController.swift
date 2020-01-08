@@ -201,6 +201,16 @@ import UIKit
 	
 	override func awakeFromNib() {
 		favoritePendingLabel.isHidden = true
+
+		// Set up gesture recognizer to detect taps on the (single) photo, and open the fullscreen photo overlay.
+		let photoTap = UITapGestureRecognizer(target: self, action: #selector(ProfileAvatarCell.photoTapped(_:)))
+	 	userAvatar.addGestureRecognizer(photoTap)
+	}
+
+	@objc func photoTapped(_ sender: UITapGestureRecognizer) {
+		if let vc = viewController as? BaseCollectionViewController, let image = userAvatar.image {
+			vc.showImageInOverlay(image: image)
+		}
 	}
 
 	dynamic var userModel: KrakenUser? {

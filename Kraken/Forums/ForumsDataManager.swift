@@ -421,6 +421,93 @@ import UIKit
 		forumThread.buildFromV2(context: context, v2Object: thread)
 	}
 	
+	func queuePostEditOp(for editPost: ForumPost, newText: String, images: [PhotoUploadPackage]?, 
+			done: @escaping (PostOpForumPost?) -> Void) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			// Make sure there's a logged in user and that the logged in user authored the post we're editing.
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context),
+					currentUser.username == editPost.author.username  else {
+				done(nil) 
+				return 
+			}
+			context.pushOpErrorExplanation("Couldn't save context while editing Forum post.")
+			
+			// Is there an existing pending edit for this post?
+			// Since this app currently only allows the author to edit a post (that is, we don't support mod edit operations),
+			// any edit op attached to this post should be authored by the current user.
+			var editOp: PostOpForumPost
+			if let editedBy = editPost.editedBy, let opInContext = context.object(with: editedBy.objectID) as? PostOpForumPost {
+				editOp = opInContext
+			}
+			else {
+				editOp = PostOpForumPost(context: context)
+			}
+			
+			editOp.text = newText
+			editOp.editPost = editPost
+			editOp.thread = editPost.thread
+			let photoOpArray: [PostOpForum_Photo]? = images?.map { let op = PostOpForum_Photo(context: context); op.setupFromPackage($0); return op }
+			if let photoOpArray = photoOpArray {
+				editOp.photos = NSOrderedSet(array: photoOpArray)
+			}
+			else {
+				editOp.photos = nil
+			}
+			editOp.author = currentUser
+			editOp.readyToSend = true
+						
+			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: editOp.objectID) as? PostOpForumPost 
+				done(mainThreadPost)
+			}
+		}
+	}
+	
+	// If inThread is nil, this post is a new thread, and titleText must be non-nil.
+	func queuePost(existingDraft: PostOpForumPost?, inThread: ForumThread?, titleText: String?, postText: String, images: [PhotoUploadPackage]?,
+			done: @escaping (PostOpForumPost?) -> Void) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			// Make sure there's a logged in user and that the logged in user authored the post we're editing.
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context),
+					inThread != nil || titleText != nil  else {
+				done(nil) 
+				return 
+			}
+			context.pushOpErrorExplanation("Couldn't save context while editing Forum post.")
+			
+			// Get network context versions of passed in CoreData objects
+			var postOp: PostOpForumPost
+			if let draftOp = existingDraft, let existingOp = context.object(with: draftOp.objectID) as? PostOpForumPost {
+				postOp = existingOp
+			}
+			else {
+				postOp = PostOpForumPost(context: context)
+			}
+			var threadInContext: ForumThread?
+			if let thread = inThread, let existingThreaad = context.object(with: thread.objectID) as? ForumThread {
+				threadInContext = existingThreaad
+			}
+			
+				
+			postOp.text = postText
+			postOp.subject = titleText
+			postOp.thread = threadInContext
+			let photoOpArray: [PostOpForum_Photo]? = images?.map { let op = PostOpForum_Photo(context: context); op.setupFromPackage($0); return op }
+			if let photoOpArray = photoOpArray {
+				postOp.photos = NSOrderedSet(array: photoOpArray)
+			}
+			else {
+				postOp.photos = nil
+			}
+			postOp.author = currentUser
+			postOp.readyToSend = true
+						
+			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postOp.objectID) as? PostOpForumPost 
+				done(mainThreadPost)
+			}
+		}
+	}
 
 }
 

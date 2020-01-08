@@ -375,11 +375,11 @@
 				EA1E3B9022457A1800017F07 /* TwitarrViewController.swift */,
 				EA3C630D2293913600077E3B /* ComposeTweetViewController.swift */,
 				EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */,
-				EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */,
 				EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */,
 				EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */,
 				EA86ADDF2277A76D00363CBF /* TwitarrTweetCell.xib */,
 				EAA62C7222CC57060031A999 /* DraftImageCell.xib */,
+				EA1E3B9422457A4C00017F07 /* TwitarrDataManager.swift */,
 			);
 			path = Twittarr;
 			sourceTree = "<group>";

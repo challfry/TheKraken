@@ -360,6 +360,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
 	@IBOutlet var 	postImageHeightConstraint: NSLayoutConstraint!
+	@IBOutlet var postImagesCollection: UICollectionView!
+	@IBOutlet var photoPageControl: UIPageControl!
 	@IBOutlet var userButton: UIButton!
 	
 	@IBOutlet var pendingOpsStackView: UIStackView!
@@ -465,6 +467,13 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	var photos: [PhotoDetails]? {
 		didSet {
+//			if let p = photos, p.count == 1 {
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//			}
 			setupPhotos()
 		}
 	}
@@ -476,24 +485,32 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 	
 	func setupPhotos() {
+		var numDisplayedPhotos = 0
 		if let photoArray = photos, photoArray.count > 0 {
-			postImage.isHidden = false
-			if !isPrototypeCell {
-				ImageManager.shared.image(withSize:.medium, forKey: photoArray[0].id) { image in
-					self.postImage.image = image
+			numDisplayedPhotos = photoArray.count
+			if numDisplayedPhotos == 1 {
+				if !isPrototypeCell {
+					ImageManager.shared.image(withSize:.medium, forKey: photoArray[0].id) { image in
+						self.postImage.image = image
+					}
 				}
 			}
 		}
 		else if let photoArray = photoImages, photoArray.count > 0 {
-			postImage.isHidden = false
-			if !isPrototypeCell {
+			numDisplayedPhotos = photoArray.count
+			if !isPrototypeCell, numDisplayedPhotos == 1 {
 				self.postImage.image = UIImage(data: photoArray[0])
 			}
 		}
 		else {
 			postImage.image = nil
-			postImage.isHidden = true
+			numDisplayedPhotos = 0
 		}
+		
+		postImage.isHidden = numDisplayedPhotos != 1
+		postImagesCollection.isHidden = numDisplayedPhotos <= 1
+		photoPageControl.numberOfPages = numDisplayedPhotos == 0 ? 1 : numDisplayedPhotos
+//		photoPageControl.isHidden = numDisplayedPhotos == 0
 	}
 	
 	var currentUserReplyOpCount: Int32 = 0 {
@@ -563,19 +580,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 
 // MARK: Methods
 
-	func buildTitleLabel() {
-		let authorDisplayName: String = author?.displayName ?? ""
-		let titleAttrString = NSMutableAttributedString(string: "\(authorDisplayName), ", 
-				attributes: authorTextAttributes())
-
-		if let time = postTime {
-			let timeString = StringUtilities.relativeTimeString(forDate: time)
-			let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
-			titleAttrString.append(timeAttrString)
-		}
-		titleLabel.attributedText = titleAttrString
-	}
-		
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		pendingOpsStackView.isHidden = true				// In case the xib didn't leave this hidden
@@ -600,6 +604,17 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 
 		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		
+		// Set up gesture recognizer to detect taps on the (single) photo, and open the fullscreen photo overlay.
+		let photoTap = UITapGestureRecognizer(target: self, action: #selector(TwitarrTweetCell.photoTapped(_:)))
+	 	postImage.addGestureRecognizer(photoTap)
+		
+		// Set up the internal collection view for displaying multiple photos
+		postImagesCollection.register(TwitarrPostPhotoCell.self, forCellWithReuseIdentifier: "photo")
+		postImagesCollection.dataSource = self
+		postImagesCollection.delegate = self
+		postImagesCollection.collectionViewLayout = TwitarrCellHorizScrollLayout()
+		postImagesCollection.backgroundColor = UIColor(named: "CollectionView Background")
 
 		// Every 10 seconds, update the post time (the relative time since now that the post happened).
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
@@ -615,6 +630,25 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 	}
 	
+	func buildTitleLabel() {
+		let authorDisplayName: String = author?.displayName ?? ""
+		let titleAttrString = NSMutableAttributedString(string: "\(authorDisplayName), ", 
+				attributes: authorTextAttributes())
+
+		if let time = postTime {
+			let timeString = StringUtilities.relativeTimeString(forDate: time)
+			let timeAttrString = NSAttributedString(string: timeString, attributes: postTimeTextAttributes())
+			titleAttrString.append(timeAttrString)
+		}
+		titleLabel.attributedText = titleAttrString
+	}
+	
+	@objc func photoTapped(_ sender: UITapGestureRecognizer) {
+		if let vc = viewController as? BaseCollectionViewController, let image = postImage.image {
+			vc.showImageInOverlay(image: image)
+		}
+	}
+		
 	// Prototype cells have difficulty figuring out their layout while animating. This fn shows/hides subviews immediately
 	// for proto cells, but animates for normal cells.
 	func setViewVisibility(view: UIView, showIf: Bool) {
@@ -807,6 +841,115 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		
 }
 
+extension TwitarrTweetCell: UICollectionViewDataSource, UICollectionViewDelegate {
+	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+		if let photoSource = photos, photoSource.count > 0 {
+			return photoSource.count
+		}
+		else if let photoSource = photoImages, photoSource.count > 0 {
+			return photoSource.count
+		}
+		
+		return 0
+	}
 
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photo", for: indexPath) as! TwitarrPostPhotoCell 
+		if let photoArray = photos {
+			ImageManager.shared.image(withSize:.medium, forKey: photoArray[indexPath.row].id) { image in
+				cell.photo = image
+			}
+		}
+		cell.viewController = viewController
+		return cell
+
+	}
+	
+	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		let scrollPos = scrollView.contentOffset.x
+		let cvWidth = scrollView.bounds.size.width
+		photoPageControl.currentPage = Int(scrollPos / cvWidth + 0.5)
+	}
+
+}
+
+class TwitarrPostPhotoCell: UICollectionViewCell {
+	var photoView = UIImageView()
+	weak var viewController: UIViewController?
+	
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
+	required override init(frame: CGRect) {
+		super.init(frame: frame)
+		contentView.addSubview(photoView)
+//		contentView.translatesAutoresizingMaskIntoConstraints = false
+		photoView.translatesAutoresizingMaskIntoConstraints	= false
+		let constraints = [
+				photoView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+				photoView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+				photoView.topAnchor.constraint(equalTo: contentView.topAnchor),
+				photoView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+				photoView.heightAnchor.constraint(equalToConstant: 200.0),
+				photoView.widthAnchor.constraint(equalToConstant: 354.0)]
+		NSLayoutConstraint.activate(constraints)
+		
+		photoView.contentMode = .scaleAspectFill
+
+		let photoTap = UITapGestureRecognizer(target: self, action: #selector(TwitarrTweetCell.photoTapped(_:)))
+	 	addGestureRecognizer(photoTap)
+	}
+	
+	var photo: UIImage? {
+		didSet {
+			photoView.image = photo
+		}
+	}
+	
+	@objc func photoTapped(_ sender: UITapGestureRecognizer) {
+		if let vc = viewController as? BaseCollectionViewController, let image = photoView.image {
+			vc.showImageInOverlay(image: image)
+		}
+	}
+}
+
+class TwitarrCellHorizScrollLayout: UICollectionViewLayout {
+	var numCells: Int = 0
+	var cellWidth: Int = 0
+
+	override func prepare() {
+		if let cv = collectionView {
+			numCells = cv.dataSource?.collectionView(cv, numberOfItemsInSection: 0) ?? 0
+			cellWidth = Int(cv.bounds.size.width)
+		}
+	}
+
+	override var collectionViewContentSize: CGSize {
+		return CGSize(width: numCells * cellWidth, height: 200)
+	}
+
+	override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {	
+		var result: [UICollectionViewLayoutAttributes] = []
+		for index in 0 ..< numCells {
+			let attrs = UICollectionViewLayoutAttributes(forCellWith: IndexPath(row: index, section: 0))
+			attrs.isHidden = false
+			attrs.frame = CGRect(x: index * cellWidth, y: 0, width: cellWidth, height: 200)
+			result.append(attrs)
+		}
+		return result
+	}
+	
+	override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+		let attrs = UICollectionViewLayoutAttributes(forCellWith: indexPath)
+		attrs.isHidden = false
+		attrs.frame = CGRect(x: indexPath.row * cellWidth, y: 0, width: cellWidth, height: 200)
+		return attrs
+	}
+	
+	override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+		return true
+	}
+}
 
 // "<a class=\"tweet-url username\" href=\"#/user/profile/kvort\">@kvort</a> Okay. This is a reply."

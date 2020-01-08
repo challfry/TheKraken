@@ -71,6 +71,11 @@ import CoreData
 		- add/remove
 */
 
+struct PhotoUploadPackage {
+	var iamgeData: Data
+	var mimetype: String
+}
+
 @objc public class PostOperationDataManager: NSObject {
 	static let shared = PostOperationDataManager()
 	
@@ -615,7 +620,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 	@NSManaged public var photos: NSOrderedSet?			// PostOpForum_Photo
 	@NSManaged public var thread: ForumThread?			// If nil, this is a new thread (and subject must be non-nil).
-	@NSManaged public var editPost: ForumPost?
+	@NSManaged public var editPost: ForumPost?			// If non-nil, we are editing this post.
 		
 	override public func awakeFromFetch() {
 		super.awakeFromFetch()
@@ -667,7 +672,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				isNewThread = false
 			}
 			else if let parentThread = self.thread {
-				// If thread is set, this is a 
+				// If thread is set, this is a post in an existing thread.
 				path.append("/\(parentThread.id)")
 				isNewThread = false
 			}
@@ -716,6 +721,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var image: Data
 	@NSManaged public var mimetype: String
 	@NSManaged public var parentOp: PostOpForumPost
+	
+	func setupFromPackage(_ from: PhotoUploadPackage) {
+		image = from.iamgeData
+		mimetype = from.mimetype
+	}
 }
 
 @objc(PostOpForumPostDelete) public class PostOpForumPostDelete: PostOperation {

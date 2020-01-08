@@ -462,9 +462,9 @@ class TwitarrDataManager: NSObject {
 	// Creates a PostOperation, saving all the data needed to post a new tweet, and queues it for posting.
 	func queuePost(_ existingDraft: PostOpTweet?, withText: String, image: Data?, mimeType: String?,
 			inReplyTo: TwitarrPost? = nil, editing: TwitarrPost? = nil, done: @escaping (PostOpTweet?) -> Void) {
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
+		LocalCoreData.shared.performNetworkParsing { context in
+			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { done(nil); return }
+			context.pushOpErrorExplanation("Couldn't save context while creating new Twitarr post.")
 			
 			var parentPost: TwitarrPost? = nil
 			if let parent = inReplyTo {
@@ -485,14 +485,9 @@ class TwitarrDataManager: NSObject {
 			postToQueue.image = image as NSData?
 			postToQueue.imageMimetype = mimeType
 			
-			do {
-				try context.save()
+			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
 				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postToQueue.objectID) as? PostOpTweet 
 				done(mainThreadPost)
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context while creating new Twitarr post.", ["error" : error])
-				done(nil)
 			}
 		}
 	}
