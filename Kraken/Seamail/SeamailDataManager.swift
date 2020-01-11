@@ -201,7 +201,7 @@ class SeamailDataManager: NSObject {
 				// and we're just going to send the name to the server where it'll get validated anyway.
 			}
 						
-			newThread.readyToSend = true
+			newThread.operationState = .readyToSend
 			do {
 				try context.save()
 				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: newThread.objectID) as? PostOpSeamailThread 
@@ -233,7 +233,7 @@ class SeamailDataManager: NSObject {
 				messageOp.text = message
 				messageOp.thread = threadInContext
 				messageOp.author = currentUser
-				messageOp.readyToSend = true
+				messageOp.operationState = .readyToSend
 				try context.save()
 				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: messageOp.objectID) as? PostOpSeamailMessage 
 				done(mainThreadPost)

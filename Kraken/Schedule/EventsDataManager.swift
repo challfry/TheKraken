@@ -130,7 +130,7 @@ import UserNotifications
 			}
 			
 			existingOp?.newState = newState
-			existingOp?.readyToSend = true
+			existingOp?.operationState = .readyToSend
 			existingOp?.event = thisEvent
 			
 			do {

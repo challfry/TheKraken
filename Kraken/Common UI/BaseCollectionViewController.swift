@@ -396,8 +396,11 @@ extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 		// once the cell is selected.
 		if let path = collectionView.indexPathForItem(at: hitPoint), let cell = collectionView.cellForItem(at: path),
 				let c = cell as? BaseCollectionViewCell, !c.privateSelected {
-			return true
+			if c.allowsSelection {
+				return true
+			}
 		}
+		
 		
 		return false
 	}
@@ -429,7 +432,7 @@ extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 			tappedCell.isHighlighted = false
 			
 			// Stop the scroll view's odd scrolling behavior that happens when cell tap resizes the cell.
-			collectionView.setContentOffset(collectionView.contentOffset, animated: false)
+//			collectionView.setContentOffset(collectionView.contentOffset, animated: false)
 		}
 	}
 	

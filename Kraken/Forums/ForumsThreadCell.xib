@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,42 +18,47 @@
                 <rect key="frame" x="0.0" y="0.0" width="414" height="83"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Subject" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ebR-5A-TBU">
-                        <rect key="frame" x="20" y="7" width="63" height="21"/>
-                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                        <color key="textColor" name="Kraken Label Text"/>
-                        <nil key="highlightedColor"/>
-                    </label>
+                    <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="RWT-ws-8k9">
+                        <rect key="frame" x="20" y="7" width="111" height="18"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Subject" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ebR-5A-TBU">
+                                <rect key="frame" x="0.0" y="0.0" width="63" height="18"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pin" translatesAutoresizingMaskIntoConstraints="NO" id="Aa4-wD-C7N">
+                                <rect key="frame" x="69" y="0.0" width="18" height="18"/>
+                                <color key="tintColor" name="Icon Foreground"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="18" id="R8u-Jh-XsZ"/>
+                                    <constraint firstAttribute="height" constant="18" id="zB7-Uv-FSY"/>
+                                </constraints>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lock" translatesAutoresizingMaskIntoConstraints="NO" id="UlX-4R-myU">
+                                <rect key="frame" x="93" y="0.0" width="18" height="18"/>
+                                <color key="tintColor" name="Icon Foreground"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="18" id="G6d-bQ-2mk"/>
+                                    <constraint firstAttribute="height" constant="18" id="dqu-Xq-tyf"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                    </stackView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Post Count" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="86B-Zk-jSi">
-                        <rect key="frame" x="20" y="29" width="85" height="21"/>
+                        <rect key="frame" x="20" y="29" width="85" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Secondary Text"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Most Recent" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="13l-u9-RoS">
-                        <rect key="frame" x="20" y="50" width="97" height="21"/>
+                        <rect key="frame" x="20" y="53.5" width="96.5" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pin" translatesAutoresizingMaskIntoConstraints="NO" id="Aa4-wD-C7N">
-                        <rect key="frame" x="89" y="8.5" width="18" height="18"/>
-                        <color key="tintColor" name="Icon Foreground"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="18" id="R8u-Jh-XsZ"/>
-                            <constraint firstAttribute="height" constant="18" id="zB7-Uv-FSY"/>
-                        </constraints>
-                    </imageView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lock" translatesAutoresizingMaskIntoConstraints="NO" id="UlX-4R-myU">
-                        <rect key="frame" x="113" y="8.5" width="18" height="18"/>
-                        <color key="tintColor" name="Icon Foreground"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="18" id="G6d-bQ-2mk"/>
-                            <constraint firstAttribute="height" constant="18" id="dqu-Xq-tyf"/>
-                        </constraints>
-                    </imageView>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="929-Ha-Eq3">
-                        <rect key="frame" x="346" y="-6.5" width="48" height="48"/>
+                        <rect key="frame" x="346" y="7" width="48" height="48"/>
                         <state key="normal" image="FavoriteHeartGrey"/>
                         <state key="selected" image="FavoriteHeart"/>
                         <connections>
@@ -61,7 +66,7 @@
                         </connections>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last Post Time" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EtD-KN-cDA">
-                        <rect key="frame" x="280" y="50" width="114" height="21"/>
+                        <rect key="frame" x="280.5" y="53.5" width="113.5" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
@@ -69,21 +74,17 @@
                 </subviews>
                 <color key="backgroundColor" name="Cell Background"/>
                 <constraints>
-                    <constraint firstItem="ebR-5A-TBU" firstAttribute="top" secondItem="wp4-r4-MlB" secondAttribute="top" constant="7" id="2gy-rI-5WM"/>
-                    <constraint firstItem="929-Ha-Eq3" firstAttribute="centerY" secondItem="ebR-5A-TBU" secondAttribute="centerY" id="2hl-ho-A5L"/>
-                    <constraint firstItem="Aa4-wD-C7N" firstAttribute="leading" secondItem="ebR-5A-TBU" secondAttribute="trailing" constant="6" id="3Tw-Ea-Sdb"/>
-                    <constraint firstItem="13l-u9-RoS" firstAttribute="top" secondItem="86B-Zk-jSi" secondAttribute="bottom" id="4Tq-UI-5Bd"/>
-                    <constraint firstItem="86B-Zk-jSi" firstAttribute="top" secondItem="ebR-5A-TBU" secondAttribute="bottom" constant="1" id="72k-1Q-qZL"/>
+                    <constraint firstItem="RWT-ws-8k9" firstAttribute="leading" secondItem="wp4-r4-MlB" secondAttribute="leading" constant="20" id="0av-A0-r4F"/>
+                    <constraint firstItem="13l-u9-RoS" firstAttribute="top" secondItem="86B-Zk-jSi" secondAttribute="bottom" constant="4" id="4Tq-UI-5Bd"/>
                     <constraint firstAttribute="bottom" secondItem="13l-u9-RoS" secondAttribute="bottom" priority="200" constant="8" id="9av-wB-fdv"/>
                     <constraint firstAttribute="trailing" secondItem="EtD-KN-cDA" secondAttribute="trailing" constant="20" id="BOP-th-c7L"/>
-                    <constraint firstItem="ebR-5A-TBU" firstAttribute="centerY" secondItem="Aa4-wD-C7N" secondAttribute="centerY" id="HPt-v3-pyX"/>
-                    <constraint firstItem="ebR-5A-TBU" firstAttribute="leading" secondItem="wp4-r4-MlB" secondAttribute="leading" constant="20" id="Rze-mg-ykf"/>
+                    <constraint firstItem="929-Ha-Eq3" firstAttribute="top" secondItem="RWT-ws-8k9" secondAttribute="top" id="FH6-sT-Jhc"/>
+                    <constraint firstItem="86B-Zk-jSi" firstAttribute="leading" secondItem="RWT-ws-8k9" secondAttribute="leading" id="ZSu-6t-Quj"/>
                     <constraint firstAttribute="trailing" secondItem="929-Ha-Eq3" secondAttribute="trailing" constant="20" id="Zs1-QT-PbH"/>
                     <constraint firstItem="EtD-KN-cDA" firstAttribute="firstBaseline" secondItem="13l-u9-RoS" secondAttribute="firstBaseline" id="bex-CH-4xc"/>
-                    <constraint firstItem="13l-u9-RoS" firstAttribute="leading" secondItem="ebR-5A-TBU" secondAttribute="leading" id="cHX-cZ-hNL"/>
-                    <constraint firstItem="Aa4-wD-C7N" firstAttribute="centerY" secondItem="UlX-4R-myU" secondAttribute="centerY" id="dxu-1f-IFi"/>
-                    <constraint firstItem="UlX-4R-myU" firstAttribute="leading" secondItem="Aa4-wD-C7N" secondAttribute="trailing" constant="6" id="hQf-lG-m54"/>
-                    <constraint firstItem="86B-Zk-jSi" firstAttribute="leading" secondItem="ebR-5A-TBU" secondAttribute="leading" id="rF1-h8-FQr"/>
+                    <constraint firstItem="13l-u9-RoS" firstAttribute="leading" secondItem="RWT-ws-8k9" secondAttribute="leading" id="toA-Yd-W4l"/>
+                    <constraint firstItem="RWT-ws-8k9" firstAttribute="top" secondItem="wp4-r4-MlB" secondAttribute="top" constant="7" id="wbQ-Kv-LeI"/>
+                    <constraint firstItem="86B-Zk-jSi" firstAttribute="top" secondItem="RWT-ws-8k9" secondAttribute="bottom" constant="4" id="yY8-Cg-EH3"/>
                 </constraints>
             </collectionViewCellContentView>
             <color key="backgroundColor" name="Cell Background"/>

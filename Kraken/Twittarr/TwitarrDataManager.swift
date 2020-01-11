@@ -146,7 +146,7 @@ import UIKit
 			// Check for existing op for this user, with this word
 			let op = thisPost.getPendingUserReaction(reactionWord) ?? PostOpTweetReaction(context: context)
 			op.isAdd = newState
-			op.readyToSend = true
+			op.operationState = .readyToSend
 			op.reactionWord = reactionWord
 			op.sourcePost = thisPost
 		}
@@ -183,7 +183,7 @@ import UIKit
 				existingOp = PostOpTweetDelete(context: context)
 				existingOp?.tweetToDelete = thisPost
 			}
-			existingOp?.readyToSend = true
+			existingOp?.operationState = .readyToSend
 		}
 	}
 	
@@ -480,7 +480,7 @@ class TwitarrDataManager: NSObject {
 			postToQueue.text = withText
 			postToQueue.parent = parentPost
 			postToQueue.tweetToEdit = editPost
-			postToQueue.readyToSend = true
+			postToQueue.operationState = .readyToSend
 			postToQueue.author = currentUser
 			postToQueue.image = image as NSData?
 			postToQueue.imageMimetype = mimeType

@@ -40,6 +40,7 @@ import CoreData
 	var canEdit: Bool { get set }
 	var canDelete: Bool { get set }
 	
+	var deleteConfirmationMessage: String { get set }
 	var isDeleted: Bool { get set }
 	
 	// 
@@ -82,6 +83,7 @@ import CoreData
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 
+	dynamic var deleteConfirmationMessage: String = "Are you sure you want to delete this post?"
 	dynamic var isDeleted: Bool = false
 	
     override var model: NSFetchRequestResult? {
@@ -292,6 +294,7 @@ import CoreData
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 
+	dynamic var deleteConfirmationMessage: String = "This draft post hasn't been delivered to the server yet. Delete it?"
 	dynamic var isDeleted: Bool = false
 	
     override var model: NSFetchRequestResult? {
@@ -344,7 +347,12 @@ import CoreData
 	func likeButtonTapped() { }
 	func replyButtonTapped() { }
 	func editButtonTapped() { }
-	func deleteButtonTapped() { }
+	func deleteButtonTapped() {
+		// Not sure this is reachable
+		if let postOpModel = model as? PostOpTweet {
+			PostOperationDataManager.shared.remove(op: postOpModel)
+		}
+	}
 	func cancelDeleteOpButtonTapped() {	}
 	func cancelEditOpButtonTapped() { }
 	func viewPendingRepliesButtonTapped() { }
@@ -576,6 +584,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 	
 	var loggedInUserIsAuthor: Bool = false
+	var deleteConfirmationMessage: String = ""
 	var isDeleted: Bool	= false
 
 // MARK: Methods
@@ -583,6 +592,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		pendingOpsStackView.isHidden = true				// In case the xib didn't leave this hidden
+		allowsSelection = true
 
 		// Font styling
 		likesLabel.styleFor(.body)
@@ -619,12 +629,22 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		// Every 10 seconds, update the post time (the relative time since now that the post happened).
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
-    		if let self = self, let tweetModel = self.model as? TwitarrPost, !tweetModel.isDeleted {
-				let titleAttrString = NSMutableAttributedString(string: "\(tweetModel.author.displayName), ", 
-						attributes: self.authorTextAttributes())
-				let timeString = StringUtilities.relativeTimeString(forDate: tweetModel.postDate())
-				let timeAttrString = NSAttributedString(string: timeString, attributes: self.postTimeTextAttributes())
-				titleAttrString.append(timeAttrString)
+    		if let self = self, let cellModel = self.model as? TwitarrTweetCellBindingProtocol, !cellModel.isDeleted {
+    			let titleAttrString = NSMutableAttributedString()
+    			if let authorName = cellModel.author?.displayName {
+					titleAttrString.append(NSMutableAttributedString(string: "\(authorName), ", 
+							attributes: self.authorTextAttributes()))
+				}
+				if let postTime = cellModel.postTime {
+					let timeString = StringUtilities.relativeTimeString(forDate: postTime)
+					let timeAttrString = NSAttributedString(string: timeString, attributes: self.postTimeTextAttributes())
+					titleAttrString.append(timeAttrString)
+				}
+				else {
+					// If postTime is nil, it hasn't been posted yet--meaning it's a draft.
+					titleAttrString.append(NSAttributedString(string: "in the near future", 
+							attributes: self.postTimeTextAttributes()))
+				}
 				self.titleLabel.attributedText = titleAttrString
 			}
 		}
@@ -781,14 +801,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	@IBAction func deleteButtonTapped() {
  		guard isInteractive else { return }
- 		
- 		var deleteConfirmationMessage: String
- 		switch model {
- 		case is TwitarrPost: deleteConfirmationMessage = "Are you sure you want to delete this post?"
- 		case is PostOpTweet: deleteConfirmationMessage = "This draft post hasn't been delivered to the server yet. Delete it?"
-   		default: deleteConfirmationMessage = ""
-   		}
-   		
+ 		   		
    		let alert = UIAlertController(title: "Delete Confirmation", message: deleteConfirmationMessage, 
    				preferredStyle: .alert) 
 		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), 
@@ -803,9 +816,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
    		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
 			bindingModel.deleteButtonTapped()
 		}
-//		else if let postOpModel = model as? PostOpTweet {
-//			PostOperationDataManager.shared.remove(op: postOpModel)
-//		}
 	}
 	
 // MARK: Buttons in pending state change views
@@ -884,15 +894,12 @@ class TwitarrPostPhotoCell: UICollectionViewCell {
 	required override init(frame: CGRect) {
 		super.init(frame: frame)
 		contentView.addSubview(photoView)
-//		contentView.translatesAutoresizingMaskIntoConstraints = false
 		photoView.translatesAutoresizingMaskIntoConstraints	= false
 		let constraints = [
 				photoView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
 				photoView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 				photoView.topAnchor.constraint(equalTo: contentView.topAnchor),
-				photoView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-				photoView.heightAnchor.constraint(equalToConstant: 200.0),
-				photoView.widthAnchor.constraint(equalToConstant: 354.0)]
+				photoView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)]
 		NSLayoutConstraint.activate(constraints)
 		
 		photoView.contentMode = .scaleAspectFill

@@ -35,6 +35,7 @@ import UIKit
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 
+	dynamic var deleteConfirmationMessage: String = "Are you sure you want to delete this post?"
 	dynamic var isDeleted: Bool = false
 	
     override var model: NSFetchRequestResult? {
@@ -184,17 +185,18 @@ import UIKit
 	}
 	
 	func deleteButtonTapped() {
-	
+   		guard let postModel = model as? ForumPost else { return } 
+		postModel.addDeletePostOp()
 	}
 	
 	func cancelDeleteOpButtonTapped() {
-		guard let tweetModel = model as? TwitarrPost else { return } 
-		tweetModel.cancelDeleteOp()   		
+   		guard let postModel = model as? ForumPost else { return } 
+		postModel.cancelDeleteOp()   		
 	}
 	
 	func cancelEditOpButtonTapped() {
-		guard let tweetModel = model as? TwitarrPost else { return } 
-		tweetModel.cancelEditOp()   		
+   		guard let postModel = model as? ForumPost else { return } 
+		postModel.cancelEditOp()   		
 	}
 	
 	func viewPendingRepliesButtonTapped() {
@@ -235,6 +237,7 @@ import UIKit
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 
+	dynamic var deleteConfirmationMessage: String = "This draft post hasn't been delivered to the server yet. Delete it?"
 	dynamic var isDeleted: Bool = false
 	
     override var model: NSFetchRequestResult? {

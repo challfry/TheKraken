@@ -514,6 +514,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
 		// Luckily, we can delete all the cells first, and then delete sections.
 		for index in deleteCells.sorted().reversed() {
+			if cellModelSections.count >= index.section || cellModelSections[index.section].count >= index.row  {
+				continue
+			}
 			let elem = cellModelSections[index.section].remove(at: index.row)
 			let path = IndexPath(row: index.row, section: index.section + deleteOffset)
 //			if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
@@ -531,6 +534,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				var section: [BaseCellModel] = []
 				if let frcObjects = frcSections[sectionIndex].objects as? [FetchedObjectType] {
 					for item in frcObjects {
+						if item.objectID.isTemporaryID {
+							continue
+						}
 						if let cellModel = createCellModel?(item) {
 							section.append(cellModel)
 						}

@@ -109,16 +109,10 @@ struct PhotoUploadPackage {
 	// Does not check whether this op is authored by the current user.
 	// Can be called with an op object in the main context.
 	func remove(op: PostOperation) {
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			do {
-				let opInContext = context.object(with: op.objectID)
-				context.delete(opInContext)
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context when deleting a PostOperation.", ["error" : error])
-			}
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			context.pushOpErrorExplanation("Couldn't save context when deleting a PostOperation.")
+			let opInContext = context.object(with: op.objectID)
+			context.delete(opInContext)
 		}
 	}
 		
@@ -143,17 +137,13 @@ struct PhotoUploadPackage {
 						continue
 					}	
 				
-					// Test 2: Don't send ops that aren't ready. Ops that received server errors get their RTS set FALSE.
-					if !op.readyToSend {
+					// Test 2: Don't send ops that aren't ready. Ops that received server errors need to be 'resent' by user.
+					// Ops that received network errors get set back to the ReadyToSend state.
+					if op.operationState != .readyToSend {
 						continue
 					} 
-					
-					// Test 3: Don't send ops that are currently being sent (have active network calls)
-					if op.sentNetworkCall {
-						continue
-					}
-					
-					// Test 4: Exponential back off. Don't run an op until its next run date.
+										
+					// Test 3: Exponential back off. Don't run an op until its next run date.
 					if let nextCallTime = op.nextNetworkCallTime, nextCallTime > Date() {
 						if earliestCallTime == nil { 
 							earliestCallTime = nextCallTime
@@ -248,26 +238,27 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
+@objc public enum PostOperationState: Int32 {
+	case notReadyToSend = 0
+	case readyToSend = 1
+	case sentNetworkCall = 2
+	case serverError = 3
+	case callSuccess = 4
+}
+
 
 /* 'Post' in this context is any REST call that changes server state, where you need to be logged in.
 	Usually delivered via HTTP POST.
 */
 @objc(PostOperation) public class PostOperation: KrakenManagedObject {
-		// A descriptive string explaing what this op is going to do. Not saved to CD.
+	
+		// A descriptive string explaing what this op is going to do.
 		// Subclasses should set this value.
-	@objc dynamic var operationDescription: String?
+	@NSManaged public var operationDescription: String?
 
-		// A descriptive string explaining what state the op is in. Not saved to CD, deduced from other fields.
-		// Subclasses should set this value.
-	@objc dynamic var operationStatus: String?
-	
 		// TRUE if this post can be delivered to the server
-	@NSManaged public var readyToSend: Bool
-	
-		// TRUE if we've sent this op to the server. Can no longer cancel.
-		// Note: We don't actually care about this value getting stored; but we do want it propagated to all MOCs.
-	@NSManaged public var sentNetworkCall: Bool
-	
+	@NSManaged public var operationState: PostOperationState
+		
 		// Since you must be logged in to send any content to the server, including likes/reactions,
 		// every postop has an author.
 	@NSManaged public var author: KrakenUser
@@ -300,31 +291,28 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			author = currentUser
 		}
 		originalPostTime = Date()
-		readyToSend = false
-		sentNetworkCall = false
+		operationState = .notReadyToSend
 	}
 	
-	// AwakeFromFetch is called every time we fetch or fault this object. 
-	// This is where we set up non-@NSManaged properties.
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
-		
-		// Set the op status
+	func operationStatus() -> String {
+		var status = "Waiting to send"
 		if errorString != nil {
-			operationStatus = "Received error from server. Blocked until error is resolved."
+			status = "Received error from server. Blocked until error is resolved."
 		}
-		else if sentNetworkCall {
-			operationStatus = "Posting to server"
+		else if operationState == .sentNetworkCall {
+			status = "Posting to server"
 		}
 		else if nextNetworkCallTime != nil {
-			operationStatus = "Couldn't reach server; will try again soon."
+			status = "Couldn't reach server; will try again soon."
 		}
-		else if !readyToSend {
-			operationStatus = "Not ready to send to the server yet."
+		else if operationState == .notReadyToSend {
+			status = "Not ready to send to the server yet"
 		}
-		else {
-			operationStatus = "Waiting to send"
+		else if operationState == .callSuccess {
+			status = "Success"
 		}
+		
+		return status
 	}
 	
 	// Subclasses override this to send this post to the server. Subclass should call super iff the post can be
@@ -334,11 +322,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		context.perform {
 			do {
 				let opInContext = context.object(with: self.objectID) as! PostOperation
-				opInContext.sentNetworkCall = true
+				opInContext.operationState = .sentNetworkCall
 				try context.save()
 
-				let opInMainContext = LocalCoreData.shared.mainThreadContext.object(with: self.objectID) as! PostOperation
-				opInMainContext.operationStatus = "Posting to server"
+//				let opInMainContext = LocalCoreData.shared.mainThreadContext.object(with: self.objectID) as! PostOperation
+//				opInMainContext.operationStatus = "Posting to server"
 			}
 			catch {
 				// Not an error that needs to be saved into the op
@@ -359,7 +347,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				// The assumption here is that if we get a non-error response from the server, the call worked and 
 				// the server has enacted the change we posted. So, even if we fail to decode and process the response
 				// or save to Core Data, the call still succeeded.
-				PostOperationDataManager.shared.remove(op: self)
+				self.recordOpSuccess()
 				success(data)
 				return
 			}
@@ -369,7 +357,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			context.perform {
 				do {
 					let opInContext = context.object(with: self.objectID) as! PostOperation
-					opInContext.sentNetworkCall = false
+					opInContext.operationState = .readyToSend
 					try context.save()
 				}
 				catch {
@@ -436,25 +424,31 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 	
+	func recordOpSuccess() {
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			context.pushOpErrorExplanation("Op succeeded, but we could record the success in Core Data.")
+			let opInContext = context.object(with: self.objectID) as! PostOperation
+			opInContext.operationState = .callSuccess
+		}
+		
+		// Wait 2 seconds, then remove ourselves from Core Data.
+		DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+			LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+				PostOperationDataManager.shared.remove(op: self)
+			}
+		}
+	}
+	
 	// Server Error means we got a HTTP response from the server indicating an error condition. Generally
 	// for postOps this means we need to record the error in Core Data and mark the op as not ready until the 
 	// user looks at it (often, they have to edit their post somehow). This is different from network errors,
 	// where we can just keep resubmitting the op with no changes (but with exponential backoff--I'm not a monster).
 	func recordServerErrorFailure(_ serverError: ServerError) {
-		let context = LocalCoreData.shared.networkOperationContext
-		
-		context.perform {
-			do {
-				let opInContext = context.object(with: self.objectID) as! PostOperation
-				opInContext.errorString = serverError.getErrorString()
-				opInContext.sentNetworkCall = false
-				opInContext.readyToSend = false
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("A postOp got a server error, which we couldn't store back in the postOp.", 
-						["Error" : error, "ServerError" : serverError])
-			}
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			context.pushOpErrorExplanation("A postOp got a server error, which we couldn't store back in the postOp.")
+			let opInContext = context.object(with: self.objectID) as! PostOperation
+			opInContext.errorString = serverError.getErrorString()
+			opInContext.operationState = .serverError
 		}
 	}
 }
@@ -474,8 +468,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// If non-nil, this op edits the given tweet.
 	@NSManaged public var tweetToEdit: TwitarrPost?
 			
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Posting a new Twitarr tweet."
 	}
 
@@ -553,8 +547,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// True to add this reaction to this post, false to delete it.
 	@NSManaged public var isAdd: Bool
 	
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Posting a reaction to a Twitarr tweet."
 	}
 
@@ -586,8 +580,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpTweetDelete) public class PostOpTweetDelete: PostOperation {
 	@NSManaged public var tweetToDelete: TwitarrPost?
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Deleting a Twitarr tweet."
 	}
 
@@ -621,14 +615,15 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var photos: NSOrderedSet?			// PostOpForum_Photo
 	@NSManaged public var thread: ForumThread?			// If nil, this is a new thread (and subject must be non-nil).
 	@NSManaged public var editPost: ForumPost?			// If non-nil, we are editing this post.
-		
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	
+	override public func willSave() {
+		super.willSave()
+		if operationDescription != nil { return }
 		if thread != nil {
-			operationDescription = "Posting a Forums post."
+			operationDescription = "Posting a Forums post"
 		}
 		else {
-			operationDescription = "Posting a new Forum thread."
+			operationDescription = "Posting a new Forum thread"
 		}
 	}
 
@@ -731,8 +726,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpForumPostDelete) public class PostOpForumPostDelete: PostOperation {
 	@NSManaged public var postToDelete: ForumPost?
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Deleting a Forum Post."
 	}
 
@@ -751,7 +746,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		self.queueNetworkPost(request: request) { data in
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving forum post deletion back to Core Data.")
-				if let postInContext = try context.existingObject(with: post.objectID) as? TwitarrPost {
+				if let postInContext = try context.existingObject(with: post.objectID) as? ForumPost {
 					context.delete(postInContext)
 				}
 			}
@@ -769,8 +764,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// True to add this reaction to this post, false to delete it.
 	@NSManaged public var isAdd: Bool
 	
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Posting a reaction to a Forums post."
 	}
 
@@ -805,8 +800,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var text: String
 	@NSManaged public var recipients: Set<PotentialUser>?
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Creating a new Seamail thread."
 	}
 
@@ -837,8 +832,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var thread: SeamailThread?
 	@NSManaged public var text: String
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Post a new Seamail message."
 	}
 
@@ -873,8 +868,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var event: Event?
 	@NSManaged public var newState: Bool
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = newState ? "Follow an Event." : "Unfollow an Event."
 	}
 
@@ -904,8 +899,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var comment: String
 	@NSManaged public var userCommentedOn: KrakenUser?
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Post a private comment about another user."
 	}
 
@@ -941,8 +936,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var isFavorite: Bool
 	@NSManaged public var userBeingFavorited: KrakenUser?
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func willSave() {
+		super.awakeFromInsert()
+		guard operationDescription == nil else { return }
 		operationDescription = isFavorite ? "Pending: favorite another user." : "Pending: unfavorite another user."
 	}
 
@@ -977,8 +973,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var homeLocation: String?
 	@NSManaged public var roomNumber: String?
 
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Pending update to your user profile"
 	}
 
@@ -1017,8 +1013,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged @objc dynamic public var image: NSData?
 	@NSManaged @objc dynamic public var imageMimetype: String
 	
-	override public func awakeFromFetch() {
-		super.awakeFromFetch()
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
 		operationDescription = "Pending update to your avatar image"
 	}
 

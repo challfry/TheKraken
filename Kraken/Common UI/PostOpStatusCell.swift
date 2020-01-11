@@ -13,6 +13,7 @@ import UIKit
 	dynamic var statusText: String? { get set }
 	dynamic var errorText: String? { get set }
 	dynamic var showSpinner: Bool { get set }
+	dynamic var disableCancelButton: Bool { get set }
 }
 
 @objc class OperationStatusCellModel: BaseCellModel, PostOpStatusCellProtocol {
@@ -23,6 +24,7 @@ import UIKit
 	@objc dynamic var errorText: String?
 	@objc dynamic var statusText: String?
 	@objc dynamic var showSpinner: Bool = false
+	@objc dynamic var disableCancelButton: Bool = false
 	
 	var cancelAction: (() -> Void)?
 
@@ -48,8 +50,11 @@ import UIKit
 			observer.descriptionText = observed.postOp?.operationDescription
 		}?.execute()
 		
-		self.tell(self, when: "postOp.operationStatus") { observer, observed in
-			observer.statusText = observed.postOp?.operationStatus
+		self.tell(self, when: "postOp.operationState") { observer, observed in
+			observer.statusText = observed.postOp?.operationStatus()
+			if let state = observed.postOp?.operationState {
+				observer.disableCancelButton = state == .callSuccess || state == .sentNetworkCall
+			}
 		}?.execute()
 		
 		cancelAction = { [weak self] in
@@ -88,6 +93,12 @@ class PostOpStatusCell: BaseCollectionViewCell, PostOpStatusCellProtocol {
 		}
 	}
 	var showSpinner: Bool = false // No spinner
+	
+	var disableCancelButton: Bool = false {
+		didSet {
+			cancelButton.isEnabled = !disableCancelButton
+		}
+	}
 	
 	@IBAction func cancelButtonTapped(_ sender: Any) {
 		if let model = cellModel as? OperationStatusCellModel {

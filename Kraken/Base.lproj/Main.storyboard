@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -1244,9 +1244,11 @@
                     <navigationItem key="navigationItem" id="hUF-aY-RHw"/>
                     <connections>
                         <outlet property="collectionView" destination="atV-Z9-rSE" id="2qG-1j-4zM"/>
+                        <segue destination="sWb-tP-xcH" kind="unwind" identifier="dismissingPostingView" unwindAction="dismissingPostingView:" id="gAb-jR-q6Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GZx-mv-QNE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="sWb-tP-xcH" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="3205.5999999999999" y="450.73891625615767"/>
         </scene>
@@ -2016,7 +2018,7 @@
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
         <segue reference="ZNA-4Q-2gl"/>
-        <segue reference="nVa-Wl-Nva"/>
+        <segue reference="J5Z-VR-bxK"/>
         <segue reference="ibx-KH-vcj"/>
         <segue reference="yZ3-I6-e7Y"/>
         <segue reference="Ieo-oe-rtR"/>

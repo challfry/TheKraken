@@ -12,20 +12,35 @@ class ForumThreadViewController: BaseCollectionViewController {
 	@IBOutlet weak var postButton: UIBarButtonItem!
 	
 	// Not set up for the threadModel to change while the VC is visible.
-	var threadModel: ForumThread?
+	@objc dynamic var threadModel: ForumThread?
 
 	let threadDataSource = KrakenDataSource()
-	var loadingSegment = FilteringDataSourceSegment()
 	var threadSegment = FRCDataSourceSegment<ForumPost>()
+	var loadingSegment = FilteringDataSourceSegment()
 
-    override func viewDidLoad() {
+    lazy var loadTimeCellModel: ForumsLoadTimeCellModel = {
+    	let cell = ForumsLoadTimeCellModel()
+    	cell.refreshButtonAction = {
+			if let tm = self.threadModel {
+				self.postButton.isEnabled = !tm.locked
+				let lastKnownPost = tm.posts.count
+				ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) {
+				}
+			}
+    	}
+    	
+    	self.tell(cell, when: "threadModel.lastUpdateTime") { observer, observed in 
+    		observer.lastLoadTime = observed.threadModel?.lastUpdateTime
+    	}?.execute()
+    	return cell
+    }()
+
+	override func viewDidLoad() {
         super.viewDidLoad()
 		knownSegues = Set([.composeForumPost, .editForumPost, .tweetFilter, .userProfile])
 		title = threadModel?.subject ?? "Thread"
 
-		threadDataSource.append(segment: loadingSegment)
-		loadingSegment.append(ForumsLoadTimeCellModel())
-
+		// First add the segment with all the posts
 		threadDataSource.append(segment: threadSegment)
 		var threadPredicate: NSPredicate
 		if let tm = threadModel {
@@ -36,10 +51,14 @@ class ForumThreadViewController: BaseCollectionViewController {
 		}
 		threadSegment.activate(predicate: threadPredicate, 
 					sort: [ NSSortDescriptor(key: "timestamp", ascending: true)], cellModelFactory: createCellModel)
-		threadDataSource.register(with: collectionView, viewController: self)
 
+		// Then add the loading segment
+		loadingSegment.append(loadTimeCellModel)
+		threadDataSource.append(segment: loadingSegment)
+
+		// Then register the whole thing.
+		threadDataSource.register(with: collectionView, viewController: self)
 		setupGestureRecognizer()
-//		knownSegues = Set([.showForumThread])
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -72,4 +91,8 @@ class ForumThreadViewController: BaseCollectionViewController {
 	@IBAction func postButtonTapped(_ sender: Any) {
 		performKrakenSegue(.composeForumPost, sender: threadModel)
 	}
+	
+	// This is the unwind segue from the compose view.
+	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
+	}	
 }

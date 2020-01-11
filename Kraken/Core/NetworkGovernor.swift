@@ -201,8 +201,10 @@ struct NetworkResponse {
 			let queuedTask = InternalTask(task: task, responseData: Data(), doneCallbacks:[done])
 				self.activeTasks.append(queuedTask)
 			task.resume()
+			
+			let reqeustStr = request.httpMethod ?? ""
 		
-			NetworkLog.debug("Started network request to \(request.url?.absoluteString ?? "<unknown>")")
+			NetworkLog.debug("Started network \(reqeustStr) request to \(request.url?.absoluteString ?? "<unknown>")")
 		}
 	}
 	

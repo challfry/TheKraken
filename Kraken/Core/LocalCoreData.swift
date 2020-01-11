@@ -159,11 +159,13 @@ class LocalCoreData: NSObject {
 	func performLocalCoreDataChange(_ block: @escaping (NSManagedObjectContext, KrakenUser) throws -> Void) {
 		let context = networkOperationContext
 		context.perform {
+			var saveSucceeded = false
 			do {
 				guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
 				try block(context, currentUser)
 				context.pushOpErrorExplanation("Failed to Save Core Data Context.")
 				try context.save()
+				saveSucceeded = true
 			}
 			catch let error as LocalCoreData.Error {
 				CoreDataLog.error(error.failureExplanation, ["error" : error])
@@ -177,6 +179,9 @@ class LocalCoreData: NSObject {
 				else {
 					CoreDataLog.error("Unknown Error while processing a network packet.", ["error" : error])
 				}
+			}
+			if let afterSaveClosure = context.userInfo["afterSaveClosure"] as? (Bool) -> Void {
+				afterSaveClosure(saveSucceeded)
 			}
 			context.userInfo.removeAllObjects()
 		}

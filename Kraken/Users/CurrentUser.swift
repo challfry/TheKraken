@@ -145,7 +145,7 @@ import CoreData
 		
 		// We won't ever delete the comment object once one has been created; that's okay--the comment 
 		// itself should become "".
-		commentToUpdate?.build(context: context, userCommentedOn: self, loggedInUser: self, 
+		commentToUpdate?.build(context: context, userCommentedOn: targetUser, loggedInUser: self, 
 				comment: v2Object.comment)
 	
 		updateUserStar(context: context, targetUser: targetUser, newState: v2Object.starred)			
@@ -181,7 +181,7 @@ import CoreData
 					op.image = nil
 				}
 				op.imageMimetype = mimeType
-				op.readyToSend = true
+				op.operationState = .readyToSend
 			
 				try context.save()
 			}
@@ -546,7 +546,8 @@ import CoreData
 				let op = loggedInUser.getPendingUserCommentOp(commentingOn: userInContext, inContext: context) ?? PostOpUserComment(context: context)
 				op.comment = comment
 				op.userCommentedOn = userInContext
-				op.readyToSend = true
+				op.operationState = .readyToSend
+
 			
 				try context.save()
 			}
@@ -579,7 +580,7 @@ import CoreData
 						PostOpUserFavorite(context: context)
 				op.isFavorite = newState
 				op.userBeingFavorited = userInContext
-				op.readyToSend = true
+				op.operationState = .readyToSend
 			
 				try context.save()
 			}
@@ -606,7 +607,7 @@ import CoreData
 				op.email = email
 				op.homeLocation = homeLocation
 				op.roomNumber = roomNumber
-				op.readyToSend = true
+				op.operationState = .readyToSend
 			
 				try context.save()
 			}

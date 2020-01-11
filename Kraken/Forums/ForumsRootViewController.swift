@@ -65,7 +65,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		buildFilterView()		
-
+		
 		threadDataSource.append(segment: loadingSegment)
 		loadingSegment.append(loadingStatusCell)
 		loadingSegment.append(loadTimeCellModel)
@@ -113,6 +113,8 @@ class ForumsRootViewController: BaseCollectionViewController {
 				observer.setFilterType(.allWithActivitySort)
 			}
 		}?.execute()
+		
+		forumsNavTitleButton.sizeToFit()
 	}
 	
 	func setFilterType(_ newType: FilterType) {

@@ -34,6 +34,7 @@ import MobileCoreServices
 	var thread: ForumThread?			
 	var editPost: ForumPost?				// If we're editing a post, the original
 	var draftPost: PostOpForumPost?			// If we're editing a draft, the draft
+	var inProgressOp: PostOpForumPost?		// Post in progress
 
 	let loginDataSource = KrakenDataSource()
 	let composeDataSource = KrakenDataSource()
@@ -123,11 +124,21 @@ import MobileCoreServices
 		return btnCell
 	}()
 	
-	lazy var statusCell: OperationStatusCellModel = {
-		let cell = OperationStatusCellModel()
+	lazy var statusCell: PostOpStatusCellModel = {
+		let cell = PostOpStatusCellModel()
 		cell.shouldBeVisible = false
         cell.showSpinner = true
         cell.statusText = "Posting..."
+        
+        cell.cancelAction = { [weak cell, weak self] in
+        	if let cell = cell, let op = cell.postOp {
+        		PostOperationDataManager.shared.remove(op: op)
+        		cell.postOp = nil
+        	}
+        	if let self = self {
+        		self.setPostingState(false)
+        	}
+        }
         return cell
 	}()
 	
@@ -208,17 +219,22 @@ import MobileCoreServices
     func postAction() {
     	// No posting without text in the cell; button should be disabled so this can't happen?
     	guard let _ = postTextCell.editedText ?? postTextCell.editText else { return }
-
-    	didPost = true
-    	postButtonCell.button2Enabled = false
-    	postButtonCell.button2Text = "Posting"
-    	statusCell.shouldBeVisible = true
-    	threadTitleEditCell.isEditable = false
-    	postTextCell.isEditable = false
-    	
+    	setPostingState(true)
+    	    	
     	// TODO: Photos
-    	
     	postWithPreparedImages(nil)
+	}
+	
+	// When the Post button is hit, we enter 'posting' state, and disable most of the UI. This is reversible, as the 
+	// user can cancel the post before it goes to the server.
+	func setPostingState(_ isPosting: Bool) {
+    	didPost = isPosting
+    	postButtonCell.button2Enabled = !isPosting
+    	postButtonCell.button2Text = isPosting ? "Posting" : "Post"
+    	statusCell.shouldBeVisible = isPosting
+    	threadTitleEditCell.isEditable = !isPosting
+    	postTextCell.isEditable = !isPosting
+
 	}
 	
     func postWithPreparedImages(_ images: [PhotoUploadPackage]?) {
@@ -240,12 +256,18 @@ import MobileCoreServices
     }
 
     func postEnqueued(post: PostOpForumPost?) {
-    	if post == nil {
-    		statusCell.statusText = "Couldn't assemble a post."
+    	if let post = post {
+	    	statusCell.postOp = post
+    		inProgressOp = post
+    	
+ 		   	post.tell(self, when: "operationState") { observer, observed in 
+    			if observed.operationState == .callSuccess {
+    				DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+						self.performSegue(withIdentifier: "dismissingPostingView", sender: nil)
+    				}
+    			}
+			}
     	}
-    	else {
-    		statusCell.statusText = "Sending post to server."
-		}
     }
 
     func emojiButtonTapped(withEmojiString: String?) {

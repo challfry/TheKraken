@@ -120,6 +120,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 // MARK: Methods	
 	override func awakeFromNib() {
 		super.awakeFromNib()
+		allowsSelection = true
 
 		// Font styling
 		titleLabel.styleFor(.body)

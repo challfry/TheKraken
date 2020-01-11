@@ -159,6 +159,7 @@ struct PrototypeCellInfo {
 	var calculatedSize: CGSize = CGSize(width: 0.0, height: 0.0)
 	var isBuildingCell = false
 	var customGR: UILongPressGestureRecognizer?
+	var allowsSelection: Bool = false
 	
 // MARK: Methods
 	required override init(frame: CGRect) {

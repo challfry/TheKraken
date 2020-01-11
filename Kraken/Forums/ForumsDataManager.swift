@@ -20,6 +20,8 @@ import UIKit
     @NSManaged public var lastPoster: KrakenUser
     @NSManaged public var readCount: Set<ForumReadCount>
     
+    @NSManaged public var lastUpdateTime: Date?				// Last time we loaded *posts* on this thread. ThreadMeta doesn't count.
+    
 
     // Sets reasonable default values for properties that could conceivably not change during buildFromV2 methods.
 	public override func awakeFromInsert() {
@@ -70,6 +72,7 @@ import UIKit
 			}
 			existingPost.buildFromV2(context: context, v2Object: post, thread: self)
 		}
+		lastUpdateTime = Date()
 		
 		internalUpdateLastReadTime(context: context, toNewTime: v2Object.latestRead)
 	}
@@ -113,6 +116,10 @@ import UIKit
 		}		
 	}
 	
+	func lastPostDate() -> Date {
+		return Date(timeIntervalSince1970: Double(lastPostTime) / 1000.0)
+	}
+
 	// For use during parsing. Updates last read time server-provided timestamp of when user last viewed the thread.
 	// Note that LastReadTime is the *previous* time we loaded this thread.
 	func internalUpdateLastReadTime(context: NSManagedObjectContext, toNewTime: Int64?) {
@@ -155,6 +162,7 @@ import UIKit
     @NSManaged public var reactionOps: NSMutableSet?
     @NSManaged public var likedByUsers: Set<KrakenUser>
     @NSManaged public var editedBy: PostOpForumPost?
+	@NSManaged public var opDeleting: PostOpForumPostDelete?
    
 // MARK: Methods
 
@@ -244,7 +252,7 @@ import UIKit
 			// Check for existing op for this user, with this word
 			let op = thisPost.getPendingUserReaction(reactionWord) ?? PostOpForumPostReaction(context: context)
 			op.isAdd = newState
-			op.readyToSend = true
+			op.operationState = .readyToSend
 			op.reactionWord = reactionWord
 			op.sourcePost = thisPost
 		}
@@ -255,7 +263,37 @@ import UIKit
 		PostOperationDataManager.shared.remove(op: existingOp)
 	}
 	
+	// Creates a postOp that will delete this post.
+	func addDeletePostOp() {
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			guard let thisPost = context.object(with: self.objectID) as? ForumPost else { return }
+
+			// Until we add support for admin deletes
+			guard currentUser.username == thisPost.author.username else { 
+				CoreDataLog.debug("Kraken can't do admin deletes of forum posts. You can only delete your own post.")
+				return
+			}
+
+			// Check for existing op for this post
+			let existingOp = thisPost.opDeleting ?? PostOpForumPostDelete(context: context)
+			existingOp.postToDelete = thisPost
+			existingOp.operationState = .readyToSend
+		}
+	}
 	
+	func cancelDeleteOp() {
+		guard let currentUsername = CurrentUser.shared.loggedInUser?.username else { return }
+		if let deleteOp = opDeleting, deleteOp.author.username == currentUsername {
+			PostOperationDataManager.shared.remove(op: deleteOp)
+		}
+	}
+	
+	func cancelEditOp() {
+		guard let currentUsername = CurrentUser.shared.loggedInUser?.username else { return }
+		if let editOp = editedBy, editOp.author.username == currentUsername {
+			PostOperationDataManager.shared.remove(op: editOp)
+		}
+	}
 }
 
 // Tracks the number of posts that the given user has read in the given thread.
@@ -360,12 +398,16 @@ import UIKit
 	
 	// Requests the posts in a forum thread, merges the response into CoreData's store.
 	func loadThreadPosts(for thread: ForumThread, fromOffset: Int, done: @escaping () -> Void) {
+		internalLoadThreadPosts(for: thread, fromOffset: fromOffset, isSecondLoad: false, done: done)
+	}
+	
+	private func internalLoadThreadPosts(for thread: ForumThread, fromOffset: Int, isSecondLoad: Bool, done: @escaping () -> Void) {
 		guard !thread.id.isEmpty else {
 			NetworkLog.error("Cannot call /api/v2/forums/:id, id is nil.", ["thread" : thread])
 			return
 		}
 		isPerformingLoad = true
-
+		
 		var queryParams: [URLQueryItem] = []
 		queryParams.append(URLQueryItem(name:"page", value: "\(fromOffset / 20)"))
 		queryParams.append(URLQueryItem(name:"limit", value: "20"))
@@ -389,6 +431,12 @@ import UIKit
 				} 
 			}
 			self.isPerformingLoad = false
+
+			// If the load we just completed was the last page we were aware of, but the load's new postCount
+			// says there are posts on the next page, get the next page.
+			if !isSecondLoad, fromOffset / 20 != thread.postCount / 20 {
+				self.internalLoadThreadPosts(for: thread, fromOffset: fromOffset + 20, isSecondLoad: true, done: done)
+			}
 		}
 	}
 	
@@ -423,12 +471,15 @@ import UIKit
 	
 	func queuePostEditOp(for editPost: ForumPost, newText: String, images: [PhotoUploadPackage]?, 
 			done: @escaping (PostOpForumPost?) -> Void) {
-		LocalCoreData.shared.performNetworkParsing { context in
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			// Make sure there's a logged in user and that the logged in user authored the post we're editing.
-			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context),
-					currentUser.username == editPost.author.username  else {
+			guard currentUser.username == editPost.author.username  else {
 				done(nil) 
 				return 
+			}
+			guard let editPostInContext = context.object(with: editPost.objectID) as? ForumPost else {
+				done(nil)
+				return
 			}
 			context.pushOpErrorExplanation("Couldn't save context while editing Forum post.")
 			
@@ -444,8 +495,8 @@ import UIKit
 			}
 			
 			editOp.text = newText
-			editOp.editPost = editPost
-			editOp.thread = editPost.thread
+			editOp.editPost = editPostInContext
+			editOp.thread = editPostInContext.thread
 			let photoOpArray: [PostOpForum_Photo]? = images?.map { let op = PostOpForum_Photo(context: context); op.setupFromPackage($0); return op }
 			if let photoOpArray = photoOpArray {
 				editOp.photos = NSOrderedSet(array: photoOpArray)
@@ -454,7 +505,7 @@ import UIKit
 				editOp.photos = nil
 			}
 			editOp.author = currentUser
-			editOp.readyToSend = true
+			editOp.operationState = .readyToSend
 						
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
 				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: editOp.objectID) as? PostOpForumPost 
@@ -466,10 +517,9 @@ import UIKit
 	// If inThread is nil, this post is a new thread, and titleText must be non-nil.
 	func queuePost(existingDraft: PostOpForumPost?, inThread: ForumThread?, titleText: String?, postText: String, images: [PhotoUploadPackage]?,
 			done: @escaping (PostOpForumPost?) -> Void) {
-		LocalCoreData.shared.performNetworkParsing { context in
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			// Make sure there's a logged in user and that the logged in user authored the post we're editing.
-			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context),
-					inThread != nil || titleText != nil  else {
+			guard inThread != nil || titleText != nil  else {
 				done(nil) 
 				return 
 			}
@@ -500,11 +550,13 @@ import UIKit
 				postOp.photos = nil
 			}
 			postOp.author = currentUser
-			postOp.readyToSend = true
+			postOp.operationState = .readyToSend
 						
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
-				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postOp.objectID) as? PostOpForumPost 
-				done(mainThreadPost)
+				DispatchQueue.main.async {
+					let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postOp.objectID) as? PostOpForumPost 
+					done(mainThreadPost)
+				}
 			}
 		}
 	}
