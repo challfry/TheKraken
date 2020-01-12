@@ -144,6 +144,8 @@ import MobileCoreServices
 	
 	lazy var emojiCell: EmojiSelectionCellModel = 
 		EmojiSelectionCellModel(paster: weakify(self, ForumComposeViewController.emojiButtonTapped))
+		
+	lazy var photoCell = PhotoSelectionCellModel()
 	
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -187,6 +189,7 @@ import MobileCoreServices
         composeSection.append(postButtonCell)
         composeSection.append(statusCell)
         composeSection.append(emojiCell)
+        composeSection.append(photoCell)
 
 		// And this switches between them.
    		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
@@ -221,10 +224,45 @@ import MobileCoreServices
     	guard let _ = postTextCell.editedText ?? postTextCell.editText else { return }
     	setPostingState(true)
     	    	
-    	// TODO: Photos
-    	postWithPreparedImages(nil)
+		if photoCell.shouldBeVisible, let selectedPhoto = photoCell.selectedPhoto {
+			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
+					progress: imageiCloudDownloadProgress) { photoData, mimeType, error in
+				if let err = error {
+					self.statusCell.errorText = err.getErrorString()
+				}
+				else if let data = photoData, let mimeType = mimeType {
+					let package = PhotoUploadPackage(iamgeData: data, mimetype: mimeType)
+					self.postWithPreparedImages([package])
+				}
+				else {
+					self.postWithPreparedImages(nil)
+				}
+			}
+		} else {
+//			var image: Data?
+//			var mimeType: String?
+			
+			// If editing a draft (as yet undelivered to server) post, we already have the photo to attach
+			// saved as an NSData, not a PHImage in the photos library. So, we handle it a bit differently.
+			// (also, delivering a post with an attached image should work even if the user disables photo access
+			// after tapping Post).
+//			if !removeDraftImage {
+//				image = draftTweet?.image as Data?
+//				mimeType = draftTweet?.imageMimetype
+//			}
+			self.postWithPreparedImages(nil)
+		}
 	}
 	
+    func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 
+    		_ info: [AnyHashable : Any]?) {
+		if let error = error {
+			statusCell.errorText = error.localizedDescription
+		}
+		else if let resultInCloud = info?[PHImageResultIsInCloudKey] as? NSNumber, resultInCloud.boolValue == true {
+			statusCell.statusText = "Downloading full-sized photo from iCloud"
+		}
+	}
 	// When the Post button is hit, we enter 'posting' state, and disable most of the UI. This is reversible, as the 
 	// user can cancel the post before it goes to the server.
 	func setPostingState(_ isPosting: Bool) {
@@ -283,7 +321,7 @@ import MobileCoreServices
 	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
 		guard let sourceVC = segue.source as? CameraViewController else { return }
 		if let photo = sourceVC.capturedPhoto {
-//			photoSelectionCell?.cameraPhotos.insert(photo, at: 0)
+			photoCell.cameraPhotos.insert(photo, at: 0)
 		}
 	}	
 }

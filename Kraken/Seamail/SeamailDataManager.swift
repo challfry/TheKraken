@@ -74,14 +74,20 @@ import CoreData
 	}
 }
 
-class SeamailDataManager: NSObject {
+@objc class SeamailDataManager: NSObject {
 	static let shared = SeamailDataManager()
 	
 	private let coreData = LocalCoreData.shared
 	var lastError : ServerError?
+	@objc dynamic var isLoading = false
 	
 	func loadSeamails(done: (() -> Void)? = nil) {
-	
+		guard !isLoading else {
+			done?()
+			return
+		}
+		isLoading = true
+		
 		var queryParams: [URLQueryItem] = []
 		queryParams.append(URLQueryItem(name:"after", value: self.lastSeamailCheckTime()))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
@@ -104,6 +110,7 @@ class SeamailDataManager: NSObject {
 			}
 			
 			done?()
+			self.isLoading = false
 		}
 
 	}

@@ -33,7 +33,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 	var readCountSegment = FRCDataSourceSegment<ForumReadCount>()
     var filterPopupVC: EmojiPopupViewController?
     
-    lazy var loadingStatusCell: LoadingStatusCellModel = {
+    lazy var loadingStatusCellModel: LoadingStatusCellModel = {
     	let cell = LoadingStatusCellModel()
     	cell.statusText = "Loading Forum Threads"
     	cell.showSpinner = true
@@ -49,12 +49,17 @@ class ForumsRootViewController: BaseCollectionViewController {
     lazy var loadTimeCellModel: ForumsLoadTimeCellModel = {
     	let cell = ForumsLoadTimeCellModel()
     	cell.refreshButtonAction = {
-			ForumsDataManager.shared.loadForumThreads(fromOffset: 0) {
-			}
+			ForumsDataManager.shared.loadForumThreads(fromOffset: 0) 
     	}
     	
-    	ForumsDataManager.shared.tell(cell, when: "lastForumRefreshTime") { observer, observed in 
-    		observer.lastLoadTime = observed.lastForumRefreshTime
+    	ForumsDataManager.shared.tell(self, when: ["allThreadsCacheInfo.lastForumRefreshTime", 
+    			"participatedThreadsCacheInfo.lastForumRefreshTime"]) { [weak cell] observer, observed in 
+			if observer.currentFilterType == .allWithActivitySort {
+	    		cell?.lastLoadTime = observed.allThreadsCacheInfo.lastForumRefreshTime
+			}
+			else if observer.currentFilterType == .userHasPosted {
+				cell?.lastLoadTime = observed.participatedThreadsCacheInfo.lastForumRefreshTime
+			}
     	}?.execute()
     	return cell
     }()
@@ -67,10 +72,11 @@ class ForumsRootViewController: BaseCollectionViewController {
 		buildFilterView()		
 		
 		threadDataSource.append(segment: loadingSegment)
-		loadingSegment.append(loadingStatusCell)
+		loadingSegment.append(loadingStatusCellModel)
 		loadingSegment.append(loadTimeCellModel)
 		
 		threadDataSource.append(segment: threadSegment)
+		threadSegment.loaderDelegate = self
 		threadSegment.activate(predicate: NSPredicate(value: true), 
 				sort: [NSSortDescriptor(key: "sticky", ascending: false),
 				NSSortDescriptor(key: "lastPostTime", ascending: false)], cellModelFactory: createCellModel)
@@ -87,6 +93,12 @@ class ForumsRootViewController: BaseCollectionViewController {
 		
     override func viewWillAppear(_ animated: Bool) {
 		threadDataSource.enableAnimations = true
+		if currentFilterType == .allWithActivitySort {
+			ForumsDataManager.shared.checkRefreshForumTheads(false)
+		}
+		else if currentFilterType == .userHasPosted {
+			ForumsDataManager.shared.checkRefreshForumTheads(true)
+		}
 	}
 	
 	func buildFilterView () {
@@ -160,7 +172,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 			}
 			
 			// Only show the refresh time cell if we're showing all forums
-			loadTimeCellModel.shouldBeVisible = newType == .allWithActivitySort
+			loadTimeCellModel.shouldBeVisible = newType == .allWithActivitySort || newType == .userHasPosted
 		}
 		
 		forumsNavTitleButton.frame = CGRect(origin: CGPoint(x: 0, y: 0), size: forumsNavTitleButton.intrinsicContentSize)
@@ -222,4 +234,21 @@ class ForumsRootViewController: BaseCollectionViewController {
     	setFilterType(.userHasPosted)
     }
 
+	// This is the unwind segue from the compose view.
+	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
+		// Load new threads when the user creates a new thread.
+		ForumsDataManager.shared.loadForumThreads(fromOffset: 0) 
+	}	
 }
+
+extension ForumsRootViewController: FRCDataSourceLoaderDelegate {
+	func userIsViewingCell(at indexPath: IndexPath) {
+		if currentFilterType == .allWithActivitySort {
+			ForumsDataManager.shared.checkLoadPageOfForumThreads(false, userViewingIndex: indexPath.row)
+		}
+		else if currentFilterType == .userHasPosted {
+			ForumsDataManager.shared.checkLoadPageOfForumThreads(true, userViewingIndex: indexPath.row)
+		}
+	}
+}
+

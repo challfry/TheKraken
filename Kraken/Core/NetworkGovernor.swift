@@ -81,6 +81,8 @@ struct NetworkResponse {
 	}
 	@objc dynamic var connectionState = ConnectionState.noConnection
 	
+	private var internalConnectionState = ConnectionState.noConnection
+	
 		// lastError here will ONLY ever refer to networking errors. If we talk to the server and get an HTTP
 		// or other server error, it appears elsewhere.
 	var lastError: Error?
@@ -123,13 +125,7 @@ struct NetworkResponse {
 			let callbackFn: SCNetworkReachabilityCallBack = { (reachabilityObj, flags, context) in 
 				if let context = context {
 					let selfish = Unmanaged<NetworkGovernor>.fromOpaque(context).takeUnretainedValue()
-				
-					if !flags.contains(.reachable) {
-						selfish.connectionState = .noConnection
-					}
-					else {
-						selfish.connectionState = .canConnect
-					}
+					selfish.newConnectionState(flags.contains(.reachable) ? .canConnect : .noConnection)
 				}
 			}
 			var context = SCNetworkReachabilityContext(version: 0,
@@ -137,6 +133,20 @@ struct NetworkResponse {
 					retain: nil, release: nil, copyDescription: nil)
 			SCNetworkReachabilitySetCallback(reachability, callbackFn, &context)
 			SCNetworkReachabilitySetDispatchQueue(reachability, DispatchQueue.main)
+		}
+		
+		Settings.shared.tell(self, when: "blockNetworkTraffic") { observer, observed in
+			observer.newConnectionState(observer.internalConnectionState)
+		}
+	}
+	
+	func newConnectionState(_ newState: ConnectionState) {
+		internalConnectionState = newState
+		if Settings.shared.blockNetworkTraffic {
+			connectionState = .noConnection
+		}
+		else {
+			connectionState = newState
 		}
 	}
 	
@@ -347,14 +357,14 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		// if it's an error response, it's not an 'error'.
 		lastError = error
     	if let error = error {
-			NetworkLog.error("Task completed with error.", ["error" : error])		
-    		connectionState = .noConnection
+			NetworkLog.error("Task completed with error.", ["error" : error])	
+			newConnectionState(.noConnection)	
     		    		
     		// todo: real error handling here
     		
 		}
 		else {
-			connectionState = .canConnect
+			newConnectionState(.canConnect)	
 		}
 		
 		//

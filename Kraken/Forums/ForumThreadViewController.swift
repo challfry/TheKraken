@@ -13,6 +13,8 @@ class ForumThreadViewController: BaseCollectionViewController {
 	
 	// Not set up for the threadModel to change while the VC is visible.
 	@objc dynamic var threadModel: ForumThread?
+	
+	var highestRefreshedIndex: Int = 0
 
 	let threadDataSource = KrakenDataSource()
 	var threadSegment = FRCDataSourceSegment<ForumPost>()
@@ -24,7 +26,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 			if let tm = self.threadModel {
 				self.postButton.isEnabled = !tm.locked
 				let lastKnownPost = tm.posts.count
-				ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) {
+				ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) { lastIndex in
 				}
 			}
     	}
@@ -51,6 +53,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 		}
 		threadSegment.activate(predicate: threadPredicate, 
 					sort: [ NSSortDescriptor(key: "timestamp", ascending: true)], cellModelFactory: createCellModel)
+		threadSegment.loaderDelegate = self
 
 		// Then add the loading segment
 		loadingSegment.append(loadTimeCellModel)
@@ -63,16 +66,18 @@ class ForumThreadViewController: BaseCollectionViewController {
     
     override func viewWillAppear(_ animated: Bool) {
     	super.viewWillAppear(animated)
-    	
-		threadDataSource.enableAnimations = true
 
 		if let tm = threadModel {
 			postButton.isEnabled = !tm.locked
-			ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: 0) {
-			
+			ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: 0) { lastIndex in
+				self.highestRefreshedIndex = lastIndex
 			}
 					
 		}
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		threadDataSource.enableAnimations = true
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -96,3 +101,15 @@ class ForumThreadViewController: BaseCollectionViewController {
 	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
 	}	
 }
+
+extension ForumThreadViewController: FRCDataSourceLoaderDelegate {
+	func userIsViewingCell(at indexPath: IndexPath) {
+		if let tm = threadModel,  indexPath.row + 10 > highestRefreshedIndex, 
+				highestRefreshedIndex + 1 < tm.postCount, !ForumsDataManager.shared.isPerformingLoad {
+			ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex + 1) { lastIndex in
+				self.highestRefreshedIndex = lastIndex
+			}
+		}
+	}
+}
+

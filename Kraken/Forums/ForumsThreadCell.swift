@@ -30,13 +30,11 @@ import UIKit
 		thread = model
 		
 		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
-			if let curUsername = observed.loggedInUser?.username {
-				observer.readCount = observer.thread?.readCount.first { $0.user.username == curUsername }
-			}
-			else {
-				observer.readCount = nil
-			}
+			observer.setupReadCountFromThread()
 		}?.execute()
+		self.tell(self, when: "thread.readCount.count") { observer, observed in 
+			observer.setupReadCountFromThread()
+		}
 		
 	}
 	
@@ -52,6 +50,15 @@ import UIKit
 			else {
 				observer.readCount = nil
 			}
+		}
+	}
+	
+	func setupReadCountFromThread() {
+		if let curUsername = CurrentUser.shared.loggedInUser?.username {
+			readCount = thread?.readCount.first { $0.user.username == curUsername }
+		}
+		else {
+			readCount = nil
 		}
 	}
 }
@@ -100,13 +107,11 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 					observer.subjectLabel.text = observed.subject
 				}?.execute())
 
-				addObservation(thread.tell(self, when: "postCount") { observer, observed in
-					if observed.postCount == 1 {
-						observer.postCountLabel.text = "1 post"
-					}
-					else {
-						observer.postCountLabel.text = "\(observed.postCount) posts"
-					}
+				// postCount, posts.count, forumReadCount.numPostsRead
+				// postCount is what the server states to be the # of posts in the thread, while posts.count is 
+				// the number of posts we've actually downloaded.
+				addObservation(thread.tell(self, when: ["postCount", "posts.count"]) { observer, observed in
+					observer.updatePostCounts()
 				}?.execute())
 
 				addObservation(thread.tell(self, when: "lastPoster.displayName") { observer, observed in
@@ -126,16 +131,26 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 		}
 	}
 	
-	var readCountObservation: EBNObservation?
+	var readCountObservations: [EBNObservation] = []
 	var readCount: ForumReadCount? {
 		didSet {
+			readCountObservations.forEach { $0.stopObservations() }
+			readCountObservations.removeAll()
+			
 			if let rc = readCount {
-				if let rco = readCountObservation {
-					rco.stopObservations()
-				}
-				readCountObservation = rc.tell(self, when: "isFavorite") { observer, observed in
+				let favObservation = rc.tell(self, when: "isFavorite") { observer, observed in
 					observer.favoriteButton.isSelected = observed.isFavorite
 				}?.execute()
+				if let observation = favObservation {
+					readCountObservations.append(observation)
+				}
+				
+				let postReadObservation = rc.tell(self, when: "numPostsRead") { observer, observed in
+					observer.updatePostCounts()
+				}?.execute()
+				if let observation = postReadObservation {
+					readCountObservations.append(observation)
+				}
 			}
 			else {
 				favoriteButton.isSelected = false
@@ -148,6 +163,33 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 			let postDate: TimeInterval = TimeInterval(thread.lastPostTime) / 1000.0
 			self.lastPostTimeLabel.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
 		}
+	}
+	
+	func updatePostCounts() {
+	//	let text = NSAttributedString()
+		var text = ""
+		if let forumThread = thread {
+			let totalPosts = forumThread.postCount
+			if totalPosts == 1 {
+				text = "1 post"
+			}
+			else {
+				text = "\(totalPosts) posts"
+			}
+			
+			if let rc = readCount {
+				if rc.numPostsRead < totalPosts {
+					text.append(", \(totalPosts - rc.numPostsRead) unread")
+				}
+			} else if CurrentUser.shared.isLoggedIn() {
+				// If we don't have a readCount object for this thread, but we're logged in, we haven't read it.
+				text.append(", \(totalPosts) unread")
+			}
+			
+			text.append(", \(forumThread.posts.count) loaded")
+		}
+		
+		postCountLabel.text = text
 	}
 	
 	var highlightAnimation: UIViewPropertyAnimator?

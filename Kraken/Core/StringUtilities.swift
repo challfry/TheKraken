@@ -60,6 +60,11 @@ class StringUtilities {
 		if forDate.timeIntervalSinceNow > -1.0 {
 			return "a second ago"
 		}
+		
+		// If the date is Date.distantPast
+		if forDate.timeIntervalSinceNow < 0 - 60 * 60 * 24 * 365 * 100 {
+			return ""
+		}
 	
 		let formatter = DateComponentsFormatter()
 		formatter.unitsStyle = .full

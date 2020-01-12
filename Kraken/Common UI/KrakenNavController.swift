@@ -36,7 +36,7 @@ class KrakenNavController: UINavigationController, GlobalNavEnabled, UIViewContr
 	
 	
 		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, governor in
-			observer.networkLabel.isHidden = governor.connectionState == NetworkGovernor.ConnectionState.canConnect			
+			observer.networkLabel.isHidden = governor.connectionState == NetworkGovernor.ConnectionState.canConnect	
 		}?.execute()
     }
     

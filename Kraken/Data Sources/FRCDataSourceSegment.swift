@@ -312,6 +312,10 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		let sec0Count = cellModelSections.count > 0 ? cellModelSections[0].count : 0			
 		log.debug("In FRC Callback", ["numSections" : self.cellModelSections.count, "section0Count" : sec0Count,
 				 "type" : type.rawValue, "indexPath" : indexPath ?? newIndexPath ?? "hmm"])
+				 
+		if let obj = anObject as? NSManagedObject, obj.objectID.isTemporaryID {
+			return
+		}
 
 		switch type {
 		case .insert:
@@ -514,14 +518,14 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
 		// Luckily, we can delete all the cells first, and then delete sections.
 		for index in deleteCells.sorted().reversed() {
-			if cellModelSections.count >= index.section || cellModelSections[index.section].count >= index.row  {
+			if index.section >= cellModelSections.count || index.row >= cellModelSections[index.section].count {
 				continue
 			}
 			let elem = cellModelSections[index.section].remove(at: index.row)
 			let path = IndexPath(row: index.row, section: index.section + deleteOffset)
-//			if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
-//				elem.unbind(cell: cell)
-///			}
+			if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
+				elem.unbind(cell: cell)
+			}
 		}
 		for index in deleteSections.sorted().reversed() {
 			cellModelSections.remove(at: index)

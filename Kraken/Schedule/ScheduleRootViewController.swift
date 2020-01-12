@@ -536,6 +536,7 @@ class ScheduleLayout: UICollectionViewLayout {
 			if cellPositions[indexPath.section].count > 0, cellPositions[indexPath.section][0].maxY > rect.origin.y {
 				if cellPositions[indexPath.section][0].origin.y > rect.origin.y {
 					repeat {
+						if indexPath.section == 0 { break }
 						indexPath.section -= 1
 					} while cellPositions[indexPath.section].count == 0 && indexPath.section > 0
 				}

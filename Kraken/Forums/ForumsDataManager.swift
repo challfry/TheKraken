@@ -325,6 +325,67 @@ import UIKit
 
 }
 
+@objc class ForumThreadCacheInfo: NSObject {
+	// This is the total number of pages of threads on the server, as of our last forums call.
+	var numThreadPages: Int64 = 0
+	
+	// Used by UI to show time of last refresh--defined as a successful network load of threads from offset 0.
+	@objc dynamic var lastForumRefreshTime: Date = Date.distantPast
+	
+	// This tracks how many forum thread pages we've loaded since the last refresh. Conceptually, the user refreshes,
+	// which loads in threads 0...20. As the user scrolls down we page in more data; each page loads in threads that 
+	// are older than the last. A refresh then checks for the newest threads again.
+	var highestLoadedThreadPage: Int = 0
+	
+	// This is the index of the oldest thread we're loaded this refresh, counting from the newest thread.
+	// Remember that, because paged loads happen while others are updating threads with new posts, we may get
+	// threads we're already seen this refresh when we do a load.
+	// That is, this number could be a lot lower than (highestLoadedThreadPage + 1) * 20
+	var highestLoadedCellIndex: Int = 0
+
+	func updateThreadLoadCacheValues(for response: TwitarrV2GetForumsResponse) {
+		if response.page == 0 {
+			lastForumRefreshTime = Date()
+			highestLoadedThreadPage = 0
+			highestLoadedCellIndex = 0
+		}
+		else {
+			if highestLoadedThreadPage < response.page {
+				highestLoadedThreadPage = Int(response.page)
+			}
+		}
+		numThreadPages = response.pageCount
+		
+		// 
+		if let oldestRefreshedThreadPostTime = response.forumThreads.last?.timestamp {
+			let context = LocalCoreData.shared.networkOperationContext
+			context.perform {
+				do {
+					let fetchRequest = NSFetchRequest<ForumThread>(entityName: "ForumThread")
+					fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sticky", ascending: false),
+							NSSortDescriptor(key: "lastPostTime", ascending: false)]
+					fetchRequest.predicate = NSPredicate(format: "sticky == TRUE OR lastPostTime >= %d", oldestRefreshedThreadPostTime)
+					try self.highestLoadedCellIndex = context.count(for: fetchRequest)
+				}
+				catch {
+					CoreDataLog.error("Failure parsing Forums response.", ["Error" : error])
+				}
+			}
+		}
+	}
+	
+	func reloadNeeded(for index: Int) -> Int? {
+		if highestLoadedCellIndex > 0, index + 10 > highestLoadedCellIndex {
+			let pageToLoad = highestLoadedThreadPage + 1
+			if pageToLoad < numThreadPages {
+				return pageToLoad
+			}
+		}
+		return nil
+	}
+		
+}
+
 
 @objc class ForumsDataManager: NSObject {
 	static let shared = ForumsDataManager()
@@ -334,15 +395,41 @@ import UIKit
 	@objc dynamic var lastError : ServerError?
 	@objc dynamic var isPerformingLoad: Bool = false
 	
-	// Used by UI to show time of last refresh--defined as a successful network load of threads from offset 0.
-	@objc dynamic var lastForumRefreshTime: Date = Date()
+	// These objects track when we last refreshed (loaded the newest threads) and how many threads
+	// we've loaded since the refresh (how many pages we're went through)
+	@objc dynamic var allThreadsCacheInfo = ForumThreadCacheInfo()
+	@objc dynamic var participatedThreadsCacheInfo = ForumThreadCacheInfo()
 	
-	func loadForumThreads(fromOffset: Int, done: @escaping () -> Void) {
+	
+	@objc dynamic var lastParticipatedForumRefreshTime: Date = Date.distantPast
+	var highestParticpatedLoadedThreadPage: Int = 0
+	var highestParticipatedLoadedCellIndex: Int = 0
+	var numParticipatedThreadPages: Int64 = 0
+
+	func checkRefreshForumTheads(_ participatedOnly: Bool) {
+		let refreshTime = participatedOnly ? participatedThreadsCacheInfo.lastForumRefreshTime : 
+				allThreadsCacheInfo.lastForumRefreshTime
+		if refreshTime + TimeInterval(60 * 5) < Date() {
+			loadForumThreads(fromOffset: 0, participatedOnly: participatedOnly)
+		}
+	}
+	
+	func checkLoadPageOfForumThreads(_ participatedOnly: Bool, userViewingIndex: Int) {
+		let cacheObject = participatedOnly ? participatedThreadsCacheInfo : allThreadsCacheInfo
+		if let pageToLoad = cacheObject.reloadNeeded(for: userViewingIndex) {
+			loadForumThreads(fromOffset: pageToLoad * 20, participatedOnly: participatedOnly)
+		}
+	}
+	
+	func loadForumThreads(fromOffset: Int, participatedOnly: Bool = false) {
 		isPerformingLoad = true
 		
 		var queryParams: [URLQueryItem] = []
 		queryParams.append(URLQueryItem(name:"page", value: "\(fromOffset / 20)"))
 		queryParams.append(URLQueryItem(name:"limit", value: "20"))
+		if participatedOnly {
+			queryParams.append(URLQueryItem(name:"participated", value: "true"))
+		}
 
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/forums", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
@@ -357,19 +444,21 @@ import UIKit
 				do {
 					let response = try decoder.decode(TwitarrV2GetForumsResponse.self, from: data)
 					self.parseForumThreads(from: response.forumThreads)
+					if participatedOnly {
+						self.participatedThreadsCacheInfo.updateThreadLoadCacheValues(for: response)
+					}
+					else {
+						self.allThreadsCacheInfo.updateThreadLoadCacheValues(for: response)
+					}
 				}
 				catch {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
-				}
-				
-				if fromOffset == 0 {
-					self.lastForumRefreshTime = Date()
 				}
 			}
 			self.isPerformingLoad = false
 		}
 	}
-	
+		
 	// Takes an array of threads from a server response and merges them into CoreData's store.
 	// Note: Probably only ever called from its network response handler. Broken out this way to make it easier to 
 	// see what ops are performed within the CD context.
@@ -397,19 +486,23 @@ import UIKit
 	}
 	
 	// Requests the posts in a forum thread, merges the response into CoreData's store.
-	func loadThreadPosts(for thread: ForumThread, fromOffset: Int, done: @escaping () -> Void) {
-		internalLoadThreadPosts(for: thread, fromOffset: fromOffset, isSecondLoad: false, done: done)
+	func loadThreadPosts(for thread: ForumThread, fromOffset: Int, done: @escaping (Int) -> Void) {
+//		let page = fromOffset / 20
+//		if page * 20 + 20 > highestLoadedCellIndex {
+			internalLoadThreadPosts(for: thread, fromOffset: fromOffset, isSecondLoad: false, done: done)
+//		}
 	}
 	
-	private func internalLoadThreadPosts(for thread: ForumThread, fromOffset: Int, isSecondLoad: Bool, done: @escaping () -> Void) {
+	private func internalLoadThreadPosts(for thread: ForumThread, fromOffset: Int, isSecondLoad: Bool, done: @escaping (Int) -> Void) {
 		guard !thread.id.isEmpty else {
 			NetworkLog.error("Cannot call /api/v2/forums/:id, id is nil.", ["thread" : thread])
 			return
 		}
 		isPerformingLoad = true
 		
+		let page = fromOffset / 20
 		var queryParams: [URLQueryItem] = []
-		queryParams.append(URLQueryItem(name:"page", value: "\(fromOffset / 20)"))
+		queryParams.append(URLQueryItem(name:"page", value: "\(page)"))
 		queryParams.append(URLQueryItem(name:"limit", value: "20"))
 
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/forums/\(thread.id)", query: queryParams)
@@ -425,6 +518,9 @@ import UIKit
 				do {
 					let response = try decoder.decode(TwitarrV2GetForumPostsResponse.self, from: data)
 					self.parseNewThreadPosts(from: response.forumThread)
+					
+					let lastLoadedIndex = page * 20 + response.forumThread.posts.count 
+					done(lastLoadedIndex)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
@@ -563,6 +659,8 @@ import UIKit
 
 }
 
+
+
 // MARK: - V2 API Decoding
 
 // Does not contain info on individual posts in a thread
@@ -598,8 +696,8 @@ struct TwitarrV2ForumThread: Codable {
 	
 	let nextPage: Int64?
 	let prevPage: Int64?
-	let pageCount: Int64
-	let page: Int64
+	let pageCount: Int64?
+	let page: Int64?
 	
 	enum CodingKeys: String, CodingKey {
 		case id, subject, sticky, locked, page, posts

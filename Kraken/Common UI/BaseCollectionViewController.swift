@@ -117,9 +117,24 @@ class BaseCollectionViewController: UIViewController {
 		bgImage.contentMode = .scaleAspectFill
 		bgImage.alpha = 0.0
 		
+		// Show the background image in Deep Sea Mode
 		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
 			UIView.animate(withDuration: 0.3) {
 				bgImage.alpha = observed.uiDisplayStyle == .deepSeaMode ? 1.0 : 0.0
+			}
+		}?.execute()
+		
+		// Shift the collectionView down a bit if we're showing the no network warning view.
+		// It'd be cleaner to do this in the KrakenNavController, where the 'No Network' banner is, but I don't see how.
+		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, governor in
+			if governor.connectionState != NetworkGovernor.ConnectionState.canConnect,
+					let nav = observer.navigationController as? KrakenNavController, !nav.networkLabel.isHidden {
+				let size = nav.networkLabel.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+				observer.collectionView.contentInset = UIEdgeInsets(top: size.height, 
+						left: 0, bottom: 0, right: 0)
+			}
+			else {
+				observer.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 			}
 		}?.execute()
 	}

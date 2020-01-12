@@ -22,7 +22,10 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	override func viewDidLoad() {
         super.viewDidLoad()
         
-        //
+		// Pull-to-refresh
+		collectionView.refreshControl = UIRefreshControl()
+		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
+
         loginDataSource.append(segment: loginSection)
 		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
 
@@ -60,6 +63,14 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		loginSection.clearAllSensitiveFields()
 	}
 	
+	@objc func startRefresh() {
+		dataManager.loadSeamails { 
+			DispatchQueue.main.async { 
+				self.collectionView.refreshControl?.endRefreshing()
+			}
+		}
+    }
+
 	// Gets called from within collectionView:cellForItemAt:
 	func createCellModel(_ model:SeamailThread) -> BaseCellModel {
 		let cellModel = SeamailThreadCellModel(withModel: model, reuse: "seamailThread")

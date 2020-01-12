@@ -323,6 +323,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			do {
 				let opInContext = context.object(with: self.objectID) as! PostOperation
 				opInContext.operationState = .sentNetworkCall
+				opInContext.errorString = nil					// If we're retrying after error, error gets cleared.
 				try context.save()
 
 //				let opInMainContext = LocalCoreData.shared.mainThreadContext.object(with: self.objectID) as! PostOperation
@@ -747,6 +748,16 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving forum post deletion back to Core Data.")
 				if let postInContext = try context.existingObject(with: post.objectID) as? ForumPost {
+					let threadInContext = postInContext.thread
+					if threadInContext.posts.count == 1 {
+						// If this thread only has one post and we're deleting it, also delete the thread, as this
+						// is what the server does. HOWEVER, the server might get another poster in the thread
+						// that we don't know about, in which case the server DOESN'T delete the thread--plus,
+						// it doesn't tell us whether it deleted it or not.
+						// So, we try to do what the server does, and if the thread wasn't deleted it'll get re-added
+						// upon refresh.
+						context.delete(threadInContext)
+					}
 					context.delete(postInContext)
 				}
 			}
