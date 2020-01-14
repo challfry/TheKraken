@@ -23,7 +23,7 @@ enum PhotoDataType {
 // The cell manages auth for photo lib access and camera access. It is designed for single selection only.
 @objc protocol PhotoSelectionCellProtocol {
 	@objc dynamic var privateSelected: Bool { get set }
-	@objc dynamic var cameraPhotos: [AVCapturePhoto] { get set }
+	@objc dynamic var cameraPhotos: [AnyObject] { get set }
 }
 
 @objc class PhotoSelectionCellModel: BaseCellModel, PhotoSelectionCellProtocol {
@@ -34,7 +34,7 @@ enum PhotoDataType {
 	var selectedPhotoIndexPath: IndexPath?
 	var selectedPhoto: PhotoDataType?
 
-	dynamic var cameraPhotos: [AVCapturePhoto] = []
+	dynamic var cameraPhotos: [AnyObject] = []
 	
 	override var shouldBeVisible: Bool {
 		didSet {
@@ -63,14 +63,19 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 	private static let cellInfo = [ "PhotoSelectionCell" : PrototypeCellInfo("PhotoSelectionCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
-	var cameraPhotos: [AVCapturePhoto] = [] {
+	var cameraPhotos: [AnyObject] = [] {
 		didSet {
 			// Cheezing it, deleting all camera photo cells and rebuilding
 			while cameraSegment.allCellModels.count > 1 {
 				cameraSegment.delete(at: 1)
 			}
 			for photo in cameraPhotos {
-				self.appendCameraPhotoCell(for: photo)
+				if let capturePhoto = photo as? AVCapturePhoto {
+					self.appendCameraPhotoCell(for: capturePhoto)
+				}
+				else if let captureImage = photo as? UIImage {
+					self.appendCameraPhotoCell(for: captureImage)
+				}
 			}
 		}
 	}
@@ -159,6 +164,9 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 				else if let photo = cell.cameraPhoto {
 					cellModel.selectedPhoto = PhotoDataType.camera(photo)
 				}
+				else if let image = cell.image {
+					cellModel.selectedPhoto = PhotoDataType.image(image)
+				}
 			}
 		}
 		UIView.animate(withDuration: 0.3) {
@@ -176,6 +184,16 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 	
 	func appendCameraPhotoCell(for photo: AVCapturePhoto) {
 		let photoCell = PhotoButtonCellModel(with: photo)
+  		photoCell.buttonHit = { [weak self] cell in
+  			if let self = self {
+	  			self.photoCellTapped(cell)
+			}
+  		}
+		cameraSegment.append(photoCell)
+	}
+	
+	func appendCameraPhotoCell(for image: UIImage) {
+		let photoCell = PhotoButtonCellModel(with: image)
   		photoCell.buttonHit = { [weak self] cell in
   			if let self = self {
 	  			self.photoCellTapped(cell)
@@ -252,6 +270,7 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 @objc protocol PhotoButtonCellProtocol {
 	var buttonHit: ((PhotoCollectionCellProtocol) -> Void)? { get set }
 	var cameraPhoto: AVCapturePhoto? { get set }
+	var image: UIImage? { get set }
 }
 
 // Model is only used for camera photos. The PhotoLibrary cells operate modelless.
@@ -261,9 +280,15 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 	}
 	dynamic var buttonHit: ((PhotoCollectionCellProtocol) -> Void)?
 	dynamic var cameraPhoto: AVCapturePhoto?
+	dynamic var image: UIImage?
 	
 	init(with: AVCapturePhoto) {
 		cameraPhoto = with
+		super.init(bindingWith: PhotoButtonCellProtocol.self)
+	}
+	
+	init(with: UIImage) {
+		image = with
 		super.init(bindingWith: PhotoButtonCellProtocol.self)
 	}
 }
@@ -300,6 +325,12 @@ class PhotoSelectionCell: BaseCollectionViewCell, PhotoSelectionCellProtocol {
 //					self.photoButton.setImage(image, for: .normal)
 //				}
 //			}
+		}
+	}
+	
+	var image: UIImage? {
+		didSet {
+			self.photoButton.setImage(image, for: .normal)
 		}
 	}
 	

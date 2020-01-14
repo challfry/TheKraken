@@ -126,6 +126,7 @@
 		EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537422D58FEA00CD1671 /* UserListCell.swift */; };
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
+		EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = EAC2D3B323CC7AEC0055780C /* Hats.scnassets */; };
 		EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113123BB3090007583EC /* ObjCUtils.m */; };
 		EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
@@ -308,6 +309,7 @@
 		EAB4537422D58FEA00CD1671 /* UserListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListCell.swift; sourceTree = "<group>"; };
 		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		EAC2D3B323CC7AEC0055780C /* Hats.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Hats.scnassets; sourceTree = "<group>"; };
 		EAC6113123BB3090007583EC /* ObjCUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCUtils.m; sourceTree = "<group>"; };
 		EAC6113323BB31DF007583EC /* ObjCUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCUtils.h; sourceTree = "<group>"; };
 		EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumComposeViewController.swift; sourceTree = "<group>"; };
@@ -591,6 +593,7 @@
 			children = (
 				EA8B987023234AEE00E10156 /* JoCoKaraokeSongCatalog.txt */,
 				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
+				EAC2D3B323CC7AEC0055780C /* Hats.scnassets */,
 			);
 			path = Resources;
 			sourceTree = SOURCE_ROOT;
@@ -830,6 +833,7 @@
 				EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
+				EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */,
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
 				EA4E84F4232C74FE0059E5EB /* DisabledContentViewController.xib in Resources */,
 				EA1B9FE723514E8100BFEB46 /* PostOpStatusCell.xib in Resources */,

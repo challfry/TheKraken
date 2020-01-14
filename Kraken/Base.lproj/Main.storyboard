@@ -1032,12 +1032,14 @@
                         <outlet property="collectionView" destination="elB-bV-rZV" id="H0x-Dj-G2w"/>
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="oPR-Dz-wmr"/>
                         <segue destination="0s5-bb-y2H" kind="show" identifier="TweetFilter" id="jQ6-os-thd"/>
-                        <segue destination="PPA-A5-VUC" kind="showDetail" identifier="fullScreenCamera" id="BLN-IY-2zK"/>
+                        <segue destination="PPA-A5-VUC" kind="presentation" identifier="fullScreenCamera" modalPresentationStyle="fullScreen" id="BLN-IY-2zK"/>
                         <segue destination="lP9-ng-3zA" kind="unwind" identifier="dismissCamera" unwindAction="dismissingCamera:" id="tpK-ga-OcW"/>
-                        <segue destination="Rrr-Wq-uEq" kind="showDetail" identifier="cropCamera" id="ip4-Rk-eQs"/>
+                        <segue destination="Rrr-Wq-uEq" kind="presentation" identifier="cropCamera" modalPresentationStyle="fullScreen" id="ip4-Rk-eQs"/>
+                        <segue destination="jwn-Lo-Wwd" kind="unwind" identifier="dismissingPostingView" unwindAction="dismissingPostingView:" id="vmG-xw-74j"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lFb-xg-kP0" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="jwn-Lo-Wwd" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="3206" y="-248"/>
         </scene>
@@ -1245,6 +1247,8 @@
                     <connections>
                         <outlet property="collectionView" destination="atV-Z9-rSE" id="2qG-1j-4zM"/>
                         <segue destination="sWb-tP-xcH" kind="unwind" identifier="dismissingPostingView" unwindAction="dismissingPostingView:" id="gAb-jR-q6Z"/>
+                        <segue destination="PPA-A5-VUC" kind="presentation" identifier="fullScreenCamera" modalPresentationStyle="fullScreen" id="ebe-iD-3Jr"/>
+                        <segue destination="Rrr-Wq-uEq" kind="presentation" identifier="cropCamera" modalPresentationStyle="fullScreen" id="vZQ-MR-Kqg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GZx-mv-QNE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1348,7 +1352,7 @@
                     <connections>
                         <outlet property="collectionView" destination="BL5-I2-1YT" id="gd8-Xv-iZ8"/>
                         <segue destination="qoV-DL-1Y1" kind="unwind" identifier="dismiss" unwindAction="dismissingProfileEditVCWithSegue:" id="tWO-Ok-auu"/>
-                        <segue destination="PPA-A5-VUC" kind="presentation" identifier="fullScreenCamera" id="Xin-A8-aio"/>
+                        <segue destination="PPA-A5-VUC" kind="presentation" identifier="fullScreenCamera" modalPresentationStyle="fullScreen" id="Xin-A8-aio"/>
                         <segue destination="Rrr-Wq-uEq" kind="presentation" identifier="cropCamera" modalPresentationStyle="fullScreen" id="ahu-jQ-Nlo"/>
                     </connections>
                 </viewController>
@@ -1362,11 +1366,18 @@
             <objects>
                 <viewController id="PPA-A5-VUC" customClass="CameraViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="YpU-N3-dH8">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="758"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
-                                <rect key="frame" x="20" y="0.0" width="108" height="108"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wRT-f6-Xtb">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gSO-iC-WqG">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                            </arscnView>
+                            <button opaque="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
+                                <rect key="frame" x="20" y="44" width="108" height="108"/>
                                 <state key="normal" image="CameraClose.png"/>
                                 <state key="highlighted" image="CameraCloseHighlight"/>
                                 <connections>
@@ -1374,7 +1385,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Ly-Dq-bEZ">
-                                <rect key="frame" x="247" y="0.0" width="108" height="108"/>
+                                <rect key="frame" x="247" y="44" width="108" height="108"/>
                                 <state key="normal" image="CameraRotate.png"/>
                                 <state key="highlighted" image="CameraRotateHighlight.png"/>
                                 <connections>
@@ -1382,7 +1393,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J6q-HD-IVo">
-                                <rect key="frame" x="20" y="664" width="60" height="60"/>
+                                <rect key="frame" x="20" y="718" width="60" height="60"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="7ve-3a-Dyh"/>
                                     <constraint firstAttribute="width" constant="60" id="IEB-h3-oPt"/>
@@ -1401,7 +1412,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PAF-8W-UnY">
-                                <rect key="frame" x="295" y="664" width="60" height="60"/>
+                                <rect key="frame" x="295" y="718" width="60" height="60"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="3b0-eW-Qp8"/>
                                     <constraint firstAttribute="height" constant="60" id="A2O-Ud-Z9r"/>
@@ -1420,7 +1431,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xq6-36-IpK">
-                                <rect key="frame" x="119" y="0.0" width="108" height="108"/>
+                                <rect key="frame" x="119" y="44" width="108" height="108"/>
                                 <state key="normal" image="NoFlash.png"/>
                                 <state key="selected" image="Flash.png"/>
                                 <state key="highlighted" image="NoFlashHighlight.png"/>
@@ -1429,14 +1440,15 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OMc-Yc-CyC">
-                                <rect key="frame" x="-9" y="0.0" width="108" height="108"/>
+                                <rect key="frame" x="-9" y="44" width="108" height="108"/>
                                 <state key="normal" image="PirateSelfie.png"/>
+                                <state key="selected" backgroundImage="BlueButtonHighlight"/>
                                 <connections>
                                     <action selector="pirateButtonTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="Ze6-kc-wer"/>
                                 </connections>
                             </button>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SDP-aC-uac">
-                                <rect key="frame" x="0.0" y="224" width="375" height="514"/>
+                                <rect key="frame" x="0.0" y="278" width="375" height="514"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="FkC-iq-TmT">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="449"/>
@@ -1486,27 +1498,35 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="COb-LT-6E8" firstAttribute="trailing" secondItem="PAF-8W-UnY" secondAttribute="trailing" constant="20" id="3al-EZ-qiD"/>
+                            <constraint firstItem="gSO-iC-WqG" firstAttribute="top" secondItem="YpU-N3-dH8" secondAttribute="top" id="0vh-eB-I7d"/>
+                            <constraint firstAttribute="trailing" secondItem="PAF-8W-UnY" secondAttribute="trailing" constant="20" id="3al-EZ-qiD"/>
+                            <constraint firstAttribute="trailing" secondItem="wRT-f6-Xtb" secondAttribute="trailing" id="4Au-KQ-VgD"/>
+                            <constraint firstItem="wRT-f6-Xtb" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" id="4It-AU-ysA"/>
                             <constraint firstItem="xq6-36-IpK" firstAttribute="leading" secondItem="OMc-Yc-CyC" secondAttribute="trailing" constant="20" id="5Wc-fL-c7p"/>
-                            <constraint firstItem="SDP-aC-uac" firstAttribute="bottom" secondItem="COb-LT-6E8" secondAttribute="bottom" constant="14" id="ANx-Rb-f1N"/>
+                            <constraint firstItem="SDP-aC-uac" firstAttribute="bottom" secondItem="xNP-83-mW2" secondAttribute="bottom" constant="14" id="ANx-Rb-f1N"/>
                             <constraint firstItem="OMc-Yc-CyC" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="Lor-az-tvN"/>
-                            <constraint firstItem="tAi-G9-tDZ" firstAttribute="leading" secondItem="COb-LT-6E8" secondAttribute="leading" constant="20" id="N0d-75-8C2"/>
+                            <constraint firstItem="tAi-G9-tDZ" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" constant="20" id="N0d-75-8C2"/>
                             <constraint firstItem="6Ly-Dq-bEZ" firstAttribute="leading" secondItem="xq6-36-IpK" secondAttribute="trailing" constant="20" id="Qhh-Ks-ssd"/>
-                            <constraint firstItem="SDP-aC-uac" firstAttribute="leading" secondItem="COb-LT-6E8" secondAttribute="leading" id="VgC-3o-Fep"/>
+                            <constraint firstItem="SDP-aC-uac" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" id="VgC-3o-Fep"/>
                             <constraint firstItem="6Ly-Dq-bEZ" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="Vwo-kt-eeI"/>
-                            <constraint firstItem="COb-LT-6E8" firstAttribute="top" secondItem="tAi-G9-tDZ" secondAttribute="top" id="XJp-I2-hfj"/>
-                            <constraint firstItem="COb-LT-6E8" firstAttribute="trailing" secondItem="6Ly-Dq-bEZ" secondAttribute="trailing" constant="20" id="jmL-uv-Ek3"/>
-                            <constraint firstItem="J6q-HD-IVo" firstAttribute="leading" secondItem="COb-LT-6E8" secondAttribute="leading" constant="20" id="jo4-0a-Xdr"/>
+                            <constraint firstItem="xNP-83-mW2" firstAttribute="top" secondItem="tAi-G9-tDZ" secondAttribute="top" id="XJp-I2-hfj"/>
+                            <constraint firstItem="wRT-f6-Xtb" firstAttribute="top" secondItem="YpU-N3-dH8" secondAttribute="top" id="ZAd-nI-4Jf"/>
+                            <constraint firstItem="gSO-iC-WqG" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" id="j4u-kc-wWM"/>
+                            <constraint firstAttribute="trailing" secondItem="6Ly-Dq-bEZ" secondAttribute="trailing" constant="20" id="jmL-uv-Ek3"/>
+                            <constraint firstItem="J6q-HD-IVo" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" constant="20" id="jo4-0a-Xdr"/>
+                            <constraint firstAttribute="trailing" secondItem="gSO-iC-WqG" secondAttribute="trailing" id="joe-zo-83l"/>
+                            <constraint firstAttribute="bottom" secondItem="wRT-f6-Xtb" secondAttribute="bottom" id="kx9-H9-Kzp"/>
+                            <constraint firstAttribute="bottom" secondItem="gSO-iC-WqG" secondAttribute="bottom" id="lzG-ER-2yE"/>
                             <constraint firstItem="xq6-36-IpK" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="nKN-1R-aeP"/>
-                            <constraint firstItem="COb-LT-6E8" firstAttribute="trailing" secondItem="SDP-aC-uac" secondAttribute="trailing" id="uqk-3h-zwI"/>
+                            <constraint firstAttribute="trailing" secondItem="SDP-aC-uac" secondAttribute="trailing" id="uqk-3h-zwI"/>
                             <constraint firstItem="PAF-8W-UnY" firstAttribute="centerY" secondItem="J6q-HD-IVo" secondAttribute="centerY" id="vWz-hF-lMi"/>
-                            <constraint firstItem="COb-LT-6E8" firstAttribute="bottom" secondItem="J6q-HD-IVo" secondAttribute="bottom" id="wOw-Gq-C0D"/>
+                            <constraint firstItem="xNP-83-mW2" firstAttribute="bottom" secondItem="J6q-HD-IVo" secondAttribute="bottom" id="wOw-Gq-C0D"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="COb-LT-6E8"/>
+                        <viewLayoutGuide key="safeArea" id="xNP-83-mW2"/>
                     </view>
                     <connections>
                         <outlet property="cameraRotateButton" destination="6Ly-Dq-bEZ" id="nPf-9l-tZb"/>
-                        <outlet property="cameraView" destination="YpU-N3-dH8" id="VCp-V0-fVs"/>
+                        <outlet property="cameraView" destination="wRT-f6-Xtb" id="jaO-q9-KpQ"/>
                         <outlet property="capturedPhotoContainerView" destination="SDP-aC-uac" id="yyN-9b-ksL"/>
                         <outlet property="capturedPhotoView" destination="FkC-iq-TmT" id="9XU-Hd-ddK"/>
                         <outlet property="capturedPhotoViewHeightConstraint" destination="KtE-Ft-uMl" id="k8K-QE-p3X"/>
@@ -1514,6 +1534,7 @@
                         <outlet property="flashButton" destination="xq6-36-IpK" id="2e7-aN-icd"/>
                         <outlet property="leftShutter" destination="J6q-HD-IVo" id="5uC-H2-ihv"/>
                         <outlet property="pirateButton" destination="OMc-Yc-CyC" id="e5V-be-xbE"/>
+                        <outlet property="pirateView" destination="gSO-iC-WqG" id="GKL-pW-qg4"/>
                         <outlet property="retryButton" destination="GXK-dg-jQa" id="RTt-wU-dku"/>
                         <outlet property="rightShutter" destination="PAF-8W-UnY" id="MpX-Di-haw"/>
                         <outlet property="useButton" destination="rVa-o2-31t" id="Vd7-RH-Or4"/>
@@ -1523,14 +1544,14 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="526-eN-sNa" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="lP9-ng-3zA" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="-1266" y="3451"/>
+            <point key="canvasLocation" x="-1266.4000000000001" y="3450.7389162561576"/>
         </scene>
         <!--Camera View Controller-->
         <scene sceneID="IjH-4Q-2BC">
             <objects>
                 <viewController id="Rrr-Wq-uEq" customClass="CameraViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="E12-wp-GQP">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="758"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wd9-7U-upi">
@@ -1560,7 +1581,7 @@
                                 <state key="normal" image="PirateSelfie.png"/>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nsR-fj-Lbu">
-                                <rect key="frame" x="315" y="642" width="44" height="44"/>
+                                <rect key="frame" x="315" y="680" width="44" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="44" id="Pw6-sy-3c1"/>
                                     <constraint firstAttribute="height" constant="44" id="V65-6f-Vzu"/>
@@ -1571,7 +1592,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c9C-qe-XPA">
-                                <rect key="frame" x="7" y="642" width="44" height="44"/>
+                                <rect key="frame" x="7" y="680" width="44" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="8ow-Vy-QRk"/>
                                     <constraint firstAttribute="width" constant="44" id="xcl-bp-Ghj"/>
@@ -1584,7 +1605,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yJE-M9-JpV">
-                                <rect key="frame" x="157.66666666666666" y="634" width="60" height="60"/>
+                                <rect key="frame" x="157.66666666666666" y="672" width="60" height="60"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="Pj9-bt-n7o"/>
                                     <constraint firstAttribute="height" constant="60" id="XnT-X3-TBh"/>
@@ -1672,7 +1693,7 @@
                             <constraint firstAttribute="bottom" secondItem="yJE-M9-JpV" secondAttribute="bottom" priority="200" constant="80" id="vVq-Zu-mqC"/>
                             <constraint firstItem="jOa-Jf-5Je" firstAttribute="top" secondItem="wd9-7U-upi" secondAttribute="top" id="y6x-vn-iJ9"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="j4A-m1-LNT"/>
+                        <viewLayoutGuide key="safeArea" id="RgC-Q9-aGL"/>
                     </view>
                     <connections>
                         <outlet property="cameraRotateButton" destination="nsR-fj-Lbu" id="m3p-29-g5U"/>
@@ -1978,6 +1999,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="BlueButtonHighlight" width="60" height="60"/>
         <image name="BlueButtonHighlight.png" width="57.599998474121094" height="57.599998474121094"/>
         <image name="CameraClose.png" width="54" height="54"/>
         <image name="CameraCloseHighlight" width="36" height="36"/>
@@ -2017,10 +2039,10 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="ZNA-4Q-2gl"/>
+        <segue reference="oPR-Dz-wmr"/>
         <segue reference="J5Z-VR-bxK"/>
         <segue reference="ibx-KH-vcj"/>
-        <segue reference="yZ3-I6-e7Y"/>
+        <segue reference="jQ6-os-thd"/>
         <segue reference="Ieo-oe-rtR"/>
         <segue reference="llS-CN-BhZ"/>
         <segue reference="jdD-6N-h46"/>

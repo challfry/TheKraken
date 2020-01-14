@@ -147,6 +147,8 @@ import MobileCoreServices
 		
 	lazy var photoCell = PhotoSelectionCellModel()
 	
+// MARK: Methods
+	
     override func viewDidLoad() {
         super.viewDidLoad()
 		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
@@ -263,6 +265,7 @@ import MobileCoreServices
 			statusCell.statusText = "Downloading full-sized photo from iCloud"
 		}
 	}
+	
 	// When the Post button is hit, we enter 'posting' state, and disable most of the UI. This is reversible, as the 
 	// user can cancel the post before it goes to the server.
 	func setPostingState(_ isPosting: Bool) {
@@ -298,13 +301,15 @@ import MobileCoreServices
 	    	statusCell.postOp = post
     		inProgressOp = post
     	
+    		// If we can connect to the server, wait until we suceed/fail the network call. Else, we 'succeed' as soon
+    		// as we queue up the post. Either way, 2 sec timer, then dismiss the compose view.
  		   	post.tell(self, when: "operationState") { observer, observed in 
-    			if observed.operationState == .callSuccess {
+				if observed.operationState == .callSuccess || NetworkGovernor.shared.connectionState != .canConnect {
     				DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
 						self.performSegue(withIdentifier: "dismissingPostingView", sender: nil)
     				}
     			}
-			}
+			}?.execute()
     	}
     }
 
@@ -322,6 +327,9 @@ import MobileCoreServices
 		guard let sourceVC = segue.source as? CameraViewController else { return }
 		if let photo = sourceVC.capturedPhoto {
 			photoCell.cameraPhotos.insert(photo, at: 0)
+		}
+		else if let photoImage = sourceVC.capturedPhotoImage {
+			photoCell.cameraPhotos.insert(photoImage, at: 0)
 		}
 	}	
 }

@@ -67,6 +67,7 @@ class TwitarrViewController: BaseCollectionViewController {
 		}
     }
 
+	// This is the unwind segue from the login modal.
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
 		// Try to continue whatever we were doing before having to log in.
 		if let loginVC = segue.source as? ModalLoginViewController {
@@ -79,5 +80,8 @@ class TwitarrViewController: BaseCollectionViewController {
 		}
 	}	
     
+	// This is the unwind segue from the Tweet compose view.
+	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
+	}	
 }
 
