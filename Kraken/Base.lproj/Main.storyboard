@@ -1616,8 +1616,11 @@
                                     <constraint firstAttribute="width" secondItem="wd9-7U-upi" secondAttribute="height" multiplier="3:4" id="Mfk-s1-1zz"/>
                                 </constraints>
                             </view>
+                            <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="McJ-CW-az3">
+                                <rect key="frame" x="0.0" y="104" width="375" height="500"/>
+                            </arscnView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ntd-iD-fZ6">
-                                <rect key="frame" x="16" y="30" width="44" height="44"/>
+                                <rect key="frame" x="16" y="40" width="44" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="44" id="5Rv-Pb-sb8"/>
                                     <constraint firstAttribute="height" constant="44" id="YSj-9g-l1X"/>
@@ -1628,12 +1631,15 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOM-Es-ErO">
-                                <rect key="frame" x="315" y="30" width="44" height="44"/>
+                                <rect key="frame" x="315" y="40" width="44" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="44" id="An6-vV-DvH"/>
                                     <constraint firstAttribute="height" constant="44" id="kD7-t0-pUg"/>
                                 </constraints>
                                 <state key="normal" image="PirateSelfie.png"/>
+                                <connections>
+                                    <action selector="pirateButtonTapped" destination="Rrr-Wq-uEq" eventType="touchUpInside" id="sJj-eh-8ag"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nsR-fj-Lbu">
                                 <rect key="frame" x="315" y="680" width="44" height="44"/>
@@ -1735,15 +1741,19 @@
                             <constraint firstItem="yJE-M9-JpV" firstAttribute="centerX" secondItem="E12-wp-GQP" secondAttribute="centerX" id="9v5-wY-uNg"/>
                             <constraint firstItem="c9C-qe-XPA" firstAttribute="leading" secondItem="E12-wp-GQP" secondAttribute="leading" constant="7" id="B4K-ON-wHn"/>
                             <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="yJE-M9-JpV" secondAttribute="bottom" constant="20" id="Pbc-7d-pfc"/>
-                            <constraint firstItem="Ntd-iD-fZ6" firstAttribute="top" secondItem="E12-wp-GQP" secondAttribute="top" constant="30" id="WIp-6z-4GP"/>
+                            <constraint firstItem="McJ-CW-az3" firstAttribute="trailing" secondItem="wd9-7U-upi" secondAttribute="trailing" id="Ru1-ex-D9B"/>
+                            <constraint firstItem="Ntd-iD-fZ6" firstAttribute="top" secondItem="E12-wp-GQP" secondAttribute="top" constant="40" id="WIp-6z-4GP"/>
+                            <constraint firstItem="McJ-CW-az3" firstAttribute="leading" secondItem="wd9-7U-upi" secondAttribute="leading" id="WdJ-Pj-mTL"/>
                             <constraint firstItem="jOa-Jf-5Je" firstAttribute="bottom" secondItem="wd9-7U-upi" secondAttribute="bottom" constant="50" id="YZm-3n-k8I"/>
                             <constraint firstAttribute="trailing" secondItem="TOM-Es-ErO" secondAttribute="trailing" constant="16" id="Zkb-ZU-6KL"/>
                             <constraint firstItem="jOa-Jf-5Je" firstAttribute="leading" secondItem="E12-wp-GQP" secondAttribute="leading" id="cSl-sO-vQY"/>
                             <constraint firstAttribute="trailing" secondItem="wd9-7U-upi" secondAttribute="trailing" id="deH-SE-29E"/>
                             <constraint firstItem="Ntd-iD-fZ6" firstAttribute="leading" secondItem="E12-wp-GQP" secondAttribute="leading" constant="16" id="gJO-Mj-7cd"/>
                             <constraint firstItem="c9C-qe-XPA" firstAttribute="centerY" secondItem="nsR-fj-Lbu" secondAttribute="centerY" id="i70-eR-Kc3"/>
+                            <constraint firstItem="McJ-CW-az3" firstAttribute="top" secondItem="wd9-7U-upi" secondAttribute="top" id="j0L-ZF-YWU"/>
+                            <constraint firstItem="McJ-CW-az3" firstAttribute="bottom" secondItem="wd9-7U-upi" secondAttribute="bottom" id="jdq-7H-eF1"/>
                             <constraint firstItem="TOM-Es-ErO" firstAttribute="centerY" secondItem="Ntd-iD-fZ6" secondAttribute="centerY" id="nkE-Ej-IJI"/>
-                            <constraint firstItem="wd9-7U-upi" firstAttribute="top" secondItem="Ntd-iD-fZ6" secondAttribute="bottom" constant="30" id="rfj-Kc-Wj5"/>
+                            <constraint firstItem="wd9-7U-upi" firstAttribute="top" secondItem="Ntd-iD-fZ6" secondAttribute="bottom" constant="20" id="rfj-Kc-Wj5"/>
                             <constraint firstItem="yJE-M9-JpV" firstAttribute="centerY" secondItem="nsR-fj-Lbu" secondAttribute="centerY" id="vMD-YS-sIB"/>
                             <constraint firstAttribute="bottom" secondItem="yJE-M9-JpV" secondAttribute="bottom" priority="200" constant="80" id="vVq-Zu-mqC"/>
                             <constraint firstItem="jOa-Jf-5Je" firstAttribute="top" secondItem="wd9-7U-upi" secondAttribute="top" id="y6x-vn-iJ9"/>
@@ -1760,6 +1770,7 @@
                         <outlet property="flashButton" destination="c9C-qe-XPA" id="cpD-ot-TOV"/>
                         <outlet property="leftShutter" destination="yJE-M9-JpV" id="eUw-WO-aCf"/>
                         <outlet property="pirateButton" destination="TOM-Es-ErO" id="L2n-zS-7vo"/>
+                        <outlet property="pirateView" destination="McJ-CW-az3" id="dJX-cI-Aon"/>
                         <outlet property="retryButton" destination="Ai0-Gf-Ots" id="8KW-sM-Wfe"/>
                         <outlet property="rightShutter" destination="yJE-M9-JpV" id="NOo-Jy-gXP"/>
                         <outlet property="useButton" destination="Oj2-X4-dmR" id="D9I-j8-1AZ"/>

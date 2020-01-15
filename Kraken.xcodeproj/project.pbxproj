@@ -102,6 +102,7 @@
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
 		EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */; };
 		EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */; };
+		EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */; };
 		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
 		EAA0284C2321ED7300B2B7F1 /* SocialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* SocialViewController.swift */; };
@@ -277,6 +278,7 @@
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
 		EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrapbookViewController.swift; sourceTree = "<group>"; };
 		EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeFavoriteSongCell.xib; sourceTree = "<group>"; };
+		EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsUpdater.swift; sourceTree = "<group>"; };
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
 		EA9E693522980CC500B4DC6D /* Kraken.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kraken.entitlements; sourceTree = "<group>"; };
@@ -457,6 +459,7 @@
 				EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */,
 				EA4E84EF232A2D330059E5EB /* ValidSectionUpdater.swift */,
 				EA4E84ED232A2CE70059E5EB /* ServerTimeUpdater.swift */,
+				EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */,
 				EAA02845232057D900B2B7F1 /* Notifications.swift */,
 				EAC696EC2290159000EE6EEB /* StringUtilities.swift */,
 				EAA62C7022C55CC00031A999 /* Logging.swift */,
@@ -995,6 +998,7 @@
 				EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
+				EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */,
 				EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */,
 				EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
