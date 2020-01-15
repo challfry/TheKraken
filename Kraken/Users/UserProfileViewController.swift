@@ -112,7 +112,7 @@ import UIKit
     
     func updateCellModels(to newUser: KrakenUser?) {
 		self.modelKrakenUser = newUser
-    	avatarCell?.userModel = newUser
+    	avatarCell?.model = newUser
     	emailCell?.userModel = newUser
 		homeLocationCell?.userModel = newUser
 		roomNumberCell?.userModel = newUser
@@ -172,19 +172,19 @@ import UIKit
 
 // MARK: - Cells
 
-@objc protocol ProfileAvatarCellProtocol {
-	var userModel: KrakenUser? { get set }
+@objc protocol ProfileAvatarCellProtocol: FetchedResultsBindingProtocol {
+	var isInteractive: Bool { get set }
 }
 
-@objc class ProfileAvatarCellModel: BaseCellModel, ProfileAvatarCellProtocol {
+@objc class ProfileAvatarCellModel: FetchedResultsCellModel, ProfileAvatarCellProtocol {
 	private static let validReuseIDs = [ "ProfileAvatarLeft" : ProfileAvatarCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
-	var userModel: KrakenUser?
+	var isInteractive: Bool = true
 	
 	init(user: KrakenUser?) {
-		super.init(bindingWith: ProfileAvatarCellProtocol.self)
-		userModel = user
+		super.init(withModel: user, reuse: "ProfileAvatarLeft", bindingWith: ProfileAvatarCellProtocol.self)
+		model = user
 	}
 }
 
@@ -199,6 +199,8 @@ import UIKit
 	private static let cellInfo = [ "ProfileAvatarLeft" : PrototypeCellInfo("ProfileAvatarLeftCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
+	var isInteractive: Bool = true
+
 	override func awakeFromNib() {
 		favoritePendingLabel.isHidden = true
 
@@ -213,10 +215,10 @@ import UIKit
 		}
 	}
 
-	dynamic var userModel: KrakenUser? {
+	dynamic var model: NSFetchRequestResult? {
 		didSet {
 			clearObservations()
-			if let userModel = self.userModel {
+			if let userModel = model as? KrakenUser {
 				userModel.tell(self, when: "displayName") { observer, observed in
 					if observed.displayName == observed.username {
 						observer.userNameLabel.text = String("@\(observed.displayName)")
@@ -277,7 +279,8 @@ import UIKit
 	}
 	
 	@IBAction func favoriteButtonHit(_ sender: Any) {
-		if let userToFav = userModel {
+		guard isInteractive	else { return }
+		if let userToFav = model as? KrakenUser {
 			favoriteButton.isSelected = !favoriteButton.isSelected
 			CurrentUser.shared.setFavoriteUser(forUser: userToFav, to: favoriteButton.isSelected)
 		}

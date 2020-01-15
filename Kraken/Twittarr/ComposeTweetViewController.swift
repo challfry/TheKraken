@@ -252,12 +252,12 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			post.tell(self, when: "operationState") { observer, observed in 
 				if observed.operationState == .callSuccess || NetworkGovernor.shared.connectionState != .canConnect {
 					observer.postSuccess = true
-					DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+					DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(2)) {
 						observer.performSegue(withIdentifier: "dismissingPostingView", sender: nil)
 					}
 				}
 			}?.execute()
-    	}
+		}
     	else {
     		postStatusCell.statusText = "Couldn't assemble a post."
 			setPostingState(false)

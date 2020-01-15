@@ -373,6 +373,8 @@ class KaraokeLoadingCell: UITableViewCell {
 }
 
 // All the songs in the table use this cell class--that means both Artist View and Song View.
+// We use a UITableView here because the performance of UICollectionView was ... really bad. 
+// Probably fixable with a custom layout that had internal knowledge of the cell sizes.
 class KaraokeSongCell: UITableViewCell {
 	@IBOutlet weak var songNameLabel: UILabel!
 	@IBOutlet weak var artistNameLabel: UILabel!

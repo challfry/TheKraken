@@ -118,7 +118,7 @@ struct PhotoUploadPackage {
 		
 	func checkForOpsToDeliver() {
 		
-		guard let currentUser = CurrentUser.shared.loggedInUser else { 
+		guard CurrentUser.shared.isLoggedIn() else { 
 			NetworkLog.debug("Not sending ops to server; nobody is logged in.")
 			return 
 		}
@@ -127,8 +127,7 @@ struct PhotoUploadPackage {
 			return
 		}
 			
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			if let operations = self.controller.fetchedObjects {
 				var earliestCallTime: Date?
 				for op in operations {
@@ -144,6 +143,7 @@ struct PhotoUploadPackage {
 					} 
 										
 					// Test 3: Exponential back off. Don't run an op until its next run date.
+					// Also -- if it's an op we're not running yet, determine if it's the op we'll be running *next*
 					if let nextCallTime = op.nextNetworkCallTime, nextCallTime > Date() {
 						if earliestCallTime == nil { 
 							earliestCallTime = nextCallTime
@@ -157,8 +157,6 @@ struct PhotoUploadPackage {
 					// Tell the op to send to server here
 					NetworkLog.debug("Sending op to server", ["op" : op])
 					op.post()
-					op.retryCount += 1
-					op.nextNetworkCallTime = Date().addingTimeInterval(TimeInterval(pow(2.0, Double(min(op.retryCount, 5)))))
 					
 					// Throttling: After we send one op, wait 1 second before trying again
 					if let earliest = earliestCallTime {
@@ -270,6 +268,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// If we attempt to send a post to the server and it fails, save the error here
 		// so we can display it to the user later.
 	@NSManaged public var errorString: String?
+	
+		// After this object is deleted we may still need to know its operation state--so this saves it.
+	public var lastKnownOperationState: PostOperationState = .notReadyToSend
 		
 	// For a poor-man's exponential backoff algorithm. 2s, 4s, 8s, 16s 32s.
 	public var nextNetworkCallTime: Date?
@@ -294,46 +295,34 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationState = .notReadyToSend
 	}
 	
+	// Remember, deletion in this sense means: Removed from the Core Data context. We may still be around, but isDeleted will be true.
+	override public func prepareForDeletion() {
+		// Save the last known op state to a non-managed variable, so an object already referring to us can see it after
+		// we get removed from Core Data.
+		lastKnownOperationState = operationState
+	}
+	
 	func operationStatus() -> String {
-		var status = "Waiting to send"
-		if errorString != nil {
-			status = "Received error from server. Blocked until error is resolved."
+		var statusString: String
+		let currentStatus = isDeleted ? lastKnownOperationState : operationState
+		switch currentStatus {
+		case .notReadyToSend: statusString = "Not ready to send to the server yet"
+		case .readyToSend: statusString = "Waiting to send"
+		case .sentNetworkCall: statusString = "Posting to server"
+		case .serverError: statusString = "Received error from server. Blocked until error is resolved."
+		case .callSuccess: statusString = "Success"
 		}
-		else if operationState == .sentNetworkCall {
-			status = "Posting to server"
-		}
-		else if nextNetworkCallTime != nil {
-			status = "Couldn't reach server; will try again soon."
-		}
-		else if operationState == .notReadyToSend {
-			status = "Not ready to send to the server yet"
-		}
-		else if operationState == .callSuccess {
-			status = "Success"
-		}
-		
-		return status
+		return statusString
 	}
 	
 	// Subclasses override this to send this post to the server. Subclass should call super iff the post can be
 	// sent; this fn marks the post as being sent in Core Data.
 	func post() {
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			do {
-				let opInContext = context.object(with: self.objectID) as! PostOperation
-				opInContext.operationState = .sentNetworkCall
-				opInContext.errorString = nil					// If we're retrying after error, error gets cleared.
-				try context.save()
-
-//				let opInMainContext = LocalCoreData.shared.mainThreadContext.object(with: self.objectID) as! PostOperation
-//				opInMainContext.operationStatus = "Posting to server"
-			}
-			catch {
-				// Not an error that needs to be saved into the op
-				CoreDataLog.error("A postOp got a CoreData error; couldn't store state change back into op.", 
-						["Error" : error])
-			}
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			context.pushOpErrorExplanation("A postOp got a CoreData error; couldn't store state change back into op.")
+			let opInContext = context.object(with: self.objectID) as! PostOperation
+			opInContext.operationState = .sentNetworkCall
+			opInContext.errorString = nil					// If we're retrying after error, error gets cleared.
 		}
 	}
 	
@@ -352,19 +341,20 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				success(data)
 				return
 			}
-			
-			// Network error or server error
-			let context = LocalCoreData.shared.networkOperationContext
-			context.perform {
-				do {
-					let opInContext = context.object(with: self.objectID) as! PostOperation
-					opInContext.operationState = .readyToSend
-					try context.save()
+			else if package.networkError != nil {
+				if self.retryCount > 4 {
+					// If we network error too many times, record the error and stop trying.
+					let errorString = package.networkError?.errorString ?? "Unknown network error"
+					self.recordServerErrorFailure(ServerError(errorString))
 				}
-				catch {
-					// Not an error that needs to be saved into the op
-					CoreDataLog.error("A postOp got a server error, which we couldn't store back in the postOp.", 
-							["Error" : error])
+				else {
+					// Exponential backoff, but try again by moving to the ready state.
+					self.retryCount += 1
+					self.nextNetworkCallTime = Date().addingTimeInterval(TimeInterval(pow(2.0, Double(min(self.retryCount, 5)))))
+					LocalCoreData.shared.performLocalCoreDataChange { context, user in 
+						let opInContext = context.object(with: self.objectID) as! PostOperation
+						opInContext.operationState = .readyToSend
+					}
 				}
 			}
 		}
@@ -427,16 +417,14 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 	func recordOpSuccess() {
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
-			context.pushOpErrorExplanation("Op succeeded, but we could record the success in Core Data.")
+			context.pushOpErrorExplanation("Op succeeded, but we couldn't record the success in Core Data.")
 			let opInContext = context.object(with: self.objectID) as! PostOperation
 			opInContext.operationState = .callSuccess
 		}
-		
-		// Wait 2 seconds, then remove ourselves from Core Data.
-		DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
-			LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
-				PostOperationDataManager.shared.remove(op: self)
-			}
+			
+		// Wait a bit, then remove ourselves from Core Data.
+		DispatchQueue.global().asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(2)) {
+			PostOperationDataManager.shared.remove(op: self)
 		}
 	}
 	
@@ -469,9 +457,15 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// If non-nil, this op edits the given tweet.
 	@NSManaged public var tweetToEdit: TwitarrPost?
 			
-	override public func awakeFromInsert() {
-		super.awakeFromInsert()
-		operationDescription = "Posting a new Twitarr tweet."
+	override public func willSave() {
+		super.willSave()
+		if operationDescription != nil { return }
+		if tweetToEdit != nil {
+			operationDescription = "Editing a Twitarr tweet"
+		}
+		else {
+			operationDescription = "Posting a new Twitarr tweet"
+		}
 	}
 
 	override func post() {
@@ -789,7 +783,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// POST/DELETE /api/v2/forums/:id/:post_id/react/:type
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: 
-				"/api/v2/forums/\(post.thread.id)\(post.id)/react/\(reactionWord)", query: nil)
+				"/api/v2/forums/\(post.thread.id)/\(post.id)/react/\(reactionWord)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		

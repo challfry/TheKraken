@@ -1701,7 +1701,7 @@ NSObject						*EBN_InvalidPropertyKey;
 		}
 		
 		// And then remove all the 'downstream' keypath parts.
-		for (NSString *propertyName in managedProperties) 
+		for (NSString *propertyName in observedManagedProperties.allKeys) 
 		{
 			id fromObj = nil;
 			
@@ -1715,7 +1715,7 @@ NSObject						*EBN_InvalidPropertyKey;
 				// already nil, nothing to do.
 				if (!fromObj)
 				{
-					id fromObj = [self ebn_valueForKey: propertyName];
+					fromObj = [self ebn_valueForKey: propertyName];
 					if (fromObj == nil) 
 						break;
 				}
@@ -1732,7 +1732,7 @@ NSObject						*EBN_InvalidPropertyKey;
 				// already nil, nothing to do.
 				if (!fromObj)
 				{
-					id fromObj = [self ebn_valueForKey: propertyName];
+					fromObj = [self ebn_valueForKey: propertyName];
 					if (fromObj == nil) 
 						break;
 				}

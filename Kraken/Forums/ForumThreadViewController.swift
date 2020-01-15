@@ -87,7 +87,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 	}
 	
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
-	func createCellModel(_ model:ForumPost) -> BaseCellModel {
+	func createCellModel(_ model: ForumPost) -> BaseCellModel {
 		let cellModel = ForumPostCellModel(withModel: model)
 		cellModel.viewController = self
 		return cellModel

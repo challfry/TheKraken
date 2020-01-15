@@ -27,6 +27,8 @@ import CoreData
 	
 	@NSManaged public var lastPhotoUpdated: Int64
 	@NSManaged public var thumbPhotoData: Data?
+	
+	@NSManaged public var reactions: Set<Reaction>?
 		
 		// Cached UIImages of the user avatar, keyed off the lastPhotoUpdated time they were built from.
 		// When the user changes their avatar, lastPhotoUpdated will change, and we should invalidate these.

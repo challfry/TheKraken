@@ -100,6 +100,8 @@
 		EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */; };
 		EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
+		EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */; };
+		EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */; };
 		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
 		EAA0284C2321ED7300B2B7F1 /* SocialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* SocialViewController.swift */; };
@@ -273,6 +275,8 @@
 		EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailLargeThreadCell.xib; sourceTree = "<group>"; };
 		EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeDataManager.swift; sourceTree = "<group>"; };
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
+		EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrapbookViewController.swift; sourceTree = "<group>"; };
+		EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeFavoriteSongCell.xib; sourceTree = "<group>"; };
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
 		EA9E693522980CC500B4DC6D /* Kraken.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kraken.entitlements; sourceTree = "<group>"; };
@@ -610,6 +614,15 @@
 			path = Karaoke;
 			sourceTree = "<group>";
 		};
+		EA951D2823CDB15700453B3C /* Scrapbook */ = {
+			isa = PBXGroup;
+			children = (
+				EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */,
+				EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */,
+			);
+			path = Scrapbook;
+			sourceTree = "<group>";
+		};
 		EAA0284A2321ED4A00B2B7F1 /* Social */ = {
 			isa = PBXGroup;
 			children = (
@@ -667,6 +680,7 @@
 				EA3C631322975CD100077E3B /* Settings */,
 				EA1E3B962245849B00017F07 /* Users */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
+				EA951D2823CDB15700453B3C /* Scrapbook */,
 				EA1E3BA1224D79C400017F07 /* Server Resources */,
 				EAC71D48228A13BC002F7BB3 /* Data Sources */,
 				EA4A1D0422540801008501A3 /* EBNObservable */,
@@ -858,6 +872,7 @@
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
 				EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
+				EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,
 				EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */,
 				EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */,
@@ -968,6 +983,7 @@
 				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,
 				EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
+				EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
 				EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */,
 				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,

@@ -98,9 +98,34 @@ class LocalCoreData: NSObject {
 	override init() {
 		super.init()
 		NotificationCenter.default.addObserver(self, selector: #selector(contextDidSaveNotificationHandler), 
-				name: Notification.Name.NSManagedObjectContextObjectsDidChange, object: nil)
+				name: Notification.Name.NSManagedObjectContextDidSave, object: networkOperationContext)
 	}
 	
+	// Updates the main context in response to data saves from the network context
+	@objc func contextDidSaveNotificationHandler(notification: Notification) {
+		if let notificationContext = notification.object as? NSManagedObjectContext, notificationContext === networkOperationContext {
+			mainThreadContext.perform {
+			
+				// This makes the main context take updates from the network context.
+				self.mainThreadContext.mergeChanges(fromContextDidSave: notification)
+
+				// If a CoreData faulted object is modified while being observed, we need to un-fault it so we can see what happened.
+				if let updated = notification.userInfo?["updated"] as? Set<NSManagedObject> {
+					for obj in updated {
+						if let registeredObject = self.mainThreadContext.registeredObject(for: obj.objectID), 
+								registeredObject.isFault, registeredObject.allObservedProperties()?.count ?? 0 > 0 {
+							do {
+								try self.mainThreadContext.existingObject(with: obj.objectID) 
+							}
+							catch {
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// This returns the single MOC for use by the UI in the main thread.
 	lazy var mainThreadContext: NSManagedObjectContext = {
 		return persistentContainer.viewContext
@@ -187,15 +212,6 @@ class LocalCoreData: NSObject {
 		}
 	}
 	
-	// Updates the main context in response to data saves from the network context
-	@objc func contextDidSaveNotificationHandler(notification: Notification) {
-		if let notificationContext = notification.object as? NSManagedObjectContext, notificationContext === networkOperationContext {
-			mainThreadContext.perform {
-				self.mainThreadContext.mergeChanges(fromContextDidSave: notification)
-			}
-		}
-	}
-
 //	func saveContext () {
 //		let context = persistentContainer.viewContext
 //		if context.hasChanges {

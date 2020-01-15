@@ -305,7 +305,7 @@ import MobileCoreServices
     		// as we queue up the post. Either way, 2 sec timer, then dismiss the compose view.
  		   	post.tell(self, when: "operationState") { observer, observed in 
 				if observed.operationState == .callSuccess || NetworkGovernor.shared.connectionState != .canConnect {
-    				DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+    				DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(2)) {
 						self.performSegue(withIdentifier: "dismissingPostingView", sender: nil)
     				}
     			}

@@ -122,7 +122,7 @@ import EventKitUI
 		collectionView.collectionViewLayout.invalidateLayout()
 	}
         
-	func createCellModel(_ model:Event) -> BaseCellModel {
+	func createCellModel(_ model: Event) -> BaseCellModel {
 		return EventCellModel(withModel: model)
 	}
 	

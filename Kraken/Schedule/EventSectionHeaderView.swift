@@ -27,5 +27,9 @@ class EventSectionHeaderView: UICollectionReusableView {
 		let timeString = dateFormatter.string(from: displayTime)
 		timeLabel.text = timeString
 	}
+	
+	func setTimeLabelText(to newString: String) {
+		timeLabel.text = newString
+	}
 
 }

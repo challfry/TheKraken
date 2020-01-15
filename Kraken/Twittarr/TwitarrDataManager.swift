@@ -320,7 +320,8 @@ class TwitarrDataManager: NSObject {
 			queryParams.append(URLQueryItem(name: "start", value: String(anchorTime)))
 		}
 		
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/stream", query: queryParams)
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/stream", query: queryParams)
+		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
@@ -353,7 +354,8 @@ class TwitarrDataManager: NSObject {
 	
 		let queryParams = [ URLQueryItem(name: "limit", value: "50"), URLQueryItem(name: "page", value: String(fromOffset))]
 
-		let request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/search/tweets/\(escapedQuery)", query: queryParams)
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/search/tweets/\(escapedQuery)", query: queryParams)
+		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
@@ -486,8 +488,10 @@ class TwitarrDataManager: NSObject {
 			postToQueue.imageMimetype = mimeType
 			
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
-				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postToQueue.objectID) as? PostOpTweet 
-				done(mainThreadPost)
+				DispatchQueue.main.async {
+					let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postToQueue.objectID) as? PostOpTweet 
+					done(mainThreadPost)
+				}
 			}
 		}
 	}

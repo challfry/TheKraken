@@ -26,14 +26,14 @@ import CoreData
 		TestAndUpdate(\.word, reactionName)
 		TestAndUpdate(\.count, v2Object.count)
 		TestAndUpdate(\Reaction.sourceTweet, post)
-		if let loggedInUser = CurrentUser.shared.loggedInUser, 
-				let thisContextLoggedInUser = try? context.existingObject(with: loggedInUser.objectID) as? KrakenUser {
-			let selfUser = users.first { object in return object.username == loggedInUser.username }
+				
+		if let userInContext = CurrentUser.shared.getLoggedInUser(in: context) {
+			let selfUser = users.first { object in return object.username == userInContext.username }
 			if v2Object.me, selfUser == nil {
-				users.insert(thisContextLoggedInUser)
+				users.insert(userInContext)
 			}
 			else if !v2Object.me, selfUser != nil {
-				users.remove(thisContextLoggedInUser)
+				users.remove(userInContext)
 			}
 		}
 	}

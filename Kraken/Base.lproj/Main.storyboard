@@ -160,6 +160,61 @@
             </objects>
             <point key="canvasLocation" x="-3159" y="1907"/>
         </scene>
+        <!--Scrapbook-->
+        <scene sceneID="o9i-zL-13g">
+            <objects>
+                <viewController title="Scrapbook" id="Grq-FL-Vy8" customClass="ScrapbookViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="vwL-RU-12H">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="6x4-FM-d6S">
+                                <rect key="frame" x="0.0" y="88" width="375" height="641"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="kgN-Kn-50P">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="rvo-YO-We8" firstAttribute="bottom" secondItem="6x4-FM-d6S" secondAttribute="bottom" id="knf-RN-Gyk"/>
+                            <constraint firstItem="6x4-FM-d6S" firstAttribute="top" secondItem="rvo-YO-We8" secondAttribute="top" id="pb4-yH-Kao"/>
+                            <constraint firstItem="rvo-YO-We8" firstAttribute="trailing" secondItem="6x4-FM-d6S" secondAttribute="trailing" id="rkB-9L-agB"/>
+                            <constraint firstItem="6x4-FM-d6S" firstAttribute="leading" secondItem="rvo-YO-We8" secondAttribute="leading" id="vyf-aY-QNa"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="rvo-YO-We8"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Scrapbook" id="L8L-T8-Zmn"/>
+                    <connections>
+                        <outlet property="collectionView" destination="6x4-FM-d6S" id="uUK-MO-sLQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="MJM-5i-R3m" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3999.1999999999998" y="2703.6945812807885"/>
+        </scene>
+        <!--Scrapbook-->
+        <scene sceneID="034-Hc-VuC">
+            <objects>
+                <navigationController id="jAZ-m1-CaY" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Scrapbook" image="Scrapbook" selectedImage="ScrapbookFill" id="4dZ-ie-2Dk"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="rlp-xx-730">
+                        <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="Grq-FL-Vy8" kind="relationship" relationship="rootViewController" id="mUn-Mg-k4Z"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Y3l-qO-b5T" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3159" y="2704"/>
+        </scene>
         <!--Karaoke-->
         <scene sceneID="R6j-HW-CiQ">
             <objects>
@@ -1991,6 +2046,7 @@
                         <segue destination="FbF-R0-wHc" kind="relationship" relationship="viewControllers" id="mB2-NL-D0V"/>
                         <segue destination="QwY-e3-It9" kind="relationship" relationship="viewControllers" id="xud-cO-jkd"/>
                         <segue destination="K94-r8-zdO" kind="relationship" relationship="viewControllers" id="WSL-oh-8wQ"/>
+                        <segue destination="jAZ-m1-CaY" kind="relationship" relationship="viewControllers" id="fgI-9H-Ed4"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
@@ -2018,6 +2074,8 @@
         <image name="NoFlashHighlight.png" width="54" height="54"/>
         <image name="PirateSelfie.png" width="54" height="54"/>
         <image name="Schedule.png" width="36" height="36"/>
+        <image name="Scrapbook" width="24" height="24"/>
+        <image name="ScrapbookFill" width="24" height="24"/>
         <image name="Seamail.png" width="36" height="36"/>
         <image name="Settings.png" width="36" height="36"/>
         <image name="Social.png" width="36" height="36"/>

@@ -558,7 +558,15 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				}
 				else if let frcSection = frcSections[insertIndexPath.section].objects as? [FetchedObjectType],
 						let cellModel = createCellModel?(frcSection[insertIndexPath.row]) {
-					cellModelSections[insertIndexPath.section].insert(cellModel, at: insertIndexPath.row)
+						
+					// Not sure if this the best idea; ideally the insert always works. The CV is likely to throw
+					// if the count is off and we just append.
+					if cellModelSections[insertIndexPath.section].count >= insertIndexPath.row {
+						cellModelSections[insertIndexPath.section].insert(cellModel, at: insertIndexPath.row)
+					}
+					else {
+						cellModelSections[insertIndexPath.section].append(cellModel)
+					}
 				}
 			}
 		}
