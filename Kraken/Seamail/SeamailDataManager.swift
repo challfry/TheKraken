@@ -49,15 +49,28 @@ import CoreData
     @NSManaged public var messages: Set<SeamailMessage>
     @NSManaged public var opsAddingMessages: Set<PostOpSeamailMessage>?
     @NSManaged public var timestamp: Int64					// For threads, time of most recent message posted to thread
-    @NSManaged public var hasUnreadMessages: Bool
+    @NSManaged public var messageCount: Int64				// Could be > than messages.count
+    
+    // When a user reads a Seamail thread we mark it as read read by adding them to this set. When new messages arrive
+    // for a thread we removeAll on this set. Therefore, any threads NOT in the currentUser's upToDateSeamailThreads set
+    // (the inverse relationship) have new messages.
+    @NSManaged public var fullyReadBy: Set<KrakenUser>
 
 	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2SeamailThread) {
+		var newMessagesAdded = false
+		
 		TestAndUpdate(\.id, v2Object.id)
 		TestAndUpdate(\.subject, v2Object.subject)
 		TestAndUpdate(\.timestamp, v2Object.timestamp)
-		hasUnreadMessages = v2Object.hasUnreadMessages
-//		TestAndUpdate(\.hasUnreadMessages, v2Object.hasUnreadMessages)
+//		hasUnreadMessages = v2Object.hasUnreadMessages
+		if !v2Object.countIsUnread {
+			if v2Object.messageCount > messageCount {
+				newMessagesAdded = true
+			}
+			TestAndUpdate(\.messageCount, Int64(v2Object.messageCount))
+		}
 		
+		// Set the participants in the thread
 		let cdParticipants = Set(participants.map { $0.username })
 		let v2Participants = Set(v2Object.participants.map { $0.username })
 		if v2Participants != cdParticipants {
@@ -66,11 +79,30 @@ import CoreData
 			participants = newParticipants
 		}
 		
-		for message in v2Object.messages {
-			let cdMessage = messages.first { $0.id == message.id } ?? SeamailMessage(context: context)
-			cdMessage.buildFromV2(context: context, v2Object: message, newThread: self)
-			messages.insert(cdMessage)
+		// Add all the messages
+		if let msgs = v2Object.messages {
+			for message in msgs {
+				let cdMessage = messages.first { $0.id == message.id } ?? SeamailMessage(context: context)
+				cdMessage.buildFromV2(context: context, v2Object: message, newThread: self)
+				messages.insert(cdMessage)
+			}
 		}
+		if messages.count < messageCount {
+			newMessagesAdded = true
+		}
+		
+		if newMessagesAdded || v2Object.hasUnreadMessages {
+			fullyReadBy.removeAll()
+		}
+	}
+	
+	func markThreadAsRead() {
+		LocalCoreData.shared.performLocalCoreDataChange() { context, currentUser in
+			context.pushOpErrorExplanation("Failed to mark Seamail Thread as read.")
+			if let selfInContext = context.object(with: self.objectID) as? SeamailThread {
+				selfInContext.fullyReadBy.insert(currentUser)
+			}
+		}			
 	}
 }
 
@@ -81,15 +113,18 @@ import CoreData
 	var lastError : ServerError?
 	@objc dynamic var isLoading = false
 	
+// MARK: Methods
 	func loadSeamails(done: (() -> Void)? = nil) {
-		guard !isLoading else {
+		// TODO: Add Limiter
+
+		guard !isLoading, let currentUser = CurrentUser.shared.loggedInUser else {
 			done?()
 			return
 		}
 		isLoading = true
 		
 		var queryParams: [URLQueryItem] = []
-		queryParams.append(URLQueryItem(name:"after", value: self.lastSeamailCheckTime()))
+		queryParams.append(URLQueryItem(name:"after", value: "\(currentUser.lastSeamailCheckTime)"))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
 		
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/seamail_threads", query: queryParams)
@@ -102,7 +137,7 @@ import CoreData
 				let decoder = JSONDecoder()
 				do {
 					let newSeamails = try decoder.decode(TwitarrV2GetSeamailResponse.self, from: data)
-					self.loadNetworkSeamails(from: newSeamails.seamailThreads)
+					self.ingestSeamailThreads(from: newSeamails.seamailThreads, lastChecked: newSeamails.lastChecked)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])
@@ -112,44 +147,56 @@ import CoreData
 			done?()
 			self.isLoading = false
 		}
-
 	}
 	
-	func lastSeamailCheckTime() -> String {
-		let date = Settings.shared.lastSeamailCheckTime
-		let resultStr = ISO8601DateFormatter().string(from: date)
-		return resultStr
-	}
-	
-	func updateLastSeamailCheckTime() {
-	
-	}
-	
-	func loadNetworkSeamails(from threads: [TwitarrV2SeamailThread]) {
-		let context = coreData.networkOperationContext
-		context.perform {
-			do {
-				// Update all the users in all the theads.
-				let allParticipants = threads.flatMap { $0.participants }
-				UserManager.shared.update(users: allParticipants, inContext: context)
-
-				// Fetch all the threads from CD
-				let allThreadIDs = threads.map { $0.id }
-				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "SeamailThreadsWithIDs", 
-						substitutionVariables: [ "ids" : allThreadIDs ]) as! NSFetchRequest<SeamailThread>
-				let cdThreads = try request.execute()
-				let cdThreadsDict = Dictionary(cdThreads.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
-
-				for mailThread in threads {
-					let cdThread = cdThreadsDict[mailThread.id] ?? SeamailThread(context: context)
-					cdThread.buildFromV2(context: context, v2Object: mailThread)
-				}
-
-				try context.save()
-				self.updateLastSeamailCheckTime()
+	func loadSeamailThread(thread: SeamailThread, done: @escaping () -> Void) {
+		// TODO: Add Limiter
+		
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/seamail/\(thread.id)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				self.lastError = error
 			}
-			catch {
-				CoreDataLog.error("Failed to add new Seamails.", ["error" : error])
+			else if let data = package.data {
+				let decoder = JSONDecoder()
+				do {
+					let response = try decoder.decode(TwitarrV2GetSeamailThreadResponse.self, from: data)
+					self.ingestSeamailThreads(from: [response.seamail], lastChecked: 0)
+				}
+				catch {
+					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])
+				} 
+			}
+			
+			done()
+		}
+	}
+		
+	func ingestSeamailThreads(from threads: [TwitarrV2SeamailThread], lastChecked: Int64 = 0) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failed to add new Seamails.")
+			
+			// Update all the users in all the theads.
+			let allParticipants = threads.flatMap { $0.participants }
+			UserManager.shared.update(users: allParticipants, inContext: context)
+
+			// Fetch all the threads from CD
+			let allThreadIDs = threads.map { $0.id }
+			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "SeamailThreadsWithIDs", 
+					substitutionVariables: [ "ids" : allThreadIDs ]) as! NSFetchRequest<SeamailThread>
+			let cdThreads = try request.execute()
+			let cdThreadsDict = Dictionary(cdThreads.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+
+			// Tell each CoreData thread to update itself with the new info in the v2 threads
+			for mailThread in threads {
+				let cdThread = cdThreadsDict[mailThread.id] ?? SeamailThread(context: context)
+				cdThread.buildFromV2(context: context, v2Object: mailThread)
+			}
+			
+			// Update our marker for when we last retrieved seamails for this user.
+			if lastChecked > 0, let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+				currentUser.lastSeamailCheckTime = lastChecked
 			}
 		}
 	}
@@ -251,7 +298,6 @@ import CoreData
 			}
 		}
 	}
-
 }
 
 
@@ -274,7 +320,7 @@ struct TwitarrV2SeamailThread: Codable {
 	let id: String
 	let participants: [ TwitarrV2UserInfo ]
 	let subject: String
-	let messages: [ TwitarrV2SeamailMessage ]
+	let messages: [ TwitarrV2SeamailMessage ]?
 	let messageCount: Int
 	let timestamp: Int64
 	let countIsUnread: Bool
@@ -290,15 +336,21 @@ struct TwitarrV2SeamailThread: Codable {
 	
 }
 
-// /api/v2/seamail_threads
+// GET /api/v2/seamail_threads
 struct TwitarrV2GetSeamailResponse: Codable {
 	let status: String
 	let seamailThreads: [TwitarrV2SeamailThread]
-	let lastChecked: Int
+	let lastChecked: Int64
 
 	enum CodingKeys: String, CodingKey {
 		case status
 		case seamailThreads = "seamail_threads"
 		case lastChecked = "last_checked"
 	}
+}
+
+// GET /api/v2/seamail/:id_string
+struct TwitarrV2GetSeamailThreadResponse: Codable {
+	let status: String
+	let seamail: TwitarrV2SeamailThread
 }

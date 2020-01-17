@@ -504,7 +504,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				let decoder = JSONDecoder()
 				do {
 					let response = try decoder.decode(TwitarrV2NewTweetResponse.self, from: data)
-					TwitarrDataManager.shared.addNewPostToStream(post: response.stream_post)
+					TwitarrDataManager.shared.ingestNewUserPost(post: response.stream_post)
 				} catch 
 				{
 					self.recordServerErrorFailure(ServerError("Failure parsing response to new Twitarr post request."))
@@ -827,7 +827,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving new Seamail thread to Core Data.")
 				let response = try JSONDecoder().decode(TwitarrV2NewSeamailThreadResponse.self, from: data)
-				SeamailDataManager.shared.loadNetworkSeamails(from: [response.seamail])
+				SeamailDataManager.shared.ingestSeamailThreads(from: [response.seamail])
 			}
 		}
 	}

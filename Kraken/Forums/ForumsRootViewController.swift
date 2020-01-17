@@ -28,9 +28,10 @@ class ForumsRootViewController: BaseCollectionViewController {
 	var currentFilterType: FilterType = .allWithActivitySort
 	
 	let threadDataSource = KrakenDataSource()
-	var loadingSegment = FilteringDataSourceSegment()
-	var threadSegment = FRCDataSourceSegment<ForumThread>()
-	var readCountSegment = FRCDataSourceSegment<ForumReadCount>()
+		var loadingSegment = FilteringDataSourceSegment()
+		var threadSegment = FRCDataSourceSegment<ForumThread>()
+		var readCountSegment = FRCDataSourceSegment<ForumReadCount>()
+ 
     var filterPopupVC: EmojiPopupViewController?
     
     lazy var loadingStatusCellModel: LoadingStatusCellModel = {

@@ -482,6 +482,8 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		log.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections,
 				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells,
 				"reloadCells" : self.reloadCells, "moves" : self.moveCells])
+
+// -- The Part Where We Tell the CollectionView About The Changes
 		
 		// Tell the CV about all the changes. Be sure to offset the section indices by our segment start values.
 		if deleteSections.count > 0 {
@@ -505,6 +507,20 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
 		}
 		
+// The Part Where We Update Our Internal Model To Match The Changes
+
+		// Unbind the cells we'll be deleting
+		for index in deleteCells {
+			if index.section >= cellModelSections.count || index.row >= cellModelSections[index.section].count {
+				continue
+			}
+			let elem = cellModelSections[index.section][index.row]
+			let path = IndexPath(row: index.row, section: index.section + deleteOffset)
+			if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
+				elem.unbind(cell: cell)
+			}
+		}
+		
 		// Decompose moves into deletes and inserts to apply them to cellModels. While doing it, preserve
 		// the cells being moved. insertsAndMoves contains nil for actual inserts, or the cell being moved for moves.
 		var insertsAndMoves = [(IndexPath, BaseCellModel?)]()
@@ -521,11 +537,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			if index.section >= cellModelSections.count || index.row >= cellModelSections[index.section].count {
 				continue
 			}
-			let elem = cellModelSections[index.section].remove(at: index.row)
-			let path = IndexPath(row: index.row, section: index.section + deleteOffset)
-			if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
-				elem.unbind(cell: cell)
-			}
+			cellModelSections[index.section].remove(at: index.row)
 		}
 		for index in deleteSections.sorted().reversed() {
 			cellModelSections.remove(at: index)

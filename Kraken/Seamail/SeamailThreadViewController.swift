@@ -28,6 +28,11 @@ class SeamailThreadViewController: BaseCollectionViewController {
 // MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        if let thread = threadModel {
+	        SeamailDataManager.shared.loadSeamailThread(thread: thread) {
+        	
+      		}
+		}
         
         // Save the name of the logged in user at load time; if that user changes dismiss the view.
         // We *might* loosen this restriction so that if both prev and current user are in the thread
@@ -99,6 +104,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
     
     override func viewDidAppear(_ animated: Bool) {
 		compositeDataSource.enableAnimations = true
+		threadModel?.markThreadAsRead()
 	}
 
 	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {

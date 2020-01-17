@@ -273,7 +273,7 @@ class BaseCollectionViewController: UIViewController {
 		// A filtered view of the tweet stream.
 		case .tweetFilter:
 			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
-				destVC.dataManager = TwitarrDataManager(filterString: filterString)
+				destVC.filterPack = TwitarrFilterPack(author: nil, text: filterString)
 			}
 				
 		// PostOpTweets by this user, that are replies to a given tweet.
@@ -284,13 +284,12 @@ class BaseCollectionViewController: UIViewController {
 			
 		case .showUserMentions:
 			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
-				destVC.dataManager = TwitarrDataManager(filterString: filterString)
+				destVC.filterPack = TwitarrFilterPack(author: nil, text: filterString)
 			}
 			
 		case .showUserTweets:
 			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
-				destVC.dataManager = TwitarrDataManager(predicate: NSPredicate(format: "author.username == %@", filterString),
-						titleString: "Author: \(filterString)")
+				destVC.filterPack = TwitarrFilterPack(author: filterString, text: nil)
 			}
 			
 		case .composeTweet: break

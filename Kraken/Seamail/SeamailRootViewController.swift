@@ -19,6 +19,20 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	let dataManager = SeamailDataManager.shared
 
 // MARK: Methods	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
+				"loggedInUser.seamailParticipant.count"]) { observer, observed in
+			if let currentUser = observed.loggedInUser {
+				let badgeCount = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count
+				observer.navigationController?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
+			}
+			else {
+				observer.navigationController?.tabBarItem.badgeValue = nil
+			}
+		}?.execute()
+	}
+	
 	override func viewDidLoad() {
         super.viewDidLoad()
         

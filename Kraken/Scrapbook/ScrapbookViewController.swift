@@ -91,7 +91,7 @@ class ScrapbookViewController: BaseCollectionViewController {
 			case is ProfileAvatarCellModel: newView.setTimeLabelText(to: "Favorite Users")
 			case is EventCellModel: newView.setTimeLabelText(to: "Favorite Events")
 			case is KaraokeFavoriteSongCellModel: newView.setTimeLabelText(to: "Favorite Karaoke Songs")
-			default: newView.setTimeLabelText(to: "Favorite Things")
+			default: newView.setTimeLabelText(to: "")
 			}
 			return newView
 		}

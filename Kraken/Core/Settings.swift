@@ -49,11 +49,6 @@ import Foundation
 		get { return getSetting(name: "useFullscreenCameraViewfinder", defaultValue: true) }
 		set { setSetting(name: "useFullscreenCameraViewfinder", newValue: newValue) }
 	}
-
-	public var lastSeamailCheckTime: Date {
-		get { return getSetting(name: "lastSeamailCheckTime", defaultValue: Date(timeIntervalSince1970: 0)) }
-		set { setSetting(name: "lastSeamailCheckTime", newValue: newValue) }
-	}
 	
 	// For interacting with the Calendar database via EKEventStore, we make a custom calendar named "JoCo Cruise 2020"
 	// This saves the ID of that calendar.

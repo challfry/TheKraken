@@ -443,7 +443,7 @@ import UIKit
 				let decoder = JSONDecoder()
 				do {
 					let response = try decoder.decode(TwitarrV2GetForumsResponse.self, from: data)
-					self.parseForumThreads(from: response.forumThreads)
+					self.ingestForumThreads(from: response.forumThreads)
 					if participatedOnly {
 						self.participatedThreadsCacheInfo.updateThreadLoadCacheValues(for: response)
 					}
@@ -462,7 +462,7 @@ import UIKit
 	// Takes an array of threads from a server response and merges them into CoreData's store.
 	// Note: Probably only ever called from its network response handler. Broken out this way to make it easier to 
 	// see what ops are performed within the CD context.
-	func parseForumThreads(from threads: [TwitarrV2ForumThreadMeta]) {
+	func ingestForumThreads(from threads: [TwitarrV2ForumThreadMeta]) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failed to parse Forum threads and add to Core Data.")
 

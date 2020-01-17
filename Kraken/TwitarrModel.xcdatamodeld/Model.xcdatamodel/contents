@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19B88" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19C57" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Announcement" representedClassName="Announcement" syncable="YES">
+        <attribute name="displayUntil" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="text" optional="YES" attributeType="String"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="announcements" inverseEntity="KrakenUser"/>
+    </entity>
     <entity name="Event" representedClassName="Event" syncable="YES">
         <attribute name="ekEventID" optional="YES" attributeType="String"/>
         <attribute name="endTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -68,12 +74,15 @@
         <attribute name="songTitle" optional="YES" attributeType="String"/>
     </entity>
     <entity name="KrakenUser" representedClassName="KrakenUser" syncable="YES">
+        <attribute name="badgeTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="currentLocation" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
         <attribute name="emailAddress" optional="YES" attributeType="String"/>
         <attribute name="homeLocation" optional="YES" attributeType="String"/>
+        <attribute name="lastAlertCheckTime" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastLogin" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastPhotoUpdated" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="lastSeamailCheckTime" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="numberOfMentions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="numberOfTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="pronouns" optional="YES" attributeType="String"/>
@@ -82,6 +91,7 @@
         <attribute name="roomNumber" optional="YES" attributeType="String"/>
         <attribute name="thumbPhotoData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
         <attribute name="username" optional="YES" attributeType="String"/>
+        <relationship name="announcements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="author" inverseEntity="Announcement"/>
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserComment" inverseName="commentedOnUser" inverseEntity="UserComment"/>
         <relationship name="commentOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserComment" inverseName="userCommentedOn" inverseEntity="PostOpUserComment"/>
         <relationship name="favoritedByOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserFavorite" inverseName="userBeingFavorited" inverseEntity="PostOpUserFavorite"/>
@@ -99,6 +109,7 @@
         <relationship name="starredBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredUsers" inverseEntity="KrakenUser"/>
         <relationship name="starredUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredBy" inverseEntity="KrakenUser"/>
         <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="author" inverseEntity="TwitarrPost"/>
+        <relationship name="upToDateSeamailThreads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="fullyReadBy" inverseEntity="SeamailThread"/>
         <relationship name="userComments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserComment" inverseName="commentingUser" inverseEntity="UserComment"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -224,10 +235,11 @@
         </uniquenessConstraints>
     </entity>
     <entity name="SeamailThread" representedClassName="SeamailThread" syncable="YES">
-        <attribute name="hasUnreadMessages" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
+        <attribute name="messageCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="subject" attributeType="String"/>
         <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="fullyReadBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="upToDateSeamailThreads" inverseEntity="KrakenUser"/>
         <relationship name="messages" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="thread" inverseEntity="SeamailMessage"/>
         <relationship name="opsAddingMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpSeamailMessage" inverseName="thread" inverseEntity="PostOpSeamailMessage"/>
         <relationship name="participants" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailParticipant" inverseEntity="KrakenUser"/>
@@ -269,29 +281,33 @@
         <relationship name="commentedOnUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentedUpon" inverseEntity="KrakenUser"/>
         <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="userComments" inverseEntity="KrakenUser"/>
     </entity>
+    <fetchRequest name="AnnouncementsWithIDs" entity="Announcement" predicateString="id IN $ids"/>
     <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="username == $username"/>
     <fetchRequest name="FindServerTextFile" entity="ServerTextFile" predicateString="fileName == $fileName"/>
     <fetchRequest name="FindUsers" entity="KrakenUser" predicateString="username IN $usernames"/>
     <fetchRequest name="ForumThreadsWithIds" entity="ForumThread" predicateString="id IN $ids"/>
     <fetchRequest name="PhotosWithIds" entity="PhotoDetails" predicateString="id IN $ids"/>
+    <fetchRequest name="PostsInDateRange" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate"/>
     <fetchRequest name="SeamailThreadsForUser" entity="SeamailThread" predicateString="$user IN participants"/>
     <fetchRequest name="SeamailThreadsWithIDs" entity="SeamailThread" predicateString="id IN $ids"/>
     <fetchRequest name="TwitarrPostsInDateRange" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate"/>
     <fetchRequest name="TwitarrPostsToDelete" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate AND (NOT id IN $ids)"/>
     <fetchRequest name="TwitarrPostsWithIDs" entity="TwitarrPost" predicateString="id IN $ids"/>
     <elements>
+        <element name="Announcement" positionX="117" positionY="117" width="128" height="103"/>
         <element name="Event" positionX="117" positionY="117" width="128" height="210"/>
         <element name="ForumPost" positionX="126" positionY="126" width="128" height="208"/>
         <element name="ForumReadCount" positionX="135" positionY="135" width="128" height="133"/>
         <element name="ForumThread" positionX="117" positionY="117" width="128" height="223"/>
         <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="523"/>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="598"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="193"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="118"/>
         <element name="PostOpEventFollow" positionX="117" positionY="117" width="128" height="75"/>
         <element name="PostOpForum_Photo" positionX="126" positionY="126" width="128" height="88"/>
         <element name="PostOpForumPost" positionX="117" positionY="117" width="128" height="118"/>
+        <element name="PostOpForumPostDelete" positionX="117" positionY="117" width="128" height="58"/>
         <element name="PostOpForumPostReaction" positionX="117" positionY="117" width="128" height="88"/>
         <element name="PostOpSeamailMessage" positionX="117" positionY="117" width="128" height="30"/>
         <element name="PostOpSeamailThread" positionX="117" positionY="117" width="128" height="90"/>
@@ -305,10 +321,9 @@
         <element name="PotentialUser" positionX="126" positionY="126" width="128" height="90"/>
         <element name="Reaction" positionX="117" positionY="117" width="128" height="105"/>
         <element name="SeamailMessage" positionX="144" positionY="135" width="128" height="135"/>
-        <element name="SeamailThread" positionX="153" positionY="153" width="128" height="150"/>
+        <element name="SeamailThread" positionX="153" positionY="153" width="128" height="163"/>
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
         <element name="UserComment" positionX="117" positionY="90" width="128" height="90"/>
-        <element name="PostOpForumPostDelete" positionX="117" positionY="117" width="128" height="58"/>
     </elements>
 </model>

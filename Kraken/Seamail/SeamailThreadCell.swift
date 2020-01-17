@@ -64,6 +64,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 
     var model: NSFetchRequestResult? {
 		didSet {
+			clearObservations()
 			
 			// Set the height of the in-cell CollectionView to be at least as tall as its cells.
 			if let protoUser = CurrentUser.shared.loggedInUser {
@@ -77,17 +78,35 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 			userCellSection.allCellModels.removeAllObjects()
 			if let thread = model as? SeamailThread {
 				subjectLabel.text = thread.subject
-				var postCountText = "\(thread.messages.count) messages"
-				if let ops = thread.opsAddingMessages, let currentUsername = CurrentUser.shared.loggedInUser?.username {
-					let addCountThisUser = ops.reduce(0) { $0 + ($1.author.username == currentUsername ? 1 : 0) }
-					if addCountThisUser > 0 {
-						postCountText.append(" (+\(addCountThisUser) pending)")
+				
+				addObservation(thread.tell(self, when: ["messages.count", "opsAddingMessages.count", "fullyReadBy.count"]) { observer, observed in
+					let postCountText = NSMutableAttributedString(string: "\(thread.messages.count) messages", 
+							attributes: observer.postCountTextAttributes())
+					if let currentUser = CurrentUser.shared.loggedInUser {
+						if let ops = observed.opsAddingMessages {
+							let addCountThisUser = ops.reduce(0) { $0 + ($1.author.username == currentUser.username ? 1 : 0) }
+							if addCountThisUser > 0 {
+								let pendingText = NSAttributedString(string:" (+\(addCountThisUser) pending)", 
+										attributes: observer.pendingPostsAttributes())
+								postCountText.append(pendingText)
+							}
+						}
+						if !observed.fullyReadBy.contains(currentUser) {
+							let newText = NSAttributedString(string:" New", attributes: observer.newFlagAttributes())
+							postCountText.append(newText)
+						}
 					}
-				}
-				postCountLabel.text = postCountText
-				participantCountLabel.text = "\(thread.participants.count) participants"
-	    		let postDate: TimeInterval = TimeInterval(thread.timestamp) / 1000.0
-	    		lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
+					observer.postCountLabel.attributedText = postCountText
+				}?.execute())
+				
+				addObservation(thread.tell(self, when:"participants.count") { observer, observed in
+					observer.participantCountLabel.text = "\(observed.participants.count) participants"
+				}?.execute())
+				
+				addObservation(thread.tell(self, when:"timestamp") { observer, observed in
+	    			let postDate: TimeInterval = TimeInterval(observed.timestamp) / 1000.0
+	    			observer.lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
+				}?.execute())
 	    		
 	    		let participantArray = thread.participants.sorted { $0.username < $1.username }
 	    		for user in participantArray {
@@ -96,15 +115,21 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 			}
 			else if let postOpThread = model as? PostOpSeamailThread {
 				// A new thread the user created, waiting to be uploaded to the server
-				subjectLabel.text = postOpThread.subject
+    			lastPostTime.text = "In the near future"
 				postCountLabel.text = "1 message"			// A yet-to-be-posted thread can only have its initial msg.
-				var participantCountStr = "unknown participants"
-				if let participantCount = postOpThread.recipients?.count {
-					// Why +1? The PostOp doesn't include the sender in the userlist.
-					participantCountStr = "\(participantCount + 1) participants"
-				}
-				participantCountLabel.text = participantCountStr
-	    		lastPostTime.text = "In the near future"
+
+				addObservation(postOpThread.tell(self, when:"subject") { observer, observed in
+					observer.subjectLabel.text = observed.subject
+				}?.execute())
+				
+				addObservation(postOpThread.tell(self, when:"recipients.count") { observer, observed in
+					var participantCountStr = "unknown participants"
+					if let participantCount = observed.recipients?.count {
+						// Why +1? The PostOp doesn't include the sender in the userlist.
+						participantCountStr = "\(participantCount + 1) participants"
+					}
+					observer.participantCountLabel.text = participantCountStr
+				}?.execute())
 
 				if let loggedInUser = CurrentUser.shared.loggedInUser {
 					userCellSection.append(createUserCellModel(loggedInUser, name: loggedInUser.username))
@@ -116,6 +141,30 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 				}
 			}
 		}
+	}
+	
+	func postCountTextAttributes() -> [ NSAttributedString.Key : Any ] {
+		let metrics = UIFontMetrics(forTextStyle: .body)
+		let baseFont = UIFont.systemFont(ofSize: 15.0)
+		let font = metrics.scaledFont(for: baseFont)
+		let result: [NSAttributedString.Key : Any] = [ .font : font as Any,  .foregroundColor : UIColor(named: "Kraken Secondary Text") as Any ]
+		return result
+	}
+	
+	func pendingPostsAttributes() -> [ NSAttributedString.Key : Any ] {
+		let metrics = UIFontMetrics(forTextStyle: .body)
+		let baseFont = UIFont.systemFont(ofSize: 15.0)
+		let font = metrics.scaledFont(for: baseFont)
+		let result: [NSAttributedString.Key : Any] = [ .font : font as Any,  .foregroundColor : UIColor(named: "Kraken Secondary Text") as Any ]
+		return result
+	}
+	
+	func newFlagAttributes() -> [ NSAttributedString.Key : Any ] {
+		let metrics = UIFontMetrics(forTextStyle: .body)
+		let baseFont = UIFont.systemFont(ofSize: 15.0)
+		let font = metrics.scaledFont(for: baseFont)
+		let result: [NSAttributedString.Key : Any] = [ .font : font as Any,  .foregroundColor : UIColor(named: "Red Alert Text") as Any ]
+		return result
 	}
 	
 	override func awakeFromNib() {

@@ -40,6 +40,8 @@ import CoreData
 	@NSManaged private var commentedUpon: Set<UserComment>?
 	@NSManaged public var commentOps: Set<PostOpUserComment>?
 	
+	@NSManaged public var seamailParticipant: Set<SeamailThread>
+	
 	override public func awakeFromFetch() {
 		super.awakeFromFetch()
 		if thumbPhotoData == nil || lastPhotoUpdated != builtPhotoUpdateTime {

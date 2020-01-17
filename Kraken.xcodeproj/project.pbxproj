@@ -414,7 +414,6 @@
 				EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */,
 				EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */,
 				EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */,
-				EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */,
 				EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */,
 				EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */,
 				EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */,
@@ -425,6 +424,7 @@
 				EAB4537522D58FEA00CD1671 /* UserListCell.xib */,
 				EA90455E22DC032C00790F97 /* SmallUserCell.swift */,
 				EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */,
+				EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */,
 			);
 			path = Seamail;
 			sourceTree = "<group>";
@@ -559,11 +559,11 @@
 			isa = PBXGroup;
 			children = (
 				EA534E2B2301FFE500FE4787 /* ScheduleRootViewController.swift */,
-				EA534E2D2302164000FE4787 /* EventsDataManager.swift */,
 				EA534E2F230299AE00FE4787 /* EventCell.swift */,
 				EA534E30230299AE00FE4787 /* EventCell.xib */,
 				EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */,
 				EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */,
+				EA534E2D2302164000FE4787 /* EventsDataManager.swift */,
 			);
 			path = Schedule;
 			sourceTree = "<group>";

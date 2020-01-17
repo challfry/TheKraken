@@ -52,8 +52,14 @@ import CoreData
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
 	@NSManaged public var starredUsers: Set<KrakenUser>?			// Set of users the logged in user has starred.
 	@NSManaged public var lastLogin: Int64
+	@NSManaged public var lastAlertCheckTime: Int64
+	@NSManaged public var lastSeamailCheckTime: Int64
 	
 	var twitarrV2AuthKey: String?
+	
+	// Alerts
+	@NSManaged public var badgeTweets: Int32
+	@NSManaged public var upToDateSeamailThreads: Set<SeamailThread>
 
 	// Info about the current user that should not be in KrakenUser nor cached to disk.
 	@objc dynamic var userRole: UserRole = .loggedOut

@@ -12,7 +12,8 @@ class ServerUpdater : NSObject {
 
 	static var updateActions: [ServerUpdater] = [
 			ServerTimeUpdater.shared,
-			ValidSectionUpdater.shared
+			ValidSectionUpdater.shared,
+			AlertsUpdater.shared
 	]
 	
 	func updateMethod() {}
@@ -95,10 +96,10 @@ class RefreshTimers: NSObject {
 }
 
 // Stuff to do on timers:
-//		Get server time
-//		Get announcements? 			/api/v2/announcements
+//	x	Get server time
+//	x	Get announcements? 			/api/v2/announcements
 //		Get alerts					/api/v2/alerts
 //		Valid sections (/api/v2/admin/sections
 // 		Refresh content on current tab? 
 //			Okay. Each VC gets a 'refresh' thingy, called once a minute by baseVC?
-
+//		GET /api/v2/event/mine/:epoch -- gets favorited events on a particular day, to sync with other devices.

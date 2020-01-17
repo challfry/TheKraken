@@ -13,38 +13,50 @@ class TwitarrViewController: BaseCollectionViewController {
 	@IBOutlet var postButton: UIBarButtonItem!
 
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
-	var dataManager = TwitarrDataManager.shared
+	var filterPack: TwitarrFilterPack?	
+	
+	let dataManager = TwitarrDataManager.shared
 	var tweetDataSource = KrakenDataSource()
+		var loadingSegment = FilteringDataSourceSegment() 
+		var tweetSegment = FRCDataSourceSegment<TwitarrPost>()
+
+	lazy var statusCell: LoadingStatusCellModel = {
+ 		let cell = LoadingStatusCellModel()
+ 		cell.statusText = "Loading Twitarr Posts"
+ 		cell.shouldBeVisible = true
+ 		cell.showSpinner = true
+ 		dataManager.tell(cell, when: "networkUpdateActive") { observer, observed in
+ 			observer.shouldBeVisible = observed.networkUpdateActive  		
+ 		}
+ 		return cell
+	}()
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
         
+		// Set up our filterpack, if we don't have one provided
+        if filterPack == nil {
+        	filterPack = TwitarrFilterPack(author: nil, text: nil)
+        }
+		title = filterPack?.filterTitle ?? "Twitarr"
+		filterPack?.checkLoadRequiredFor(index: 0)
+       
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
  
  		tweetDataSource.register(with: collectionView, viewController: self)
- 		
- 		let loadingSegment = FilteringDataSourceSegment() 
- 		let statusCell = LoadingStatusCellModel()
- 		statusCell.statusText = "Loading Twitarr Posts"
- 		statusCell.shouldBeVisible = true
- 		statusCell.showSpinner = true
- 		loadingSegment.append(statusCell)
  		tweetDataSource.append(segment: loadingSegment)
- 		dataManager.tell(self, when: "networkUpdateActive") { observer, observed in
- 			statusCell.shouldBeVisible = observed.networkUpdateActive  		
- 		}
+		loadingSegment.append(statusCell)
  		
- 		
-		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
-		dataManager.addDelegate(tweetSegment)
   		tweetDataSource.append(segment: tweetSegment)
-		tweetSegment.loaderDelegate = dataManager
-		tweetSegment.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel)
+		tweetSegment.loaderDelegate = filterPack
+		tweetSegment.activate(predicate: filterPack?.predicate, sort: filterPack?.sortDescriptors, cellModelFactory: createCellModel)
+		filterPack?.frc = tweetSegment.frc
+
+//		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
+//		dataManager.addDelegate(tweetSegment)
 		
         // Do any additional setup after loading the view.
-		startRefresh()
-		title = dataManager.filter ?? "Twitarr"
 		setupGestureRecognizer()
 		
 		knownSegues = Set([.tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
@@ -62,7 +74,7 @@ class TwitarrViewController: BaseCollectionViewController {
 	}
     
 	@objc func startRefresh() {
-		dataManager.loadNewestTweets() {
+		dataManager.loadNewestTweets(filterPack) {
 			DispatchQueue.main.async { self.collectionView.refreshControl?.endRefreshing() }
 		}
     }
