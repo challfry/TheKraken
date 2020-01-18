@@ -87,10 +87,24 @@ class BaseCollectionViewController: UIViewController {
 	var tappedCell: UICollectionViewCell?
 	var indexPathToScrollToVisible: IndexPath?
 	
+	// Properties of the Image Viewer. This is a covering view that shows an image. Other UI elements can call showImageInOverlay()
+	// on this VC and we'll show the provided image in a translucent overlay over the regular content.
+	var photoBeingShown: UIImage? 
+	var photoCoveringView: UIVisualEffectView?
+	var 	photoZoomView: UIScrollView?
+	var 		photoOverlayView: UIImageView?
+	var photoHeightConstraint: NSLayoutConstraint?
+	var photoWidthConstraint: NSLayoutConstraint?
+	var zoomViewWidthConstraint: NSLayoutConstraint?
+	var zoomViewHeightConstraint: NSLayoutConstraint?
+
+
+	// Subclasses should set this to the list of global segue enums (see above) they actually support in their viewDidLoad method.
 	var knownSegues: Set<GlobalKnownSegue> = Set()
 	
     override func viewDidLoad() {
         super.viewDidLoad()
+        
      	let keyboardCanceler = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:)))
  //    	keyboardCanceler.cancelsTouchesInView = false
 	 	view.addGestureRecognizer(keyboardCanceler)
@@ -109,6 +123,12 @@ class BaseCollectionViewController: UIViewController {
 				name: UIResponder.keyboardDidShowNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillHide(notification:)), 
 				name: UIResponder.keyboardDidHideNotification, object: nil)
+
+		// CoreMotion is our own device motion manager, a singleton for the whole app. We use it here to get device
+		// orientation without allowing our UI to actually rotate.
+		NotificationCenter.default.addObserver(self, selector: #selector(CameraViewController.deviceRotationNotification), 
+				name: CoreMotion.OrientationChanged, object: nil)
+				
 
 		let bgImage = UIImageView(frame: view.frame)
 		view.addSubview(bgImage)
@@ -138,50 +158,160 @@ class BaseCollectionViewController: UIViewController {
 			}
 		}?.execute()
 	}
-	
-	var photoCoveringView: UIVisualEffectView?
-	
-	func showImageInOverlay(image: UIImage) {
-		let imageSize = image.size
-		let hScaleFactor: CGFloat = view.bounds.size.width / imageSize.width
-		let vScaleFactor: CGFloat = view.bounds.size.height / imageSize.height
-		let scaleFactor = hScaleFactor < vScaleFactor ? hScaleFactor : vScaleFactor
-		let imageViewSize = CGSize(width: imageSize.width * scaleFactor, height: imageSize.height * scaleFactor)
 		
+	func showImageInOverlay(image: UIImage) {
 		if let win = view.window {
+			CoreMotion.shared.start()
+			photoBeingShown = image
+
+			// Set up the visual effect view that covers the regular content
 			var effectStyle = UIBlurEffect.Style.dark
 			if #available(iOS 13.0, *) {
 				effectStyle = .systemUltraThinMaterialDark
 			}
 			let coveringView = UIVisualEffectView(effect: nil)
+			photoCoveringView = coveringView
 			coveringView.frame = win.frame
 			win.addSubview(coveringView)
-
-			let overlayImageView = UIImageView()
-			overlayImageView.translatesAutoresizingMaskIntoConstraints = false
-			coveringView.contentView.addSubview(overlayImageView)
-			let constraints = [
-					overlayImageView.widthAnchor.constraint(equalToConstant: imageViewSize.width),
-					overlayImageView.heightAnchor.constraint(equalToConstant: imageViewSize.height),
-					overlayImageView.centerYAnchor.constraint(equalTo: coveringView.centerYAnchor),
-					overlayImageView.centerXAnchor.constraint(equalTo: coveringView.centerXAnchor) ]
-			NSLayoutConstraint.activate(constraints)
-			overlayImageView.image = image
-			
 			UIView.animate(withDuration: 1) {
 				coveringView.effect = UIBlurEffect(style: effectStyle)
 			}
+						
+			// Scroll view goes inside the covering view, centered.
+			let zoomView = UIScrollView()
+			photoZoomView = zoomView
+			zoomView.delegate = self
+			zoomView.translatesAutoresizingMaskIntoConstraints = false
+			zoomView.showsVerticalScrollIndicator = false
+			zoomView.showsHorizontalScrollIndicator = false
+			zoomView.contentInsetAdjustmentBehavior = .never
+			coveringView.contentView.addSubview(zoomView)
+			let zoomViewWidthConstraint = zoomView.widthAnchor.constraint(lessThanOrEqualToConstant: coveringView.contentView.bounds.size.width)
+			let zoomViewHeightConstraint = zoomView.heightAnchor.constraint(lessThanOrEqualToConstant: coveringView.contentView.bounds.size.height)
+			var constraints = [
+					zoomView.centerYAnchor.constraint(equalTo: coveringView.contentView.centerYAnchor),
+					zoomView.centerXAnchor.constraint(equalTo: coveringView.contentView.centerXAnchor),
+					zoomViewWidthConstraint,
+					zoomViewHeightConstraint]
+			NSLayoutConstraint.activate(constraints)
+			self.zoomViewWidthConstraint = zoomViewWidthConstraint
+			self.zoomViewHeightConstraint = zoomViewHeightConstraint
 			
+			// Image view goes inside the scrollview. This view gets special constraints. 
+			// It pins to the scrollView, which is normal, but it also sets the height/width of the scrollView to
+			// match the (zoomed) frame of the overlayImageView. Priority of these is 999, and they get updated in
+			// scrollViewDidZoom as the zoom changes. In handleDeviceRotation() we set other constraints (@1000) on the 
+			// scrollView to be <= the height/width of the covering view (essentially, screen size). 
+			// Thus, as you zoom out the scrollView centers until it is the height/width of the screen, then allows 
+			// panning. That is, the scrollView size == the image size if less than screen size, else scrollView size ==
+			// screen size, and the content size continues growing, and you can pan.
+			let overlayImageView = UIImageView()
+			photoOverlayView = overlayImageView
+			overlayImageView.translatesAutoresizingMaskIntoConstraints = false
+			zoomView.addSubview(overlayImageView)
+			let photoHeightConstraint = zoomView.heightAnchor.constraint(equalToConstant: image.size.height)
+			photoHeightConstraint.priority = UILayoutPriority(999.0)
+			self.photoHeightConstraint = photoHeightConstraint
+			let photoWidthConstraint = zoomView.widthAnchor.constraint(equalToConstant: image.size.width)
+			photoWidthConstraint.priority = UILayoutPriority(999.0)
+			self.photoWidthConstraint = photoWidthConstraint
+			constraints = [
+					overlayImageView.leadingAnchor.constraint(equalTo: zoomView.leadingAnchor),
+					overlayImageView.trailingAnchor.constraint(equalTo: zoomView.trailingAnchor),
+					overlayImageView.bottomAnchor.constraint(equalTo: zoomView.bottomAnchor),
+					overlayImageView.topAnchor.constraint(equalTo: zoomView.topAnchor),
+					photoHeightConstraint,
+					photoWidthConstraint
+					]
+			NSLayoutConstraint.activate(constraints)
+			overlayImageView.image = image
+			
+			handleDeviceRotation(animated: false)
+			
+			// Tap gesture exits photo view
 			let photoTap = UITapGestureRecognizer(target: self, action: #selector(BaseCollectionViewController.photoTapped(_:)))
 			coveringView.contentView.addGestureRecognizer(photoTap)
-			photoCoveringView = coveringView
+			
+			// Share Button opens the UIActivity sheet.
+			let shareButton = UIButton(type: .system)
+			shareButton.translatesAutoresizingMaskIntoConstraints = false
+			shareButton.setTitle("", for: .normal)
+			shareButton.setImage(UIImage(named: "square.and.arrow.up"), for: .normal)
+			shareButton.setImage(UIImage(named: "square.and.arrow.up.fill"), for: .highlighted)
+			shareButton.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
+			shareButton.imageView?.tintColor = UIColor(named: "Icon Foreground")
+			coveringView.contentView.addSubview(shareButton)
+			constraints = [
+					shareButton.leadingAnchor.constraint(equalTo: coveringView.leadingAnchor, constant: 20),
+					shareButton.bottomAnchor.constraint(equalTo: coveringView.safeAreaLayoutGuide.bottomAnchor) ]
+			NSLayoutConstraint.activate(constraints)
 		}
 	}
 	
+	@objc func deviceRotationNotification(_ notification: Notification) {
+		handleDeviceRotation(animated: true)
+	}
+	
+	// These VCs don't support landscape; only portrait mode. However, the photo view overlay does need to rotate to 
+	// show landscape mode, which is what this crazy code does.
+	func handleDeviceRotation(animated: Bool) {
+		guard let zoomView = self.photoZoomView else { return }
+		guard let coveringView = self.photoCoveringView else { return }
+		guard let photo = self.photoBeingShown else { return }
+		guard let win = view.window else { return }
+				
+		var rotationAngle: CGFloat = 0.0
+		var isLandscape = false
+		switch CoreMotion.shared.currentDeviceOrientation {
+			case .portrait, .faceUp, .unknown: rotationAngle = 0.0
+			case .landscapeLeft: rotationAngle = 90.0; isLandscape = true
+			case .landscapeRight: rotationAngle = -90.0; isLandscape = true
+			case .portraitUpsideDown, .faceDown: rotationAngle = 180.0
+			default: rotationAngle = 0.0
+		}
+		let xform = CGAffineTransform(rotationAngle: CGFloat.pi * rotationAngle / 180.0)
+
+		// ScaleFactor is the scaling to apply to the image to get .scaleAspectFit behavior.
+		let imageSize = photo.size
+		let scaleFactor: CGFloat = isLandscape ? min(win.bounds.size.width / imageSize.height, win.bounds.size.height / imageSize.width) :
+				min(win.bounds.size.width / imageSize.width, win.bounds.size.height / imageSize.height)
+		
+		// Depending on orientation, constrain the zoom view to the coveringView's size. Note that we use constant
+		// constraints here, as for 'landscape' we rotate the zoomView by 90 degrees.
+		let coveringViewSize = coveringView.contentView.bounds.size
+		zoomViewWidthConstraint?.constant = isLandscape ? coveringViewSize.height : coveringViewSize.width
+		zoomViewHeightConstraint?.constant = isLandscape ? coveringViewSize.width : coveringViewSize.height
+
+		zoomView.minimumZoomScale = scaleFactor
+		zoomView.maximumZoomScale = scaleFactor * 3.0
+		zoomView.setNeedsLayout()
+		zoomView.layoutIfNeeded()
+		zoomView.setZoomScale(scaleFactor, animated: animated)
+		
+		if animated {
+			UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.3, delay: 0, options: [], animations: {
+				zoomView.transform = xform
+			})
+		}
+		else {
+			zoomView.transform = xform
+		}
+	}
+
+	@objc func shareButtonTapped() {
+		guard let photo = self.photoBeingShown else { return }
+		let activityViewController = UIActivityViewController(activityItems: [photo], applicationActivities: nil)
+		present(activityViewController, animated: true, completion: {})
+	}
+	
+	// Dismisses the photo overlay view.
 	@objc func photoTapped(_ sender: UITapGestureRecognizer) {
 		if let coveringView = photoCoveringView {
 			coveringView.removeFromSuperview()
+			photoBeingShown = nil
+			photoOverlayView = nil
 			photoCoveringView = nil
+			CoreMotion.shared.stop()
 		}
 	}
         
@@ -380,6 +510,23 @@ class BaseCollectionViewController: UIViewController {
     }
     
 
+}
+
+extension BaseCollectionViewController: UIScrollViewDelegate {
+	func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+		if scrollView == photoZoomView {
+			return photoOverlayView
+		}
+		return nil
+	}
+	
+	func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+	}
+	
+	func scrollViewDidZoom(_ scrollView: UIScrollView) {
+		photoHeightConstraint?.constant = photoOverlayView?.frame.size.height ?? 0
+		photoWidthConstraint?.constant = photoOverlayView?.frame.size.width ?? 0
+	}
 }
 
 extension BaseCollectionViewController: UIGestureRecognizerDelegate {

@@ -312,6 +312,9 @@ class CameraViewController: UIViewController {
 		leftShutter.isEnabled = false
 		rightShutter.isEnabled = false
 		
+	#if targetEnvironment(simulator)
+		return
+	#else
 		// Is this an AVSession picture, or a ARKit snapshot?
 		if pirateView.isHidden {
 		
@@ -344,6 +347,7 @@ class CameraViewController: UIViewController {
 			updateButtonStates()
 			rotateUIElements(animated: false)		
 		}
+	#endif
 	}
 	
 	@IBAction func photoAccepted(sender: UIButton, forEvent event: UIEvent) {
@@ -355,6 +359,12 @@ class CameraViewController: UIViewController {
 		capturedPhotoContainerView.isHidden = true
 		capturedPhoto = nil
 		updateButtonStates()
+	}
+	
+	@IBAction func sharePhotoTapped() {
+		guard let photoImage = capturedPhotoImage else { return }
+		let activityViewController = UIActivityViewController(activityItems: [photoImage], applicationActivities: nil)
+		present(activityViewController, animated: true, completion: {})
 	}
 	
 	var zoomGestureRecognizer: UIPanGestureRecognizer?

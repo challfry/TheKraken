@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -1512,7 +1512,7 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
-                                        <rect key="frame" x="130" y="462" width="115" height="30"/>
+                                        <rect key="frame" x="94" y="462" width="187" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXK-dg-jQa">
                                                 <rect key="frame" x="0.0" y="0.0" width="37" height="30"/>
@@ -1528,15 +1528,26 @@
                                                     <action selector="photoAcceptedWithSender:forEvent:" destination="PPA-A5-VUC" eventType="touchUpInside" id="lcN-l4-bwY"/>
                                                 </connections>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTK-iM-bIb">
+                                                <rect key="frame" x="163" y="3" width="24" height="24"/>
+                                                <state key="normal" image="square.and.arrow.up"/>
+                                                <state key="highlighted" image="square.and.arrow.up.fill"/>
+                                                <connections>
+                                                    <action selector="sharePhotoTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="JEC-mC-f4t"/>
+                                                    <action selector="sharePhotoTapped" destination="Rrr-Wq-uEq" eventType="touchUpInside" id="prY-DJ-4vZ"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
+                                            <constraint firstItem="cTK-iM-bIb" firstAttribute="centerY" secondItem="GXK-dg-jQa" secondAttribute="centerY" id="AES-F5-ppJ"/>
                                             <constraint firstItem="rVa-o2-31t" firstAttribute="firstBaseline" secondItem="GXK-dg-jQa" secondAttribute="firstBaseline" id="Ays-oR-e51"/>
                                             <constraint firstItem="rVa-o2-31t" firstAttribute="leading" secondItem="GXK-dg-jQa" secondAttribute="trailing" constant="48" id="DGA-Z1-LET"/>
                                             <constraint firstItem="GXK-dg-jQa" firstAttribute="top" secondItem="Leu-aO-PLT" secondAttribute="top" id="LNb-Ao-dlS"/>
                                             <constraint firstItem="GXK-dg-jQa" firstAttribute="leading" secondItem="Leu-aO-PLT" secondAttribute="leading" id="ORX-YI-BsP"/>
-                                            <constraint firstAttribute="trailing" secondItem="rVa-o2-31t" secondAttribute="trailing" id="lQo-QQ-o41"/>
+                                            <constraint firstItem="rVa-o2-31t" firstAttribute="trailing" secondItem="cTK-iM-bIb" secondAttribute="leading" constant="-48" id="fgF-IW-N71"/>
                                             <constraint firstAttribute="bottom" secondItem="GXK-dg-jQa" secondAttribute="bottom" id="thi-Sf-ZsP"/>
+                                            <constraint firstAttribute="trailing" secondItem="cTK-iM-bIb" secondAttribute="trailing" id="vIS-CJ-MmG"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -1694,7 +1705,7 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UWX-sY-qUX">
-                                        <rect key="frame" x="118.66666666666669" y="508" width="138" height="30"/>
+                                        <rect key="frame" x="76.666666666666686" y="508" width="222" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ai0-Gf-Ots">
                                                 <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -1710,14 +1721,24 @@
                                                     <action selector="photoAcceptedWithSender:forEvent:" destination="Rrr-Wq-uEq" eventType="touchUpInside" id="zMU-4r-ka3"/>
                                                 </connections>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-me-ViO">
+                                                <rect key="frame" x="198" y="3" width="24" height="24"/>
+                                                <state key="normal" image="square.and.arrow.up"/>
+                                                <state key="highlighted" image="square.and.arrow.up.fill"/>
+                                                <connections>
+                                                    <action selector="sharePhotoTapped" destination="Rrr-Wq-uEq" eventType="touchUpInside" id="4ap-1V-wV8"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <constraints>
+                                            <constraint firstItem="Oj2-X4-dmR" firstAttribute="trailing" secondItem="G1P-me-ViO" secondAttribute="leading" constant="-60" id="0gL-Ig-fwU"/>
                                             <constraint firstItem="Ai0-Gf-Ots" firstAttribute="leading" secondItem="UWX-sY-qUX" secondAttribute="leading" id="1YJ-Du-P9n"/>
                                             <constraint firstItem="Oj2-X4-dmR" firstAttribute="leading" secondItem="Ai0-Gf-Ots" secondAttribute="trailing" constant="61" id="3hy-rm-6Sh"/>
+                                            <constraint firstAttribute="trailing" secondItem="G1P-me-ViO" secondAttribute="trailing" id="9nB-Ks-VL7"/>
                                             <constraint firstItem="Oj2-X4-dmR" firstAttribute="firstBaseline" secondItem="Ai0-Gf-Ots" secondAttribute="firstBaseline" id="BYg-OK-5WI"/>
-                                            <constraint firstAttribute="trailing" secondItem="Oj2-X4-dmR" secondAttribute="trailing" id="G90-hX-9aE"/>
                                             <constraint firstAttribute="bottom" secondItem="Ai0-Gf-Ots" secondAttribute="bottom" id="dYt-pb-Z3g"/>
                                             <constraint firstItem="Ai0-Gf-Ots" firstAttribute="top" secondItem="UWX-sY-qUX" secondAttribute="top" id="sDr-J8-7yh"/>
+                                            <constraint firstItem="G1P-me-ViO" firstAttribute="centerY" secondItem="Ai0-Gf-Ots" secondAttribute="centerY" id="tYn-G6-wAW"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -2091,6 +2112,8 @@
         <image name="Settings.png" width="36" height="36"/>
         <image name="Social.png" width="36" height="36"/>
         <image name="Twitarr.png" width="23" height="23"/>
+        <image name="square.and.arrow.up" width="24" height="24"/>
+        <image name="square.and.arrow.up.fill" width="24" height="24"/>
         <namedColor name="Cell Background Selected">
             <color red="0.95099997520446777" green="0.95099997520446777" blue="0.95099997520446777" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
