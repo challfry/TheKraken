@@ -217,7 +217,7 @@ import UIKit
 	}
 	
 // MARK: Navigation
-	func globalNavigateTo(packet: GlobalNavPacket) {
+	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		if let userNames = packet.arguments["seamailThreadParticipants"] as? Set<String>, 
 				let currentUsername = CurrentUser.shared.loggedInUser?.username {
 			for userName in userNames {
@@ -226,6 +226,7 @@ import UIKit
 				}
 			}
 		}
+		return true
 	}
 	
 }

@@ -84,6 +84,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+// In iOS 13 you can override the system light/dark mode setting in your app's window. This code handles that override,
+// watching the value in the Settings panel.
 extension AppDelegate {
 	func watchForStateChanges() {
 		if #available(iOS 13.0, *) {
@@ -98,4 +100,33 @@ extension AppDelegate {
 			}?.execute()
 		}
 	}
+}
+
+// MARK: - Global Navigation
+
+// This protocol is sort of janky as it requires the caller to fill in the dict with all the steps you need to nav
+// to the desired destination, but it works.
+protocol GlobalNavEnabled {
+	// Return true if you were able to nav at least partway toward the destination.
+	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool
+}
+
+// This specifies how to get to a place in the app. Stating at the top of the app, each viewcontroller gets this navpacket,
+// pulls out any relevant keys, shows the 'next' viewcontroller in the chain, and passes the packet on to the next VC.
+// Still janky.
+struct GlobalNavPacket {
+	var tab: RootTabBarViewController.Tab
+	var arguments: [String : Any]
+}
+
+extension AppDelegate: GlobalNavEnabled {
+	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+    	if let tabBarVC = RootTabBarViewController.shared, tabBarVC.globalNavigateTo(packet: packet) {
+    		return true
+    	}
+    	else {
+    		DailyViewController.shared?.globalNavigateTo(packet: packet)
+    	}
+    	return true
+    }
 }

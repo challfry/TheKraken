@@ -31,7 +31,9 @@ import UIKit
 	
 	override var privateSelected: Bool {
 		didSet {
-			RootTabBarViewController.shared?.globalNavigateTo(packet: navPacket)
+			if privateSelected, let appDel = UIApplication.shared.delegate as? AppDelegate {
+				appDel.globalNavigateTo(packet: navPacket)
+			}
 		}
 	}
 }

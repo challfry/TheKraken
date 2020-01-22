@@ -14,6 +14,7 @@ enum GlobalKnownSegue: String {
 	
 	case modalLogin = 				"ModalLogin"
 
+	case twitarrRoot = 				"TwitarrRoot"
 	case tweetFilter = 				"TweetFilter"
 	case pendingReplies = 			"PendingReplies"
 	case composeReplyTweet = 		"ComposeReplyTweet"
@@ -23,20 +24,31 @@ enum GlobalKnownSegue: String {
 	case showUserTweets = 			"ShowUserTweets"
 	case showUserMentions = 		"ShowUserMentions"
 	
+	case forumsRoot = 				"ForumsRoot"
 	case showForumThread = 			"ShowForumThread"
 	case composeForumThread = 		"ComposeForumThread"
 	case composeForumPost = 		"ComposeForumPost"
 	case editForumPost = 			"EditForumPost"
 	case editForumPostDraft = 		"EditForumPostDraft"
 	
+	case seamailRoot = 				"SeamailRoot"
 	case showSeamailThread = 		"ShowSeamailThread"
 	case editSeamailThreadOp = 		"EditSeamailThreadOp"
 
+	case eventsRoot = 				"EventsRoot"
+	
+	case deckMapRoot =				"DeckMapRoot"
+	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
+	
+	case karaokeRoot =				"KaraokeRoot"
+	case scrapbookRoot =			"ScrapbookRoot"
+	
+	case settingsRoot = 			"SettingsRoot"
+	case postOperations =			"PostOperations"
+	
 	case userProfile = 				"UserProfile"
 	case editUserProfile = 			"EditUserProfile"
 	
-	case postOperations =			"PostOperations"
-	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
 	case fullScreenCamera = 		"fullScreenCamera"
 	case cropCamera = 				"cropCamera"
 	
@@ -47,6 +59,7 @@ enum GlobalKnownSegue: String {
 		
 		case .modalLogin: return LoginSegueWithAction.self
 
+		case .twitarrRoot: return Void.self
 		case .tweetFilter: return String.self
 		case .pendingReplies: return TwitarrPost.self
 		case .composeReplyTweet: return TwitarrPost.self
@@ -56,21 +69,33 @@ enum GlobalKnownSegue: String {
 		case .showUserTweets: return String.self
 		case .showUserMentions: return String.self
 		
+		case .forumsRoot: return Void.self
 		case .showForumThread: return ForumThread.self
 		case .composeForumThread: return Void.self 
 		case .composeForumPost: return ForumThread.self 
 		case .editForumPost: return ForumPost.self 
 		case .editForumPostDraft: return PostOpForumPost.self 
 		
+		case .seamailRoot: return Void.self
 		case .showSeamailThread: return SeamailThread.self
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
 		
+		case .eventsRoot: return Void.self
+		
+		case .deckMapRoot: return Void.self
+		case .showRoomOnDeckMap: return String.self
+		
+		case .karaokeRoot: return Void.self
+		
+		case .scrapbookRoot: return Void.self
+
+		case .settingsRoot: return Void.self
+		case .postOperations: return Any.self
+
 		case .userProfile: return String.self
 		case .editUserProfile: return PostOpUserProfileEdit.self
 
-		case .postOperations: return Any.self
 		
-		case .showRoomOnDeckMap: return String.self
 		case .fullScreenCamera: return BaseCollectionViewCell.self
 		case .cropCamera: return BaseCollectionViewCell.self
 

@@ -390,7 +390,7 @@ import EventKitUI
 
     // MARK: - Navigation
 
-	func globalNavigateTo(packet: GlobalNavPacket) {
+	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		if let eventID = packet.arguments["eventID"] as? String {
 			resetFilters()
 			if let results = eventsSegment?.frc?.fetchedObjects, let event = results.first(where: { $0.id == eventID } ),
@@ -399,6 +399,7 @@ import EventKitUI
 				collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
 			}
 		}
+		return true
 	}
 
 	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {

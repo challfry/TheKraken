@@ -221,9 +221,11 @@ struct PrototypeCellInfo {
 	@objc dynamic var privateSelected: Bool = false 
 	func privateSelectCell(_ newState: Bool = true) {
 		if let model = cellModel {
-			model.privateSelected = true
 			if let ds = self.dataSource {
 				ds.setCellSelection(cell: self, newState: newState)
+			}
+			else {
+				model.privateSelected = true
 			}
 		}
 	}

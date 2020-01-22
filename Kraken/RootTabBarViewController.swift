@@ -8,20 +8,6 @@
 
 import UIKit
 
-// This protocol is sort of janky as it requires the caller to fill in the dict with all the steps you need to nav
-// to the desired destination, but it works.
-protocol GlobalNavEnabled {
-	func globalNavigateTo(packet: GlobalNavPacket)
-}
-
-// This specifies how to get to a place in the app. Stating at the top of the app, each viewcontroller gets this navpacket,
-// pulls out any relevant keys, shows the 'next' viewcontroller in the chain, and passes the packet on to the next VC.
-// Still janky.
-struct GlobalNavPacket {
-	var tab: RootTabBarViewController.Tab
-	var arguments: [String : Any]
-}
-
 class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 	static var shared: RootTabBarViewController? = nil
 	var disabledTabs = Set<Tab>()
@@ -30,7 +16,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 	enum Tab: String {
 		case daily = "DailyNavController"
 		case twitarr = "TwitarrNavController"
-		case forums = "ForumsRootViewController" // Will almost certainly replace with a nav controller when Forums gets written
+		case forums = "ForumsNavViewController" 
 		case seamail = "SeamailNavViewController"
 		case events = "ScheduleNavController"
 		case settings = "SettingsNavController"
@@ -50,7 +36,8 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		RootTabBarViewController.shared = self
 	}
 	
-    func globalNavigateTo(packet: GlobalNavPacket) {
+	// Nav to tabs in the tab bar if they exist; else return false
+    func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		
 		if let vcs = viewControllers {
 			for vc in vcs {				
@@ -60,9 +47,11 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 					if let globalNav = vc as? GlobalNavEnabled {
 						globalNav.globalNavigateTo(packet: packet)
 					}
+					return true
 				}	
 			}
 		}
+		return false
     }
     
     func updateEnabledTabs(_ disabledSections: Set<ValidSectionUpdater.Section>) {

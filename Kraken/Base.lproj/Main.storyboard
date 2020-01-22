@@ -1111,7 +1111,7 @@
         <!--Forums-->
         <scene sceneID="Wvi-6g-QsX">
             <objects>
-                <viewController id="SZu-Xt-If2" customClass="ForumsRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ForumsRoot" useStoryboardIdentifierAsRestorationIdentifier="YES" id="SZu-Xt-If2" customClass="ForumsRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="SGw-bv-zej">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1314,7 +1314,7 @@
         <!--Forums-->
         <scene sceneID="0AG-No-C8o">
             <objects>
-                <navigationController id="gIv-0z-S2i" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="ForumsNavViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="gIv-0z-S2i" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Forums" image="Forums" id="0q3-WS-ggf"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="nGj-xp-iTS">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -2052,8 +2052,14 @@
                     <navigationItem key="navigationItem" id="mlO-jt-9gx"/>
                     <connections>
                         <outlet property="collectionView" destination="SMw-rB-8Ab" id="DoK-dT-Z2W"/>
-                        <segue destination="0s5-bb-y2H" kind="show" identifier="Twitarr" id="d2l-zp-S48"/>
-                        <segue destination="ONr-m0-fD6" kind="show" identifier="Seamail" id="obm-hj-fmk"/>
+                        <segue destination="0s5-bb-y2H" kind="show" identifier="TwitarrRoot" id="d2l-zp-S48"/>
+                        <segue destination="SZu-Xt-If2" kind="show" identifier="ForumsRoot" id="N8d-TY-d67"/>
+                        <segue destination="ONr-m0-fD6" kind="show" identifier="SeamailRoot" id="jrK-s2-V8J"/>
+                        <segue destination="itg-Bj-Npc" kind="show" identifier="EventsRoot" id="RHM-8H-1Ru"/>
+                        <segue destination="v2p-69-U1W" kind="show" identifier="DeckMapRoot" id="ZQM-8h-AgF"/>
+                        <segue destination="bwT-PB-h5y" kind="show" identifier="KaraokeRoot" id="wjx-Zr-mfc"/>
+                        <segue destination="Grq-FL-Vy8" kind="show" identifier="ScrapbookRoot" id="2Ae-eC-yt5"/>
+                        <segue destination="vfs-Qk-nbf" kind="show" identifier="SettingsRoot" id="gdr-Cd-yXW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R26-At-KAA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2075,10 +2081,6 @@
                         <segue destination="gIv-0z-S2i" kind="relationship" relationship="viewControllers" id="pJS-Ae-whZ"/>
                         <segue destination="lfF-py-CrU" kind="relationship" relationship="viewControllers" id="FeF-ZL-OTc"/>
                         <segue destination="lVq-Ex-gy3" kind="relationship" relationship="viewControllers" id="9M4-J3-8MR"/>
-                        <segue destination="RJh-hR-74P" kind="relationship" relationship="viewControllers" id="Vtj-2e-m8Y"/>
-                        <segue destination="QwY-e3-It9" kind="relationship" relationship="viewControllers" id="xud-cO-jkd"/>
-                        <segue destination="K94-r8-zdO" kind="relationship" relationship="viewControllers" id="WSL-oh-8wQ"/>
-                        <segue destination="jAZ-m1-CaY" kind="relationship" relationship="viewControllers" id="fgI-9H-Ed4"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
@@ -2131,13 +2133,18 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="eK7-8I-NMd"/>
+        <segue reference="NT7-WF-Ano"/>
         <segue reference="J5Z-VR-bxK"/>
-        <segue reference="ibx-KH-vcj"/>
+        <segue reference="N8d-TY-d67"/>
+        <segue reference="1ve-Md-YVN"/>
         <segue reference="d2l-zp-S48"/>
-        <segue reference="hIj-Jv-E7S"/>
-        <segue reference="llS-CN-BhZ"/>
-        <segue reference="jdD-6N-h46"/>
-        <segue reference="obm-hj-fmk"/>
+        <segue reference="RHM-8H-1Ru"/>
+        <segue reference="vXi-dK-Rxk"/>
+        <segue reference="gdr-Cd-yXW"/>
+        <segue reference="ZQM-8h-AgF"/>
+        <segue reference="wjx-Zr-mfc"/>
+        <segue reference="2Ae-eC-yt5"/>
+        <segue reference="hV8-Mc-Uo7"/>
+        <segue reference="jrK-s2-V8J"/>
     </inferredMetricsTieBreakers>
 </document>

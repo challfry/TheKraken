@@ -103,7 +103,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
     
     // MARK: Navigation
     
-	func globalNavigateTo(packet: GlobalNavPacket) {
+	func globalNavigateTo(packet: GlobalNavPacket) -> Bool{
 		if let userNames = packet.arguments["seamailThreadParticipants"] as? Set<String> {
 			if let nav = self.navigationController, let threads = threadSegment.frc?.fetchedObjects {
 				let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -116,7 +116,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 						if let globalNav = existingThreadVC as? GlobalNavEnabled {
 							globalNav.globalNavigateTo(packet: packet)
 						}
-						return
+						return true
 					}
 				}
 				
@@ -128,6 +128,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 				}
 			}
 		}
+		return true
 	}
 	
 	// This is the unwind segue handler for the thread view. It needs to exist, but doesn't need to do anything.
