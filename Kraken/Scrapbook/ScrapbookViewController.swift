@@ -41,10 +41,6 @@ class ScrapbookViewController: BaseCollectionViewController {
 		collectionView.register(headerNib, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, 
 				withReuseIdentifier: "EventSectionHeaderView")
 		favoritesDataSource.buildSupplementaryView = createSectionHeaderView
-		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-			layout.headerReferenceSize = CGSize(width: collectionView.frame.size.width, height: 21)
-			layout.sectionHeadersPinToVisibleBounds = true
-		}
 
 		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
 			if let currentUser = observed.loggedInUser {
@@ -65,11 +61,19 @@ class ScrapbookViewController: BaseCollectionViewController {
 				observer.songSegment.activate(predicate: NSPredicate(value: true), 
 						sort: [ NSSortDescriptor(key: "songTitle", ascending: true)], 
 						cellModelFactory: observer.createSongCellModel)
+				if let layout = observer.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+					layout.headerReferenceSize = CGSize(width: observer.collectionView.frame.size.width, height: 21)
+					layout.sectionHeadersPinToVisibleBounds = true
+				}
 			}
 			else {
        			// If nobody's logged in, pop to root, show the login cells.
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
 				observer.navigationController?.popToViewController(observer, animated: false)
+				if let layout = observer.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+					layout.headerReferenceSize = CGSize(width: 0, height: 0)
+					layout.sectionHeadersPinToVisibleBounds = true
+				}
 			}
 		}?.execute()
 		
@@ -83,19 +87,19 @@ class ScrapbookViewController: BaseCollectionViewController {
 	
 	func createSectionHeaderView(_ cv: UICollectionView, _ kind: String, _ indexPath: IndexPath, 
 			_ cellModel: BaseCellModel?) -> UICollectionReusableView {
-		if let newView = cv.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "EventSectionHeaderView", 
-				for: indexPath) as? EventSectionHeaderView {
+		let newView = cv.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "EventSectionHeaderView", 
+				for: indexPath)
+		if let headerView = newView as? EventSectionHeaderView {
 			switch cellModel {
-			case is TwitarrTweetCellModel: newView.setTimeLabelText(to: "Favorite Tweets")
-			case is ForumPostCellModel: newView.setTimeLabelText(to: "Favorite Forum Posts")
-			case is ProfileAvatarCellModel: newView.setTimeLabelText(to: "Favorite Users")
-			case is EventCellModel: newView.setTimeLabelText(to: "Favorite Events")
-			case is KaraokeFavoriteSongCellModel: newView.setTimeLabelText(to: "Favorite Karaoke Songs")
-			default: newView.setTimeLabelText(to: "")
+			case is TwitarrTweetCellModel: headerView.setTimeLabelText(to: "Favorite Tweets")
+			case is ForumPostCellModel: headerView.setTimeLabelText(to: "Favorite Forum Posts")
+			case is ProfileAvatarCellModel: headerView.setTimeLabelText(to: "Favorite Users")
+			case is EventCellModel: headerView.setTimeLabelText(to: "Favorite Events")
+			case is KaraokeFavoriteSongCellModel: headerView.setTimeLabelText(to: "Favorite Karaoke Songs")
+			default: headerView.setTimeLabelText(to: "")
 			}
-			return newView
 		}
-		return UICollectionReusableView()
+		return newView
 	}
 
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
