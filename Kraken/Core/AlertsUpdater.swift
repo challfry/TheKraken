@@ -8,34 +8,6 @@
 
 import UIKit
 
-@objc(Announcement) public class Announcement: KrakenManagedObject {
-    @NSManaged public var id: String?
-    @NSManaged public var text: String?
-    @NSManaged public var displayUntil: Int64
-    @NSManaged public var author: KrakenUser?
-    
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Announcement) {
-		TestAndUpdate(\.id, v2Object.id)
-		TestAndUpdate(\.text, v2Object.text)
-		TestAndUpdate(\.displayUntil, v2Object.timestamp)	// Yes, the timestamp on an Announcement is its displayUntil date,
-															// not its post date.
-		
-		// Set the author
-		if author?.username != v2Object.author.username {
-			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-			if let cdAuthor = userPool[v2Object.author.username] {
-				author = cdAuthor
-			}
-		}
-	}
-
-	func displayUntilDate() -> Date {
-		return Date(timeIntervalSince1970: Double(displayUntil) / 1000.0)
-	}
-	
-}
-
-
 class AlertsUpdater: ServerUpdater {
 	static let shared = AlertsUpdater()
 	
@@ -80,8 +52,9 @@ class AlertsUpdater: ServerUpdater {
 	}
 	
 	func callAlertsEndpoint() {
-		var queryParams: [URLQueryItem] = []
-		queryParams.append(URLQueryItem(name:"no_reset", value: "true"))		
+	
+		let queryParams: [URLQueryItem] = []
+//		queryParams.append(URLQueryItem(name:"no_reset", value: "true"))		
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/alerts", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 
@@ -113,7 +86,7 @@ class AlertsUpdater: ServerUpdater {
 	
 		// Announcements
 		if response.announcements.count > 0 {
-			ingestAnnouncements(from: response.announcements)
+			AnnouncementDataManager.shared.ingestAnnouncements(from: response.announcements)
 		}
 		
 		// Tweets
@@ -140,41 +113,9 @@ class AlertsUpdater: ServerUpdater {
 		}
 	}
 	
-	func ingestAnnouncements(from announcements: [TwitarrV2Announcement]) {
-		LocalCoreData.shared.performNetworkParsing { context in
-			context.pushOpErrorExplanation("Failure adding announcements to Core Data.")
-			
-			// This populates "Users" in our context's userInfo to be a dict of [username : KrakenUser]
-			let authors = announcements.map { $0.author }
-			UserManager.shared.update(users: authors, inContext: context)
-
-			// Get all the Announcement objects already in Core Data whose IDs match those of the announcements we're merging in.
-			let newAnnouncementIDs = announcements.map { $0.id }
-			let request = LocalCoreData.shared.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "AnnouncementsWithIDs", 
-					substitutionVariables: [ "ids" : newAnnouncementIDs ]) as! NSFetchRequest<Announcement>
-			let cdAnnouncements = try request.execute()
-			let cdAnnouncementsDict = Dictionary(cdAnnouncements.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
-
-			for ann in announcements {
-				let cdAnnouncement = cdAnnouncementsDict[ann.id] ?? Announcement(context: context)
-				cdAnnouncement.buildFromV2(context: context, v2Object: ann)
-			}
-			
-			// Note that we don't have a good way to know if an announcement has been deleted. There's an admin call
-			// to do it, so it could happen. We could ask for all announcements that are active, and merge-delete any
-			// not in the results set. 
-		}
-	}
 }
 
 // MARK: - V2 API Decoding
-
-struct TwitarrV2Announcement: Codable {
-    let id: String
-	let author: TwitarrV2UserInfo
-	let text: String
-    let timestamp: Int64
-}
 
 // GET /api/v2/alerts
 struct TwitarrV2AlertsResponse: Codable {

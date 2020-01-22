@@ -6,3 +6,4 @@ pirate icon in Camera view - Icon made by Freepik at flaticon.com
 Photo by Jonas Friese on Unsplash
 Photo by Masaaki Komori on Unsplash
 Photo by Isabel Galvez on Unsplash
+Photo by Brian Yurasits on Unsplash

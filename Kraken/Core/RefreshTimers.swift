@@ -13,7 +13,8 @@ class ServerUpdater : NSObject {
 	static var updateActions: [ServerUpdater] = [
 			ServerTimeUpdater.shared,
 			ValidSectionUpdater.shared,
-			AlertsUpdater.shared
+			AlertsUpdater.shared,
+			AnnouncementsUpdater.shared
 	]
 	
 	func updateMethod() {}

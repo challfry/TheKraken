@@ -201,7 +201,7 @@
         <!--Scrapbook-->
         <scene sceneID="034-Hc-VuC">
             <objects>
-                <navigationController id="jAZ-m1-CaY" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="ScrapbookNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="jAZ-m1-CaY" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Scrapbook" image="Scrapbook" selectedImage="ScrapbookFill" id="4dZ-ie-2Dk"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="rlp-xx-730">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -336,7 +336,7 @@
         <!--Lower Promenade Deck (2)-->
         <scene sceneID="bOO-qU-bNr">
             <objects>
-                <viewController id="v2p-69-U1W" customClass="DeckMapViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="DeckMapViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="v2p-69-U1W" customClass="DeckMapViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="nfo-1N-hEJ">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -2003,11 +2003,11 @@
             </objects>
             <point key="canvasLocation" x="814" y="1184"/>
         </scene>
-        <!--Social-->
+        <!--Daily-->
         <scene sceneID="7hU-H1-u6J">
             <objects>
-                <navigationController storyboardIdentifier="SocialNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="FbF-R0-wHc" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Social" image="Social.png" id="NSX-bp-aed"/>
+                <navigationController storyboardIdentifier="DailyNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="FbF-R0-wHc" userLabel="Daily" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Daily" image="Social.png" id="NSX-bp-aed" userLabel="Daily"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Wx2-VR-7a7">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -2020,10 +2020,10 @@
             </objects>
             <point key="canvasLocation" x="-3159" y="-250"/>
         </scene>
-        <!--Social View Controller-->
+        <!--Daily View Controller-->
         <scene sceneID="2E2-7P-xh6">
             <objects>
-                <viewController storyboardIdentifier="SocialViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Iej-mB-wDe" customClass="SocialViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="DailyViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Iej-mB-wDe" customClass="DailyViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="sb3-GG-dkm">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -2070,12 +2070,12 @@
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                     </tabBar>
                     <connections>
+                        <segue destination="FbF-R0-wHc" kind="relationship" relationship="viewControllers" id="mB2-NL-D0V"/>
                         <segue destination="r9i-Le-Z25" kind="relationship" relationship="viewControllers" id="bLn-nY-uKc"/>
                         <segue destination="gIv-0z-S2i" kind="relationship" relationship="viewControllers" id="pJS-Ae-whZ"/>
                         <segue destination="lfF-py-CrU" kind="relationship" relationship="viewControllers" id="FeF-ZL-OTc"/>
                         <segue destination="lVq-Ex-gy3" kind="relationship" relationship="viewControllers" id="9M4-J3-8MR"/>
                         <segue destination="RJh-hR-74P" kind="relationship" relationship="viewControllers" id="Vtj-2e-m8Y"/>
-                        <segue destination="FbF-R0-wHc" kind="relationship" relationship="viewControllers" id="mB2-NL-D0V"/>
                         <segue destination="QwY-e3-It9" kind="relationship" relationship="viewControllers" id="xud-cO-jkd"/>
                         <segue destination="K94-r8-zdO" kind="relationship" relationship="viewControllers" id="WSL-oh-8wQ"/>
                         <segue destination="jAZ-m1-CaY" kind="relationship" relationship="viewControllers" id="fgI-9H-Ed4"/>
@@ -2131,11 +2131,11 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="oPR-Dz-wmr"/>
+        <segue reference="eK7-8I-NMd"/>
         <segue reference="J5Z-VR-bxK"/>
         <segue reference="ibx-KH-vcj"/>
-        <segue reference="wTp-nv-sgn"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="d2l-zp-S48"/>
+        <segue reference="hIj-Jv-E7S"/>
         <segue reference="llS-CN-BhZ"/>
         <segue reference="jdD-6N-h46"/>
         <segue reference="obm-hj-fmk"/>

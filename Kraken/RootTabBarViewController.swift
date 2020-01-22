@@ -28,13 +28,15 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 
 	// The raw value for each tab is its restorationID, which must also be its storyboardID
 	enum Tab: String {
+		case daily = "DailyNavController"
 		case twitarr = "TwitarrNavController"
 		case forums = "ForumsRootViewController" // Will almost certainly replace with a nav controller when Forums gets written
 		case seamail = "SeamailNavViewController"
 		case events = "ScheduleNavController"
 		case settings = "SettingsNavController"
 		case karaoke = "KaraokeNavController"
-		case social = "SocialNavController"
+		case deckPlans = "DeckMapNavController"
+		case scrapbook = "ScrapbookNavController"
 		case unknown = ""
 	}
 	
@@ -73,7 +75,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 				case .stream: newDisabledTabs.insert(.twitarr)
 				case .seamail: newDisabledTabs.insert(.seamail)
 				case .calendar: newDisabledTabs.insert(.events)
-				case .deckPlans: break // newDisabledTabs.insert(.)
+				case .deckPlans: newDisabledTabs.insert(.deckPlans)
 				case .games: break // newDisabledTabs.insert(.)
 				case .karaoke: newDisabledTabs.insert(.karaoke)
 				case .search: break // newDisabledTabs.insert(.)

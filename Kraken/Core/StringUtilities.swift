@@ -9,14 +9,27 @@
 import UIKit
 
 class StringUtilities {
+
+	struct HTMLTag {
+		var tagName: String
+		var position: Int
+	}
  
-    class func cleanupText(_ text:String, addLinks: Bool = true) -> NSMutableAttributedString {
+ 	// Takes text that may contain HTML fragment tags and removes the tags. This fn can also perform SOME TYPES of transforms,
+ 	// parsing the HTML tags and applying their attributes to the text, converting HTML to Attributed String attributes.
+ 	// 
+ 	// Thanks to the way AttributedStrings work, you can get a 'clean' String for an edit text field using cleanupText().string
+    class func cleanupText(_ text:String, addLinks: Bool = true, font: UIFont? = nil) -> NSMutableAttributedString {
     	let outputString = NSMutableAttributedString()
     	let openTag = CharacterSet(charactersIn: "<")
     	let closeTag = CharacterSet(charactersIn: ">")
     	let emptySet = CharacterSet(charactersIn: "")
-    	var tagStack = [String]()
+    	var tagStack = [HTMLTag]()
     	
+		let unscaledBaseFont = font ?? UIFont.systemFont(ofSize: 17)
+		let baseFont = UIFontMetrics(forTextStyle: .body).scaledFont(for: unscaledBaseFont)
+		let baseTextAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont, .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
+		
     	// The jankiest HTML fragment parser I've written this week.
      	let scanner = Scanner(string: text)
      	scanner.charactersToBeSkipped = emptySet
@@ -25,29 +38,69 @@ class StringUtilities {
 			// Else, it's text that's 'inside' all the tags in the stack.
 			if let tempString = scanner.KscanUpToCharactersFrom(openTag) {
 				let cleanedTempString = tempString.decodeHTMLEntities()
-				if tagStack.isEmpty || !addLinks {
-    				let textAttrs: [NSAttributedString.Key : Any] = [ .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
-					let attrString = NSAttributedString(string: cleanedTempString, attributes: textAttrs)
-					outputString.append(attrString)
-				}
-				else {
-    				let tagAttrs: [NSAttributedString.Key : Any] = [ .link : tempString,
-    						 .foregroundColor : UIColor.blue as Any]
-					let attrString = NSAttributedString(string: cleanedTempString, attributes: tagAttrs)
-					outputString.append(attrString)
-				}
+				let attrString = NSAttributedString(string: cleanedTempString, attributes: baseTextAttrs)
+				outputString.append(attrString)
 			}
 			
 			// Now scan the tag and whatever junk is in it, from '<' to '>'
 			scanner.scanString("<", into: nil)
 	   		if let tagContents = scanner.KscanUpToCharactersFrom(closeTag) {
 	   			let firstSpace = tagContents.firstIndex(of: " ") ?? tagContents.endIndex
-				let tagName = tagContents[..<firstSpace]
-				if tagName.hasPrefix("/") {
-					_ = tagStack.popLast()
+				let tagName = String(tagContents[..<firstSpace])
+				if tagName.hasPrefix("/"){
+					// Close tag
+					let tagWithoutPrefix = tagName.dropFirst(1)
+					var attrsToAdd: [NSAttributedString.Key : Any]?
+					if let tagIndex = tagStack.lastIndex(where: { $0.tagName == tagWithoutPrefix }) {
+						let tag = tagStack.remove(at: tagIndex)
+						switch tag.tagName {
+						case "a": 
+							if addLinks {
+								// Add the string as linktext, with the string itself as the contents of the 'link'. The text view
+								// this text is put into should have a handler for taps on the link.
+								let linkText = outputString.string.suffix(outputString.length - tag.position)
+								attrsToAdd = [ .link : linkText, .foregroundColor : UIColor.blue as Any]
+							}
+						case "b": 
+							attrsToAdd = [ .font : boldFont(for: baseFont)]
+	//					case "blockquote":
+	//					case "code":
+	//					case "del": 
+						case "em": attrsToAdd = [ .font : boldFont(for: baseFont)]
+						case "i": attrsToAdd = [ .font : italicFont(for: baseFont)]
+						case "p": outputString.replaceCharacters(in: NSMakeRange(outputString.length, 0), with: "\n\n")
+	//					case "pre":
+	//					case "q":
+						case "strong": attrsToAdd = [ .font : boldFont(for: baseFont)]
+	//					case "sub":
+	//					case "sup":
+						case "u": attrsToAdd = [ .underlineStyle : NSNumber(1) ]
+						default: break
+						}
+						
+						if let attrs = attrsToAdd {
+							outputString.addAttributes(attrs, range: NSMakeRange(tag.position, outputString.length - tag.position))
+						}
+					}
+				}
+				else if tagContents.hasSuffix("/") || isVoidElementTag(tagName) {
+					// This is an self-closing tag e.g. <br />, or a void eleement e.g. <br>
+					var appendStr: String?
+					switch tagName {
+					case "br": appendStr = "\n"
+					
+					// We don't care about the rest of the void elements.
+					default: break
+					}
+					
+					if let str = appendStr {
+						outputString.replaceCharacters(in: NSMakeRange(outputString.length, 0), with: str)
+					}
+
 				}
 				else {
-					tagStack.append(String(tagName))
+					// This is an open tag e.g. <a>
+					tagStack.append(HTMLTag(tagName: tagName, position: outputString.length))
 				}
 			}
 		   	scanner.scanString(">", into: nil)
@@ -55,6 +108,30 @@ class StringUtilities {
     	
     	return outputString
     }
+    
+    class func boldFont(for baseFont: UIFont) -> UIFont {
+    	if let desc = baseFont.fontDescriptor.withSymbolicTraits(.traitBold) {
+			let boldFont = UIFont(descriptor: desc, size: baseFont.pointSize)
+			return boldFont
+		}
+		return baseFont
+    }
+        
+    class func italicFont(for baseFont: UIFont) -> UIFont {
+    	// This could also be done with the NSAttributedString key for obliqueness
+    	if let desc = baseFont.fontDescriptor.withSymbolicTraits(.traitItalic) {
+			let boldFont = UIFont(descriptor: desc, size: baseFont.pointSize)
+			return boldFont
+		}
+		return baseFont
+    }
+        
+    static var voidElements = Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", 
+    		"source", "track", "wbr", "command", "keygen", "menuitem"])
+    class func isVoidElementTag(_ tag: String) -> Bool {
+    	return voidElements.contains(tag)
+    }
+    
     
 	class func relativeTimeString(forDate: Date) -> String {
 		if forDate.timeIntervalSinceNow > -1.0 {

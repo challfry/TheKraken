@@ -21,6 +21,8 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 // MARK: Methods	
 	override func awakeFromNib() {
 		super.awakeFromNib()
+		
+		// Set the badge on the Seamail tab
 		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
 				"loggedInUser.seamailParticipant.count"]) { observer, observed in
 			if let currentUser = observed.loggedInUser {

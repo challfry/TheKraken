@@ -66,7 +66,8 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
     	didSet {
     		if let message = model as? SeamailMessage, !message.isDeleted {
 	    	//	authorUsernameLabel.text = message.author.username
-	    		messageLabel.attributedText = StringUtilities.cleanupText(message.text)
+				let msgFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
+	    		messageLabel.attributedText = StringUtilities.cleanupText(message.text, font: msgFont)
 	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
 	    		let dateString = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
 				authorUsernameLabel?.attributedText = authorAndTime(author: message.author.username, time: dateString)

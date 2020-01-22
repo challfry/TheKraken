@@ -459,11 +459,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Verdana", size: 15.0) as Any ]
 
 			let tweetTextFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
-			let scaledTweetFont = UIFontMetrics(forTextStyle: .body).scaledFont(for: tweetTextFont)
-			let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : scaledTweetFont as Any ]
-
-			let tweetTextWithLinks = StringUtilities.cleanupText(postText ?? "", addLinks: addLinksToText)
-			tweetTextWithLinks.addAttributes(tweetTextAttrs, range: NSRange(location: 0, length: tweetTextWithLinks.length))
+			let tweetTextWithLinks = StringUtilities.cleanupText(postText ?? "", addLinks: addLinksToText, font: tweetTextFont)
 			tweetTextView.attributedText = tweetTextWithLinks
 			
 			let fixedWidth = tweetTextView.frame.size.width

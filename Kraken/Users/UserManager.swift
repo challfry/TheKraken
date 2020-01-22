@@ -41,6 +41,7 @@ import CoreData
 	@NSManaged public var commentOps: Set<PostOpUserComment>?
 	
 	@NSManaged public var seamailParticipant: Set<SeamailThread>
+	@NSManaged public var upToDateAnnouncements: Set<Announcement>
 	
 	override public func awakeFromFetch() {
 		super.awakeFromFetch()

@@ -388,6 +388,15 @@ class KrakenDataSource: NSObject {
 		}
 	}
 	
+	// We generally want to avoid calling this--much of how the whole system works is that we minimize calls to reload.
+	// However, if a cell needs to change its xib or otherwise significantly reformat itself, here's how.
+	func reloadCell(_ cell: BaseCollectionViewCell) {
+		if let cellIndexPath = collectionView?.indexPath(for: cell)
+		{
+			collectionView?.reloadItems(at: [cellIndexPath])
+		}	
+	}
+	
 //	override var debugDescription: String {
 //		let mirror = Mirror(reflecting: self)
 //		var result = ""

@@ -22,6 +22,8 @@ class DisabledContentViewController: UIViewController {
 
     	var tabName: String
 		switch (tabBeingReplaced ?? .unknown) {
+		case .daily:
+			tabName = "Daily"
 		case .twitarr:
 			tabName = "Twitarr"
 		case .forums:
@@ -34,8 +36,10 @@ class DisabledContentViewController: UIViewController {
 			tabName = "Settings"
 		case .karaoke:
 			tabName = "Karaoke"
-		case .social:
-			tabName = "Social"
+		case .deckPlans:
+			tabName = "Deck Maps"
+		case .scrapbook:
+			tabName = "Scrapbook"
 		case .unknown:
 			tabName = "Tab"
 		}
@@ -56,6 +60,9 @@ class DisabledContentViewController: UIViewController {
     	var featureName: String
     	var featurePath: String
 		switch (tabBeingReplaced ?? .unknown) {
+		case .daily:
+			featureName = "the Daily Information panel"
+			featurePath = ""
 		case .twitarr:
 			featureName = "the Twittar posting stream"
 			featurePath = "/#/stream"
@@ -74,12 +81,16 @@ class DisabledContentViewController: UIViewController {
 		case .karaoke:
 			featureName = "the Karaoke Song Finder"
 			featurePath = ""
-		case .social:
-			featureName = "all Social Media"
+		case .deckPlans:
+			featureName = "Deck Maps"
+			featurePath = ""
+		case .scrapbook:
+			featureName = "Scrapbook"
 			featurePath = ""
 		case .unknown:
 			featureName = "this feature"
 			featurePath = ""
+
 		}
 		
 		disabledLabel.text = "The Twitarr Team has disabled \(featureName)"

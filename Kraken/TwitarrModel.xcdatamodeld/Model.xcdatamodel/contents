@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19C57" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
-        <attribute name="displayUntil" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="text" optional="YES" attributeType="String"/>
+        <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="announcements" inverseEntity="KrakenUser"/>
+        <relationship name="viewedBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="upToDateAnnouncements" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="Event" representedClassName="Event" syncable="YES">
         <attribute name="ekEventID" optional="YES" attributeType="String"/>
@@ -109,6 +111,7 @@
         <relationship name="starredBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredUsers" inverseEntity="KrakenUser"/>
         <relationship name="starredUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredBy" inverseEntity="KrakenUser"/>
         <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="author" inverseEntity="TwitarrPost"/>
+        <relationship name="upToDateAnnouncements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="viewedBy" inverseEntity="Announcement"/>
         <relationship name="upToDateSeamailThreads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="fullyReadBy" inverseEntity="SeamailThread"/>
         <relationship name="userComments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserComment" inverseName="commentingUser" inverseEntity="UserComment"/>
         <uniquenessConstraints>
@@ -294,13 +297,13 @@
     <fetchRequest name="TwitarrPostsToDelete" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate AND (NOT id IN $ids)"/>
     <fetchRequest name="TwitarrPostsWithIDs" entity="TwitarrPost" predicateString="id IN $ids"/>
     <elements>
-        <element name="Announcement" positionX="117" positionY="117" width="128" height="103"/>
+        <element name="Announcement" positionX="117" positionY="117" width="128" height="133"/>
         <element name="Event" positionX="117" positionY="117" width="128" height="210"/>
         <element name="ForumPost" positionX="126" positionY="126" width="128" height="208"/>
         <element name="ForumReadCount" positionX="135" positionY="135" width="128" height="133"/>
         <element name="ForumThread" positionX="117" positionY="117" width="128" height="223"/>
         <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="598"/>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="613"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="193"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="118"/>

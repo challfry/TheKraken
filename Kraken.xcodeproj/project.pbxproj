@@ -74,6 +74,14 @@
 		EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6E2368F01D0042C0DC /* Styler.swift */; };
 		EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC7123693A800042C0DC /* DeckMapViewController.swift */; };
 		EA83FC8B236E33450042C0DC /* DeckDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC8A236E33450042C0DC /* DeckDataManager.swift */; };
+		EA8694AC23D3091A00ABE391 /* DailyActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8694AA23D3091A00ABE391 /* DailyActivityCell.swift */; };
+		EA8694AD23D3091A00ABE391 /* DailyActivityCell2.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8694AB23D3091A00ABE391 /* DailyActivityCell2.xib */; };
+		EA8694AF23D47FB600ABE391 /* DailyActivityCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8694AE23D47FB500ABE391 /* DailyActivityCell.xib */; };
+		EA8694B123D48F2500ABE391 /* DailyActivityCell3.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8694B023D48F2500ABE391 /* DailyActivityCell3.xib */; };
+		EA8694B423D4A5A800ABE391 /* AnnouncementCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8694B223D4A5A800ABE391 /* AnnouncementCell.swift */; };
+		EA8694B523D4A5A800ABE391 /* AnnouncementCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8694B323D4A5A800ABE391 /* AnnouncementCell.xib */; };
+		EA8694B723D4A5BE00ABE391 /* SocialCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8694B623D4A5BE00ABE391 /* SocialCell.swift */; };
+		EA8694B923D5BF4000ABE391 /* AnnouncementDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8694B823D5BF4000ABE391 /* AnnouncementDataManager.swift */; };
 		EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */; };
 		EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD02272813800363CBF /* LoginHeaderCell.xib */; };
 		EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */; };
@@ -105,7 +113,7 @@
 		EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */; };
 		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
-		EAA0284C2321ED7300B2B7F1 /* SocialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* SocialViewController.swift */; };
+		EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* DailyViewController.swift */; };
 		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4C12242D300009F287F /* ForumsRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* ForumsRootViewController.swift */; };
@@ -250,6 +258,14 @@
 		EA83FC6E2368F01D0042C0DC /* Styler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styler.swift; sourceTree = "<group>"; };
 		EA83FC7123693A800042C0DC /* DeckMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckMapViewController.swift; sourceTree = "<group>"; };
 		EA83FC8A236E33450042C0DC /* DeckDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckDataManager.swift; sourceTree = "<group>"; };
+		EA8694AA23D3091A00ABE391 /* DailyActivityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyActivityCell.swift; sourceTree = "<group>"; };
+		EA8694AB23D3091A00ABE391 /* DailyActivityCell2.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DailyActivityCell2.xib; sourceTree = "<group>"; };
+		EA8694AE23D47FB500ABE391 /* DailyActivityCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DailyActivityCell.xib; sourceTree = "<group>"; };
+		EA8694B023D48F2500ABE391 /* DailyActivityCell3.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DailyActivityCell3.xib; sourceTree = "<group>"; };
+		EA8694B223D4A5A800ABE391 /* AnnouncementCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementCell.swift; sourceTree = "<group>"; };
+		EA8694B323D4A5A800ABE391 /* AnnouncementCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnnouncementCell.xib; sourceTree = "<group>"; };
+		EA8694B623D4A5BE00ABE391 /* SocialCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialCell.swift; sourceTree = "<group>"; };
+		EA8694B823D5BF4000ABE391 /* AnnouncementDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementDataManager.swift; sourceTree = "<group>"; };
 		EA86ADD02272813800363CBF /* LoginHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginHeaderCell.xib; sourceTree = "<group>"; };
 		EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextFieldCell.xib; sourceTree = "<group>"; };
 		EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingStatusCell.swift; sourceTree = "<group>"; };
@@ -285,7 +301,7 @@
 		EAA02845232057D900B2B7F1 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabBarViewController.swift; sourceTree = "<group>"; };
 		EAA028492321CF7100B2B7F1 /* Questions for Server Team.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Questions for Server Team.md"; sourceTree = "<group>"; };
-		EAA0284B2321ED7300B2B7F1 /* SocialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialViewController.swift; sourceTree = "<group>"; };
+		EAA0284B2321ED7300B2B7F1 /* DailyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyViewController.swift; sourceTree = "<group>"; };
 		EAA0E91122E942770077D5D0 /* SwiftUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUtils.swift; sourceTree = "<group>"; };
 		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -327,6 +343,7 @@
 		EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SmallUserCell.xib; sourceTree = "<group>"; };
 		EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarEditCell.swift; sourceTree = "<group>"; };
 		EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTimers.swift; sourceTree = "<group>"; };
+		EAE26A1623D6F8BE00D6FACA /* ArrayDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotion.swift; sourceTree = "<group>"; };
 		EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectionCell.swift; sourceTree = "<group>"; };
 		EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
@@ -626,13 +643,21 @@
 			path = Scrapbook;
 			sourceTree = "<group>";
 		};
-		EAA0284A2321ED4A00B2B7F1 /* Social */ = {
+		EAA0284A2321ED4A00B2B7F1 /* Daily */ = {
 			isa = PBXGroup;
 			children = (
-				EAA0284B2321ED7300B2B7F1 /* SocialViewController.swift */,
+				EAA0284B2321ED7300B2B7F1 /* DailyViewController.swift */,
+				EA8694AA23D3091A00ABE391 /* DailyActivityCell.swift */,
+				EA8694AE23D47FB500ABE391 /* DailyActivityCell.xib */,
+				EA8694AB23D3091A00ABE391 /* DailyActivityCell2.xib */,
+				EA8694B023D48F2500ABE391 /* DailyActivityCell3.xib */,
+				EA8694B623D4A5BE00ABE391 /* SocialCell.swift */,
 				EA8B986323225E4F00E10156 /* SocialCell.xib */,
+				EA8694B223D4A5A800ABE391 /* AnnouncementCell.swift */,
+				EA8694B323D4A5A800ABE391 /* AnnouncementCell.xib */,
+				EA8694B823D5BF4000ABE391 /* AnnouncementDataManager.swift */,
 			);
-			path = Social;
+			path = Daily;
 			sourceTree = "<group>";
 		};
 		EAA2E4B02242D300009F287F = {
@@ -674,7 +699,7 @@
 				EA02701F237CE55900071C5E /* Colors.xcassets */,
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
 				EAA2E4CA2242D301009F287F /* Info.plist */,
-				EAA0284A2321ED4A00B2B7F1 /* Social */,
+				EAA0284A2321ED4A00B2B7F1 /* Daily */,
 				EA1E3B8D2245795100017F07 /* Twittarr */,
 				EA1E3B8E2245796F00017F07 /* Forums */,
 				EA1E3B8F2245798400017F07 /* Seamail */,
@@ -715,6 +740,7 @@
 			isa = PBXGroup;
 			children = (
 				EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */,
+				EAE26A1623D6F8BE00D6FACA /* ArrayDataSourceSegment.swift */,
 				EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */,
 				EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */,
 				EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */,
@@ -847,6 +873,7 @@
 				EA1099FC2397376700F5172D /* ForumsThreadCell.xib in Resources */,
 				EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */,
 				EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */,
+				EA8694AD23D3091A00ABE391 /* DailyActivityCell2.xib in Resources */,
 				EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
@@ -856,10 +883,12 @@
 				EA1B9FE723514E8100BFEB46 /* PostOpStatusCell.xib in Resources */,
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EA4E84EC2328734F0059E5EB /* KaraokeLoadingCell.xib in Resources */,
+				EA8694B523D4A5A800ABE391 /* AnnouncementCell.xib in Resources */,
 				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
 				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
 				EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */,
+				EA8694AF23D47FB600ABE391 /* DailyActivityCell.xib in Resources */,
 				EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */,
 				EA1099F8239663C100F5172D /* ForumsLoadTimeCell.xib in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
@@ -867,6 +896,7 @@
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
 				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
+				EA8694B123D48F2500ABE391 /* DailyActivityCell3.xib in Resources */,
 				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
 				EA534E32230299AE00FE4787 /* EventCell.xib in Resources */,
@@ -912,6 +942,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA8694B723D4A5BE00ABE391 /* SocialCell.swift in Sources */,
 				EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */,
 				EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
@@ -940,6 +971,7 @@
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
 				EA83FC8B236E33450042C0DC /* DeckDataManager.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
+				EA8694B423D4A5A800ABE391 /* AnnouncementCell.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
@@ -957,6 +989,7 @@
 				EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */,
 				EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */,
 				EAA62C7122C55CC00031A999 /* Logging.swift in Sources */,
+				EA8694AC23D3091A00ABE391 /* DailyActivityCell.swift in Sources */,
 				EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */,
 				EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */,
 				EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */,
@@ -971,6 +1004,7 @@
 				EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */,
 				EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */,
 				EA534E2922FD1B9200FE4787 /* KrakenNavController.swift in Sources */,
+				EA8694B923D5BF4000ABE391 /* AnnouncementDataManager.swift in Sources */,
 				EA4E84F0232A2D330059E5EB /* ValidSectionUpdater.swift in Sources */,
 				EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */,
 				EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */,
@@ -980,7 +1014,7 @@
 				EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */,
 				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
-				EAA0284C2321ED7300B2B7F1 /* SocialViewController.swift in Sources */,
+				EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
 				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,
