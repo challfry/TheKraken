@@ -350,7 +350,6 @@ class ArrayDataSourceSegment<ModelObjectType>: KrakenDataSourceSegment, KrakenDa
 			let newFrom = IndexPath(row: from.row, section: from.section + deleteOffset)
 			let newTo = IndexPath(row: to.row, section: to.section + insertOffset)
 			collectionView?.moveItem(at: newFrom, to: newTo)
-			print ("Definitely moved from \(newFrom) to \(newTo)")
 		}
 		// Ignore reloads. Our cells are set up to dynamically update and shouldn't need reloading.
 //		collectionView?.reloadItems(at: addSectionOffset(deleteOffset, reloadCells))

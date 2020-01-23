@@ -1914,14 +1914,14 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pf7-5i-5Ym">
-                                <rect key="frame" x="126.66666666666669" y="392.66666666666669" width="122" height="37"/>
+                                <rect key="frame" x="104.00000000000001" y="392.66666666666669" width="167.33333333333337" height="37"/>
                                 <subviews>
                                     <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="JyS-dN-gyD">
-                                        <rect key="frame" x="72.999999999999986" y="8.3333333333333144" width="20" height="20"/>
+                                        <rect key="frame" x="95.666666666666657" y="8.3333333333333144" width="20" height="20"/>
                                     </activityIndicatorView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Loading" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aF3-Ic-Jri">
-                                        <rect key="frame" x="0.0" y="8" width="61" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <rect key="frame" x="0.0" y="4.6666666666666305" width="83.666666666666671" height="27.666666666666671"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -1936,22 +1936,32 @@
                                     <constraint firstItem="aF3-Ic-Jri" firstAttribute="leading" secondItem="pf7-5i-5Ym" secondAttribute="leading" id="tSb-fQ-0Be"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D8o-wD-yDJ">
+                                <rect key="frame" x="20" y="429.66666666666669" width="335" height="28.666666666666686"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                <color key="textColor" name="Red Alert Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="0h4-xi-YN3" secondAttribute="trailing" id="2Xg-gx-Ibc"/>
                             <constraint firstItem="0h4-xi-YN3" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" id="77k-HN-LZc"/>
                             <constraint firstItem="0h4-xi-YN3" firstAttribute="top" secondItem="4Ua-38-chx" secondAttribute="top" id="GrA-tu-wXG"/>
+                            <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="D8o-wD-yDJ" secondAttribute="trailing" constant="20" id="HaR-ai-2qF"/>
+                            <constraint firstItem="D8o-wD-yDJ" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" constant="20" id="L8C-7f-Iqt"/>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="bottom" secondItem="tl2-Ms-rZh" secondAttribute="bottom" id="LUX-y8-agm"/>
                             <constraint firstItem="tl2-Ms-rZh" firstAttribute="top" secondItem="0h4-xi-YN3" secondAttribute="bottom" id="XQe-B2-P9f"/>
                             <constraint firstItem="pf7-5i-5Ym" firstAttribute="centerY" secondItem="4Ua-38-chx" secondAttribute="centerY" id="apw-nC-MbY"/>
                             <constraint firstItem="tl2-Ms-rZh" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" constant="16" id="fXs-Fu-J40"/>
+                            <constraint firstItem="D8o-wD-yDJ" firstAttribute="top" secondItem="pf7-5i-5Ym" secondAttribute="bottom" id="ogF-q3-cGa"/>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="tl2-Ms-rZh" secondAttribute="trailing" constant="16" id="opM-5x-eSA"/>
                             <constraint firstItem="pf7-5i-5Ym" firstAttribute="centerX" secondItem="4Ua-38-chx" secondAttribute="centerX" id="z1D-Jd-m25"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="4Ua-38-chx"/>
                     </view>
                     <connections>
+                        <outlet property="errorLabel" destination="D8o-wD-yDJ" id="KVM-4W-c0E"/>
                         <outlet property="loadingView" destination="pf7-5i-5Ym" id="sZO-Xz-Odd"/>
                         <outlet property="navItem" destination="dr5-3A-nVq" id="5cc-kl-eod"/>
                         <outlet property="textView" destination="tl2-Ms-rZh" id="6dM-2p-Mlw"/>
@@ -2124,6 +2134,9 @@
         </namedColor>
         <namedColor name="Kraken Label Text">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Red Alert Text">
+            <color red="0.72500002384185791" green="0.045000001788139343" blue="0.045000001788139343" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="VC Background">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

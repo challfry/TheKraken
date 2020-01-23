@@ -18,6 +18,14 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	lazy var announcementSegment = FRCDataSourceSegment<Announcement>()
 	var appFeaturesSegment = FilteringDataSourceSegment()
 	
+	lazy var betaCellModel: LocalAnnouncementCellModel = {
+		let cell = LocalAnnouncementCellModel()
+		cell.headerText = "Kraken Version 1.0 Beta 1"
+		cell.authorName = "From: Chall Fry"
+		cell.text = "A big thank you to our wonderful beta testers!"
+		return cell
+	}()
+	
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		DailyViewController.shared = self
@@ -36,6 +44,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 
 		dataSource.append(segment: dailySegment)
 		dailySegment.append(DailyActivityCellModel())
+
+		dailySegment.append(betaCellModel)
 		
 		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true"),
 				sort: [ NSSortDescriptor(key: "timestamp", ascending: false) ], 

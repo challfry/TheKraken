@@ -267,6 +267,7 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 	var filterTitle: String
 	var isSearchQuery: Bool = false
 	var isContiguousTweets: Bool = false
+	var morePostsExist: Bool = false				// TRUE if our last call on the current query indicated more results exist
 	
 	//
 	var frc: NSFetchedResultsController<TwitarrPost>?
@@ -414,12 +415,16 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		// NOTE: Currently, increasing indices always indicates decreasing timestamps. That is,
 		// all sort orders are (... "timestamp", ascending: false). If that changes we need to change logic here.
 		
-		if let anchor = callAnchor, let numFRCResults = frc?.fetchedObjects?.count,
-				anchor.index >= 0, anchor.index < numFRCResults {
-			let anchorTweet = frc?.object(at: IndexPath(row: anchor.index, section: 0))
-			TwitarrDataManager.shared.loadStreamTweets(anchorTweet: anchorTweet, newer: anchor.directionIsNewer, done: nil)
-			let newNetworkResults = TwitarrRecentNetworkCall(anchor: anchorTweet, count: 50, newer: anchor.directionIsNewer)
-			recalculateCoveredTweets(adding: newNetworkResults)
+		if let anchor = callAnchor {
+			if  let numFRCResults = frc?.fetchedObjects?.count, anchor.index >= 0, anchor.index < numFRCResults {
+				let anchorTweet = frc?.object(at: IndexPath(row: anchor.index, section: 0))
+				TwitarrDataManager.shared.loadStreamTweets(anchorTweet: anchorTweet, newer: anchor.directionIsNewer, done: nil)
+				let newNetworkResults = TwitarrRecentNetworkCall(anchor: anchorTweet, count: 50, newer: anchor.directionIsNewer)
+				recalculateCoveredTweets(adding: newNetworkResults)
+			}
+			else if anchor.index == 0 {
+				TwitarrDataManager.shared.loadNewestTweets(self)
+			}
 		}
 		
 	}
@@ -523,7 +528,7 @@ class TwitarrDataManager: NSObject {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {
-					let tweetStream = try decoder.decode(TwitarrV2Stream.self, from: data)
+					let tweetStream = try decoder.decode(TwitarrV2TweetStreamResponse.self, from: data)
 					let morePostsExist = tweetStream.hasNextPage
 					self.ingestStreamPosts(posts: tweetStream.streamPosts, anchorTime: anchorTime,
 							extendsNewer: newer, morePostsExist: morePostsExist)
@@ -540,6 +545,7 @@ class TwitarrDataManager: NSObject {
 	func loadFilterTweets(filterPack: TwitarrFilterPack, fromOffset: Int, done: (() -> Void)? = nil) {
 
 		let request = filterPack.buildRequest(anchorTime: nil, newer: false)
+		let isSearchQuery = filterPack.isSearchQuery		// Cache now; could change while call is inflight
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
@@ -549,9 +555,16 @@ class TwitarrDataManager: NSObject {
 			else if let data = package.data {
 				let decoder = JSONDecoder()
 				do {
-					let tweetStream = try decoder.decode(TwitarrV2TweetQueryResult.self, from: data)
-					let morePostsExist = tweetStream.tweets.more
-		//			self.consumeStreamPosts(posts: tweetStream.tweets.matches, anchorTime: 0, extendsNewer: false, morePostsExist: morePostsExist)
+//					print (String(decoding:data, as: UTF8.self))
+					if isSearchQuery {
+						let tweetQueryResponse = try decoder.decode(TwitarrV2TweetQueryResponse.self, from: data)
+						filterPack.morePostsExist = tweetQueryResponse.tweets.more
+						self.ingestFilterPosts(posts: tweetQueryResponse.tweets.matches)
+					}
+					else {
+						let tweetStream = try decoder.decode(TwitarrV2TweetStreamResponse.self, from: data)
+						self.ingestFilterPosts(posts: tweetStream.streamPosts)
+					}
 				} catch 
 				{
 					NetworkLog.error("Failure parsing search tweets.", ["Error" : error, "URL" : request.url as Any])
@@ -582,20 +595,34 @@ class TwitarrDataManager: NSObject {
 			
 			// Reactions
 			
+			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
+			// That is, we asked for "The next 50 posts before/after this timestamp." Get the time range from anchor post time
+			// to the post farthest from the anchor; any posts in Core Data in that same time range that aren't in the call results
+			// must be posts deleted serverside.
+			let newPostIDs = posts.map { $0.id }
+			let postDates = posts.map { $0.timestamp }
+			let earliestDate = postDates.min()
+			let latestDate = postDates.max()
+
+			if var startDate = earliestDate, var endDate = latestDate {
+				startDate = min(startDate, anchorTime)
+				endDate = max(endDate, anchorTime)
+				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsToDelete", 
+						substitutionVariables: [ "startDate" : startDate, "endDate" : endDate, "ids" : newPostIDs]) as! NSFetchRequest<TwitarrPost>
+				request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
+				do {
+					let postsToDelete = try request.execute()
+					postsToDelete.forEach { context.delete($0) }
+				}
+				catch {
+					CoreDataLog.error("Could not delete Twitarr posts that appear to be have been deleted on server.")
+				}
+			}
+			
 			// Get all the existing posts in CD that match posts in the call
-//			let newPostIDs = posts.map { $0.id }
-//			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsWithIDs", 
-//					substitutionVariables: [ "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
-//			request.fetchLimit = posts.count + 10 
-			
-			
-			// Get the CD cached posts for the same timeframe as the network call. 			
-			let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
-			let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
-			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PostsInDateRange", 
-					substitutionVariables: [ "startDate" : startDate, "endDate" : endDate ]) as! NSFetchRequest<TwitarrPost>
-			request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
-//			let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsWithIDs", 
+					substitutionVariables: [ "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
+			request.fetchLimit = posts.count + 10 
 			let cdResults = try request.execute()
 
 			// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
@@ -606,7 +633,7 @@ class TwitarrDataManager: NSObject {
 				let cdPost = removedValue ?? TwitarrPost(context: context)
 				cdPost.buildFromV2(context: context, v2Object: post)
 				
-				if post.id == posts.last!.id {					
+				if post.id == posts.last?.id {					
 					if !extendsNewer && morePostsExist && cdPost.isInserted {
 						cdPost.contigWithOlder = false
 					}
@@ -615,25 +642,6 @@ class TwitarrDataManager: NSObject {
 					cdPost.contigWithOlder == false ? cdPost.contigWithOlder = true : nil
 				}
 			}
-			
-			if cdPostsDict.count > 0 {
-				print ("Posts To Delete")
-			}
-			
-			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
-			// That is, we asked for "The next 50 posts before/after this timestamp." Get the time range from anchor post time
-			// to the post farthest from the anchor; any posts in Core Data in that same time range that aren't in the call results
-			// must be posts deleted serverside.
-//			let endDate = !extendsNewer && anchorTime != 0 ? anchorTime : posts.first?.timestamp ?? 0
-//			let startDate = extendsNewer && anchorTime != 0 ? anchorTime : posts.last?.timestamp ?? 0
-//			let dateRangeRequest = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsToDelete", 
-//					substitutionVariables: [ "startDate" : startDate, "endDate" : endDate, "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
-//			dateRangeRequest.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
-//			let dateRangeResults = try dateRangeRequest.execute()
-//			if dateRangeResults.count > 0 {
-//				print ("meh")
-//			}
-//			dateRangeResults.forEach( { context.delete($0) } )
 		}
 	}
 	
@@ -775,7 +783,8 @@ struct TwitarrV2Post: Codable {
 	}
 }
 
-struct TwitarrV2Stream: Codable {
+// GET /api/v2/stream
+struct TwitarrV2TweetStreamResponse: Codable {
 	let status: String
 	let hasNextPage: Bool
 	let nextPage: Int
@@ -799,7 +808,8 @@ struct TwitarrV2TweetQuery: Codable {
 	let more: Bool
 }
 
-struct TwitarrV2TweetQueryResult: Codable {
+// GET /api/v2/search/tweets/:query
+struct TwitarrV2TweetQueryResponse: Codable {
 	let status: String
 	let query: TwitarrV2QueryText
 	let tweets: TwitarrV2TweetQuery

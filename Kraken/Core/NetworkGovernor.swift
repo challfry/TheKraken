@@ -104,7 +104,7 @@ struct NetworkResponse {
 	
 //		let config = URLSessionConfiguration.background(withIdentifier: "Kraken_twitarrv2_background")
 		let config = URLSessionConfiguration.default
-		config.allowsCellularAccess	= false
+		config.allowsCellularAccess	= true
 		
 		// This turns off cookies for this session.
 		config.httpShouldSetCookies = false
@@ -209,11 +209,10 @@ struct NetworkResponse {
 			// Make a new InternalTask, and get the network request started
 			let task = self.session.dataTask(with:request) 
 			let queuedTask = InternalTask(task: task, responseData: Data(), doneCallbacks:[done])
-				self.activeTasks.append(queuedTask)
+			self.activeTasks.append(queuedTask)
 			task.resume()
 			
 			let reqeustStr = request.httpMethod ?? ""
-		
 			NetworkLog.debug("Started network \(reqeustStr) request to \(request.url?.absoluteString ?? "<unknown>")")
 		}
 	}
@@ -368,7 +367,11 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		}
 		
 		//
-		let responsePacket = NetworkResponse(response: task.response, data: foundTask.responseData, 
+		var responseData: Data? = foundTask.responseData
+		if foundTask.responseData.count == 0 {
+			responseData = nil
+		}
+		let responsePacket = NetworkResponse(response: task.response, data: responseData, 
 				networkError: NetworkError(error?.localizedDescription))
 
 		for doneCallback in foundTask.doneCallbacks {

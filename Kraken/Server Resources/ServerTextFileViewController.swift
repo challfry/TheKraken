@@ -13,6 +13,7 @@ class ServerTextFileViewController: UIViewController {
 	@IBOutlet var textView: UITextView!
 	@IBOutlet var navItem: UINavigationItem!
 	@IBOutlet var loadingView: UIView!
+	@IBOutlet var errorLabel: UILabel!
 	
 	@objc dynamic var parser: ServerTextFileParser?
 	var titleText: String?
@@ -32,6 +33,11 @@ class ServerTextFileViewController: UIViewController {
 
         self.tell(self, when: "parser.isFetchingData") { observer, observed in 
         	observer.loadingView.isHidden = observed.parser?.isFetchingData != true
+        }?.execute()
+        
+        self.tell(self, when: "parser.lastError") { observer, observed in 
+        	observer.errorLabel.isHidden = observed.parser?.lastError == nil
+        	observer.errorLabel.text = "Could not load file \"\(observer.fileToLoad ?? "")\" from server. \(observed.parser?.lastError?.errorString ?? "")"
         }?.execute()
     }
     

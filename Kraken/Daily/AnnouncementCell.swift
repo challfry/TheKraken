@@ -9,7 +9,6 @@
 import UIKit
 
 @objc protocol AnnouncementCellBindingProtocol: FetchedResultsBindingProtocol {
-
 }
 
 @objc class AnnouncementCellModel: BaseCellModel, AnnouncementCellBindingProtocol {
@@ -24,7 +23,30 @@ import UIKit
 	}
 }
 
-class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol {
+@objc protocol LocalAnnouncementCellBindingProtocol {
+	var headerText: String { get set }
+	var authorName: String { get set } 
+	var relativeTimeString: String { get set }
+	var text: String { get set }
+}
+
+
+@objc class LocalAnnouncementCellModel: BaseCellModel, LocalAnnouncementCellBindingProtocol {
+	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
+		return [ "AnnouncementCell" : AnnouncementCell.self ] 
+	}
+	
+	dynamic var headerText: String = ""
+	dynamic var authorName: String = ""
+	dynamic	var relativeTimeString: String = ""
+	dynamic var text: String = ""
+		
+	init() {
+		super.init(bindingWith: LocalAnnouncementCellBindingProtocol.self)
+	}
+}
+
+class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol, LocalAnnouncementCellBindingProtocol {
 	private static let cellInfo = [ "AnnouncementCell" : PrototypeCellInfo("AnnouncementCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return AnnouncementCell.cellInfo }
 
@@ -64,10 +86,35 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol 
 		}
 	}
 	
+	var headerText: String = "" {
+		didSet {
+			announcementHeaderLabel.text = headerText
+		}
+	}
+	
+	var authorName: String = "" {
+		didSet {
+			authorLabel.text = authorName
+		}
+	}
+	
+	var relativeTimeString: String = "" {
+		didSet {
+			relativeTimeLabel.text = relativeTimeString
+		}
+	}
+	
+	var text: String = "" {
+		didSet {
+			announcementTextLabel.text = text
+		}
+	}
+	
 	override func awakeFromNib() {
 		// Font styling
 		announcementHeaderLabel.styleFor(.body)
 		authorLabel.styleFor(.body)
+		relativeTimeLabel.styleFor(.body)
 		announcementTextLabel.styleFor(.body)
 
 		// Every 10 seconds, update the post time.
@@ -80,21 +127,6 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol 
 	}
 }
 
-
-let preSailAnnouncements : [String] = [
-	".. but have you packed enough Ukeleles?",
-	"I'm hungry for seafood, but what food is the sea hungry for?",
-	""
-]
-
-//let announcementAlertColors: [String] = [
-//	"Fuschia Alert",
-//	"Chartreuse Alert",
-//	"Violet Alert",
-//	"Marmalade Alert"
-//	"Scarlet Alert"
-//	"Magenta Alert"
-//	"Mauve Alert"]
 
 
 @objc class AnnouncementRoundedRectView: UIView {
@@ -117,3 +149,35 @@ let preSailAnnouncements : [String] = [
 
 	}
 }
+
+
+// Reversed
+let preSailAnnouncements : [String] = [
+	"Tomorrow we Sail",
+	
+	".. but have you packed enough Ukeleles?",
+	"I'm hungry for seafood, but what food is the sea hungry for?",
+	""
+]
+
+let duringCruiseAnnouncements : [String] = [
+	"Day 1: Leaving Fort Lauderdale",
+	"Day 2: Half Moon Cay",
+	"Day 3: At Sea",
+	"Day 4: Santo Domingo",
+	"Day 5: At Sea",
+	"Day 6: Grand Turk",
+	"Day 7: At Sea",
+	"Day 8: Fort Lauderdale"
+]
+
+
+//let announcementAlertColors: [String] = [
+//	"Fuschia Alert",
+//	"Chartreuse Alert",
+//	"Violet Alert",
+//	"Marmalade Alert"
+//	"Scarlet Alert"
+//	"Magenta Alert"
+//	"Mauve Alert"]
+

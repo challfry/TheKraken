@@ -41,7 +41,7 @@ import UIKit
 	static let shared = AnnouncementDataManager()
 	
 	var currentAnnouncements: [Announcement] = []
-	dynamic var dailyTabBadgeCount: Int = 0
+	@objc dynamic var dailyTabBadgeCount: Int = 0
 	
 	private var fetchedData: NSFetchedResultsController<Announcement>
 	private var rawCurrentAnnouncements: [Announcement] = []

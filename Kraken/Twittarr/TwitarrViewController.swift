@@ -52,9 +52,6 @@ class TwitarrViewController: BaseCollectionViewController {
 		tweetSegment.loaderDelegate = filterPack
 		tweetSegment.activate(predicate: filterPack?.predicate, sort: filterPack?.sortDescriptors, cellModelFactory: createCellModel)
 		filterPack?.frc = tweetSegment.frc
-
-//		let tweetSegment = FRCDataSourceSegment<TwitarrPost>(withCustomFRC: dataManager.fetchedData)
-//		dataManager.addDelegate(tweetSegment)
 		
         // Do any additional setup after loading the view.
 		setupGestureRecognizer()
@@ -65,6 +62,16 @@ class TwitarrViewController: BaseCollectionViewController {
     
     override func viewWillAppear(_ animated: Bool) {
 		tweetDataSource.enableAnimations = true
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		// Every time our view appears, make sure the visible tweets have a 'fresh' cache status.
+		if collectionView.indexPathsForVisibleItems.count > 0 {
+			collectionView.indexPathsForVisibleItems.forEach { filterPack?.checkLoadRequiredFor(index: $0.row) }
+		}
+		else {
+			filterPack?.checkLoadRequiredFor(index: 0)
+		}
 	}
 			
 	func createCellModel(_ model:TwitarrPost) -> BaseCellModel {
