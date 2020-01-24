@@ -202,6 +202,17 @@
 		EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
 		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		EA39B16223DA5EA800A2FB1B /* EyepatchHSS.OBJ */ = {isa = PBXFileReference; lastKnownFileType = text; path = EyepatchHSS.OBJ; sourceTree = "<group>"; };
+		EA39B16823DA61F200A2FB1B /* Steam Punk Top Hat.obj */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Steam Punk Top Hat.obj"; sourceTree = "<group>"; };
+		EA39B16923DA61F200A2FB1B /* hat1.mtl */ = {isa = PBXFileReference; lastKnownFileType = text; path = hat1.mtl; sourceTree = "<group>"; };
+		EA39B16A23DA61F200A2FB1B /* Pirate Hat.scn */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "Pirate Hat.scn"; sourceTree = "<group>"; };
+		EA39B16B23DA61F200A2FB1B /* Steam Punk Top Hat.mtl */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Steam Punk Top Hat.mtl"; sourceTree = "<group>"; };
+		EA39B16D23DA61F200A2FB1B /* Pirate Hat.mtl */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Pirate Hat.mtl"; sourceTree = "<group>"; };
+		EA39B16E23DA61F200A2FB1B /* diff.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = diff.jpg; sourceTree = "<group>"; };
+		EA39B16F23DA61F200A2FB1B /* NM.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = NM.jpg; sourceTree = "<group>"; };
+		EA39B17023DA61F200A2FB1B /* spec.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = spec.jpg; sourceTree = "<group>"; };
+		EA39B17123DA61F200A2FB1B /* Pirate Hat.scn */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "Pirate Hat.scn"; sourceTree = "<group>"; };
+		EA39B17223DA61F200A2FB1B /* hat1.obj */ = {isa = PBXFileReference; lastKnownFileType = text; path = hat1.obj; sourceTree = "<group>"; };
 		EA3ABF8A22F198D000441F99 /* Credits.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Credits.md; sourceTree = "<group>"; };
 		EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
@@ -497,6 +508,32 @@
 			path = "Server Resources";
 			sourceTree = "<group>";
 		};
+		EA39B16723DA61F200A2FB1B /* Not Used */ = {
+			isa = PBXGroup;
+			children = (
+				EA39B16223DA5EA800A2FB1B /* EyepatchHSS.OBJ */,
+				EA39B16823DA61F200A2FB1B /* Steam Punk Top Hat.obj */,
+				EA39B16923DA61F200A2FB1B /* hat1.mtl */,
+				EA39B16A23DA61F200A2FB1B /* Pirate Hat.scn */,
+				EA39B16B23DA61F200A2FB1B /* Steam Punk Top Hat.mtl */,
+				EA39B16C23DA61F200A2FB1B /* Hat2 */,
+				EA39B17223DA61F200A2FB1B /* hat1.obj */,
+			);
+			path = "Not Used";
+			sourceTree = "<group>";
+		};
+		EA39B16C23DA61F200A2FB1B /* Hat2 */ = {
+			isa = PBXGroup;
+			children = (
+				EA39B16D23DA61F200A2FB1B /* Pirate Hat.mtl */,
+				EA39B16E23DA61F200A2FB1B /* diff.jpg */,
+				EA39B16F23DA61F200A2FB1B /* NM.jpg */,
+				EA39B17023DA61F200A2FB1B /* spec.jpg */,
+				EA39B17123DA61F200A2FB1B /* Pirate Hat.scn */,
+			);
+			path = Hat2;
+			sourceTree = "<group>";
+		};
 		EA3C631322975CD100077E3B /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -615,6 +652,7 @@
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EA39B16723DA61F200A2FB1B /* Not Used */,
 				EA8B987023234AEE00E10156 /* JoCoKaraokeSongCatalog.txt */,
 				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
 				EAC2D3B323CC7AEC0055780C /* Hats.scnassets */,

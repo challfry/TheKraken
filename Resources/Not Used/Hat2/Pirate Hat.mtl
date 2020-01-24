@@ -1,0 +1,16 @@
+
+newmtl Pirate_hat
+Ka 1 1 1
+Kd 0.588 0.588 0.588
+Ks 1 1 1
+illum 2
+Ns 10
+map_Kd diff.jpg
+map_bump NM.jpg
+bump NM.jpg
+map_opacity 
+map_d 
+refl 
+map_kS spec.jpg
+map_kA diff.jpg
+map_Ns 

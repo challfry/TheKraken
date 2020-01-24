@@ -41,6 +41,7 @@ class CameraViewController: UIViewController {
 	// Props to run AR Mode (Pirate Selfie mode)
 	var faceAnchors: [ARFaceAnchor] = []
 	var hat: SCNReferenceNode?
+	var eyepatch: SCNReferenceNode?
 	
 	// Configuration
 	var selfieMode: Bool = false						// Set to TRUE to initially use front camera
@@ -232,7 +233,7 @@ class CameraViewController: UIViewController {
 		captureSession.startRunning()
 		#endif
 	}
-	
+		
 // MARK: Actions
 	
 	@IBAction func closeButtonTapped() {
@@ -254,12 +255,20 @@ class CameraViewController: UIViewController {
 //				}
 			}
         	pirateView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
-			
+	
+			// Load in assets if we don't have them yet.
 			if hat == nil {
-				if let url = Bundle.main.url(forResource:"hat1", withExtension:"obj", subdirectory: "Hats.scnassets"),
+				if let url = Bundle.main.url(forResource:"BicornHat", withExtension:"dae", subdirectory: "Hats.scnassets/BicornHat"),
 						let localHat = SCNReferenceNode(url: url) {
 					localHat.load()
 					hat = localHat
+				}
+			}
+			if eyepatch == nil {
+				if let url = Bundle.main.url(forResource:"Eyepatch", withExtension:"scn", subdirectory: "Hats.scnassets/Eyepatch"),
+						let localEyepatch = SCNReferenceNode(url: url) {
+					localEyepatch.load()
+					eyepatch = localEyepatch
 				}
 			}
 		}
@@ -340,7 +349,18 @@ class CameraViewController: UIViewController {
 			photoOutput.capturePhoto(with: settings, delegate: self)
 		}
 		else {
-			let photoImage = pirateView.snapshot()
+			// Unfortunately, snapshot returns a low-res image. 
+			var photoImage = pirateView.snapshot()
+			
+			// Rotate if necessary
+			switch CoreMotion.shared.currentDeviceOrientation {
+				case .portrait, .faceUp, .unknown: break
+				case .landscapeLeft: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .left)
+				case .landscapeRight: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .right)
+				case .portraitUpsideDown, .faceDown: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .down)
+				default: break
+			}
+			
 			capturedPhotoView.image = photoImage
 			capturedPhotoImage = photoImage
 			capturedPhotoContainerView.isHidden = false
@@ -401,8 +421,11 @@ extension CameraViewController: ARSCNViewDelegate {
 		if let hat = hat {
 			faceBaseNode.addChildNode(hat)
 		}
+		if let eyepatch = eyepatch {
+			faceBaseNode.addChildNode(eyepatch)
+		}
 		
-		if let dev = renderer.device, let faceGeometry = ARSCNFaceGeometry(device: dev) {
+		if let dev = renderer.device, let faceGeometry = ARSCNFaceGeometry(device: dev,fillMesh: true) {
 			faceGeometry.firstMaterial!.colorBufferWriteMask = []
 			let occlusionNode = SCNNode(geometry: faceGeometry)
 			occlusionNode.renderingOrder = -1
