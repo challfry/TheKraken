@@ -374,6 +374,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
 			textFileVC.fileToLoad = "codeofconduct"
+			textFileVC.titleText = "Code Of Conduct"
 			dataSource?.viewController?.present(textFileVC, animated: true, completion: nil)
 		}
 	}

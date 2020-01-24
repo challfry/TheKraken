@@ -29,7 +29,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		DailyViewController.shared = self
-		knownSegues = [.twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .deckMapRoot, .karaokeRoot, .scrapbookRoot, .settingsRoot]
+		knownSegues = [.twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .deckMapRoot, .karaokeRoot, .scrapbookRoot, 
+				.settingsRoot, .twitarrHelp, .about]
 		
 		// Set the badge on the Daily tab
 		AnnouncementDataManager.shared.tell(self, when: ["dailyTabBadgeCount"]) { observer, observed in
@@ -62,6 +63,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		appFeaturesSegment.append(SocialCellModel("Karaoke", imageNamed: "Karaoke", nav: GlobalNavPacket(tab: .karaoke, arguments: [:])))
 		appFeaturesSegment.append(SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(tab: .scrapbook, arguments: [:])))
 		appFeaturesSegment.append(SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(tab: .settings, arguments: [:])))
+		appFeaturesSegment.append(SocialCellModel("Help", imageNamed: "About", nav: GlobalNavPacket(tab: .twitarrHelp, arguments: ["filename" : "helptext.json"])))
+		appFeaturesSegment.append(SocialCellModel("About", imageNamed: "About", nav: GlobalNavPacket(tab: .about, arguments: [:])))
 		// Games Library
 		// Lighter Mode
 		// About Kraken
@@ -101,6 +104,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .karaoke: performKrakenSegue(.karaokeRoot, sender: nil)
 			case .scrapbook: performKrakenSegue(.scrapbookRoot, sender: nil)
 			case .settings: performKrakenSegue(.settingsRoot, sender: nil)
+			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: packet.arguments["filename"])
+			case .about: performKrakenSegue(.about, sender: nil)
 			
 			
 			default: break

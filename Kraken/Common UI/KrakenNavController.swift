@@ -11,6 +11,7 @@ import UIKit
 
 class KrakenNavController: UINavigationController, GlobalNavEnabled, UIViewControllerRestoration {
 	var networkLabel = UILabel()
+	var showNetworkBanner = true
 	
 	static func viewController(withRestorationIdentifierPath identifierComponents: [String], coder: NSCoder) -> UIViewController? {
 		return nil
@@ -36,7 +37,8 @@ class KrakenNavController: UINavigationController, GlobalNavEnabled, UIViewContr
 	
 	
 		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, governor in
-			observer.networkLabel.isHidden = governor.connectionState == NetworkGovernor.ConnectionState.canConnect	
+			observer.networkLabel.isHidden = !observer.showNetworkBanner || 
+					governor.connectionState == NetworkGovernor.ConnectionState.canConnect	
 		}?.execute()
     }
     

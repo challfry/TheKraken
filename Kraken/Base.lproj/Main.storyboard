@@ -215,6 +215,40 @@
             </objects>
             <point key="canvasLocation" x="-3159" y="2704"/>
         </scene>
+        <!--About Kraken-->
+        <scene sceneID="CXc-73-zJB">
+            <objects>
+                <viewController storyboardIdentifier="AboutViewController" title="About Kraken" useStoryboardIdentifierAsRestorationIdentifier="YES" id="dsx-0M-o5B" customClass="AboutViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="RuK-Z6-cdV">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" editable="NO" text="If you're seeing this, it means the About text didn't load for some reason." textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="MaO-nW-vZC">
+                                <rect key="frame" x="10" y="88" width="355" height="641"/>
+                                <color key="backgroundColor" name="VC Background"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" name="VC Background"/>
+                        <constraints>
+                            <constraint firstItem="zV4-Lz-U9S" firstAttribute="trailing" secondItem="MaO-nW-vZC" secondAttribute="trailing" constant="10" id="3H6-8N-YZX"/>
+                            <constraint firstItem="MaO-nW-vZC" firstAttribute="top" secondItem="zV4-Lz-U9S" secondAttribute="top" id="Mqd-o0-7Ft"/>
+                            <constraint firstItem="MaO-nW-vZC" firstAttribute="leading" secondItem="zV4-Lz-U9S" secondAttribute="leading" constant="10" id="Qlg-zS-HLF"/>
+                            <constraint firstItem="zV4-Lz-U9S" firstAttribute="bottom" secondItem="MaO-nW-vZC" secondAttribute="bottom" id="R6g-Vj-Tbg"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="zV4-Lz-U9S"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="About Kraken" id="kDs-Hl-OBF"/>
+                    <connections>
+                        <outlet property="textView" destination="MaO-nW-vZC" id="Qbx-N1-YiW"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jVI-lc-AwF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3159.1999999999998" y="-250.49261083743843"/>
+        </scene>
         <!--Karaoke-->
         <scene sceneID="R6j-HW-CiQ">
             <objects>
@@ -319,7 +353,7 @@
         <!--Maps-->
         <scene sceneID="YPx-c7-3gg">
             <objects>
-                <navigationController id="K94-r8-zdO" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="DeckMapNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="K94-r8-zdO" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Maps" image="Map" selectedImage="Map.fill" id="SHz-Jh-nCw"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="9eh-cq-xdo">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -1705,7 +1739,7 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UWX-sY-qUX">
-                                        <rect key="frame" x="76.666666666666686" y="508" width="222" height="30"/>
+                                        <rect key="frame" x="64.666666666666686" y="508" width="246" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ai0-Gf-Ots">
                                                 <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -1722,7 +1756,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-me-ViO">
-                                                <rect key="frame" x="198" y="3" width="24" height="24"/>
+                                                <rect key="frame" x="198" y="-9" width="48" height="48"/>
                                                 <state key="normal" image="square.and.arrow.up"/>
                                                 <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                 <connections>
@@ -1889,13 +1923,13 @@
         <!--Server Text File-->
         <scene sceneID="0Ge-ik-Eaj">
             <objects>
-                <viewController storyboardIdentifier="ServerTextFileDisplay" title="Server Text File" id="5d8-Ik-lrJ" customClass="ServerTextFileViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ServerTextFileDisplay" title="Server Text File" useStoryboardIdentifierAsRestorationIdentifier="YES" id="5d8-Ik-lrJ" customClass="ServerTextFileViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="eRe-g9-QV5">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="758"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0h4-xi-YN3">
-                                <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="56"/>
                                 <items>
                                     <navigationItem title="Title" id="dr5-3A-nVq">
                                         <barButtonItem key="rightBarButtonItem" systemItem="done" id="6eg-ur-ni2">
@@ -1907,14 +1941,14 @@
                                 </items>
                             </navigationBar>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="tl2-Ms-rZh">
-                                <rect key="frame" x="16" y="88" width="343" height="690"/>
+                                <rect key="frame" x="16" y="56" width="343" height="668"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pf7-5i-5Ym">
-                                <rect key="frame" x="104.00000000000001" y="392.66666666666669" width="167.33333333333337" height="37"/>
+                                <rect key="frame" x="104.00000000000001" y="343.66666666666669" width="167.33333333333337" height="37"/>
                                 <subviews>
                                     <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="JyS-dN-gyD">
                                         <rect key="frame" x="95.666666666666657" y="8.3333333333333144" width="20" height="20"/>
@@ -1937,7 +1971,7 @@
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D8o-wD-yDJ">
-                                <rect key="frame" x="20" y="429.66666666666669" width="335" height="28.666666666666686"/>
+                                <rect key="frame" x="20" y="380.66666666666669" width="335" height="28.666666666666686"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                 <color key="textColor" name="Red Alert Text"/>
                                 <nil key="highlightedColor"/>
@@ -1960,6 +1994,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="4Ua-38-chx"/>
                     </view>
+                    <navigationItem key="navigationItem" id="iDO-dq-Xoo"/>
                     <connections>
                         <outlet property="errorLabel" destination="D8o-wD-yDJ" id="KVM-4W-c0E"/>
                         <outlet property="loadingView" destination="pf7-5i-5Ym" id="sZO-Xz-Odd"/>
@@ -2028,7 +2063,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ccl-xV-Gns" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3159" y="-250"/>
+            <point key="canvasLocation" x="-697" y="-783"/>
         </scene>
         <!--Daily View Controller-->
         <scene sceneID="2E2-7P-xh6">
@@ -2070,11 +2105,13 @@
                         <segue destination="bwT-PB-h5y" kind="show" identifier="KaraokeRoot" id="wjx-Zr-mfc"/>
                         <segue destination="Grq-FL-Vy8" kind="show" identifier="ScrapbookRoot" id="2Ae-eC-yt5"/>
                         <segue destination="vfs-Qk-nbf" kind="show" identifier="SettingsRoot" id="gdr-Cd-yXW"/>
+                        <segue destination="dsx-0M-o5B" kind="show" identifier="AboutViewController" id="Hz2-VR-63Q"/>
+                        <segue destination="5d8-Ik-lrJ" kind="presentation" identifier="TwitarrHelp" id="iin-6d-KBo"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R26-At-KAA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3999" y="-250"/>
+            <point key="canvasLocation" x="-1498" y="-783"/>
         </scene>
         <!--Root Tab Bar View Controller-->
         <scene sceneID="yl2-sM-qoP">
@@ -2095,7 +2132,7 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1266" y="451"/>
+            <point key="canvasLocation" x="-1498" y="372"/>
         </scene>
     </scenes>
     <resources>

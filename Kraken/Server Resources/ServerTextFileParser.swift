@@ -75,19 +75,22 @@ class ServerTextFileParser: NSObject {
 		let headerParaStyle = NSMutableParagraphStyle()
 		headerParaStyle.headIndent = 0
 		headerParaStyle.paragraphSpacing = 20
-		let headerAttrs: [NSAttributedString.Key : Any] = [ .font : headerFont?.withSize(20) as Any, .paragraphStyle : headerParaStyle]
+		let headerAttrs: [NSAttributedString.Key : Any] = [ .font : headerFont?.withSize(20) as Any, 
+				.paragraphStyle : headerParaStyle, .foregroundColor : UIColor(named: "Kraken Label Text") as Any]
 		
 		let bodyParaStyle = NSMutableParagraphStyle()
 		bodyParaStyle.headIndent = 0
 		bodyParaStyle.defaultTabInterval = 28
 		bodyParaStyle.paragraphSpacing = 28
-		let bodyAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont?.withSize(15) as Any, .paragraphStyle : bodyParaStyle ]
+		let bodyAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont?.withSize(15) as Any, 
+				.paragraphStyle : bodyParaStyle, .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
 
 		let listParaStyle = NSMutableParagraphStyle()
 		listParaStyle.headIndent = 28
 		listParaStyle.defaultTabInterval = 28
 		listParaStyle.paragraphSpacing = 28
-		let listAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont?.withSize(15) as Any, .paragraphStyle : listParaStyle ]
+		let listAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont?.withSize(15) as Any,
+				.paragraphStyle : listParaStyle, .foregroundColor : UIColor(named: "Kraken Label Text") as Any]
 		
 		let resultString = NSMutableAttributedString()
 

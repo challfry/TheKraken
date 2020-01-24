@@ -23,6 +23,8 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case karaoke = "KaraokeNavController"
 		case deckPlans = "DeckMapNavController"
 		case scrapbook = "ScrapbookNavController"
+		case twitarrHelp = "ServerTextFileDisplay"
+		case about = "AboutViewController"
 		case unknown = ""
 	}
 	
@@ -37,7 +39,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 	}
 	
 	// Nav to tabs in the tab bar if they exist; else return false
-    func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		
 		if let vcs = viewControllers {
 			for vc in vcs {				

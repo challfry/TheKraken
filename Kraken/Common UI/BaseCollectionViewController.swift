@@ -45,7 +45,9 @@ enum GlobalKnownSegue: String {
 	
 	case settingsRoot = 			"SettingsRoot"
 	case postOperations =			"PostOperations"
-	
+	case about = 					"AboutViewController"
+	case twitarrHelp = 				"TwitarrHelp"
+
 	case userProfile = 				"UserProfile"
 	case editUserProfile = 			"EditUserProfile"
 	
@@ -91,6 +93,8 @@ enum GlobalKnownSegue: String {
 
 		case .settingsRoot: return Void.self
 		case .postOperations: return Any.self
+		case .about: return Void.self
+		case .twitarrHelp: return String.self
 
 		case .userProfile: return String.self
 		case .editUserProfile: return PostOpUserProfileEdit.self
@@ -527,6 +531,12 @@ class BaseCollectionViewController: UIViewController {
 		
 		case .fullScreenCamera, .cropCamera:
 			break
+			
+		case .twitarrHelp:
+			if let destVC = segue.destination as? ServerTextFileViewController, let fileToLoad = sender as? String {
+				destVC.fileToLoad = fileToLoad
+			}
+				break
 			
 		default: break 
 		}

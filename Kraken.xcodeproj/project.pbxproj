@@ -27,6 +27,7 @@
 		EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */; };
 		EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* LoadingStatusCell.xib */; };
 		EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */; };
+		EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39B18523DA823600A2FB1B /* AboutViewController.swift */; };
 		EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */; };
 		EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */; };
 		EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA3C630B2290D3E300077E3B /* SeamailSelfMessageCell.xib */; };
@@ -137,6 +138,13 @@
 		EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537422D58FEA00CD1671 /* UserListCell.swift */; };
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
+		EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */ = {isa = PBXBuildFile; fileRef = EABD2FFB23DA8B0800232F28 /* AboutText.md */; };
+		EABD300623DAD7E000232F28 /* SwiftyLineProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD2FFE23DAD7E000232F28 /* SwiftyLineProcessor.swift */; };
+		EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD2FFF23DAD7E000232F28 /* SwiftyMarkdown.swift */; };
+		EABD300923DAD7E000232F28 /* SwiftyMarkdown+macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300223DAD7E000232F28 /* SwiftyMarkdown+macOS.swift */; };
+		EABD300A23DAD7E000232F28 /* SwiftyTokeniser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300323DAD7E000232F28 /* SwiftyTokeniser.swift */; };
+		EABD300B23DAD7E000232F28 /* SwiftyMarkdown+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */; };
+		EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */; };
 		EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = EAC2D3B323CC7AEC0055780C /* Hats.scnassets */; };
 		EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113123BB3090007583EC /* ObjCUtils.m */; };
 		EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */; };
@@ -213,6 +221,7 @@
 		EA39B17023DA61F200A2FB1B /* spec.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = spec.jpg; sourceTree = "<group>"; };
 		EA39B17123DA61F200A2FB1B /* Pirate Hat.scn */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "Pirate Hat.scn"; sourceTree = "<group>"; };
 		EA39B17223DA61F200A2FB1B /* hat1.obj */ = {isa = PBXFileReference; lastKnownFileType = text; path = hat1.obj; sourceTree = "<group>"; };
+		EA39B18523DA823600A2FB1B /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		EA3ABF8A22F198D000441F99 /* Credits.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Credits.md; sourceTree = "<group>"; };
 		EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
@@ -342,6 +351,15 @@
 		EAB4537422D58FEA00CD1671 /* UserListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListCell.swift; sourceTree = "<group>"; };
 		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		EABD2FFB23DA8B0800232F28 /* AboutText.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AboutText.md; sourceTree = "<group>"; wrapsLines = 1; };
+		EABD2FFE23DAD7E000232F28 /* SwiftyLineProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyLineProcessor.swift; sourceTree = "<group>"; };
+		EABD2FFF23DAD7E000232F28 /* SwiftyMarkdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyMarkdown.swift; sourceTree = "<group>"; };
+		EABD300023DAD7E000232F28 /* SwiftyMarkdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftyMarkdown.h; sourceTree = "<group>"; };
+		EABD300123DAD7E000232F28 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		EABD300223DAD7E000232F28 /* SwiftyMarkdown+macOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftyMarkdown+macOS.swift"; sourceTree = "<group>"; };
+		EABD300323DAD7E000232F28 /* SwiftyTokeniser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyTokeniser.swift; sourceTree = "<group>"; };
+		EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftyMarkdown+iOS.swift"; sourceTree = "<group>"; };
+		EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+SwiftyMarkdown.swift"; sourceTree = "<group>"; };
 		EAC2D3B323CC7AEC0055780C /* Hats.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Hats.scnassets; sourceTree = "<group>"; };
 		EAC6113123BB3090007583EC /* ObjCUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCUtils.m; sourceTree = "<group>"; };
 		EAC6113323BB31DF007583EC /* ObjCUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCUtils.h; sourceTree = "<group>"; };
@@ -534,6 +552,15 @@
 			path = Hat2;
 			sourceTree = "<group>";
 		};
+		EA39B18723DA824500A2FB1B /* About */ = {
+			isa = PBXGroup;
+			children = (
+				EA39B18523DA823600A2FB1B /* AboutViewController.swift */,
+				EABD2FFB23DA8B0800232F28 /* AboutText.md */,
+			);
+			path = About;
+			sourceTree = "<group>";
+		};
 		EA3C631322975CD100077E3B /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -625,6 +652,7 @@
 		EA6A8A79231B4F150071BFEA /* Third Party */ = {
 			isa = PBXGroup;
 			children = (
+				EABD2FFD23DAD7E000232F28 /* SwiftyMarkdown */,
 			);
 			name = "Third Party";
 			path = "Kraken/Third Party";
@@ -728,8 +756,8 @@
 				EA9E693522980CC500B4DC6D /* Kraken.entitlements */,
 				EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */,
 				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
-				EAA2E4C22242D300009F287F /* Main.storyboard */,
 				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
+				EAA2E4C22242D300009F287F /* Main.storyboard */,
 				EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */,
 				EA4E84F1232C74D00059E5EB /* DisabledContentViewController.swift */,
 				EA4E84F3232C74FE0059E5EB /* DisabledContentViewController.xib */,
@@ -746,6 +774,7 @@
 				EA3C631322975CD100077E3B /* Settings */,
 				EA1E3B962245849B00017F07 /* Users */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
+				EA39B18723DA824500A2FB1B /* About */,
 				EA951D2823CDB15700453B3C /* Scrapbook */,
 				EA1E3BA1224D79C400017F07 /* Server Resources */,
 				EAC71D48228A13BC002F7BB3 /* Data Sources */,
@@ -772,6 +801,21 @@
 				EAA2E4E02242D301009F287F /* Info.plist */,
 			);
 			path = KrakenUITests;
+			sourceTree = "<group>";
+		};
+		EABD2FFD23DAD7E000232F28 /* SwiftyMarkdown */ = {
+			isa = PBXGroup;
+			children = (
+				EABD300123DAD7E000232F28 /* README.md */,
+				EABD2FFE23DAD7E000232F28 /* SwiftyLineProcessor.swift */,
+				EABD2FFF23DAD7E000232F28 /* SwiftyMarkdown.swift */,
+				EABD300023DAD7E000232F28 /* SwiftyMarkdown.h */,
+				EABD300223DAD7E000232F28 /* SwiftyMarkdown+macOS.swift */,
+				EABD300323DAD7E000232F28 /* SwiftyTokeniser.swift */,
+				EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */,
+				EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */,
+			);
+			path = SwiftyMarkdown;
 			sourceTree = "<group>";
 		};
 		EAC71D48228A13BC002F7BB3 /* Data Sources */ = {
@@ -942,6 +986,7 @@
 				EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */,
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
 				EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */,
+				EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
 				EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,
@@ -982,7 +1027,10 @@
 			files = (
 				EA8694B723D4A5BE00ABE391 /* SocialCell.swift in Sources */,
 				EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */,
+				EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */,
+				EABD300A23DAD7E000232F28 /* SwiftyTokeniser.swift in Sources */,
 				EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */,
+				EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
 				EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
@@ -1004,11 +1052,13 @@
 				EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */,
 				EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */,
 				EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */,
+				EABD300B23DAD7E000232F28 /* SwiftyMarkdown+iOS.swift in Sources */,
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
 				EA83FC8B236E33450042C0DC /* DeckDataManager.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
+				EABD300923DAD7E000232F28 /* SwiftyMarkdown+macOS.swift in Sources */,
 				EA8694B423D4A5A800ABE391 /* AnnouncementCell.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
@@ -1053,6 +1103,8 @@
 				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
 				EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */,
+				EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */,
+				EABD300623DAD7E000232F28 /* SwiftyLineProcessor.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
 				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,

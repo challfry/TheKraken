@@ -25,6 +25,11 @@ class DeckMapViewController: UIViewController {
 	override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Don't show the no-network banner in this view -- the maps are all local
+        if let nav = self.navigationController as? KrakenNavController {
+        	nav.showNetworkBanner = false
+        }
+        
         pdfView.document = DeckDataManager.shared.document
         pdfView.displayMode = .singlePage
 		currentDeck = 1

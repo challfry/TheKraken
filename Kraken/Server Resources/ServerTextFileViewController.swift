@@ -21,7 +21,18 @@ class ServerTextFileViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navItem.title = "Code Of Conduct"
+        
+        if let title = titleText {
+	        navItem.title = title
+		}
+		else {
+			if fileToLoad == "helptext.json" {
+				navItem.title = "Twitarr Help"
+			}
+			else if fileToLoad == "codeofconduct.json" {
+				navItem.title = "Code of Conduct"
+			}
+		}
         
         if let fileName = fileToLoad {
         	parser = ServerTextFileParser(forFile: fileName)
