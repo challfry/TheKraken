@@ -70,6 +70,12 @@ A big thank you goes out to the Moderation Team for all the work they do, and to
 
 ## Privacy ##
 
-As mentioned in the Twitarr help section, the Twitarr API is **very** easy to snoop. Don't use a password you use for **anything** else. Don't assume any conversation you have on the Twitarr service is private.
+As mentioned in the Twitarr help section, the Twitarr API is **very** easy to snoop. Don't use a password you use for **anything** else. Don't assume any conversation you have on Twitarr is private.
+
+This app stores your Twitarr username and hashed password token (which comes from the Twitarr server). It caches data it receives from the Twitarr server, including posts, chat texts, calendar events, images, and usernames of other users. The app will delete this data several months after the cruise ends.
+
+Content you create with this app may be posted to the Twitarr server, and some images in the app may be shared via Apple's standard share sheet. This app doesn't send any data anywhere else.
+
+This app has no analytics, advertising, or marketing. No data is sent anywhere for any of these purposes. It has no third party integrations that collect data of any kind, for any purpose.
 
 This app uses Apple's ARKit technology to implement a feature where you can take photos of yourself 'wearing' a silly pirate hat. This app uses Apple's Face Tracking API to position the hat on the subject's head while framing and capturing photos. This app does not otherwise use Face Data for any purpose, nor does it store, transfer, share, or sell Face Data.
