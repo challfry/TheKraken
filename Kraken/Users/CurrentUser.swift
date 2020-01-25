@@ -444,6 +444,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/new", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				// CreateUserAccount failed.
@@ -480,6 +481,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/change_password", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {

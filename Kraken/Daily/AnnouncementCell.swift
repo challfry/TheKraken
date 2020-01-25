@@ -60,6 +60,8 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 		didSet {
 			clearObservations()
 			if let announcementModel = model as? Announcement {
+				announcementHeaderLabel.text = "Announcement"
+			
 				addObservation(announcementModel.tell(self, when: "text") { observer, observed in
 					if let text = observed.text {
 						observer.announcementTextLabel.attributedText = StringUtilities.cleanupText(text)

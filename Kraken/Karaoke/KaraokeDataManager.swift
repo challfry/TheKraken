@@ -25,14 +25,16 @@ class KaraokeArtist: NSObject {
 class KaraokeSong: NSObject {
 	var artistName: String
 	var songTitle: String
-	var whateverThisModifierIs: String?	// Seriously. The datafile contains a field with a single letter, often "M".
-										// M doesn't stand for Mature Lyrics. Modified, perhaps?
+	var isMidiTrack: Bool
+	var isVoiceReduced: Bool
+	
 	var isFavorite: Bool
 	
-	init(artistName: String, songTitle: String, whateverThisModifierIs: String?) {
+	init(artistName: String, songTitle: String, isMidi: Bool, isVoiceReduced: Bool) {
 		self.artistName = artistName
 		self.songTitle = songTitle
-		self.whateverThisModifierIs	= whateverThisModifierIs
+		isMidiTrack = isMidi
+		self.isVoiceReduced = isVoiceReduced
 		isFavorite = false
 		super.init()
 	}
@@ -108,8 +110,10 @@ class KaraokeDataManager: NSObject {
 				if parts.count >= 2 {
 					let artistName = String(parts[0])
 					let modifier: String? = parts.count >= 3 ? String(parts[2]) : nil
+					let isMidi = modifier == "M"
+					let isVR = modifier == "VR"
 					let newSong = KaraokeSong(artistName: String(artistName), songTitle: String(parts[1]), 
-							whateverThisModifierIs: modifier)
+							isMidi: isMidi, isVoiceReduced: isVR)
 					threadSongs.append(newSong)
 					
 					var artist = threadArtists[artistName]

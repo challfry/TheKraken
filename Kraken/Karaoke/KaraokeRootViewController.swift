@@ -394,13 +394,29 @@ class KaraokeSongCell: UITableViewCell {
 
 	func setup(_ song: KaraokeSong, showArtist: Bool) {
 		self.song = song
-		songNameLabel.text = song.songTitle
+		
+		//
+		let songNameTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17) as Any ]
+		let songModifierAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17) as Any,
+				.foregroundColor : UIColor(named: "Red Alert Text") as Any ]
+		let songNameStr = NSMutableAttributedString(string: song.songTitle, attributes: songNameTextAttrs)
+		if song.isMidiTrack {
+			songNameStr.append(NSAttributedString(string: " MIDI", attributes: songModifierAttrs))
+		}
+		if song.isVoiceReduced {
+			songNameStr.append(NSAttributedString(string: " VoiceReduced", attributes: songModifierAttrs))
+		}
+		songNameLabel.attributedText = songNameStr
+		
 		favoriteButton.isSelected = song.isFavorite
 		artistNameLabel.text = showArtist ? "By: \(song.artistName)" : ""
 		self.setNeedsLayout()
 		self.layoutIfNeeded()
 		
-		// If the song name takes 2 lines, 
+		// SongNameLabel has both an Align Center Y and Align Top constraint, both going to the left icon.
+		// The Center constraint has priority 500. So, you can change the Top constraint priority to move the labe.
+		
+		// If the song name takes 2 lines--rejigger.
 		if songNameLabel.bounds.size.height > 36 {
 			songNameLabelTopConstraint.priority = UILayoutPriority(rawValue: 700)
 //			songNameLabelTopConstraint.constant = 2
@@ -555,30 +571,27 @@ class KaraokeTableIndexView: UIView, UIGestureRecognizerDelegate {
 	}
 
 // UIResponder Methods	
-	var touchEventForUs: UIEvent?
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if let touch = touches.first {
 			floatingLabel?.isHidden = false
 			positionLabel(yPos: touch.location(in: self).y) 
-			touchEventForUs = event
 		}
 	}
 
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if let touch = touches.first, event == touchEventForUs {
+		if let touch = touches.first {
 			positionLabel(yPos: touch.location(in: self).y) 
 			
 			// If the user moves far enough off the the left of our view, stop interacting with this event.
 			if touch.location(in:self).x < -200 {
 				floatingLabel?.isHidden = true
-				touchEventForUs = nil
 			}
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		floatingLabel?.isHidden = true
-		if let touch = touches.first, event == touchEventForUs {
+		if let touch = touches.first {
 			let percentage = touch.location(in: self).y / (bounds.size.height - 10)
 			viewController?.scrollToPercentage(percentage)
 		}

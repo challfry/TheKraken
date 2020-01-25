@@ -17,13 +17,54 @@ import UIKit
  
  // Recipient Chooser textfield?
  // Recipient List smallUser cells?
-	var usernameTextCell: TextFieldCellModel?
-	var userSuggestionsCell: UserListCoreDataCellModel?
-	var messageRecipientsCell: UserListCoreDataCellModel?
-	@objc dynamic var subjectCell: TextViewCellModel?
-	@objc dynamic var messageCell: TextViewCellModel?
-	var postButtonCell: ButtonCellModel?
-	var postStatusCell: OperationStatusCellModel?
+	lazy var usernameTextCell: TextFieldCellModel = {
+		let cell = TextFieldCellModel("Participants")
+		cell.showClearTextButton = true
+		cell.returnButtonHit = textFieldReturnHit
+		return cell
+	}()
+	
+	lazy var userSuggestionsCell: UserListCoreDataCellModel = {
+		let cell = UserListCoreDataCellModel(withTitle: "Suggestions")
+		cell.selectionCallback = suggestedUserTappedAction
+		return cell
+	}()
+	
+	lazy var messageRecipientsCell: UserListCoreDataCellModel = {
+		let cell = UserListCoreDataCellModel(withTitle: "Users In Thread")
+		cell.selectionCallback = userInThreadTappedAction
+		cell.usePredicate = false
+		cell.source = "(besides you)"
+    	cell.users = usersInThread 
+    	return cell		
+	}()
+	
+	@objc dynamic lazy var subjectCell: TextViewCellModel = TextViewCellModel("Subject:")
+	@objc dynamic lazy var messageCell: TextViewCellModel = TextViewCellModel("Initial Message:")
+
+	lazy var postButtonCell: ButtonCellModel = {
+		let buttonCell = ButtonCellModel()
+		buttonCell.setupButton(2, title:"Send", action: weakify(self, type(of: self).postAction))
+		return buttonCell
+	}()
+
+	lazy var postStatusCell: PostOpStatusCellModel = {
+		let cell = PostOpStatusCellModel()
+		cell.shouldBeVisible = false
+        cell.showSpinner = true
+        cell.statusText = "Sending..."
+        
+        cell.cancelAction = { [weak cell, weak self] in
+        	if let cell = cell, let op = cell.postOp {
+        		PostOperationDataManager.shared.remove(op: op)
+        		cell.postOp = nil
+        	}
+        	if let self = self {
+        //		self.setPostingState(false)
+        	}
+        }
+        return cell
+	}()
 	
 	var usersInRecentThreads = Set<PossibleKrakenUser>()
 	var usersInThread = Set<PossibleKrakenUser>()
@@ -40,29 +81,14 @@ import UIKit
 
 		composeDataSource.register(with: collectionView, viewController: self)
 		let composeSection = composeDataSource.appendFilteringSegment(named: "ComposeSection")
-		usernameTextCell = composeSection.append(cell: TextFieldCellModel("Participants"))
-		usernameTextCell?.showClearTextButton = true
-		usernameTextCell?.returnButtonHit = textFieldReturnHit
-		userSuggestionsCell = composeSection.append(cell: UserListCoreDataCellModel(withTitle: "Suggestions"))
-		userSuggestionsCell?.selectionCallback = suggestedUserTappedAction
-		messageRecipientsCell = composeSection.append(cell: UserListCoreDataCellModel(withTitle: "Users In Thread"))
-		messageRecipientsCell?.selectionCallback = userInThreadTappedAction
-		messageRecipientsCell?.usePredicate = false
-		messageRecipientsCell?.source = "(besides you)"
-    	messageRecipientsCell?.users = usersInThread  	
-
-		subjectCell = TextViewCellModel("Subject:")
-		composeSection.append(subjectCell!)
+		composeSection.append(usernameTextCell)
+		composeSection.append(userSuggestionsCell)
+		composeSection.append(messageRecipientsCell)
+		composeSection.append(subjectCell)
+		composeSection.append(messageCell)
+		composeSection.append(postButtonCell)
 		
-		messageCell = TextViewCellModel("Initial Message:")
-		composeSection.append(messageCell!)
-		
-		let buttonCell = ButtonCellModel()
-		buttonCell.setupButton(2, title:"Send", action: weakify(self, type(of: self).postAction))
-		composeSection.append(buttonCell)
-		postButtonCell = buttonCell
-		
-		CurrentUser.shared.tell(buttonCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
+		CurrentUser.shared.tell(postButtonCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
 			if CurrentUser.shared.isMultiUser(), let currentUser = CurrentUser.shared.loggedInUser {
 				let posterFont = UIFont(name:"Georgia-Italic", size: 14)
 				let posterColor = UIColor.darkGray
@@ -75,12 +101,7 @@ import UIKit
 			}
 		}?.execute()
 
-		let statusCell = OperationStatusCellModel()
-        statusCell.shouldBeVisible = false
-        statusCell.showSpinner = true
-        statusCell.statusText = "Sending..."
-        postStatusCell = statusCell
- 		composeSection.append(postStatusCell!)
+ 		composeSection.append(postStatusCell)
        
         // If we are editing an existing Post operation, fill in from the post 
         if let thread = threadToEdit {
@@ -94,12 +115,12 @@ import UIKit
         			}
         		}
         	}
-        	subjectCell?.editText = thread.subject
-			messageCell?.editText = thread.text
+        	subjectCell.editText = thread.subject
+			messageCell.editText = thread.text
         }
         
         // Let the userSuggestion cell know about changes made to the username text field
-        usernameTextCell?.tell(userSuggestionsCell!, when: "editedText") { observer, observed in 
+        usernameTextCell.tell(userSuggestionsCell, when: "editedText") { observer, observed in 
         	if let text = observed.getText(), !text.isEmpty {
         		observer.usePredicate = true
 	        	observer.predicate = NSPredicate(format: "username CONTAINS[cd] %@", text)
@@ -115,12 +136,12 @@ import UIKit
         // Enable the Send button iff all the fields are filled in and we're not already sending.
         self.tell(self, when: ["threadHasRecipients", "subjectCell.editedText", "messageCell.editedText",
         		"isBusyPosting"]) { observer, observed in
-			if let subjectText = observed.subjectCell?.getText(), let messageText = observed.messageCell?.getText(),
+			if let subjectText = observed.subjectCell.getText(), let messageText = observed.messageCell.getText(),
 					observed.threadHasRecipients, subjectText.count > 0, messageText.count > 0, !observed.isBusyPosting {
-				observer.postButtonCell?.button2Enabled = true
+				observer.postButtonCell.button2Enabled = true
 			}
 			else {
-				observer.postButtonCell?.button2Enabled = false
+				observer.postButtonCell.button2Enabled = false
 			}
         }?.execute()
     }
@@ -131,7 +152,7 @@ import UIKit
     	possUser.canBeRemoved = true
     	usersInThread.insert(possUser)
    		threadHasRecipients = usersInThread.count > 0
-    	messageRecipientsCell?.users = usersInThread  	
+    	messageRecipientsCell.users = usersInThread  	
     }
     
     func addUsernameToThread(username: String) {
@@ -140,12 +161,12 @@ import UIKit
     	possUser.canBeRemoved = true
     	usersInThread.insert(possUser)
    		threadHasRecipients = usersInThread.count > 0
-    	messageRecipientsCell?.users = usersInThread  	
+    	messageRecipientsCell.users = usersInThread  	
     }
     
     func removeUserFromThread(user: PossibleKrakenUser) {
  		usersInThread.remove(user)
-		messageRecipientsCell?.users = usersInThread
+		messageRecipientsCell.users = usersInThread
    		threadHasRecipients = usersInThread.count > 0
     }
     
@@ -203,17 +224,30 @@ import UIKit
 	}
 	
     func postAction() {
-		if let subjectText = subjectCell?.getText(), let messageText = messageCell?.getText(),
+		if let subjectText = subjectCell.getText(), let messageText = messageCell.getText(),
 				subjectText.count > 0, messageText.count > 0, usersInThread.count > 0 {
 			SeamailDataManager.shared.queueNewSeamailThreadOp(existingOp: threadToEdit, subject: subjectText, 
 					message: messageText, recipients: usersInThread, done: postQueued)
 			isBusyPosting = true
-			postStatusCell?.shouldBeVisible	= true
+			postStatusCell.shouldBeVisible	= true
 		}
 	}
 	
 	func postQueued(_ post: PostOpSeamailThread?) {
-		
+    	if let post = post {
+	    	postStatusCell.postOp = post
+    	
+    		// If we can connect to the server, wait until we succeed/fail the network call. Else, we 'succeed' as soon
+    		// as we queue up the post. Either way, 2 sec timer, then dismiss the compose view.
+ 		   	post.tell(self, when: "operationState") { observer, observed in 
+				if observed.operationState == .callSuccess || NetworkGovernor.shared.connectionState != .canConnect {
+    				DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(2)) {
+						self.performSegue(withIdentifier: "dismissingPostingView", sender: nil)
+    				}
+    			}
+			}?.execute()
+    	}
+
 	}
 	
 // MARK: Navigation

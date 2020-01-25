@@ -36,6 +36,14 @@ import Foundation
 			let errorString = generalErrors[0]
 			return errorString
 		}
+		else if let fieldCount = fieldErrors?.count, fieldCount > 0 {
+			if fieldCount == 1, let fieldName = fieldErrors?.first?.key {
+				return "Error in field \(fieldName)"
+			}
+			else {
+				return "\(fieldCount) fields have errors"
+			}
+		}
 		else {
 			return "Unknown Error"
 		}
@@ -63,6 +71,15 @@ struct NetworkResponse {
 	var response: URLResponse?
 	var data: Data?
 	var networkError: NetworkError?
+	
+	func debugPrintData() -> String {
+		if let d = data {
+			return String(decoding: d, as: UTF8.self)
+		}
+		else {
+			return "No Data"
+		}
+	}
 }
 
 

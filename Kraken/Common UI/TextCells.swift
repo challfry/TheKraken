@@ -38,7 +38,7 @@ import UIKit
 	}
 	
 	func hasText() -> Bool {
-		if let text = editedText {
+		if let text = getText() {
 			return !text.isEmpty
 		}
 		else {
@@ -48,6 +48,13 @@ import UIKit
 
 	func getText() -> String? {
 		return editedText ?? fieldText
+	}
+	
+	// It's easiest to just force an update to fieldText.
+	func clearText() {
+		fieldText = "."
+		fieldText = ""
+		editedText = ""
 	}
 }
 

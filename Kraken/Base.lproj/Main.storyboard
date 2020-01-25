@@ -137,9 +137,11 @@
                     <navigationItem key="navigationItem" id="rrN-2i-ElO"/>
                     <connections>
                         <outlet property="collectionView" destination="PX9-hx-nIP" id="UH2-v5-w6A"/>
+                        <segue destination="umr-Bh-GE6" kind="unwind" identifier="dismissingPostingView" unwindAction="dismissingPostingView:" id="Gdb-gH-Z2e"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Gaz-IU-YXP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="umr-Bh-GE6" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="3206" y="1184"/>
         </scene>
@@ -1739,7 +1741,7 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UWX-sY-qUX">
-                                        <rect key="frame" x="64.666666666666686" y="508" width="246" height="30"/>
+                                        <rect key="frame" x="76.666666666666686" y="508" width="222" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ai0-Gf-Ots">
                                                 <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -1756,7 +1758,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-me-ViO">
-                                                <rect key="frame" x="198" y="-9" width="48" height="48"/>
+                                                <rect key="frame" x="198" y="3" width="24" height="24"/>
                                                 <state key="normal" image="square.and.arrow.up"/>
                                                 <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                 <connections>

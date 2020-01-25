@@ -255,11 +255,14 @@ class EditPasswordCellModel: TextFieldCellModel {
 		super.init("Password:", isPassword: true)
 		
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.new_password", 
-				"lastError.fieldErrors.current_password"]) { observer, observed in 
+				"lastError.fieldErrors.current_password", "lastError.fieldErrors.password"]) { observer, observed in 
 			if let errors = observed.lastError?.fieldErrors?["new_password"] {
 				observer.errorText = errors[0]
 			}
 			else if let errors = observed.lastError?.fieldErrors?["current_password"] {
+				observer.errorText = errors[0]
+			}
+			else if let errors = observed.lastError?.fieldErrors?["password"] {
 				observer.errorText = errors[0]
 			}
 			else {
@@ -381,13 +384,9 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	
 	func clearAllSensitiveFields() {
 		dataSource?.collectionView?.endEditing(true)
-		passwordCellModel.editedText = ""
-		passwordCellModel.fieldText = ""
-		confirmPasswordCellModel.editedText = ""
-		confirmPasswordCellModel.fieldText = ""
-		registrationCodeCellModel.editedText = ""
-		registrationCodeCellModel.fieldText = ""
-
+		passwordCellModel.clearText()
+		confirmPasswordCellModel.clearText()
+		registrationCodeCellModel.clearText()
 	}
 		
 }

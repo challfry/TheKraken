@@ -15,8 +15,19 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	let loginDataSource = KrakenDataSource()
 	let loginSection = LoginDataSourceSegment()
 	let threadDataSource = KrakenDataSource()
+	lazy var noSeamailSegment = FilteringDataSourceSegment()
 	lazy var threadSegment = FRCDataSourceSegment<SeamailThread>()
 	let dataManager = SeamailDataManager.shared
+	
+	lazy var noSeamailCell: LabelCellModel = {
+		let cell = LabelCellModel("No Seamails in your inbox yet, but you can start a conversation by tapping the \"New\" button." )
+		
+		CurrentUser.shared.tell(cell, when: "loggedInUser.seamailParticipant.count") { observer, observed in
+			observer.shouldBeVisible = observed.loggedInUser?.seamailParticipant.count == 0
+		}?.execute()
+		
+		return cell
+	}()
 
 // MARK: Methods	
 	override func awakeFromNib() {
@@ -45,6 +56,9 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
         loginDataSource.append(segment: loginSection)
 		loginSection.headerCellText = "In order to see your Seamail, you will need to log in first."
 
+		threadDataSource.append(segment: noSeamailSegment)
+		noSeamailSegment.append(noSeamailCell)
+		
 		threadDataSource.append(segment: threadSegment)
 		threadSegment.activate(predicate: nil, sort: [ NSSortDescriptor(key: "timestamp", ascending: false)],
 				cellModelFactory: createCellModel)
@@ -135,5 +149,9 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	@IBAction func dismissingSeamailThread(segue: UIStoryboardSegue) {
 	}
 
+	// This is the unwind segue from the compose view.
+	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
+		dataManager.loadSeamails()
+	}	
 
 }
