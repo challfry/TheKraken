@@ -20,7 +20,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	
 	lazy var betaCellModel: LocalAnnouncementCellModel = {
 		let cell = LocalAnnouncementCellModel()
-		cell.headerText = "Kraken Version 1.0 Beta 1"
+		cell.headerText = "Kraken Version 1.0 Beta 2"
 		cell.authorName = "From: Chall Fry"
 		cell.text = "A big thank you to our wonderful beta testers!"
 		return cell
