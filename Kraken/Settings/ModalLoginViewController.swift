@@ -12,6 +12,7 @@ class ModalLoginViewController: BaseCollectionViewController {
 	
 	let loginDataSource = KrakenDataSource()
 	var segueData: LoginSegueWithAction?
+	var previousCredentialedUserCount: Int = 0
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,19 +28,27 @@ class ModalLoginViewController: BaseCollectionViewController {
 		}
 		
 		loginDataSource.register(with: collectionView, viewController: self)
+		previousCredentialedUserCount = CurrentUser.shared.credentialedUsers.count
 
-		// Note that this observation dismisses the VC if the user enters the logged in state *for any reason*, including
+		// Note that this observation dismisses the VC if a user enters the logged in state *for any reason*, including
 		// if they somehow managed to open a second login window (via another tab, perhaps) and log in there.
         CurrentUser.shared.tell(self, when: "credentialedUsers") { observer, observed in
-//        	if observed.loggedInUser == nil {
-//				observer.loginDataSource.register(with: observer.collectionView, viewController: self)
-//        	}
-//        	else {
+        	if observed.credentialedUsers.count > observer.previousCredentialedUserCount
+        	{
+        		// Someone logged in -- time to dismiss
        			observer.dismiss(animated: true, completion: nil)
 				if let segueData = observer.segueData {
 					segueData.loginSuccessAction?()
 				}
-//    		}
+			}
+			else {
+				// If this was a logout, lower our credentialed users count
+				observer.previousCredentialedUserCount = observed.credentialedUsers.count
+			}
+        }
+        
+        if modalPresentationStyle == .fullScreen {
+        	
         }
     }
 	

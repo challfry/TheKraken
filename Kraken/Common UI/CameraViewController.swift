@@ -257,8 +257,15 @@ class CameraViewController: UIViewController {
         	pirateView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
 	
 			// Load in assets if we don't have them yet.
+//			if hat == nil {
+//				if let url = Bundle.main.url(forResource:"BicornHat", withExtension:"dae", subdirectory: "Hats.scnassets/BicornHat"),
+//						let localHat = SCNReferenceNode(url: url) {
+//					localHat.load()
+//					hat = localHat
+//				}
+//			}
 			if hat == nil {
-				if let url = Bundle.main.url(forResource:"BicornHat", withExtension:"dae", subdirectory: "Hats.scnassets/BicornHat"),
+				if let url = Bundle.main.url(forResource:"FeatherHat", withExtension:"dae", subdirectory: "Hats.scnassets/FeatherHat"),
 						let localHat = SCNReferenceNode(url: url) {
 					localHat.load()
 					hat = localHat

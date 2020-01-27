@@ -76,7 +76,6 @@ class ScrapbookViewController: BaseCollectionViewController {
 				}
 			}
 		}?.execute()
-		
 	}
 	
     override func viewWillAppear(_ animated: Bool) {

@@ -89,6 +89,14 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	// 
 	var loaderDelegate: FRCDataSourceLoaderDelegate? = nil
 		
+	var insertSections = IndexSet()
+	var deleteSections = IndexSet()
+	var moveSections = [(Int, Int)]()			// from, to
+	var insertCells = [IndexPath]()
+	var deleteCells = [IndexPath]()
+	var moveCells = [(IndexPath, IndexPath)]()			// from, to
+	var reloadCells = [IndexPath]()	
+
 	override init() {
 		fetchRequest.entity = FetchedObjectType.entity()
 		fetchRequest.predicate = NSPredicate(value: false)
@@ -348,19 +356,13 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	}
 		
 // MARK: FetchedResultsControllerDelegate
-	var insertSections = IndexSet()
-	var deleteSections = IndexSet()
-	var moveSections = [(Int, Int)]()			// from, to
-	var insertCells = [IndexPath]()
-	var deleteCells = [IndexPath]()
-	var moveCells = [(IndexPath, IndexPath)]()			// from, to
-	var reloadCells = [IndexPath]()	
-
 	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
 	}
 	
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, 
 			didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+		log.debug("In FRC Section Change Delegate Callback", ["numSections" : self.cellModelSections.count,
+				 "type" : type.rawValue, "section" : sectionIndex ])
 		switch type {
 		case .insert:
 			insertSections.insert(sectionIndex)
@@ -395,7 +397,10 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			deleteCells.append(indexPath)
 		case .move:
 			guard let indexPath = indexPath,  let newIndexPath = newIndexPath else { return }
+			// If the from and to index paths are the same -- wait, why is the FRC calling us?
+			if indexPath == newIndexPath { return }
 			moveCells.append((indexPath, newIndexPath))
+			log.debug("FRC Callback added move from \(indexPath) to \(newIndexPath)")
 		case .update:
 			guard let indexPath = indexPath else { return }
 			reloadCells.append(indexPath)

@@ -28,7 +28,7 @@ import UserNotifications
     public var endTime: Date?
     
     @NSManaged public var followedBy: Set<KrakenUser>
-    @NSManaged public var opsFollowing: Set<PostOpEventFollow>?
+    @NSManaged public var opsFollowing: Set<PostOpEventFollow>
     
     @objc dynamic public var followCount: Int = 0
     @objc dynamic public var opsFollowingCount: Int = 0
@@ -40,7 +40,7 @@ import UserNotifications
 		startTime = Date(timeIntervalSince1970: Double(startTimestamp) / 1000.0)
 		endTime = Date(timeIntervalSince1970: Double(endTimestamp) / 1000.0)
 		followCount = followedBy.count
-		opsFollowingCount = opsFollowing?.count ?? 0
+		opsFollowingCount = opsFollowing.count
 	}
 	
 	// TRUE if this event lasts longer than 2 hours. Could be improved in the future, with server support.
@@ -118,11 +118,9 @@ import UserNotifications
 			
 			// Check for existing op for this user
 			var existingOp: PostOpEventFollow?
-			if let ops = thisEvent.opsFollowing {
-				for op in ops {
-					if op.author.username == currentUser.username {
-						existingOp = op
-					}
+			for op in thisEvent.opsFollowing {
+				if op.author.username == currentUser.username {
+					existingOp = op
 				}
 			}
 			if existingOp == nil {
@@ -135,7 +133,7 @@ import UserNotifications
 			
 			do {
 				try context.save()
-				self.opsFollowingCount = self.opsFollowing?.count ?? 0
+				self.opsFollowingCount = self.opsFollowing.count
 			}
 			catch {
 				CoreDataLog.error("Couldn't save context.", ["error" : error])
@@ -145,9 +143,9 @@ import UserNotifications
 	
 	func cancelFollowOp() {
 		guard let currentUsername = CurrentUser.shared.loggedInUser?.username else { return }
-		if let deleteOp = opsFollowing?.first(where: { $0.author.username == currentUsername }) {
+		if let deleteOp = opsFollowing.first(where: { $0.author.username == currentUsername }) {
 			PostOperationDataManager.shared.remove(op: deleteOp)
-			self.opsFollowingCount = self.opsFollowing?.count ?? 0
+			self.opsFollowingCount = self.opsFollowing.count
 		}
 	}
 	
@@ -445,7 +443,7 @@ class EventsDataManager: NSObject {
 	
 	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
 	// not in the new list. Otherwise it only adds/updates events.
-	func parseEvents(_ events: [TwitarrV2Event], isFullList: Bool) {
+	func  parseEvents(_ events: [TwitarrV2Event], isFullList: Bool) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
 			if isFullList {

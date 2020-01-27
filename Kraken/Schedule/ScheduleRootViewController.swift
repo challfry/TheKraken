@@ -470,7 +470,10 @@ extension ScheduleRootViewController: UIPickerViewDataSource, UIPickerViewDelega
 	}
 
 	func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-		return dataManager.allLocations[row]
+		if row < dataManager.allLocations.count {
+			return dataManager.allLocations[row]
+		}
+		return nil
 	}
 }
 

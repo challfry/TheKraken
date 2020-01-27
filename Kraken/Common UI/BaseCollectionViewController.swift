@@ -524,6 +524,14 @@ class BaseCollectionViewController: UIViewController {
 		case .modalLogin:
 			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
 				destVC.segueData = package
+				// Specify the presentation style so the ModalLogin VC can layout appropriately
+				// The .automatic style maps to these values anyway, but the dest VC apparently can't know?
+				if #available(iOS 13.0, *) {
+					destVC.modalPresentationStyle = .pageSheet
+				}
+				else {
+					destVC.modalPresentationStyle = .fullScreen
+				}
 			}
 			
 // Settings

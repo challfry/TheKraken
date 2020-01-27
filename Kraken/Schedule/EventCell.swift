@@ -289,8 +289,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		if privateSelected == true, 
 				let currentUser = CurrentUser.shared.loggedInUser, 
 				let event = model as? Event,
-				let ops = event.opsFollowing, 
-				let op = ops.first(where: { $0.author.username == currentUser.username }) {
+				let op = event.opsFollowing.first(where: { $0.author.username == currentUser.username }) {
 			followPendingLabel.text = op.newState ? "Follow Pending" : "Unfollow Pending"
 			newState = false
 		}
