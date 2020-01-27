@@ -29,6 +29,22 @@ fileprivate class FRCDifference {
 	}
 }
 
+fileprivate class FRCSection {
+	var name: String				// Matches NSFetchedResultsSectionInfo.name
+	var cellModels: [BaseCellModel]
+
+	var isInsertOrDelete: Bool
+	var oldIndex: Int?
+	var newIndex: Int?
+	
+	init(_ name: String) {
+		self.name = name
+		cellModels = []
+		isInsertOrDelete = false
+	}
+
+}
+
 class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 	@objc dynamic var model: NSFetchRequestResult? {
 		didSet {
@@ -65,7 +81,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 	var fetchRequest = NSFetchRequest<FetchedObjectType>()
 	var frc: NSFetchedResultsController<FetchedObjectType>?
-	var cellModelSections: [[BaseCellModel]] = []
+	fileprivate var cellModelSections: [FRCSection] = []
 	
 	// Clients need to implement this to populate the cell's data from the model.
 	var createCellModel: ((_ fromModel: FetchedObjectType) -> BaseCellModel)?
@@ -119,6 +135,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		// performFetch completely changes the result set; any previous adds/removes are no longer valid
 		deleteSections.removeAll()
 		insertSections.removeAll()
+		moveSections.removeAll()
 		deleteCells.removeAll()
 		moveCells.removeAll()
 		reloadCells.removeAll()
@@ -129,18 +146,73 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		if cellModelSections.count == 0 {
 			// Easy case, new DS
 			if let sections = frc?.sections {
-				insertSections.insert(integersIn:0..<sections.count)
+				if sections.count > 1 || sections.count == 1 && sections[0].numberOfObjects > 0 {
+					insertSections.insert(integersIn:0..<sections.count)
+				}
 			}
 		}
 		else {
 			if let frcSections = frc?.sections {
 				log.d("New fetch found \(frcSections.count) sections")
 				log.d("    sectionNames: \(frcSections.map { $0.name  })")
+				
+				// Handle Sections
+				let newSectionNames: Set<String> = Set(frcSections.map { $0.name } )
+				for (sectionIndex, section) in cellModelSections.enumerated() {
+					section.oldIndex = sectionIndex
+					section.isInsertOrDelete = newSectionNames.contains(section.name)
+				}
+				let oldSectionNames = cellModelSections.map { $0.name }
+				var oldSectionDict = Dictionary(zip(oldSectionNames, cellModelSections)) { first, second in return first } 
+				var commonSections: [FRCSection] = []
+				var newSectionArray: [FRCSection] = []
+				for (sectionIndex, section) in frcSections.enumerated() {
+					if let commonSection = oldSectionDict.removeValue(forKey: section.name) {
+						commonSection.newIndex = sectionIndex
+						commonSections.append(commonSection)
+						newSectionArray.append(commonSection)
+					}
+					else {
+						let newSection = FRCSection(section.name)
+						newSection.isInsertOrDelete	= true
+						insertSections.insert(sectionIndex)
+						newSectionArray.append(newSection)
+					}
+				}
+				for section in cellModelSections {
+					if !newSectionNames.contains(section.name), let oldIndex = section.oldIndex {
+						deleteSections.insert(oldIndex)
+					}
+				}
+				var newSectionIterator = newSectionArray.makeIterator()
+				var oldSectionIterator = cellModelSections.makeIterator()
+				var newSection = newSectionIterator.next()
+				var oldSection = oldSectionIterator.next()
+				while newSection != nil && oldSection != nil {
+					while let nv = newSection, nv.isInsertOrDelete {
+						newSection = newSectionIterator.next()
+					}
+					while let ov = oldSection, ov.isInsertOrDelete {
+						oldSection = oldSectionIterator.next()
+					}
+					if oldSection?.name == newSection?.name {			
+						newSection = newSectionIterator.next()
+						oldSection = oldSectionIterator.next()
+					}
+					else {
+						if let nv = newSection, let newIndex = nv.newIndex, let oldIndex = nv.oldIndex {
+							moveSections.append((oldIndex, newIndex))
+							newSection = newSectionIterator.next()
+							nv.isInsertOrDelete	= true
+						}
+					}
+				}
+				
 			
 				// Step 1: Make a dict of all the objectIDs in the old state
 				var oldCellDict: [ NSManagedObjectID : FRCDifference ] = [:]
 				for (sectionIndex, section) in cellModelSections.enumerated() {
-					for (cellIndex, cellModel) in section.enumerated() {
+					for (cellIndex, cellModel) in section.cellModels.enumerated() {
 						if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
 								let model = frcCellModel.model as? NSManagedObject {
 							let diff = FRCDifference(model.objectID)
@@ -156,7 +228,6 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				var commonCells: [ NSManagedObjectID : FRCDifference ] = [:]
 				for (sectionIndex, section) in frcSections.enumerated() {
 					var insertsThisSection: [IndexPath] = []
-					var foundOldCellThisSection: Bool = false
 					if let cellArray = section.objects as? [NSManagedObject] {
 						for (cellIndex, model) in cellArray.enumerated() {
 							if let commonDiffObject = oldCellDict.removeValue(forKey: model.objectID) {
@@ -164,7 +235,6 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 								commonDiffObject.newIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
 								newCellArray.append(commonDiffObject) 
 								commonCells.updateValue(commonDiffObject, forKey: model.objectID)
-								foundOldCellThisSection = true
 							}
 							else {
 								// Cells in new that aren't in old are inserts
@@ -177,19 +247,13 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 						}
 					}
 					
-					// If none of the cells in this section are in old, this is a section insert.
-//					if foundOldCellThisSection {
-						insertCells.append(contentsOf: insertsThisSection)
-//					}
-//					else {
-//						insertSections.insert(sectionIndex)
-//					}
+					insertCells.append(contentsOf: insertsThisSection)
 				}
 				
 				// Step 3: Iterate the old cells again, mark deletes
 				var oldCellArray: [FRCDifference] = []
 				for (sectionIndex, section) in cellModelSections.enumerated() {
-					for (cellIndex, cellModel) in section.enumerated() {
+					for (cellIndex, cellModel) in section.cellModels.enumerated() {
 						var deletesThisSection: [IndexPath] = []
 					//	var foundCommonCellThisSection: Bool = false
 						if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
@@ -221,7 +285,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 				var oldIterator = oldCellArray.makeIterator()
 				var newValue: FRCDifference? = newIterator.next()
 				var oldValue: FRCDifference? = oldIterator.next()
-				while newValue != nil || oldValue != nil {
+				while newValue != nil && oldValue != nil {
 					while let nv = newValue, nv.isInsertOrDelete {
 						newValue = newIterator.next()
 					}
@@ -286,6 +350,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 // MARK: FetchedResultsControllerDelegate
 	var insertSections = IndexSet()
 	var deleteSections = IndexSet()
+	var moveSections = [(Int, Int)]()			// from, to
 	var insertCells = [IndexPath]()
 	var deleteCells = [IndexPath]()
 	var moveCells = [(IndexPath, IndexPath)]()			// from, to
@@ -301,6 +366,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			insertSections.insert(sectionIndex)
 		case .delete:
 			deleteSections.insert(sectionIndex)
+		//		case .move:  -- Apple docs say sections will never use .move
 		default:
 			fatalError()
 		}
@@ -309,7 +375,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
 			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
 		
-		let sec0Count = cellModelSections.count > 0 ? cellModelSections[0].count : 0			
+		let sec0Count = cellModelSections.count > 0 ? cellModelSections[0].cellModels.count : 0			
 		log.debug("In FRC Callback", ["numSections" : self.cellModelSections.count, "section0Count" : sec0Count,
 				 "type" : type.rawValue, "indexPath" : indexPath ?? newIndexPath ?? "hmm"])
 				 
@@ -360,7 +426,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			return 0 
 		}
 		
-		let numItems = cellModelSections[section].count
+		let numItems = cellModelSections[section].cellModels.count
 		log.debug("numberOfItemsInSection", ["offsetSection" : section, "numObjects" : numItems, "DS" : self])
 		return numItems
 	}
@@ -371,13 +437,13 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			return UICollectionViewCell()
 		}
 		let section = cellModelSections[offsetPath.section]
-		guard section.count > offsetPath.row else { 
+		guard section.cellModels.count > offsetPath.row else { 
 			log.error("Datasource was asked cellForItemAt for bad item #.")
 			return UICollectionViewCell()
 		}
 
 		log.d("Asking for cell at indexpath", [ "indexPath" : indexPath ])
-		let cellModel = section[offsetPath.row]
+		let cellModel = section.cellModels[offsetPath.row]
 		
 		// If this reuseID isn't registered with the CV yet, ask the cell model to register its cell classes and reuseIDs.
 		let reuseID = cellModel.reuseID(traits: collectionView.traitCollection)
@@ -435,11 +501,11 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			return CGSize(width:414, height: 50)
 		}
 		let section = cellModelSections[indexPath.section]
-		guard section.count > indexPath.row else { 
+		guard section.cellModels.count > indexPath.row else { 
 			log.error("Datasource was asked sizeForItemAt for bad item #.")
 			return CGSize(width:414, height: 50)
 		}
-		let cellModel = section[indexPath.row]
+		let cellModel = section.cellModels[indexPath.row]
 		
 		// Give the cell model a chance to update its cache
 		cellModel.updateCachedCellSize(for: collectionView)
@@ -467,27 +533,35 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	}
 
 	override func invalidateLayoutCache() {
-		cellModelSections.forEach { $0.forEach { $0.cellSize = CGSize(width: 0, height: 0) } }
+		cellModelSections.forEach { $0.cellModels.forEach { $0.cellSize = CGSize(width: 0, height: 0) } }
 	}
 	
 	func cellModel(at indexPath: IndexPath) -> BaseCellModel? {
 		if indexPath.section >= cellModelSections.count { return nil }
 		let section = cellModelSections[indexPath.section]
-		if indexPath.row >= section.count { return nil }
-		return section[indexPath.row]
+		if indexPath.row >= section.cellModels.count { return nil }
+		return section.cellModels[indexPath.row]
 	}
 	
 	internal func internalRunUpdates(for collectionView: UICollectionView?, deleteOffset: Int, insertOffset: Int) {
 		
-		log.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections,
+		log.debug("internalRunUpdates for FRC:", ["deleteSections" : self.deleteSections, "moveSections" : self.moveSections,
 				"insertSections" : self.insertSections, "deleteCells" : self.deleteCells, "insertCells" : self.insertCells,
 				"reloadCells" : self.reloadCells, "moves" : self.moveCells])
 
 // -- The Part Where We Tell the CollectionView About The Changes
+
+		// Special case for when there's no cells 
+		if insertCells.count > 0, cellModelSections.count == 0 {
+			insertSections.insert(0)
+		}
 		
 		// Tell the CV about all the changes. Be sure to offset the section indices by our segment start values.
 		if deleteSections.count > 0 {
 			collectionView?.deleteSections(addOffsetToIndexSet(deleteOffset, deleteSections))
+		}
+		for (from, to) in moveSections {
+			collectionView?.moveSection(from + deleteOffset, toSection: to + insertOffset)
 		}
 		if deleteCells.count > 0 {
 			collectionView?.deleteItems(at: addSectionOffset(deleteOffset, deleteCells))
@@ -510,10 +584,10 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 		// Unbind the cells we'll be deleting
 		for index in deleteCells {
-			if index.section >= cellModelSections.count || index.row >= cellModelSections[index.section].count {
+			if index.section >= cellModelSections.count || index.row >= cellModelSections[index.section].cellModels.count {
 				continue
 			}
-			let elem = cellModelSections[index.section][index.row]
+			let elem = cellModelSections[index.section].cellModels[index.row]
 			let path = IndexPath(row: index.row, section: index.section + deleteOffset)
 			if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
 				elem.unbind(cell: cell)
@@ -526,17 +600,26 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		insertCells.forEach { insertsAndMoves.append(($0, nil)) }
 		moveCells.forEach { 
 			deleteCells.append($0) 
-			let cm = cellModelSections[$0.section][$0.row]
+			let cm = cellModelSections[$0.section].cellModels[$0.row]
 			insertsAndMoves.append(($1, cm))
+		}
+		
+		// Decompose section moves into deletes and inserts to apply them to sections.
+		var sectionInsertsAndMoves = [(Int, FRCSection?)]()
+		insertSections.forEach { sectionInsertsAndMoves.append(($0, nil)) }
+		moveSections.forEach { (from, to) in
+			deleteSections.insert(from) 
+			let sec = cellModelSections[from]
+			sectionInsertsAndMoves.append((to, sec))
 		}
 	
 		// Actually remove the cells from our CellModel array, in step with what we tell the CV.
 		// Luckily, we can delete all the cells first, and then delete sections.
 		for index in deleteCells.sorted().reversed() {
-			if index.section >= cellModelSections.count || index.row >= cellModelSections[index.section].count {
+			if index.section >= cellModelSections.count || index.row >= cellModelSections[index.section].cellModels.count {
 				continue
 			}
-			cellModelSections[index.section].remove(at: index.row)
+			cellModelSections[index.section].cellModels.remove(at: index.row)
 		}
 		for index in deleteSections.sorted().reversed() {
 			cellModelSections.remove(at: index)
@@ -545,38 +628,40 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		// Now add the cells to our CellModel array, in step with what we tell the CV.
 		// Again, we should be able to process all the sections first, then the cells.
 		if let frcSections = frc?.sections {
-			for sectionIndex in insertSections.sorted() {
-				var section: [BaseCellModel] = []
+			let sortedSectionInsertsAndMoves = sectionInsertsAndMoves.sorted { $0.0 < $1.0 }
+			for (sectionIndex, moveSection) in sortedSectionInsertsAndMoves {
+				let section = moveSection ?? FRCSection(frcSections[sectionIndex].name)
 				if let frcObjects = frcSections[sectionIndex].objects as? [FetchedObjectType] {
 					for item in frcObjects {
 						if item.objectID.isTemporaryID {
 							continue
 						}
 						if let cellModel = createCellModel?(item) {
-							section.append(cellModel)
+							section.cellModels.append(cellModel)
 						}
 					}
 				}
+				
 				cellModelSections.insert(section, at: sectionIndex)
-				log.debug("Newly inserted section.", ["FRC" : self, "numCells" : section.count, "offsetIndex" : sectionIndex])
+				log.debug("Newly inserted section.", ["FRC" : self, "numCells" : section.cellModels.count, "offsetIndex" : sectionIndex])
 			}
 			
 			let sortedInsertsAndMoves = insertsAndMoves.sorted { $0.0 < $1.0 }
 			for (insertIndexPath, insertObject) in sortedInsertsAndMoves {
 				// If we have an object to insert this is actually a move
 				if let movingCellModel = insertObject {
-					cellModelSections[insertIndexPath.section].insert(movingCellModel, at: insertIndexPath.row)
+					cellModelSections[insertIndexPath.section].cellModels.insert(movingCellModel, at: insertIndexPath.row)
 				}
 				else if let frcSection = frcSections[insertIndexPath.section].objects as? [FetchedObjectType],
 						let cellModel = createCellModel?(frcSection[insertIndexPath.row]) {
-						
+					
 					// Not sure if this the best idea; ideally the insert always works. The CV is likely to throw
 					// if the count is off and we just append.
-					if cellModelSections[insertIndexPath.section].count >= insertIndexPath.row {
-						cellModelSections[insertIndexPath.section].insert(cellModel, at: insertIndexPath.row)
+					if cellModelSections[insertIndexPath.section].cellModels.count >= insertIndexPath.row {
+						cellModelSections[insertIndexPath.section].cellModels.insert(cellModel, at: insertIndexPath.row)
 					}
 					else {
-						cellModelSections[insertIndexPath.section].append(cellModel)
+						cellModelSections[insertIndexPath.section].cellModels.append(cellModel)
 					}
 				}
 			}
@@ -586,6 +671,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 		deleteSections.removeAll()
 		insertSections.removeAll()
+		moveSections.removeAll()
 		deleteCells.removeAll()
 		moveCells.removeAll()
 		reloadCells.removeAll()

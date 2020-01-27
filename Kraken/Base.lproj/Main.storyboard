@@ -296,6 +296,7 @@
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z8b-6a-eWh">
                                 <rect key="frame" x="335" y="98" width="30" height="30"/>
+                                <accessibility key="accessibilityConfiguration" hint="Only Show Favorite Songs" label="Favorites"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="cvJ-es-pP5"/>
                                     <constraint firstAttribute="width" constant="30" id="ob5-cL-oEp"/>
@@ -1548,7 +1549,7 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
-                                        <rect key="frame" x="94" y="462" width="187" height="30"/>
+                                        <rect key="frame" x="82" y="462" width="211" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXK-dg-jQa">
                                                 <rect key="frame" x="0.0" y="0.0" width="37" height="30"/>
@@ -1565,7 +1566,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTK-iM-bIb">
-                                                <rect key="frame" x="163" y="3" width="24" height="24"/>
+                                                <rect key="frame" x="163" y="-9" width="48" height="48"/>
                                                 <state key="normal" image="square.and.arrow.up"/>
                                                 <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                 <connections>

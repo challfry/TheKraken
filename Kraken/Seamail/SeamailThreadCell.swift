@@ -112,6 +112,16 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	    		for user in participantArray {
 	    			userCellSection.append(createUserCellModel(user, name: user.username))
 	    		}
+	    		
+	    		// Accessibility
+	    		let groupElem = UIAccessibilityElement(accessibilityContainer: self)
+	    		groupElem.isAccessibilityElement = true
+	    		groupElem.accessibilityLabel = """
+	    				Thread: \(thread.subject) Last Post: \(lastPostTime.text ?? "") \(postCountLabel.text ?? "")  \(participantCountLabel.text ?? "") 
+	    				"""
+				groupElem.accessibilityFrameInContainerSpace = subjectLabel.frame.union(postCountLabel.frame)
+				accessibilityElements = [groupElem, usersView!]
+				
 			}
 			else if let postOpThread = model as? PostOpSeamailThread {
 				// A new thread the user created, waiting to be uploaded to the server
@@ -192,7 +202,9 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 			layout.itemSize = CGSize(width: 68, height: 68)
 		}
 		
-		setupGestureRecognizer()		
+		setupGestureRecognizer()	
+		
+		usersView.accessibilityLabel = "Participant List"	
 	}
 	
 	func createUserCellModel(_ model:KrakenUser?, name: String) -> BaseCellModel {

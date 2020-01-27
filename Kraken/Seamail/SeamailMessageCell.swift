@@ -80,6 +80,13 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 					observer.authorImage.image = observed.thumbPhoto
 //					CollectionViewLog.debug("Setting user image for \(observed.username)", ["image" : observed.thumbPhoto])
 				}?.schedule()
+				
+				var authorAccessibility = "You"
+				if authorUsernameLabel?.isHidden == false {
+					authorAccessibility = "\(message.author.username)"
+				}
+				accessibilityLabel = "\(authorAccessibility), \(dateString) wrote, \(messageLabel.text ?? "")"
+				isAccessibilityElement = true
 			}
 			else if let message = model as? PostOpSeamailMessage, !message.isDeleted {
 	    		messageLabel.text = message.text

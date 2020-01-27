@@ -462,7 +462,11 @@ extension KrakenDataSource: UICollectionViewDataSource {
 			}
 		}
 		
-		return UICollectionReusableView()	
+		// TODO: This is a hack, as the data source should not know about specific reuse identifiers.
+		// This hack is here because the cv sometimes asks for a header when switching data sources, even though it's not 
+		// going to show one.
+		let newView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "EventSectionHeaderView", for: indexPath)
+		return newView
 	}
 	
 }

@@ -74,7 +74,6 @@
 		EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA83FC6C2366334A0042C0DC /* SegmentCell.xib */; };
 		EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6E2368F01D0042C0DC /* Styler.swift */; };
 		EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC7123693A800042C0DC /* DeckMapViewController.swift */; };
-		EA83FC8B236E33450042C0DC /* DeckDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC8A236E33450042C0DC /* DeckDataManager.swift */; };
 		EA8694AC23D3091A00ABE391 /* DailyActivityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8694AA23D3091A00ABE391 /* DailyActivityCell.swift */; };
 		EA8694AD23D3091A00ABE391 /* DailyActivityCell2.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8694AB23D3091A00ABE391 /* DailyActivityCell2.xib */; };
 		EA8694AF23D47FB600ABE391 /* DailyActivityCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8694AE23D47FB500ABE391 /* DailyActivityCell.xib */; };
@@ -156,6 +155,7 @@
 		EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */; };
 		EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */; };
 		EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */; };
+		EADF5DA023DD30E7008BA172 /* DeckDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC8A236E33450042C0DC /* DeckDataManager.swift */; };
 		EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */; };
 		EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */; };
 		EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */; };
@@ -304,7 +304,6 @@
 		EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadCell.swift; sourceTree = "<group>"; };
 		EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeamailThreadCell.xib; sourceTree = "<group>"; };
 		EA8B986323225E4F00E10156 /* SocialCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SocialCell.xib; sourceTree = "<group>"; };
-		EA8B987023234AEE00E10156 /* JoCoKaraokeSongCatalog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = JoCoKaraokeSongCatalog.txt; sourceTree = "<group>"; };
 		EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = JoCoKaraokeSongCatalog.lzfse; sourceTree = "<group>"; };
 		EA8B98742323A58100E10156 /* KaraokeSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeSongCell.xib; sourceTree = "<group>"; };
 		EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeArtistSectionHeaderView.xib; sourceTree = "<group>"; };
@@ -681,7 +680,6 @@
 			isa = PBXGroup;
 			children = (
 				EA39B16723DA61F200A2FB1B /* Not Used */,
-				EA8B987023234AEE00E10156 /* JoCoKaraokeSongCatalog.txt */,
 				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
 				EAC2D3B323CC7AEC0055780C /* Hats.scnassets */,
 			);
@@ -1056,7 +1054,6 @@
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
-				EA83FC8B236E33450042C0DC /* DeckDataManager.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
 				EABD300923DAD7E000232F28 /* SwiftyMarkdown+macOS.swift in Sources */,
 				EA8694B423D4A5A800ABE391 /* AnnouncementCell.swift in Sources */,
@@ -1071,6 +1068,7 @@
 				EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */,
 				EA3C63102296275F00077E3B /* CollectionFlowLayout.swift in Sources */,
 				EAA2E4C12242D300009F287F /* ForumsRootViewController.swift in Sources */,
+				EADF5DA023DD30E7008BA172 /* DeckDataManager.swift in Sources */,
 				EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */,
 				EA534E31230299AE00FE4787 /* EventCell.swift in Sources */,
 				EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */,

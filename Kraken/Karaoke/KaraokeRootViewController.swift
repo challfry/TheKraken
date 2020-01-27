@@ -407,6 +407,7 @@ class KaraokeSongCell: UITableViewCell {
 			songNameStr.append(NSAttributedString(string: " VoiceReduced", attributes: songModifierAttrs))
 		}
 		songNameLabel.attributedText = songNameStr
+		songNameLabel.accessibilityLabel = "Song: \(songNameStr.string)"
 		
 		favoriteButton.isSelected = song.isFavorite
 		artistNameLabel.text = showArtist ? "By: \(song.artistName)" : ""
@@ -461,29 +462,34 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 		artistLabel.styleFor(.body)
 		disclosureButton.styleFor(.body)
 		numFavoritesLabel.styleFor(.body)
+		
+		accessibilityElements = [artistLabel, numFavoritesLabel, disclosureButton]
 	}
 
 	func setup(for artist: KaraokeArtist, vc: KaraokeRootViewController) {
 		self.artist = artist
 		self.viewController = vc
 		artistLabel.text = artist.artistName
+		artistLabel.accessibilityLabel = "Artist: \(artist.artistName)"
 		disclosureButton.isSelected = vc.expandedArtistSections.contains(artist.artistName)
 		self.disclosureButton.imageView?.transform = CGAffineTransform(rotationAngle: self.disclosureButton.isSelected ? .pi : 0.0)
 
 		if !disclosureButton.isSelected, artist.numFavoriteSongs > 0 {
 			numFavoritesLabel.text =  "\(artist.numFavoriteSongs) 💛"
 			numFavoritesLabel.isHidden = false
+			numFavoritesLabel.accessibilityLabel = "\(artist.numFavoriteSongs) favorite songs"
 		}
 		else {
 			numFavoritesLabel.isHidden = true
 		}
 		self.contentView.backgroundColor = self.disclosureButton.isSelected ? UIColor(named: "VC Background") : 
 				UIColor(named: "Cell Background")
-
+		disclosureButton.accessibilityLabel = disclosureButton.isSelected ? "Hide Songs" : "Show Songs"
 	}
 
 	@IBAction func disclosureButtonTapped(_ sender: UIButton) {
 		disclosureButton.isSelected = !disclosureButton.isSelected
+		disclosureButton.accessibilityLabel = disclosureButton.isSelected ? "Hide Songs" : "Show Songs"
 		if let artistName = artistLabel.text {
 			viewController?.setDisclosureState(forArtist: artistName, to: disclosureButton.isSelected)
 		}

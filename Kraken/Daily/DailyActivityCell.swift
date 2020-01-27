@@ -131,6 +131,7 @@ class DailyActivityCell: BaseCollectionViewCell, DailyActivityCellProtocol {
 
 	func setupForDay() {
 		if let model = cellModel as? DailyActivityCellModel {
+			isAccessibilityElement = true
 		
 			// If the cell's been configured for a particular day, and that day isn't today, reload.
 			let dayOffset = model.cruiseStartRelativeDays()
@@ -147,6 +148,7 @@ class DailyActivityCell: BaseCollectionViewCell, DailyActivityCellProtocol {
 				duringCruiseView?.isHidden = true
 				dayCountLabel?.text = "\(beforeCruise)"
 				daysLabel?.text = beforeCruise == 1 ? "Day" : "Days"
+				accessibilityLabel = "\(beforeCruise) days until boat"
 			}
 			else if let duringCruise = model.dayOfCruise() {
 				beforeBoatView?.isHidden = true
@@ -156,9 +158,11 @@ class DailyActivityCell: BaseCollectionViewCell, DailyActivityCellProtocol {
 			else if let afterCruise = model.dayAfterCruise() {
 				if afterCruise == 1 {
 					postCruiseDayCount?.text = "1 Day"
+					accessibilityLabel = "1 day post cruise"
 				}
 				else {
 					postCruiseDayCount?.text = "\(afterCruise) Days"
+					accessibilityLabel = "\(afterCruise) days post cruise"
 				}
 			}
 		}

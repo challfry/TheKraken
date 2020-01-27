@@ -53,7 +53,11 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 	}	
 	
 	var labelText: String? {
-		didSet { label.text = labelText }
+		didSet { 
+			label.text = labelText 
+			accessibilityLabel = labelText 
+			isAccessibilityElement = true
+		}
 	}
 	var iconName: String? {
 		didSet { 

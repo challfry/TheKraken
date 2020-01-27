@@ -27,6 +27,7 @@
                     </imageView>
                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oQj-sn-4AY">
                         <rect key="frame" x="348" y="4" width="36" height="36"/>
+                        <accessibility key="accessibilityConfiguration" label="Favorite"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="36" id="29g-3x-iZ3"/>
                             <constraint firstAttribute="height" constant="36" id="rki-2l-gI0"/>

@@ -286,6 +286,13 @@ class CameraViewController: UIViewController {
 	}
 	
 	@IBAction func cameraSwitchButtonTapped() {
+		// If we were in ARKit, stop ARKit and re-enable the capture session.
+		if pirateButton.isSelected {
+			pirateView.session.pause()
+			pirateView.isHidden = true
+			captureSession.startRunning()
+		}
+	
 		captureSession.beginConfiguration()
 		
 		var newPosition = AVCaptureDevice.Position.front
@@ -419,10 +426,11 @@ extension CameraViewController: ARSCNViewDelegate {
 		let faceBaseNode = SCNNode()
 		node.addChildNode(faceBaseNode)
 		if let hat = hat {
-			faceBaseNode.addChildNode(hat)
+		
+			faceBaseNode.addChildNode(hat.clone())
 		}
 		if let eyepatch = eyepatch {
-			faceBaseNode.addChildNode(eyepatch)
+			faceBaseNode.addChildNode(eyepatch.clone())
 		}
 		
 		if let dev = renderer.device, let faceGeometry = ARSCNFaceGeometry(device: dev,fillMesh: true) {

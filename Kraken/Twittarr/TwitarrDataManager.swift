@@ -592,9 +592,7 @@ class TwitarrDataManager: NSObject {
 			let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },
 					uniquingKeysWith: { first,_ in first })
 			ImageManager.shared.update(photoDetails: tweetPhotos, inContext: context)
-			
-			// Reactions
-			
+						
 			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
 			// That is, we asked for "The next 50 posts before/after this timestamp." Get the time range from anchor post time
 			// to the post farthest from the anchor; any posts in Core Data in that same time range that aren't in the call results

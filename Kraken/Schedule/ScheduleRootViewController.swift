@@ -37,6 +37,8 @@ import EventKitUI
 	var locationPredicate: NSPredicate?
 	var pastEventsPredicate: NSPredicate?
 	
+	@objc dynamic var disclosureLevel: Int = 4
+
 // MARK: Methods 
 	override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,7 +125,13 @@ import EventKitUI
 	}
         
 	func createCellModel(_ model: Event) -> BaseCellModel {
-		return EventCellModel(withModel: model)
+		let cellModel = EventCellModel(withModel: model)
+		
+		self.tell(cellModel, when: "disclosureLevel") { observer, observed in 
+			observer.disclosureLevel = observed.disclosureLevel
+		}?.execute()
+		
+		return cellModel
 	}
 	
 	func createSectionHeaderView(_ cv: UICollectionView, _ kind: String, _ indexPath: IndexPath, 
@@ -196,6 +204,7 @@ import EventKitUI
 	
 // MARK: Actions
 	
+	// This is the Now button in the top-left of the navbar
 	@IBAction func rightNowButtonTapped() {
 		var indexPath = findIndexPathForEventAt(date: Date())
 		indexPath.section += 1
@@ -205,31 +214,36 @@ import EventKitUI
 	@IBAction func filterButtonTapped() {
 		view.layoutIfNeeded()
 		if filterView.frame.origin.x >= collectionView.bounds.maxX {
+			// Show the filter view
 			UIView.animate(withDuration: 0.3) {
 				self.filterViewTrailingConstraint.constant = 0
 				self.view.layoutIfNeeded()
 			}
+			
+			// When the filter view is visible, make it the focus.
+			collectionView.accessibilityElementsHidden = true
 		}
 		else {
+			// Hide the filter view
 			UIView.animate(withDuration: 0.3) {
 				self.filterViewTrailingConstraint.constant = 0 - self.filterView.bounds.size.width
 				self.view.layoutIfNeeded()
 			}
+			collectionView.accessibilityElementsHidden = false
 		}
 	}
 	
-	@objc dynamic var disclosureLevel: Int = 4
 	@IBAction func disclosureSliderTapped() {
 		let newLevel = Int(disclosureSlider.value + 0.5)
 	//	self.disclosureSlider.value = Float(newLevel)
 		if newLevel != disclosureLevel {
-			eventsSegment?.cellModelSections.forEach {
-				$0.forEach {
-					if let cell = $0 as? EventCellModel {
-						cell.disclosureLevel = newLevel
-					}
-				}
-			}
+//			eventsSegment?.cellModelSections.forEach {
+//				$0.cellModels.forEach {
+//					if let cell = $0 as? EventCellModel {
+//						cell.disclosureLevel = newLevel
+//					}
+//				}
+//			}
 			disclosureLevel = newLevel
 
 			// Tell the layout that we're focusing on the topmost visible cell--this makes the layout object
@@ -262,6 +276,7 @@ import EventKitUI
 			favoritesFilterButton.isSelected = true
 		}
 		else {
+			favoritesPredicate = nil
 			favoritesFilterButton.isSelected = false
 		}
 		alarmSetFilterButton.isSelected = false
@@ -571,7 +586,7 @@ class ScheduleLayout: UICollectionViewLayout {
 			}
 			
 			// Break if we're past the bottom of the rect
-			if cellPositions[indexPath.section][indexPath.row].origin.y > rectYMax {
+			if indexPath.section >= cellPositions.count || cellPositions[indexPath.section][indexPath.row].origin.y > rectYMax {
 				break
 			}
 			let val = UICollectionViewLayoutAttributes(forCellWith: indexPath)

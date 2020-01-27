@@ -60,6 +60,7 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 	var username: String? {
 		didSet {
 			usernameLabel.text = "@\(username ?? "")"
+			usernameLabel.accessibilityLabel = username ?? ""
 		}
 	}
 	var showDeleteIcon: Bool = false {

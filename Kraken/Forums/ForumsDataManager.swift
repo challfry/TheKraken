@@ -406,6 +406,7 @@ import UIKit
 	var highestParticipatedLoadedCellIndex: Int = 0
 	var numParticipatedThreadPages: Int64 = 0
 
+// MARK: Methods
 	func checkRefreshForumTheads(_ participatedOnly: Bool) {
 		let refreshTime = participatedOnly ? participatedThreadsCacheInfo.lastForumRefreshTime : 
 				allThreadsCacheInfo.lastForumRefreshTime
@@ -551,7 +552,7 @@ import UIKit
 		let postAuthors = thread.posts.map { $0.author }
 		UserManager.shared.update(users: postAuthors, inContext: context)
 		
-		// Get all the photos atached to all the posts into a Photos set.
+		// Get all the photos attached to all the posts into a Photos set.
 		let allPhotos = thread.posts.flatMap { $0.photos }
 		let forumPhotos = Dictionary( allPhotos.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first } )
 		ImageManager.shared.update(photoDetails: forumPhotos, inContext: context)

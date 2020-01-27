@@ -128,6 +128,8 @@ class ForumsRootViewController: BaseCollectionViewController {
 		}?.execute()
 		
 		forumsNavTitleButton.sizeToFit()
+		
+		// Accessibility
 	}
 	
 	func setFilterType(_ newType: FilterType) {
@@ -210,9 +212,12 @@ class ForumsRootViewController: BaseCollectionViewController {
 	
 		if forumsFilterHeightConstraint.constant == 0 {
 			forumsFilterHeightConstraint.constant = forumsFilterStackView.bounds.size.height + 10
+			
+			collectionView.accessibilityElementsHidden = true
 		}
 		else {
 			forumsFilterHeightConstraint.constant = 0
+			collectionView.accessibilityElementsHidden = false
 		}
 		UIView.animate(withDuration: 0.3) {
 			self.view.layoutIfNeeded()

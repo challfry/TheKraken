@@ -45,7 +45,16 @@ class DeckMapViewController: UIViewController {
 		}
 		
 		searchResultsHeightConstraint.constant = 0
-		searchResultsTable.estimatedRowHeight = 30		
+		searchResultsTable.estimatedRowHeight = 30
+
+		// Accessibility
+		if let elems = deckSegmentedControl.accessibilityElements {
+			for index in 0..<elems.count {
+				if let elem = elems[index] as? UIView {
+					elem.accessibilityLabel = "Deck \(index + 1)"
+				}
+			}
+		}
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -63,6 +72,7 @@ class DeckMapViewController: UIViewController {
 		
 		deckSegmentedControl.selectedSegmentIndex = currentDeck - 1
 		setNavBarTitle()
+		
 	}
     
 	// Shows/hides the search panel

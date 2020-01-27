@@ -657,6 +657,9 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			titleAttrString.append(timeAttrString)
 		}
 		titleLabel.attributedText = titleAttrString
+		
+		titleLabel.accessibilityLabel = "Post by: \(titleAttrString.string)"
+		userButton.accessibilityLabel = "User: \(authorDisplayName)"
 	}
 	
 	@objc func photoTapped(_ sender: UITapGestureRecognizer) {

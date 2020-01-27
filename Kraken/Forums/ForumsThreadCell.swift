@@ -127,6 +127,16 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 				}?.execute())
 								
 				updatePostTime()
+				
+				// Subject Label reads out the accessibility for the whole cell, except the favorite button.
+				subjectLabel.accessibilityLabel = """
+						\(thread.subject), \(thread.locked ? "Thread Locked" : "") 
+						\(thread.sticky ? "Thread Pinned" : "") \(postCountLabel.text ?? ""), \(lastPosterLabel.text ?? "")
+						\(lastPostTimeLabel.text ?? "")
+						"""
+				postCountLabel.isAccessibilityElement = false
+				lastPosterLabel.isAccessibilityElement = false
+				lastPostTimeLabel.isAccessibilityElement = false
 			}
 		}
 	}
@@ -140,6 +150,12 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 			if let rc = readCount {
 				let favObservation = rc.tell(self, when: "isFavorite") { observer, observed in
 					observer.favoriteButton.isSelected = observed.isFavorite
+					if observed.isFavorite {
+						observer.favoriteButton.accessibilityTraits.insert(.selected)
+					}
+					else {
+						observer.favoriteButton.accessibilityTraits.remove(.selected)
+					}
 				}?.execute()
 				if let observation = favObservation {
 					readCountObservations.append(observation)
@@ -154,6 +170,7 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 			}
 			else {
 				favoriteButton.isSelected = false
+				favoriteButton.accessibilityTraits.remove(.selected)
 			}
 		}
 	}
