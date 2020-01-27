@@ -162,7 +162,10 @@ import UserNotifications
 	}
 
 	private func calendarAccessCallback(_ access: Bool, _ error: Error?) {
-		guard access else { return }
+		guard access else { 
+			showDelayedTextAlert(title: "No Calendar Access", message: "Calendar access is dsabled. You can reenable it in Settings.")
+			return
+		}
 		let eventStore = EventsDataManager.shared.ekEventStore
 		var calendar: EKCalendar?
 		do {

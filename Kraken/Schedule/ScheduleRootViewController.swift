@@ -416,18 +416,6 @@ import EventKitUI
 		}
 		return true
 	}
-
-	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
-		// Try to continue whatever we were doing before having to log in.
-		if let loginVC = segue.source as? ModalLoginViewController {
-			if CurrentUser.shared.isLoggedIn() {
-				loginVC.segueData?.loginSuccessAction?()
-			}
-			else {
-				loginVC.segueData?.loginFailureAction?()
-			}
-		}
-	}	
 }
 
 

@@ -115,6 +115,7 @@ class BaseCollectionViewController: UIViewController {
 	var customGR: UILongPressGestureRecognizer?
 	var tappedCell: UICollectionViewCell?
 	var indexPathToScrollToVisible: IndexPath?
+	var customGRScrollStart: CGFloat = 0
 	
 	// Properties of the Image Viewer. This is a covering view that shows an image. Other UI elements can call showImageInOverlay()
 	// on this VC and we'll show the provided image in a translucent overlay over the regular content.
@@ -552,7 +553,19 @@ class BaseCollectionViewController: UIViewController {
 		return id
     }
     
-
+	// This is the unwind segue from the login modal. I believe every subclass that might use this should
+	// implement it like this--therefore it's in the base class.
+	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
+		// Try to continue whatever we were doing before having to log in.
+		if let loginVC = segue.source as? ModalLoginViewController {
+			if CurrentUser.shared.isLoggedIn() {
+				loginVC.segueData?.loginSuccessAction?()
+			}
+			else {
+				loginVC.segueData?.loginFailureAction?()
+			}
+		}
+	}	
 }
 
 extension BaseCollectionViewController: UIScrollViewDelegate {
@@ -605,7 +618,13 @@ extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 			}
 		}
 		
-		
+		return false
+	}
+	
+	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+		if gestureRecognizer == customGR && otherGestureRecognizer == collectionView.panGestureRecognizer {
+			return true
+		}
 		return false
 	}
 
@@ -614,6 +633,7 @@ extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 			if let indexPath = collectionView.indexPathForItem(at: sender.location(in:collectionView)) {
 				tappedCell = collectionView.cellForItem(at: indexPath)
 				tappedCell?.isHighlighted = true
+				customGRScrollStart = collectionView.contentOffset.y
 			}
 			else {
 				tappedCell = nil
@@ -622,7 +642,12 @@ extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 		guard let tappedCell = tappedCell else { return }
 		
 		if sender.state == .changed {
-			tappedCell.isHighlighted = tappedCell.point(inside:sender.location(in: tappedCell), with: nil)
+			if abs(customGRScrollStart - collectionView.contentOffset.y) > 10 {
+				tappedCell.isHighlighted = false
+			}
+			else {
+				tappedCell.isHighlighted = tappedCell.point(inside:sender.location(in: tappedCell), with: nil)
+			}
 		}
 		else if sender.state == .ended {
 			if tappedCell.isHighlighted {				

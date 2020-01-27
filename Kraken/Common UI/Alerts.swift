@@ -21,6 +21,7 @@ func showErrorAlert(title: String, error: Error) {
 	}
 }
 
+// Same idea as above, but for code that might not be on the main thread.
 func showDelayedTextAlert(title: String, message: String) {
 	DispatchQueue.main.async {
 		let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)

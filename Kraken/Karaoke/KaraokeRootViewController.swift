@@ -463,7 +463,7 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 		disclosureButton.styleFor(.body)
 		numFavoritesLabel.styleFor(.body)
 		
-		accessibilityElements = [artistLabel, numFavoritesLabel, disclosureButton]
+		accessibilityElements = [artistLabel!, numFavoritesLabel!, disclosureButton!]
 	}
 
 	func setup(for artist: KaraokeArtist, vc: KaraokeRootViewController) {
@@ -509,6 +509,10 @@ class KaraokeArtistSectionHeaderView: UITableViewHeaderFooterView {
 			self.contentView.backgroundColor = self.disclosureButton.isSelected ? UIColor(named: "VC Background") : 
 					UIColor(named: "Cell Background")
 		}
+	}
+	
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		disclosureButtonTapped(disclosureButton)
 	}
 		
 }

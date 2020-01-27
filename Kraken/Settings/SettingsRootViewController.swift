@@ -154,10 +154,6 @@ class SettingsRootViewController: BaseCollectionViewController {
 
     // MARK: Navigation
 
-	// This fn has to be here so that the login unwind stops here.
-	@IBAction func dismissingLoginModal(_ segue: UIStoryboardSegue) {
-	}	
-
 	// This is the unwind segue handler for the profile edit VC
 	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
 	}

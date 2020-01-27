@@ -170,9 +170,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="6x4-FM-d6S">
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="6x4-FM-d6S">
                                 <rect key="frame" x="0.0" y="88" width="375" height="641"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
+                                <viewLayoutGuide key="safeArea" id="sYI-Yw-zhc"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="kgN-Kn-50P">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -1254,6 +1255,7 @@
                         <outlet property="forumsFilterView" destination="Q04-gy-jHS" id="exv-cg-YIS"/>
                         <outlet property="forumsFilterViewTop" destination="abc-80-db8" id="634-l5-vKg"/>
                         <segue destination="ppy-9j-Eyt" kind="show" identifier="ShowForumThread" id="Cz0-pb-xEd"/>
+                        <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="2Jt-Ly-W1j"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QAX-Jp-bJg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1303,6 +1305,7 @@
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="ZaT-fl-KcI"/>
                         <segue destination="H8G-Ue-1rY" kind="show" identifier="ComposeForumPost" id="7hu-nA-wtf"/>
                         <segue destination="H8G-Ue-1rY" kind="show" identifier="EditForumPost" id="Wbs-WK-1Tg"/>
+                        <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="zfC-bE-cbO"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NQ2-e3-oN1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1552,7 +1555,7 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
-                                        <rect key="frame" x="82" y="462" width="211" height="30"/>
+                                        <rect key="frame" x="94" y="462" width="187" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXK-dg-jQa">
                                                 <rect key="frame" x="0.0" y="0.0" width="37" height="30"/>
@@ -1569,7 +1572,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTK-iM-bIb">
-                                                <rect key="frame" x="163" y="-9" width="48" height="48"/>
+                                                <rect key="frame" x="163" y="3" width="24" height="24"/>
                                                 <state key="normal" image="square.and.arrow.up"/>
                                                 <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                 <connections>
@@ -1745,7 +1748,7 @@
                                         </constraints>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UWX-sY-qUX">
-                                        <rect key="frame" x="64.666666666666686" y="508" width="246" height="30"/>
+                                        <rect key="frame" x="76.666666666666686" y="508" width="222" height="30"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ai0-Gf-Ots">
                                                 <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -1762,7 +1765,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-me-ViO">
-                                                <rect key="frame" x="198" y="-9" width="48" height="48"/>
+                                                <rect key="frame" x="198" y="3" width="24" height="24"/>
                                                 <state key="normal" image="square.and.arrow.up"/>
                                                 <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                 <connections>
@@ -2189,13 +2192,13 @@
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="NT7-WF-Ano"/>
-        <segue reference="J5Z-VR-bxK"/>
+        <segue reference="ZaT-fl-KcI"/>
+        <segue reference="Wbs-WK-1Tg"/>
         <segue reference="N8d-TY-d67"/>
         <segue reference="1ve-Md-YVN"/>
-        <segue reference="d2l-zp-S48"/>
+        <segue reference="yZ3-I6-e7Y"/>
         <segue reference="WpK-eE-Kmh"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="zfC-bE-cbO"/>
         <segue reference="gdr-Cd-yXW"/>
         <segue reference="llS-CN-BhZ"/>
         <segue reference="wjx-Zr-mfc"/>

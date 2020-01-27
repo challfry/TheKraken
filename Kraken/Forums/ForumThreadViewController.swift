@@ -39,7 +39,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 
 	override func viewDidLoad() {
         super.viewDidLoad()
-		knownSegues = Set([.composeForumPost, .editForumPost, .tweetFilter, .userProfile])
+		knownSegues = Set([.composeForumPost, .editForumPost, .tweetFilter, .userProfile, .modalLogin])
 		title = threadModel?.subject ?? "Thread"
 
 		// First add the segment with all the posts

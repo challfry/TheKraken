@@ -398,7 +398,7 @@ class DeckDataManager: NSObject {
 
 	func findBounds(_ forString: String) -> PDFSelection? {
 		let selections = document?.findString(forString, withOptions: .caseInsensitive)
-		if let sel = selections?.first, let page = sel.pages.first {
+		if let sel = selections?.first, let _ = sel.pages.first {
 			return sel
 		}
 		return nil

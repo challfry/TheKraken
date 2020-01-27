@@ -93,13 +93,16 @@ class ForumsRootViewController: BaseCollectionViewController {
 	}
 		
     override func viewWillAppear(_ animated: Bool) {
-		threadDataSource.enableAnimations = true
 		if currentFilterType == .allWithActivitySort {
 			ForumsDataManager.shared.checkRefreshForumTheads(false)
 		}
 		else if currentFilterType == .userHasPosted {
 			ForumsDataManager.shared.checkRefreshForumTheads(true)
 		}
+	}
+	
+    override func viewDidAppear(_ animated: Bool) {
+		threadDataSource.enableAnimations = true
 	}
 	
 	func buildFilterView () {

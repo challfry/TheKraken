@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -92,8 +92,8 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="15" id="U3d-zB-7TV"/>
                                 </constraints>
-                                <color key="pageIndicatorTintColor" name="Icon Foreground"/>
-                                <color key="currentPageIndicatorTintColor" name="Blue Selection"/>
+                                <color key="pageIndicatorTintColor" name="Blue Selection"/>
+                                <color key="currentPageIndicatorTintColor" name="Icon Foreground"/>
                             </pageControl>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="atw-t9-ZLS" userLabel="Pending Ops Stack View">
                                 <rect key="frame" x="0.0" y="517.5" width="315" height="220"/>
@@ -330,7 +330,7 @@
     </objects>
     <resources>
         <namedColor name="Blue Selection">
-            <color red="0.69982264910214143" green="0.70244285914085591" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+            <color red="0.69999998807907104" green="0.70200002193450928" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Cell Background">
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
