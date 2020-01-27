@@ -52,3 +52,6 @@ xcuserdata
 ## Obj-C/Swift specific
 *.hmap
 *.ipa
+
+## Project specific
+/Resources/Hats.scnassets/
