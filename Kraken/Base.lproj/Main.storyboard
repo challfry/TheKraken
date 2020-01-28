@@ -1475,7 +1475,11 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                             </arscnView>
                             <button opaque="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
-                                <rect key="frame" x="20" y="44" width="108" height="108"/>
+                                <rect key="frame" x="20" y="44" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="44" id="UaO-uF-wFJ"/>
+                                    <constraint firstAttribute="height" constant="44" id="oqy-lC-GAp"/>
+                                </constraints>
                                 <state key="normal" image="CameraClose.png"/>
                                 <state key="highlighted" image="CameraCloseHighlight"/>
                                 <connections>
@@ -1483,7 +1487,11 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Ly-Dq-bEZ">
-                                <rect key="frame" x="247" y="44" width="108" height="108"/>
+                                <rect key="frame" x="311" y="44" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="dp7-30-1Yq"/>
+                                    <constraint firstAttribute="width" constant="44" id="jew-et-gfd"/>
+                                </constraints>
                                 <state key="normal" image="CameraRotate.png"/>
                                 <state key="highlighted" image="CameraRotateHighlight.png"/>
                                 <connections>
@@ -1529,7 +1537,11 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xq6-36-IpK">
-                                <rect key="frame" x="119" y="44" width="108" height="108"/>
+                                <rect key="frame" x="247" y="44" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="Mev-2P-5zu"/>
+                                    <constraint firstAttribute="width" constant="44" id="jTz-iR-cR4"/>
+                                </constraints>
                                 <state key="normal" image="NoFlash.png"/>
                                 <state key="selected" image="Flash.png"/>
                                 <state key="highlighted" image="NoFlashHighlight.png"/>
@@ -1538,7 +1550,11 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OMc-Yc-CyC">
-                                <rect key="frame" x="-9" y="44" width="108" height="108"/>
+                                <rect key="frame" x="183" y="44" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="44" id="OeW-1H-hnG"/>
+                                    <constraint firstAttribute="height" constant="44" id="cXj-RS-eT9"/>
+                                </constraints>
                                 <state key="normal" image="PirateSelfie.png"/>
                                 <state key="selected" backgroundImage="BlueButtonHighlight"/>
                                 <connections>
@@ -1604,6 +1620,14 @@
                                     <constraint firstItem="FkC-iq-TmT" firstAttribute="top" secondItem="SDP-aC-uac" secondAttribute="top" id="rix-rl-H4g"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IEI-61-EAS">
+                                <rect key="frame" x="131.66666666666666" y="733" width="112" height="30"/>
+                                <state key="normal" title="Randomize Hats"/>
+                                <connections>
+                                    <action selector="randomizeHatsTapped" destination="Rrr-Wq-uEq" eventType="touchUpInside" id="JF0-Db-CB3"/>
+                                    <action selector="randomizeHatsTapped" destination="PPA-A5-VUC" eventType="touchUpInside" id="LxP-BM-hUf"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -1614,7 +1638,9 @@
                             <constraint firstItem="xq6-36-IpK" firstAttribute="leading" secondItem="OMc-Yc-CyC" secondAttribute="trailing" constant="20" id="5Wc-fL-c7p"/>
                             <constraint firstItem="SDP-aC-uac" firstAttribute="bottom" secondItem="xNP-83-mW2" secondAttribute="bottom" constant="14" id="ANx-Rb-f1N"/>
                             <constraint firstItem="OMc-Yc-CyC" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="Lor-az-tvN"/>
+                            <constraint firstItem="IEI-61-EAS" firstAttribute="centerX" secondItem="xNP-83-mW2" secondAttribute="centerX" id="MAR-Hs-Sd9"/>
                             <constraint firstItem="tAi-G9-tDZ" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" constant="20" id="N0d-75-8C2"/>
+                            <constraint firstItem="IEI-61-EAS" firstAttribute="centerY" secondItem="J6q-HD-IVo" secondAttribute="centerY" id="OJA-yi-A39"/>
                             <constraint firstItem="6Ly-Dq-bEZ" firstAttribute="leading" secondItem="xq6-36-IpK" secondAttribute="trailing" constant="20" id="Qhh-Ks-ssd"/>
                             <constraint firstItem="SDP-aC-uac" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" id="VgC-3o-Fep"/>
                             <constraint firstItem="6Ly-Dq-bEZ" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="Vwo-kt-eeI"/>
@@ -1644,6 +1670,7 @@
                         <outlet property="leftShutter" destination="J6q-HD-IVo" id="5uC-H2-ihv"/>
                         <outlet property="pirateButton" destination="OMc-Yc-CyC" id="e5V-be-xbE"/>
                         <outlet property="pirateView" destination="gSO-iC-WqG" id="GKL-pW-qg4"/>
+                        <outlet property="randomizeHatsButton" destination="IEI-61-EAS" id="zEj-k7-3XD"/>
                         <outlet property="retryButton" destination="GXK-dg-jQa" id="RTt-wU-dku"/>
                         <outlet property="rightShutter" destination="PAF-8W-UnY" id="MpX-Di-haw"/>
                         <outlet property="useButton" destination="rVa-o2-31t" id="Vd7-RH-Or4"/>
@@ -1673,6 +1700,13 @@
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="McJ-CW-az3">
                                 <rect key="frame" x="0.0" y="104" width="375" height="500"/>
                             </arscnView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="deE-UJ-ET1">
+                                <rect key="frame" x="183" y="47" width="112" height="30"/>
+                                <state key="normal" title="Randomize Hats"/>
+                                <connections>
+                                    <action selector="randomizeHatsTapped" destination="Rrr-Wq-uEq" eventType="touchUpInside" id="uIX-fd-K7D"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ntd-iD-fZ6">
                                 <rect key="frame" x="16" y="40" width="44" height="44"/>
                                 <constraints>
@@ -1812,6 +1846,8 @@
                             <constraint firstAttribute="trailing" secondItem="TOM-Es-ErO" secondAttribute="trailing" constant="16" id="Zkb-ZU-6KL"/>
                             <constraint firstItem="jOa-Jf-5Je" firstAttribute="leading" secondItem="E12-wp-GQP" secondAttribute="leading" id="cSl-sO-vQY"/>
                             <constraint firstAttribute="trailing" secondItem="wd9-7U-upi" secondAttribute="trailing" id="deH-SE-29E"/>
+                            <constraint firstItem="deE-UJ-ET1" firstAttribute="centerY" secondItem="TOM-Es-ErO" secondAttribute="centerY" id="e3g-zC-9bt"/>
+                            <constraint firstItem="TOM-Es-ErO" firstAttribute="leading" secondItem="deE-UJ-ET1" secondAttribute="trailing" constant="20" id="fl6-TD-jaP"/>
                             <constraint firstItem="Ntd-iD-fZ6" firstAttribute="leading" secondItem="E12-wp-GQP" secondAttribute="leading" constant="16" id="gJO-Mj-7cd"/>
                             <constraint firstItem="c9C-qe-XPA" firstAttribute="centerY" secondItem="nsR-fj-Lbu" secondAttribute="centerY" id="i70-eR-Kc3"/>
                             <constraint firstItem="McJ-CW-az3" firstAttribute="top" secondItem="wd9-7U-upi" secondAttribute="top" id="j0L-ZF-YWU"/>
@@ -1835,6 +1871,7 @@
                         <outlet property="leftShutter" destination="yJE-M9-JpV" id="eUw-WO-aCf"/>
                         <outlet property="pirateButton" destination="TOM-Es-ErO" id="L2n-zS-7vo"/>
                         <outlet property="pirateView" destination="McJ-CW-az3" id="dJX-cI-Aon"/>
+                        <outlet property="randomizeHatsButton" destination="deE-UJ-ET1" id="cK3-af-Qwd"/>
                         <outlet property="retryButton" destination="Ai0-Gf-Ots" id="8KW-sM-Wfe"/>
                         <outlet property="rightShutter" destination="yJE-M9-JpV" id="NOo-Jy-gXP"/>
                         <outlet property="useButton" destination="Oj2-X4-dmR" id="D9I-j8-1AZ"/>

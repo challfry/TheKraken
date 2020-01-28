@@ -10,12 +10,19 @@ import UIKit
 import AVFoundation
 import CoreMotion
 import ARKit
+import MediaPlayer
+
+struct FaceInfo {
+	var faceAnchor: ARFaceAnchor
+	var faceRootNode: SCNNode				// The root of the face node tree
+}
 
 class CameraViewController: UIViewController {
 	@IBOutlet var cameraView: UIView!
 	@IBOutlet var pirateView: ARSCNView!
 	@IBOutlet var 	closeButton: UIButton!
 	@IBOutlet var 	pirateButton: UIButton!
+	@IBOutlet var   randomizeHatsButton: UIButton!
 	@IBOutlet var	flashButton: UIButton!
 	@IBOutlet var 	cameraRotateButton: UIButton!
 	
@@ -38,9 +45,14 @@ class CameraViewController: UIViewController {
 	var photoOutput = AVCapturePhotoOutput()
 	var discoverer: AVCaptureDevice.DiscoverySession?
 	
+	//
+	var audioSession: AVAudioSession?
+	var savedAudioVolume: Float = 0.0
+	
 	// Props to run AR Mode (Pirate Selfie mode)
-	var faceAnchors: [ARFaceAnchor] = []
-	var hat: SCNReferenceNode?
+	var faceAnchors: [FaceInfo] = []
+	var allHats: [SCNReferenceNode] = []
+	var availableHats: [SCNReferenceNode] = []
 	var eyepatch: SCNReferenceNode?
 	
 	// Configuration
@@ -74,6 +86,26 @@ class CameraViewController: UIViewController {
 //			pirateView.session.delegate = self
 			pirateView.automaticallyUpdatesLighting	= true
 		}
+		
+		// Set up an audio session that'll inform us of volume changes
+		do {
+	        let session = AVAudioSession.sharedInstance()
+	        audioSession = session
+    	    savedAudioVolume = session.outputVolume 
+        	try session.setActive(true)
+        	audioSession?.addObserver(self, forKeyPath: "outputVolume", options: [], context: nil)
+        }
+        catch {
+        	CameraLog.debug("Couldn't set up audio session.")
+        }
+      
+        let volView = MPVolumeView(frame: .zero)
+        view.addSubview(volView)
+	}
+	
+	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+		guard keyPath == "outputVolume" else { return }
+		beginTakingPicture()
 	}
     
 	override func viewWillAppear(_ animated: Bool) {
@@ -101,6 +133,8 @@ class CameraViewController: UIViewController {
 			cameraDevice?.unlockForConfiguration()
 		}
 		UIApplication.shared.isIdleTimerDisabled = false
+		
+		try? audioSession?.setActive(false)
 	}
 	
 	override var shouldAutorotate: Bool {
@@ -167,6 +201,7 @@ class CameraViewController: UIViewController {
 		if !capturedPhotoContainerView.isHidden {
 			// We've taken a photo and are showing it to the user
 			pirateButton.isEnabled = false
+			randomizeHatsButton.isHidden = true
 			flashButton.isEnabled = false
 			cameraRotateButton.isEnabled = false
 			leftShutter.isEnabled = false
@@ -179,10 +214,12 @@ class CameraViewController: UIViewController {
 			cameraRotateButton.isEnabled = false
 			leftShutter.isEnabled = true
 			rightShutter.isEnabled = true
+			randomizeHatsButton.isHidden = false
 		}
 		else {
 			pirateButton.isHidden = !canEnablePirateView
 			pirateButton.isEnabled = canEnablePirateView
+			randomizeHatsButton.isHidden = true
 			pirateButton.isSelected = false
 			flashButton.isEnabled = canEnableFlash
 			cameraRotateButton.isEnabled = canEnableCameraRotate
@@ -257,27 +294,38 @@ class CameraViewController: UIViewController {
         	pirateView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
 	
 			// Load in assets if we don't have them yet.
-//			if hat == nil {
-//				if let url = Bundle.main.url(forResource:"BicornHat", withExtension:"dae", subdirectory: "Hats.scnassets/BicornHat"),
-//						let localHat = SCNReferenceNode(url: url) {
-//					localHat.load()
-//					hat = localHat
-//				}
-//			}
-			if hat == nil {
+			if allHats.count == 0 {
+				if let url = Bundle.main.url(forResource:"BicornHat", withExtension:"dae", subdirectory: "Hats.scnassets/BicornHat"),
+						let localHat = SCNReferenceNode(url: url) {
+					allHats.append(localHat)
+				}
 				if let url = Bundle.main.url(forResource:"FeatherHat", withExtension:"dae", subdirectory: "Hats.scnassets/FeatherHat"),
 						let localHat = SCNReferenceNode(url: url) {
-					localHat.load()
-					hat = localHat
+					allHats.append(localHat)
+				}
+				if let url = Bundle.main.url(forResource:"LeatherHat", withExtension:"dae", subdirectory: "Hats.scnassets/LeatherHat"),
+						let localHat = SCNReferenceNode(url: url) {
+					allHats.append(localHat)
+				}
+				availableHats = allHats.shuffled()
+				
+				// Load all the hats in a background thread
+				DispatchQueue.global().async {
+					self.allHats.forEach { $0.load() }
 				}
 			}
+			
 			if eyepatch == nil {
 				if let url = Bundle.main.url(forResource:"Eyepatch", withExtension:"scn", subdirectory: "Hats.scnassets/Eyepatch"),
 						let localEyepatch = SCNReferenceNode(url: url) {
-					localEyepatch.load()
-					eyepatch = localEyepatch
+					DispatchQueue.global().async {
+						localEyepatch.load()
+						self.eyepatch = localEyepatch
+					}
 				}
 			}
+			
+			
 		}
 		else {
 			pirateView.session.pause()
@@ -287,6 +335,40 @@ class CameraViewController: UIViewController {
 		
 		updateButtonStates()
 	}
+	
+	@IBAction func randomizeHatsTapped() {
+		faceAnchors.forEach { 
+			if let baseNode =  $0.faceRootNode.childNodes.first {
+				baseNode.removeFromParentNode() 
+			}
+		}
+		availableHats = allHats.shuffled()
+		for faceIndex in 0..<faceAnchors.count { assignHat(pirateView, toFaceAtIndex: faceIndex) }
+	}
+	
+	func assignHat(_ renderer: SCNSceneRenderer, toFaceAtIndex: Int) {
+		guard faceAnchors.count > 0 else { return }
+		let validFaceIndex = toFaceAtIndex >= faceAnchors.count ? faceAnchors.count - 1 : toFaceAtIndex
+		let face = faceAnchors[validFaceIndex]
+		let faceBaseNode = SCNNode()
+		face.faceRootNode.addChildNode(faceBaseNode)
+		
+		if availableHats.count > 0 {
+			let randomHat = availableHats[validFaceIndex % availableHats.count]
+			faceBaseNode.addChildNode(randomHat.clone())
+		}
+		if Bool.random(), let eyepatch = eyepatch {
+			faceBaseNode.addChildNode(eyepatch.clone())
+		}
+		
+		if let dev = renderer.device, let faceGeometry = ARSCNFaceGeometry(device: dev,fillMesh: true) {
+			faceGeometry.firstMaterial!.colorBufferWriteMask = []
+			let occlusionNode = SCNNode(geometry: faceGeometry)
+			occlusionNode.renderingOrder = -1
+			faceBaseNode.addChildNode(occlusionNode)
+		}
+	}
+	
 	
 	@IBAction func flashButtonTapped() {
 		flashButton.isSelected =  !flashButton.isSelected
@@ -330,6 +412,12 @@ class CameraViewController: UIViewController {
 	}
 	
 	@IBAction func cameraShutterButtonPressed(sender: UIButton, forEvent event: UIEvent) {
+		beginTakingPicture()
+	}
+	
+	// Starts the process of taking a picture. If we're in AVCapturePhoto mode, calls capturePhoto(). If 
+	// we're in ARKit mode, takes a snapshot.
+	func beginTakingPicture() {
 		leftShutter.isHighlighted = false
 		rightShutter.isHighlighted = false
 		leftShutter.isEnabled = false
@@ -426,26 +514,19 @@ extension CameraViewController : AVCapturePhotoCaptureDelegate {
 }
 
 //MARK: - ARSCNViewDelegate
+
+// Discovered faces get a baseNode attached to the face's SCNNode, and then a random hat, perhaps an eyepatch,
+// and face occlusion geometry attached to the baseNode.
 extension CameraViewController: ARSCNViewDelegate {
 	func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
 		guard let face = anchor as? ARFaceAnchor else  { return }
-		faceAnchors.append(face)
-		let faceBaseNode = SCNNode()
-		node.addChildNode(faceBaseNode)
-		if let hat = hat {
-		
-			faceBaseNode.addChildNode(hat.clone())
-		}
-		if let eyepatch = eyepatch {
-			faceBaseNode.addChildNode(eyepatch.clone())
-		}
-		
-		if let dev = renderer.device, let faceGeometry = ARSCNFaceGeometry(device: dev,fillMesh: true) {
-			faceGeometry.firstMaterial!.colorBufferWriteMask = []
-			let occlusionNode = SCNNode(geometry: faceGeometry)
-			occlusionNode.renderingOrder = -1
-			faceBaseNode.addChildNode(occlusionNode)
-		}
+		let newFace = FaceInfo(faceAnchor: face, faceRootNode: node)
+		faceAnchors.append(newFace)
+		assignHat(renderer, toFaceAtIndex: 10000)	// That is, the last face in the list.
+	}
+	
+	func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
+		CameraLog.debug("Node Removed")
 	}
 }
 
