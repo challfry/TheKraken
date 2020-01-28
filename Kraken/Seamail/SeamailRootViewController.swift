@@ -85,6 +85,8 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 
 		title = "Seamail"
 		knownSegues = Set([.userProfile, .showSeamailThread])
+		
+//		threadSegment.log.instanceEnabled = true
     }
     
     override func viewDidAppear(_ animated: Bool) {

@@ -63,7 +63,18 @@ import CoreData
 		TestAndUpdate(\.subject, v2Object.subject)
 		TestAndUpdate(\.timestamp, v2Object.timestamp)
 //		hasUnreadMessages = v2Object.hasUnreadMessages
-		if !v2Object.countIsUnread {
+		if v2Object.countIsUnread {
+			// V2 Message Count in this case is the # of unread messages, not total messages.
+			// Since we don't know how many of the messaages we *have* are unread, the unread count can't be used to 
+			// infer the total message count. However, if there's 3 new messages, we can infer there must be at least 3 total.
+			if v2Object.messageCount > messageCount {
+				TestAndUpdate(\.messageCount, Int64(v2Object.messageCount))
+			}
+			if v2Object.messageCount > 0 {
+				newMessagesAdded = true
+			}
+		}
+		else {
 			if v2Object.messageCount > messageCount {
 				newMessagesAdded = true
 			}

@@ -214,10 +214,10 @@ struct NetworkResponse {
 
 		activeTasksQ.async {
 			// If there's already a request outstanding for this exact URL, de-duplicate it here
-			for var activeTask in self.activeTasks {
-				if activeTask.task.originalRequest?.url == request.url && 
-						activeTask.task.originalRequest?.httpMethod == request.httpMethod {
-					activeTask.doneCallbacks.append(done)
+			for taskIndex in 0..<self.activeTasks.count {
+				if self.activeTasks[taskIndex].task.originalRequest?.url == request.url && 
+						self.activeTasks[taskIndex].task.originalRequest?.httpMethod == request.httpMethod {
+					self.activeTasks[taskIndex].doneCallbacks.append(done)
 					NetworkLog.debug("De-duped network \(request.httpMethod ?? "") request to \(request.url?.absoluteString ?? "<unknown>")")
 					return
 				}

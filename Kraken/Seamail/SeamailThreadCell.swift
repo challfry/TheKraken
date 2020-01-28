@@ -79,9 +79,13 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 			if let thread = model as? SeamailThread {
 				subjectLabel.text = thread.subject
 				
-				addObservation(thread.tell(self, when: ["messages.count", "opsAddingMessages.count", "fullyReadBy.count"]) { observer, observed in
-					let postCountText = NSMutableAttributedString(string: "\(thread.messages.count) messages", 
+				addObservation(thread.tell(self, when: ["messageCount", "messages.count", "opsAddingMessages.count", "fullyReadBy.count"]) { observer, observed in
+					let postCountText = NSMutableAttributedString(string: "\(observed.messageCount) message\(observed.messageCount == 1 ? "" : "s")", 
 							attributes: observer.postCountTextAttributes())
+					if observed.messages.count < observed.messageCount {
+						postCountText.append(NSAttributedString(string: ", \(observed.messages.count) loaded", 
+								attributes: observer.postCountTextAttributes()))
+					}
 					if let currentUser = CurrentUser.shared.loggedInUser {
 						if let ops = observed.opsAddingMessages {
 							let addCountThisUser = ops.reduce(0) { $0 + ($1.author.username == currentUser.username ? 1 : 0) }

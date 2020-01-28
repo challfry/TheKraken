@@ -556,7 +556,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 // -- The Part Where We Tell the CollectionView About The Changes
 
-		// Special case for when there's no cells 
+		// Special case for when there's no sections 
 		if insertCells.count > 0, cellModelSections.count == 0 {
 			insertSections.insert(0)
 		}
@@ -582,6 +582,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			collectionView?.insertSections(addOffsetToIndexSet(insertOffset, insertSections))
 		}
 		if insertCells.count > 0 {
+			// Filter out any cells being inserted into a section that's being inserted. The CV queries us for how 
+			// many cells are in the section after the update is done, and we add cells to our internal list just below.
+			insertCells = insertCells.filter { !insertSections.contains($0.section) }
 			collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
 		}
 		
@@ -635,8 +638,14 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		if let frcSections = frc?.sections {
 			let sortedSectionInsertsAndMoves = sectionInsertsAndMoves.sorted { $0.0 < $1.0 }
 			for (sectionIndex, moveSection) in sortedSectionInsertsAndMoves {
-				let section = moveSection ?? FRCSection(frcSections[sectionIndex].name)
-				if let frcObjects = frcSections[sectionIndex].objects as? [FetchedObjectType] {
+				if let section = moveSection {
+					cellModelSections.insert(section, at: sectionIndex)
+					log.debug("Moved section.", ["FRC" : self, "numCells" : section.cellModels.count, "destination" : sectionIndex])
+				}
+				else if let frcObjects = frcSections[sectionIndex].objects as? [FetchedObjectType] {
+					// Create a new section and populate it with the FRC's objects
+					let section = FRCSection(frcSections[sectionIndex].name)
+					cellModelSections.insert(section, at: sectionIndex)
 					for item in frcObjects {
 						if item.objectID.isTemporaryID {
 							continue
@@ -645,10 +654,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 							section.cellModels.append(cellModel)
 						}
 					}
+					log.debug("Newly inserted section.", ["FRC" : self, "numCells" : section.cellModels.count, "offsetIndex" : sectionIndex])
 				}
 				
-				cellModelSections.insert(section, at: sectionIndex)
-				log.debug("Newly inserted section.", ["FRC" : self, "numCells" : section.cellModels.count, "offsetIndex" : sectionIndex])
 			}
 			
 			let sortedInsertsAndMoves = insertsAndMoves.sorted { $0.0 < $1.0 }
