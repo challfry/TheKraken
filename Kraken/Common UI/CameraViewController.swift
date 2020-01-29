@@ -18,12 +18,13 @@ struct FaceInfo {
 }
 
 class CameraViewController: UIViewController {
-	@IBOutlet var cameraView: UIView!
-	@IBOutlet var pirateView: ARSCNView!
+	@IBOutlet var 	cameraView: UIView!
+	@IBOutlet var 		cameraAspectConstraint: NSLayoutConstraint?
+	@IBOutlet var 	pirateView: ARSCNView!
 	@IBOutlet var 	closeButton: UIButton!
 	@IBOutlet var 	pirateButton: UIButton!
-	@IBOutlet var   randomizeHatsButton: UIButton!
-	@IBOutlet var	flashButton: UIButton!
+	@IBOutlet var 	randomizeHatsButton: UIButton!
+	@IBOutlet var 	flashButton: UIButton!
 	@IBOutlet var 	cameraRotateButton: UIButton!
 	
 	var verticalSlider: VerticalSlider?
@@ -77,6 +78,7 @@ class CameraViewController: UIViewController {
 				name: CoreMotion.OrientationChanged, object: nil)
 				
 		// Fix-up Interface Builder values that might get set wrong while editing the VC.
+		cameraView.isHidden = false
 		capturedPhotoContainerView.isHidden = true
 		pirateView.isHidden = true
 
@@ -101,6 +103,7 @@ class CameraViewController: UIViewController {
       
         let volView = MPVolumeView(frame: .zero)
         view.addSubview(volView)
+        
 	}
 	
 	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -110,7 +113,6 @@ class CameraViewController: UIViewController {
     
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		cameraPreview?.frame = cameraView.bounds
 		CoreMotion.shared.start()
 		  
 		if let inputDevice = cameraDevice {
@@ -125,6 +127,12 @@ class CameraViewController: UIViewController {
 		
 		UIApplication.shared.isIdleTimerDisabled = true
 		updateButtonStates()
+		rotateCameraViewsForDeviceRotation(with: nil)
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		
+		cameraPreview?.frame = cameraView.bounds
 	}
 	
 	override func viewDidDisappear(_ animated: Bool) {
@@ -141,6 +149,57 @@ class CameraViewController: UIViewController {
 		return false
 	}
 	
+	override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+		return .portrait
+	}
+	
+	func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation {
+		return UIInterfaceOrientation.portrait
+	}
+	
+	override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+		super.viewWillTransition(to: size, with: coordinator)
+		rotateCameraViewsForDeviceRotation(with: coordinator)
+	}
+		
+	func rotateCameraViewsForDeviceRotation(with coordinator: UIViewControllerTransitionCoordinator?) {
+		// Change the constraint on the camera view to maintain a 3:4 aspect ratio oriented to match the actual
+		// camera aspect.
+		if let constraint = cameraAspectConstraint {
+			cameraView.removeConstraint(constraint)
+			if UIApplication.shared.statusBarOrientation.isLandscape {
+				cameraAspectConstraint = NSLayoutConstraint(item: cameraView as Any, attribute: .width, relatedBy: .equal, 
+						toItem: cameraView, attribute: .height, multiplier: 4.0 / 3.0, constant: 0)
+			}
+			else {
+				cameraAspectConstraint = NSLayoutConstraint(item: cameraView as Any, attribute: .width, relatedBy: .equal, 
+						toItem: cameraView, attribute: .height, multiplier: 3.0 / 4.0, constant: 0)
+			}
+			cameraAspectConstraint?.priority = UILayoutPriority(500)
+			cameraAspectConstraint?.isActive = true
+		}
+		
+		var newOrientation: AVCaptureVideoOrientation
+		switch UIApplication.shared.statusBarOrientation {
+		case .portrait: newOrientation = .portrait
+		case .landscapeLeft: newOrientation = .landscapeLeft
+		case .landscapeRight: newOrientation = .landscapeRight
+		case .portraitUpsideDown: newOrientation = .portraitUpsideDown
+		default: newOrientation = .portrait
+		}
+		cameraPreview?.connection?.videoOrientation = newOrientation
+
+		// From https://developer.apple.com/library/archive/qa/qa1890/_index.html
+		coordinator?.animate(alongsideTransition: { context in
+//	        let deltaTransform = coordinator.targetTransform
+//    	    let deltaAngle = atan2f(Float(deltaTransform.b), Float(deltaTransform.a))
+//			self.currentRotation -= deltaAngle
+//			self.rotatorView.layer.setValue(self.currentRotation, forKeyPath: "transform.rotation.z")
+		}, completion: { context in 
+			self.cameraPreview?.frame = self.cameraView.bounds
+		})
+	}
+		
 	// This VC doesn't actually rotate, it technically stays in Portrait all the time. However, it 
 	// rotates a bunch of its UI widgets via affine transforms when device rotation is detected. Also,
 	// the notification this responds to is a custom app notification, not a system one.
@@ -150,6 +209,10 @@ class CameraViewController: UIViewController {
 	
 	func rotateUIElements(animated: Bool) {
 //		print ("New orientation: \(CoreMotion.shared.currentDeviceOrientation.rawValue)")
+
+		// On iPad we allow view rotations, so don't do button rotations.
+		guard UIDevice.current.userInterfaceIdiom == .phone else { return }
+		 
 		var rotationAngle: CGFloat = 0.0
 		var isLandscape = false
 		switch CoreMotion.shared.currentDeviceOrientation {
@@ -281,6 +344,7 @@ class CameraViewController: UIViewController {
 		if !pirateButton.isSelected {
 			captureSession.stopRunning()
 			pirateView.isHidden = false
+			cameraView.isHidden = true
 
 			let configuration = ARFaceTrackingConfiguration()
     	    configuration.isLightEstimationEnabled = true
@@ -330,6 +394,7 @@ class CameraViewController: UIViewController {
 		else {
 			pirateView.session.pause()
 			pirateView.isHidden = true
+			cameraView.isHidden = false
 			captureSession.startRunning()
 		}
 		
@@ -455,12 +520,14 @@ class CameraViewController: UIViewController {
 			var photoImage = pirateView.snapshot()
 			
 			// Rotate if necessary
-			switch CoreMotion.shared.currentDeviceOrientation {
-				case .portrait, .faceUp, .unknown: break
-				case .landscapeLeft: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .left)
-				case .landscapeRight: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .right)
-				case .portraitUpsideDown, .faceDown: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .down)
-				default: break
+			if UIDevice.current.userInterfaceIdiom == .phone {
+				switch CoreMotion.shared.currentDeviceOrientation {
+					case .portrait, .faceUp, .unknown: break
+					case .landscapeLeft: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .left)
+					case .landscapeRight: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .right)
+					case .portraitUpsideDown, .faceDown: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .down)
+					default: break
+				}
 			}
 			
 			capturedPhotoView.image = photoImage

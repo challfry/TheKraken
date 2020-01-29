@@ -26,6 +26,7 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 		super.init(coder: aDecoder)
 		ContainerViewController.shared = self
 	}
+	
     override func viewDidLoad() {
         super.viewDidLoad()
 		determineChildLayout(for: view.bounds.size)
@@ -59,6 +60,8 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 				child.view.frame = CGRect(x: CGFloat(index) * columnWidth, y: 0, width: childVCSize.width, height: childVCSize.height)
 				view.addSubview(child.view)
 				child.didMove(toParent: self)
+				
+				setOverrideTraitCollection(UITraitCollection(horizontalSizeClass: .compact), forChild: child)
 			}
 			else {
 				child.view.frame = CGRect(x: CGFloat(index) * columnWidth, y: 0, width: childVCSize.width, height: childVCSize.height)
@@ -95,5 +98,4 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 	override func viewWillLayoutSubviews() {
 		determineChildLayout(for: view.bounds.size)
 	}
-
 }

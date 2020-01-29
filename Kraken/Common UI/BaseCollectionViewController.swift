@@ -123,6 +123,7 @@ class BaseCollectionViewController: UIViewController {
 	var photoCoveringView: UIVisualEffectView?
 	var 	photoZoomView: UIScrollView?
 	var 		photoOverlayView: UIImageView?
+	var photoShareButton: UIButton?
 	var photoHeightConstraint: NSLayoutConstraint?
 	var photoWidthConstraint: NSLayoutConstraint?
 	var zoomViewWidthConstraint: NSLayoutConstraint?
@@ -276,12 +277,31 @@ class BaseCollectionViewController: UIViewController {
 					shareButton.leadingAnchor.constraint(equalTo: coveringView.leadingAnchor, constant: 20),
 					shareButton.bottomAnchor.constraint(equalTo: coveringView.safeAreaLayoutGuide.bottomAnchor) ]
 			NSLayoutConstraint.activate(constraints)
+			photoShareButton = shareButton
 		}
 	}
 	
+	// on iPhone, viewControllers are all portrait only. We manually watch for device rotation and rotate the photo
+	// view.
 	@objc func deviceRotationNotification(_ notification: Notification) {
-		handleDeviceRotation(animated: true)
+		if UIDevice.current.userInterfaceIdiom == .phone {
+			handleDeviceRotation(animated: true)
+		}
 	}
+	
+	// on iPad, we can get view rotations while showing the photo view.
+	override func viewDidLayoutSubviews() {
+		if let coveringView = photoCoveringView {
+			coveringView.removeFromSuperview()
+			photoOverlayView = nil
+			photoCoveringView = nil
+			CoreMotion.shared.stop()
+			if let photo = photoBeingShown {
+				showImageInOverlay(image: photo)
+			}
+		}
+	}
+	
 	
 	// These VCs don't support landscape; only portrait mode. However, the photo view overlay does need to rotate to 
 	// show landscape mode, which is what this crazy code does.
@@ -319,13 +339,15 @@ class BaseCollectionViewController: UIViewController {
 		zoomView.layoutIfNeeded()
 		zoomView.setZoomScale(scaleFactor, animated: animated)
 		
-		if animated {
-			UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.3, delay: 0, options: [], animations: {
+		if UIDevice.current.userInterfaceIdiom == .phone {
+			if animated {
+				UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.3, delay: 0, options: [], animations: {
+					zoomView.transform = xform
+				})
+			}
+			else {
 				zoomView.transform = xform
-			})
-		}
-		else {
-			zoomView.transform = xform
+			}
 		}
 	}
 	
@@ -335,8 +357,13 @@ class BaseCollectionViewController: UIViewController {
 
 	@objc func shareButtonTapped() {
 		guard let photo = self.photoBeingShown else { return }
+		guard let shareButton = photoShareButton else { return }
 		let activityViewController = UIActivityViewController(activityItems: [photo], applicationActivities: nil)
 		present(activityViewController, animated: true, completion: {})
+		if let popper = activityViewController.popoverPresentationController {
+			popper.sourceView = self.view
+			popper.sourceRect = shareButton.frame
+		}
 	}
 	
 	// Dismisses the photo overlay view.

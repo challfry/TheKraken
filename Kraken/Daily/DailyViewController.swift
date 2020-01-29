@@ -26,17 +26,17 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		return cell
 	}()
 	
-	lazy var twitarrCell = SocialCellModel("Twittar", imageNamed: "Twitarr",  nav: GlobalNavPacket(from: self, tab: .twitarr))
-	lazy var forumsCell = SocialCellModel("Forums", imageNamed: "Forums", nav: GlobalNavPacket(from: self, tab: .forums))
-	lazy var mailCell = SocialCellModel("Seamail", imageNamed: "Seamail", nav: GlobalNavPacket(from: self, tab: .seamail))
-	lazy var scheduleCell = SocialCellModel("Schedule", imageNamed: "Schedule", nav: GlobalNavPacket(from: self, tab: .events))
-	lazy var deckMapCell = SocialCellModel("Deck Maps", imageNamed: "Map", nav: GlobalNavPacket(from: self, tab: .deckPlans))
-	lazy var karaokeCell = SocialCellModel("Karaoke", imageNamed: "Karaoke", nav: GlobalNavPacket(from: self, tab: .karaoke))
-	lazy var scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(from: self, tab: .scrapbook))
-	lazy var settingsCell = SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(from: self, tab: .settings))
-	lazy var helpCell = SocialCellModel("Help", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .twitarrHelp, arguments: ["filename" : "helptext.json"]))
-	lazy var aboutCell = SocialCellModel("About", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .about))
-
+	var twitarrCell: SocialCellModel?
+	var forumsCell: SocialCellModel?
+	var mailCell: SocialCellModel?
+	var scheduleCell: SocialCellModel?
+	var deckMapCell: SocialCellModel?
+	var karaokeCell: SocialCellModel?
+	var scrapbookCell: SocialCellModel?
+	var settingsCell : SocialCellModel?
+	var helpCell: SocialCellModel?
+	var aboutCell: SocialCellModel?
+	
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		DailyViewController.shared = self
@@ -70,17 +70,28 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		dataSource.append(segment: announcementSegment)
 		
 		
+		twitarrCell = SocialCellModel("Twittar", imageNamed: "Twitarr",  nav: GlobalNavPacket(from: self, tab: .twitarr))
+		forumsCell = SocialCellModel("Forums", imageNamed: "Forums", nav: GlobalNavPacket(from: self, tab: .forums))
+		mailCell = SocialCellModel("Seamail", imageNamed: "Seamail", nav: GlobalNavPacket(from: self, tab: .seamail))
+		scheduleCell = SocialCellModel("Schedule", imageNamed: "Schedule", nav: GlobalNavPacket(from: self, tab: .events))
+		deckMapCell = SocialCellModel("Deck Maps", imageNamed: "Map", nav: GlobalNavPacket(from: self, tab: .deckPlans))
+		karaokeCell = SocialCellModel("Karaoke", imageNamed: "Karaoke", nav: GlobalNavPacket(from: self, tab: .karaoke))
+		scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(from: self, tab: .scrapbook))
+		settingsCell = SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(from: self, tab: .settings))
+		helpCell = SocialCellModel("Help", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .twitarrHelp, arguments: ["filename" : "helptext.json"]))
+		aboutCell = SocialCellModel("About", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .about))
+
 		dataSource.append(segment: appFeaturesSegment)
-		appFeaturesSegment.append(twitarrCell)
-		appFeaturesSegment.append(forumsCell)
-		appFeaturesSegment.append(mailCell)
-		appFeaturesSegment.append(scheduleCell)
-		appFeaturesSegment.append(deckMapCell)
-		appFeaturesSegment.append(karaokeCell)
-		appFeaturesSegment.append(scrapbookCell)
-		appFeaturesSegment.append(settingsCell)
-		appFeaturesSegment.append(helpCell)
-		appFeaturesSegment.append(aboutCell)
+		appFeaturesSegment.append(twitarrCell!)
+		appFeaturesSegment.append(forumsCell!)
+		appFeaturesSegment.append(mailCell!)
+		appFeaturesSegment.append(scheduleCell!)
+		appFeaturesSegment.append(deckMapCell!)
+		appFeaturesSegment.append(karaokeCell!)
+		appFeaturesSegment.append(scrapbookCell!)
+		appFeaturesSegment.append(settingsCell!)
+		appFeaturesSegment.append(helpCell!)
+		appFeaturesSegment.append(aboutCell!)
 		
 		// Games Library
 		// Lighter Mode
@@ -134,12 +145,12 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	}
 	
     func updateEnabledFeatures(_ disabledSections: Set<ValidSectionUpdater.Section>) {
-		twitarrCell.contentDisabled = disabledSections.contains(.stream)
-		forumsCell.contentDisabled = disabledSections.contains(.forums)
-		mailCell.contentDisabled = disabledSections.contains(.seamail)
-		scheduleCell.contentDisabled = disabledSections.contains(.calendar)
-		deckMapCell.contentDisabled = disabledSections.contains(.deckPlans)
-		karaokeCell.contentDisabled = disabledSections.contains(.karaoke)
+		twitarrCell?.contentDisabled = disabledSections.contains(.stream)
+		forumsCell?.contentDisabled = disabledSections.contains(.forums)
+		mailCell?.contentDisabled = disabledSections.contains(.seamail)
+		scheduleCell?.contentDisabled = disabledSections.contains(.calendar)
+		deckMapCell?.contentDisabled = disabledSections.contains(.deckPlans)
+		karaokeCell?.contentDisabled = disabledSections.contains(.karaoke)
     }
 
 }
