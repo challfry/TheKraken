@@ -11,6 +11,7 @@ import UIKit
 @objc protocol SocialCellProtocol {
 	dynamic var labelText: String? { get set }
 	dynamic var iconName: String? { get set }
+	dynamic var contentDisabled: Bool { get set }
 }
 
 @objc class SocialCellModel : BaseCellModel, SocialCellProtocol {
@@ -19,6 +20,7 @@ import UIKit
 
 	dynamic var labelText: String? 
 	dynamic var iconName: String?
+	dynamic var contentDisabled: Bool = false
 	var navPacket: GlobalNavPacket
 	
 
@@ -44,33 +46,26 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 	
 	private static let cellInfo = [ "SocialCell" : PrototypeCellInfo("SocialCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
-	
-	override func awakeFromNib() {
-		allowsSelection = true
-		
-		// Font styling
-		label.styleFor(.body)
-	}	
+	var highlightAnimation: UIViewPropertyAnimator?
 	
 	var labelText: String? {
-		didSet { 
-			label.text = labelText 
-			accessibilityLabel = labelText 
-			isAccessibilityElement = true
-		}
-	}
-	var iconName: String? {
-		didSet { 
-			if let name = iconName {
-				imageView.image = UIImage(named: name)?.withRenderingMode(.alwaysTemplate)
-			}
-			else {
-				imageView.image = nil
-			}
+		didSet {
+			setup() 
 		}
 	}
 	
-	var highlightAnimation: UIViewPropertyAnimator?
+	var iconName: String? {
+		didSet { 
+			setup() 
+		}
+	}
+	
+	var contentDisabled: Bool = false {
+		didSet {
+			setup() 
+		}
+	}
+	
 	override var isHighlighted: Bool {
 		didSet {
 			if let oldAnim = highlightAnimation {
@@ -85,5 +80,31 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 			anim.startAnimation()
 			highlightAnimation = anim
 		}
+	}
+	
+	override func awakeFromNib() {
+		allowsSelection = true
+		isAccessibilityElement = true
+		
+		// Font styling
+		label.styleFor(.body)
+	}	
+	
+	func setup() {
+		if let labelText = labelText {
+			label.text = "\(labelText) \(contentDisabled ? " (Disabled)" : "")"
+			accessibilityLabel = label.text 
+		}
+		
+		if contentDisabled {
+			imageView.image = UIImage(named: "Disabled")?.withRenderingMode(.alwaysTemplate)
+		} 
+		else if let name = iconName {
+			imageView.image = UIImage(named: name)?.withRenderingMode(.alwaysTemplate)
+		}
+		else {
+			imageView.image = nil
+		}
+
 	}
 }

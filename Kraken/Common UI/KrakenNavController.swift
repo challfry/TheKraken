@@ -12,6 +12,7 @@ import UIKit
 class KrakenNavController: UINavigationController, GlobalNavEnabled, UIViewControllerRestoration {
 	var networkLabel = UILabel()
 	var showNetworkBanner = true
+	var columnIndex: Int = 0
 	
 	static func viewController(withRestorationIdentifierPath identifierComponents: [String], coder: NSCoder) -> UIViewController? {
 		return nil
@@ -44,7 +45,7 @@ class KrakenNavController: UINavigationController, GlobalNavEnabled, UIViewContr
     
     // By default, nav controllers just pass global nav actions to their root, or the first VC in their stack
     // that can handle nav.
-    func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
     	if viewControllers.count > 0, let rootVC = viewControllers[0] as? GlobalNavEnabled {
     		rootVC.globalNavigateTo(packet: packet)
     		return true

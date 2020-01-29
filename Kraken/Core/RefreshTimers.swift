@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ServerUpdater : NSObject {
+@objc class ServerUpdater : NSObject {
 
 	static var updateActions: [ServerUpdater] = [
 			ServerTimeUpdater.shared,
@@ -19,7 +19,7 @@ class ServerUpdater : NSObject {
 	
 	func updateMethod() {}
 	var minimumUpdateInterval: TimeInterval
-	var lastUpdateTime: Date
+	@objc dynamic var lastUpdateTime: Date
 	var refreshOnLogin: Bool
 	var updateRunning: Bool
 	

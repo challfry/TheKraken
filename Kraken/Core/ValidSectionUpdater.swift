@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ValidSectionUpdater: ServerUpdater {
+@objc class ValidSectionUpdater: ServerUpdater {
 	static let shared = ValidSectionUpdater()
 	
 	enum Section: String {
@@ -28,6 +28,7 @@ class ValidSectionUpdater: ServerUpdater {
 	// All sections are assumed to be enabled, unless this call specifically says they're not.
 	// This means that sections not in the response are assumed to be enabled.
 	var disabledSections = Set<Section>()
+	var disabledTabs = Set<RootTabBarViewController.Tab>()
 	
 	init() {
 		// Update every 15 minutes.
@@ -53,12 +54,8 @@ class ValidSectionUpdater: ServerUpdater {
 						}
 					}
 					self.disabledSections = newDisabledSections
-					
-					// Tell the tab bar controller to update its disabled sections.  
-					DispatchQueue.main.async {
-						RootTabBarViewController.shared?.updateEnabledTabs(self.disabledSections)
-					}
-					
+					self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
+										
 				} catch 
 				{
 					NetworkLog.error("Failure parsing server sections response.", ["Error" : error, "URL" : request.url as Any])
@@ -66,6 +63,23 @@ class ValidSectionUpdater: ServerUpdater {
 			}
 			self.updateComplete(success: true)
 		}
+	}
+	
+	func tabForSection(_ section: Section) -> RootTabBarViewController.Tab {
+		switch section {
+		case .forums: return .forums
+		case .stream: return .twitarr
+		case .seamail: return .seamail
+		case .calendar: return .events
+		case .deckPlans: return .deckPlans
+		case .games: break // return .
+		case .karaoke: return .karaoke
+		case .search: break // return .
+		case .registration: break
+		case .userProfile: break
+		}
+		
+		return .unknown
 	}
 }
 

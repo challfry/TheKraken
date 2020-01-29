@@ -9,7 +9,6 @@
 import UIKit
 
 class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
-	static var shared: RootTabBarViewController? = nil
 	var disabledTabs = Set<Tab>()
 
 	// The raw value for each tab is its restorationID, which must also be its storyboardID
@@ -18,6 +17,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case twitarr = "TwitarrNavController"
 		case forums = "ForumsNavViewController" 
 		case seamail = "SeamailNavViewController"
+
 		case events = "ScheduleNavController"
 		case settings = "SettingsNavController"
 		case karaoke = "KaraokeNavController"
@@ -28,16 +28,12 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case unknown = ""
 	}
 	
-	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-		RootTabBarViewController.shared = self
+	override func awakeFromNib() {
+		ValidSectionUpdater.shared.tell(self, when: "lastUpdateTime") {observer, observed in
+			observer.updateEnabledTabs(observed.disabledSections)
+		}?.execute()
 	}
-	
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-		RootTabBarViewController.shared = self
-	}
-	
+		
 	// Nav to tabs in the tab bar if they exist; else return false
 	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		

@@ -17,10 +17,13 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 		completionHandler([.sound, .alert])
 	}
 
+	// This is for local notifications, which are basically timers.
 	func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, 
 			withCompletionHandler completionHandler: @escaping () -> Void) {
+		
+		// Nav to the Events view, show the event that's starting soon
 		if let eventID = response.notification.request.content.userInfo["eventID"] {
-			RootTabBarViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(tab: .events, arguments: ["eventID" : eventID]))
+			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .events, arguments: ["eventID" : eventID]))
 		}
 	}
 

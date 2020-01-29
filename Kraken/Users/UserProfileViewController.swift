@@ -155,8 +155,10 @@ import UIKit
 		if let shownUser = modelKrakenUser {
 			participants.insert(shownUser.username)
 		}
-		let packet = GlobalNavPacket(tab: .seamail, arguments: ["seamailThreadParticipants" : participants ])
-    	RootTabBarViewController.shared?.globalNavigateTo(packet: packet)
+		let packet = GlobalNavPacket(from: self, tab: .seamail, arguments: ["seamailThreadParticipants" : participants ])
+    	if let appDel = UIApplication.shared.delegate as? AppDelegate {
+    		appDel.globalNavigateTo(packet: packet)
+		}
     }
     
     func pushEditProfileView() {

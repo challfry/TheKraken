@@ -131,7 +131,8 @@ class BaseCollectionViewController: UIViewController {
 
 	// Subclasses should set this to the list of global segue enums (see above) they actually support in their viewDidLoad method.
 	var knownSegues: Set<GlobalKnownSegue> = Set()
-	
+
+// MARK: Methods	
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -326,6 +327,10 @@ class BaseCollectionViewController: UIViewController {
 		else {
 			zoomView.transform = xform
 		}
+	}
+	
+	override func viewWillLayoutSubviews() {
+		collectionView.reloadData()
 	}
 
 	@objc func shareButtonTapped() {

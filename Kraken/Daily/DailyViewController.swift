@@ -26,6 +26,17 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		return cell
 	}()
 	
+	lazy var twitarrCell = SocialCellModel("Twittar", imageNamed: "Twitarr",  nav: GlobalNavPacket(from: self, tab: .twitarr))
+	lazy var forumsCell = SocialCellModel("Forums", imageNamed: "Forums", nav: GlobalNavPacket(from: self, tab: .forums))
+	lazy var mailCell = SocialCellModel("Seamail", imageNamed: "Seamail", nav: GlobalNavPacket(from: self, tab: .seamail))
+	lazy var scheduleCell = SocialCellModel("Schedule", imageNamed: "Schedule", nav: GlobalNavPacket(from: self, tab: .events))
+	lazy var deckMapCell = SocialCellModel("Deck Maps", imageNamed: "Map", nav: GlobalNavPacket(from: self, tab: .deckPlans))
+	lazy var karaokeCell = SocialCellModel("Karaoke", imageNamed: "Karaoke", nav: GlobalNavPacket(from: self, tab: .karaoke))
+	lazy var scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(from: self, tab: .scrapbook))
+	lazy var settingsCell = SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(from: self, tab: .settings))
+	lazy var helpCell = SocialCellModel("Help", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .twitarrHelp, arguments: ["filename" : "helptext.json"]))
+	lazy var aboutCell = SocialCellModel("About", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .about))
+
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		DailyViewController.shared = self
@@ -36,6 +47,11 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		AnnouncementDataManager.shared.tell(self, when: ["dailyTabBadgeCount"]) { observer, observed in
 			let badgeCount = observed.dailyTabBadgeCount
 			observer.navigationController?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
+		}?.execute()
+
+		// Watch for updates to valid sections
+		ValidSectionUpdater.shared.tell(self, when: "lastUpdateTime") {observer, observed in
+			observer.updateEnabledFeatures(observed.disabledSections)
 		}?.execute()
 	}
 
@@ -55,19 +71,19 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		
 		
 		dataSource.append(segment: appFeaturesSegment)
-		appFeaturesSegment.append(SocialCellModel("Twittar", imageNamed: "Twitarr",  nav: GlobalNavPacket(tab: .twitarr, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Forums", imageNamed: "Forums", nav: GlobalNavPacket(tab: .forums, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Seamail", imageNamed: "Seamail", nav: GlobalNavPacket(tab: .seamail, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Schedule", imageNamed: "Schedule", nav: GlobalNavPacket(tab: .events, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Deck Maps", imageNamed: "Map", nav: GlobalNavPacket(tab: .deckPlans, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Karaoke", imageNamed: "Karaoke", nav: GlobalNavPacket(tab: .karaoke, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(tab: .scrapbook, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(tab: .settings, arguments: [:])))
-		appFeaturesSegment.append(SocialCellModel("Help", imageNamed: "About", nav: GlobalNavPacket(tab: .twitarrHelp, arguments: ["filename" : "helptext.json"])))
-		appFeaturesSegment.append(SocialCellModel("About", imageNamed: "About", nav: GlobalNavPacket(tab: .about, arguments: [:])))
+		appFeaturesSegment.append(twitarrCell)
+		appFeaturesSegment.append(forumsCell)
+		appFeaturesSegment.append(mailCell)
+		appFeaturesSegment.append(scheduleCell)
+		appFeaturesSegment.append(deckMapCell)
+		appFeaturesSegment.append(karaokeCell)
+		appFeaturesSegment.append(scrapbookCell)
+		appFeaturesSegment.append(settingsCell)
+		appFeaturesSegment.append(helpCell)
+		appFeaturesSegment.append(aboutCell)
+		
 		// Games Library
 		// Lighter Mode
-		// About Kraken
 
   		dataSource.register(with: collectionView, viewController: self)
 
@@ -94,6 +110,12 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
     // nav pushes on iPad.
     @discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+    	if ValidSectionUpdater.shared.disabledTabs.contains(packet.tab) {
+			let replacementVC = DisabledContentViewController(forTab: packet.tab)
+			self.navigationController?.pushViewController(replacementVC, animated: true)
+			return true
+    	}
+    
 		switch packet.tab {
 			case .daily: break
 			case .twitarr: performKrakenSegue(.twitarrRoot, sender: nil)
@@ -105,11 +127,19 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .scrapbook: performKrakenSegue(.scrapbookRoot, sender: nil)
 			case .settings: performKrakenSegue(.settingsRoot, sender: nil)
 			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: packet.arguments["filename"])
-			case .about: performKrakenSegue(.about, sender: nil)
-			
-			
+			case .about: performKrakenSegue(.about, sender: nil)			
 			default: break
 		}
 		return true
 	}
+	
+    func updateEnabledFeatures(_ disabledSections: Set<ValidSectionUpdater.Section>) {
+		twitarrCell.contentDisabled = disabledSections.contains(.stream)
+		forumsCell.contentDisabled = disabledSections.contains(.forums)
+		mailCell.contentDisabled = disabledSections.contains(.seamail)
+		scheduleCell.contentDisabled = disabledSections.contains(.calendar)
+		deckMapCell.contentDisabled = disabledSections.contains(.deckPlans)
+		karaokeCell.contentDisabled = disabledSections.contains(.karaoke)
+    }
+
 }

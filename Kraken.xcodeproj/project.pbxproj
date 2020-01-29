@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		EA027020237CE55900071C5E /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA02701F237CE55900071C5E /* Colors.xcassets */; };
+		EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA03EFFF23E062C90086894D /* ContainerViewController.swift */; };
 		EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */; };
 		EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */; };
 		EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */; };
@@ -186,6 +187,7 @@
 
 /* Begin PBXFileReference section */
 		EA02701F237CE55900071C5E /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
+		EA03EFFF23E062C90086894D /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglePhotoCell.swift; sourceTree = "<group>"; };
 		EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SinglePhotoCell.xib; sourceTree = "<group>"; };
 		EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsLoadTimeCell.swift; sourceTree = "<group>"; };
@@ -409,6 +411,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EA03F00123E112030086894D /* Root Nav */ = {
+			isa = PBXGroup;
+			children = (
+				EA03EFFF23E062C90086894D /* ContainerViewController.swift */,
+				EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */,
+				EA4E84F1232C74D00059E5EB /* DisabledContentViewController.swift */,
+				EA4E84F3232C74FE0059E5EB /* DisabledContentViewController.xib */,
+			);
+			path = "Root Nav";
+			sourceTree = "<group>";
+		};
 		EA1E3B8A2242F00200017F07 /* Docs */ = {
 			isa = PBXGroup;
 			children = (
@@ -756,13 +769,11 @@
 				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
 				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
 				EAA2E4C22242D300009F287F /* Main.storyboard */,
-				EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */,
-				EA4E84F1232C74D00059E5EB /* DisabledContentViewController.swift */,
-				EA4E84F3232C74FE0059E5EB /* DisabledContentViewController.xib */,
 				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
 				EA02701F237CE55900071C5E /* Colors.xcassets */,
 				EAA2E4C52242D301009F287F /* Assets.xcassets */,
 				EAA2E4CA2242D301009F287F /* Info.plist */,
+				EA03F00123E112030086894D /* Root Nav */,
 				EAA0284A2321ED4A00B2B7F1 /* Daily */,
 				EA1E3B8D2245795100017F07 /* Twittarr */,
 				EA1E3B8E2245796F00017F07 /* Forums */,
@@ -1043,6 +1054,7 @@
 				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
+				EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
 				EA4E84EE232A2CE70059E5EB /* ServerTimeUpdater.swift in Sources */,
 				EA1B9FE623514E8100BFEB46 /* PostOpStatusCell.swift in Sources */,

@@ -111,21 +111,35 @@ protocol GlobalNavEnabled {
 	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool
 }
 
-// This specifies how to get to a place in the app. Stating at the top of the app, each viewcontroller gets this navpacket,
+// This specifies how to get to a place in the app. Starting at the top of the app, each viewcontroller gets this navpacket,
 // pulls out any relevant keys, shows the 'next' viewcontroller in the chain, and passes the packet on to the next VC.
 // Still janky.
 struct GlobalNavPacket {
+	var column: Int								// Which column of the container view gets the nav
 	var tab: RootTabBarViewController.Tab
 	var arguments: [String : Any]
+	
+	init(from viewController: UIViewController, tab: RootTabBarViewController.Tab, arguments: [String : Any] = [:]) {
+		column = 0
+		if let nav = viewController.navigationController as? KrakenNavController {
+			column = nav.columnIndex
+		}
+		self.tab = tab
+		self.arguments = arguments
+	}
+	
+	init(column: Int, tab: RootTabBarViewController.Tab, arguments: [String : Any] = [:])
+	{
+		self.column = column
+		self.tab = tab
+		self.arguments = arguments
+	}
 }
 
 extension AppDelegate: GlobalNavEnabled {
 	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
-    	if let tabBarVC = RootTabBarViewController.shared, tabBarVC.globalNavigateTo(packet: packet) {
+    	if let containerVC = ContainerViewController.shared, containerVC.globalNavigateTo(packet: packet) {
     		return true
-    	}
-    	else {
-    		DailyViewController.shared?.globalNavigateTo(packet: packet)
     	}
     	return true
     }
