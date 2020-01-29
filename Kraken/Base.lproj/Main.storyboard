@@ -1675,6 +1675,8 @@
                         <outlet property="randomizeHatsButton" destination="IEI-61-EAS" id="zEj-k7-3XD"/>
                         <outlet property="retryButton" destination="GXK-dg-jQa" id="RTt-wU-dku"/>
                         <outlet property="rightShutter" destination="PAF-8W-UnY" id="MpX-Di-haw"/>
+                        <outlet property="shareButton" destination="cTK-iM-bIb" id="w8G-RA-d1u"/>
+                        <outlet property="shareButtonParent" destination="Leu-aO-PLT" id="lAf-Zk-hw7"/>
                         <outlet property="useButton" destination="rVa-o2-31t" id="Vd7-RH-Or4"/>
                         <segue destination="lP9-ng-3zA" kind="unwind" identifier="dismissCamera" unwindAction="dismissingCamera:" id="kBd-rQ-tnM"/>
                     </connections>
@@ -1889,6 +1891,8 @@
                         <outlet property="randomizeHatsButton" destination="deE-UJ-ET1" id="cK3-af-Qwd"/>
                         <outlet property="retryButton" destination="Ai0-Gf-Ots" id="8KW-sM-Wfe"/>
                         <outlet property="rightShutter" destination="yJE-M9-JpV" id="NOo-Jy-gXP"/>
+                        <outlet property="shareButton" destination="G1P-me-ViO" id="l4d-IA-0f2"/>
+                        <outlet property="shareButtonParent" destination="UWX-sY-qUX" id="acK-xC-8nx"/>
                         <outlet property="useButton" destination="Oj2-X4-dmR" id="D9I-j8-1AZ"/>
                         <segue destination="rX1-9n-V3y" kind="unwind" identifier="dismissCamera" unwindAction="dismissingCamera:" id="qkw-xb-68e"/>
                     </connections>

@@ -37,6 +37,9 @@ class CameraViewController: UIViewController {
 	@IBOutlet var 		retryButton: UIButton!
 	@IBOutlet var 		useButton: UIButton!
 	
+	@IBOutlet var 	shareButtonParent: UIView!
+	@IBOutlet var 		shareButton: UIButton!
+	
 	// Props we need to run the camera
 	var captureSession = AVCaptureSession()
 	var cameraDevice: AVCaptureDevice?					// The currently active device
@@ -554,6 +557,10 @@ class CameraViewController: UIViewController {
 		guard let photoImage = capturedPhotoImage else { return }
 		let activityViewController = UIActivityViewController(activityItems: [photoImage], applicationActivities: nil)
 		present(activityViewController, animated: true, completion: {})
+		if let popper = activityViewController.popoverPresentationController {
+			popper.sourceView = shareButtonParent
+			popper.sourceRect = shareButton.frame
+		}
 	}
 	
 	var zoomGestureRecognizer: UIPanGestureRecognizer?
