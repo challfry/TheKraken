@@ -58,6 +58,13 @@ import Foundation
 		set { setSetting(name: "customCalendarForEvents", newValue: newValue) }
 	}
 	
+	public var lastEventsUpdateTime: Date? {
+		get { return getSetting(name: "lastEventsUpdateTime", defaultValue: nil) }
+		set { setSetting(name: "lastEventsUpdateTime", newValue: newValue) }
+	}
+	
+// MARK: Debug Settings
+	
 	// Makes all network calls immediately fail. Sorta like airplane mode, except we'll still detect a newtork.
 	@objc dynamic public var blockNetworkTraffic: Bool {
 		get { return getSetting(name: "blockNetworkTraffic", defaultValue: false) }

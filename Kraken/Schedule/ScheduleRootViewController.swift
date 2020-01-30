@@ -44,7 +44,6 @@ import EventKitUI
         super.viewDidLoad()
         title = "Schedule"
 
-		dataManager.loadEvents()
 		collectionView.collectionViewLayout = scheduleLayout
 		
 		// Manually register the nib for the section header view
@@ -57,14 +56,14 @@ import EventKitUI
  		let loadingSegment = FilteringDataSourceSegment() 
  		let statusCell = LoadingStatusCellModel()
  		statusCell.statusText = "Loading Events"
- 		statusCell.shouldBeVisible = true
+ 		statusCell.shouldBeVisible = false
  		statusCell.showSpinner = true
  		loadingSegment.append(statusCell)
  		loadingSegment.forceSectionVisible = true
  		scheduleDataSource.append(segment: loadingSegment)
  		dataManager.tell(self, when: "networkUpdateActive") { observer, observed in
  			statusCell.shouldBeVisible = observed.networkUpdateActive  		
- 		}
+ 		}?.execute()
  		
 		// Then, the events segment
 		let events = FRCDataSourceSegment<Event>()
@@ -97,6 +96,8 @@ import EventKitUI
 	
 	var minuteNotification: Any?
     override func viewDidAppear(_ animated: Bool) {
+		dataManager.refreshEventsIfNecessary()
+		
 		scheduleDataSource.enableAnimations = true
 		locationPicker.reloadAllComponents()
 		if !self.showPastEventsSwitch.isOn {

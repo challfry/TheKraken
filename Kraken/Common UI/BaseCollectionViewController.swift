@@ -352,7 +352,25 @@ class BaseCollectionViewController: UIViewController {
 	}
 	
 	override func viewWillLayoutSubviews() {
-		collectionView.reloadData()
+		super.viewWillLayoutSubviews()
+
+		// I'm pretty sure this isn't the right way to do this. However, it's the first thing that works, after several
+		// failed attempts. The issue is, we need to either resize or invalidate these cells when the collectionView
+		// width changes, else the CV layout gets angry that cells are wider than the CV. I've tried:
+		//		- Invalidating the layout in several places, including viewWillLayoutSubviews, viewWillTransition.
+		//		- Reloading the CV, again in several places.
+		//		- Changing how we make cells full-width
+		//		- Changing constraint priorities
+		//
+		// Note that at the time this is called, the VC's view has been resized but the CV's view hasn't. We just assume
+		// the CV will get laid out with the same width as the VC's view.
+		for cell in collectionView.visibleCells {
+			if let baseCell = cell as? BaseCollectionViewCell {
+				baseCell.collectionViewSizeChanged(to: view.frame.size)
+				baseCell.setNeedsLayout()
+				baseCell.layoutIfNeeded()
+			}
+		}
 	}
 
 	@objc func shareButtonTapped() {
@@ -407,7 +425,7 @@ class BaseCollectionViewController: UIViewController {
 		indexPathToScrollToVisible = nil
 	}
 	
-	// MARK: - Navigation
+	// MARK: Navigation
 
 	// FFS Apple should provide this as part of their API. This is used by collectionView cells to see if they're
 	// attached to a ViewController that supports launching a given segue; if not they generally hide/disable buttons.
@@ -600,6 +618,7 @@ class BaseCollectionViewController: UIViewController {
 	}	
 }
 
+// MARK: UIScrollViewDelegate
 extension BaseCollectionViewController: UIScrollViewDelegate {
 	func viewForZooming(in scrollView: UIScrollView) -> UIView? {
 		if scrollView == photoZoomView {
@@ -617,6 +636,7 @@ extension BaseCollectionViewController: UIScrollViewDelegate {
 	}
 }
 
+// MARK: UIGestureRecognizerDelegate
 extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 
 	func setupGestureRecognizer() {	

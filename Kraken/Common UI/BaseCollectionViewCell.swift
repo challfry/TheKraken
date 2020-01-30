@@ -164,10 +164,12 @@ struct PrototypeCellInfo {
 // MARK: Methods
 	required override init(frame: CGRect) {
 		super.init(frame: frame)
+		self.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
+		self.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	override func awakeFromNib() {
@@ -181,7 +183,6 @@ struct PrototypeCellInfo {
 		cellSizeChanged()
 	}
 
-		
 //	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 
 //			-> UICollectionViewLayoutAttributes {
 //		return layoutAttributes

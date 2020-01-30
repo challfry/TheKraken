@@ -416,6 +416,21 @@ class EventsDataManager: NSObject {
 			CoreDataLog.error("Couldn't fetch events.", [ "error" : error ])
 		}
 	}
+	
+	// Initiates a network load of Schedule events if CD has no events, or if it's been > 1 hour since the last time we checked.
+	func refreshEventsIfNecessary() {
+		var needToUpdate = false 
+		if Settings.shared.lastEventsUpdateTime == nil { needToUpdate = true }
+		if let lastUpdate = Settings.shared.lastEventsUpdateTime, lastUpdate.timeIntervalSinceNow < 0 - 60 * 60 {
+			needToUpdate = true
+		}
+		if fetchedData.fetchedObjects == nil || fetchedData.fetchedObjects?.count == 0 { needToUpdate = true }
+		
+		if needToUpdate {
+			// LoadEvents will update the lastEventsUpdateTime when it succeeds.
+			loadEvents()
+		}
+	}
 		
 	func loadEvents() {
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/event", query: nil)
@@ -432,6 +447,7 @@ class EventsDataManager: NSObject {
 				do {
 					let eventResponse = try decoder.decode(TwitarrV2EventResponse.self, from: data)
 					self.parseEvents(eventResponse.events, isFullList: true)
+					Settings.shared.lastEventsUpdateTime = Date()
 				} catch 
 				{
 					NetworkLog.error("Failure parsing Schedule events.", ["Error" : error, "URL" : request.url as Any])
