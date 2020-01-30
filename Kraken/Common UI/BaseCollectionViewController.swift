@@ -82,7 +82,7 @@ enum GlobalKnownSegue: String {
 		case .showSeamailThread: return SeamailThread.self
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
 		
-		case .eventsRoot: return Void.self
+		case .eventsRoot: return String.self
 		
 		case .deckMapRoot: return Void.self
 		case .showRoomOnDeckMap: return String.self
@@ -441,7 +441,12 @@ class BaseCollectionViewController: UIViewController {
 			AppLog.error("VC \(vcType) doesn't claim to support segue \(id.rawValue)")
 			return 
 		}
-	
+		
+		if sender is GlobalNavPacket {
+			// If the dest VC is GlobalNavEnabled, it'll be able to handle this.
+			let segueName = id.rawValue
+			performSegue(withIdentifier: segueName, sender: sender)
+		}
 		if let senderValue = sender {
 			let expectedType = id.senderType
 			var typeIsValid =  type(of: senderValue) == expectedType || expectedType == Any.self
@@ -475,6 +480,11 @@ class BaseCollectionViewController: UIViewController {
     func prepareGlobalSegue(for segue: UIStoryboardSegue, sender: Any?) -> GlobalKnownSegue? {
     	guard let segueName = segue.identifier, let id = GlobalKnownSegue(rawValue: segueName) else {
     		return nil
+    	}
+    	
+    	// If this is a global nav to a VC that can handle it, pass it on
+    	if let packet = sender as? GlobalNavPacket, let destVC = segue.destination as? GlobalNavEnabled {
+    		destVC.globalNavigateTo(packet: packet)
     	}
     	
     	switch id {
@@ -556,6 +566,10 @@ class BaseCollectionViewController: UIViewController {
 			if let destVC = segue.destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
 				destVC.threadToEdit = thread
 			}
+			
+// Events
+		case .eventsRoot: break
+			
 			
 // Maps
 		case .showRoomOnDeckMap:

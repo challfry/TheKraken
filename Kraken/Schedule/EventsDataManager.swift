@@ -169,13 +169,22 @@ import UserNotifications
 		let eventStore = EventsDataManager.shared.ekEventStore
 		var calendar: EKCalendar?
 		do {
+			// Is our saved calendar still around?
 			if let calendarID = Settings.shared.customCalendarForEvents {
 				calendar = eventStore.calendar(withIdentifier: calendarID)
 			}
 			if calendar == nil {
 				let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
  				newCalendar.title = "JoCo Cruise 2020"
-				newCalendar.source = eventStore.sources.first { $0.sourceType.rawValue == EKSourceType.local.rawValue }
+				if eventStore.sources.count == 0 {
+					newCalendar.source = EKSource()
+				}
+				else if let defaultCal = eventStore.defaultCalendarForNewEvents {
+					newCalendar.source = defaultCal.source
+				}
+				else {
+					newCalendar.source = eventStore.sources.first { $0.sourceType.rawValue == EKSourceType.local.rawValue }
+				}
 				try eventStore.saveCalendar(newCalendar, commit: true)
 				calendar = newCalendar
 				Settings.shared.customCalendarForEvents = newCalendar.calendarIdentifier

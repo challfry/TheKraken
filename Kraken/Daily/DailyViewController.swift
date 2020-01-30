@@ -121,6 +121,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
     // nav pushes on iPad.
     @discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+    	navigationController?.popToRootViewController(animated: false)
+    
     	if ValidSectionUpdater.shared.disabledTabs.contains(packet.tab) {
 			let replacementVC = DisabledContentViewController(forTab: packet.tab)
 			self.navigationController?.pushViewController(replacementVC, animated: true)
@@ -129,16 +131,16 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     
 		switch packet.tab {
 			case .daily: break
-			case .twitarr: performKrakenSegue(.twitarrRoot, sender: nil)
-			case .forums: performKrakenSegue(.forumsRoot, sender: nil)
-			case .seamail: performKrakenSegue(.seamailRoot, sender: nil)
-			case .events: performKrakenSegue(.eventsRoot, sender: nil)
-			case .deckPlans: performKrakenSegue(.deckMapRoot, sender: nil)
-			case .karaoke: performKrakenSegue(.karaokeRoot, sender: nil)
-			case .scrapbook: performKrakenSegue(.scrapbookRoot, sender: nil)
-			case .settings: performKrakenSegue(.settingsRoot, sender: nil)
+			case .twitarr: performKrakenSegue(.twitarrRoot, sender: packet)
+			case .forums: performKrakenSegue(.forumsRoot, sender: packet)
+			case .seamail: performKrakenSegue(.seamailRoot, sender: packet)
+			case .events: performKrakenSegue(.eventsRoot, sender: packet)
+			case .deckPlans: performKrakenSegue(.deckMapRoot, sender: packet)
+			case .karaoke: performKrakenSegue(.karaokeRoot, sender: packet)
+			case .scrapbook: performKrakenSegue(.scrapbookRoot, sender: packet)
+			case .settings: performKrakenSegue(.settingsRoot, sender: packet)
 			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: packet.arguments["filename"])
-			case .about: performKrakenSegue(.about, sender: nil)			
+			case .about: performKrakenSegue(.about, sender: packet)			
 			default: break
 		}
 		return true
