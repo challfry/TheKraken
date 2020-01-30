@@ -66,6 +66,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		backgroundSessionCompletionHandler = completionHandler
 	}
 	
+	func application(_ application: UIApplication,  open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
+		
+		guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true) else {
+				return false
+		}
+		
+		if components.host == "events" {
+			var arguments = [String : Any]()
+			if let queryItems = components.queryItems, let eventQueryItem = queryItems.first(where: { $0.name == "eventID" } ) {
+				if let value = eventQueryItem.value, (30..<60).contains(value.count), !value.contains(" ") {
+					arguments["eventID"] = value
+				}
+			}
+			let packet = GlobalNavPacket(column: 0, tab: .events, arguments: arguments)
+			globalNavigateTo(packet: packet)
+			return true
+		}
+		
+		return false
+	}
+
 // MARK: State Restoration
 	// These 2 methods enable State Restoration in the app.
 	func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {

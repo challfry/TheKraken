@@ -407,6 +407,9 @@ import EventKitUI
     // MARK: - Navigation
 
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+		// Force the view to load
+		let _ = self.view
+		
 		if let eventID = packet.arguments["eventID"] as? String {
 			resetFilters()
 			if let results = eventsSegment?.frc?.fetchedObjects, let event = results.first(where: { $0.id == eventID } ),

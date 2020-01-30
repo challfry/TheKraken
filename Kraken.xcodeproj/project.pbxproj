@@ -26,6 +26,7 @@
 		EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3B9E2246CDF700017F07 /* Settings.swift */; };
 		EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3BA2224D858700017F07 /* ImageManager.swift */; };
 		EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */; };
+		EA2286DD23E275A40036C20E /* KrakenIcon100px.png in Resources */ = {isa = PBXBuildFile; fileRef = EA2286DC23E275A40036C20E /* KrakenIcon100px.png */; };
 		EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* LoadingStatusCell.xib */; };
 		EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */; };
 		EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39B18523DA823600A2FB1B /* AboutViewController.swift */; };
@@ -208,6 +209,7 @@
 		EA1E3BA02248153F00017F07 /* Feature plans.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Feature plans.md"; sourceTree = "<group>"; };
 		EA1E3BA2224D858700017F07 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsDataManager.swift; sourceTree = "<group>"; };
+		EA2286DC23E275A40036C20E /* KrakenIcon100px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = KrakenIcon100px.png; sourceTree = "<group>"; };
 		EA278A49226A755400808AED /* LoadingStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingStatusCell.xib; sourceTree = "<group>"; };
 		EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -692,6 +694,7 @@
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EA2286DC23E275A40036C20E /* KrakenIcon100px.png */,
 				EA39B16723DA61F200A2FB1B /* Not Used */,
 				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
 				EAC2D3B323CC7AEC0055780C /* Hats.scnassets */,
@@ -996,6 +999,7 @@
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
 				EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */,
 				EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */,
+				EA2286DD23E275A40036C20E /* KrakenIcon100px.png in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
 				EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,

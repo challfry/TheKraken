@@ -204,9 +204,17 @@ import UserNotifications
 				}
 				ekEvent.title = title
 				ekEvent.location = location
+				
+				// Pretty sure Calendar events should be 'floating'. That is, without a timezone specified. As I understand it,
+				// ekCalendar--at the time we store the event--takes a startTime that maps to 4:00 PM in the current timezone,
+				// and converts it into something like a DateComponents with a meaning of "4:00 PM Local Time". If the timezone
+				// changes later, the event will still claim to occur at 4:00 PM in the new timezone.
 //				newEvent.timeZone = 
 				ekEvent.url = URL(string: "\(Settings.shared.baseURL)/#/schedule/event/\(id)")
-				ekEvent.notes = eventDescription
+				
+				// Append a Kraken link to the event description
+				let descPlusLink = "\(eventDescription ?? "")\n\nOpen this event in Kraken with: kraken://events?eventID=\(id)"
+				ekEvent.notes = descPlusLink
 		
 				try eventStore.save(ekEvent, span: .thisEvent)
 				theEvent = ekEvent
