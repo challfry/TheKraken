@@ -485,7 +485,9 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 				Settings.shared.uiDisplayStyle = newStyle
 			}
 		}
-		selectedSegment = Settings.shared.uiDisplayStyle.rawValue
+		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in
+			observer.selectedSegment = observed.uiDisplayStyle.rawValue
+		}?.execute()
 		cellTitle = "This sets the overall look of the app."
 	}
 }
@@ -500,7 +502,9 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		switchStateChanged = { 
 			Settings.shared.useFullscreenCameraViewfinder = self.switchState
 		}
-		switchState = Settings.shared.useFullscreenCameraViewfinder
+		Settings.shared.tell(self, when: "useFullscreenCameraViewfinder") { observer, observed in
+			observer.switchState = observed.useFullscreenCameraViewfinder
+		}?.execute()
 	}
 }
 
@@ -512,7 +516,9 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		switchStateChanged = { 
 			Settings.shared.blockNetworkTraffic = self.switchState
 		}
-		switchState = Settings.shared.blockNetworkTraffic
+		Settings.shared.tell(self, when: "blockNetworkTraffic") { observer, observed in
+			observer.switchState = observed.blockNetworkTraffic
+		}?.execute()
 	}
 }
 
@@ -522,7 +528,9 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		switchStateChanged = { 
 			Settings.shared.blockEmptyingPostOpsQueue = self.switchState
 		}
-		switchState = Settings.shared.blockEmptyingPostOpsQueue
+		Settings.shared.tell(self, when: "blockEmptyingPostOpsQueue") { observer, observed in
+			observer.switchState = observed.blockEmptyingPostOpsQueue
+		}?.execute()
 	}
 }
 
@@ -532,7 +540,9 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		switchStateChanged = { 
 			Settings.shared.debugTimeWarpToCruiseWeek2019 = self.switchState
 		}
-		switchState = Settings.shared.debugTimeWarpToCruiseWeek2019
+		Settings.shared.tell(self, when: "debugTimeWarpToCruiseWeek2019") { observer, observed in
+			observer.switchState = observed.debugTimeWarpToCruiseWeek2019
+		}?.execute()
 	}
 }
 
@@ -542,7 +552,9 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		switchStateChanged = { 
 			Settings.shared.debugTestLocalNotificationsForEvents = self.switchState
 		}
-		switchState = Settings.shared.debugTestLocalNotificationsForEvents
+		Settings.shared.tell(self, when: "debugTestLocalNotificationsForEvents") { observer, observed in
+			observer.switchState = observed.debugTestLocalNotificationsForEvents
+		}?.execute()
 	}
 }
 

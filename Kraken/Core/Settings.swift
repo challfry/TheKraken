@@ -46,7 +46,7 @@ import Foundation
 	}
 
 	// Chooses which viewfinder style to use
-	public var useFullscreenCameraViewfinder: Bool {
+	@objc dynamic public var useFullscreenCameraViewfinder: Bool {
 		get { return getSetting(name: "useFullscreenCameraViewfinder", defaultValue: true) }
 		set { setSetting(name: "useFullscreenCameraViewfinder", newValue: newValue) }
 	}

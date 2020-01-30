@@ -44,7 +44,7 @@ class SwitchCell: BaseCollectionViewCell, SwitchCellProtocol {
 			cellSizeChanged()
 		} 
 	}
-	var switchState: Bool = false { didSet { switchControl.isOn = switchState } } 
+	var switchState: Bool = false { didSet { switchControl.setOn(switchState, animated: true) } } 
 	var switchEnabled: Bool = true { didSet { switchControl.isEnabled = switchEnabled } } 
 
 	var switchStateChanged: (() -> Void)?

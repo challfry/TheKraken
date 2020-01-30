@@ -74,6 +74,16 @@ import UIKit
 		}
 		lastUpdateTime = Date()
 		
+		// So, ForumThreadMeta has a value for the timestamp of the last post in the thread.
+		// ForumThread does not (directly), but it has posts from the thread. The posts array may
+		// or may not include the last post in the thread.
+		// Good news is that, if after parsing the posts, postCount == posts.count, we have all the posts and
+		// (fingers crossed) posts.last.timeStamp == (the value ForumThreadMeta would give for lastPostTime).
+		if postCount > 0, postCount == posts.count {
+			let lastPostPostTime = posts.reduce(0) { max($0, $1.timestamp)  }
+			TestAndUpdate(\.lastPostTime, lastPostPostTime)
+		}
+		
 		internalUpdateLastReadTime(context: context, toNewTime: v2Object.latestRead)
 	}
 	

@@ -31,7 +31,7 @@ class CameraViewController: UIViewController {
 	@IBOutlet var 	leftShutter: UIButton!
 	@IBOutlet var 	rightShutter: UIButton!
 	
-	@IBOutlet var 	capturedPhotoContainerView: UIView!
+	@IBOutlet var 	capturedPhotoContainerView: UIVisualEffectView!
 	@IBOutlet var 		capturedPhotoView: UIImageView!
 	@IBOutlet var 		capturedPhotoViewHeightConstraint: NSLayoutConstraint!
 	@IBOutlet var 		retryButton: UIButton!
@@ -241,8 +241,9 @@ class CameraViewController: UIViewController {
 			
 			// When the device is landscape we rotate the photo view just like everything else. However, this
 			// view also needs to be resized 
-			let scaleFactor = isLandscape ? imageAspectRatio : 1.0
-			self.capturedPhotoView.transform = xform.scaledBy(x: scaleFactor, y: scaleFactor)
+//			let scaleFactor = isLandscape ? imageAspectRatio : 1.0
+//			self.capturedPhotoView.transform = xform.scaledBy(x: scaleFactor, y: scaleFactor)
+			self.capturedPhotoView.transform = xform
 			self.capturedPhotoViewHeightConstraint.constant = isLandscape ? viewWidth : viewWidth / imageAspectRatio
 		}
 		
