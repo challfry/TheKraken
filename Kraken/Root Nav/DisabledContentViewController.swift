@@ -36,6 +36,8 @@ class DisabledContentViewController: UIViewController {
 			tabName = "Settings"
 		case .karaoke:
 			tabName = "Karaoke"
+		case .games:
+			tabName = "Games"
 		case .deckPlans:
 			tabName = "Deck Maps"
 		case .scrapbook:
@@ -84,6 +86,9 @@ class DisabledContentViewController: UIViewController {
 			featurePath = ""
 		case .karaoke:
 			featureName = "the Karaoke Song Finder"
+			featurePath = ""
+		case .games:
+			featureName = "the Board Games List"
 			featurePath = ""
 		case .deckPlans:
 			featureName = "Deck Maps"

@@ -11,10 +11,10 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="EventCell" id="gTV-IL-0wX" customClass="EventCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="412" height="202"/>
+            <rect key="frame" x="0.0" y="0.0" width="412" height="270"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="412" height="202"/>
+                <rect key="frame" x="0.0" y="0.0" width="412" height="270"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p7H-X1-Ops">
@@ -144,7 +144,7 @@
                         </subviews>
                     </stackView>
                     <view clipsSubviews="YES" contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="yzT-FW-5Jd" customClass="RibbonView" customModule="Kraken" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="16" height="202"/>
+                        <rect key="frame" x="0.0" y="0.0" width="16" height="270"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OI9-hx-Xgg">
                                 <rect key="frame" x="-4" y="-8" width="43" height="20"/>
@@ -173,7 +173,7 @@
                 <constraint firstAttribute="trailing" secondItem="KeK-lK-1hP" secondAttribute="trailing" priority="900" constant="20" id="v9K-qp-zUI"/>
                 <constraint firstAttribute="bottom" secondItem="yzT-FW-5Jd" secondAttribute="bottom" id="ybl-IG-76B"/>
             </constraints>
-            <size key="customSize" width="412" height="202"/>
+            <size key="customSize" width="412" height="270"/>
             <connections>
                 <outlet property="actionBarView" destination="K3D-KG-vXn" id="DIc-j2-Se4"/>
                 <outlet property="addToCalendarButton" destination="7Yd-j4-LbC" id="IGa-Mp-jtV"/>
@@ -191,7 +191,7 @@
                 <outlet property="ribbonViewLabel" destination="OI9-hx-Xgg" id="xh4-mx-AD0"/>
                 <outlet property="titleLabel" destination="cpP-Du-eol" id="e10-o2-Jap"/>
             </connections>
-            <point key="canvasLocation" x="20.289855072463769" y="40.848214285714285"/>
+            <point key="canvasLocation" x="20.289855072463769" y="63.616071428571423"/>
         </collectionViewCell>
     </objects>
     <resources>

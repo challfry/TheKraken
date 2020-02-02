@@ -613,6 +613,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		
 		// Set up gesture recognizer to detect taps on the (single) photo, and open the fullscreen photo overlay.
 		let photoTap = UITapGestureRecognizer(target: self, action: #selector(TwitarrTweetCell.photoTapped(_:)))
+//		photoTap.delegate = self
 	 	postImage.addGestureRecognizer(photoTap)
 		
 		// Set up the internal collection view for displaying multiple photos
@@ -688,7 +689,11 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	override var privateSelected: Bool {
 		didSet {
 			if !isPrototypeCell, privateSelected == oldValue { return }
+			standardSelectionHandler()
 			
+			titleLabel.isUserInteractionEnabled = privateSelected
+			tweetTextView.isUserInteractionEnabled = privateSelected
+						
 			var newImageHeight: CGFloat = 200.0
 			if privateSelected, let photos = photos, photos.count == 1 {
 				let photoDetails = photos[0] 
@@ -705,25 +710,12 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				}
 				cellSizeChanged()
 			}
-			contentView.backgroundColor = privateSelected ? UIColor(named: "Cell Background Selected") : 
-					UIColor(named: "Cell Background")
 		}
 	}
 	
-	var highlightAnimation: UIViewPropertyAnimator?
 	override var isHighlighted: Bool {
 		didSet {
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
-			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted || self.privateSelected ? 
-						UIColor(named: "Cell Background Selected") : UIColor(named: "Cell Background")
-			}
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
+			standardHighlightHandler()
 		}
 	}
 	

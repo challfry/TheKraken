@@ -46,7 +46,6 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 	
 	private static let cellInfo = [ "SocialCell" : PrototypeCellInfo("SocialCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
-	var highlightAnimation: UIViewPropertyAnimator?
 	
 	var labelText: String? {
 		didSet {
@@ -68,17 +67,7 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 	
 	override var isHighlighted: Bool {
 		didSet {
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
-			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted || self.privateSelected ? 
-						UIColor(named: "Cell Background Selected") : UIColor(named: "Cell Background")
-			}
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
+			standardHighlightHandler()
 		}
 	}
 	

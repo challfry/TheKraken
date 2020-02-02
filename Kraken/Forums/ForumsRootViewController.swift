@@ -88,7 +88,6 @@ class ForumsRootViewController: BaseCollectionViewController {
 
 		threadDataSource.register(with: collectionView, viewController: self)
 
-	//	setupGestureRecognizer()
 		knownSegues = Set([.showForumThread, .modalLogin])
 	}
 		

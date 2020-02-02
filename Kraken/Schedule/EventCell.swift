@@ -316,32 +316,18 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	}
 
 	
-	var highlightAnimation: UIViewPropertyAnimator?
 	override var isHighlighted: Bool {
 		didSet {
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
-			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted || self.privateSelected ?
-						UIColor(named: "Cell Background Selected") : UIColor(named: "Cell Background")
-			}
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
+			standardHighlightHandler()
 		}
 	}
 
 	override var privateSelected: Bool {
 		didSet {
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
 			if !isPrototypeCell, privateSelected == oldValue { return }
+			standardSelectionHandler()
+			
 			actionBarView.isHidden = !privateSelected
-			contentView.backgroundColor = privateSelected ? UIColor(named: "Cell Background Selected") :
-					UIColor(named: "Cell Background")
 			
 			// Upon selection we actually check the linked calendar event and local notification to see whether they're 
 			// still there.

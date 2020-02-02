@@ -87,6 +87,7 @@ class StringUtilities {
 					// This is an self-closing tag e.g. <br />, or a void eleement e.g. <br>
 					var appendStr: String?
 					switch tagName {
+					case "br/": appendStr = "\n"
 					case "br": appendStr = "\n"
 					
 					// We don't care about the rest of the void elements.
@@ -104,6 +105,11 @@ class StringUtilities {
 				}
 			}
 		   	scanner.scanString(">", into: nil)
+	   	}
+	   	
+	   	// Trim trailing newlines
+	   	while outputString.string.hasSuffix("\n") {
+	   		outputString.deleteCharacters(in: NSMakeRange(outputString.length - 1, 1))
 	   	}
     	
     	return outputString

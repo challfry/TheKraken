@@ -195,7 +195,7 @@ struct TwitarrV2Announcement: Codable {
     let timestamp: Int64
 }
 
-// GET /appi/v2/announcements
+// GET /api/v2/announcements
 struct TwitarrV2AnnouncementsResponse: Codable {
 	let status: String
 	let announcements: [TwitarrV2Announcement]

@@ -90,7 +90,6 @@ import EventKitUI
 		locationPicker.delegate = self
 		locationPickerContainer.isHidden = true
 
-		setupGestureRecognizer()
 		knownSegues = Set([.modalLogin, .showRoomOnDeckMap])
     }
 	

@@ -27,6 +27,14 @@
 		EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1E3BA2224D858700017F07 /* ImageManager.swift */; };
 		EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */; };
 		EA2286DD23E275A40036C20E /* KrakenIcon100px.png in Resources */ = {isa = PBXBuildFile; fileRef = EA2286DC23E275A40036C20E /* KrakenIcon100px.png */; };
+		EA2286E023E39B830036C20E /* GamesDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2286DF23E39B820036C20E /* GamesDataManager.swift */; };
+		EA2286E823E3B61C0036C20E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2286E723E3B61C0036C20E /* main.swift */; };
+		EA2286F023E3C7450036C20E /* GamesListStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2286EF23E3C7450036C20E /* GamesListStructs.swift */; };
+		EA2286F123E3C7450036C20E /* GamesListStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2286EF23E3C7450036C20E /* GamesListStructs.swift */; };
+		EA2286F323E40D810036C20E /* GamesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2286F223E40D810036C20E /* GamesListViewController.swift */; };
+		EA2286F523E42D9F0036C20E /* BoardGameCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2286F423E42D9F0036C20E /* BoardGameCell.swift */; };
+		EA2286F723E42ED90036C20E /* BoardGameCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA2286F623E42ED90036C20E /* BoardGameCell.xib */; };
+		EA2286F923E430BC0036C20E /* JoCoGamesCatalog.lzfse in Resources */ = {isa = PBXBuildFile; fileRef = EA2286F823E430BC0036C20E /* JoCoGamesCatalog.lzfse */; };
 		EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* LoadingStatusCell.xib */; };
 		EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */; };
 		EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39B18523DA823600A2FB1B /* AboutViewController.swift */; };
@@ -186,6 +194,18 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		EA2286E323E3B61C0036C20E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		EA02701F237CE55900071C5E /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		EA03EFFF23E062C90086894D /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
@@ -210,6 +230,15 @@
 		EA1E3BA2224D858700017F07 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		EA216F65238E26BC00A31D19 /* ForumsDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsDataManager.swift; sourceTree = "<group>"; };
 		EA2286DC23E275A40036C20E /* KrakenIcon100px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = KrakenIcon100px.png; sourceTree = "<group>"; };
+		EA2286DF23E39B820036C20E /* GamesDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GamesDataManager.swift; sourceTree = "<group>"; };
+		EA2286E523E3B61C0036C20E /* GameFetcher */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GameFetcher; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA2286E723E3B61C0036C20E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		EA2286ED23E3B78B0036C20E /* gamesList2020.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gamesList2020.txt; path = "Kraken/Games List/gamesList2020.txt"; sourceTree = SOURCE_ROOT; };
+		EA2286EF23E3C7450036C20E /* GamesListStructs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamesListStructs.swift; sourceTree = "<group>"; };
+		EA2286F223E40D810036C20E /* GamesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamesListViewController.swift; sourceTree = "<group>"; };
+		EA2286F423E42D9F0036C20E /* BoardGameCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardGameCell.swift; sourceTree = "<group>"; };
+		EA2286F623E42ED90036C20E /* BoardGameCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BoardGameCell.xib; sourceTree = "<group>"; };
+		EA2286F823E430BC0036C20E /* JoCoGamesCatalog.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = JoCoGamesCatalog.lzfse; sourceTree = "<group>"; };
 		EA278A49226A755400808AED /* LoadingStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingStatusCell.xib; sourceTree = "<group>"; };
 		EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringDataSourceSegment.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -377,6 +406,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		EA2286E223E3B61C0036C20E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAA2E4B62242D300009F287F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -529,6 +565,28 @@
 			path = "Server Resources";
 			sourceTree = "<group>";
 		};
+		EA2286DE23E39B820036C20E /* Games List */ = {
+			isa = PBXGroup;
+			children = (
+				EA2286F223E40D810036C20E /* GamesListViewController.swift */,
+				EA2286F423E42D9F0036C20E /* BoardGameCell.swift */,
+				EA2286F623E42ED90036C20E /* BoardGameCell.xib */,
+				EA2286F823E430BC0036C20E /* JoCoGamesCatalog.lzfse */,
+				EA2286DF23E39B820036C20E /* GamesDataManager.swift */,
+				EA2286EF23E3C7450036C20E /* GamesListStructs.swift */,
+			);
+			path = "Games List";
+			sourceTree = "<group>";
+		};
+		EA2286E623E3B61C0036C20E /* GameFetcher */ = {
+			isa = PBXGroup;
+			children = (
+				EA2286ED23E3B78B0036C20E /* gamesList2020.txt */,
+				EA2286E723E3B61C0036C20E /* main.swift */,
+			);
+			path = GameFetcher;
+			sourceTree = "<group>";
+		};
 		EA39B18723DA824500A2FB1B /* About */ = {
 			isa = PBXGroup;
 			children = (
@@ -668,10 +726,10 @@
 			isa = PBXGroup;
 			children = (
 				EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */,
-				EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */,
 				EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */,
 				EA8B98742323A58100E10156 /* KaraokeSongCell.xib */,
 				EA4E84EB2328734F0059E5EB /* KaraokeLoadingCell.xib */,
+				EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */,
 			);
 			path = Karaoke;
 			sourceTree = "<group>";
@@ -711,6 +769,7 @@
 				EA1E3B8A2242F00200017F07 /* Docs */,
 				EAA2E4D22242D301009F287F /* KrakenTests */,
 				EAA2E4DD2242D301009F287F /* KrakenUITests */,
+				EA2286E623E3B61C0036C20E /* GameFetcher */,
 				EAA2E4BA2242D300009F287F /* Products */,
 				EAE59150229EA345002B5DEF /* Frameworks */,
 			);
@@ -722,6 +781,7 @@
 				EAA2E4B92242D300009F287F /* Kraken.app */,
 				EAA2E4CF2242D301009F287F /* KrakenTests.xctest */,
 				EAA2E4DA2242D301009F287F /* KrakenUITests.xctest */,
+				EA2286E523E3B61C0036C20E /* GameFetcher */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -745,6 +805,7 @@
 				EA1E3B8F2245798400017F07 /* Seamail */,
 				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
+				EA2286DE23E39B820036C20E /* Games List */,
 				EA3C631322975CD100077E3B /* Settings */,
 				EA1E3B962245849B00017F07 /* Users */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
@@ -816,6 +877,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		EA2286E423E3B61C0036C20E /* GameFetcher */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EA2286E923E3B61C0036C20E /* Build configuration list for PBXNativeTarget "GameFetcher" */;
+			buildPhases = (
+				EA2286E123E3B61C0036C20E /* Sources */,
+				EA2286E223E3B61C0036C20E /* Frameworks */,
+				EA2286E323E3B61C0036C20E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GameFetcher;
+			productName = GameFetcher;
+			productReference = EA2286E523E3B61C0036C20E /* GameFetcher */;
+			productType = "com.apple.product-type.tool";
+		};
 		EAA2E4B82242D300009F287F /* Kraken */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EAA2E4E32242D301009F287F /* Build configuration list for PBXNativeTarget "Kraken" */;
@@ -875,10 +953,13 @@
 		EAA2E4B12242D300009F287F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1010;
+				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Chall Fry";
 				TargetAttributes = {
+					EA2286E423E3B61C0036C20E = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
 					EAA2E4B82242D300009F287F = {
 						CreatedOnToolsVersion = 10.1;
 						LastSwiftMigration = 1020;
@@ -916,6 +997,7 @@
 				EAA2E4B82242D300009F287F /* Kraken */,
 				EAA2E4CE2242D301009F287F /* KrakenTests */,
 				EAA2E4D92242D301009F287F /* KrakenUITests */,
+				EA2286E423E3B61C0036C20E /* GameFetcher */,
 			);
 		};
 /* End PBXProject section */
@@ -941,6 +1023,7 @@
 				EA4E84EC2328734F0059E5EB /* KaraokeLoadingCell.xib in Resources */,
 				EA8694B523D4A5A800ABE391 /* AnnouncementCell.xib in Resources */,
 				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
+				EA2286F723E42ED90036C20E /* BoardGameCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
 				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
 				EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */,
@@ -950,6 +1033,7 @@
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
 				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
+				EA2286F923E430BC0036C20E /* JoCoGamesCatalog.lzfse in Resources */,
 				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA8694B123D48F2500ABE391 /* DailyActivityCell3.xib in Resources */,
@@ -996,6 +1080,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		EA2286E123E3B61C0036C20E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA2286F123E3C7450036C20E /* GamesListStructs.swift in Sources */,
+				EA2286E823E3B61C0036C20E /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAA2E4B52242D300009F287F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1007,6 +1100,7 @@
 				EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */,
 				EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
+				EA2286E023E39B830036C20E /* GamesDataManager.swift in Sources */,
 				EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
 				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
@@ -1023,6 +1117,7 @@
 				EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
 				EA4E84EE232A2CE70059E5EB /* ServerTimeUpdater.swift in Sources */,
+				EA2286F523E42D9F0036C20E /* BoardGameCell.swift in Sources */,
 				EA1B9FE623514E8100BFEB46 /* PostOpStatusCell.swift in Sources */,
 				EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */,
 				EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */,
@@ -1081,6 +1176,7 @@
 				EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */,
 				EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */,
 				EABD300623DAD7E000232F28 /* SwiftyLineProcessor.swift in Sources */,
+				EA2286F023E3C7450036C20E /* GamesListStructs.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
 				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,
@@ -1093,6 +1189,7 @@
 				EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */,
 				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
+				EA2286F323E40D810036C20E /* GamesListViewController.swift in Sources */,
 				EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */,
 				EA4E84F2232C74D00059E5EB /* DisabledContentViewController.swift in Sources */,
 				EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */,
@@ -1160,6 +1257,32 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		EA2286EA23E3B61C0036C20E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		EA2286EB23E3B61C0036C20E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		EAA2E4E12242D301009F287F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1405,6 +1528,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		EA2286E923E3B61C0036C20E /* Build configuration list for PBXNativeTarget "GameFetcher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EA2286EA23E3B61C0036C20E /* Debug */,
+				EA2286EB23E3B61C0036C20E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		EAA2E4B42242D300009F287F /* Build configuration list for PBXProject "Kraken" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

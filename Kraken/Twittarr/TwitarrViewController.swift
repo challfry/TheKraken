@@ -53,9 +53,6 @@ class TwitarrViewController: BaseCollectionViewController {
 		tweetSegment.activate(predicate: filterPack?.predicate, sort: filterPack?.sortDescriptors, cellModelFactory: createCellModel)
 		filterPack?.frc = tweetSegment.frc
 		
-        // Do any additional setup after loading the view.
-		setupGestureRecognizer()
-		
 		knownSegues = Set([.tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
 				.composeTweet])
 	}

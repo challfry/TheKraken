@@ -66,6 +66,18 @@ import MobileCoreServices
 		}
 	}
 	
+	override func awakeFromNib() {
+		// Set up gesture recognizer to detect taps on the (single) photo, and open the fullscreen photo overlay.
+		let photoTap = UITapGestureRecognizer(target: self, action: #selector(ProfileAvatarEditCell.photoTapped(_:)))
+	 	avatarImageView.addGestureRecognizer(photoTap)
+	}
+	
+	@objc func photoTapped(_ sender: UITapGestureRecognizer) {
+		if let vc = viewController as? BaseCollectionViewController, let image = avatarImageView.image {
+			vc.showImageInOverlay(image: image)
+		}
+	}
+
 	@IBAction func cameraButtonTapped(_ sender: Any) {
 		if Settings.shared.useFullscreenCameraViewfinder {
 			self.dataSource?.performKrakenSegue(.fullScreenCamera, sender: self)

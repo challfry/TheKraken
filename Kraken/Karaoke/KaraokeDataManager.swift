@@ -152,7 +152,7 @@ class KaraokeDataManager: NSObject {
 			threadSongs = threadSongs.sorted { $0.songTitle.caseInsensitiveCompare($1.songTitle) == .orderedAscending }
 //			print ("Total Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
 			
-			// Step 5: Write data back, on the main thread.
+			// Step 6: Write data back, on the main thread.
 			DispatchQueue.main.async {
 				self.artists = threadArtists
 				self.artistArray = threadArtistArray

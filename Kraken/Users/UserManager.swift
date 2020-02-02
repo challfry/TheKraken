@@ -85,13 +85,6 @@ import CoreData
 			loggedInUser.parseV2UserProfileCommentsAndStars(context: context, v2Object: v2Object, targetUser: self)
 		}
 	}
-
-
-	// Extra stuff the UserAccount type has
-	// role
-	// lastLogin time
-	// emptyPassword bool
-	// unnoticed_alerts
 	
 	// Note that this method gets called A LOT for user thumbnails that are already built.
 	func loadUserThumbnail() {
@@ -113,17 +106,18 @@ import CoreData
 				ImageLog.error(error.errorString ?? "Unknown error in /api/v2/user/photo response")
 			}
 			else if let data = package.data {
-				self.thumbPhoto = UIImage(data: data)
-				self.builtPhotoUpdateTime = self.lastPhotoUpdated
-				let context = LocalCoreData.shared.networkOperationContext
-				context.perform {
-					do {
-						let objectInContext = context.object(with: self.objectID) as! KrakenUser
-						objectInContext.thumbPhotoData = data
-						try context.save()
-					}
-					catch {
-						CoreDataLog.error("Couldn't save context while saving User avatar.", ["error" : error])
+				LocalCoreData.shared.performNetworkParsing { context in
+					context.pushOpErrorExplanation("Couldn't save context while saving User avatar.")
+					let userInNetworkContext = context.object(with: self.objectID) as! KrakenUser
+					userInNetworkContext.thumbPhotoData = data
+					try context.save()
+					
+					// Now load the main context and set the thumbnail photo
+					let mainContext = LocalCoreData.shared.mainThreadContext
+					mainContext.perform {
+						let userInMainContext = mainContext.object(with: self.objectID) as! KrakenUser
+						userInMainContext.thumbPhoto = UIImage(data: data)
+						userInMainContext.builtPhotoUpdateTime = self.lastPhotoUpdated
 					}
 				}
 			} else 
@@ -232,37 +226,32 @@ class UserManager : NSObject {
 	
 	func updateProfile(for objectID: NSManagedObjectID?, from profile: TwitarrV2UserProfile, 
 			done: ((KrakenUser?) -> Void)? = nil) {
-		let context = coreData.networkOperationContext
-		context.perform {
-			do {			
-				// If we have an objectID, use it to get the KrakenUser. Else we do a search.
-				var krakenUser: KrakenUser?
-				if let objectID = objectID {
-					krakenUser = try context.existingObject(with: objectID) as? KrakenUser
-				}
-				else {
-					let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
-								substitutionVariables: [ "username" : profile.username ]) as! NSFetchRequest<KrakenUser>
-					let results = try request.execute()
-					krakenUser = results.first
-				}
-				
-				// Pretty sure we should disallow cases where the usernames don't match. That is, I don't think the
-				// username of a user can be changed.
-				if let ku = krakenUser, ku.username != profile.username {
-					done?(nil)
-					return
-				}
-				
-				let user = krakenUser ?? KrakenUser(context: context)
-				user.buildFromV2UserProfile(context: context, v2Object: profile)
-				try context.save()
-				done?(user)
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving user profile data.")
+			LocalCoreData.shared.setAfterSaveBlock(for: context, block: {_ in done?(nil) } )
+
+			// If we have an objectID, use it to get the KrakenUser. Else we do a search.
+			var krakenUser: KrakenUser?
+			if let objectID = objectID {
+				krakenUser = try context.existingObject(with: objectID) as? KrakenUser
 			}
-			catch {
-				NetworkLog.error("Failure saving user profile data.", ["Error" : error])
-				done?(nil)
+			else {
+				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
+							substitutionVariables: [ "username" : profile.username ]) as! NSFetchRequest<KrakenUser>
+				let results = try request.execute()
+				krakenUser = results.first
 			}
+				
+			// Pretty sure we should disallow cases where the usernames don't match. That is, I don't think the
+			// username of a user can be changed.
+			if let ku = krakenUser, ku.username != profile.username {
+				return
+			}
+				
+			let user = krakenUser ?? KrakenUser(context: context)
+			user.buildFromV2UserProfile(context: context, v2Object: profile)
+			try context.save()
+			LocalCoreData.shared.setAfterSaveBlock(for: context, block: {_ in done?(user) } )
 		}
 	}
 	

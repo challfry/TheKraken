@@ -71,6 +71,9 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="GameListFavorite" representedClassName="GameListFavorite" syncable="YES">
+        <attribute name="gameName" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="KaraokeFavoriteSong" representedClassName="KaraokeFavoriteSong" syncable="YES">
         <attribute name="artistName" optional="YES" attributeType="String"/>
         <attribute name="songTitle" optional="YES" attributeType="String"/>
@@ -328,5 +331,6 @@
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
         <element name="UserComment" positionX="117" positionY="90" width="128" height="90"/>
+        <element name="GameListFavorite" positionX="117" positionY="117" width="128" height="58"/>
     </elements>
 </model>

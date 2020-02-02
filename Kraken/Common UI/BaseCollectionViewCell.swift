@@ -231,6 +231,44 @@ struct PrototypeCellInfo {
 		}
 	}
 	
+	// Subclasses can call from inside privateSelected to get 'standard' selection behavior.
+	func standardSelectionHandler() {
+		if let oldAnim = highlightAnimation {
+			oldAnim.stopAnimation(true)
+		}
+		if privateSelected || isHighlighted {
+			self.contentView.backgroundColor = UIColor(named: "Cell Background Selected")
+		}
+		else {
+			let anim = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) {
+				self.contentView.backgroundColor = UIColor(named: "Cell Background")
+			}
+			anim.addCompletion {_ in self.highlightAnimation = nil }
+			anim.isUserInteractionEnabled = true
+			anim.isInterruptible = true
+			anim.startAnimation()
+			highlightAnimation = anim
+		}
+	}
+	
+	// Subclasses can call this from inside isHighlighted to get stand highlight behavior.
+	var highlightAnimation: UIViewPropertyAnimator?
+	func standardHighlightHandler() {
+		if isPrototypeCell { return }
+		if let oldAnim = highlightAnimation {
+			oldAnim.stopAnimation(true)
+		}
+		let anim = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) {
+			self.contentView.backgroundColor = self.isHighlighted ? UIColor(named: "Cell Background Selected") : 
+					UIColor(named: "Cell Background")
+		}
+		anim.addCompletion {_ in self.highlightAnimation = nil }
+		anim.isUserInteractionEnabled = true
+		anim.isInterruptible = true
+		anim.startAnimation()
+		highlightAnimation = anim
+	}
+	
 	func cellSizeChanged() {
 		setNeedsLayout()
 		if !isPrototypeCell, !isBuildingCell, let model = cellModel {
@@ -305,50 +343,44 @@ struct PrototypeCellInfo {
 		observations.removeAll()
 	}
 	
-}
-
-extension BaseCollectionViewCell: UIGestureRecognizerDelegate {
-
-	func setupGestureRecognizer() {	
-		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(BaseCollectionViewCell.cellTapped))
-		tapper.minimumPressDuration = 0.05
-		tapper.numberOfTouchesRequired = 1
-		tapper.numberOfTapsRequired = 0
-		tapper.allowableMovement = 10.0
-		tapper.delegate = self
-		tapper.name = "BaseCollectionViewCell Long Press"
-		addGestureRecognizer(tapper)
-		customGR = tapper
+	
+	var isTakingTouchEvent = false
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if allowsSelection {
+			isTakingTouchEvent = true
+			isHighlighted = true
+			return
+		}
+		super.touchesBegan(touches, with: event)
 	}
 
-	override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-		// need to call super if it's not our recognizer
-		if gestureRecognizer != customGR {
-			return super.gestureRecognizerShouldBegin(gestureRecognizer)
+	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if isTakingTouchEvent {
+			return
 		}
-		let hitPoint = gestureRecognizer.location(in: self)
-		if !point(inside:hitPoint, with: nil) {
-			return false
-		}		
-		return true
+		super.touchesMoved(touches, with: event)
 	}
 
-	@objc func cellTapped(_ sender: UILongPressGestureRecognizer) {
-		if sender.state == .began {
-			isHighlighted = point(inside:sender.location(in: self), with: nil)
-		}
-		else if sender.state == .changed {
-			isHighlighted = point(inside:sender.location(in: self), with: nil)
-		}
-		else if sender.state == .ended {
-			if (isHighlighted) {
-				isSelected = true
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if isTakingTouchEvent {
+			if isHighlighted {
+				privateSelectCell(!privateSelected)
 			}
 			isHighlighted = false
+			isTakingTouchEvent = false
+			return
 		}
-		else if sender.state == .cancelled {
-			isHighlighted = false	
+		super.touchesEnded(touches, with: event)
+	}
+	
+	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if isTakingTouchEvent {
+			print("Cancelled")
+			isHighlighted = false
+			isTakingTouchEvent = false
+			return
 		}
+		super.touchesCancelled(touches, with: event)
 	}
 }
 

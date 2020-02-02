@@ -8,6 +8,7 @@
 
 import UIKit
 
+// The raw values for these enums are the Storyboard Segue Identifiers. 
 enum GlobalKnownSegue: String {
 	case dismiss =					"dismiss"
 	case dismissCamera =			"dismissCamera"
@@ -41,6 +42,7 @@ enum GlobalKnownSegue: String {
 	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
 	
 	case karaokeRoot =				"KaraokeRoot"
+	case gamesRoot =				"GamesRoot"
 	case scrapbookRoot =			"ScrapbookRoot"
 	
 	case settingsRoot = 			"SettingsRoot"
@@ -88,6 +90,7 @@ enum GlobalKnownSegue: String {
 		case .showRoomOnDeckMap: return String.self
 		
 		case .karaokeRoot: return Void.self
+		case .gamesRoot: return Void.self
 		
 		case .scrapbookRoot: return Void.self
 
@@ -112,10 +115,10 @@ class BaseCollectionViewController: UIViewController {
 	@IBOutlet var collectionView: UICollectionView!
 	@objc dynamic var activeTextEntry: UITextInput?
 		
-	var customGR: UILongPressGestureRecognizer?
-	var tappedCell: UICollectionViewCell?
+	var keyboardCanceler: UILongPressGestureRecognizer?
+	var enableKeyboardCanceling = true
+	var isKeyboardVisible: Bool = false
 	var indexPathToScrollToVisible: IndexPath?
-	var customGRScrollStart: CGFloat = 0
 	
 	// Properties of the Image Viewer. This is a covering view that shows an image. Other UI elements can call showImageInOverlay()
 	// on this VC and we'll show the provided image in a translucent overlay over the regular content.
@@ -137,9 +140,15 @@ class BaseCollectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-     	let keyboardCanceler = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:)))
- //    	keyboardCanceler.cancelsTouchesInView = false
-	 	view.addGestureRecognizer(keyboardCanceler)
+		keyboardCanceler = UILongPressGestureRecognizer(target: self, action: #selector(BaseCollectionViewController.cancelerTapped(_:)))
+		keyboardCanceler!.minimumPressDuration = 0.2
+		keyboardCanceler!.numberOfTouchesRequired = 1
+		keyboardCanceler!.numberOfTapsRequired = 0
+		keyboardCanceler!.allowableMovement = 10.0
+     	keyboardCanceler!.cancelsTouchesInView = false
+     	keyboardCanceler!.delegate = self
+		keyboardCanceler!.name = "BaseCollectionViewController Keyboard Hider"
+	 	view.addGestureRecognizer(keyboardCanceler!)
                
  		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
 			layout.itemSize = UICollectionViewFlowLayout.automaticSize
@@ -396,6 +405,7 @@ class BaseCollectionViewController: UIViewController {
 	}
         
     @objc func keyboardWillShow(notification: NSNotification) {
+    	isKeyboardVisible = true
 		if let keyboardHeight = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height {
 			collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
 		}
@@ -408,6 +418,7 @@ class BaseCollectionViewController: UIViewController {
 	}
 
 	@objc func keyboardWillHide(notification: NSNotification) {
+    	isKeyboardVisible = false
 		UIView.animate(withDuration: 0.2, animations: {
 			self.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		})
@@ -653,83 +664,48 @@ extension BaseCollectionViewController: UIScrollViewDelegate {
 // MARK: UIGestureRecognizerDelegate
 extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 
-	func setupGestureRecognizer() {	
-		let tapper = UILongPressGestureRecognizer(target: self, action: #selector(BaseCollectionViewController.cellTapped))
-		tapper.minimumPressDuration = 0.05
-		tapper.numberOfTouchesRequired = 1
-		tapper.numberOfTapsRequired = 0
-		tapper.allowableMovement = 10.0
-		tapper.delegate = self
-		tapper.name = "BaseCollectionViewController Long Press"
-		collectionView.addGestureRecognizer(tapper)
-		customGR = tapper
-	}
-
 	func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-		// need to call super if it's not our recognizer
-		if gestureRecognizer != customGR {
+		if gestureRecognizer != keyboardCanceler {
 			return false
 		}
-		let hitPoint = gestureRecognizer.location(in: collectionView)
-		if !collectionView.point(inside:hitPoint, with: nil) {
-			return false
-		}
-		
-		// Only take the tap if the cell isn't already selected. This ensures taps on widgets inside the cell go through
-		// once the cell is selected.
-		if let path = collectionView.indexPathForItem(at: hitPoint), let cell = collectionView.cellForItem(at: path),
-				let c = cell as? BaseCollectionViewCell, !c.privateSelected {
-			if c.allowsSelection {
-				return true
-			}
+		if enableKeyboardCanceling && isKeyboardVisible {
+			return true
 		}
 		
 		return false
 	}
 	
-	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-		if gestureRecognizer == customGR && otherGestureRecognizer == collectionView.panGestureRecognizer {
-			return true
-		}
-		return false
-	}
-
-	@objc func cellTapped(_ sender: UILongPressGestureRecognizer) {
-		if sender.state == .began {
-			if let indexPath = collectionView.indexPathForItem(at: sender.location(in:collectionView)) {
-				tappedCell = collectionView.cellForItem(at: indexPath)
-				tappedCell?.isHighlighted = true
-				customGRScrollStart = collectionView.contentOffset.y
-			}
-			else {
-				tappedCell = nil
-			}
-		}
-		guard let tappedCell = tappedCell else { return }
-		
+//	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
+//			shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//		return true		
+//	}
+	
+//	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
+//			shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//		return true		
+//	}
+	
+//	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//		if gestureRecognizer == customGR && otherGestureRecognizer == collectionView.panGestureRecognizer {
+//			return true
+//		}
+//		return false
+//	}
+//
+	@objc func cancelerTapped(_ sender: UILongPressGestureRecognizer) {
+//		if sender.state == .began {
+//		}
 		if sender.state == .changed {
-			if abs(customGRScrollStart - collectionView.contentOffset.y) > 10 {
-				tappedCell.isHighlighted = false
-			}
-			else {
-				tappedCell.isHighlighted = tappedCell.point(inside:sender.location(in: tappedCell), with: nil)
-			}
 		}
 		else if sender.state == .ended {
-			if tappedCell.isHighlighted {				
-				if let tc = tappedCell as? BaseCollectionViewCell {
-					tc.privateSelectCell()
-				}
+			if (enableKeyboardCanceling) {
+			print ("AT canceler end")
+				view.endEditing(true)
 			}
 		} 
 		
-		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {
-			tappedCell.isHighlighted = false
-			
-			// Stop the scroll view's odd scrolling behavior that happens when cell tap resizes the cell.
-//			collectionView.setContentOffset(collectionView.contentOffset, animated: false)
-		}
+//		if sender.state == .ended || sender.state == .cancelled || sender.state == .failed {			
+//		}
 	}
-	
 }
 

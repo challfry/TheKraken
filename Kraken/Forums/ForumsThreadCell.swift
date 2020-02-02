@@ -80,7 +80,6 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
-		setupGestureRecognizer()
 			
 		// Font styling
 		subjectLabel.styleFor(.body)
@@ -209,21 +208,10 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 		postCountLabel.text = text
 	}
 	
-	var highlightAnimation: UIViewPropertyAnimator?
 	override var isHighlighted: Bool {
 		didSet {
 			if !isInteractive { return }
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
-			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted ? UIColor(named: "Cell Background Selected") : 
-						UIColor(named: "Cell Background")
-			}
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
+			standardHighlightHandler()
 		}
 	}
 	

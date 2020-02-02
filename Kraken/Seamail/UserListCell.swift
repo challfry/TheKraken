@@ -215,8 +215,6 @@ class UserListCell: BaseCollectionViewCell, UserListCellBindingProtocol {
 				userCollectionHeightConstraint.constant = newSize.height + 2
 			}
 		}
-
-		setupGestureRecognizer()		
    }
 
 	func createUserCellModel(_ model:PossibleKrakenUser) -> SmallUserCellModel {

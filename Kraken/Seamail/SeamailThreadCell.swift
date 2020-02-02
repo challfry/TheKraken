@@ -205,9 +205,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		if let layout = usersView.collectionViewLayout as? UICollectionViewFlowLayout {
 			layout.itemSize = CGSize(width: 68, height: 68)
 		}
-		
-		setupGestureRecognizer()	
-		
+				
 		usersView.accessibilityLabel = "Participant List"	
 	}
 	
@@ -231,21 +229,10 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		}
 	}
 	
-	var highlightAnimation: UIViewPropertyAnimator?
 	override var isHighlighted: Bool {
 		didSet {
 			if !isInteractive { return }
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
-			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted ? UIColor(named: "Cell Background Selected") : 
-						UIColor(named: "Cell Background")
-			}
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
+			standardHighlightHandler()
 		}
 	}
 		

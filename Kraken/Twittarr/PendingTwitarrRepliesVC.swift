@@ -27,7 +27,6 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
 		tweetSegment.activate(predicate: predicate, sort: [NSSortDescriptor(key: "originalPostTime", ascending: true)],
 				cellModelFactory: createCellModel)
 
-		setupGestureRecognizer()
 		knownSegues = Set([.userProfile, .editTweetOp])
   }
     

@@ -61,7 +61,6 @@ class ForumThreadViewController: BaseCollectionViewController {
 
 		// Then register the whole thing.
 		threadDataSource.register(with: collectionView, viewController: self)
-		setupGestureRecognizer()
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -72,7 +72,6 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		fullWidth = false
-		setupGestureRecognizer()
 	}
 	
 	override var isSelected: Bool {
@@ -83,21 +82,9 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 		}
 	}
 		
-	var highlightAnimation: UIViewPropertyAnimator?
 	override var isHighlighted: Bool {
 		didSet {
-			if let oldAnim = highlightAnimation {
-				oldAnim.stopAnimation(true)
-			}
-			let anim = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-				self.contentView.backgroundColor = self.isHighlighted ? UIColor(named: "Cell Background Selected") : 
-						UIColor(named: "Cell Background")
-			}
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
-//			CollectionViewLog.debug("Highlight is: \(self.isHighlighted)")
+			standardHighlightHandler()
 		}
 	}
 }

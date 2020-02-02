@@ -10,7 +10,7 @@ import UIKit
 
 @objc protocol EmojiSelectionCellProtocol {
 	
-}
+} 
 
 @objc class EmojiSelectionCellModel: BaseCellModel, EmojiSelectionCellProtocol {
 	private static let validReuseIDs = [ "EmojiSelectionCell" : EmojiSelectionCell.self ]
@@ -89,6 +89,9 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 		super.init(frame: frame)
 		
 		emojiButton.frame = self.bounds
+		emojiButton.addTarget(self, action:#selector(buttonTapStart), for:.touchDown)
+		emojiButton.addTarget(self, action:#selector(buttonTapEnd), for:.touchUpOutside)
+		emojiButton.addTarget(self, action:#selector(buttonTapEnd), for:.touchCancel)
 		emojiButton.addTarget(self, action:#selector(buttonHit), for:.touchUpInside)
 //		emojiButton.showsTouchWhenHighlighted = true
 		emojiButton.adjustsImageWhenHighlighted = true
@@ -115,8 +118,23 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
         fatalError("init(coder:) has not been implemented")
     }
     
+    @objc func buttonTapStart() {
+    	if let vc = ownerCell?.viewController as? BaseCollectionViewController {
+    		vc.enableKeyboardCanceling = false
+    	}
+    }
+    
     @objc func buttonHit() {
     	ownerCell?.buttonTapped(withString:emoji)
+    	if let vc = ownerCell?.viewController as? BaseCollectionViewController {
+    		vc.enableKeyboardCanceling = true
+    	}
+    }
+    
+    @objc func buttonTapEnd() {
+    	if let vc = ownerCell?.viewController as? BaseCollectionViewController {
+    		vc.enableKeyboardCanceling = true
+    	}
     }
     
     // Pure glue for the popup's buttons

@@ -21,6 +21,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case events = "ScheduleNavController"
 		case settings = "SettingsNavController"
 		case karaoke = "KaraokeNavController"
+		case games = "GamesListNavController"
 		case deckPlans = "DeckMapNavController"
 		case scrapbook = "ScrapbookNavController"
 		case twitarrHelp = "ServerTextFileDisplay"
