@@ -19,6 +19,7 @@ class ScrapbookViewController: BaseCollectionViewController {
 	var userSegment = FRCDataSourceSegment<KrakenUser>()
 	var eventSegment = FRCDataSourceSegment<Event>()
 	var songSegment = FRCDataSourceSegment<KaraokeFavoriteSong>()
+	var gameSegment = FRCDataSourceSegment<GameListFavorite>()
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -35,6 +36,7 @@ class ScrapbookViewController: BaseCollectionViewController {
 		favoritesDataSource.append(segment: userSegment)
 		favoritesDataSource.append(segment: eventSegment)
 		favoritesDataSource.append(segment: songSegment)
+		favoritesDataSource.append(segment: gameSegment)
 
 		// Manually register the nib for the section header view
 		let headerNib = UINib(nibName: "EventSectionHeaderView", bundle: nil)
@@ -61,6 +63,9 @@ class ScrapbookViewController: BaseCollectionViewController {
 				observer.songSegment.activate(predicate: NSPredicate(value: true), 
 						sort: [ NSSortDescriptor(key: "songTitle", ascending: true)], 
 						cellModelFactory: observer.createSongCellModel)
+				observer.gameSegment.activate(predicate: NSPredicate(value: true), 
+						sort: [ NSSortDescriptor(key: "gameName", ascending: true)], 
+						cellModelFactory: observer.createGameCellModel)
 				if let layout = observer.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
 					layout.headerReferenceSize = CGSize(width: observer.collectionView.frame.size.width, height: 21)
 					layout.sectionHeadersPinToVisibleBounds = true
@@ -95,6 +100,7 @@ class ScrapbookViewController: BaseCollectionViewController {
 			case is ProfileAvatarCellModel: headerView.setTimeLabelText(to: "Favorite Users")
 			case is EventCellModel: headerView.setTimeLabelText(to: "Favorite Events")
 			case is KaraokeFavoriteSongCellModel: headerView.setTimeLabelText(to: "Favorite Karaoke Songs")
+			case is BoardGameCellModel: headerView.setTimeLabelText(to: "Favorite Board Games")
 			default: headerView.setTimeLabelText(to: "")
 			}
 		}
@@ -129,6 +135,14 @@ class ScrapbookViewController: BaseCollectionViewController {
 	
 	func createSongCellModel(_ model: KaraokeFavoriteSong) -> BaseCellModel {
 		let cellModel =  KaraokeFavoriteSongCellModel(withModel: model)
+		return cellModel
+	}
+	
+	func createGameCellModel(_ model: GameListFavorite) -> BaseCellModel {
+		let cellModel = BoardGameCellModel()
+		GamesDataManager.shared.loadGamesFile {
+			cellModel.model = GamesDataManager.shared.gamesByName[model.gameName]
+		}
 		return cellModel
 	}
 }

@@ -516,6 +516,7 @@ extension KrakenDataSource: UICollectionViewDelegate, UICollectionViewDelegateFl
 		if protoSize.width > 1000 || protoSize.height > 1000 {
 			log.debug("This cell has a very strange size.", ["indexPath" : indexPath])
 		}
+		log.debug("sizeForItemAt called for:", ["indexPath" : indexPath, "returning" : protoSize])
 			
 
 		return protoSize

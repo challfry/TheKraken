@@ -34,55 +34,18 @@
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iGL-A4-VHP">
-                        <rect key="frame" x="214" y="0.0" width="200" height="220"/>
-                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="PWm-9r-DO4">
-                            <rect key="frame" x="0.0" y="0.0" width="200" height="220"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ICo-wz-LaJ">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="220"/>
-                                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8WU-NF-kUs">
-                                        <rect key="frame" x="0.0" y="0.0" width="200" height="220"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    </view>
-                                    <vibrancyEffect>
-                                        <blurEffect style="light"/>
-                                    </vibrancyEffect>
-                                </visualEffectView>
-                            </subviews>
-                            <constraints>
-                                <constraint firstItem="ICo-wz-LaJ" firstAttribute="leading" secondItem="PWm-9r-DO4" secondAttribute="leading" id="1C1-ck-LxH"/>
-                                <constraint firstItem="ICo-wz-LaJ" firstAttribute="top" secondItem="PWm-9r-DO4" secondAttribute="top" id="5u8-UO-Tg2"/>
-                                <constraint firstAttribute="trailing" secondItem="ICo-wz-LaJ" secondAttribute="trailing" id="dq7-JV-xih"/>
-                                <constraint firstAttribute="bottom" secondItem="ICo-wz-LaJ" secondAttribute="bottom" id="wHo-2D-q65"/>
-                            </constraints>
-                        </view>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="200" id="zB2-9B-oKf"/>
-                        </constraints>
-                        <blurEffect style="systemUltraThinMaterialLight"/>
-                    </visualEffectView>
                 </subviews>
             </view>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="2d6-eZ-vW5" secondAttribute="bottom" priority="999" id="89D-2y-KL2"/>
-                <constraint firstAttribute="bottom" secondItem="iGL-A4-VHP" secondAttribute="bottom" id="FoJ-UP-dmx"/>
-                <constraint firstItem="2d6-eZ-vW5" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="PXL-WT-tJa"/>
+                <constraint firstItem="2d6-eZ-vW5" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="S3z-cb-DyZ"/>
+                <constraint firstAttribute="bottom" secondItem="2d6-eZ-vW5" secondAttribute="bottom" priority="999" id="Vt4-vg-Sam"/>
                 <constraint firstItem="Zsi-h2-qH4" firstAttribute="trailing" secondItem="vBD-vT-u1K" secondAttribute="trailing" id="Xbs-iF-1v9"/>
                 <constraint firstAttribute="trailing" secondItem="vBD-vT-u1K" secondAttribute="trailing" constant="20" id="ip5-wJ-iyo"/>
                 <constraint firstItem="Zsi-h2-qH4" firstAttribute="top" secondItem="vBD-vT-u1K" secondAttribute="bottom" constant="8" id="oxQ-Wa-1wQ"/>
-                <constraint firstItem="iGL-A4-VHP" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="q1E-2Y-7Mf"/>
                 <constraint firstItem="2d6-eZ-vW5" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="saN-rI-O1M"/>
                 <constraint firstItem="vBD-vT-u1K" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="13" id="xPf-hj-Fpd"/>
-                <constraint firstAttribute="trailing" secondItem="iGL-A4-VHP" secondAttribute="trailing" id="xtN-BD-fz6"/>
             </constraints>
             <size key="customSize" width="347" height="170"/>
-            <variation key="default">
-                <mask key="subviews">
-                    <exclude reference="iGL-A4-VHP"/>
-                </mask>
-            </variation>
             <connections>
                 <outlet property="imageView" destination="2d6-eZ-vW5" id="iJi-VE-sse"/>
             </connections>

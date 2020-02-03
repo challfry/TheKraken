@@ -67,7 +67,7 @@ class PossibleKrakenUser : NSObject, Comparable {
 	var title: String { get set }
 	var source: String { get set }
 	var users: Set<PossibleKrakenUser> { get set }
-	var selectionCallback: ((PossibleKrakenUser, Bool) -> Void)? { get set }
+	var selectionCallback: ((PossibleKrakenUser) -> Void)? { get set }
 }
 
 @objc class UserListCoreDataCellModel: BaseCellModel, UserListCellBindingProtocol, NSFetchedResultsControllerDelegate {
@@ -76,7 +76,7 @@ class PossibleKrakenUser : NSObject, Comparable {
 	dynamic var title: String
 	dynamic var source: String
 	dynamic var users: Set<PossibleKrakenUser> = Set()
-	dynamic var selectionCallback: ((PossibleKrakenUser, Bool) -> Void)?
+	dynamic var selectionCallback: ((PossibleKrakenUser) -> Void)?
 	
 	// If UsePredicate is true, users will be set automatically by the FRC; be sure to actually give it a predicate.
 	// If it's false, you have to give users a value yourself.
@@ -137,7 +137,7 @@ class UserListCell: BaseCollectionViewCell, UserListCellBindingProtocol {
 	private static let cellInfo = [ "UserListCell" : PrototypeCellInfo("UserListCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return UserListCell.cellInfo }
 
-	var selectionCallback: ((PossibleKrakenUser, Bool) -> Void)?
+	var selectionCallback: ((PossibleKrakenUser) -> Void)?
 	var title: String = "" {
 		didSet {
 			titleLabel.text = title
@@ -227,8 +227,8 @@ class UserListCell: BaseCollectionViewCell, UserListCellBindingProtocol {
 		}
 		cellModel.shouldBeVisible = true
 		cellModel.showDeleteIcon = model.canBeRemoved
-		cellModel.selectionCallback = { [weak self] isSelected in
-			self?.selectionCallback?(model, isSelected)
+		cellModel.selectionCallback = { [weak self] in
+			self?.selectionCallback?(model)
 		}
 		return cellModel
 	}

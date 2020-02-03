@@ -404,7 +404,9 @@ import UIKit
 		}
 	}
 	
-	override func cellTapped() {
+	override func cellTapped(dataSource: KrakenDataSource?) {
+	
+		// Trying it this way, but I think it's better if the cell launches segues itself (besides how I feel about segues).
 		switch displayMode {
 		case .authoredTweets: viewController?.pushUserTweetsView()
 		case .mentions: viewController?.pushUserMentionsView()

@@ -81,8 +81,11 @@ struct PhotoUploadPackage {
 	
 	@objc dynamic var pendingOperationCount: Int = 0
 	@objc dynamic var operationsWithErrorsCount: Int = 0
-	let controller: NSFetchedResultsController<PostOperation>
+
+	fileprivate let controller: NSFetchedResultsController<PostOperation>
 	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
+	
+	var nextCheckTimer: Timer?
 	
 // MARK: Methods
 	
@@ -104,6 +107,13 @@ struct PhotoUploadPackage {
 			}
 		}
 
+		// Check for postOps to deliver to the server whenever any of the things that can block delivery change state.
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
+			observer.checkForOpsToDeliver()
+		}
+		Settings.shared.tell(self, when: "blockEmptyingPostOpsQueue") { observer, observed in 
+			observer.checkForOpsToDeliver()
+		}
 	}
 		
 	// Does not check whether this op is authored by the current user.
@@ -116,8 +126,11 @@ struct PhotoUploadPackage {
 		}
 	}
 		
+	// This method looks through all the ops, finds one that's ready to be sent to the server, and sends it.
+	// If there's more ops to send, it sets a timer. If an op failed and needs to be re-tried, the same timer
+	// is set for that retry time. Once all ops are sent the timer stops firing. This means that things that could
+	// add ops or unblock the sending of ops should call checkForOpsToDeliver.
 	func checkForOpsToDeliver() {
-		
 		guard CurrentUser.shared.isLoggedIn() else { 
 			NetworkLog.debug("Not sending ops to server; nobody is logged in.")
 			return 
@@ -129,7 +142,10 @@ struct PhotoUploadPackage {
 			
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			if let operations = self.controller.fetchedObjects {
+				print ("Starting checkforOpsToDeliver: \(operations.count) ops")
 				var earliestCallTime: Date?
+				var sentOpThisCall = false
+
 				for op in operations {
 					// Test 1. Only send ops authored by the logged in user.
 					if op.author.username != currentUser.username {
@@ -154,22 +170,26 @@ struct PhotoUploadPackage {
 						continue
 					}
 					
-					// Tell the op to send to server here
-					NetworkLog.debug("Sending op to server", ["op" : op])
-					op.post()
-					
-					// Throttling: After we send one op, wait 1 second before trying again
-					if let earliest = earliestCallTime {
-						earliestCallTime = min(Date().addingTimeInterval(1.0), earliest)
+					if sentOpThisCall {
+						// We *would* send this op, except we just sent one. Once we've determined that there's ops
+						// that are ready to send but unsent, we can break. Our next call time is 1 sec from now.
+						earliestCallTime = Date().addingTimeInterval(1.0)
+						break
 					}
 					else {
-						earliestCallTime = Date().addingTimeInterval(1.0)
+						// Tell the op to send to server here
+						NetworkLog.debug("Sending op to server", ["op" : op])
+						op.post(context: context)
+						sentOpThisCall = true
 					}
 				}
 				
 				// Start a timer that will fire whenever it's time for us to try sending the next op.
+				// If earliestCallTime is nil, there's no ops in the pending state.
 				if let fireTime = earliestCallTime {
-					Timer.scheduledTimer(withTimeInterval: fireTime.timeIntervalSinceNow, repeats: false) { timer in 
+					self.nextCheckTimer?.invalidate()
+					self.nextCheckTimer = Timer.scheduledTimer(withTimeInterval: fireTime.timeIntervalSinceNow, 
+							repeats: false) { timer in 
 						self.checkForOpsToDeliver()
 					}
 				}
@@ -317,13 +337,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 	// Subclasses override this to send this post to the server. Subclass should call super iff the post can be
 	// sent; this fn marks the post as being sent in Core Data.
-	func post() {
-		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
-			context.pushOpErrorExplanation("A postOp got a CoreData error; couldn't store state change back into op.")
-			let opInContext = context.object(with: self.objectID) as! PostOperation
-			opInContext.operationState = .sentNetworkCall
-			opInContext.errorString = nil					// If we're retrying after error, error gets cleared.
-		}
+	func post(context: NSManagedObjectContext) {
+		context.pushOpErrorExplanation("A postOp got a CoreData error; couldn't store state change back into op.")
+		operationState = .sentNetworkCall
+		errorString = nil					// If we're retrying after error, error gets cleared.
 	}
 	
 	// Subclasses can call this to get their URLRequest sent to the server. Handles some of the common
@@ -468,8 +485,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 
-	override func post() {
-		super.post()
+	override func post(context: NSManagedObjectContext) {
+		super.post(context: context)
 		
 		let twittarrPostBlock = { (photoID: String?) in
 		
@@ -547,12 +564,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Posting a reaction to a Twitarr tweet."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let post = sourcePost else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post()
+		super.post(context: context)
 		
 		// POST/DELETE /api/v2/tweet/:id/react/:type
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: 
@@ -580,12 +597,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Deleting a Twitarr tweet."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let post = tweetToDelete else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post()
+		super.post(context: context)
 		
 		// DELETE /api/v2/tweet/:id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/tweet/\(post.id)", query: nil)
@@ -622,10 +639,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let postText = text else { return }
 		guard subject != nil || thread != nil else { return }
-		super.post()
+		super.post(context: context)
 
 		// Upload any photos first, then chain the post call.
 		// Declared as a placeholder closure, then redefined immediately as it references itself.
@@ -726,12 +743,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Deleting a Forum Post."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let post = postToDelete else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post()
+		super.post(context: context)
 		
 		// DELETE  /api/v2/forums/:id/:post_id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/forums/\(post.thread.id)/\(post.id)", query: nil)
@@ -774,12 +791,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Posting a reaction to a Forums post."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let post = sourcePost else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post()
+		super.post(context: context)
 		
 		// POST/DELETE /api/v2/forums/:id/:post_id/react/:type
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: 
@@ -810,8 +827,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Creating a new Seamail thread."
 	}
 
-	override func post() {
-		super.post()
+	override func post(context: NSManagedObjectContext) {
+		super.post(context: context)
 		
 		// POST /api/v2/seamail
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/seamail", query: nil)
@@ -842,12 +859,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Post a new Seamail message."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let seamailThread = thread else { 
 			self.recordServerErrorFailure(ServerError("The Seamail thread has disappeared. Perhaps it was deleted on the server?"))
 			return
 		}
-		super.post()
+		super.post(context: context)
 		
 		// POST /api/v2/seamail/:id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/seamail/\(seamailThread.id)", query: nil)
@@ -878,13 +895,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = newState ? "Follow an Event." : "Unfollow an Event."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let event = event else { 
 			self.recordServerErrorFailure(ServerError("The Schedule Event we were going to follow has disappeared. Perhaps it was deleted on the server?"))
 			return
 		}
 		guard CurrentUser.shared.loggedInUser?.username == author.username else { return }
-		super.post()
+		super.post(context: context)
 		
 		// POST or DELETE /api/v2/event/:id/favorite
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/event/\(event.id)/favorite", query: nil)
@@ -909,10 +926,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Post a private comment about another user."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
 		guard let userCommentedOn = userCommentedOn else { return }
-		super.post()
+		super.post(context: context)
 
 		let userCommentStruct = TwitarrV2ChangeUserCommentRequest(comment: comment)
 		let encoder = JSONEncoder()
@@ -942,15 +959,15 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var userBeingFavorited: KrakenUser?
 
 	override public func willSave() {
-		super.awakeFromInsert()
+		super.willSave()
 		guard operationDescription == nil else { return }
 		operationDescription = isFavorite ? "Pending: favorite another user." : "Pending: unfavorite another user."
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
 		guard let userFavorited = userBeingFavorited else { return }
-		super.post()
+		super.post(context: context)
 				
 		// POST /api/v2/user/profile/:username/star
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile/\(userFavorited.username)/star", query: nil)
@@ -961,8 +978,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				context.pushOpErrorExplanation("Failure saving User Favorite change to Core Data. (the network call succeeded, but we couldn't save the change).")
 				let decoder = JSONDecoder()
 				let response = try decoder.decode(TwitarrV2ToggleUserStarResponse.self, from: data)
-				if response.status == "ok" {
-					currentUser.updateUserStar(context: context, targetUser: userFavorited, newState: response.starred)
+				if response.status == "ok", let currentUserInContext = context.object(with: self.author.objectID) as? LoggedInKrakenUser {
+					currentUserInContext.updateUserStar(context: context, targetUser: userFavorited, newState: response.starred)
 				}
 			}
 		}
@@ -983,9 +1000,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Pending update to your user profile"
 	}
 
-	override func post() {
+	override func post(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
-		super.post()
+		super.post(context: context)
 		
 		let profileUpdateStruct = TwitarrV2UpdateProfileRequest(displayName: displayName, email: email, 
 				homeLocation: homeLocation, pronouns: pronouns, realName: realName, roomNumber: roomNumber)
@@ -1023,8 +1040,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Pending update to your avatar image"
 	}
 
-	override func post() {
-		super.post()
+	override func post(context: NSManagedObjectContext) {
+		super.post(context: context)
 
 //		self.recordServerErrorFailure(ServerError("This is a test error, for testing."))
 		

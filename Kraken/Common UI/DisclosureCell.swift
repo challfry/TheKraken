@@ -25,7 +25,7 @@ import UIKit
 		super.init(bindingWith: DisclosureCellProtocol.self)
 	}
 
-	override func cellTapped() {
+	override func cellTapped(dataSource: KrakenDataSource?) {
 		tapAction?(self)
 	}
 }
@@ -50,23 +50,8 @@ class DisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 			standardHighlightHandler()
 		}
 	}
-	
-	override var isSelected: Bool {
-		didSet {
-			if isSelected {
-				cellTapped()
-			}
-		}
-	}
-	
+		
 	override func awakeFromNib() {
 		super.awakeFromNib()
-	}
-		
-	// Either the cell or its model can override cellTapped to handle taps in the cell.
-	func cellTapped() {
-		if let model = cellModel as? DisclosureCellModel {
-			model.cellTapped()
-		}
 	}
 }

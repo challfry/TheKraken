@@ -66,8 +66,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		let postActionsSection = dataSource.appendFilteringSegment(named: "postActions")
 		let delayedPostInfo = postActionsSection.append(cell: SettingsInfoCellModel("To Be Posted"))
 		delayedPostInfo.labelText = NSAttributedString(string: "Changes you've made, waiting to be sent to the Twitarr server.")
-		let delayedPostDisclosure = postActionsSection.append(cell: DelayedPostDisclosureCellModel())
-		delayedPostDisclosure.viewController = self
+		postActionsSection.append(cell: DelayedPostDisclosureCellModel())
 
 		// Time Zone section
 		let timezoneSection = dataSource.appendFilteringSegment(named: "Time Zone")
@@ -325,9 +324,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	
 }
 
-@objc class DelayedPostDisclosureCellModel : DisclosureCellModel, NSFetchedResultsControllerDelegate {
-	var viewController: SettingsRootViewController?
-	
+@objc class DelayedPostDisclosureCellModel : DisclosureCellModel, NSFetchedResultsControllerDelegate {	
 	override init() {
 		super.init()
 		
@@ -348,9 +345,9 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
         }?.execute()        
 	}
 	
-	override func cellTapped() {
+	override func cellTapped(dataSource: KrakenDataSource?) {
 		if PostOperationDataManager.shared.pendingOperationCount > 0 {
-			viewController?.performKrakenSegue(.postOperations, sender: nil)
+			dataSource?.performKrakenSegue(.postOperations, sender: nil)
 		}
 	}
 }

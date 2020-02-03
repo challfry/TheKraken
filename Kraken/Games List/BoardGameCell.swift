@@ -21,8 +21,10 @@ import UIKit
     init(with: GamesListGame) {
     	model = with
     	super.init(bindingWith: BoardGameCellBindingProtocol.self)
-    	
-    	
+    }
+    
+    init() {
+		super.init(bindingWith: BoardGameCellBindingProtocol.self)
     }
 }
 
@@ -124,6 +126,7 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
 					descriptionLabel.text = nil
 				}
 			}
+			cellSizeChanged()
     	}
     }
     
@@ -162,14 +165,15 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
 			else {
 				UIView.animate(withDuration: 0.3) {
 					self.descriptionHeightConstraint.isActive = !self.privateSelected
+					self.cellSizeChanged()
+					self.dataSource?.collectionView?.setNeedsLayout()
+					self.dataSource?.collectionView?.layoutIfNeeded()
 				}
-				cellSizeChanged()
 			}
 		}
 	}
 
 	@IBAction func favoriteButtonTapped() {
-//		favoriteButton.isSelected = !favoriteButton.isSelected
 		GamesDataManager.shared.setFavoriteGameStatus(for: model, to: !favoriteButton.isSelected)
 	}
 }

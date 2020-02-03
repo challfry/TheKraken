@@ -103,8 +103,10 @@ class CameraViewController: UIViewController {
         catch {
         	CameraLog.debug("Couldn't set up audio session.")
         }
-      
+      	
+      	// Create a custom volume display, with a zero-sized frame
         let volView = MPVolumeView(frame: .zero)
+        volView.clipsToBounds = true
         view.addSubview(volView)
         
 	}

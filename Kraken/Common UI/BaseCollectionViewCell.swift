@@ -90,7 +90,7 @@ import UIKit
 		// Do nothing by default
 	}
 
-	func cellTapped() {
+	func cellTapped(dataSource: KrakenDataSource?) {
 		// Do nothing by default
 		
 	}
@@ -159,6 +159,7 @@ struct PrototypeCellInfo {
 	var calculatedSize: CGSize = CGSize(width: 0.0, height: 0.0)
 	var isBuildingCell = false
 	var customGR: UILongPressGestureRecognizer?
+	var allowsHighlight: Bool = true
 	var allowsSelection: Bool = false
 	
 // MARK: Methods
@@ -346,7 +347,7 @@ struct PrototypeCellInfo {
 	
 	var isTakingTouchEvent = false
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if allowsSelection {
+		if allowsHighlight {
 			isTakingTouchEvent = true
 			isHighlighted = true
 			return
@@ -364,7 +365,10 @@ struct PrototypeCellInfo {
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if isTakingTouchEvent {
 			if isHighlighted {
-				privateSelectCell(!privateSelected)
+				cellModel?.cellTapped(dataSource: dataSource)
+				if allowsSelection {
+					privateSelectCell(!privateSelected)
+				}
 			}
 			isHighlighted = false
 			isTakingTouchEvent = false
@@ -375,7 +379,6 @@ struct PrototypeCellInfo {
 	
 	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if isTakingTouchEvent {
-			print("Cancelled")
 			isHighlighted = false
 			isTakingTouchEvent = false
 			return

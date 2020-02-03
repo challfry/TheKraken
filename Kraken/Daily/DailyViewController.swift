@@ -10,22 +10,21 @@ import UIKit
 
 class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 
-	// FIXME: I don't shy away from singletons, but this isn't how they're supposed to be used.
-	static var shared: DailyViewController?
-
-	let dataSource = KrakenDataSource()
-	var dailySegment = FilteringDataSourceSegment()
+	lazy var dataSource = KrakenDataSource()
+	lazy var dailySegment = FilteringDataSourceSegment()
 	lazy var announcementSegment = FRCDataSourceSegment<Announcement>()
-	var appFeaturesSegment = FilteringDataSourceSegment()
+	lazy var appFeaturesSegment = FilteringDataSourceSegment()
 	
 	lazy var betaCellModel: LocalAnnouncementCellModel = {
 		let cell = LocalAnnouncementCellModel()
-		cell.headerText = "Kraken Version 1.0 Beta 2"
+		let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
+		let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
+		cell.headerText = "Kraken Version \(appVersion)b\(buildVersion)"
 		cell.authorName = "From: Chall Fry"
 		cell.text = "A big thank you to our wonderful beta testers!"
 		return cell
 	}()
-	
+
 	var twitarrCell: SocialCellModel?
 	var forumsCell: SocialCellModel?
 	var mailCell: SocialCellModel?
@@ -40,7 +39,6 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
-		DailyViewController.shared = self
 		knownSegues = [.twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .deckMapRoot, .karaokeRoot, .gamesRoot,
 				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about]
 		
@@ -59,10 +57,12 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     override func viewDidLoad() {
         super.viewDidLoad()
 		title = "Today"
+	
+//		dataSource.log.instanceEnabled = true
 
 		dataSource.append(segment: dailySegment)
 		dailySegment.append(DailyActivityCellModel())
-
+		dailySegment.append(PortAndThemeCellModel())
 		dailySegment.append(betaCellModel)
 		
 		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true"),
@@ -70,7 +70,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 				cellModelFactory: self.createAnnouncementCellModel)
 		dataSource.append(segment: announcementSegment)
 		
-		
+		// Lazy or not, we can't make these cells until viewDidLoad time
 		twitarrCell = SocialCellModel("Twittar", imageNamed: "Twitarr",  nav: GlobalNavPacket(from: self, tab: .twitarr))
 		forumsCell = SocialCellModel("Forums", imageNamed: "Forums", nav: GlobalNavPacket(from: self, tab: .forums))
 		mailCell = SocialCellModel("Seamail", imageNamed: "Seamail", nav: GlobalNavPacket(from: self, tab: .seamail))
@@ -96,7 +96,6 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		appFeaturesSegment.append(helpCell!)
 		appFeaturesSegment.append(aboutCell!)
 		
-		// Games Library
 		// Lighter Mode
 
   		dataSource.register(with: collectionView, viewController: self)

@@ -61,6 +61,12 @@ import UIKit
 			readCount = nil
 		}
 	}
+	
+	override func cellTapped(dataSource: KrakenDataSource?) {
+		if isInteractive, let threadModel = thread {
+			dataSource?.performKrakenSegue(.showForumThread, sender: threadModel)
+		}
+	}
 }
 
 
@@ -215,13 +221,6 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 		}
 	}
 	
-	override var isSelected: Bool {
-		didSet {
-			if isSelected, isInteractive, let threadModel = thread {
-				dataSource?.performKrakenSegue(.showForumThread, sender: threadModel)
-			}
-		}
-	}
 	
 	@IBAction func favoriteButtonHit() {
  		guard isInteractive else { return }

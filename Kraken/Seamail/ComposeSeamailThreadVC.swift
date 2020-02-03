@@ -206,21 +206,17 @@ import UIKit
 		addUsernameToThread(username: textString)	
 	}
 
-	func suggestedUserTappedAction(user: PossibleKrakenUser, isSelected: Bool) {
-		if isSelected {
-			if let krakenUser = user.user {
-				addUserToThread(user: krakenUser)
-			}
-			else {
-				addUsernameToThread(username: user.username)
-			}
+	func suggestedUserTappedAction(user: PossibleKrakenUser) {
+		if let krakenUser = user.user {
+			addUserToThread(user: krakenUser)
+		}
+		else {
+			addUsernameToThread(username: user.username)
 		}
 	}
     
-	func userInThreadTappedAction(user: PossibleKrakenUser, isSelected: Bool) {
-		if isSelected {
-			removeUserFromThread(user: user)
-		}
+	func userInThreadTappedAction(user: PossibleKrakenUser) {
+		removeUserFromThread(user: user)
 	}
 	
     func postAction() {

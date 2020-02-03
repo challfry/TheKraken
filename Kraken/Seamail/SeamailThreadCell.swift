@@ -43,6 +43,13 @@ import CoreData
 		}
 		return "seamailLargeThread"
 	}
+
+	override func cellTapped(dataSource: KrakenDataSource?) {
+		if isInteractive {
+			dataSource?.performKrakenSegue(.showSeamailThread, sender: model)
+		}
+	}
+	
 }
 
 class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtocol {
@@ -213,22 +220,14 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		let cellModel = SmallUserCellModel(withModel: model, reuse: "SmallUserCell")
 		cellModel.shouldBeVisible = true
 		cellModel.username = name
-		cellModel.selectionCallback = { [weak self] isSelected in
-			if isSelected && self?.isInteractive == true {
+		cellModel.selectionCallback = { [weak self] in
+			if self?.isInteractive == true {
 				self?.dataSource?.performKrakenSegue(.userProfile, sender: name)
 			}
 		}
 		return cellModel
 	}
     
-	override var isSelected: Bool {
-		didSet {
-			if isSelected && isInteractive {
-				dataSource?.performKrakenSegue(.showSeamailThread, sender: model)
-			}
-		}
-	}
-	
 	override var isHighlighted: Bool {
 		didSet {
 			if !isInteractive { return }

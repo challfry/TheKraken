@@ -9,14 +9,13 @@
 import UIKit
 
 @objc protocol SmallUserCellBindingProtocol: FetchedResultsBindingProtocol {
-	var selectionCallback: ((Bool) -> Void)? { get set }
 	var username: String? { get set }
 	var showDeleteIcon: Bool { get set } 
 }
 
 @objc class SmallUserCellModel: FetchedResultsCellModel, SmallUserCellBindingProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return [ "SmallUserCell" : SmallUserCell.self ] }
-	dynamic var selectionCallback: ((Bool) -> Void)? 
+	dynamic var selectionCallback: (() -> Void)? 
 	dynamic var username: String?
 	dynamic var showDeleteIcon: Bool = false
 	
@@ -31,6 +30,10 @@ import UIKit
 		super.init(withModel: withModel, reuse: reuse, bindingWith: bindingWith)
 		username = (model as? KrakenUser)?.username
 	}
+	
+	override func cellTapped(dataSource: KrakenDataSource?) {
+		selectionCallback?()
+	}
 }
 
 class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
@@ -41,7 +44,6 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 	private static let cellInfo = [ "SmallUserCell" : PrototypeCellInfo("SmallUserCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SmallUserCell.cellInfo }
 			
-	var selectionCallback: ((Bool) -> Void)? 
 	var model: NSFetchRequestResult? {
 		didSet {
 			if let user = model as? KrakenUser {
@@ -74,13 +76,6 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 		fullWidth = false
 	}
 	
-	override var isSelected: Bool {
-		didSet {
-			if isSelected {
-				selectionCallback?(isSelected)
-			}
-		}
-	}
 		
 	override var isHighlighted: Bool {
 		didSet {

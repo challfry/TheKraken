@@ -72,6 +72,8 @@
 		EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2D2302164000FE4787 /* EventsDataManager.swift */; };
 		EA534E31230299AE00FE4787 /* EventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA534E2F230299AE00FE4787 /* EventCell.swift */; };
 		EA534E32230299AE00FE4787 /* EventCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA534E30230299AE00FE4787 /* EventCell.xib */; };
+		EA58112023E6E7D900F62D4E /* CruiseDateCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA58111F23E6E7D900F62D4E /* CruiseDateCalculator.swift */; };
+		EA58112223E7BE6600F62D4E /* TableIndexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA58112123E7BE6600F62D4E /* TableIndexView.swift */; };
 		EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */; };
 		EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */; };
 		EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */; };
@@ -155,6 +157,8 @@
 		EABD300B23DAD7E000232F28 /* SwiftyMarkdown+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */; };
 		EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */; };
 		EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = EAC2D3B323CC7AEC0055780C /* Hats.scnassets */; };
+		EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC45AAD23E6CACF00907B1F /* PortAndThemeCell.swift */; };
+		EAC45AB023E6CACF00907B1F /* PortAndThemeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC45AAE23E6CACF00907B1F /* PortAndThemeCell.xib */; };
 		EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113123BB3090007583EC /* ObjCUtils.m */; };
 		EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */; };
 		EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */; };
@@ -288,6 +292,8 @@
 		EA534E2D2302164000FE4787 /* EventsDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsDataManager.swift; sourceTree = "<group>"; };
 		EA534E2F230299AE00FE4787 /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
 		EA534E30230299AE00FE4787 /* EventCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventCell.xib; sourceTree = "<group>"; };
+		EA58111F23E6E7D900F62D4E /* CruiseDateCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CruiseDateCalculator.swift; sourceTree = "<group>"; };
+		EA58112123E7BE6600F62D4E /* TableIndexView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableIndexView.swift; sourceTree = "<group>"; };
 		EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCoreData.swift; sourceTree = "<group>"; };
 		EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventSectionHeaderView.xib; sourceTree = "<group>"; };
 		EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSectionHeaderView.swift; sourceTree = "<group>"; };
@@ -382,6 +388,8 @@
 		EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftyMarkdown+iOS.swift"; sourceTree = "<group>"; };
 		EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+SwiftyMarkdown.swift"; sourceTree = "<group>"; };
 		EAC2D3B323CC7AEC0055780C /* Hats.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Hats.scnassets; sourceTree = "<group>"; };
+		EAC45AAD23E6CACF00907B1F /* PortAndThemeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortAndThemeCell.swift; sourceTree = "<group>"; };
+		EAC45AAE23E6CACF00907B1F /* PortAndThemeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PortAndThemeCell.xib; sourceTree = "<group>"; };
 		EAC6113123BB3090007583EC /* ObjCUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCUtils.m; sourceTree = "<group>"; };
 		EAC6113323BB31DF007583EC /* ObjCUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCUtils.h; sourceTree = "<group>"; };
 		EAC6113423BC1BBC007583EC /* ForumComposeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumComposeViewController.swift; sourceTree = "<group>"; };
@@ -726,6 +734,7 @@
 			isa = PBXGroup;
 			children = (
 				EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */,
+				EA58112123E7BE6600F62D4E /* TableIndexView.swift */,
 				EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */,
 				EA8B98742323A58100E10156 /* KaraokeSongCell.xib */,
 				EA4E84EB2328734F0059E5EB /* KaraokeLoadingCell.xib */,
@@ -751,11 +760,14 @@
 				EA8694AE23D47FB500ABE391 /* DailyActivityCell.xib */,
 				EA8694AB23D3091A00ABE391 /* DailyActivityCell2.xib */,
 				EA8694B023D48F2500ABE391 /* DailyActivityCell3.xib */,
+				EAC45AAD23E6CACF00907B1F /* PortAndThemeCell.swift */,
+				EAC45AAE23E6CACF00907B1F /* PortAndThemeCell.xib */,
 				EA8694B623D4A5BE00ABE391 /* SocialCell.swift */,
 				EA8B986323225E4F00E10156 /* SocialCell.xib */,
 				EA8694B223D4A5A800ABE391 /* AnnouncementCell.swift */,
 				EA8694B323D4A5A800ABE391 /* AnnouncementCell.xib */,
 				EA8694B823D5BF4000ABE391 /* AnnouncementDataManager.swift */,
+				EA58111F23E6E7D900F62D4E /* CruiseDateCalculator.swift */,
 			);
 			path = Daily;
 			sourceTree = "<group>";
@@ -1035,6 +1047,7 @@
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
 				EA2286F923E430BC0036C20E /* JoCoGamesCatalog.lzfse in Resources */,
 				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
+				EAC45AB023E6CACF00907B1F /* PortAndThemeCell.xib in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA8694B123D48F2500ABE391 /* DailyActivityCell3.xib in Resources */,
 				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
@@ -1101,6 +1114,7 @@
 				EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
 				EA2286E023E39B830036C20E /* GamesDataManager.swift in Sources */,
+				EA58112223E7BE6600F62D4E /* TableIndexView.swift in Sources */,
 				EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
 				EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */,
@@ -1117,6 +1131,7 @@
 				EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
 				EA4E84EE232A2CE70059E5EB /* ServerTimeUpdater.swift in Sources */,
+				EA58112023E6E7D900F62D4E /* CruiseDateCalculator.swift in Sources */,
 				EA2286F523E42D9F0036C20E /* BoardGameCell.swift in Sources */,
 				EA1B9FE623514E8100BFEB46 /* PostOpStatusCell.swift in Sources */,
 				EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */,
@@ -1177,6 +1192,7 @@
 				EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */,
 				EABD300623DAD7E000232F28 /* SwiftyLineProcessor.swift in Sources */,
 				EA2286F023E3C7450036C20E /* GamesListStructs.swift in Sources */,
+				EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
 				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,

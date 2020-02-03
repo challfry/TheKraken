@@ -293,11 +293,20 @@
                                 </collectionViewFlowLayout>
                                 <cells/>
                             </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IMs-sM-JMa" customClass="TableIndexView" customModule="Kraken" customModuleProvider="target">
+                                <rect key="frame" x="398" y="140" width="16" height="673"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="16" id="b8a-vc-zn0"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="j9C-Jo-H8Z" firstAttribute="top" secondItem="Gne-hq-w1s" secondAttribute="bottom" constant="8" id="0TZ-4W-xhg"/>
+                            <constraint firstItem="IMs-sM-JMa" firstAttribute="top" secondItem="j9C-Jo-H8Z" secondAttribute="top" id="3cW-Ap-8gI"/>
                             <constraint firstItem="GqV-ba-GKH" firstAttribute="bottom" secondItem="j9C-Jo-H8Z" secondAttribute="bottom" id="5T3-jU-yet"/>
+                            <constraint firstItem="IMs-sM-JMa" firstAttribute="trailing" secondItem="j9C-Jo-H8Z" secondAttribute="trailing" id="72u-kg-efc"/>
                             <constraint firstItem="tWU-W4-PM3" firstAttribute="centerY" secondItem="Gne-hq-w1s" secondAttribute="centerY" id="8wo-fh-eSx"/>
                             <constraint firstItem="Gne-hq-w1s" firstAttribute="top" secondItem="GqV-ba-GKH" secondAttribute="top" constant="10" id="AWY-Yc-Y7E"/>
                             <constraint firstItem="j9C-Jo-H8Z" firstAttribute="leading" secondItem="GqV-ba-GKH" secondAttribute="leading" id="Fv4-RS-qaz"/>
@@ -305,6 +314,7 @@
                             <constraint firstItem="GqV-ba-GKH" firstAttribute="trailing" secondItem="tWU-W4-PM3" secondAttribute="trailing" constant="16" id="VP7-gp-wuj"/>
                             <constraint firstItem="tWU-W4-PM3" firstAttribute="leading" secondItem="Gne-hq-w1s" secondAttribute="trailing" constant="20" id="XVi-rQ-t3U"/>
                             <constraint firstItem="Gne-hq-w1s" firstAttribute="leading" secondItem="GqV-ba-GKH" secondAttribute="leading" constant="20" id="d1b-dE-5Zt"/>
+                            <constraint firstItem="IMs-sM-JMa" firstAttribute="bottom" secondItem="j9C-Jo-H8Z" secondAttribute="bottom" id="i7t-j4-TgU"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="GqV-ba-GKH"/>
                     </view>
@@ -313,6 +323,8 @@
                         <outlet property="collectionView" destination="j9C-Jo-H8Z" id="6Lq-Cm-ejQ"/>
                         <outlet property="favoriteFilterButton" destination="tWU-W4-PM3" id="2PZ-xn-mzm"/>
                         <outlet property="filterTextField" destination="Gne-hq-w1s" id="KjN-0N-yvL"/>
+                        <outlet property="tableIndexView" destination="IMs-sM-JMa" id="S8o-tO-gOn"/>
+                        <outlet property="tableIndexViewTrailing" destination="72u-kg-efc" id="cSJ-4I-bUj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5ZS-wR-hu2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -396,7 +408,7 @@
                                 <rect key="frame" x="0.0" y="137" width="414" height="676"/>
                                 <color key="backgroundColor" name="CollectionView Background"/>
                             </tableView>
-                            <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HiJ-yx-8yB" customClass="KaraokeTableIndexView" customModule="Kraken" customModuleProvider="target">
+                            <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HiJ-yx-8yB" customClass="TableIndexView" customModule="Kraken" customModuleProvider="target">
                                 <rect key="frame" x="398" y="137" width="16" height="676"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -830,7 +842,7 @@
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Filter events:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZbN-y3-wMd">
-                                            <rect key="frame" x="5" y="93" width="83" height="17"/>
+                                            <rect key="frame" x="5" y="93" width="227" height="17"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
@@ -894,49 +906,49 @@
                                             </constraints>
                                         </view>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SNO-g7-FCT">
-                                            <rect key="frame" x="5" y="297" width="62" height="30"/>
+                                            <rect key="frame" x="5" y="297" width="227" height="30"/>
                                             <state key="normal" title="Saturday"/>
                                             <connections>
                                                 <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="Vkq-e4-2Y9"/>
                                             </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Czl-X1-PIf">
-                                            <rect key="frame" x="5" y="329" width="52" height="30"/>
+                                            <rect key="frame" x="5" y="329" width="227" height="30"/>
                                             <state key="normal" title="Sunday"/>
                                             <connections>
                                                 <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="hIu-lx-fQ2"/>
                                             </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r0e-Wp-Ifm">
-                                            <rect key="frame" x="5" y="361" width="55" height="30"/>
+                                            <rect key="frame" x="5" y="361" width="227" height="30"/>
                                             <state key="normal" title="Monday"/>
                                             <connections>
                                                 <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="j9p-Ix-Sjk"/>
                                             </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3yw-mn-x7F">
-                                            <rect key="frame" x="5" y="393" width="58" height="30"/>
+                                            <rect key="frame" x="5" y="393" width="227" height="30"/>
                                             <state key="normal" title="Tuesday"/>
                                             <connections>
                                                 <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="YLQ-EY-mEM"/>
                                             </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="58u-LP-AwU">
-                                            <rect key="frame" x="5" y="425" width="80" height="30"/>
+                                            <rect key="frame" x="5" y="425" width="227" height="30"/>
                                             <state key="normal" title="Wednesday"/>
                                             <connections>
                                                 <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="pQc-Vu-Te2"/>
                                             </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cKl-3g-SYp">
-                                            <rect key="frame" x="5" y="457" width="65" height="30"/>
+                                            <rect key="frame" x="5" y="457" width="227" height="30"/>
                                             <state key="normal" title="Thursday"/>
                                             <connections>
                                                 <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="Kad-eh-aQ6"/>
                                             </connections>
                                         </button>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5pT-u1-1up">
-                                            <rect key="frame" x="5" y="489" width="42" height="30"/>
+                                            <rect key="frame" x="5" y="489" width="227" height="30"/>
                                             <state key="normal" title="Friday"/>
                                             <connections>
                                                 <action selector="dayOfWeekButtonTappedWithSender:" destination="itg-Bj-Npc" eventType="touchUpInside" id="hWb-1z-wWE"/>
@@ -963,13 +975,17 @@
                                         <constraint firstItem="5pT-u1-1up" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="9iD-Ec-MOd"/>
                                         <constraint firstItem="5Pv-Cy-2BS" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="CWd-Bm-FpG"/>
                                         <constraint firstItem="SNO-g7-FCT" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="EDZ-QR-KkJ"/>
+                                        <constraint firstAttribute="trailing" secondItem="cKl-3g-SYp" secondAttribute="trailing" constant="8" id="EiL-f9-YvY"/>
                                         <constraint firstItem="Czl-X1-PIf" firstAttribute="top" secondItem="SNO-g7-FCT" secondAttribute="bottom" constant="2" id="Ekt-he-vsT"/>
                                         <constraint firstItem="FoL-DT-qsR" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="5Pv-Cy-2BS" secondAttribute="trailing" constant="10" id="Gfl-Dc-yQC"/>
+                                        <constraint firstAttribute="trailing" secondItem="r0e-Wp-Ifm" secondAttribute="trailing" constant="8" id="Iol-SP-JXD"/>
                                         <constraint firstItem="KSA-m9-MRn" firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" id="KRe-iK-QCt"/>
                                         <constraint firstItem="KSA-m9-MRn" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="LIz-Od-8NZ"/>
                                         <constraint firstItem="4sL-HV-mct" firstAttribute="top" secondItem="zcd-PI-2QY" secondAttribute="bottom" constant="13" id="MQS-5w-Pkh"/>
                                         <constraint firstItem="FoL-DT-qsR" firstAttribute="firstBaseline" secondItem="W80-3G-Mj5" secondAttribute="firstBaseline" id="Mmv-CZ-fuA"/>
+                                        <constraint firstAttribute="trailing" secondItem="5pT-u1-1up" secondAttribute="trailing" constant="8" id="NWZ-QX-I6G"/>
                                         <constraint firstItem="zcd-PI-2QY" firstAttribute="top" secondItem="Gve-qP-nbo" secondAttribute="bottom" constant="13" id="Q06-IS-bTf"/>
+                                        <constraint firstAttribute="trailing" secondItem="58u-LP-AwU" secondAttribute="trailing" constant="8" id="RGT-nV-GIg"/>
                                         <constraint firstItem="3yw-mn-x7F" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="RwG-Le-Zri"/>
                                         <constraint firstItem="Gve-qP-nbo" firstAttribute="trailing" secondItem="wb8-og-UMh" secondAttribute="trailing" id="S2v-xO-mA2"/>
                                         <constraint firstItem="gnR-Jk-d5C" firstAttribute="trailing" secondItem="gX4-Ck-s3L" secondAttribute="trailing" id="Ucv-gC-L62"/>
@@ -979,9 +995,12 @@
                                         <constraint firstItem="58u-LP-AwU" firstAttribute="top" secondItem="3yw-mn-x7F" secondAttribute="bottom" constant="2" id="XS3-Vh-mi1"/>
                                         <constraint firstAttribute="trailing" secondItem="gX4-Ck-s3L" secondAttribute="trailing" id="XkI-Yx-0gJ"/>
                                         <constraint firstItem="wb8-og-UMh" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="MuJ-ff-C4I" secondAttribute="trailing" constant="10" id="Z5L-EH-doj"/>
+                                        <constraint firstAttribute="trailing" secondItem="3yw-mn-x7F" secondAttribute="trailing" constant="8" id="a2y-ov-XtN"/>
                                         <constraint firstItem="cKl-3g-SYp" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="a9c-Gs-RJx"/>
                                         <constraint firstItem="5Pv-Cy-2BS" firstAttribute="top" secondItem="ZbN-y3-wMd" secondAttribute="bottom" constant="6" id="aNz-bz-jU7"/>
                                         <constraint firstItem="Gve-qP-nbo" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="aln-zS-hfx"/>
+                                        <constraint firstAttribute="trailing" secondItem="Czl-X1-PIf" secondAttribute="trailing" constant="8" id="b6F-EO-hJG"/>
+                                        <constraint firstAttribute="trailing" secondItem="ZbN-y3-wMd" secondAttribute="trailing" constant="8" id="btA-Do-PGM"/>
                                         <constraint firstItem="FoL-DT-qsR" firstAttribute="leading" secondItem="5Pv-Cy-2BS" secondAttribute="trailing" priority="250" constant="18" id="cGT-6K-wFL"/>
                                         <constraint firstItem="zvh-8G-otx" firstAttribute="leading" secondItem="zcd-PI-2QY" secondAttribute="trailing" constant="24" id="chl-Eg-1gi"/>
                                         <constraint firstItem="KSA-m9-MRn" firstAttribute="top" secondItem="MuJ-ff-C4I" secondAttribute="bottom" constant="8" id="dYB-ws-f6L"/>
@@ -993,6 +1012,7 @@
                                         <constraint firstItem="cKl-3g-SYp" firstAttribute="top" secondItem="58u-LP-AwU" secondAttribute="bottom" constant="2" id="i52-I3-faf"/>
                                         <constraint firstItem="58u-LP-AwU" firstAttribute="leading" secondItem="SNO-g7-FCT" secondAttribute="leading" id="jaR-b9-6Wd"/>
                                         <constraint firstItem="ZbN-y3-wMd" firstAttribute="top" secondItem="gX4-Ck-s3L" secondAttribute="bottom" constant="8" id="jda-eY-Byl"/>
+                                        <constraint firstAttribute="trailing" secondItem="SNO-g7-FCT" secondAttribute="trailing" constant="8" id="kPP-WE-KK4"/>
                                         <constraint firstItem="gnR-Jk-d5C" firstAttribute="top" secondItem="D5f-kc-A93" secondAttribute="bottom" constant="4" id="l5W-6V-7cZ"/>
                                         <constraint firstItem="ZbN-y3-wMd" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="mIi-XY-sST"/>
                                         <constraint firstItem="gnR-Jk-d5C" firstAttribute="leading" secondItem="MuJ-ff-C4I" secondAttribute="leading" id="meY-Fa-cUM"/>
@@ -1033,6 +1053,7 @@
                                     <constraint firstAttribute="bottom" secondItem="fXd-s7-uMC" secondAttribute="bottom" id="XaP-Kb-SDg"/>
                                     <constraint firstItem="fXd-s7-uMC" firstAttribute="leading" secondItem="oB1-20-J89" secondAttribute="leading" id="oiC-5l-EOY"/>
                                     <constraint firstAttribute="trailing" secondItem="fXd-s7-uMC" secondAttribute="trailing" id="pIC-gP-Wg6"/>
+                                    <constraint firstItem="Ihh-Z2-4fO" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="oB1-20-J89" secondAttribute="leading" constant="10" id="prF-ht-mxK"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -1084,7 +1105,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="24O-eg-VPm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1601" y="1906"/>
+            <point key="canvasLocation" x="1600.0000000000002" y="1905.8035714285713"/>
         </scene>
         <!--Twitarr-->
         <scene sceneID="TRS-gu-OnE">
@@ -1663,7 +1684,7 @@
                                                     </constraints>
                                                 </imageView>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
-                                                    <rect key="frame" x="113.5" y="460" width="187" height="30"/>
+                                                    <rect key="frame" x="101.5" y="460" width="211" height="30"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXK-dg-jQa">
                                                             <rect key="frame" x="0.0" y="0.0" width="37" height="30"/>
@@ -1680,7 +1701,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTK-iM-bIb">
-                                                            <rect key="frame" x="163" y="3" width="24" height="24"/>
+                                                            <rect key="frame" x="163" y="-9" width="48" height="48"/>
                                                             <state key="normal" image="square.and.arrow.up"/>
                                                             <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                             <connections>
@@ -1889,7 +1910,7 @@
                                                 </constraints>
                                             </imageView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UWX-sY-qUX">
-                                                <rect key="frame" x="96" y="612" width="222" height="30"/>
+                                                <rect key="frame" x="84" y="612" width="246" height="30"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ai0-Gf-Ots">
                                                         <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -1906,7 +1927,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-me-ViO">
-                                                        <rect key="frame" x="198" y="3" width="24" height="24"/>
+                                                        <rect key="frame" x="198" y="-9" width="48" height="48"/>
                                                         <state key="normal" image="square.and.arrow.up"/>
                                                         <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                         <connections>
@@ -2375,7 +2396,7 @@
         <segue reference="RHM-8H-1Ru"/>
         <segue reference="Ieo-oe-rtR"/>
         <segue reference="gdr-Cd-yXW"/>
-        <segue reference="ZrW-ma-WJH"/>
+        <segue reference="llS-CN-BhZ"/>
         <segue reference="wjx-Zr-mfc"/>
         <segue reference="rR9-QS-2f0"/>
         <segue reference="2Ae-eC-yt5"/>

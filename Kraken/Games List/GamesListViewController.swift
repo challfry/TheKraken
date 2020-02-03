@@ -11,22 +11,22 @@ import UIKit
 class GamesListViewController: BaseCollectionViewController {
 	@IBOutlet var filterTextField: UITextField!
 	@IBOutlet var favoriteFilterButton: UIButton!
+	@IBOutlet var tableIndexView: TableIndexView!
+	@IBOutlet weak var tableIndexViewTrailing: NSLayoutConstraint!
 	
-
 	let gamesData = GamesDataManager.shared
 	lazy var dataSource = KrakenDataSource()
 	lazy var gamesSegment = FilteringDataSourceSegment()
 	
 	// These represent the state of the current filter
 	var filterList: [GamesListGame] = []				
-	var favoritesPredicate: NSPredicate?
-	var textPredicate: NSPredicate?
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Board Games"
-        
+
+		tableIndexView.setup(self)
+
   		dataSource.register(with: collectionView, viewController: self)
 		dataSource.append(segment: gamesSegment)
 
@@ -37,6 +37,7 @@ class GamesListViewController: BaseCollectionViewController {
 					self.gamesSegment.append(cellModel)
 				}
 			}
+			self.updateCellVisibility()
 		}
 	}
     
@@ -54,6 +55,7 @@ class GamesListViewController: BaseCollectionViewController {
 	}
 	
 	func updateCellVisibility() {
+		filterList.removeAll()
 		for cell in gamesSegment.allCellModels {
 			guard let bgCell = cell as? BoardGameCellModel, let model = bgCell.model else { continue }
 			var shouldBeVisible: Bool = true
@@ -70,7 +72,35 @@ class GamesListViewController: BaseCollectionViewController {
 				}
 			}
 			bgCell.shouldBeVisible = shouldBeVisible
+			if shouldBeVisible {
+				filterList.append(model)
+			}
+		}
+		
+		let newOffset = filterList.count > 100 ? 0 : tableIndexView.bounds.size.width
+		if newOffset != tableIndexViewTrailing.constant {
+			UIView.animate(withDuration: 0.3, animations: {
+				self.tableIndexViewTrailing.constant = newOffset
+				self.view.layoutIfNeeded()
+			})
 		}
 	}
+}
+
+extension GamesListViewController: TableIndexDelegate {
+	func itemNameAt(percentage: CGFloat) -> String {
+		guard filterList.count > 0 else { return "" }
+		
+		var arrayOffset = Int(CGFloat(filterList.count) * percentage)
+		arrayOffset = min(max(0, arrayOffset), filterList.count - 1)
+		
+		return filterList[arrayOffset].gameName
+	}
 	
+	func scrollToPercentage(_ percentage: CGFloat) {
+		var arrayOffset = Int(CGFloat(filterList.count) * percentage)
+		arrayOffset = min(max(0, arrayOffset), filterList.count - 1)
+		collectionView.scrollToItem(at: IndexPath(row: arrayOffset, section: 0), at: .centeredVertically, animated: true)
+	}
+
 }

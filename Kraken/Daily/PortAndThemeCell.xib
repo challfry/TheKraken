@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="PortAndThemeCell" id="gTV-IL-0wX" customClass="PortAndThemeCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="113"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="113"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="100" verticalCompressionResistancePriority="800" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" axis="vertical" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="6tX-gt-Y9J">
+                        <rect key="frame" x="20" y="4" width="374" height="101"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="wc5-ue-gck">
+                                <rect key="frame" x="0.0" y="0.0" width="374" height="32.5"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="27"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Port: Santo Domingo, Domician Republic" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oOO-wO-IDP">
+                                <rect key="frame" x="0.0" y="33.5" width="374" height="20"/>
+                                <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="— Arrive: 10:00 AM Depart: 1:00 AM" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="am8-fX-bPF">
+                                <rect key="frame" x="0.0" y="54.5" width="374" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="Kraken Secondary Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="200" verticalCompressionResistancePriority="700" ambiguous="YES" text="Todays Theme: Cosplay Day!" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NyS-lK-O6Q">
+                                <rect key="frame" x="0.0" y="76" width="374" height="25"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                    </stackView>
+                </subviews>
+            </view>
+            <color key="backgroundColor" red="0.15021631120000001" green="0.32354319100000001" blue="0.47015506029999998" alpha="0.83936215753424659" colorSpace="custom" customColorSpace="displayP3"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="6tX-gt-Y9J" secondAttribute="trailing" constant="20" id="76Y-BK-irx"/>
+                <constraint firstItem="6tX-gt-Y9J" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="dGK-5Y-L3d"/>
+                <constraint firstItem="6tX-gt-Y9J" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="4" id="rVs-ge-w6U"/>
+                <constraint firstAttribute="bottom" secondItem="6tX-gt-Y9J" secondAttribute="bottom" priority="200" constant="8" id="rna-ss-YFy"/>
+            </constraints>
+            <size key="customSize" width="414" height="113"/>
+            <connections>
+                <outlet property="arriveDepartLabel" destination="am8-fX-bPF" id="W3w-F8-gDw"/>
+                <outlet property="portLabel" destination="oOO-wO-IDP" id="thN-D8-yde"/>
+                <outlet property="themeLabel" destination="NyS-lK-O6Q" id="Ist-Am-ULK"/>
+                <outlet property="titleLabel" destination="wc5-ue-gck" id="JhL-B6-QVC"/>
+            </connections>
+            <point key="canvasLocation" x="59.420289855072468" y="58.59375"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Secondary Text">
+            <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

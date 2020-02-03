@@ -129,28 +129,28 @@ import CoreData
 	}
 	
 	// Pass in context iff we're already in a context.perform() block
+	// Invalidates the user images cached for this user.
 	func invalidateUserPhoto(_ context: NSManagedObjectContext?) {
-		if let currentUsername = CurrentUser.shared.loggedInUser?.username {
-			ImageManager.shared.userImageCache.invalidateImage(withKey: currentUsername)
-		}
+		ImageManager.shared.userImageCache.invalidateImage(withKey: username)
 
-		thumbPhoto = nil
-		fullPhoto = nil
-		builtPhotoUpdateTime = 0
+		// 
+		let mainContext = LocalCoreData.shared.mainThreadContext
+		mainContext.perform {
+			if let mainContextSelf = mainContext.registeredObject(for: self.objectID) as? KrakenUser, !mainContextSelf.isFault {
+				mainContextSelf.thumbPhoto = nil
+				mainContextSelf.fullPhoto = nil
+				mainContextSelf.builtPhotoUpdateTime = 0
+			}
+		}
 		
+		// If a context is passed in, we're already in a perform block and someone else is going to save.
 		if let _ = context {
 			thumbPhotoData = nil
 		}
 		else {
-			let context = LocalCoreData.shared.networkOperationContext
-			context.perform {
-				do {
-					self.thumbPhotoData = nil
-					try context.save()
-				}
-				catch {
-					CoreDataLog.error("Couldn't save context while invalidating User avatar.", ["error" : error])
-				}
+			LocalCoreData.shared.performLocalCoreDataChange { netowrkContext, currentUser in
+				netowrkContext.pushOpErrorExplanation("Couldn't save context while invalidating User avatar.")
+				self.thumbPhotoData = nil
 			}
 		}
 	}

@@ -70,80 +70,85 @@ import Compression
 	
 	var fileLoadError: FileLoadingError?
 	@objc dynamic var loadingComplete: Bool = false
+	@objc dynamic var loadingStarted: Bool = false
 	
 	var gamesByName: [String : GamesListGame] = [:]
 	var gameTitleArray: [String] = []							// All game titles, sorted alphabetically
 	
 	func loadGamesFile( done: @escaping ()-> Void) {
-		if loadingComplete {
-			done()
-		}
-	
-		backgroundQ.async {
-//			let startTime = ProcessInfo.processInfo.systemUptime
-		
-			// Step 1: Get the file contents into memory
-			guard let fileUrl = Bundle.main.url(forResource: "JoCoGamesCatalog", withExtension: "lzfse"),
-					let encodedFileHandle = try? FileHandle(forReadingFrom: fileUrl) else { 
-				self.fileLoadError = .findFileError
-				return 
-			}
-			let encodedSourceData = encodedFileHandle.readDataToEndOfFile()
+		if !loadingStarted {
+			loadingStarted = true
+			backgroundQ.async {
+	//			let startTime = ProcessInfo.processInfo.systemUptime
 			
-			// Step 2: Use Apple's Compression lib to decode the LZFSE file
-			let fileData: Data = encodedSourceData.withUnsafeBytes { (encodedSourceBuffer: UnsafeRawBufferPointer) -> Data in
-				let decodedCapacity = 8000000
-				let decodedDestinationBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: decodedCapacity)
-				let unsafeBufferPointer = encodedSourceBuffer.bindMemory(to: UInt8.self)
-				let encodedSourcePtr = unsafeBufferPointer.baseAddress!
-				let decodedCharCount = compression_decode_buffer(decodedDestinationBuffer, decodedCapacity,
-						encodedSourcePtr, encodedSourceData.count, nil,  COMPRESSION_LZFSE)
-				if decodedCharCount == 0 {
-					self.fileLoadError = .decodeError
-					return Data()
+				// Step 1: Get the file contents into memory
+				guard let fileUrl = Bundle.main.url(forResource: "JoCoGamesCatalog", withExtension: "lzfse"),
+						let encodedFileHandle = try? FileHandle(forReadingFrom: fileUrl) else { 
+					self.fileLoadError = .findFileError
+					return 
+				}
+				let encodedSourceData = encodedFileHandle.readDataToEndOfFile()
+				
+				// Step 2: Use Apple's Compression lib to decode the LZFSE file
+				let fileData: Data = encodedSourceData.withUnsafeBytes { (encodedSourceBuffer: UnsafeRawBufferPointer) -> Data in
+					let decodedCapacity = 8000000
+					let decodedDestinationBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: decodedCapacity)
+					let unsafeBufferPointer = encodedSourceBuffer.bindMemory(to: UInt8.self)
+					let encodedSourcePtr = unsafeBufferPointer.baseAddress!
+					let decodedCharCount = compression_decode_buffer(decodedDestinationBuffer, decodedCapacity,
+							encodedSourcePtr, encodedSourceData.count, nil,  COMPRESSION_LZFSE)
+					if decodedCharCount == 0 {
+						self.fileLoadError = .decodeError
+						return Data()
+					}
+					
+					let rebound = UnsafeRawPointer(decodedDestinationBuffer).bindMemory(to: UInt8.self, capacity: decodedCapacity)
+					return Data(bytes: rebound, count: decodedCharCount)
+				}
+	//			print ("Decode Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
+				
+				// Step 3: Parse the file, creating local versions of the 'full state' vars.
+				var threadGamesByName: [String : GamesListGame] = [:]
+				var threadGameTitles: [String] = []
+				let gameArray = try! JSONDecoder().decode([JsonGamesListGame].self, from: fileData)
+				for game in gameArray {
+					threadGamesByName[game.gameName] = GamesListGame(from: game)
+					threadGameTitles.append(game.gameName)
 				}
 				
-				let rebound = UnsafeRawPointer(decodedDestinationBuffer).bindMemory(to: UInt8.self, capacity: decodedCapacity)
-				return Data(bytes: rebound, count: decodedCharCount)
-			}
-//			print ("Decode Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
-			
-			// Step 3: Parse the file, creating local versions of the 'full state' vars.
-			var threadGamesByName: [String : GamesListGame] = [:]
-			var threadGameTitles: [String] = []
-			let gameArray = try! JSONDecoder().decode([JsonGamesListGame].self, from: fileData)
-			for game in gameArray {
-				threadGamesByName[game.gameName] = GamesListGame(from: game)
-				threadGameTitles.append(game.gameName)
-			}
-			
-			// Step 4: Set up favorites
-			let context = LocalCoreData.shared.mainThreadContext
-			context.performAndWait {
-				do {
-					let fetchRequest = NSFetchRequest<GameListFavorite>(entityName: "GameListFavorite")
-					let cdFavoriteGames = try context.fetch(fetchRequest)
-					
-					for favoriteGame in cdFavoriteGames {
-						if let game = threadGamesByName[favoriteGame.gameName] {
-							game.isFavorite = true
+				// Step 4: Set up favorites
+				let context = LocalCoreData.shared.mainThreadContext
+				context.performAndWait {
+					do {
+						let fetchRequest = NSFetchRequest<GameListFavorite>(entityName: "GameListFavorite")
+						let cdFavoriteGames = try context.fetch(fetchRequest)
+						
+						for favoriteGame in cdFavoriteGames {
+							if let game = threadGamesByName[favoriteGame.gameName] {
+								game.isFavorite = true
+							}
 						}
+					}	
+					catch {
+						CoreDataLog.error("Couldn't load Favorite Games from Core Data.", ["Error" : error])
 					}
-				}	
-				catch {
-					CoreDataLog.error("Couldn't load Favorite Games from Core Data.", ["Error" : error])
 				}
-			}
 
-			// Step 5: Sort the arrays
-			threadGameTitles = threadGameTitles.sorted { $0.caseInsensitiveCompare($1) == .orderedAscending }
-//			print ("Total Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
-			
-			// Step 6: Write data back, on the main thread.
-			DispatchQueue.main.async {
+				// Step 5: Sort the arrays
+				threadGameTitles = threadGameTitles.sorted { $0.caseInsensitiveCompare($1) == .orderedAscending }
+	//			print ("Total Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
+				
 				self.gamesByName = threadGamesByName
 				self.gameTitleArray = threadGameTitles
 				self.loadingComplete = true
+			}
+		}
+		
+		// Serialize the completion closure on the background queue, so it always runs after loading completes.
+		// If multiple clients call loadGamesFile() while the load is in progress, all their completions get 
+		// queued up after the load block.
+		backgroundQ.async {
+			DispatchQueue.main.async {
 				done()
 			}
 		}

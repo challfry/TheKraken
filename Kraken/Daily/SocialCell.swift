@@ -31,11 +31,9 @@ import UIKit
 		super.init(bindingWith: SocialCellProtocol.self)
 	}
 	
-	override var privateSelected: Bool {
-		didSet {
-			if privateSelected, let appDel = UIApplication.shared.delegate as? AppDelegate {
-				appDel.globalNavigateTo(packet: navPacket)
-			}
+	override func cellTapped(dataSource: KrakenDataSource?) {
+		if let appDel = UIApplication.shared.delegate as? AppDelegate {
+			appDel.globalNavigateTo(packet: navPacket)
 		}
 	}
 }
