@@ -166,8 +166,7 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
 				UIView.animate(withDuration: 0.3) {
 					self.descriptionHeightConstraint.isActive = !self.privateSelected
 					self.cellSizeChanged()
-					self.dataSource?.collectionView?.setNeedsLayout()
-					self.dataSource?.collectionView?.layoutIfNeeded()
+					self.layoutIfNeeded()
 				}
 			}
 		}

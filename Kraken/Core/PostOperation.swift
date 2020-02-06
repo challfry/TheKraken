@@ -142,7 +142,6 @@ struct PhotoUploadPackage {
 			
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			if let operations = self.controller.fetchedObjects {
-				print ("Starting checkforOpsToDeliver: \(operations.count) ops")
 				var earliestCallTime: Date?
 				var sentOpThisCall = false
 
@@ -1051,7 +1050,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 					self.recordServerErrorFailure(err)
 				}
 				else {
-					self.author.invalidateUserPhoto(nil)
+					self.author.invalidateUserPhoto(context)
 					PostOperationDataManager.shared.remove(op: self)
 				}
 			}

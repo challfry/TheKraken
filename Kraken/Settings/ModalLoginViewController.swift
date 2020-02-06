@@ -46,10 +46,6 @@ class ModalLoginViewController: BaseCollectionViewController {
 				observer.previousCredentialedUserCount = observed.credentialedUsers.count
 			}
         }
-        
-        if modalPresentationStyle == .fullScreen {
-        	
-        }
     }
 	
     override func viewDidAppear(_ animated: Bool) {

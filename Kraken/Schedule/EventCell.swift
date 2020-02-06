@@ -318,12 +318,14 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	
 	override var isHighlighted: Bool {
 		didSet {
+			if !isInteractive { return }
 			standardHighlightHandler()
 		}
 	}
 
 	override var privateSelected: Bool {
 		didSet {
+			if !isInteractive { return }
 			if !isPrototypeCell, privateSelected == oldValue { return }
 			standardSelectionHandler()
 			
@@ -372,7 +374,12 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	
 	@IBAction func setAlarmButtonHit() {
    		guard let eventModel = model as? Event else { return }
-   		eventModel.createLocalAlarmNotification(done: localNotificationCreated) 
+   		if eventModel.localNotificationID != nil {
+   			eventModel.cancelAlarmNotification()
+   		}
+   		else {
+	   		eventModel.createLocalAlarmNotification(done: localNotificationCreated) 
+		}
 	}
 	
 	func localNotificationCreated(notification: UNNotificationRequest) {

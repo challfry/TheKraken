@@ -10,11 +10,11 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="EventSectionHeaderView" id="5a2-ad-OrK" customClass="EventSectionHeaderView" customModule="Kraken" customModuleProvider="target">
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="ScrapbookSectionHeaderView" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="ScrapbookSectionHeaderView" id="5a2-ad-OrK" customClass="ScrapbookSectionHeaderView" customModule="Kraken" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="414" height="27"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Time" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Bw-CY-Na3">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Favorites" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Bw-CY-Na3">
                     <rect key="frame" x="20" y="3" width="374" height="21"/>
                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                     <nil key="textColor"/>
@@ -29,7 +29,7 @@
                 <constraint firstAttribute="trailing" secondItem="4Bw-CY-Na3" secondAttribute="trailing" priority="900" constant="20" id="yjp-FR-7Yx"/>
             </constraints>
             <connections>
-                <outlet property="timeLabel" destination="4Bw-CY-Na3" id="z8T-kh-78z"/>
+                <outlet property="sectionLabel" destination="4Bw-CY-Na3" id="3fK-aU-NGC"/>
             </connections>
             <point key="canvasLocation" x="220" y="-380"/>
         </collectionReusableView>

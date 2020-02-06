@@ -150,13 +150,7 @@ class BaseCollectionViewController: UIViewController {
 		keyboardCanceler!.name = "BaseCollectionViewController Keyboard Hider"
 	 	view.addGestureRecognizer(keyboardCanceler!)
                
- 		if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-			layout.itemSize = UICollectionViewFlowLayout.automaticSize
-			let width = self.view.frame.size.width
-			layout.estimatedItemSize = CGSize(width: width, height: 52 )
-			
-			layout.minimumLineSpacing = 0
-		}
+        collectionView.collectionViewLayout = VerticalLayout()
  
 		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.keyboardWillShow(notification:)), 
 				name: UIResponder.keyboardDidShowNotification, object: nil)
@@ -195,7 +189,11 @@ class BaseCollectionViewController: UIViewController {
 						left: 0, bottom: 0, right: 0)
 			}
 			else {
-				observer.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+				// Doing an equality check first because setting contentInset causes a layout invalidate, which is annoying.
+				let newInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+				if newInsets != observer.collectionView.contentInset {
+					observer.collectionView.contentInset = newInsets
+				}
 			}
 		}?.execute()
 	}

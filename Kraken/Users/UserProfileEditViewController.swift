@@ -124,8 +124,7 @@ import Photos
 	// source VC to get the photo that was taken.
 	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
 		guard let sourceVC = segue.source as? CameraViewController else { return }
-		if let photo = sourceVC.capturedPhoto {
-			let photoContainer = PhotoDataType.camera(photo)
+		if let photoContainer = sourceVC.capturedPhoto {
 			prepareImageForUpload(photoContainer: photoContainer)
 		}
 	}	

@@ -125,6 +125,9 @@ import UIKit
         		observer.usePredicate = true
 	        	observer.predicate = NSPredicate(format: "username CONTAINS[cd] %@", text)
 	        	observer.source = "from partial string match"
+	        	
+	        	// Ask the server for name completions
+	        	UserManager.shared.autocorrectUserLookup(for: text, done: self.userCompletionsCompletion)
 			}
 			else {
         		observer.usePredicate = false
@@ -144,6 +147,18 @@ import UIKit
 				observer.postButtonCell.button2Enabled = false
 			}
         }?.execute()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+    	composeDataSource.enableAnimations = true
+		UserManager.shared.clearRecentAutocorrectSearches()
+	}
+    
+    // When the server call completes we need to re-set the predicate. If we were using a fetchedResultsController,
+    // we wouldn't need to do this (the FRC informs us of new results automatically)
+    func userCompletionsCompletion(for: String?) {
+    	let pred = userSuggestionsCell.predicate
+    	userSuggestionsCell.predicate = pred
     }
     
     func addUserToThread(user: KrakenUser) {

@@ -511,6 +511,15 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			numDisplayedPhotos = 0
 		}
 		
+		// If the cell is selected and has exactly 1 photo we resize the cell on select to fit the photo's aspect ratio.
+		var newImageHeight: CGFloat = 200.0
+		if privateSelected, let photos = photos, photos.count == 1 {
+			let photoDetails = photos[0] 
+			newImageHeight = postImage.bounds.width / photoDetails.aspectRatio
+		}
+		postImageHeightConstraint.constant = newImageHeight
+		
+		
 		postImage.isHidden = numDisplayedPhotos != 1
 		postImagesCollection.isHidden = numDisplayedPhotos <= 1
 		photoPageControl.numberOfPages = numDisplayedPhotos == 0 ? 1 : numDisplayedPhotos
@@ -688,6 +697,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		
 	override var privateSelected: Bool {
 		didSet {
+			if !isInteractive { return }
 			if !isPrototypeCell, privateSelected == oldValue { return }
 			standardSelectionHandler()
 			
@@ -707,6 +717,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				UIView.animate(withDuration: 0.3) {
 					self.pendingOpsStackView.isHidden = !self.privateSelected
 					self.postImageHeightConstraint.constant = newImageHeight
+					self.layoutIfNeeded()
 				}
 				cellSizeChanged()
 			}
@@ -715,7 +726,9 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	override var isHighlighted: Bool {
 		didSet {
-			standardHighlightHandler()
+			if isInteractive {
+				standardHighlightHandler()
+			}
 		}
 	}
 	

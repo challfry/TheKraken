@@ -79,7 +79,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
  				observer.threadSegment.changePredicate(to: NSPredicate(value: false))
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
 				observer.newThreadButton.isEnabled = false
-				self.navigationController?.popToRootViewController(animated: false)
+				self.navigationController?.popToViewController(self, animated: false)
        		}
         }?.execute()        
 

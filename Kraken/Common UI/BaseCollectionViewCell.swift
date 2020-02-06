@@ -165,33 +165,31 @@ struct PrototypeCellInfo {
 // MARK: Methods
 	required override init(frame: CGRect) {
 		super.init(frame: frame)
-		self.translatesAutoresizingMaskIntoConstraints = false
+//		self.translatesAutoresizingMaskIntoConstraints = false
+		contentView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
-		self.translatesAutoresizingMaskIntoConstraints = false
+//		self.translatesAutoresizingMaskIntoConstraints = false
+		contentView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
+//		self.translatesAutoresizingMaskIntoConstraints = false
 		contentView.translatesAutoresizingMaskIntoConstraints = false
-		self.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
 		cellSizeChanged()
 	}
-
-//	override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) 
-//			-> UICollectionViewLayoutAttributes {
-//		return layoutAttributes
-//	}
 	
 	// Called on cell creation and then whenever the cv size changes.
 	var fullWidth: Bool = true
 	var fullWidthConstraint: NSLayoutConstraint?
+		
 	func collectionViewSizeChanged(to newSize: CGSize) {
 		// Subclasses can set fullWidth in awakeFromNib; this then sets cell width to cv width
 		if fullWidth {
@@ -241,14 +239,19 @@ struct PrototypeCellInfo {
 			self.contentView.backgroundColor = UIColor(named: "Cell Background Selected")
 		}
 		else {
-			let anim = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) {
+			if isPrototypeCell {
 				self.contentView.backgroundColor = UIColor(named: "Cell Background")
 			}
-			anim.addCompletion {_ in self.highlightAnimation = nil }
-			anim.isUserInteractionEnabled = true
-			anim.isInterruptible = true
-			anim.startAnimation()
-			highlightAnimation = anim
+			else {
+				let anim = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) {
+					self.contentView.backgroundColor = UIColor(named: "Cell Background")
+				}
+				anim.addCompletion {_ in self.highlightAnimation = nil }
+				anim.isUserInteractionEnabled = true
+				anim.isInterruptible = true
+				anim.startAnimation()
+				highlightAnimation = anim
+			}
 		}
 	}
 	
@@ -272,8 +275,8 @@ struct PrototypeCellInfo {
 	
 	func cellSizeChanged() {
 		setNeedsLayout()
-		if !isPrototypeCell, !isBuildingCell, let model = cellModel {
-			dataSource?.sizeChanged(for: model)
+		if !isPrototypeCell, !isBuildingCell {
+			dataSource?.sizeChanged(for: self)
 		}	
 	}
 
@@ -314,7 +317,7 @@ struct PrototypeCellInfo {
 	func calculateSize() -> CGSize {
 //		setNeedsLayout()
 //		layoutIfNeeded()
-		
+
 		let size = contentView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
 		calculatedSize = size
 		return size
@@ -346,10 +349,12 @@ struct PrototypeCellInfo {
 	
 	
 	var isTakingTouchEvent = false
+	var touchStartLoc: CGPoint?
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if allowsHighlight {
 			isTakingTouchEvent = true
 			isHighlighted = true
+			touchStartLoc = touches.first?.location(in: self)
 			return
 		}
 		super.touchesBegan(touches, with: event)
@@ -357,6 +362,11 @@ struct PrototypeCellInfo {
 
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if isTakingTouchEvent {
+//			if let start = touchStartLoc, let current = touches.first?.location(in: self),
+//					abs(current.y - start.y) > 10.0 || abs(current.x - start.x) > 10.0
+			if let current = touches.first?.location(in: self) {
+				isHighlighted = self.point(inside: current, with: nil)
+			}
 			return
 		}
 		super.touchesMoved(touches, with: event)

@@ -8,9 +8,17 @@
 
 import UIKit
 
-class EventSectionHeaderView: UICollectionReusableView {
+class EventSectionHeaderView: BaseCollectionSupplementaryView {
 	@IBOutlet var timeLabel: UILabel!
 	
+	override class var nib: UINib? {
+		return  UINib(nibName: "EventSectionHeaderView", bundle: nil)
+	}
+	
+	override class var reuseID: String {
+		return "EventSectionHeaderView"
+	}
+
 	override func awakeFromNib() {
 		super.awakeFromNib()
 
@@ -32,4 +40,10 @@ class EventSectionHeaderView: UICollectionReusableView {
 		timeLabel.text = newString
 	}
 
+	override func setup(cellModel: BaseCellModel) {
+		if let eventCellModel = cellModel as? EventCellModel, let event = eventCellModel.model as? Event,
+				let startTime = event.startTime {
+			setTime(to: startTime)
+		}
+	}
 }

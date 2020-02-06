@@ -251,7 +251,11 @@ class UserManager : NSObject {
 			let user = krakenUser ?? KrakenUser(context: context)
 			user.buildFromV2UserProfile(context: context, v2Object: profile)
 			try context.save()
-			LocalCoreData.shared.setAfterSaveBlock(for: context, block: {_ in done?(user) } )
+			LocalCoreData.shared.setAfterSaveBlock(for: context, block: {_ in 
+				if let userInMainContext = LocalCoreData.shared.mainThreadContext.object(with: user.objectID) as? KrakenUser {
+					done?(userInMainContext) 
+				}
+			})
 		}
 	}
 	
@@ -332,11 +336,51 @@ class UserManager : NSObject {
 		}
 	}
 	
+	// Autocomplete variables for minimizing calls to /api/v2/user/ac.
+	fileprivate var recentAutocorrectSearches = [String]()
+	var autocorrectCallDelayTimer: Timer?
+	var autocorrectCallInProgress: Bool = false
+	var delayedAutocorrectSearchString: String?
+	var delayedAutocorrectCompletion: ((String?) -> Void)?
+
+	func clearRecentAutocorrectSearches() {
+		recentAutocorrectSearches.removeAll()
+	}
+	
+	// UI level code can call this repeatedly, for every character the user types. This method waits .5 seconds
+	// before calling the server, resets that timer every time this fn is called, checks the search string against
+	// recent strings (and won't re-ask the server with a string it's already used), and limits to one call in flight 
+	// at a time.
+	// Only calls completion routine if we talked to server and (maybe) got new usernames
+	func autocorrectUserLookup(for partialName: String, done: @escaping (String?) -> Void) {
+		guard partialName.count >= 1 else { done(nil); return }
+
+		// 1. Kill any timer that's going
+		autocorrectCallDelayTimer?.invalidate()
+		
+		// 2. Don't call the server with the same string twice (in a short period of time)
+		if !recentAutocorrectSearches.contains(partialName) {
+		
+			// 3. Only have one call in flight--and one call on deck Newer on-deck calls just replace older ones.
+			if autocorrectCallInProgress {
+				delayedAutocorrectSearchString = partialName
+				delayedAutocorrectCompletion = done
+			}
+			else {
+				// 4. Wait half a second, see if the user types more. If not, talk to the server.
+				autocorrectCallDelayTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
+					self.internalAutocorrectUserLookup(for: partialName, done: done)
+				}
+			}
+		}
+	}
+		
 	// Updates CD with new users who have the given substring in their names by asking the server.
 	// Calls done closure when complete. Parameter to the done closure is non-nil if the server response
 	// was comprehensive for that substring.
-	func autocorrectUserLookup(for partialName: String, done: @escaping (String?) -> Void) {
-		guard partialName.count > 1 else { done(nil); return }
+	func internalAutocorrectUserLookup(for partialName: String, done: @escaping (String?) -> Void) {
+		guard partialName.count >= 1 else { done(nil); return }
+		autocorrectCallInProgress = true
 		
 		// Input sanitizing:
 		// URLComponents should percent escape partialName to make a valid path; we may want to remove spaces
@@ -344,24 +388,33 @@ class UserManager : NSObject {
 		
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/ac/\(partialName)", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			self.autocorrectCallInProgress = false
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				NetworkLog.error("Error with user autocomplete", ["error" : error])
 			}
 			else if let data = package.data {
-				let decoder = JSONDecoder()
-				let context = self.coreData.networkOperationContext
-				context.performAndWait {
-					do {
-						let result = try decoder.decode(TwitarrV2UserAutocompleteResponse.self, from: data)
-						UserManager.shared.update(users: result.users, inContext: context)
-						try context.save()
-						let doneString = result.users.count < 10 ? partialName : nil
-						DispatchQueue.main.async { done(doneString) }
+				LocalCoreData.shared.performNetworkParsing { context in
+					context.pushOpErrorExplanation("Failure parsing UserInfo from Autocomplete response.")
+					let result = try JSONDecoder().decode(TwitarrV2UserAutocompleteResponse.self, from: data)
+					UserManager.shared.update(users: result.users, inContext: context)
+					
+					LocalCoreData.shared.setAfterSaveBlock(for: context) { success in
+						if success {
+							let doneString = result.users.count < 10 ? partialName : nil
+							DispatchQueue.main.async { 
+								self.recentAutocorrectSearches.append(partialName)
+								done(doneString) 
+							}
+						}
 					}
-					catch {
-						NetworkLog.error("Failure parsing UserInfo.", ["Error" : error, "url" : request.url as Any])
-					} 
 				}
+			}
+			
+			// If there's a search that we delayed until this search completes, time to run it.
+			if let nextStr = self.delayedAutocorrectSearchString, let nextDone = self.delayedAutocorrectCompletion {
+				self.internalAutocorrectUserLookup(for: nextStr, done: nextDone)
+				self.delayedAutocorrectSearchString = nil
+				self.delayedAutocorrectCompletion = nil
 			}
 		}
 	}

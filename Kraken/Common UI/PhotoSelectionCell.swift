@@ -15,6 +15,21 @@ enum PhotoDataType {
 	case library(PHAsset)
 	case camera(AVCapturePhoto)
 	case image(UIImage)
+	
+	func getUIImage(done: @escaping (UIImage?) -> Void) {
+		switch self {
+		case .library(let asset):
+			PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, 
+			contentMode: .aspectFit, options: nil) { image, info in 
+				done(image)
+			}
+		case .camera(let cameraPhoto): 
+			if let photoData = cameraPhoto.fileDataRepresentation(), let photoImage = UIImage(data: photoData) {
+				done(photoImage)
+			}
+		case .image(let imageValue): done(imageValue)
+		}
+	}
 }
 	
 // PhotoSelectionCell, its model protocol, are a CollectionView cell that contains a horizontally scrolling

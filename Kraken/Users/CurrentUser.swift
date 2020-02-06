@@ -338,9 +338,14 @@ import CoreData
 		
 		// If we're not logged in, addUserCredential will do nothing. If we are logged in, addUserCredential
 		// will replace 'key' in the query with the logged in user's key.
-		let queryParams = [ URLQueryItem(name:"key", value:key) ]
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
-		NetworkGovernor.addUserCredential(to: &request)
+		var queryParams = [ URLQueryItem(name:"key", value:key) ]
+		if keyToUseDuringLogin != nil {
+			queryParams.append(URLQueryItem(name: "key", value: keyToUseDuringLogin))
+		}
+		else if let authKey = CurrentUser.shared.loggedInUser?.twitarrV2AuthKey {
+			queryParams.append(URLQueryItem(name: "key", value: authKey))
+		}
+		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
 		
 		NetworkGovernor.shared.queue(request) { package in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -429,7 +434,7 @@ import CoreData
 	}
 	
 	func createNewAccount(name: String, password: String, displayName: String?, regCode: String) {
-		guard !isChangingLoginState, !isLoggedIn() else {
+		guard !isChangingLoginState else {
 			return
 		}
 		isChangingLoginState = true

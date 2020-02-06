@@ -9,18 +9,27 @@
 import UIKit
 import AVFoundation
 import CoreMotion
-import ARKit
 import MediaPlayer
 
-struct FaceInfo {
-	var faceAnchor: ARFaceAnchor
-	var faceRootNode: SCNNode				// The root of the face node tree
-}
+#if !targetEnvironment(macCatalyst) 
+	import ARKit
+
+	struct FaceInfo {
+		var faceAnchor: ARFaceAnchor
+		var faceRootNode: SCNNode				// The root of the face node tree
+	}
+
+#else
+	
+	@objc(ARSCNView) class ARSCNView: UIView {
+		func snapshot() -> UIImage { return UIImage() }
+	}
+#endif
 
 class CameraViewController: UIViewController {
 	@IBOutlet var 	cameraView: UIView!
 	@IBOutlet var 		cameraAspectConstraint: NSLayoutConstraint?
-	@IBOutlet var 	pirateView: ARSCNView!
+	var 				pirateView: ARSCNView?
 	@IBOutlet var 	closeButton: UIButton!
 	@IBOutlet var 	pirateButton: UIButton!
 	@IBOutlet var 	randomizeHatsButton: UIButton!
@@ -54,17 +63,20 @@ class CameraViewController: UIViewController {
 	var savedAudioVolume: Float = 0.0
 	
 	// Props to run AR Mode (Pirate Selfie mode)
+#if !targetEnvironment(macCatalyst) 
 	var faceAnchors: [FaceInfo] = []
 	var allHats: [SCNReferenceNode] = []
 	var availableHats: [SCNReferenceNode] = []
+	var parrotAssigned = false
 	var eyepatch: SCNReferenceNode?
-	
+	var parrot: SCNReferenceNode?
+#endif
+
 	// Configuration
 	var selfieMode: Bool = false						// Set to TRUE to initially use front camera
 	
 	// RESULTS HERE, pull one of these from the unwind segue
-	var capturedPhoto: AVCapturePhoto?
-	var capturedPhotoImage: UIImage?					
+	var capturedPhoto: PhotoDataType?
 
 	
 // MARK: Methods
@@ -83,14 +95,30 @@ class CameraViewController: UIViewController {
 		// Fix-up Interface Builder values that might get set wrong while editing the VC.
 		cameraView.isHidden = false
 		capturedPhotoContainerView.isHidden = true
-		pirateView.isHidden = true
+
+#if !targetEnvironment(macCatalyst) 
 
 		// Check for AR, disable pirate mode if it's not available
 		if ARFaceTrackingConfiguration.isSupported {
-			pirateView.delegate = self
-//			pirateView.session.delegate = self
-			pirateView.automaticallyUpdatesLighting	= true
+			let localPirateView = ARSCNView(frame: cameraView.frame, options: nil)
+			pirateView = localPirateView
+			localPirateView.translatesAutoresizingMaskIntoConstraints = false
+			if let parentView = cameraView.superview {
+				parentView.insertSubview(localPirateView, aboveSubview: cameraView)
+			}
+			let anchors = [
+					localPirateView.leadingAnchor.constraint(equalTo: cameraView.leadingAnchor),
+					localPirateView.trailingAnchor.constraint(equalTo: cameraView.trailingAnchor),
+					localPirateView.topAnchor.constraint(equalTo: cameraView.topAnchor),
+					localPirateView.bottomAnchor.constraint(equalTo: cameraView.bottomAnchor) ]
+			NSLayoutConstraint.activate(anchors)
+		
+			localPirateView.isHidden = true
+			localPirateView.delegate = self
+//			localPirateView.session.delegate = self
+			localPirateView.automaticallyUpdatesLighting	= true
 		}
+#endif
 		
 		// Set up an audio session that'll inform us of volume changes
 		do {
@@ -260,7 +288,12 @@ class CameraViewController: UIViewController {
 	// Updates the pirate, flash, camera switch, and shutter state based on what state we're in
 	func updateButtonStates() {
 		// Check for AR, disable pirate mode if it's not available
-		let canEnablePirateView =  ARFaceTrackingConfiguration.isSupported && cameraInput?.device.position == AVCaptureDevice.Position.front
+#if !targetEnvironment(macCatalyst) 
+		let canEnablePirateView = ARFaceTrackingConfiguration.isSupported && 
+				cameraInput?.device.position == AVCaptureDevice.Position.front
+#else 
+		let canEnablePirateView = false
+#endif
 		let canEnableFlash = cameraDevice?.isFlashAvailable ?? false
 		var canEnableCameraRotate = false
 		if let disc = discoverer {
@@ -276,7 +309,7 @@ class CameraViewController: UIViewController {
 			leftShutter.isEnabled = false
 			rightShutter.isEnabled = false
 		}
-		else if !pirateView.isHidden {
+		else if pirateView?.isHidden == false {
 			pirateButton.isEnabled = true
 			pirateButton.isSelected = true
 			flashButton.isEnabled = false
@@ -347,7 +380,8 @@ class CameraViewController: UIViewController {
 	}
 	
 	@IBAction func pirateButtonTapped() {
-		if !pirateButton.isSelected {
+#if !targetEnvironment(macCatalyst) 
+		if !pirateButton.isSelected, let pirateView = pirateView {
 			captureSession.stopRunning()
 			pirateView.isHidden = false
 			cameraView.isHidden = true
@@ -395,50 +429,74 @@ class CameraViewController: UIViewController {
 				}
 			}
 			
-			
+			if parrot == nil {
+				if let url = Bundle.main.url(forResource:"StandIdlex", withExtension:"dae", subdirectory: "Hats.scnassets/Parrot"),
+						let localParrot = SCNReferenceNode(url: url) {
+					DispatchQueue.global().async {
+						localParrot.load()
+						self.parrot = localParrot
+					}
+				}
+			}
 		}
 		else {
-			pirateView.session.pause()
-			pirateView.isHidden = true
+			pirateView?.session.pause()
+			pirateView?.isHidden = true
 			cameraView.isHidden = false
 			captureSession.startRunning()
 		}
 		
 		updateButtonStates()
+#endif
 	}
 	
 	@IBAction func randomizeHatsTapped() {
+#if !targetEnvironment(macCatalyst) 
 		faceAnchors.forEach { 
 			if let baseNode =  $0.faceRootNode.childNodes.first {
 				baseNode.removeFromParentNode() 
 			}
 		}
 		availableHats = allHats.shuffled()
-		for faceIndex in 0..<faceAnchors.count { assignHat(pirateView, toFaceAtIndex: faceIndex) }
+		parrotAssigned = false
+		for faceIndex in 0..<faceAnchors.count { assignHat(toFaceAtIndex: faceIndex) }
+#endif
 	}
 	
-	func assignHat(_ renderer: SCNSceneRenderer, toFaceAtIndex: Int) {
+#if !targetEnvironment(macCatalyst) 
+	func assignHat(toFaceAtIndex: Int) {
 		guard faceAnchors.count > 0 else { return }
 		let validFaceIndex = toFaceAtIndex >= faceAnchors.count ? faceAnchors.count - 1 : toFaceAtIndex
 		let face = faceAnchors[validFaceIndex]
 		let faceBaseNode = SCNNode()
 		face.faceRootNode.addChildNode(faceBaseNode)
 		
+		// Assign a random hat to this face. Hats are randomized in availableHats, so just pick the next hat.
 		if availableHats.count > 0 {
 			let randomHat = availableHats[validFaceIndex % availableHats.count]
 			faceBaseNode.addChildNode(randomHat.clone())
 		}
+		
+		// 50% of the time, put an eyepatch on the face
 		if Bool.random(), let eyepatch = eyepatch {
 			faceBaseNode.addChildNode(eyepatch.clone())
 		}
 		
-		if let dev = renderer.device, let faceGeometry = ARSCNFaceGeometry(device: dev,fillMesh: true) {
+		if !parrotAssigned, Int.random(in: 1...6) == 1, let localParrot = parrot {
+//		if let localParrot = parrot {
+			faceBaseNode.addChildNode(localParrot.clone())
+			parrotAssigned = true
+		}
+		
+		// Add a face occulusion mask.
+		if let dev = pirateView?.device, let faceGeometry = ARSCNFaceGeometry(device: dev,fillMesh: true) {
 			faceGeometry.firstMaterial!.colorBufferWriteMask = []
 			let occlusionNode = SCNNode(geometry: faceGeometry)
 			occlusionNode.renderingOrder = -1
 			faceBaseNode.addChildNode(occlusionNode)
 		}
 	}
+#endif
 	
 	
 	@IBAction func flashButtonTapped() {
@@ -447,11 +505,13 @@ class CameraViewController: UIViewController {
 	
 	@IBAction func cameraSwitchButtonTapped() {
 		// If we were in ARKit, stop ARKit and re-enable the capture session.
+#if !targetEnvironment(macCatalyst) 
 		if pirateButton.isSelected {
-			pirateView.session.pause()
-			pirateView.isHidden = true
+			pirateView?.session.pause()
+			pirateView?.isHidden = true
 			captureSession.startRunning()
 		}
+#endif
 	
 		captureSession.beginConfiguration()
 		
@@ -498,8 +558,28 @@ class CameraViewController: UIViewController {
 		return
 	#else
 		// Is this an AVSession picture, or a ARKit snapshot?
-		if pirateView.isHidden {
-		
+		if let pirateView = pirateView, !pirateView.isHidden {
+			// Unfortunately, snapshot returns a low-res image. 
+			var photoImage = pirateView.snapshot()
+			
+			// Rotate if necessary
+			if UIDevice.current.userInterfaceIdiom == .phone {
+				switch CoreMotion.shared.currentDeviceOrientation {
+					case .portrait, .faceUp, .unknown: break
+					case .landscapeLeft: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .left)
+					case .landscapeRight: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .right)
+					case .portraitUpsideDown, .faceDown: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .down)
+					default: break
+				}
+			}
+			
+			capturedPhotoView.image = photoImage
+			capturedPhoto = PhotoDataType.image(photoImage)
+			capturedPhotoContainerView.isHidden = false
+			updateButtonStates()
+			rotateUIElements(animated: false)		
+		}
+		else {
 			// Set the orientation of the photo output to match our current UI orientation. 'up' in the photo
 			// then matches the current UI orientation. However, this just sets the "Orientation" EXIF tag.
 			if let photoOutputConnection = photoOutput.connection(with: AVMediaType.video) {
@@ -521,32 +601,11 @@ class CameraViewController: UIViewController {
 			settings.flashMode = flashButton.isSelected ? .auto : .off
 			photoOutput.capturePhoto(with: settings, delegate: self)
 		}
-		else {
-			// Unfortunately, snapshot returns a low-res image. 
-			var photoImage = pirateView.snapshot()
-			
-			// Rotate if necessary
-			if UIDevice.current.userInterfaceIdiom == .phone {
-				switch CoreMotion.shared.currentDeviceOrientation {
-					case .portrait, .faceUp, .unknown: break
-					case .landscapeLeft: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .left)
-					case .landscapeRight: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .right)
-					case .portraitUpsideDown, .faceDown: photoImage = UIImage(cgImage: photoImage.cgImage!, scale: 1.0, orientation: .down)
-					default: break
-				}
-			}
-			
-			capturedPhotoView.image = photoImage
-			capturedPhotoImage = photoImage
-			capturedPhotoContainerView.isHidden = false
-			updateButtonStates()
-			rotateUIElements(animated: false)		
-		}
 	#endif
 	}
 	
 	@IBAction func photoAccepted(sender: UIButton, forEvent event: UIEvent) {
-		performSegue(withIdentifier: "dismissCamera", sender: capturedPhotoImage)
+		performSegue(withIdentifier: "dismissCamera", sender: capturedPhoto)
 		updateButtonStates()
 	}
 
@@ -557,12 +616,16 @@ class CameraViewController: UIViewController {
 	}
 	
 	@IBAction func sharePhotoTapped() {
-		guard let photoImage = capturedPhotoImage else { return }
-		let activityViewController = UIActivityViewController(activityItems: [photoImage], applicationActivities: nil)
-		present(activityViewController, animated: true, completion: {})
-		if let popper = activityViewController.popoverPresentationController {
-			popper.sourceView = shareButtonParent
-			popper.sourceRect = shareButton.frame
+		guard let photoPacket = capturedPhoto else { return }
+		photoPacket.getUIImage { photoImageResult in
+			if let photoImage = photoImageResult {
+				let activityViewController = UIActivityViewController(activityItems: [photoImage], applicationActivities: nil)
+				self.present(activityViewController, animated: true, completion: {})
+				if let popper = activityViewController.popoverPresentationController {
+					popper.sourceView = self.shareButtonParent
+					popper.sourceRect = self.shareButton.frame
+				}
+			}
 		}
 	}
 	
@@ -574,14 +637,13 @@ extension CameraViewController : AVCapturePhotoCaptureDelegate {
 	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
 		CameraLog.debug("In didFinishProcessingPhoto.", ["metadata" : photo.metadata])
 				
-		capturedPhoto = photo
+		capturedPhoto = PhotoDataType.camera(photo)
 
 		// After a bunch of testing, it appears that fileDataRepresentation() uses the rotation requested 
 		// by setting photoOutputConnection.videoOrientation just before calling capturePhoto, while
 		// cgImageRepresentation() does not.
 		if let photoData = photo.fileDataRepresentation(), let photoImage = UIImage(data: photoData) {
 			capturedPhotoView.image = photoImage
-			capturedPhotoImage = photoImage
 		}
 		
 		capturedPhotoContainerView.isHidden = false
@@ -594,12 +656,13 @@ extension CameraViewController : AVCapturePhotoCaptureDelegate {
 
 // Discovered faces get a baseNode attached to the face's SCNNode, and then a random hat, perhaps an eyepatch,
 // and face occlusion geometry attached to the baseNode.
+#if !targetEnvironment(macCatalyst) 
 extension CameraViewController: ARSCNViewDelegate {
 	func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
 		guard let face = anchor as? ARFaceAnchor else  { return }
 		let newFace = FaceInfo(faceAnchor: face, faceRootNode: node)
 		faceAnchors.append(newFace)
-		assignHat(renderer, toFaceAtIndex: 10000)	// That is, the last face in the list.
+		assignHat(toFaceAtIndex: 10000)	// That is, the last face in the list.
 	}
 	
 	func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
@@ -613,6 +676,7 @@ extension CameraViewController: ARSessionDelegate {
     	print ("SESSIONERROR: \(error)")
     }
 }
+#endif
 
 //MARK: - UIGestureRecognizerDelegate
 extension CameraViewController: UIGestureRecognizerDelegate {

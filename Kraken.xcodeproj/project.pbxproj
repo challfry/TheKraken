@@ -42,7 +42,7 @@
 		EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */; };
 		EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA3C630B2290D3E300077E3B /* SeamailSelfMessageCell.xib */; };
 		EA3C630E2293913600077E3B /* ComposeTweetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C630D2293913600077E3B /* ComposeTweetViewController.swift */; };
-		EA3C63102296275F00077E3B /* CollectionFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C630F2296275F00077E3B /* CollectionFlowLayout.swift */; };
+		EA3C63102296275F00077E3B /* VerticalLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C630F2296275F00077E3B /* VerticalLayout.swift */; };
 		EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA3C63112296BE7800077E3B /* TextViewCell.xib */; };
 		EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3C631422975D8400077E3B /* SettingsRootViewController.swift */; };
 		EA3C63172297EFD400077E3B /* SettingsInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA3C63162297EFD400077E3B /* SettingsInfoCell.xib */; };
@@ -53,6 +53,8 @@
 		EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA4767332341A4B000F56E08 /* LoggedInUserCell.xib */; };
 		EA4767362341E6A700F56E08 /* LoggedInUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4767352341E6A700F56E08 /* LoggedInUserCell.swift */; };
 		EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA47673723435CC600F56E08 /* ProfileAvatarEditCell.xib */; };
+		EA47886D23EBC14700897A5A /* BaseCollectionSupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA47886C23EBC14700897A5A /* BaseCollectionSupplementaryView.swift */; };
+		EA47886F23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA47886E23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib */; };
 		EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */; };
 		EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0822540801008501A3 /* EBNLazyLoader.mm */; };
 		EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA4A1D0A22540801008501A3 /* EBNProtocolBinder.mm */; };
@@ -253,7 +255,7 @@
 		EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		EA3C630B2290D3E300077E3B /* SeamailSelfMessageCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailSelfMessageCell.xib; sourceTree = "<group>"; };
 		EA3C630D2293913600077E3B /* ComposeTweetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeTweetViewController.swift; sourceTree = "<group>"; };
-		EA3C630F2296275F00077E3B /* CollectionFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFlowLayout.swift; sourceTree = "<group>"; };
+		EA3C630F2296275F00077E3B /* VerticalLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalLayout.swift; sourceTree = "<group>"; };
 		EA3C63112296BE7800077E3B /* TextViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextViewCell.xib; sourceTree = "<group>"; };
 		EA3C631422975D8400077E3B /* SettingsRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRootViewController.swift; sourceTree = "<group>"; };
 		EA3C63162297EFD400077E3B /* SettingsInfoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SettingsInfoCell.xib; sourceTree = "<group>"; };
@@ -264,6 +266,8 @@
 		EA4767332341A4B000F56E08 /* LoggedInUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoggedInUserCell.xib; sourceTree = "<group>"; };
 		EA4767352341E6A700F56E08 /* LoggedInUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInUserCell.swift; sourceTree = "<group>"; };
 		EA47673723435CC600F56E08 /* ProfileAvatarEditCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileAvatarEditCell.xib; sourceTree = "<group>"; };
+		EA47886C23EBC14700897A5A /* BaseCollectionSupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionSupplementaryView.swift; sourceTree = "<group>"; };
+		EA47886E23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ScrapbookSectionHeaderView.xib; sourceTree = "<group>"; };
 		EA4A1D0522540801008501A3 /* NSArray+EBNObservable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+EBNObservable.h"; sourceTree = "<group>"; };
 		EA4A1D0622540801008501A3 /* EBNLazyLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EBNLazyLoader.h; sourceTree = "<group>"; };
 		EA4A1D0722540801008501A3 /* NSSet+EBNObservable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSSet+EBNObservable.m"; sourceTree = "<group>"; };
@@ -624,6 +628,7 @@
 				EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */,
 				EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */,
 				EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */,
+				EA47886C23EBC14700897A5A /* BaseCollectionSupplementaryView.swift */,
 				EA83FC6E2368F01D0042C0DC /* Styler.swift */,
 				EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */,
 				EA86ADE72279B49400363CBF /* DisclosureCell.xib */,
@@ -748,6 +753,7 @@
 			children = (
 				EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */,
 				EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */,
+				EA47886E23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib */,
 			);
 			path = Scrapbook;
 			sourceTree = "<group>";
@@ -818,11 +824,11 @@
 				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
 				EA2286DE23E39B820036C20E /* Games List */,
-				EA3C631322975CD100077E3B /* Settings */,
-				EA1E3B962245849B00017F07 /* Users */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
-				EA39B18723DA824500A2FB1B /* About */,
 				EA951D2823CDB15700453B3C /* Scrapbook */,
+				EA3C631322975CD100077E3B /* Settings */,
+				EA39B18723DA824500A2FB1B /* About */,
+				EA1E3B962245849B00017F07 /* Users */,
 				EA1E3BA1224D79C400017F07 /* Server Resources */,
 				EAC71D48228A13BC002F7BB3 /* Data Sources */,
 				EA4A1D0422540801008501A3 /* EBNObservable */,
@@ -873,7 +879,7 @@
 				EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */,
 				EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */,
 				EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */,
-				EA3C630F2296275F00077E3B /* CollectionFlowLayout.swift */,
+				EA3C630F2296275F00077E3B /* VerticalLayout.swift */,
 			);
 			path = "Data Sources";
 			sourceTree = "<group>";
@@ -1051,6 +1057,7 @@
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA8694B123D48F2500ABE391 /* DailyActivityCell3.xib in Resources */,
 				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
+				EA47886F23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
 				EA534E32230299AE00FE4787 /* EventCell.xib in Resources */,
 				EA86ADE82279B49400363CBF /* DisclosureCell.xib in Resources */,
@@ -1154,7 +1161,7 @@
 				EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */,
 				EA534E2C2301FFE500FE4787 /* ScheduleRootViewController.swift in Sources */,
 				EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */,
-				EA3C63102296275F00077E3B /* CollectionFlowLayout.swift in Sources */,
+				EA3C63102296275F00077E3B /* VerticalLayout.swift in Sources */,
 				EAA2E4C12242D300009F287F /* ForumsRootViewController.swift in Sources */,
 				EADF5DA023DD30E7008BA172 /* DeckDataManager.swift in Sources */,
 				EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */,
@@ -1199,6 +1206,7 @@
 				EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
 				EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */,
+				EA47886D23EBC14700897A5A /* BaseCollectionSupplementaryView.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
 				EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */,
 				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,
@@ -1424,6 +1432,7 @@
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 5;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				INFOPLIST_FILE = Kraken/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -1433,6 +1442,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kraken/Core/Kraken-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1446,6 +1456,7 @@
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 5;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				INFOPLIST_FILE = Kraken/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -1455,6 +1466,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kraken/Core/Kraken-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

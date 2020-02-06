@@ -10,14 +10,13 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="gTV-IL-0wX" customClass="AnnouncementCell" customModule="Kraken" customModuleProvider="target">
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gTV-IL-0wX" customClass="AnnouncementCell" customModule="Kraken" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="414" height="112"/>
-            <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                 <rect key="frame" x="0.0" y="0.0" width="414" height="112"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CVQ-nT-XGB" customClass="AnnouncementRoundedRectView" customModule="Kraken" customModuleProvider="target">
+                    <view contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="CVQ-nT-XGB" customClass="AnnouncementRoundedRectView" customModule="Kraken" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="112"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ubJ-2W-l74">

@@ -23,7 +23,12 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 		
 		// Nav to the Events view, show the event that's starting soon
 		if let eventID = response.notification.request.content.userInfo["eventID"] {
-			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .events, arguments: ["eventID" : eventID]))
+			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .events, 
+					arguments: ["eventID" : eventID, "response" : response]))
+			if let eventIDString = eventID as? String {
+				EventsDataManager.shared.markNotificationCompleted(eventIDString)
+			}
+			completionHandler()
 		}
 	}
 

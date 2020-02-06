@@ -46,12 +46,6 @@ import EventKitUI
 
 		collectionView.collectionViewLayout = scheduleLayout
 		
-		// Manually register the nib for the section header view
-		let headerNib = UINib(nibName: "EventSectionHeaderView", bundle: nil)
-		collectionView.register(headerNib, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, 
-				withReuseIdentifier: "EventSectionHeaderView")
-		scheduleDataSource.buildSupplementaryView = createSectionHeaderView
-
 		// Add the loading segment up top
  		let loadingSegment = FilteringDataSourceSegment() 
  		let statusCell = LoadingStatusCellModel()
@@ -83,6 +77,9 @@ import EventKitUI
 		events.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel, sectionNameKeyPath: "startTimestamp")
 		scheduleDataSource.register(with: collectionView, viewController: self)
 		
+		// Register the nib for the section header view
+		scheduleDataSource.registerSectionHeaderClass(newClass: EventSectionHeaderView.self)
+
 		// Hide the filter view
 		filterViewTrailingConstraint.constant = 0 - filterView.bounds.size.width
 		searchTextField.delegate = self
@@ -133,20 +130,7 @@ import EventKitUI
 		
 		return cellModel
 	}
-	
-	func createSectionHeaderView(_ cv: UICollectionView, _ kind: String, _ indexPath: IndexPath, 
-			_ cellModel: BaseCellModel?) -> UICollectionReusableView {
-		if let newView = cv.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "EventSectionHeaderView", 
-				for: indexPath) as? EventSectionHeaderView {
-			if let eventCellModel = cellModel as? EventCellModel, let event = eventCellModel.model as? Event,
-					let sectionStartTime = event.startTime {
-				newView.setTime(to: sectionStartTime)
-			}
-			return newView
-		}
-		return UICollectionReusableView()
-	}
-	
+		
 	// This is the filter predicate that controls which events are shown. It ANDs together multiple sub-predicates
 	// to build an overall filter that selects events to show in the list.
 	func setCompoundPredicate() {

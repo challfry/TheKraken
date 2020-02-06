@@ -511,9 +511,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="88" width="200" height="200.5"/>
+                                <rect key="frame" x="214" y="88" width="200" height="201"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -1578,9 +1578,6 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gSO-iC-WqG">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                            </arscnView>
                             <button opaque="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tAi-G9-tDZ">
                                 <rect key="frame" x="20" y="44" width="44" height="44"/>
                                 <constraints>
@@ -1753,7 +1750,6 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="gSO-iC-WqG" firstAttribute="top" secondItem="YpU-N3-dH8" secondAttribute="top" id="0vh-eB-I7d"/>
                             <constraint firstAttribute="trailing" secondItem="PAF-8W-UnY" secondAttribute="trailing" constant="20" id="3al-EZ-qiD"/>
                             <constraint firstAttribute="trailing" secondItem="wRT-f6-Xtb" secondAttribute="trailing" id="4Au-KQ-VgD"/>
                             <constraint firstItem="wRT-f6-Xtb" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" id="4It-AU-ysA"/>
@@ -1769,12 +1765,9 @@
                             <constraint firstItem="x24-M3-dRF" firstAttribute="top" secondItem="tAi-G9-tDZ" secondAttribute="top" id="XJp-I2-hfj"/>
                             <constraint firstItem="wRT-f6-Xtb" firstAttribute="top" secondItem="YpU-N3-dH8" secondAttribute="top" id="ZAd-nI-4Jf"/>
                             <constraint firstAttribute="trailing" secondItem="4Lg-DP-8hU" secondAttribute="trailing" id="hfF-LG-SKf"/>
-                            <constraint firstItem="gSO-iC-WqG" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" id="j4u-kc-wWM"/>
                             <constraint firstAttribute="trailing" secondItem="6Ly-Dq-bEZ" secondAttribute="trailing" constant="20" id="jmL-uv-Ek3"/>
                             <constraint firstItem="J6q-HD-IVo" firstAttribute="leading" secondItem="YpU-N3-dH8" secondAttribute="leading" constant="20" id="jo4-0a-Xdr"/>
-                            <constraint firstAttribute="trailing" secondItem="gSO-iC-WqG" secondAttribute="trailing" id="joe-zo-83l"/>
                             <constraint firstAttribute="bottom" secondItem="wRT-f6-Xtb" secondAttribute="bottom" id="kx9-H9-Kzp"/>
-                            <constraint firstAttribute="bottom" secondItem="gSO-iC-WqG" secondAttribute="bottom" id="lzG-ER-2yE"/>
                             <constraint firstItem="xq6-36-IpK" firstAttribute="centerY" secondItem="tAi-G9-tDZ" secondAttribute="centerY" id="nKN-1R-aeP"/>
                             <constraint firstItem="PAF-8W-UnY" firstAttribute="centerY" secondItem="J6q-HD-IVo" secondAttribute="centerY" id="vWz-hF-lMi"/>
                             <constraint firstItem="x24-M3-dRF" firstAttribute="bottom" secondItem="J6q-HD-IVo" secondAttribute="bottom" id="wOw-Gq-C0D"/>
@@ -1792,7 +1785,6 @@
                         <outlet property="flashButton" destination="xq6-36-IpK" id="2e7-aN-icd"/>
                         <outlet property="leftShutter" destination="J6q-HD-IVo" id="5uC-H2-ihv"/>
                         <outlet property="pirateButton" destination="OMc-Yc-CyC" id="e5V-be-xbE"/>
-                        <outlet property="pirateView" destination="gSO-iC-WqG" id="GKL-pW-qg4"/>
                         <outlet property="randomizeHatsButton" destination="IEI-61-EAS" id="zEj-k7-3XD"/>
                         <outlet property="retryButton" destination="GXK-dg-jQa" id="RTt-wU-dku"/>
                         <outlet property="rightShutter" destination="PAF-8W-UnY" id="MpX-Di-haw"/>
@@ -1825,9 +1817,6 @@
                                             <constraint firstAttribute="width" secondItem="wd9-7U-upi" secondAttribute="height" multiplier="3:4" priority="500" id="Mfk-s1-1zz"/>
                                         </constraints>
                                     </view>
-                                    <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="McJ-CW-az3">
-                                        <rect key="frame" x="0.0" y="84" width="414" height="552"/>
-                                    </arscnView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ntd-iD-fZ6">
                                         <rect key="frame" x="20" y="20" width="44" height="44"/>
                                         <constraints>
@@ -1961,7 +1950,6 @@
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="wd9-7U-upi" secondAttribute="trailing" id="3Ad-ET-pYb"/>
                                     <constraint firstItem="jOa-Jf-5Je" firstAttribute="top" secondItem="wd9-7U-upi" secondAttribute="top" id="AUS-38-7IB"/>
-                                    <constraint firstItem="McJ-CW-az3" firstAttribute="bottom" secondItem="wd9-7U-upi" secondAttribute="bottom" id="Btq-tu-27x"/>
                                     <constraint firstItem="yJE-M9-JpV" firstAttribute="top" relation="greaterThanOrEqual" secondItem="wd9-7U-upi" secondAttribute="bottom" constant="10" id="ERj-ld-W94"/>
                                     <constraint firstItem="yJE-M9-JpV" firstAttribute="centerY" secondItem="c9C-qe-XPA" secondAttribute="centerY" id="LTw-7s-gi3"/>
                                     <constraint firstItem="deE-UJ-ET1" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Ntd-iD-fZ6" secondAttribute="trailing" constant="10" id="MOk-Dt-wxK"/>
@@ -1971,18 +1959,15 @@
                                     <constraint firstAttribute="bottom" secondItem="nsR-fj-Lbu" secondAttribute="bottom" constant="20" id="VoC-Js-fRy"/>
                                     <constraint firstItem="yJE-M9-JpV" firstAttribute="top" secondItem="jOa-Jf-5Je" secondAttribute="bottom" constant="10" id="XYy-cL-Pbj"/>
                                     <constraint firstItem="c9C-qe-XPA" firstAttribute="leading" secondItem="7aa-fZ-Iwy" secondAttribute="leading" constant="20" id="Yhb-S1-ofO"/>
-                                    <constraint firstItem="McJ-CW-az3" firstAttribute="trailing" secondItem="wd9-7U-upi" secondAttribute="trailing" id="cF1-zV-n6C"/>
                                     <constraint firstAttribute="trailing" secondItem="nsR-fj-Lbu" secondAttribute="trailing" constant="20" id="i29-X4-A9Z"/>
                                     <constraint firstItem="TOM-Es-ErO" firstAttribute="top" secondItem="7aa-fZ-Iwy" secondAttribute="top" constant="20" id="iPo-rf-Itz"/>
                                     <constraint firstItem="Ntd-iD-fZ6" firstAttribute="top" secondItem="7aa-fZ-Iwy" secondAttribute="top" constant="20" id="k7p-IU-I74"/>
-                                    <constraint firstItem="McJ-CW-az3" firstAttribute="leading" secondItem="wd9-7U-upi" secondAttribute="leading" id="kNt-Tc-jaC"/>
                                     <constraint firstAttribute="bottom" secondItem="c9C-qe-XPA" secondAttribute="bottom" constant="20" id="kVb-sm-IsC"/>
                                     <constraint firstItem="jOa-Jf-5Je" firstAttribute="trailing" secondItem="wd9-7U-upi" secondAttribute="trailing" id="lHP-iq-d3D"/>
                                     <constraint firstItem="yJE-M9-JpV" firstAttribute="centerX" secondItem="7aa-fZ-Iwy" secondAttribute="centerX" id="lf6-oW-CzI"/>
                                     <constraint firstItem="deE-UJ-ET1" firstAttribute="centerY" secondItem="TOM-Es-ErO" secondAttribute="centerY" id="lwB-2t-VkO"/>
                                     <constraint firstItem="Ntd-iD-fZ6" firstAttribute="leading" secondItem="7aa-fZ-Iwy" secondAttribute="leading" constant="20" id="pFQ-rh-zEx"/>
                                     <constraint firstAttribute="trailing" secondItem="TOM-Es-ErO" secondAttribute="trailing" constant="20" id="rVv-25-6l4"/>
-                                    <constraint firstItem="McJ-CW-az3" firstAttribute="top" secondItem="wd9-7U-upi" secondAttribute="top" id="skG-eq-cEM"/>
                                     <constraint firstItem="jOa-Jf-5Je" firstAttribute="leading" secondItem="wd9-7U-upi" secondAttribute="leading" id="yB8-0h-knw"/>
                                 </constraints>
                             </view>
@@ -2007,7 +1992,6 @@
                         <outlet property="flashButton" destination="c9C-qe-XPA" id="cpD-ot-TOV"/>
                         <outlet property="leftShutter" destination="yJE-M9-JpV" id="eUw-WO-aCf"/>
                         <outlet property="pirateButton" destination="TOM-Es-ErO" id="L2n-zS-7vo"/>
-                        <outlet property="pirateView" destination="McJ-CW-az3" id="dJX-cI-Aon"/>
                         <outlet property="randomizeHatsButton" destination="deE-UJ-ET1" id="cK3-af-Qwd"/>
                         <outlet property="retryButton" destination="Ai0-Gf-Ots" id="8KW-sM-Wfe"/>
                         <outlet property="rightShutter" destination="yJE-M9-JpV" id="NOo-Jy-gXP"/>

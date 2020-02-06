@@ -282,11 +282,12 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	// source VC to get the photo that was taken.
 	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
 		guard let sourceVC = segue.source as? CameraViewController else { return }
-		if let photo = sourceVC.capturedPhoto {
-			photoSelectionCell.cameraPhotos.insert(photo, at: 0)
-		}
-		else if let photoImage = sourceVC.capturedPhotoImage {
-			photoSelectionCell.cameraPhotos.insert(photoImage, at: 0)
+		if let photoPacket = sourceVC.capturedPhoto {
+			switch photoPacket {
+			case .camera(let photo): photoSelectionCell.cameraPhotos.insert(photo, at: 0)
+			case .image(let image): photoSelectionCell.cameraPhotos.insert(image, at: 0)
+			case .library(let asset): photoSelectionCell.cameraPhotos.insert(asset, at: 0)
+			}
 		}
 	}	
 

@@ -235,7 +235,7 @@ import UIKit
 				userModel.tell(self, when: "pronouns") { observer, observed in
 					observer.pronounsLabel.text = observed.pronouns
 				}?.execute()
-				userModel.tell(self, when: [ "fullPhoto", "thumbPhoto" ]) { observer, observed in
+				userModel.tell(self, when: [ "fullPhoto", "thumbPhoto", "thumbPhotoData" ]) { observer, observed in
 					observed.loadUserThumbnail()
 					if let fullPhoto = observed.fullPhoto {
 						observer.userAvatar.image = fullPhoto

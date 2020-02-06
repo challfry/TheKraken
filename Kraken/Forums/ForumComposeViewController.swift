@@ -325,11 +325,12 @@ import MobileCoreServices
 	// source VC to get the photo that was taken.
 	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
 		guard let sourceVC = segue.source as? CameraViewController else { return }
-		if let photo = sourceVC.capturedPhoto {
-			photoCell.cameraPhotos.insert(photo, at: 0)
-		}
-		else if let photoImage = sourceVC.capturedPhotoImage {
-			photoCell.cameraPhotos.insert(photoImage, at: 0)
+		if let photoPacket = sourceVC.capturedPhoto {
+			switch photoPacket {
+			case .camera(let photo): photoCell.cameraPhotos.insert(photo, at: 0)
+			case .image(let image): photoCell.cameraPhotos.insert(image, at: 0)
+			case .library(let asset): break
+			}
 		}
 	}	
 }

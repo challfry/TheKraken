@@ -311,7 +311,7 @@ import UserNotifications
 		
 		var alarmTime: Date
 		if Settings.shared.debugTestLocalNotificationsForEvents {
-			alarmTime = Date() + 100.0 
+			alarmTime = Date() + 10.0 
 		}
 		else {
 			alarmTime = eventStartTime - 300.0
@@ -369,6 +369,15 @@ import UserNotifications
 		}
 	}
 		
+	// Cancels the notification before it fires.
+	func cancelAlarmNotification() {
+		if let notificationID = localNotificationID {
+			UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [notificationID])
+			markLocalNotificationDeleted()
+		}
+	}
+	
+	// Called when we receive the notification callback -- when the notification fires.
 	func markLocalNotificationDeleted() {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure saving change to a Scheduled Ship Event Notification. (the network call succeeded, but we couldn't save the change).")
@@ -537,6 +546,12 @@ class EventsDataManager: NSObject {
 			catch {
 				CoreDataLog.error(".", ["Error" : error])
 			}
+		}
+	}
+	
+	func markNotificationCompleted(_ eventID: String) {
+		if let cdEvent = fetchedData.fetchedObjects?.first(where: { $0.id == eventID }) {
+			cdEvent.markLocalNotificationDeleted()
 		}
 	}
 	

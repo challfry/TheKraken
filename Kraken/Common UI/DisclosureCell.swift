@@ -37,14 +37,18 @@ class DisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	var title: String? {
-		didSet { titleLabel.text = title }
+		didSet { 
+			titleLabel.text = title
+			cellSizeChanged()
+		}
 	}
 	var errorString: String? {
-		didSet { errorLabel.text = errorString }
+		didSet { 
+			errorLabel.text = errorString
+			cellSizeChanged()
+		}
 	}
-	
-	var tapRecognizer: UILongPressGestureRecognizer?
-	
+		
 	override var isHighlighted: Bool {
 		didSet {
 			standardHighlightHandler()

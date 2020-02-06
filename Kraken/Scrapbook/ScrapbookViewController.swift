@@ -38,15 +38,12 @@ class ScrapbookViewController: BaseCollectionViewController {
 		favoritesDataSource.append(segment: songSegment)
 		favoritesDataSource.append(segment: gameSegment)
 
-		// Manually register the nib for the section header view
-		let headerNib = UINib(nibName: "EventSectionHeaderView", bundle: nil)
-		collectionView.register(headerNib, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, 
-				withReuseIdentifier: "EventSectionHeaderView")
-		favoritesDataSource.buildSupplementaryView = createSectionHeaderView
-
 		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
 			if let currentUser = observed.loggedInUser {
 				observer.favoritesDataSource.register(with: observer.collectionView, viewController: self)
+
+				// Register the nib for the section header view
+				observer.favoritesDataSource.registerSectionHeaderClass(newClass: ScrapbookSectionHeaderView.self)
 
 				observer.tweetSegment.activate(predicate: NSPredicate(format: "word == 'like' AND ANY users == %@", currentUser), 
 						sort: [ NSSortDescriptor(key: "sourceTweet.timestamp", ascending: false)], 
@@ -89,24 +86,6 @@ class ScrapbookViewController: BaseCollectionViewController {
 	
 // MARK: Cell Factories
 	
-	func createSectionHeaderView(_ cv: UICollectionView, _ kind: String, _ indexPath: IndexPath, 
-			_ cellModel: BaseCellModel?) -> UICollectionReusableView {
-		let newView = cv.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "EventSectionHeaderView", 
-				for: indexPath)
-		if let headerView = newView as? EventSectionHeaderView {
-			switch cellModel {
-			case is TwitarrTweetCellModel: headerView.setTimeLabelText(to: "Favorite Tweets")
-			case is ForumPostCellModel: headerView.setTimeLabelText(to: "Favorite Forum Posts")
-			case is ProfileAvatarCellModel: headerView.setTimeLabelText(to: "Favorite Users")
-			case is EventCellModel: headerView.setTimeLabelText(to: "Favorite Events")
-			case is KaraokeFavoriteSongCellModel: headerView.setTimeLabelText(to: "Favorite Karaoke Songs")
-			case is BoardGameCellModel: headerView.setTimeLabelText(to: "Favorite Board Games")
-			default: headerView.setTimeLabelText(to: "")
-			}
-		}
-		return newView
-	}
-
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
 	func createTwitarrCellModel(_ model: Reaction) -> BaseCellModel {
 		let cellModel = TwitarrTweetCellModel(withModel: model.sourceTweet)
@@ -180,3 +159,31 @@ class KaraokeFavoriteSongCell: BaseCollectionViewCell, KaraokeFavoriteSongBindin
 	}
 }
 
+class ScrapbookSectionHeaderView: BaseCollectionSupplementaryView {
+	@IBOutlet var sectionLabel: UILabel!
+	
+	override class var nib: UINib? {
+		return  UINib(nibName: "ScrapbookSectionHeaderView", bundle: nil)
+	}
+	override class var reuseID: String { return "ScrapbookSectionHeaderView" }
+
+	override func awakeFromNib() {
+		super.awakeFromNib()
+
+		// Font styling
+		sectionLabel.styleFor(.body)
+	}
+
+	override func setup(cellModel: BaseCellModel) {
+		switch cellModel {
+		case is TwitarrTweetCellModel: sectionLabel.text = "Favorite Twitarr Posts"
+		case is ForumsThreadCellModel: sectionLabel.text = "Favorite Forums"
+		case is ForumPostCellModel: sectionLabel.text = "Favorite Forum Posts"
+		case is EventCellModel: sectionLabel.text = "Favorite Events"
+		case is ProfileAvatarCellModel: sectionLabel.text = "Favorite Users"
+		case is KaraokeFavoriteSongCellModel: sectionLabel.text = "Favorite Karaoke Songs"
+		case is BoardGameCellModel: sectionLabel.text = "Favorite Board Games"
+		default: sectionLabel.text = "Favorites"
+		}
+	}
+}

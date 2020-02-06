@@ -64,7 +64,6 @@ class KrakenDataSource: NSObject {
 
 	var registeredCellReuseIDs = Set<String>()
 	var log = CollectionViewLog(instanceEnabled: false)
-	var buildSupplementaryView: ((UICollectionView, String, IndexPath, BaseCellModel?) -> UICollectionReusableView)?
 
 	override init() {
 		super.init()
@@ -93,6 +92,15 @@ class KrakenDataSource: NSObject {
 //			cv.prefetchDataSource = self
 //			cv.isPrefetchingEnabled = true
 			cv.reloadData()
+		}
+	}
+	
+	var sectionHeaderClass: BaseCollectionSupplementaryView.Type?
+	func registerSectionHeaderClass(newClass: BaseCollectionSupplementaryView.Type) {
+		sectionHeaderClass = newClass
+		if let headerNib = newClass.nib {
+			collectionView?.register(headerNib, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, 
+					withReuseIdentifier: newClass.reuseID)
 		}
 	}
 	
@@ -306,9 +314,7 @@ class KrakenDataSource: NSObject {
 			
 			if self.internalInvalidateLayout {
 				self.internalInvalidateLayout = false
-				let context = UICollectionViewFlowLayoutInvalidationContext()
-				context.invalidateFlowLayoutDelegateMetrics = true
-				cv?.collectionViewLayout.invalidateLayout(with: context)
+				cv?.collectionViewLayout.invalidateLayout()
 			}
 		
 			self.visibleSegments = allSegments
@@ -362,13 +368,25 @@ class KrakenDataSource: NSObject {
 	}
 	
 	
-	func sizeChanged(for cellModel: BaseCellModel) {
-		cellModel.cellSize = CGSize(width: 0, height: 0)
+	func sizeChanged(for cell: BaseCollectionViewCell) {
+		if let cellModel = cell.cellModel {
+			cellModel.cellSize = CGSize(width: 0, height: 0)
+		}
 		
 //		log.debug("scroll pos: \(self.collectionView!.contentOffset.y)")
-		let context = UICollectionViewFlowLayoutInvalidationContext()
-		context.invalidateFlowLayoutDelegateMetrics = true
-		self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
+//		if let indexPath = collectionView?.indexPath(for: cell) {
+//			let context = UICollectionViewLayoutInvalidationContext()
+//			context.invalidateItems(at: [indexPath])
+//			self.collectionView?.collectionViewLayout.invalidateLayout(with: context)
+			self.collectionView?.collectionViewLayout.invalidateLayout()
+			
+//		}
+//		else {
+//			// If we don't know the cell that changed size, I guess we invalidate everything?
+//			self.collectionView?.collectionViewLayout.invalidateLayout()
+//		}
+
+
 		UIView.animate(withDuration: 0.3) {
 			self.collectionView?.layoutIfNeeded()
 		}
@@ -456,8 +474,8 @@ extension KrakenDataSource: UICollectionViewDataSource {
 		if let (segment, offsetPath) = segmentAndOffset(forIndexPath: indexPath) {
 			
 			// Get the cell model from the segment; it's okay if it comes back nil
-			let cellModel = segment.cellModel(at: offsetPath)
-			if let result = buildSupplementaryView?(collectionView, kind, indexPath, cellModel) {	
+			if let cellModel = segment.cellModel(at: offsetPath), let result = sectionHeaderClass?.createView(collectionView, 
+					indexPath: indexPath, kind: kind, cellModel: cellModel) {
 				return result
 			}
 		}
@@ -465,7 +483,8 @@ extension KrakenDataSource: UICollectionViewDataSource {
 		// TODO: This is a hack, as the data source should not know about specific reuse identifiers.
 		// This hack is here because the cv sometimes asks for a header when switching data sources, even though it's not 
 		// going to show one.
-		let newView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "EventSectionHeaderView", for: indexPath)
+		let newView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, 
+				withReuseIdentifier: "EventSectionHeaderView", for: indexPath)
 		return newView
 	}
 	
@@ -519,6 +538,22 @@ extension KrakenDataSource: UICollectionViewDelegate, UICollectionViewDelegateFl
 		log.debug("sizeForItemAt called for:", ["indexPath" : indexPath, "returning" : protoSize])
 			
 
+		return protoSize
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, 
+			referenceSizeForHeaderInSection section: Int) -> CGSize {
+		guard let headerClass = sectionHeaderClass else { return CGSize.zero }
+
+		var protoSize = CGSize(width: 0, height: 0)
+		if let (segment, offsetPath) = segmentAndOffset(forIndexPath: IndexPath(row: 0, section: section)),
+				let cellModel = segment.cellModel(at: offsetPath),
+				let protoView = headerClass.getPrototypeView(collectionView, cellModel: cellModel) {
+			protoSize = protoView.systemLayoutSizeFitting(collectionView.bounds.size, 
+					withHorizontalFittingPriority: .required, 
+					verticalFittingPriority: .fittingSizeLevel)
+		}								
+			
 		return protoSize
 	}
 	

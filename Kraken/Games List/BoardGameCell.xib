@@ -61,8 +61,8 @@
                             </label>
                         </subviews>
                     </stackView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rating: 8.6/10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S7q-kl-pU7">
-                        <rect key="frame" x="20" y="69" width="105.5" height="120.5"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="Rating: 8.6/10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S7q-kl-pU7">
+                        <rect key="frame" x="20" y="69" width="105.5" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Secondary Text"/>
                         <nil key="highlightedColor"/>
@@ -73,11 +73,8 @@
                         <color key="textColor" name="Kraken Secondary Text"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="200" verticalCompressionResistancePriority="500" text="Description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MgT-Tt-dJ6">
-                        <rect key="frame" x="20" y="198" width="374" height="0.0"/>
-                        <constraints>
-                            <constraint firstAttribute="height" id="Cb7-hg-y7b"/>
-                        </constraints>
+                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="210" verticalCompressionResistancePriority="210" text="Description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MgT-Tt-dJ6">
+                        <rect key="frame" x="20" y="98" width="374" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
@@ -90,16 +87,17 @@
                     <constraint firstItem="mLW-om-VsE" firstAttribute="leading" secondItem="2bm-Wm-Lng" secondAttribute="trailing" constant="6" id="8fu-5t-1B0"/>
                     <constraint firstItem="L7S-Df-20v" firstAttribute="leading" secondItem="mLW-om-VsE" secondAttribute="trailing" constant="8" id="Axn-2s-sfE"/>
                     <constraint firstItem="MgT-Tt-dJ6" firstAttribute="trailing" secondItem="h4Q-su-DDj" secondAttribute="trailing" id="IXs-Kc-yvA"/>
+                    <constraint firstAttribute="bottom" secondItem="S7q-kl-pU7" secondAttribute="bottom" priority="200" constant="8" id="KrY-Ye-88I"/>
                     <constraint firstItem="L7S-Df-20v" firstAttribute="centerY" secondItem="2bm-Wm-Lng" secondAttribute="centerY" id="LeK-dP-Kna"/>
-                    <constraint firstItem="S7q-kl-pU7" firstAttribute="top" secondItem="L6l-SJ-SE2" secondAttribute="bottom" constant="8.5" id="Nni-7E-9Q8"/>
                     <constraint firstItem="2bm-Wm-Lng" firstAttribute="top" secondItem="kWh-e9-8G6" secondAttribute="top" constant="6" id="SOG-ZJ-5TV"/>
                     <constraint firstItem="2bm-Wm-Lng" firstAttribute="leading" secondItem="kWh-e9-8G6" secondAttribute="leading" constant="20" id="SgA-8J-2pD"/>
+                    <constraint firstItem="S7q-kl-pU7" firstAttribute="top" secondItem="OB8-Vy-EKN" secondAttribute="bottom" constant="8.5" id="TgD-U9-faZ"/>
                     <constraint firstItem="OB8-Vy-EKN" firstAttribute="trailing" secondItem="L7S-Df-20v" secondAttribute="trailing" id="URC-vV-hfg"/>
                     <constraint firstItem="h4Q-su-DDj" firstAttribute="trailing" secondItem="ALT-dq-hcY" secondAttribute="trailing" id="ZdQ-2r-b5D"/>
                     <constraint firstItem="S7q-kl-pU7" firstAttribute="leading" secondItem="L6l-SJ-SE2" secondAttribute="leading" id="b7V-Wx-WVj"/>
-                    <constraint firstItem="MgT-Tt-dJ6" firstAttribute="top" secondItem="S7q-kl-pU7" secondAttribute="bottom" constant="8.5" id="ccQ-6s-PDi"/>
+                    <constraint firstItem="MgT-Tt-dJ6" firstAttribute="top" secondItem="S7q-kl-pU7" secondAttribute="bottom" priority="500" constant="8.5" id="ccQ-6s-PDi"/>
                     <constraint firstItem="h4Q-su-DDj" firstAttribute="firstBaseline" secondItem="S7q-kl-pU7" secondAttribute="firstBaseline" id="itR-gt-xcU"/>
-                    <constraint firstAttribute="bottom" secondItem="MgT-Tt-dJ6" secondAttribute="bottom" priority="900" constant="2" id="lFx-dX-bTC"/>
+                    <constraint firstAttribute="bottom" secondItem="MgT-Tt-dJ6" secondAttribute="bottom" priority="200" constant="2" id="lFx-dX-bTC"/>
                     <constraint firstItem="MgT-Tt-dJ6" firstAttribute="leading" secondItem="S7q-kl-pU7" secondAttribute="leading" id="lbX-JR-QO6"/>
                     <constraint firstItem="h4Q-su-DDj" firstAttribute="leading" secondItem="S7q-kl-pU7" secondAttribute="trailing" constant="16" id="nCy-O4-OeQ"/>
                     <constraint firstItem="mLW-om-VsE" firstAttribute="firstBaseline" secondItem="2bm-Wm-Lng" secondAttribute="firstBaseline" id="xEV-mi-vyo"/>
@@ -108,7 +106,7 @@
             <size key="customSize" width="414" height="200"/>
             <connections>
                 <outlet property="complexityLabel" destination="h4Q-su-DDj" id="9f6-xj-4XH"/>
-                <outlet property="descriptionHeightConstraint" destination="Cb7-hg-y7b" id="Phm-Ld-uCk"/>
+                <outlet property="descriptionHeightConstraint" destination="KrY-Ye-88I" id="S8g-jo-8Ig"/>
                 <outlet property="descriptionLabel" destination="MgT-Tt-dJ6" id="9aX-Ae-Hso"/>
                 <outlet property="favoriteButton" destination="L7S-Df-20v" id="nS9-SH-Rcd"/>
                 <outlet property="gameTitleLabel" destination="2bm-Wm-Lng" id="vg2-Ya-dG7"/>
