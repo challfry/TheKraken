@@ -490,38 +490,52 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	func setupPhotos() {
 		var numDisplayedPhotos = 0
+//		var newImageHeight: CGFloat = 200.0
 		if let photoArray = photos, photoArray.count > 0 {
 			numDisplayedPhotos = photoArray.count
 			if numDisplayedPhotos == 1 {
+				let firstPhoto = photoArray[0]
 				if !isPrototypeCell {
-					ImageManager.shared.image(withSize:.medium, forKey: photoArray[0].id) { image in
+					ImageManager.shared.image(withSize:.medium, forKey: firstPhoto.id) { image in
 						self.postImage.image = image
 					}
 				}
+//				newImageHeight = postImage.bounds.width / firstPhoto.aspectRatio
 			}
 		}
 		else if let photoArray = photoImages, photoArray.count > 0 {
 			numDisplayedPhotos = photoArray.count
-			if !isPrototypeCell, numDisplayedPhotos == 1 {
-				self.postImage.image = UIImage(data: photoArray[0])
+			if numDisplayedPhotos == 1, let newImage = UIImage(data: photoArray[0]) {
+				postImage.image = newImage
+//				newImageHeight = postImage.bounds.width * newImage.size.width / newImage.size.height
 			}
 		}
 		else {
 			postImage.image = nil
 			numDisplayedPhotos = 0
+//			newImageHeight = 200
 		}
 		
-		// If the cell is selected and has exactly 1 photo we resize the cell on select to fit the photo's aspect ratio.
-		var newImageHeight: CGFloat = 200.0
-		if privateSelected, let photos = photos, photos.count == 1 {
-			let photoDetails = photos[0] 
-			newImageHeight = postImage.bounds.width / photoDetails.aspectRatio
-		}
-		postImageHeightConstraint.constant = newImageHeight
+		// TODO: Why this repeat loop is required is beyond me. Never seen it require
+		// more than 2 passes, but why does setting isHidden sometimes fail the first time?
+		// LoopBreak is just here as a guard against infinite looping.
+		var loopBreak = 0
+		repeat {
+			postImage.isHidden = numDisplayedPhotos != 1
+			loopBreak = loopBreak + 1
+		} while (postImage.isHidden != (numDisplayedPhotos != 1)) && loopBreak < 200
+//		let finalImageHeight = privateSelected ? newImageHeight : 200
+//		loopBreak = 0
+//		repeat {
+//			postImageHeightConstraint.constant = finalImageHeight
+//			loopBreak = loopBreak + 1
+//		} while postImageHeightConstraint.constant != finalImageHeight && loopBreak < 200
 		
-		
-		postImage.isHidden = numDisplayedPhotos != 1
-		postImagesCollection.isHidden = numDisplayedPhotos <= 1
+		loopBreak = 0
+		repeat {
+			postImagesCollection.isHidden = numDisplayedPhotos < 2
+			loopBreak = loopBreak + 1
+		} while (postImagesCollection.isHidden != (numDisplayedPhotos < 2)) && loopBreak < 200
 		photoPageControl.numberOfPages = numDisplayedPhotos == 0 ? 1 : numDisplayedPhotos
 //		photoPageControl.isHidden = numDisplayedPhotos == 0
 	}
@@ -620,38 +634,40 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		
-		// Set up gesture recognizer to detect taps on the (single) photo, and open the fullscreen photo overlay.
-		let photoTap = UITapGestureRecognizer(target: self, action: #selector(TwitarrTweetCell.photoTapped(_:)))
-//		photoTap.delegate = self
-	 	postImage.addGestureRecognizer(photoTap)
+		if !isPrototypeCell {
+			// Set up gesture recognizer to detect taps on the (single) photo, and open the fullscreen photo overlay.
+			let photoTap = UITapGestureRecognizer(target: self, action: #selector(TwitarrTweetCell.photoTapped(_:)))
+	//		photoTap.delegate = self
+			postImage.addGestureRecognizer(photoTap)
 		
 		// Set up the internal collection view for displaying multiple photos
-		postImagesCollection.register(TwitarrPostPhotoCell.self, forCellWithReuseIdentifier: "photo")
-		postImagesCollection.dataSource = self
-		postImagesCollection.delegate = self
-		postImagesCollection.collectionViewLayout = TwitarrCellHorizScrollLayout()
-		postImagesCollection.backgroundColor = UIColor(named: "CollectionView Background")
+			postImagesCollection.register(TwitarrPostPhotoCell.self, forCellWithReuseIdentifier: "photo")
+			postImagesCollection.dataSource = self
+			postImagesCollection.delegate = self
+			postImagesCollection.collectionViewLayout = TwitarrCellHorizScrollLayout()
+			postImagesCollection.backgroundColor = UIColor(named: "CollectionView Background")
 
-		// Every 10 seconds, update the post time (the relative time since now that the post happened).
-		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
-				queue: nil) { [weak self] notification in
-    		if let self = self, let cellModel = self.model as? TwitarrTweetCellBindingProtocol, !cellModel.isDeleted {
-    			let titleAttrString = NSMutableAttributedString()
-    			if let authorName = cellModel.author?.displayName {
-					titleAttrString.append(NSMutableAttributedString(string: "\(authorName), ", 
-							attributes: self.authorTextAttributes()))
+			// Every 10 seconds, update the post time (the relative time since now that the post happened).
+			NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
+					queue: nil) { [weak self] notification in
+				if let self = self, let cellModel = self.model as? TwitarrTweetCellBindingProtocol, !cellModel.isDeleted {
+					let titleAttrString = NSMutableAttributedString()
+					if let authorName = cellModel.author?.displayName {
+						titleAttrString.append(NSMutableAttributedString(string: "\(authorName), ", 
+								attributes: self.authorTextAttributes()))
+					}
+					if let postTime = cellModel.postTime {
+						let timeString = StringUtilities.relativeTimeString(forDate: postTime)
+						let timeAttrString = NSAttributedString(string: timeString, attributes: self.postTimeTextAttributes())
+						titleAttrString.append(timeAttrString)
+					}
+					else {
+						// If postTime is nil, it hasn't been posted yet--meaning it's a draft.
+						titleAttrString.append(NSAttributedString(string: "in the near future", 
+								attributes: self.postTimeTextAttributes()))
+					}
+					self.titleLabel.attributedText = titleAttrString
 				}
-				if let postTime = cellModel.postTime {
-					let timeString = StringUtilities.relativeTimeString(forDate: postTime)
-					let timeAttrString = NSAttributedString(string: timeString, attributes: self.postTimeTextAttributes())
-					titleAttrString.append(timeAttrString)
-				}
-				else {
-					// If postTime is nil, it hasn't been posted yet--meaning it's a draft.
-					titleAttrString.append(NSAttributedString(string: "in the near future", 
-							attributes: self.postTimeTextAttributes()))
-				}
-				self.titleLabel.attributedText = titleAttrString
 			}
 		}
 	}
@@ -700,23 +716,24 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			if !isInteractive { return }
 			if !isPrototypeCell, privateSelected == oldValue { return }
 			standardSelectionHandler()
+			setupPhotos()
 			
 			titleLabel.isUserInteractionEnabled = privateSelected
 			tweetTextView.isUserInteractionEnabled = privateSelected
-						
-			var newImageHeight: CGFloat = 200.0
-			if privateSelected, let photos = photos, photos.count == 1 {
-				let photoDetails = photos[0] 
-				newImageHeight = postImage.bounds.width / photoDetails.aspectRatio
-			}
+			
 			if isPrototypeCell {
-				pendingOpsStackView.isHidden = !privateSelected
-				postImageHeightConstraint.constant = newImageHeight
+				// TODO: Why this repeat loop is required is beyond me. Never seen it require
+				// more than 2 passes, but why does setting isHidden sometimes fail the first time?
+				var loopBreak = 0
+				repeat {
+					pendingOpsStackView.isHidden = !privateSelected
+					loopBreak = loopBreak + 1
+				} while pendingOpsStackView.isHidden == privateSelected && loopBreak < 200
+				self.layoutIfNeeded()
 			}
 			else {
 				UIView.animate(withDuration: 0.3) {
 					self.pendingOpsStackView.isHidden = !self.privateSelected
-					self.postImageHeightConstraint.constant = newImageHeight
 					self.layoutIfNeeded()
 				}
 				cellSizeChanged()
@@ -857,14 +874,16 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 
 extension TwitarrTweetCell: UICollectionViewDataSource, UICollectionViewDelegate {
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+		var photoCount = 0
 		if let photoSource = photos, photoSource.count > 0 {
-			return photoSource.count
+			photoCount = photoSource.count
 		}
 		else if let photoSource = photoImages, photoSource.count > 0 {
-			return photoSource.count
+			photoCount = photoSource.count
 		}
 		
-		return 0
+		// Only use the horizontal collectionView if we have > 1 photo.
+		return  photoCount < 2 ? 0 : photoCount
 	}
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

@@ -329,7 +329,7 @@ import MobileCoreServices
 			switch photoPacket {
 			case .camera(let photo): photoCell.cameraPhotos.insert(photo, at: 0)
 			case .image(let image): photoCell.cameraPhotos.insert(image, at: 0)
-			case .library(let asset): break
+			case .library: break
 			}
 		}
 	}	
