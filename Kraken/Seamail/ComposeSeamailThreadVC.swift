@@ -240,7 +240,7 @@ import UIKit
 			SeamailDataManager.shared.queueNewSeamailThreadOp(existingOp: threadToEdit, subject: subjectText, 
 					message: messageText, recipients: usersInThread, done: postQueued)
 			isBusyPosting = true
-			postStatusCell.shouldBeVisible	= true
+			postStatusCell.shouldBeVisible = true
 		}
 	}
 	
@@ -256,7 +256,14 @@ import UIKit
 						self.performSegue(withIdentifier: "dismissingPostingView", sender: nil)
     				}
     			}
+    			else if observed.operationState == .serverError {
+    				// If we get a server error, the user may have to modify the post so that it can work.
+					observer.isBusyPosting = false
+    			}
 			}?.execute()
+    	}
+    	else {
+			isBusyPosting = false
     	}
 
 	}
