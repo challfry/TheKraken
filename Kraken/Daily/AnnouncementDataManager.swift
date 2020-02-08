@@ -51,25 +51,28 @@ import UIKit
 		fetchRequest.predicate = NSPredicate(format: "isActive == true")
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
 		fetchRequest.fetchBatchSize = 50
-		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: LocalCoreData.shared.mainThreadContext, 
+		self.fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: LocalCoreData.shared.mainThreadContext, 
 				sectionNameKeyPath: nil, cacheName: nil)
-		
 		super.init()
-		fetchedData.delegate = self
-		do {
-			try fetchedData.performFetch()
-			if let announcements = fetchedData.fetchedObjects {
-				currentAnnouncements = announcements
-			}
-		}
-		catch {
-			CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
-		}
 		
-		// Update our badge count if user state changes
-		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateAnnouncements.count"]) { observer, observed in
-			observer.updateBadgeCount()
-		}?.execute()
+		DispatchQueue.main.async {
+			
+			self.fetchedData.delegate = self
+			do {
+				try self.fetchedData.performFetch()
+				if let announcements = self.fetchedData.fetchedObjects {
+					self.currentAnnouncements = announcements
+				}
+			}
+			catch {
+				CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
+			}
+			
+			// Update our badge count if user state changes
+			CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateAnnouncements.count"]) { observer, observed in
+				observer.updateBadgeCount()
+			}?.execute()
+		}
 	}
 	
 	func updateBadgeCount() {

@@ -232,6 +232,7 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 		if let vc = viewController as? BaseCollectionViewController {
 			vc.textViewBecameActive(textView, inCell: self)
 		}
+		fitTextViewToText(animated: false)
 	}
 	
 	func textViewDidEndEditing(_ textView: UITextView) {
@@ -241,11 +242,20 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 	}
 	
 	func textViewDidChange(_ textView: UITextView) {
+		fitTextViewToText(animated: true)
+	}
+	
+	func fitTextViewToText(animated: Bool = true) {
 		if let model = cellModel as? TextViewCellModel {
 			model.editedText = textView.text
 			let newSize = textView.sizeThatFits(CGSize(width: textView.frame.size.width, height: 10000.0))
 			if newSize.height != textViewHeightConstraint.constant {
-				let _ = UIViewPropertyAnimator(duration: 0.4, curve: .easeInOut) {
+				if animated {
+					let _ = UIViewPropertyAnimator(duration: 0.4, curve: .easeInOut) {
+						self.textViewHeightConstraint.constant = newSize.height
+					}
+				}
+				else {
 					self.textViewHeightConstraint.constant = newSize.height
 				}
 				cellSizeChanged()

@@ -697,7 +697,6 @@ extension BaseCollectionViewController: UIGestureRecognizerDelegate {
 		}
 		else if sender.state == .ended {
 			if (enableKeyboardCanceling) {
-			print ("AT canceler end")
 				view.endEditing(true)
 			}
 		} 

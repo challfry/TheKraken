@@ -36,7 +36,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="220" verticalHuggingPriority="220" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cKr-kf-R3T">
-                        <rect key="frame" x="20" y="62.5" width="372" height="20.5"/>
+                        <rect key="frame" x="20" y="63.5" width="372" height="20.5"/>
                         <fontDescription key="fontDescription" type="italicSystem" pointSize="17"/>
                         <color key="textColor" name="Red Alert Text"/>
                         <nil key="highlightedColor"/>
@@ -53,11 +53,12 @@
             <constraints>
                 <constraint firstItem="7G2-YV-v4C" firstAttribute="firstBaseline" secondItem="7s5-4e-W56" secondAttribute="firstBaseline" id="24Q-Mm-Nom"/>
                 <constraint firstAttribute="trailing" secondItem="7G2-YV-v4C" secondAttribute="trailing" constant="20" id="C5c-2q-SOS"/>
+                <constraint firstItem="cKr-kf-R3T" firstAttribute="top" relation="greaterThanOrEqual" secondItem="xMt-Wf-JTw" secondAttribute="bottom" constant="8" id="ILc-IQ-H7c"/>
                 <constraint firstItem="cKr-kf-R3T" firstAttribute="leading" secondItem="7s5-4e-W56" secondAttribute="leading" id="NYX-Fr-YAC"/>
                 <constraint firstAttribute="bottom" secondItem="cKr-kf-R3T" secondAttribute="bottom" priority="200" constant="8" id="OZD-VP-95x"/>
                 <constraint firstItem="xMt-Wf-JTw" firstAttribute="top" secondItem="7s5-4e-W56" secondAttribute="bottom" constant="8" id="PeC-4x-Z8l"/>
                 <constraint firstItem="xMt-Wf-JTw" firstAttribute="leading" secondItem="7s5-4e-W56" secondAttribute="leading" id="Q17-r3-iFY"/>
-                <constraint firstItem="cKr-kf-R3T" firstAttribute="top" secondItem="Nkq-fP-8dE" secondAttribute="bottom" constant="7.5" id="U5t-Lo-4VX"/>
+                <constraint firstItem="cKr-kf-R3T" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Nkq-fP-8dE" secondAttribute="bottom" constant="8" id="U5t-Lo-4VX"/>
                 <constraint firstItem="cKr-kf-R3T" firstAttribute="trailing" secondItem="7G2-YV-v4C" secondAttribute="trailing" priority="900" id="UvZ-YK-201"/>
                 <constraint firstItem="7s5-4e-W56" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="WxW-MI-nc2"/>
                 <constraint firstItem="Nkq-fP-8dE" firstAttribute="trailing" secondItem="7G2-YV-v4C" secondAttribute="trailing" id="bEq-hj-yNw"/>

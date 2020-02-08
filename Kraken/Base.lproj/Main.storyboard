@@ -1677,7 +1677,7 @@
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="FkC-iq-TmT">
                                                     <rect key="frame" x="0.0" y="0.0" width="414" height="450"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="450" id="KtE-Ft-uMl"/>
+                                                        <constraint firstAttribute="height" priority="700" constant="450" id="KtE-Ft-uMl"/>
                                                     </constraints>
                                                 </imageView>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
@@ -1734,6 +1734,7 @@
                                     <constraints>
                                         <constraint firstItem="SDP-aC-uac" firstAttribute="leading" secondItem="9Lj-fE-wWt" secondAttribute="leading" id="afi-6C-zDK"/>
                                         <constraint firstAttribute="trailing" secondItem="SDP-aC-uac" secondAttribute="trailing" id="kjT-bN-5Si"/>
+                                        <constraint firstItem="SDP-aC-uac" firstAttribute="top" relation="greaterThanOrEqual" secondItem="9Lj-fE-wWt" secondAttribute="top" id="wcu-Ph-8tn"/>
                                         <constraint firstAttribute="bottom" secondItem="SDP-aC-uac" secondAttribute="bottom" id="wo4-PA-GYt"/>
                                     </constraints>
                                 </view>

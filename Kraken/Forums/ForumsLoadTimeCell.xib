@@ -11,45 +11,45 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="ForumsLoadTime" reuseIdentifier="ForumsLoadTime" id="BOB-P6-82P" customClass="ForumsLoadTimeCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="392" height="50"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="ForumsLoadTime" reuseIdentifier="ForumsLoadTime" id="XZt-km-AFL" customClass="ForumsLoadTimeCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="392" height="44"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="G5n-Vh-MDi">
-                <rect key="frame" x="0.0" y="0.0" width="392" height="50"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Wyv-Ez-91x">
+                <rect key="frame" x="0.0" y="0.0" width="392" height="44"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" text="Last Refresh: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ecQ-YH-zfs">
-                        <rect key="frame" x="20" y="15" width="244" height="21"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <nil key="textColor"/>
-                        <nil key="highlightedColor"/>
-                    </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XNx-gR-xCY">
-                        <rect key="frame" x="284" y="10.5" width="88" height="30"/>
+                        <rect key="frame" x="284" y="7.5" width="88" height="30"/>
                         <state key="normal" title="Refresh Now"/>
                         <state key="disabled">
                             <color key="titleColor" name="Kraken Secondary Text"/>
                         </state>
                         <connections>
-                            <action selector="refreshNotButtonTapped:" destination="BOB-P6-82P" eventType="touchUpInside" id="Hfe-tv-jgY"/>
+                            <action selector="refreshNowButtonTapped:" destination="XZt-km-AFL" eventType="touchUpInside" id="hNI-3s-Fh4"/>
                         </connections>
                     </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" text="Last Refresh: " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ecQ-YH-zfs">
+                        <rect key="frame" x="20" y="12" width="254" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="XNx-gR-xCY" firstAttribute="firstBaseline" secondItem="ecQ-YH-zfs" secondAttribute="firstBaseline" id="BW4-4W-mCu"/>
-                    <constraint firstAttribute="trailing" secondItem="XNx-gR-xCY" secondAttribute="trailing" constant="20" id="J9m-em-0Jl"/>
-                    <constraint firstItem="XNx-gR-xCY" firstAttribute="leading" secondItem="ecQ-YH-zfs" secondAttribute="trailing" constant="20" id="JuX-eQ-Qkf"/>
-                    <constraint firstAttribute="bottom" secondItem="ecQ-YH-zfs" secondAttribute="bottom" constant="14" id="OtZ-38-i3n"/>
-                    <constraint firstItem="ecQ-YH-zfs" firstAttribute="leading" secondItem="G5n-Vh-MDi" secondAttribute="leading" constant="20" id="cuC-KD-3RE"/>
-                    <constraint firstItem="ecQ-YH-zfs" firstAttribute="top" secondItem="G5n-Vh-MDi" secondAttribute="top" constant="15" id="zLR-mA-kGl"/>
+                    <constraint firstItem="ecQ-YH-zfs" firstAttribute="top" secondItem="Wyv-Ez-91x" secondAttribute="top" constant="12" id="8JY-Iq-4oe"/>
+                    <constraint firstAttribute="bottom" secondItem="ecQ-YH-zfs" secondAttribute="bottom" priority="999" constant="11" id="Hr6-ZO-cSS"/>
+                    <constraint firstItem="XNx-gR-xCY" firstAttribute="firstBaseline" secondItem="ecQ-YH-zfs" secondAttribute="firstBaseline" id="cJy-9i-kEu"/>
+                    <constraint firstItem="XNx-gR-xCY" firstAttribute="leading" secondItem="ecQ-YH-zfs" secondAttribute="trailing" constant="10" id="h3c-ce-J9t"/>
+                    <constraint firstAttribute="trailing" secondItem="XNx-gR-xCY" secondAttribute="trailing" constant="20" id="jZR-g1-BnR"/>
+                    <constraint firstItem="ecQ-YH-zfs" firstAttribute="leading" secondItem="Wyv-Ez-91x" secondAttribute="leading" constant="20" id="u7x-Yr-gF2"/>
                 </constraints>
             </collectionViewCellContentView>
-            <size key="customSize" width="392" height="50"/>
+            <size key="customSize" width="392" height="44"/>
             <connections>
-                <outlet property="lastRefreshLabel" destination="ecQ-YH-zfs" id="LwZ-ZK-2LI"/>
-                <outlet property="refreshNowButton" destination="XNx-gR-xCY" id="Ftv-sl-MfE"/>
+                <outlet property="lastRefreshLabel" destination="ecQ-YH-zfs" id="HAH-BW-MFB"/>
+                <outlet property="refreshNowButton" destination="XNx-gR-xCY" id="J6i-ZW-xWZ"/>
             </connections>
-            <point key="canvasLocation" x="208.69565217391306" y="-20.089285714285712"/>
+            <point key="canvasLocation" x="208.69565217391306" y="65.625"/>
         </collectionViewCell>
     </objects>
     <resources>

@@ -75,7 +75,7 @@ class ForumsLoadTimeCell: BaseCollectionViewCell, ForumsLoadTimeBindingProtocol 
 		}
 	}
 	
-	@IBAction func refreshNotButtonTapped(_ sender: Any) {
+	@IBAction func refreshNowButtonTapped(_ sender: Any) {
 		if let m = cellModel as? ForumsLoadTimeCellModel {
 			m.refreshButtonTapped()
 		}

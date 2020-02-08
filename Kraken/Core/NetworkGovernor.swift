@@ -372,9 +372,11 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		// Error, in this context, only refers to networking errors. If the server produces a response, even 
 		// if it's an error response, it's not an 'error'.
 		lastError = error
+		var networkError: NetworkError? 
     	if let error = error {
 			NetworkLog.error("Task completed with error.", ["error" : error])	
 			newConnectionState(.noConnection)	
+			networkError = NetworkError(error.localizedDescription)
     		    		
     		// todo: real error handling here
     		
@@ -388,8 +390,8 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		if foundTask.responseData.count == 0 {
 			responseData = nil
 		}
-		let responsePacket = NetworkResponse(response: task.response, data: responseData, 
-				networkError: NetworkError(error?.localizedDescription))
+		
+		let responsePacket = NetworkResponse(response: task.response, data: responseData, networkError: networkError)
 
 		for doneCallback in foundTask.doneCallbacks {
 			doneCallback(responsePacket)

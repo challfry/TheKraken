@@ -319,12 +319,12 @@ struct PrototypeCellInfo {
 //		setNeedsLayout()
 //		layoutIfNeeded()
 
-		if let cvSize = dataSource?.collectionView?.bounds.size {
-			let size = contentView.systemLayoutSizeFitting(cvSize, 
-					withHorizontalFittingPriority: .required, 
-					verticalFittingPriority: .fittingSizeLevel)
-			return size
-		}
+//		if let cvSize = dataSource?.collectionView?.bounds.size {
+//			let size = contentView.systemLayoutSizeFitting(cvSize, 
+//					withHorizontalFittingPriority: .required, 
+//					verticalFittingPriority: .fittingSizeLevel)
+//			return size
+//		}
 		let size = contentView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
 		calculatedSize = size
 		return size

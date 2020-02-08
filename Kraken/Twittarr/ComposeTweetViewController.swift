@@ -24,7 +24,11 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		return replyLabelCellModel
 	}()
 	
-	lazy var replySourceCellModel = TwitarrTweetCellModel(withModel: parentTweet)
+	lazy var replySourceCellModel: TwitarrTweetCellModel = {
+		let cellModel = TwitarrTweetCellModel(withModel: parentTweet)
+		cellModel.isInteractive = false
+		return cellModel
+	}()
 	
 	lazy var editSourceLabelModel: LabelCellModel = {
 		let cellModel = LabelCellModel("Your original post:")
@@ -35,8 +39,17 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		return cellModel
 	}()
 
-	lazy var editSourceCellModel = TwitarrTweetCellModel(withModel: editTweet)
-	lazy var draftSourceCellModel = TwitarrTweetOpCellModel(withModel: draftTweet)
+	lazy var editSourceCellModel: TwitarrTweetCellModel = {
+		let cellModel = TwitarrTweetCellModel(withModel: editTweet)
+		cellModel.isInteractive = false
+		return cellModel
+	}()
+	
+	lazy var draftSourceCellModel: TwitarrTweetOpCellModel = {
+		let cellModel = TwitarrTweetOpCellModel(withModel: draftTweet)
+		cellModel.isInteractive = false
+		return cellModel
+	}()
 
 	
 	lazy var tweetTextCell: TextViewCellModel = {

@@ -462,13 +462,28 @@ struct TwitarrV2PhotoDetails: Codable {
 		let sizes: [String: String]
 	}
 	
+	private struct RawResponseWithIntID: Codable {
+		let id: Int64
+		let animated: Bool
+		let sizes: [String: String]
+	}
+	
 	init(from decoder: Decoder) throws {
 		do {
-			let rawDecode = try RawResponse(from: decoder)
-			id = rawDecode.id
-			animated = rawDecode.animated
+			var decodeSizes: [String: String]
+			if let rawDecode = try? RawResponse(from: decoder) {
+				id = rawDecode.id
+				animated = rawDecode.animated
+				decodeSizes = rawDecode.sizes
+			}
+			else {
+				let rawDecode = try RawResponseWithIntID(from: decoder)
+				id = "\(rawDecode.id)"
+				animated = rawDecode.animated
+				decodeSizes = rawDecode.sizes
+			}
 			
-			for (sizeTag, photoSize) in rawDecode.sizes {
+			for (sizeTag, photoSize) in decodeSizes {
 				switch sizeTag {
 				case "small_thumb": thumbSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
 				case "medium_thumb": mediumSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
