@@ -191,7 +191,7 @@ import UIKit
 		}
 		
 		// If the author of this post is the current user, mark that they've posted in the thread
-		if author.username == CurrentUser.shared.loggedInUser?.username {
+		if author.username == CurrentUser.shared.getLoggedInUser(in: context)?.username {
 			if let rco = thread.getReadCountObject(context: context), rco.userPosted != true {
 				rco.userPosted = true
 			}

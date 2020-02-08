@@ -345,13 +345,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	// Subclasses can call this to get their URLRequest sent to the server. Handles some of the common
 	// error-handling and bookeeping functions.
 	fileprivate func queueNetworkPost(request: URLRequest, success: @escaping (Data) -> Void, 
-			failure: ((Int) -> Void)? = nil) {
+			failure: ((ServerError) -> Void)? = nil) {
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let err = NetworkGovernor.shared.parseServerError(package) {
 				self.recordServerErrorFailure(err)
-				if let statusCode = (package.response as? HTTPURLResponse)?.statusCode {
-					failure?(statusCode)
-				}
+				failure?(err)
 			}
 			else if package.networkError != nil {
 				if self.retryCount > 4 {
@@ -624,10 +622,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
 				context.delete(postInContext)
 			}
-		}, failure: { statusCode in
+		}, failure: { error in
 			// Even if the call fails we may need to delete the tweet--particularly if the call fails because the 
 			// tweet is no longer there
-			if statusCode == 404 {
+			if let statusCode = error.httpStatus, statusCode == 404 {
 				LocalCoreData.shared.performNetworkParsing { context in
 					context.pushOpErrorExplanation("Failure saving tweet deletion back to Core Data.")
 					let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
@@ -919,7 +917,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			self.recordServerErrorFailure(ServerError("The Schedule Event we were going to follow has disappeared. Perhaps it was deleted on the server?"))
 			return
 		}
-		guard CurrentUser.shared.loggedInUser?.username == author.username else { return }
+		guard CurrentUser.shared.getLoggedInUser(in: context)?.username == author.username else { return }
 		super.post(context: context)
 		
 		// POST or DELETE /api/v2/event/:id/favorite
@@ -946,7 +944,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 
 	override func post(context: NSManagedObjectContext) {
-		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
+		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == author.username else { return }
 		guard let userCommentedOn = userCommentedOn else { return }
 		super.post(context: context)
 
@@ -1020,7 +1018,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 
 	override func post(context: NSManagedObjectContext) {
-		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
+		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), 
+				currentUser.username == author.username else { return }
 		super.post(context: context)
 		
 		let profileUpdateStruct = TwitarrV2UpdateProfileRequest(displayName: displayName, email: email, 
@@ -1033,7 +1032,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.httpMethod = "POST"
 		request.httpBody = requestData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-		queueNetworkPost(request: request, success:  { data in
+		queueNetworkPost(request: request, success: { data in
 			do {
 				let decoder = JSONDecoder()
 				let response = try decoder.decode(TwitarrV2UpdateProfileResponse.self, from: data)
@@ -1041,11 +1040,14 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				if response.status == "ok" {
 					UserManager.shared.updateLoggedInUserInfo(from: response.user)
 				}
+				CurrentUser.shared.lastError = nil
 			}
 			catch {
 				CoreDataLog.error("Failure parsing User Profile Edit response. (the network call succeeded, but we couldn't save the change locally).", 
 						["Error" : error])
 			}
+		}, failure: { error in
+			CurrentUser.shared.lastError = error
 		})
 	}
 }

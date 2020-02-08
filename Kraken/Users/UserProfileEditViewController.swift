@@ -16,13 +16,47 @@ import Photos
 	
 	let dataSource = KrakenDataSource()
 	var avatarCell: ProfileAvatarEditCellModel?
-	var avatarUpdateStatusCell: PostOpStatusCellModel?
-	var displayNameCell: TextFieldCellModel?
-	var realNameCell: TextFieldCellModel?
-	var pronounsCell: TextFieldCellModel?
-	var emailCell: TextFieldCellModel?
-	var homeLocationCell: TextFieldCellModel?
-	var roomNumberCell: TextFieldCellModel?
+	var avatarUpdateStatusCell = PostOpStatusCellModel()
+	var displayNameCell: TextFieldCellModel = {
+		let cell = TextFieldCellModel("Display Name", purpose: .normal)
+		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.display_name") { observer, observed in 
+			if let errors = observed.lastError?.fieldErrors?["display_name"] {
+				observer.errorText = errors[0]
+			}
+			else {
+				observer.errorText = nil
+			}
+		}		
+		return cell
+	}()
+	var realNameCell = TextFieldCellModel("Real Name", purpose: .normal)
+	var pronounsCell = TextFieldCellModel("Preferred Pronouns")
+	var emailCell: TextFieldCellModel = {
+		let cell = TextFieldCellModel("Email", purpose: .email)
+		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.email") { observer, observed in 
+			if let errors = observed.lastError?.fieldErrors?["email"] {
+				observer.errorText = errors[0]
+			}
+			else {
+				observer.errorText = nil
+			}
+		}		
+		return cell
+	}()
+	var homeLocationCell = TextFieldCellModel("Where are you from?", purpose: .normal)
+	var roomNumberCell: TextFieldCellModel = {
+		let cell  = TextFieldCellModel("Room Number", purpose: .roomNumber)
+		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.room_number") { observer, observed in 
+			if let errors = observed.lastError?.fieldErrors?["room_number"] {
+				observer.errorText = errors[0]
+			}
+			else {
+				observer.errorText = nil
+			}
+		}		
+		return cell
+	}()
+	var profileUpdateStatusCell = PostOpStatusCellModel()
 	
 // MARK: Methods
 
@@ -42,68 +76,65 @@ import Photos
 		
     	let section = dataSource.appendFilteringSegment(named: "UserProfile")
     	avatarCell = ProfileAvatarEditCellModel(user: modelKrakenUser)
-    	avatarUpdateStatusCell = PostOpStatusCellModel()
     	let descriptionCell = LabelCellModel("All the fields below are optional. Anything you put in them can be seen by everyone.")
-    	
-		displayNameCell = TextFieldCellModel("Display Name")
-		realNameCell = TextFieldCellModel("Real Name")
-		pronounsCell = TextFieldCellModel("Preferred Pronouns")
-		emailCell = TextFieldCellModel("Email")
-		homeLocationCell = TextFieldCellModel("Where are you from?")
-		roomNumberCell = TextFieldCellModel("Room Number")
-	
+    		
 		self.tell(self, when: "editProfileOp.displayName") { observer, observed in 
-			observer.displayNameCell?.fieldText = observed.editProfileOp?.displayName ?? observer.modelKrakenUser?.displayName
+			observer.displayNameCell.fieldText = observed.editProfileOp?.displayName ?? observer.modelKrakenUser?.displayName
 		}?.execute()
 		self.tell(self, when: "editProfileOp.realNameCell") { observer, observed in 
-			observer.realNameCell?.fieldText = observed.editProfileOp?.realName ?? observer.modelKrakenUser?.realName
+			observer.realNameCell.fieldText = observed.editProfileOp?.realName ?? observer.modelKrakenUser?.realName
 		}?.execute()
 		self.tell(self, when: "editProfileOp.pronouns") { observer, observed in 
-			observer.pronounsCell?.fieldText = observed.editProfileOp?.pronouns ?? observer.modelKrakenUser?.pronouns
+			observer.pronounsCell.fieldText = observed.editProfileOp?.pronouns ?? observer.modelKrakenUser?.pronouns
 		}?.execute()
 		self.tell(self, when: "editProfileOp.email") { observer, observed in 
-			observer.emailCell?.fieldText = observed.editProfileOp?.email ?? observer.modelKrakenUser?.emailAddress
+			observer.emailCell.fieldText = observed.editProfileOp?.email ?? observer.modelKrakenUser?.emailAddress
 		}?.execute()
 		self.tell(self, when: "editProfileOp.displayName") { observer, observed in 
-			observer.homeLocationCell?.fieldText = observed.editProfileOp?.homeLocation ?? observer.modelKrakenUser?.homeLocation
+			observer.homeLocationCell.fieldText = observed.editProfileOp?.homeLocation ?? observer.modelKrakenUser?.homeLocation
 		}?.execute()
 		self.tell(self, when: "editProfileOp.displayName") { observer, observed in 
-			observer.roomNumberCell?.fieldText = observed.editProfileOp?.roomNumber ?? observer.modelKrakenUser?.roomNumber
+			observer.roomNumberCell.fieldText = observed.editProfileOp?.roomNumber ?? observer.modelKrakenUser?.roomNumber
 		}?.execute()
 
 		let saveButtonCell = ButtonCellModel(title: "Save", action: { 
-			CurrentUser.shared.changeUserProfileFields(displayName: self.displayNameCell?.getText(),
-					realName: self.realNameCell?.getText(), pronouns: self.pronounsCell?.getText(), 
-					email: self.emailCell?.getText(), homeLocation: self.homeLocationCell?.getText(), 
-					roomNumber: self.roomNumberCell?.getText())
+			CurrentUser.shared.changeUserProfileFields(displayName: self.displayNameCell.getText(),
+					realName: self.realNameCell.getText(), pronouns: self.pronounsCell.getText(), 
+					email: self.emailCell.getText(), homeLocation: self.homeLocationCell.getText(), 
+					roomNumber: self.roomNumberCell.getText())
 		})
 		
 		// Debug
 //		avatarUpdateStatusCell?.debugLogEnabler = "avatarUpdateStatusCell"
 
 		section.append(avatarCell!)
-		section.append(avatarUpdateStatusCell!)
+		section.append(avatarUpdateStatusCell)
 		section.append(descriptionCell)
-		section.append(displayNameCell!)
-		section.append(realNameCell!)
-		section.append(pronounsCell!)
-		section.append(emailCell!)
-		section.append(homeLocationCell!)
-		section.append(roomNumberCell!)
+		section.append(displayNameCell)
+		section.append(realNameCell)
+		section.append(pronounsCell)
+		section.append(emailCell)
+		section.append(homeLocationCell)
+		section.append(roomNumberCell)
 		section.append(saveButtonCell)
+		section.append(profileUpdateStatusCell)
+		
 
 		// This makes the editProfileOp property always match any profile operation in progress.
 		modelKrakenUser?.tell(self, when: "postOps") { observer, observed in
 			observer.editProfileOp = observed.getPendingProfileEditOp()
 			observer.editPhotoOp = observed.getPendingPhotoEditOp()
-			observer.avatarUpdateStatusCell?.postOp = observer.editPhotoOp
+			observer.avatarUpdateStatusCell.postOp = observer.editPhotoOp
+			observer.profileUpdateStatusCell.postOp = observer.editProfileOp
 		}?.execute()
 
 		knownSegues = Set([.fullScreenCamera, .cropCamera])
 	}
  
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		dataSource.enableAnimations = true
+		CurrentUser.shared.clearErrors()
 	}
 	
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -132,10 +163,10 @@ import Photos
     func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 
     		_ info: [AnyHashable : Any]?) {
 		if let error = error {
-			self.avatarUpdateStatusCell?.errorText = error.localizedDescription
+			self.avatarUpdateStatusCell.errorText = error.localizedDescription
 		}
 		else if let resultInCloud = info?[PHImageResultIsInCloudKey] as? NSNumber, resultInCloud.boolValue == true {
-			self.avatarUpdateStatusCell?.statusText = "Downloading full-sized photo from iCloud"
+			self.avatarUpdateStatusCell.statusText = "Downloading full-sized photo from iCloud"
 		}
 	}
 	
@@ -143,7 +174,7 @@ import Photos
 		ImageManager.shared.resizeImageForUpload(imageContainer: photoContainer, 
 				progress: imageiCloudDownloadProgress) { jpegData, mimeType, error in 
 			if let err = error {
-				self.avatarUpdateStatusCell?.errorText = err.getErrorString()
+				self.avatarUpdateStatusCell.errorText = err.getErrorString()
 			}
 			else if let data = jpegData, let user = self.modelKrakenUser {
 				user.setUserProfilePhoto(photoData: data, mimeType: mimeType ?? "image/jpeg")

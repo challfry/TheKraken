@@ -161,7 +161,7 @@ class RegistrationCodeCellModel: TextFieldCellModel {
 
 class ConfirmPasswordCellModel: TextFieldCellModel {
 	init(segment: LoginDataSourceSegment) {
-		super.init("Confirm Password:", isPassword: true)
+		super.init("Confirm Password:", purpose: .password)
 		
 		segment.tell(self, when: "mode") { observer, observed in 
 				observer.shouldBeVisible = observed.mode == .createAccount || observed.mode == .forgotPassword
@@ -232,8 +232,8 @@ class ForgotPasswordButtonCellModel: ButtonCellModel {
 // MARK: Common to all Modes
 
 class EditUsernameCellModel: TextFieldCellModel {
-	override init(_ titleLabel: String, isPassword: Bool = false) {
-		super.init(titleLabel, isPassword: isPassword)
+	init(_ titleLabel: String) {
+		super.init(titleLabel, purpose: .normal)
 		
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.username", 
 				"lastError.fieldErrors.new_username"]) { observer, observed in 
@@ -252,7 +252,7 @@ class EditUsernameCellModel: TextFieldCellModel {
 
 class EditPasswordCellModel: TextFieldCellModel {
 	init() {
-		super.init("Password:", isPassword: true)
+		super.init("Password:", purpose: .password)
 		
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.new_password", 
 				"lastError.fieldErrors.current_password", "lastError.fieldErrors.password"]) { observer, observed in 

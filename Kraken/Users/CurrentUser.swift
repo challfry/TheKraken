@@ -217,7 +217,8 @@ import CoreData
 	}
 }
 
-// There is at most 1 current logged-in user at a time. That user is specified by CurrentUser.shared.loggedInUser.
+// There is at most 1 *current* logged-in user at a time. That user is specified by CurrentUser.shared.loggedInUser.
+// We may store the login token for multiple users, but only one of them is *active* at a time.
 @objc class CurrentUser: NSObject {
 	static let shared = CurrentUser()
 	
@@ -342,8 +343,16 @@ import CoreData
 		if keyToUseDuringLogin != nil {
 			queryParams.append(URLQueryItem(name: "key", value: keyToUseDuringLogin))
 		}
-		else if let authKey = CurrentUser.shared.loggedInUser?.twitarrV2AuthKey {
-			queryParams.append(URLQueryItem(name: "key", value: authKey))
+		else {
+			// Make sure we pull the auth key from the main thread
+			let mainContext = LocalCoreData.shared.mainThreadContext
+			var authKey: String?
+			mainContext.performAndWait {
+				authKey = CurrentUser.shared.loggedInUser?.twitarrV2AuthKey
+			}
+			if let authKey = authKey {
+				queryParams.append(URLQueryItem(name: "key", value: authKey))
+			}
 		}
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
 		

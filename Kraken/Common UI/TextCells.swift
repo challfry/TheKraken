@@ -14,7 +14,7 @@ import UIKit
 	dynamic var labelText: String? { get set }
 	dynamic var fieldText: String? { get set }
 	dynamic var errorText: String? { get set }
-	dynamic var isPassword: Bool { get set }
+	dynamic var purpose: TextFieldCellModel.Purpose { get set }
 	dynamic var showClearTextButton: Bool { get set }
 	dynamic var returnButtonHit: ((String) -> Void)? { get set } 
 }
@@ -26,14 +26,22 @@ import UIKit
 	dynamic var labelText: String?
 	@objc dynamic var fieldText: String?
 	dynamic var errorText: String?
-	dynamic var isPassword: Bool = false
+	dynamic var purpose: Purpose = .normal
 	dynamic var showClearTextButton: Bool = false
 	dynamic var returnButtonHit: ((String) -> Void)?
 	@objc dynamic var editedText: String?			// Cell fills this in
 	
-	init(_ titleLabel: String, isPassword: Bool = false) {
+	@objc enum Purpose: Int {
+		case normal
+		case email
+		case roomNumber
+		case password
+		case url
+	}
+	
+	init(_ titleLabel: String, purpose: Purpose = .normal) {
 		labelText = titleLabel
-		self.isPassword = isPassword
+		self.purpose = purpose
 		super.init(bindingWith: TextFieldCellProtocol.self)
 	}
 	
@@ -82,12 +90,29 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	var errorText: String? {
 		didSet { errorLabel.text = errorText; cellSizeChanged() }
 	}
-	var isPassword: Bool = false {
+	
+	var purpose: TextFieldCellModel.Purpose = .normal {
 		didSet {
-			textField.clearsOnBeginEditing = isPassword
-			textField.isSecureTextEntry = isPassword
+			textField.clearsOnBeginEditing = false
+			textField.isSecureTextEntry = false
+			
+			switch purpose {
+			case .normal:
+				textField.keyboardType = .default
+			case .email:
+				textField.keyboardType = .emailAddress
+			case .roomNumber:
+				textField.keyboardType = .numberPad
+			case .password:
+				textField.keyboardType = .default
+				textField.clearsOnBeginEditing = true
+				textField.isSecureTextEntry = true
+			case .url:
+				textField.keyboardType = .URL
+			}
 		}
 	}
+	
 	var showClearTextButton: Bool = false {
 		didSet {
 			textField.clearButtonMode = showClearTextButton ? .always : .never
