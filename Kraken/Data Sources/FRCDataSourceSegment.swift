@@ -522,7 +522,6 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			if let protoCell = cellModel.makePrototypeCell(for: collectionView, indexPath: indexPath) {
 				let newSize = protoCell.calculateSize()
 				cellModel.cellSize = newSize
-				cellModel.unbind(cell: protoCell)
 				log.debug("New size for cell at \(indexPath) is \(newSize)", ["DS" : self])
 							
 				return newSize

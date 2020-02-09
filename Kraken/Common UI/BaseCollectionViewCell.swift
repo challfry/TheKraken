@@ -71,7 +71,7 @@ import UIKit
 			cell.dataSource = collectionView.dataSource as? KrakenDataSource
 			cell.cellModel = self
 			if let prot = self.bindingProtocol {
-				cell.bind(to:self, with: prot)
+				cell.copyProperties(from: self, in: prot)
 			}
 			cell.isBuildingCell = false
 			

@@ -92,6 +92,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 	}
 		
     override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		if currentFilterType == .allWithActivitySort {
 			ForumsDataManager.shared.checkRefreshForumTheads(false)
 		}
@@ -101,6 +102,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 	}
 	
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		threadDataSource.enableAnimations = true
 	}
 	

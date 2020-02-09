@@ -181,6 +181,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		loginDataSource.enableAnimations = true
 		composeDataSource.enableAnimations = true
 		
@@ -190,6 +191,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	}
 
 	override func viewDidDisappear(_ animated: Bool) {
+    	super.viewDidDisappear(animated)
 		if !postSuccess {
 			TwitarrDataManager.shared.saveDraftPost(text: tweetTextCell.editedText, replyingTo: parentTweet?.id)
 		}

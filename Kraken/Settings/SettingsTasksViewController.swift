@@ -53,6 +53,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 	}	
 		
     override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		dataSource.enableAnimations = true
 	}
 	

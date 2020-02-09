@@ -16,6 +16,8 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 	var childVCSize: CGSize = CGSize.zero
 	var numColumns: Int = 1
 	var columnWidth: CGFloat = 0
+	
+	var deepSeaView: UIView?
 
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -30,7 +32,17 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
     override func viewDidLoad() {
         super.viewDidLoad()
 		determineChildLayout(for: view.bounds.size)
-    }
+
+		// Show the background image in Deep Sea Mode
+		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
+			if observed.uiDisplayStyle == .deepSeaMode {
+				observer.buildDeepSeaImage()
+			}
+			UIView.animate(withDuration: 0.3) {
+				observer.deepSeaView?.alpha = observed.uiDisplayStyle == .deepSeaMode ? 1.0 : 0.0
+			}
+		}?.execute()
+	}
     
     func determineChildLayout(for ourSize: CGSize) {
     	let viewWidth = ourSize.width
@@ -98,4 +110,21 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 	override func viewWillLayoutSubviews() {
 		determineChildLayout(for: view.bounds.size)
 	}
+	
+	func buildDeepSeaImage() {
+		var deepSeaView: UIView & DeepSeaView
+		if Bool.random() {
+			deepSeaView = OctopusPictureView(frame: view.frame)
+		}
+		else {
+			deepSeaView = SquidAnimationView(frame: view.frame)
+		}
+		view.addSubview(deepSeaView)
+		view.sendSubviewToBack(deepSeaView)
+		deepSeaView.buildDeepSeaImage()
+		deepSeaView.alpha = 0.0
+		self.deepSeaView = deepSeaView
+	}
+		
+
 }

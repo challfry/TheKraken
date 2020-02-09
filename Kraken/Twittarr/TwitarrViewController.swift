@@ -58,10 +58,12 @@ class TwitarrViewController: BaseCollectionViewController {
 	}
     
     override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		tweetDataSource.enableAnimations = true
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		// Every time our view appears, make sure the visible tweets have a 'fresh' cache status.
 		if collectionView.indexPathsForVisibleItems.count > 0 {
 			collectionView.indexPathsForVisibleItems.forEach { filterPack?.checkLoadRequiredFor(index: $0.row) }

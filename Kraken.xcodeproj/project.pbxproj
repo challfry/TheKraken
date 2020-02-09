@@ -81,6 +81,7 @@
 		EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */; };
 		EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */; };
 		EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A81231E212A0071BFEA /* Alerts.swift */; };
+		EA6CD9B823EF873500B9BC3C /* SquidAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
@@ -302,6 +303,7 @@
 		EA6A8A75231908F80071BFEA /* EventSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EventSectionHeaderView.xib; sourceTree = "<group>"; };
 		EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventSectionHeaderView.swift; sourceTree = "<group>"; };
 		EA6A8A81231E212A0071BFEA /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
+		EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquidAnimation.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
@@ -454,6 +456,7 @@
 			isa = PBXGroup;
 			children = (
 				EA03EFFF23E062C90086894D /* ContainerViewController.swift */,
+				EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */,
 				EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */,
 				EA4E84F1232C74D00059E5EB /* DisabledContentViewController.swift */,
 				EA4E84F3232C74FE0059E5EB /* DisabledContentViewController.xib */,
@@ -1149,6 +1152,7 @@
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
+				EA6CD9B823EF873500B9BC3C /* SquidAnimation.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
 				EABD300923DAD7E000232F28 /* SwiftyMarkdown+macOS.swift in Sources */,
 				EA8694B423D4A5A800ABE391 /* AnnouncementCell.swift in Sources */,

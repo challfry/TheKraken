@@ -58,6 +58,7 @@ class DeckMapViewController: UIViewController {
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		if let initialRoom = roomToShow {
 			pointAtRoom(initialRoom)
 		}

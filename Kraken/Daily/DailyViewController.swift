@@ -99,16 +99,22 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		// Lighter Mode
 
   		dataSource.register(with: collectionView, viewController: self)
+  		
+  		
     }
     
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		dataSource.enableAnimations = true
 		AnnouncementDataManager.shared.markAllAnnouncementsRead()
+		CoreMotion.shared.start()
 	}
 	
 	override func viewDidDisappear(_ animated: Bool) {
+    	super.viewDidDisappear(animated)
 		// Mark Announcements read both when we appear and when we disappear.
 		AnnouncementDataManager.shared.markAllAnnouncementsRead()
+		CoreMotion.shared.stop()
 	}
     
     func createAnnouncementCellModel(_ model: Announcement) -> BaseCellModel {
@@ -154,5 +160,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		deckMapCell?.contentDisabled = disabledSections.contains(.deckPlans)
 		karaokeCell?.contentDisabled = disabledSections.contains(.karaoke)
     }
+    
+	
+	
 
 }

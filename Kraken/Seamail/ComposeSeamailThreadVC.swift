@@ -150,7 +150,8 @@ import UIKit
     }
     
     override func viewDidAppear(_ animated: Bool) {
-    	composeDataSource.enableAnimations = true
+    	super.viewDidAppear(animated)
+		composeDataSource.enableAnimations = true
 		UserManager.shared.clearRecentAutocorrectSearches()
 	}
     

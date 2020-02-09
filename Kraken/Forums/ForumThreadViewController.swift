@@ -76,10 +76,12 @@ class ForumThreadViewController: BaseCollectionViewController {
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		threadDataSource.enableAnimations = true
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
+    	super.viewWillDisappear(animated)
 		if let tm = threadModel {
 			tm.updateLastReadTime()
 		}

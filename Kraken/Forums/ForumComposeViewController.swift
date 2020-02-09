@@ -213,6 +213,7 @@ import MobileCoreServices
 	}
 	
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		loginDataSource.enableAnimations = true
 		composeDataSource.enableAnimations = true
 		

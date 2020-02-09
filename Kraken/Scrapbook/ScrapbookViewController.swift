@@ -81,6 +81,7 @@ class ScrapbookViewController: BaseCollectionViewController {
 	}
 	
     override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		favoritesDataSource.enableAnimations = true
 	}
 	

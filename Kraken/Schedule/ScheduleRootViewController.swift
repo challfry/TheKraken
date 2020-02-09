@@ -92,6 +92,7 @@ import EventKitUI
 	
 	var minuteNotification: Any?
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		dataManager.refreshEventsIfNecessary()
 		
 		scheduleDataSource.enableAnimations = true
@@ -112,6 +113,7 @@ import EventKitUI
 	}
 	
 	override func viewDidDisappear(_ animated: Bool) {
+    	super.viewDidDisappear(animated)
 		if let mn = minuteNotification	{
 			NotificationCenter.default.removeObserver(mn)
 		}

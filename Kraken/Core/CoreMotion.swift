@@ -11,11 +11,13 @@ import CoreMotion
 
 // CMMotionManager needs to be a singleton in the app; it configures the motion sensors, and they can only
 // be configured one way.
-class CoreMotion: NSObject {
+@objc class CoreMotion: NSObject {
 	static let shared = CoreMotion()
 	let manager = CMMotionManager()
 	var currentDeviceOrientation: UIDeviceOrientation = .portrait
 	var forceNotifyNextPass = false
+	
+	@objc dynamic var motionState: CMDeviceMotion?
 	
 	static let OrientationChanged = NSNotification.Name("KrakenOrientationChanged")
 
@@ -24,6 +26,8 @@ class CoreMotion: NSObject {
 		if manager.isDeviceMotionAvailable {
 			manager.startDeviceMotionUpdates(using: .xArbitraryZVertical, to: .main) { (data, error) in 
 				if let data = data {
+					self.motionState = data
+					
 //					let q = data.attitude.quaternion
 //					print("w: \(Int(q.w * 10)) x: \(Int(q.x * 10)) y: \(Int(q.y * 10)) z: \(Int(q.z * 10))")
 

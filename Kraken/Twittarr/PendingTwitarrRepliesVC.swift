@@ -31,6 +31,7 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
   }
     
     override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		tweetDataSource.enableAnimations = true
 	}
 

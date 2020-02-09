@@ -39,6 +39,7 @@ import UIKit
     }
     
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		dataSource.enableAnimations = true
 	}
     

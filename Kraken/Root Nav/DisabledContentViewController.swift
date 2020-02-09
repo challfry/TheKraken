@@ -63,6 +63,7 @@ class DisabledContentViewController: UIViewController {
     }
     
 	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
     	var featureName: String
     	var featurePath: String
 		switch (tabBeingReplaced ?? .unknown) {

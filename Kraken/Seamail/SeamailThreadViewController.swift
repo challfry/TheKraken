@@ -103,6 +103,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		compositeDataSource.enableAnimations = true
 		threadModel?.markThreadAsRead()
 	}

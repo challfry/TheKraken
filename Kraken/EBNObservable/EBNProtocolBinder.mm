@@ -68,6 +68,31 @@ template<typename T> ObservationBlock EBN_Template_PropertyCopyBlock(SEL getterS
 	[observed stopTelling:self aboutChangesToArray:[propertiesToStopObserving allObjects]];
 }
 
+/****************************************************************************************************
+	copyPropertiesFrom:inProtocol:
+    
+    Makes the receiver stop receiving updates from changes to properties in the given bound protocol.
+	
+	It's okay to call this if the protocol isn't currently bound.
+*/
+- (void) copyPropertiesFrom:(id) propertySource inProtocol:(Protocol *) protocol
+{
+	EBAssert([self conformsToProtocol:protocol], @"The receiver object must conform to the protocol you're trying to bind.");
+	EBAssert([propertySource conformsToProtocol:protocol], @"The observed object must conform to the protocol you're trying to bind.");
+	
+	NSMutableSet *propertiesToCopy = EBN_GetProtocolProperties(protocol);
+	for (NSString *propName in propertiesToCopy)
+	{
+		SEL selfSelector = ebn_selectorForPropertySetter([self class], propName);
+		SEL sourceSelector = ebn_selectorForPropertyGetter([propertySource class], propName);
+		if (selfSelector && sourceSelector)
+		{
+			ObservationBlock block = EBN_BlockForCopyingProperty(propertySource, sourceSelector, self, selfSelector);
+			block(self, propertySource);
+		}
+	}
+}
+
 @end
 
 #pragma mark - Internal

@@ -119,6 +119,7 @@ class BaseCollectionViewController: UIViewController {
 	var enableKeyboardCanceling = true
 	var isKeyboardVisible: Bool = false
 	var indexPathToScrollToVisible: IndexPath?
+	var allowTransparency = true
 	
 	// Properties of the Image Viewer. This is a covering view that shows an image. Other UI elements can call showImageInOverlay()
 	// on this VC and we'll show the provided image in a translucent overlay over the regular content.
@@ -131,8 +132,7 @@ class BaseCollectionViewController: UIViewController {
 	var photoWidthConstraint: NSLayoutConstraint?
 	var zoomViewWidthConstraint: NSLayoutConstraint?
 	var zoomViewHeightConstraint: NSLayoutConstraint?
-
-
+	
 	// Subclasses should set this to the list of global segue enums (see above) they actually support in their viewDidLoad method.
 	var knownSegues: Set<GlobalKnownSegue> = Set()
 
@@ -161,24 +161,9 @@ class BaseCollectionViewController: UIViewController {
 
 		// CoreMotion is our own device motion manager, a singleton for the whole app. We use it here to get device
 		// orientation without allowing our UI to actually rotate.
-		NotificationCenter.default.addObserver(self, selector: #selector(CameraViewController.deviceRotationNotification), 
+		NotificationCenter.default.addObserver(self, selector: #selector(BaseCollectionViewController.deviceRotationNotification), 
 				name: CoreMotion.OrientationChanged, object: nil)
-				
-
-		let bgImage = UIImageView(frame: view.frame)
-		view.addSubview(bgImage)
-		view.sendSubviewToBack(bgImage)
-		bgImage.image = UIImage(named: "octo1")
-		bgImage.contentMode = .scaleAspectFill
-		bgImage.alpha = 0.0
-		
-		// Show the background image in Deep Sea Mode
-		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
-			UIView.animate(withDuration: 0.3) {
-				bgImage.alpha = observed.uiDisplayStyle == .deepSeaMode ? 1.0 : 0.0
-			}
-		}?.execute()
-		
+						
 		// Shift the collectionView down a bit if we're showing the no network warning view.
 		// It'd be cleaner to do this in the KrakenNavController, where the 'No Network' banner is, but I don't see how.
 		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, governor in
@@ -196,8 +181,25 @@ class BaseCollectionViewController: UIViewController {
 				}
 			}
 		}?.execute()
-	}
 		
+		// Set the background color to clear in Deep Sea Mode
+		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
+			UIView.animate(withDuration: 0.3) {
+				self.view.backgroundColor = observed.uiDisplayStyle == .deepSeaMode ? UIColor.clear : 
+						UIColor(named: "VC Background")
+			}
+		}
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		if allowTransparency {
+			UIView.animate(withDuration: 0.3) {
+				self.view.backgroundColor = Settings.shared.uiDisplayStyle == .deepSeaMode ? UIColor.clear : 
+						UIColor(named: "VC Background")
+			}
+		}
+	}
+	
 	func showImageInOverlay(image: UIImage) {
 		if let win = view.window {
 			CoreMotion.shared.start()

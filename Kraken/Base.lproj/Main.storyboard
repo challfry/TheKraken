@@ -511,9 +511,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="88" width="200" height="201"/>
+                                <rect key="frame" x="214" y="88" width="200" height="200.5"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -2242,7 +2242,7 @@
                     <view key="view" contentMode="scaleToFill" id="9lz-8D-YFB">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <viewLayoutGuide key="safeArea" id="Wm2-Yb-KAu"/>
                     </view>
                 </viewController>
@@ -2377,11 +2377,11 @@
         <segue reference="Wbs-WK-1Tg"/>
         <segue reference="N8d-TY-d67"/>
         <segue reference="1ve-Md-YVN"/>
-        <segue reference="6N4-83-66a"/>
+        <segue reference="d2l-zp-S48"/>
         <segue reference="RHM-8H-1Ru"/>
         <segue reference="Ieo-oe-rtR"/>
         <segue reference="gdr-Cd-yXW"/>
-        <segue reference="llS-CN-BhZ"/>
+        <segue reference="ZQM-8h-AgF"/>
         <segue reference="wjx-Zr-mfc"/>
         <segue reference="rR9-QS-2f0"/>
         <segue reference="2Ae-eC-yt5"/>

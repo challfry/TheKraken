@@ -46,4 +46,6 @@
 */
 - (void) unbind:(nullable id) observed fromProtocol:(nonnull Protocol *) protocol;
 
+- (void) copyPropertiesFrom:(nonnull id) propertySource inProtocol:(nonnull Protocol *) protocol;
+
 @end

@@ -90,6 +90,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
     }
     
     override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
 		loginDataSource.enableAnimations = true
 		threadDataSource.enableAnimations = true
 		loginSection.clearAllSensitiveFields()

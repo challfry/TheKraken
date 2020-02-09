@@ -49,6 +49,8 @@ class ModalLoginViewController: BaseCollectionViewController {
     }
 	
     override func viewDidAppear(_ animated: Bool) {
+	    allowTransparency = false
+    	super.viewDidAppear(animated)
 		loginDataSource.enableAnimations = true
 	}
 }

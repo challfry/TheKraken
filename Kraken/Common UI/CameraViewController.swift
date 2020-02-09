@@ -130,6 +130,7 @@ class CameraViewController: UIViewController {
         }
         catch {
         	CameraLog.debug("Couldn't set up audio session.")
+        	audioSession = nil
         }
       	
       	// Create a custom volume display, with a zero-sized frame
@@ -137,6 +138,10 @@ class CameraViewController: UIViewController {
         volView.clipsToBounds = true
         view.addSubview(volView)
         
+	}
+	
+	deinit {
+		audioSession?.removeObserver(self, forKeyPath: "outputVolume")
 	}
 	
 	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -164,11 +169,12 @@ class CameraViewController: UIViewController {
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
-		
+    	super.viewDidAppear(animated)		
 		cameraPreview?.frame = cameraView.bounds
 	}
 	
 	override func viewDidDisappear(_ animated: Bool) {
+    	super.viewDidDisappear(animated)
 		CoreMotion.shared.stop()
 		if haveLockOnDevice {
 			cameraDevice?.unlockForConfiguration()

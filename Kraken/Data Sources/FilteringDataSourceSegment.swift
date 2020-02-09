@@ -73,7 +73,6 @@ fileprivate struct Log: LoggingProtocol {
 		else if let protoCell = cellModel.makePrototypeCell(for: collectionView, indexPath: indexPath) {
 			cellSize = protoCell.calculateSize()
 			cellModel.cellSize = cellSize
-			cellModel.unbind(cell: protoCell)
 		}
 		else {
 			cellSize = CGSize(width:collectionView.bounds.size.width, height: 50)

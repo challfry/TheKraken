@@ -81,112 +81,111 @@ class ArrayDataSourceSegment<ModelObjectType>: KrakenDataSourceSegment, KrakenDa
 			}
 		}
 		else {
-				// Step 1: Make a dict of all the objectIDs in the old state
-				var oldCellDict: [ NSManagedObjectID : FRCDifference ] = [:]
-				for (sectionIndex, section) in cellModelSections.enumerated() {
-					for (cellIndex, cellModel) in section.enumerated() {
-						if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
-								let model = frcCellModel.model as? NSManagedObject {
-							let diff = FRCDifference(model.objectID)
-							diff.oldIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
-							oldCellDict[model.objectID] = diff
+			// Step 1: Make a dict of all the objectIDs in the old state
+			var oldCellDict: [ NSManagedObjectID : FRCDifference ] = [:]
+			for (sectionIndex, section) in cellModelSections.enumerated() {
+				for (cellIndex, cellModel) in section.enumerated() {
+					if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
+							let model = frcCellModel.model as? NSManagedObject {
+						let diff = FRCDifference(model.objectID)
+						diff.oldIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+						oldCellDict[model.objectID] = diff
+					}
+				}
+			}
+			log.d("oldCellDict \(oldCellDict)")
+			
+			// Step 2: Iterate through the new objects, generate differences between old and new. 
+			var newCellArray: [FRCDifference] = []
+			var commonCells: [ NSManagedObjectID : FRCDifference ] = [:]
+			for (sectionIndex, section) in frcSections.enumerated() {
+				var insertsThisSection: [IndexPath] = []
+				var foundOldCellThisSection: Bool = false
+				if let cellArray = section.objects as? [NSManagedObject] {
+					for (cellIndex, model) in cellArray.enumerated() {
+						if let commonDiffObject = oldCellDict.removeValue(forKey: model.objectID) {
+							// This is a cell common to old and new
+							commonDiffObject.newIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+							newCellArray.append(commonDiffObject) 
+							commonCells.updateValue(commonDiffObject, forKey: model.objectID)
+							foundOldCellThisSection = true
+						}
+						else {
+							// Cells in new that aren't in old are inserts
+							insertsThisSection.append(IndexPath(row: cellIndex, section: sectionIndex))
+							let insertObj = FRCDifference(model.objectID)
+							insertObj.isInsertOrDelete = true
+							insertObj.newIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+							newCellArray.append(insertObj)
 						}
 					}
 				}
-				log.d("oldCellDict \(oldCellDict)")
 				
-				// Step 2: Iterate through the new objects, generate differences between old and new. 
-				var newCellArray: [FRCDifference] = []
-				var commonCells: [ NSManagedObjectID : FRCDifference ] = [:]
-				for (sectionIndex, section) in frcSections.enumerated() {
-					var insertsThisSection: [IndexPath] = []
-					var foundOldCellThisSection: Bool = false
-					if let cellArray = section.objects as? [NSManagedObject] {
-						for (cellIndex, model) in cellArray.enumerated() {
-							if let commonDiffObject = oldCellDict.removeValue(forKey: model.objectID) {
-								// This is a cell common to old and new
-								commonDiffObject.newIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
-								newCellArray.append(commonDiffObject) 
-								commonCells.updateValue(commonDiffObject, forKey: model.objectID)
-								foundOldCellThisSection = true
-							}
-							else {
-								// Cells in new that aren't in old are inserts
-								insertsThisSection.append(IndexPath(row: cellIndex, section: sectionIndex))
-								let insertObj = FRCDifference(model.objectID)
-								insertObj.isInsertOrDelete = true
-								insertObj.newIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
-								newCellArray.append(insertObj)
-							}
-						}
-					}
-					
-					// If none of the cells in this section are in old, this is a section insert.
+				// If none of the cells in this section are in old, this is a section insert.
 //					if foundOldCellThisSection {
-						insertCells.append(contentsOf: insertsThisSection)
+					insertCells.append(contentsOf: insertsThisSection)
 //					}
 //					else {
 //						insertSections.insert(sectionIndex)
 //					}
-				}
-				
-				// Step 3: Iterate the old cells again, mark deletes
-				var oldCellArray: [FRCDifference] = []
-				for (sectionIndex, section) in cellModelSections.enumerated() {
-					for (cellIndex, cellModel) in section.enumerated() {
-						var deletesThisSection: [IndexPath] = []
-					//	var foundCommonCellThisSection: Bool = false
-						if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
-								let model = frcCellModel.model as? NSManagedObject {
-							if let commonDiffObject = commonCells[model.objectID] {
-								commonDiffObject.oldIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
-								oldCellArray.append(commonDiffObject) 
-						//		foundCommonCellThisSection = true
-							} 
-							else if let oldDiffObject = oldCellDict[model.objectID] {
-								oldDiffObject.isInsertOrDelete = true
-								oldCellArray.append(oldDiffObject)
-								if let oldPath = oldDiffObject.oldIndexPath {
-									deletesThisSection.append(oldPath)
-								}
-							}
-							else {
-								log.error("Diffing error. Each cell got put into one of 2 dictionaries, and now this cell is in neither of them.")
+			}
+			
+			// Step 3: Iterate the old cells again, mark deletes
+			var oldCellArray: [FRCDifference] = []
+			for (sectionIndex, section) in cellModelSections.enumerated() {
+				for (cellIndex, cellModel) in section.enumerated() {
+					var deletesThisSection: [IndexPath] = []
+				//	var foundCommonCellThisSection: Bool = false
+					if let frcCellModel = cellModel as? FetchedResultsBindingProtocol,
+							let model = frcCellModel.model as? NSManagedObject {
+						if let commonDiffObject = commonCells[model.objectID] {
+							commonDiffObject.oldIndexPath = IndexPath(row: cellIndex, section: sectionIndex)
+							oldCellArray.append(commonDiffObject) 
+					//		foundCommonCellThisSection = true
+						} 
+						else if let oldDiffObject = oldCellDict[model.objectID] {
+							oldDiffObject.isInsertOrDelete = true
+							oldCellArray.append(oldDiffObject)
+							if let oldPath = oldDiffObject.oldIndexPath {
+								deletesThisSection.append(oldPath)
 							}
 						}
-						
-						deleteCells.append(contentsOf: deletesThisSection)
+						else {
+							log.error("Diffing error. Each cell got put into one of 2 dictionaries, and now this cell is in neither of them.")
+						}
 					}
-				}
-				
-				// Step 4: Dual Iterate. New until common cell, then old until common cell, then either Move Op to the
-				// index in new, or increment both old and new if they're the same cell.
-				var newIterator = newCellArray.makeIterator()
-				var oldIterator = oldCellArray.makeIterator()
-				var newValue: FRCDifference? = newIterator.next()
-				var oldValue: FRCDifference? = oldIterator.next()
-				while newValue != nil || oldValue != nil {
-					while let nv = newValue, nv.isInsertOrDelete {
-						newValue = newIterator.next()
-					}
-					while let ov = oldValue, ov.isInsertOrDelete {
-						oldValue = oldIterator.next()
-					}
-					if oldValue?.id == newValue?.id {
-						// TODO: Check the case where this cell is 'next' in both new and old, and yet we need to perform a
-						// move because it crosses sections in one but not the other.
 					
+					deleteCells.append(contentsOf: deletesThisSection)
+				}
+			}
+			
+			// Step 4: Dual Iterate. New until common cell, then old until common cell, then either Move Op to the
+			// index in new, or increment both old and new if they're the same cell.
+			var newIterator = newCellArray.makeIterator()
+			var oldIterator = oldCellArray.makeIterator()
+			var newValue: FRCDifference? = newIterator.next()
+			var oldValue: FRCDifference? = oldIterator.next()
+			while newValue != nil || oldValue != nil {
+				while let nv = newValue, nv.isInsertOrDelete {
+					newValue = newIterator.next()
+				}
+				while let ov = oldValue, ov.isInsertOrDelete {
+					oldValue = oldIterator.next()
+				}
+				if oldValue?.id == newValue?.id {
+					// TODO: Check the case where this cell is 'next' in both new and old, and yet we need to perform a
+					// move because it crosses sections in one but not the other.
+				
+					newValue = newIterator.next()
+					oldValue = oldIterator.next()
+				}
+				else {
+					if let nv = newValue, let newIndexPath = nv.newIndexPath, let oldIndexPath = nv.oldIndexPath {
+						moveCells.append((oldIndexPath, newIndexPath))
 						newValue = newIterator.next()
-						oldValue = oldIterator.next()
+						nv.isInsertOrDelete	= true
 					}
-					else {
-						if let nv = newValue, let newIndexPath = nv.newIndexPath, let oldIndexPath = nv.oldIndexPath {
-							moveCells.append((oldIndexPath, newIndexPath))
-							newValue = newIterator.next()
-							nv.isInsertOrDelete	= true
-						}
-						
-					}
+					
 				}
 			}
 		}
@@ -305,7 +304,6 @@ class ArrayDataSourceSegment<ModelObjectType>: KrakenDataSourceSegment, KrakenDa
 			if let protoCell = cellModel.makePrototypeCell(for: collectionView, indexPath: indexPath) {
 				let newSize = protoCell.calculateSize()
 				cellModel.cellSize = newSize
-				cellModel.unbind(cell: protoCell)
 				log.debug("New size for cell at \(indexPath) is \(newSize)", ["DS" : self])
 							
 				return newSize
