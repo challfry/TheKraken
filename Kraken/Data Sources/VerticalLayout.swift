@@ -123,7 +123,22 @@ class VerticalLayout: UICollectionViewLayout {
 	
 	// This makes the selection animations work correctly. 
 	override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-		if previousSectionPositions.count > itemIndexPath.section {
+		
+		// If this cell is being inserted, its initial frame is its final frame, but height 0
+		if let updates = currentUpdateList, updates.contains(where: { $0.indexPathAfterUpdate == itemIndexPath }) {
+			let section = sectionPositions[itemIndexPath.section]
+			if section.cells.count > itemIndexPath.row {
+				let val = UICollectionViewLayoutAttributes(forCellWith: itemIndexPath)
+				val.isHidden = false
+				var startFrame = section.cells[itemIndexPath.row]
+				startFrame.size.height = 0
+				val.frame = startFrame
+				return val
+			}
+		}
+		else if currentUpdateList == nil, previousSectionPositions.count > itemIndexPath.section {
+			
+			// If there's no update going on, animate cells from their previous positions (that is, move them)
 			let section = previousSectionPositions[itemIndexPath.section]
 			if section.cells.count > itemIndexPath.row {
 				let val = UICollectionViewLayoutAttributes(forCellWith: itemIndexPath)
@@ -132,7 +147,7 @@ class VerticalLayout: UICollectionViewLayout {
 				return val
 			}
 		}
-		
+			
 		guard sectionPositions.count > itemIndexPath.section else { return nil }
 		let section = sectionPositions[itemIndexPath.section]
 		guard section.cells.count > itemIndexPath.row else { return nil }
@@ -165,8 +180,33 @@ class VerticalLayout: UICollectionViewLayout {
 	}
 
 	override func finalLayoutAttributesForDisappearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-		guard sectionPositions.count > itemIndexPath.section else { return nil }
-		let section = sectionPositions[itemIndexPath.section]
+		
+		// If this cell is being deleted, its final position is where it was, but height 0
+		if let updates = currentUpdateList, updates.contains(where: { $0.indexPathBeforeUpdate == itemIndexPath }) {
+			let section = previousSectionPositions[itemIndexPath.section]
+			if section.cells.count > itemIndexPath.row {
+				let val = UICollectionViewLayoutAttributes(forCellWith: itemIndexPath)
+				val.isHidden = false
+				var startFrame = section.cells[itemIndexPath.row]
+				startFrame.size.height = 0
+				val.frame = startFrame
+				return val
+			}
+		}
+		else if currentUpdateList == nil, sectionPositions.count > itemIndexPath.section {
+			
+			// If there's no update going on, animate cells to their final positions (that is, move them)
+			let section = sectionPositions[itemIndexPath.section]
+			if section.cells.count > itemIndexPath.row {
+				let val = UICollectionViewLayoutAttributes(forCellWith: itemIndexPath)
+				val.isHidden = false
+				val.frame = section.cells[itemIndexPath.row]
+				return val
+			}
+		}
+		
+		guard previousSectionPositions.count > itemIndexPath.section else { return nil }
+		let section = previousSectionPositions[itemIndexPath.section]
 		guard section.cells.count > itemIndexPath.row else { return nil }
 		
 		let val = UICollectionViewLayoutAttributes(forCellWith: itemIndexPath)

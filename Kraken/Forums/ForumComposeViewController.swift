@@ -103,9 +103,16 @@ import MobileCoreServices
 		else if let draft = draftPost {
 			cell.editText = draft.text
 		}
+		cell.purpose = .twitarr
 		return cell
 	}()
 	
+	lazy var userSuggestionsCell: UserListCoreDataCellModel = {
+		let cell = UserListCoreDataCellModel(withTitle: "@ Username Completions")
+		cell.selectionCallback = suggestedUserTappedAction
+		return cell
+	}()
+
 	lazy var postButtonCell: ButtonCellModel = {
 		let btnCell = ButtonCellModel()
 		btnCell.setupButton(2, title:"Post", action: weakify(self, ForumComposeViewController.postAction))
@@ -189,6 +196,7 @@ import MobileCoreServices
 
 		composeSection.append(threadTitleEditCell)
 		composeSection.append(postTextCell)
+		composeSection.append(userSuggestionsCell)
         composeSection.append(postButtonCell)
         composeSection.append(statusCell)
         composeSection.append(emojiCell)
@@ -211,6 +219,28 @@ import MobileCoreServices
 			observer.postButtonCell.button2Enabled = (observer.thread != nil || observer.draftPost?.thread != nil ||
 					!titleString.isEmpty) && !contentString.isEmpty
 		}?.execute()
+		
+		// Let the userSuggestion cell know about changes made to the post text field
+		postTextCell.tell(userSuggestionsCell, when: "editedText") { observer, observed in 
+			if let text = observed.getText(), !text.isEmpty, let lastAtSign = text.lastIndex(of: "@") {
+				let partialUsername = String(text.suffix(from: lastAtSign).dropFirst())
+				if !partialUsername.contains(" "), partialUsername.count > 0 {
+					observer.usePredicate = true
+					observer.predicate = NSPredicate(format: "username CONTAINS[cd] %@", partialUsername)
+					observer.shouldBeVisible = true
+				 
+					// Ask the server for name completions
+					UserManager.shared.autocorrectUserLookup(for: partialUsername, done: self.userCompletionsCompletion)
+				}
+				else {
+					observer.shouldBeVisible = false
+				}
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+
 	}
 	
     override func viewDidAppear(_ animated: Bool) {
@@ -321,6 +351,33 @@ import MobileCoreServices
     	}
     }
     
+    // When the user starts typing an "@" username, they get a user suggestion cell with username completions. 
+    // Tapping on a user in the list gets them here.
+	func suggestedUserTappedAction(user: PossibleKrakenUser) {
+		var username: String
+		if let krakenUser = user.user {
+			username = krakenUser.username
+		}
+		else {
+			username = user.username
+		}
+		
+		guard var postText = postTextCell.getText(), let lastAtSign = postText.lastIndex(of: "@") else { return }
+		let suffix = postText.suffix(from: lastAtSign)
+		if suffix.contains(" ") { return }
+		postText.replaceSubrange(lastAtSign..<postText.endIndex, with: "@\(username)")
+		postTextCell.editText = ""
+		postTextCell.editText = postText
+	}
+
+	// When the Username Completions call returns we need to re-set the predicate. If we were using a fetchedResultsController,
+	// we wouldn't need to do this (the FRC informs us of new results automatically)
+	func userCompletionsCompletion(for: String?) {
+		let pred = userSuggestionsCell.predicate
+		userSuggestionsCell.predicate = nil
+		userSuggestionsCell.predicate = pred
+	}
+
 	// MARK: - Navigation
     
 	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the

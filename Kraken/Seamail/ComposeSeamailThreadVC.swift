@@ -159,6 +159,7 @@ import UIKit
     // we wouldn't need to do this (the FRC informs us of new results automatically)
     func userCompletionsCompletion(for: String?) {
     	let pred = userSuggestionsCell.predicate
+		userSuggestionsCell.predicate = nil
     	userSuggestionsCell.predicate = pred
     }
     

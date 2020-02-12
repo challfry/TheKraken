@@ -76,6 +76,12 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		return textCell
 	}()
 	
+	lazy var userSuggestionsCell: UserListCoreDataCellModel = {
+		let cell = UserListCoreDataCellModel(withTitle: "@ Username Completions")
+		cell.selectionCallback = suggestedUserTappedAction
+		return cell
+	}()
+
 	lazy var postButtonCell: ButtonCellModel = {
 		let btnCell = ButtonCellModel()
 		btnCell.setupButton(2, title:"Post", action: weakify(self, ComposeTweetViewController.postAction))
@@ -163,6 +169,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		composeSection.append(editSourceCellModel)
 		composeSection.append(draftSourceCellModel)
 		composeSection.append(tweetTextCell)
+		composeSection.append(userSuggestionsCell)
         composeSection.append(postButtonCell)
         composeSection.append(postStatusCell)
 		composeSection.append(emojiSelectionCell)
@@ -177,10 +184,30 @@ class ComposeTweetViewController: BaseCollectionViewController {
         	else {
         		observer.composeDataSource.register(with: observer.collectionView, viewController: observer)
 			}
-        }?.execute()        
-
+        }?.execute()
+        
+		// Let the userSuggestion cell know about changes made to the post text field
+		tweetTextCell.tell(userSuggestionsCell, when: "editedText") { observer, observed in 
+			if let text = observed.getText(), !text.isEmpty, let lastAtSign = text.lastIndex(of: "@") {
+				let partialUsername = String(text.suffix(from: lastAtSign).dropFirst())
+				if !partialUsername.contains(" "), partialUsername.count > 0 {
+					observer.usePredicate = true
+					observer.predicate = NSPredicate(format: "username CONTAINS[cd] %@", partialUsername)
+					observer.shouldBeVisible = true
+				 
+					// Ask the server for name completions
+					UserManager.shared.autocorrectUserLookup(for: partialUsername, done: self.userCompletionsCompletion)
+				}
+				else {
+					observer.shouldBeVisible = false
+				}
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
     }
-    
+        
     override func viewDidAppear(_ animated: Bool) {
     	super.viewDidAppear(animated)
 		loginDataSource.enableAnimations = true
@@ -198,8 +225,35 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		}
 	}
 
+	// When the Username Completions call returns we need to re-set the predicate. If we were using a fetchedResultsController,
+	// we wouldn't need to do this (the FRC informs us of new results automatically)
+	func userCompletionsCompletion(for: String?) {
+		let pred = userSuggestionsCell.predicate
+		userSuggestionsCell.predicate = nil
+		userSuggestionsCell.predicate = pred
+	}
+
 // MARK: Actions    
     
+    // When the user starts typing an "@" username, they get a user suggestion cell with username completions. 
+    // Tapping on a user in the list gets them here.
+	func suggestedUserTappedAction(user: PossibleKrakenUser) {
+		var username: String
+		if let krakenUser = user.user {
+			username = krakenUser.username
+		}
+		else {
+			username = user.username
+		}
+		
+		guard var tweetText = tweetTextCell.getText(), let lastAtSign = tweetText.lastIndex(of: "@") else { return }
+		let suffix = tweetText.suffix(from: lastAtSign)
+		if suffix.contains(" ") { return }
+		tweetText.replaceSubrange(lastAtSign..<tweetText.endIndex, with: "@\(username)")
+		tweetTextCell.editText = ""
+		tweetTextCell.editText = tweetText
+	}
+
 	// When the Post button is hit, we enter 'posting' state, and disable most of the UI. This is reversible, as the 
 	// user can cancel the post before it goes to the server.
 	func setPostingState(_ isPosting: Bool) {
