@@ -63,3 +63,24 @@ extension UIButton {
 	}
 }
 
+// A simple extension to attributed string so you can append Strings to it.
+// You can pass nil for attrs to append with the same attributes as the tail of the current string.
+extension NSMutableAttributedString {
+	func append(string: String, attrs: [NSAttributedString.Key : Any]? = nil) {
+		var stringToAppend: NSAttributedString
+		if let inputAttrs = attrs {
+			stringToAppend = NSAttributedString(string: string, attributes: inputAttrs)
+		}
+		else {
+			if length > 0 {
+				let endAttributes = attributes(at: length - 1, effectiveRange: nil)
+				stringToAppend = NSAttributedString(string: string, attributes: endAttributes)
+			}
+			else {
+				stringToAppend = NSAttributedString(string: string)
+			}
+		}
+		append(stringToAppend)
+	}
+
+}

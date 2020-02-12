@@ -61,6 +61,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			writingPrompt = "What do you want to say?"
 		}
 		let textCell = TextViewCellModel(writingPrompt)
+		textCell.purpose = .twitarr
         if let editTweet = editTweet {
 			textCell.editText = StringUtilities.cleanupText(editTweet.text).string
 		} 

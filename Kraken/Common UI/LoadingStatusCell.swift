@@ -47,18 +47,16 @@ import UIKit
 					
 			observer.shouldBeVisible = observed.isChangingLoginState || observed.lastError != nil 
 			observer.showSpinner = observed.isChangingLoginState
+			observer.statusText = "Logging in"
 			if observed.isChangingLoginState {
 //				observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
-				observer.statusText = "Logging in"
+			}
+			if let error = observed.lastError {
+				observer.errorText = error.getErrorString()
+//				observer.statusText = "This is a very long error string, specifically to test out how the cell resizes itself in response to the text in the label changing."
 			}
 			else {
-				if let error = observed.lastError {
-					observer.errorText = error.getErrorString()
-	//				observer.statusText = "This is a very long error string, specifically to test out how the cell resizes itself in response to the text in the label changing."
-				}
-				else {
-					observer.errorText = nil
-				}
+				observer.errorText = nil
 			}
 		}?.schedule()
 	}
@@ -88,6 +86,7 @@ import UIKit
 			statusView.isHidden = errorText != nil
 			errorLabel.text = errorText
 			self.layer.removeAllAnimations()
+			cellSizeChanged()
 		}
 	}
 	

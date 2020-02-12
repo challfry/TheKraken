@@ -98,11 +98,20 @@ import CoreData
 				messages.insert(cdMessage)
 			}
 		}
+		
+		// If at this point there's more messages in the thread than the ones we have 'seen' the server has more messages
+		// it hasn't given us yet.
 		if messages.count < messageCount {
 			newMessagesAdded = true
 		}
 		
-		if newMessagesAdded || v2Object.hasUnreadMessages {
+		if newMessagesAdded, messages.count == messageCount, let lastMessage = messages.max(by: { $0.timestamp < $1.timestamp }) {
+			// If we have all the messages in the thread, we know the last person to post.
+			// The last person to post *has* read all the messages.
+			fullyReadBy.removeAll()
+			fullyReadBy.insert(lastMessage.author)
+		}
+		else if newMessagesAdded || v2Object.hasUnreadMessages {
 			fullyReadBy.removeAll()
 		}
 	}
@@ -224,6 +233,11 @@ import CoreData
 				let message = thread.messages.first { $0.id == v2Object.id } ?? SeamailMessage(context: context)
 				message.buildFromV2(context: context, v2Object: v2Object, newThread: thread)
 				thread.messages.insert(message)
+				
+				// When the logged in user posts a new message, they've fully read the thread and nobody else has.
+				thread.fullyReadBy.removeAll()
+				thread.fullyReadBy.insert(message.author)
+
 			}
 		}
 		catch {

@@ -97,6 +97,7 @@ struct NetworkResponse {
 		case noConnection				// 
 	}
 	@objc dynamic var connectionState = ConnectionState.noConnection
+	@objc dynamic var connectedViaWIFI: Bool = false
 	
 	private var internalConnectionState = ConnectionState.noConnection
 	
@@ -142,7 +143,7 @@ struct NetworkResponse {
 			let callbackFn: SCNetworkReachabilityCallBack = { (reachabilityObj, flags, context) in 
 				if let context = context {
 					let selfish = Unmanaged<NetworkGovernor>.fromOpaque(context).takeUnretainedValue()
-					selfish.newConnectionState(flags.contains(.reachable) ? .canConnect : .noConnection)
+					selfish.newConnectionState(flags.contains(.reachable) ? .canConnect : .noConnection, isWifi: !flags.contains(.isWWAN))
 				}
 			}
 			var context = SCNetworkReachabilityContext(version: 0,
@@ -153,12 +154,15 @@ struct NetworkResponse {
 		}
 		
 		Settings.shared.tell(self, when: "blockNetworkTraffic") { observer, observed in
-			observer.newConnectionState(observer.internalConnectionState)
+			observer.newConnectionState(observer.internalConnectionState, isWifi: false)
 		}
 	}
 	
-	func newConnectionState(_ newState: ConnectionState) {
+	func newConnectionState(_ newState: ConnectionState, isWifi: Bool? = nil) {
 		internalConnectionState = newState
+		if let wifi = isWifi {
+			connectedViaWIFI = wifi
+		}
 		if Settings.shared.blockNetworkTraffic {
 			connectionState = .noConnection
 		}

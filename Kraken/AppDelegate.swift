@@ -18,6 +18,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 //		LocalCoreData.shared.fullCoreDataReset()
 
+		// If it's after July 1, 2020, clear everything in Core Data
+		let clearDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(secondsFromGMT: 0 - 3600 * 5), 
+				year: 2020, month: 7, day: 1)
+		if let clearDate = Calendar.current.date(from: clearDayComponents),  Date() > clearDate {
+			LocalCoreData.shared.fullCoreDataReset()
+		}
+
 		// Startup tasks. Hopefully they won't interact, but let's keep them in the same order just to be sure.
 		CurrentUser.shared.setInitialLoginState()		// If someone was logged in when the app quit, keeps them logged in. 
 		_ = PostOperationDataManager.shared				// Responsible for POSTs to the server. 

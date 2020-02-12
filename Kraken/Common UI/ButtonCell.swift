@@ -77,6 +77,9 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 	private static let cellInfo = [ "ButtonCell" : PrototypeCellInfo("ButtonCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
+	dynamic var button1Action: (() -> Void)?
+	dynamic var button2Action: (() -> Void)?
+
 	var buttonAlignment: NSTextAlignment = .right {
 		didSet {
 			leftConstraint.isActive = buttonAlignment == .left
@@ -106,11 +109,10 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 		}
 	}
 
-	dynamic var button1Action: (() -> Void)?
 	@IBAction func button1Tapped(_ sender: Any) {
 		button1Action?()
 	}
-	dynamic var button2Action: (() -> Void)?
+	
 	@IBAction func button2Tapped(_ sender: Any) {
 		button2Action?()
 	}

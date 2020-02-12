@@ -9,6 +9,7 @@
 import UIKit
 import CoreMotion
 
+
 // CMMotionManager needs to be a singleton in the app; it configures the motion sensors, and they can only
 // be configured one way.
 @objc class CoreMotion: NSObject {
@@ -16,13 +17,16 @@ import CoreMotion
 	let manager = CMMotionManager()
 	var currentDeviceOrientation: UIDeviceOrientation = .portrait
 	var forceNotifyNextPass = false
+	var clients: [String : Int] = [:]
 	
 	@objc dynamic var motionState: CMDeviceMotion?
 	
 	static let OrientationChanged = NSNotification.Name("KrakenOrientationChanged")
 
-	func start() {
-		manager.deviceMotionUpdateInterval = 0.5
+	func start(forClient: String, updatesPerSec: Int) {
+		clients[forClient] = updatesPerSec
+	
+		calculatUpdateFrequency()
 		if manager.isDeviceMotionAvailable {
 			manager.startDeviceMotionUpdates(using: .xArbitraryZVertical, to: .main) { (data, error) in 
 				if let data = data {
@@ -61,7 +65,17 @@ import CoreMotion
 		}
 	}
 	
-	func stop() {
-		manager.stopDeviceMotionUpdates()
+	func calculatUpdateFrequency() {
+		let result = clients.reduce(1) { max($0, $1.value) }
+		let frequency = 1.0 / Double(result)
+		manager.deviceMotionUpdateInterval = frequency
+	}
+	
+	func stop(client: String) {
+		clients.removeValue(forKey: client)
+		calculatUpdateFrequency()
+		if clients.isEmpty {
+			manager.stopDeviceMotionUpdates()
+		}
 	}
 }

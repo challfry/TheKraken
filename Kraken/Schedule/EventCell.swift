@@ -233,26 +233,67 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		titleLabel.text = event.title
 		descriptionLabel.text = effectiveDisclosure > 3 ?  event.eventDescription : ""
 		locationLabel.text = effectiveDisclosure > 2 ? event.location : ""
-		eventTimeLabel.text = effectiveDisclosure > 1 ? makeTimeString() : ""
+		eventTimeLabel.attributedText = effectiveDisclosure > 1 ? makeTimeString() : nil
 		setRibbonStates()
 
 		cellSizeChanged()
 	}
 	
-	func makeTimeString() -> String {
+	func makeTimeString() -> NSAttributedString {
+		let timeString = NSMutableAttributedString()
+		let baseFont = eventTimeLabel.font ?? UIFont.systemFont(ofSize: 17.0)
+		let baseAttrs = timeStringAttributes(baseFont: baseFont)
+		let boatAttrs = timeStringBoatTimeAttributes(baseFont: baseFont)
+		
 		if let event = model as? Event, let startTime = event.startTime {
 			let dateFormatter = DateFormatter()
 			dateFormatter.dateStyle = .short
 			dateFormatter.timeStyle = .short
 			dateFormatter.locale = Locale(identifier: "en_US")
-			var timeString = dateFormatter.string(from: startTime)
-			if let endTime = event.endTime {
-				dateFormatter.dateStyle = .none
-				timeString.append(" - \(dateFormatter.string(from: endTime))")
+			var includeDeviceTime = false
+			if let serverTZ = ServerTimeUpdater.shared.serverTimezone {
+				dateFormatter.timeZone = serverTZ
+				timeString.append(string: dateFormatter.string(from: startTime), attrs: baseAttrs)
+				if let endTime = event.endTime {
+					dateFormatter.dateStyle = .none
+					timeString.append(string: " - \(dateFormatter.string(from: endTime))")
+				}
+				if abs(ServerTimeUpdater.shared.deviceTimeOffset + TimeInterval(ServerTimeUpdater.shared.timeZoneOffset)) > 300.0 {
+					timeString.append(string: " (Boat Time)\n", attrs: boatAttrs)
+					includeDeviceTime = true
+				}
 			}
-			return timeString
+			else {
+				includeDeviceTime = true
+			}
+			
+			// If we're ashore and don't have access to server time (and, specifically, the server timezone),
+			// OR we do have access and the serverTime is > 5 mins off of deviceTime, show device time.
+			if includeDeviceTime {
+				dateFormatter.timeZone = ServerTimeUpdater.shared.deviceTimezone
+				dateFormatter.dateStyle = .none
+				timeString.append(string: "\(dateFormatter.string(from: startTime))", attrs: baseAttrs)
+				if let endTime = event.endTime {
+					timeString.append(string: " - \(dateFormatter.string(from: endTime))")
+				}
+				timeString.append(string: " (Device Time)", attrs: boatAttrs)
+			}
 		}
-		return ""
+		return timeString
+	}
+	
+	func timeStringAttributes(baseFont: UIFont) -> [NSAttributedString.Key : Any] {
+		let bodyAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont as Any, 
+				.foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
+		return bodyAttrs
+	}
+
+	func timeStringBoatTimeAttributes(baseFont: UIFont) -> [NSAttributedString.Key : Any] {
+        let descriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitItalic)
+        let italicFont = UIFont(descriptor: descriptor!, size: 0) 
+		let bodyAttrs: [NSAttributedString.Key : Any] = [ .font : italicFont as Any, 
+				.foregroundColor : UIColor(named: "Kraken Secondary Text") as Any ]
+		return bodyAttrs
 	}
 	
 	func setRibbonStates() {

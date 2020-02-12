@@ -77,6 +77,7 @@ import MobileCoreServices
 	@objc dynamic lazy var threadTitleEditCell: TextViewCellModel = {
 		var writingPrompt = "Title of your Forum Thread:"		
 		let cell =  TextViewCellModel(writingPrompt)
+		cell.purpose = .twitarr
 		
 		// Show the thread title edit field if: This is not a post in an existing thread, not an edit to 
 		// an existing post, and either not a draft or a draft edit where the draft is a draft of a new thread.

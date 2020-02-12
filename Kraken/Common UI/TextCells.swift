@@ -35,6 +35,7 @@ import UIKit
 		case normal
 		case email
 		case roomNumber
+		case username
 		case password
 		case url
 	}
@@ -95,20 +96,27 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 		didSet {
 			textField.clearsOnBeginEditing = false
 			textField.isSecureTextEntry = false
+			textField.textContentType = nil
 			
 			switch purpose {
 			case .normal:
 				textField.keyboardType = .default
 			case .email:
 				textField.keyboardType = .emailAddress
+				textField.textContentType = .emailAddress
 			case .roomNumber:
 				textField.keyboardType = .numberPad
+			case .username:
+				textField.keyboardType = .default
+				textField.textContentType = .username
 			case .password:
 				textField.keyboardType = .default
 				textField.clearsOnBeginEditing = true
 				textField.isSecureTextEntry = true
+				textField.textContentType = .password
 			case .url:
 				textField.keyboardType = .URL
+				textField.textContentType = .URL
 			}
 		}
 	}
@@ -176,6 +184,7 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	dynamic var editText: String? { get set }
 	dynamic var errorText: String? { get set }
 	dynamic var isEditable: Bool { get set }
+	dynamic var purpose: TextViewCellModel.Purpose { get set }
 }
 
 @objc class TextViewCellModel: BaseCellModel, TextViewCellProtocol {	
@@ -187,7 +196,13 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	dynamic var errorText: String?
 	@objc dynamic var editedText: String?			// Cell fills this in
 	@objc dynamic var isEditable: Bool = true
+	dynamic var purpose: Purpose = .normal
 	
+	@objc enum Purpose: Int {
+		case normal
+		case twitarr
+	}
+
 	init(_ titleLabel: String) {
 		labelText = titleLabel
 		editText = ""
@@ -245,6 +260,18 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 		}
 	}
 	
+	var purpose: TextViewCellModel.Purpose = .normal {
+		didSet {
+			textView.keyboardType = .default
+			
+			switch purpose {
+			case .normal:
+				textView.keyboardType = .default
+			case .twitarr:
+				textView.keyboardType = .twitter
+			}
+		}
+	}
 	override func awakeFromNib() {
 		errorLabel.isHidden = true
 		

@@ -202,7 +202,7 @@ class BaseCollectionViewController: UIViewController {
 	
 	func showImageInOverlay(image: UIImage) {
 		if let win = view.window {
-			CoreMotion.shared.start()
+			CoreMotion.shared.start(forClient: "ImageOverlay", updatesPerSec: 2)
 			photoBeingShown = image
 
 			// Set up the visual effect view that covers the regular content
@@ -304,7 +304,6 @@ class BaseCollectionViewController: UIViewController {
 			coveringView.removeFromSuperview()
 			photoOverlayView = nil
 			photoCoveringView = nil
-			CoreMotion.shared.stop()
 			if let photo = photoBeingShown {
 				showImageInOverlay(image: photo)
 			}
@@ -400,7 +399,7 @@ class BaseCollectionViewController: UIViewController {
 			photoBeingShown = nil
 			photoOverlayView = nil
 			photoCoveringView = nil
-			CoreMotion.shared.stop()
+			CoreMotion.shared.stop(client: "ImageOverlay")
 		}
 	}
         

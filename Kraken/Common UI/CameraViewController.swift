@@ -151,7 +151,7 @@ class CameraViewController: UIViewController {
     
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		CoreMotion.shared.start()
+		CoreMotion.shared.start(forClient: "CameraWidgets", updatesPerSec: 2)
 		  
 		if let inputDevice = cameraDevice {
 			if verticalSlider == nil {
@@ -175,7 +175,7 @@ class CameraViewController: UIViewController {
 	
 	override func viewDidDisappear(_ animated: Bool) {
     	super.viewDidDisappear(animated)
-		CoreMotion.shared.stop()
+		CoreMotion.shared.stop(client: "CameraWidgets")
 		if haveLockOnDevice {
 			cameraDevice?.unlockForConfiguration()
 		}

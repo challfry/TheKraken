@@ -84,7 +84,7 @@ import UIKit
 		// Hopefully item 0 in the parent chain is the *direct* parent?
 		if v2Object.parentChain.count > 0 {
 			let parentIDStr = v2Object.parentChain[0]
-			TestAndUpdate(\TwitarrPost.parentID, parentIDStr)
+			TestAndUpdate(\TwitarrPost.parentID, parentIDStr.value)
 			
 			// Not hooking up the parent relationship yet. Not sure if we can, as the parent may not be cached at this point?
 		}
@@ -752,6 +752,25 @@ extension TwitarrDataManager: NSFetchedResultsControllerDelegate {
 
 // MARK: - V2 API Decoding
 
+// Around Feb 2020 Twittar changed its API for a few fields, changing string-valued fields to ints.
+// Eventually we can remove this code.
+struct StringOrInt: Codable, Equatable {
+	var value: String
+	
+	init(from decoder: Decoder) throws {
+		let container = try decoder.singleValueContainer()
+		if let stringVal = try? container.decode(String.self) {
+			value = stringVal
+		}
+		else if let intVal = try? container.decode(Int.self) {
+			value = String(intVal)
+		}
+		else {
+			value = ""
+		}
+	}
+}
+
 struct TwitarrV2Reactions: Codable {
 	let count: Int32
 	let me: Bool
@@ -767,7 +786,7 @@ struct TwitarrV2Post: Codable {
 	let text: String
 	let reactions: TwitarrV2ReactionsSummary
 	let photo: TwitarrV2PhotoDetails?
-	let parentChain: [String]
+	let parentChain: [StringOrInt]
 
 	enum CodingKeys: String, CodingKey {
 		case id

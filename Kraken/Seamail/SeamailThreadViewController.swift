@@ -28,9 +28,9 @@ class SeamailThreadViewController: BaseCollectionViewController {
 // MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        knownSegues = [.dismiss]
         if let thread = threadModel {
 	        SeamailDataManager.shared.loadSeamailThread(thread: thread) {
-        	
       		}
 		}
         
@@ -61,15 +61,18 @@ class SeamailThreadViewController: BaseCollectionViewController {
                 
    		// Set up the FRCs for the messages in the thread and the messages in the send queue
    		var messagePredicate: NSPredicate
+   		var opPredicate: NSPredicate
  		if let model = threadModel {
 			messagePredicate = NSPredicate(format: "thread.id = '\(model.id)'")
+			opPredicate = NSPredicate(format: "thread.id = '\(model.id)' && operationState < 4")
 		}
 		else {
 			messagePredicate = NSPredicate(value: false)
+			opPredicate = messagePredicate
 		}
    		messageSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "timestamp", ascending: true) ],
    				cellModelFactory: createMessageCellModel)
-   		queuedMsgSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "originalPostTime", ascending:true) ],
+   		queuedMsgSegment.activate(predicate: opPredicate, sort: [ NSSortDescriptor(key: "originalPostTime", ascending:true) ],
    				cellModelFactory: createMessageOpCellModel)
 							
 		// Next, the filter segment for the new message text field and button.

@@ -94,7 +94,7 @@
         <attribute name="realName" optional="YES" attributeType="String"/>
         <attribute name="role" optional="YES" attributeType="String"/>
         <attribute name="roomNumber" optional="YES" attributeType="String"/>
-        <attribute name="thumbPhotoData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="thumbPhotoData" optional="YES" attributeType="Binary"/>
         <attribute name="username" optional="YES" attributeType="String"/>
         <relationship name="announcements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="author" inverseEntity="Announcement"/>
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserComment" inverseName="commentedOnUser" inverseEntity="UserComment"/>
@@ -246,7 +246,7 @@
         <attribute name="subject" attributeType="String"/>
         <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="fullyReadBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="upToDateSeamailThreads" inverseEntity="KrakenUser"/>
-        <relationship name="messages" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="thread" inverseEntity="SeamailMessage"/>
+        <relationship name="messages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="thread" inverseEntity="SeamailMessage"/>
         <relationship name="opsAddingMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpSeamailMessage" inverseName="thread" inverseEntity="PostOpSeamailMessage"/>
         <relationship name="participants" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailParticipant" inverseEntity="KrakenUser"/>
         <uniquenessConstraints>
@@ -305,6 +305,7 @@
         <element name="ForumPost" positionX="126" positionY="126" width="128" height="208"/>
         <element name="ForumReadCount" positionX="135" positionY="135" width="128" height="133"/>
         <element name="ForumThread" positionX="117" positionY="117" width="128" height="223"/>
+        <element name="GameListFavorite" positionX="117" positionY="117" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
         <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="613"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
@@ -331,6 +332,5 @@
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
         <element name="UserComment" positionX="117" positionY="90" width="128" height="90"/>
-        <element name="GameListFavorite" positionX="117" positionY="117" width="128" height="58"/>
     </elements>
 </model>

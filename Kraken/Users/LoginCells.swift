@@ -233,7 +233,7 @@ class ForgotPasswordButtonCellModel: ButtonCellModel {
 
 class EditUsernameCellModel: TextFieldCellModel {
 	init(_ titleLabel: String) {
-		super.init(titleLabel, purpose: .normal)
+		super.init(titleLabel, purpose: .username)
 		
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.username", 
 				"lastError.fieldErrors.new_username"]) { observer, observed in 
@@ -343,6 +343,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	
 	func startLoggingIn() {
     	if let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText {
+			CurrentUser.shared.clearErrors() 
 	    	CurrentUser.shared.loginUser(name: userName, password: password)
 			clearAllSensitiveFields()
 		}
@@ -358,6 +359,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 			return		
 		}
 	
+		CurrentUser.shared.clearErrors() 
     	if let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText,
     			let regCode = registrationCodeCellModel.editedText {
 	    	let displayName = displayNameCellModel.editedText
@@ -369,6 +371,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	func startResetPassword() {
     	guard let userName = usernameCellModel.editedText, let newPassword = passwordCellModel.editedText,
     			let regCode = registrationCodeCellModel.editedText else { return }
+		CurrentUser.shared.clearErrors() 
 		CurrentUser.shared.resetPassword(name: userName, regCode: regCode, newPassword: newPassword) {}
 		clearAllSensitiveFields()
 	}

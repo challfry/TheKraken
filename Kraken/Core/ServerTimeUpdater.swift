@@ -13,7 +13,7 @@ import UIKit
 
 	// Server Time
 	@objc dynamic var serverTimezone: TimeZone?		// This is the Timezone the server claims to be using
-	var serverTimezoneOffset: Int?				// In hours from GMT.
+	var serverTimezoneOffset: Int?					// Seconds from UTC.
 	
 	// Device Time
 	@objc dynamic var deviceTimezone: TimeZone
@@ -80,7 +80,7 @@ import UIKit
 		deviceTimezone = TimeZone.current
 		deviceTimezoneOffset = deviceTimezone.secondsFromGMT()
 		if let serverTimezoneOffset = serverTimezoneOffset {
-			timeZoneOffset = TimeZone.current.secondsFromGMT() - serverTimezoneOffset * 3600
+			timeZoneOffset = TimeZone.current.secondsFromGMT() - serverTimezoneOffset
 		}
 		
 	}

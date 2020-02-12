@@ -414,7 +414,7 @@ class EventsDataManager: NSObject {
 		// Just once, calc our debug date offset
 		let currentTime = Date()
 		let tz = TimeZone(abbreviation: "EDT")
-		let components = DateComponents(calendar: Calendar.current, timeZone: tz, year: 2019, month: 3, 
+		let components = DateComponents(calendar: Calendar.current, timeZone: tz, year: 2020, month: 1, 
 				day: 16, hour: 9, minute: 0, second: 0, nanosecond: 0)
 		if let cruiseEndDate = components.date {
 			var debugTime = currentTime

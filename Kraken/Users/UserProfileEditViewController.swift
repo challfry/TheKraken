@@ -128,7 +128,7 @@ import Photos
 			observer.profileUpdateStatusCell.postOp = observer.editProfileOp
 		}?.execute()
 
-		knownSegues = Set([.fullScreenCamera, .cropCamera])
+		knownSegues = Set([.fullScreenCamera, .cropCamera, .dismiss])
 	}
  
     override func viewDidAppear(_ animated: Bool) {

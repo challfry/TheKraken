@@ -48,20 +48,51 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
 		backgroundColor = UIColor(red: 0.096, green: 0.096 , blue: 0.996, alpha: 1.0)
 		
 		CoreMotion.shared.tell(self, when: "motionState") { observer, observed in 
-			if let yOffset = observed.motionState?.attitude.pitch,
-					let xOffset = observed.motionState?.attitude.roll {
+			if var yOffset = observed.motionState?.attitude.pitch,
+					var xOffset = observed.motionState?.attitude.roll {
 				observer.offsetAnimation?.stopAnimation(true)
-				observer.offsetAnimation = UIViewPropertyAnimator(duration: 1.0, curve: .linear) {
-					self.frame = CGRect(x: CGFloat(xOffset) * 80.0, y: CGFloat(yOffset) * 80.0, 
-							width: self.bounds.size.width, height: self.bounds.size.height)
+				
+				// Only iPad should switch status bar orientation, unless we change iPhone settings.
+				// statusBarOrientation is deprecated, but there is no other good way to know the device-relative
+				// UI orientation, and we need this info to align the animation with the UIDevice attitude data.
+				switch UIApplication.shared.statusBarOrientation {
+				case .portrait: break
+				case .portraitUpsideDown: 
+					xOffset = 0 - xOffset
+					yOffset = 0 - yOffset
+				case .landscapeLeft:
+					let temp = xOffset
+					xOffset = 0 - yOffset
+					yOffset = temp
+				case .landscapeRight:
+					let temp = xOffset
+					xOffset = yOffset
+					yOffset = 0 - temp
+				case .unknown: break
+				default: break
 				}
-				observer.offsetAnimation?.startAnimation()
-
+				
+				// Reduce the effect of roll at high values of pitch. Or, we could use quaternions to fix this.
+				if yOffset > 1.0 {
+					let xScaler = max((1.0 - (yOffset - 1.0) / 0.4), 0.0)
+					xOffset = xOffset * xScaler
+				}
+		//		observer.offsetAnimation = UIViewPropertyAnimator(duration: 1.0, curve: .linear) {
+					self.frame = CGRect(x: CGFloat(xOffset) * 80.0, y: CGFloat(yOffset) * 80.0, 
+							width: observer.bounds.size.width, height: observer.bounds.size.height)
+		//		}
+		//		observer.offsetAnimation?.startAnimation()
+				if let yaw = observed.motionState?.attitude.yaw {
+					observer.yaw = yaw
+				}
 			}
 		}
 				
 		centerTransform = CGAffineTransform(translationX: bounds.size.width / 2, y: bounds.size.height / 2).scaledBy(x: 3.0, y: 3.0)
+		CoreMotion.shared.start(forClient: "Squid", updatesPerSec: 30)
 	}
+	
+	var yaw: Double = 0.0
 	
 	public func draw(in view: MTKView) {
 		seconds = Date().timeIntervalSince1970
@@ -74,9 +105,6 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
 			
 			let imageXCenter = inputImage.size.width / 2
 			let imageYCenter = inputImage.size.height / 2
-
-			let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor!)!
-			renderEncoder.endEncoding()
 
 			
 			if let filter = CIFilter(name: "CIPerspectiveTransform") {
@@ -111,9 +139,7 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
 					outputImage = nextImage
 				}
 			}
-			
-			outputImage = outputImage.clamped(to: outputImage.extent.insetBy(dx: 50, dy: 0))
-			
+						
 			if let filter = CIFilter(name: "CITwirlDistortion") {
 				filter.setValue(outputImage, forKey: kCIInputImageKey)
 				filter.setValue(sinePeriod(1.0) / 10.0, forKey: kCIInputAngleKey)
@@ -127,6 +153,10 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
 			
 			if let filter = CIFilter(name: "CIAffineTransform") {
 				filter.setValue(outputImage, forKey: kCIInputImageKey)
+				// You'd think this would work, but it makes for jerky animation. Doing the displacement by setting self.frame
+				// lets us update the displacement 60x/sec, which is much smoother. That is, displacement isn't tied to 
+				// the rest of the pipeline.
+//				let motionTransform = centerTransform.rotated(by: 0 - CGFloat(yaw))
 				filter.setValue(centerTransform, forKey: kCIInputTransformKey)
 				if let nextImage = filter.outputImage {
 					outputImage = nextImage
@@ -143,7 +173,6 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
 				}
 			}
 			
-						
 			context.render(outputImage, to: currentDrawable.texture,
 				commandBuffer: commandBuffer, bounds: viewSize, colorSpace: colorSpace)
 			commandBuffer.present(currentDrawable) 
@@ -159,8 +188,11 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
     	let result = sin(seconds / forPeriod)
     	return CGFloat(result)
     }
+    
+	override func willMove(toSuperview newSuperview: UIView?) {
+		super.willMove(toSuperview: newSuperview)
+		if newSuperview == nil {
+			CoreMotion.shared.stop(client: "Squid")
+		}
+	}
 }
-
-//				filter.setValue(CIVector(x: 1.0, y: 1.0, z: 1.0, w: 0.5), forKey: "inputMaxComponents")
-//				filter.setValue(CIVector(x: 0.096, y: 0.096, z: 0.096, w: 0), forKey: "inputMinComponents")
-//				filter.setValue(CIVector(x: 0.0, y: 0.0, z: 0.0, w: 0), forKey: "inputMinComponents")

@@ -73,7 +73,8 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
 				}
 				observer.newThreadButton.isEnabled = true
-       		}
+				self.navigationController?.popToViewController(self, animated: false)
+			}
        		else {
        			// If nobody's logged in, pop to root, show the login cells.
  				observer.threadSegment.changePredicate(to: NSPredicate(value: false))

@@ -14,7 +14,18 @@ import CoreData
 class SettingsRootViewController: BaseCollectionViewController {
 	let dataSource = KrakenDataSource()
 	
-    override func viewDidLoad() {
+	lazy var clearCacheButtonCell: ButtonCellModel = {
+		let btnCell = ButtonCellModel(alignment: .center)
+		btnCell.setupButton(2, title: "Clear Cache") { [weak self] in
+			LocalCoreData.shared.fullCoreDataReset()
+			let alert = UIAlertController(title: "Cache Cleared", message: "Core Data has been emptied.", preferredStyle: .alert) 
+			alert.addAction(UIAlertAction(title: NSLocalizedString("Okay", comment: ""), style: .default, handler: nil))
+			self?.present(alert, animated: true, completion: nil)
+		}			
+		return btnCell		
+	}()
+
+	override func viewDidLoad() {
         super.viewDidLoad()
 		title = "Settings"
 		knownSegues = Set([.userProfile, .postOperations, .modalLogin])
@@ -36,7 +47,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		// Network Info
 		let networkInfoSection = dataSource.appendFilteringSegment(named: "networkInfo")
 		let networkInfoCell = networkInfoSection.append(cell: SettingsInfoCellModel("Network"))
-		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, observed in
+		NetworkGovernor.shared.tell(self, when: ["connectionState", "connectedViaWIFI"]) { observer, observed in
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
 		}?.schedule()
 		networkInfoSection.append(ServerAddressEditCellModel("Server URL"))
@@ -97,32 +108,33 @@ class SettingsRootViewController: BaseCollectionViewController {
 		debugSettingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
 		
 		let clearCacheCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
-		clearCacheCell.labelText = NSAttributedString(string: "Clear Cache")
+		clearCacheCell.labelText = NSAttributedString(string: "Resets the local database, fogretting everything cached from the Twitarr server.")
+		debugSettingsSection.append(clearCacheButtonCell)
 		
 		dataSource.enableAnimations	= true
     }
     
-	func getCurrentWifiName() -> String? {
-		#if targetEnvironment(simulator)
-			return "Simulator-- No Wifi APIs"
-		#else
-			if let ifs = CFBridgingRetain( CNCopySupportedInterfaces()) as? [String],
-				let ifName = ifs.first as CFString?,
-				let info = CFBridgingRetain( CNCopyCurrentNetworkInfo((ifName))) as? [AnyHashable: Any] {
-				return info["SSID"] as? String 
-			}
-			return nil
-		#endif
-	}
+//	func getCurrentWifiName() -> String? {
+//		#if targetEnvironment(simulator)
+//			return "Simulator-- No Wifi APIs"
+//		#else
+//			if let ifs = CNCopySupportedInterfaces() as? [String],
+//					let ifName = ifs.first,
+//					let info = CNCopyCurrentNetworkInfo(ifName as CFString) as? [String : AnyObject] {
+//				return info[kCNNetworkInfoKeySSID as String] as? String 
+//			}
+//			return nil
+//		#endif
+//	}
 	
 	func getCurrentWifiDescriptionString() -> NSMutableAttributedString {
-		let resultString: NSMutableAttributedString
-		if let wifiName = getCurrentWifiName() {
-			resultString = NSMutableAttributedString(string:"Connected to wifi network:", attributes: nil)
-			resultString.append(NSMutableAttributedString(string:wifiName, attributes: nil))
+		let resultString = NSMutableAttributedString()
+		if NetworkGovernor.shared.connectedViaWIFI {
+			resultString.append(string:"Connected to wifi", attrs: nil)
+//			resultString.append(string:wifiName, attrs: nil)
 		}
 		else {
-			resultString = NSMutableAttributedString(string:"Not connected to wifi", attributes: nil)
+			resultString.append(string:"Not connected to wifi", attrs: nil)
 		}
 		
 		if NetworkGovernor.shared.connectionState == .canConnect {
@@ -389,7 +401,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 			}
 			else if observed.serverTimezoneOffset == observed.deviceTimezoneOffset {
 				if let deviceTZ = TimeZone.current.abbreviation(), let serverTZ = observed.serverTimezone?.abbreviation() {
-					self.labelText = NSAttributedString(string: 
+					observer.labelText = NSAttributedString(string: 
 							"""
 							Time zones don't match, but they have the same offset from GMT. Local time is \(deviceTZ), server time is \(serverTZ).
 							
@@ -397,7 +409,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 							""")
 				}
 				else {
-					self.labelText = NSAttributedString(string: 
+					observer.labelText = NSAttributedString(string: 
 							"""
 							Time zones don't match, but they have the same offset from GMT.
 							
@@ -436,7 +448,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 			observer.shouldBeVisible = true
 			
 			switch observed.deviceTimeOffset {
-			case -10...10:	observer.labelText = NSAttributedString(string: "Device and Server are experiencing time synchronization.")
+			case -10...10:	observer.labelText = NSAttributedString(string: "Device and Server clocks are synchronized.")
 			case -60...60:	observer.labelText = NSAttributedString(string: "Device time is within a minute of Server time.")
 			case -300...300: observer.labelText = NSAttributedString(string: "Device Time is close to Server Time--within a few minutes.")
 			case 300...3300: observer.labelText = NSAttributedString(string: "Device Time is way ahead of Server Time--like \(observed.deviceTimeOffset / 60) minutes ahead.")

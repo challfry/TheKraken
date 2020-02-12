@@ -226,6 +226,7 @@ import CoreData
 	// If nil, the whole app sees 'nobody is logged in'.
 	// This var is widely observed via KVO.
 	@objc dynamic var loggedInUser: LoggedInKrakenUser?
+	private var loggedInUserObjectID: NSManagedObjectID?
 	
 	// The last error we got from the server. Cleared when we start a new activity.
 	@objc dynamic var isChangingLoginState: Bool = false
@@ -250,19 +251,19 @@ import CoreData
 	}
 	
 	func getLoggedInUser(in context: NSManagedObjectContext) -> LoggedInKrakenUser? {
-		guard let loggedInObjectID = loggedInUser?.objectID, let username = loggedInUser?.username else { return nil }
+		guard let loggedInObjectID = loggedInUserObjectID else { return nil }
 		var resultUser: LoggedInKrakenUser?
 		context.performAndWait {
 			do {
 				resultUser = try context.existingObject(with: loggedInObjectID) as? LoggedInKrakenUser
 				
-				if resultUser == nil {
-					let mom = LocalCoreData.shared.persistentContainer.managedObjectModel
-					let request = mom.fetchRequestFromTemplate(withName: "FindAUser", 
-							substitutionVariables: [ "username" : username ]) as! NSFetchRequest<KrakenUser>
-					let results = try request.execute()
-					resultUser = results.first as? LoggedInKrakenUser
-				}
+//				if resultUser == nil {
+//					let mom = LocalCoreData.shared.persistentContainer.managedObjectModel
+//					let request = mom.fetchRequestFromTemplate(withName: "FindAUser", 
+//							substitutionVariables: [ "username" : username ]) as! NSFetchRequest<KrakenUser>
+//					let results = try request.execute()
+//					resultUser = results.first as? LoggedInKrakenUser
+//				}
 			}
 			catch {
 				CoreDataLog.error("Error while getting logged in user for context.", ["error" : error])
@@ -276,9 +277,14 @@ import CoreData
 	// be shown from the POV and permissions of this user. Note that this fn does not call the server, and can't 
 	// be used to switch to a user that hasn't entered their credentials (that is, logged in).
 	func setActiveUser(to user: LoggedInKrakenUser) {
-		if credentialedUsers.contains(user) {
-			loggedInUser = user
-			Settings.shared.activeUsername = user.username
+		LocalCoreData.shared.mainThreadContext.performAndWait {
+			if let userInMainContext = try? LocalCoreData.shared.mainThreadContext.existingObject(with: user.objectID) as? LoggedInKrakenUser {
+				if credentialedUsers.contains(userInMainContext) {
+					loggedInUser = userInMainContext
+					loggedInUserObjectID = userInMainContext.objectID
+					Settings.shared.activeUsername = user.username
+				}
+			}
 		}
 	}
 	
@@ -332,26 +338,25 @@ import CoreData
 	// doesn't log in.
 	func loadProfileInfo(keyToUseDuringLogin: String? = nil) {
 		
-		// Need an auth key or this won't work. If we're mid-login, loggedInUser will be nil.
-		guard let key = keyToUseDuringLogin ?? self.loggedInUser?.twitarrV2AuthKey else {
-			return
-		}
-		
 		// If we're not logged in, addUserCredential will do nothing. If we are logged in, addUserCredential
 		// will replace 'key' in the query with the logged in user's key.
-		var queryParams = [ URLQueryItem(name:"key", value:key) ]
-		if keyToUseDuringLogin != nil {
-			queryParams.append(URLQueryItem(name: "key", value: keyToUseDuringLogin))
+		var queryParams = [URLQueryItem]()
+		if let key = keyToUseDuringLogin {
+			queryParams.append(URLQueryItem(name: "key", value: key))
 		}
 		else {
 			// Make sure we pull the auth key from the main thread
 			let mainContext = LocalCoreData.shared.mainThreadContext
 			var authKey: String?
 			mainContext.performAndWait {
-				authKey = CurrentUser.shared.loggedInUser?.twitarrV2AuthKey
+				authKey = loggedInUser?.twitarrV2AuthKey
 			}
 			if let authKey = authKey {
 				queryParams.append(URLQueryItem(name: "key", value: authKey))
+			}
+			else {
+				// If we aren't handed an auth key and there's no logged in user, we can't load the profile info
+				return
 			}
 		}
 		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
@@ -375,11 +380,14 @@ import CoreData
 										
 					// If this is a login action, set the logged in user, their key, and other values 
 					if let keyUsedForLogin = keyToUseDuringLogin, let user = krakenUser {
-						self.credentialedUsers.insert(user)
-						self.loggedInUser = user
-						user.twitarrV2AuthKey = keyUsedForLogin
-						self.saveLoginCredentials()
-						Settings.shared.activeUsername = user.username
+						DispatchQueue.main.async {
+							self.credentialedUsers.insert(user)
+							self.loggedInUser = user
+							self.loggedInUserObjectID = user.objectID
+							user.twitarrV2AuthKey = keyUsedForLogin
+							self.saveLoginCredentials()
+							Settings.shared.activeUsername = user.username
+						}
 					}
 				}
 				else {
@@ -428,6 +436,7 @@ import CoreData
 			}
 			else {
 				self.loggedInUser = nil
+				self.loggedInUserObjectID = nil
 			}
 		}
 		
@@ -734,11 +743,13 @@ extension CurrentUser {
 					let activeUser = usersWithCreds.first(where: { $0.username == activeUsername }) {
 				// 
 				loggedInUser = activeUser
+				loggedInUserObjectID = activeUser.objectID
 				loadProfileInfo()
 				KeychainLog.debug("Logging in as a user at app launch")
 			}
 			else if usersWithCreds.count == 1, let activeUser = usersWithCreds.first {
 				loggedInUser = activeUser
+				loggedInUserObjectID = activeUser.objectID
 				loadProfileInfo()
 				Settings.shared.activeUsername = activeUser.username
 				KeychainLog.debug("Logging in default credentialed user at app launch")

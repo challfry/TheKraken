@@ -29,6 +29,11 @@ class EventSectionHeaderView: BaseCollectionSupplementaryView {
 	func setTime(to displayTime: Date) {
 		let dateFormatter = DateFormatter()
 		dateFormatter.locale = Locale(identifier: "en_US")
+		
+		// 
+		if let serverTZ = ServerTimeUpdater.shared.serverTimezone {
+			dateFormatter.timeZone = serverTZ
+		}
 
 		dateFormatter.setLocalizedDateFormatFromTemplate("H:mm a, eeee MMM d" )
 		dateFormatter.dateFormat = "h:mm a - eeee MMM d"

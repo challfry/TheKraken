@@ -107,14 +107,12 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     	super.viewDidAppear(animated)
 		dataSource.enableAnimations = true
 		AnnouncementDataManager.shared.markAllAnnouncementsRead()
-		CoreMotion.shared.start()
 	}
 	
 	override func viewDidDisappear(_ animated: Bool) {
     	super.viewDidDisappear(animated)
 		// Mark Announcements read both when we appear and when we disappear.
 		AnnouncementDataManager.shared.markAllAnnouncementsRead()
-		CoreMotion.shared.stop()
 	}
     
     func createAnnouncementCellModel(_ model: Announcement) -> BaseCellModel {
