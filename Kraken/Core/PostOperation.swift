@@ -86,6 +86,7 @@ struct PhotoUploadPackage {
 	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
 	
 	var nextCheckTimer: Timer?
+	var insideCheckForOpsToDeliver = false
 	
 // MARK: Methods
 	
@@ -114,6 +115,9 @@ struct PhotoUploadPackage {
 		Settings.shared.tell(self, when: "blockEmptyingPostOpsQueue") { observer, observed in 
 			observer.checkForOpsToDeliver()
 		}
+		NetworkGovernor.shared.tell(self, when: "connectionState") { observer, observed in 
+			observer.checkForOpsToDeliver()
+		}
 	}
 		
 	// Does not check whether this op is authored by the current user.
@@ -139,8 +143,18 @@ struct PhotoUploadPackage {
 			NetworkLog.debug("Not sending ops to server; blocked by user setting")
 			return
 		}
+		guard nextCheckTimer == nil else {
+			NetworkLog.debug("Not sending ops to server just now; we're on a timer.")
+			return
+		}
 			
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			guard self.insideCheckForOpsToDeliver == false else { return }
+			self.insideCheckForOpsToDeliver = true
+			defer {	
+				self.insideCheckForOpsToDeliver = false
+			}
+
 			if let operations = self.controller.fetchedObjects {
 				var earliestCallTime: Date?
 				var sentOpThisCall = false
@@ -152,7 +166,11 @@ struct PhotoUploadPackage {
 					}	
 				
 					// Test 2: Don't send ops that aren't ready. Ops that received server errors need to be 'resent' by user.
-					// Ops that received network errors get set back to the ReadyToSend state.
+					// Ops in the networkError state have had too main failed connection attempts; reset them when we know
+					// we have a good connection.
+					if op.operationState == .networkError && NetworkGovernor.shared.connectionState == .canConnect {
+						op.operationState = .readyToSend
+					}
 					if op.operationState != .readyToSend {
 						continue
 					} 
@@ -172,12 +190,12 @@ struct PhotoUploadPackage {
 					if sentOpThisCall {
 						// We *would* send this op, except we just sent one. Once we've determined that there's ops
 						// that are ready to send but unsent, we can break. Our next call time is 1 sec from now.
-						earliestCallTime = Date().addingTimeInterval(1.0)
+						earliestCallTime = Date().addingTimeInterval(2.0)
 						break
 					}
 					else {
 						// Tell the op to send to server here
-						NetworkLog.debug("Sending op to server", ["op" : op])
+						NetworkLog.debug("\(Date()): Sending op to server", ["op" : op])
 						op.post(context: context)
 						sentOpThisCall = true
 					}
@@ -186,10 +204,15 @@ struct PhotoUploadPackage {
 				// Start a timer that will fire whenever it's time for us to try sending the next op.
 				// If earliestCallTime is nil, there's no ops in the pending state.
 				if let fireTime = earliestCallTime {
-					self.nextCheckTimer?.invalidate()
-					self.nextCheckTimer = Timer.scheduledTimer(withTimeInterval: fireTime.timeIntervalSinceNow, 
-							repeats: false) { timer in 
-						self.checkForOpsToDeliver()
+					DispatchQueue.main.async {
+						NetworkLog.debug("\(Date()): Setting next op post time to \(fireTime.timeIntervalSinceNow)")
+						self.nextCheckTimer?.invalidate()
+						self.nextCheckTimer = Timer.scheduledTimer(withTimeInterval: fireTime.timeIntervalSinceNow, 
+								repeats: false) { timer in 
+							NetworkLog.debug("\(Date()): Timer fired. About to check for more ops to deliver.")
+							self.nextCheckTimer = nil
+							self.checkForOpsToDeliver()
+						}
 					}
 				}
 				
@@ -259,8 +282,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	case notReadyToSend = 0
 	case readyToSend = 1
 	case sentNetworkCall = 2
-	case serverError = 3
-	case callSuccess = 4
+	case networkError = 3
+	case serverError = 4
+	case callSuccess = 5
 }
 
 
@@ -328,6 +352,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		case .notReadyToSend: statusString = "Not ready to send to the server yet"
 		case .readyToSend: statusString = "Waiting to send"
 		case .sentNetworkCall: statusString = "Posting to server"
+		case .networkError: statusString = "Couldn't reach the server. Will try again later."
 		case .serverError: statusString = "Received error from server. Blocked until error is resolved."
 		case .callSuccess: statusString = "Success"
 		}
@@ -354,8 +379,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			else if package.networkError != nil {
 				if self.retryCount > 4 {
 					// If we network error too many times, record the error and stop trying.
-					let errorString = package.networkError?.errorString ?? "Unknown network error"
-					self.recordServerErrorFailure(ServerError(errorString))
+					LocalCoreData.shared.performLocalCoreDataChange { context, user in 
+						let opInContext = context.object(with: self.objectID) as! PostOperation
+						opInContext.operationState = .networkError
+					}
 				}
 				else {
 					// Exponential backoff, but try again by moving to the ready state.

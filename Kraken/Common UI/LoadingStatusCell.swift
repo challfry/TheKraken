@@ -52,7 +52,11 @@ import UIKit
 //				observer.statusText = observed.isLoggedIn() ? "Logging out" : "Logging in"
 			}
 			if let error = observed.lastError {
-				observer.errorText = error.getErrorString()
+				switch error {
+					case let serverError as ServerError: observer.errorText = serverError.getErrorString()
+					case let networkError as NetworkError: observer.errorText = networkError.getErrorString()
+					default: observer.errorText = "Unknown Error"
+				}
 //				observer.statusText = "This is a very long error string, specifically to test out how the cell resizes itself in response to the text in the label changing."
 			}
 			else {

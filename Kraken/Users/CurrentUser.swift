@@ -230,7 +230,7 @@ import CoreData
 	
 	// The last error we got from the server. Cleared when we start a new activity.
 	@objc dynamic var isChangingLoginState: Bool = false
-	@objc dynamic var lastError : ServerError?
+	@objc dynamic var lastError : Error?
 	
 	// This is the set of users that we are holding Twitarr auth keys for. At any time, we can swap one of these
 	// users to become the loggedInUser, without asking for their password or talking to the server.
@@ -328,6 +328,7 @@ import CoreData
 			} 
 			else {
 				// Login failed.
+				self.lastError = package.networkError
 				self.isChangingLoginState = false
 			}
 		}

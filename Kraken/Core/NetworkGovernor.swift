@@ -62,6 +62,10 @@ import Foundation
 	init(_ str: String?) {
 		errorString = str
 	}
+	
+	func getErrorString() -> String? {
+		return errorString
+	}
 }
 
 // The response type passed back from network calls. Note that the network governor does its own handling of

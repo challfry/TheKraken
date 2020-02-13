@@ -128,7 +128,18 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			}
 			taskSection.append(cellModel)
 
-
+		case let reactionTask as PostOpForumPostReaction:
+			if reactionTask.isAdd {
+				taskSection.append(SettingsInfoCellModel("Add a \"Like\" reaction to this Forum Post:", taskIndex: sectionIndex))
+			}
+			else {
+				taskSection.append(SettingsInfoCellModel("Cancel the \"Like\" on this Forum Post:", taskIndex: sectionIndex))
+			}
+			
+			let model = ForumPostCellModel(withModel: reactionTask.sourcePost)
+			model.isInteractive = false
+			taskSection.append(model)
+			
 
 // Seamail		
 		case let seamailPostTheadTask as PostOpSeamailThread:
@@ -187,7 +198,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			}
 			
 		case let userProfileEditTask as PostOpUserProfileEdit:
-			taskSection.append(SettingsInfoCellModel("Update your User Profile"))
+			taskSection.append(SettingsInfoCellModel("Update your User Profile", taskIndex: sectionIndex))
 			if let currentUser = CurrentUser.shared.loggedInUser {
 				let displayNameCell = SingleValueCellModel("Display Name:")
 				userProfileEditTask.tell(displayNameCell, when: "displayName") { observer, observed in 
@@ -229,7 +240,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			}
 			
 		case let userPhotoTask as PostOpUserPhoto:
-			let infoCell = SettingsInfoCellModel("Change your User Avatar Photo")
+			let infoCell = SettingsInfoCellModel("Change your User Avatar Photo", taskIndex: sectionIndex)
 			let photoCell = SinglePhotoCellModel()
 			taskSection.append(infoCell)
 			taskSection.append(photoCell)
@@ -256,8 +267,10 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 		
 		// For all task types, put a status cell and a edit buttons cell underneath the task description.
 		let labelCell = OperationStatusCellModel()
+		labelCell.hideCancelButton = true
 		task.tell(labelCell, when: "errorString") { observer, observed in
 			observer.shouldBeVisible = observed.errorString != nil
+			observer.statusText = "Server Error"
 			if let error = observed.errorString {
 				var errorText = "Server rejected this change, stating:\n    • \(error)"
 				if TaskEditButtonsCellModel.taskCanBeEdited(task: task) {

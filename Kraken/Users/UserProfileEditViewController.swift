@@ -20,7 +20,7 @@ import Photos
 	var displayNameCell: TextFieldCellModel = {
 		let cell = TextFieldCellModel("Display Name", purpose: .normal)
 		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.display_name") { observer, observed in 
-			if let errors = observed.lastError?.fieldErrors?["display_name"] {
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["display_name"] {
 				observer.errorText = errors[0]
 			}
 			else {
@@ -34,7 +34,7 @@ import Photos
 	var emailCell: TextFieldCellModel = {
 		let cell = TextFieldCellModel("Email", purpose: .email)
 		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.email") { observer, observed in 
-			if let errors = observed.lastError?.fieldErrors?["email"] {
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["email"] {
 				observer.errorText = errors[0]
 			}
 			else {
@@ -47,7 +47,7 @@ import Photos
 	var roomNumberCell: TextFieldCellModel = {
 		let cell  = TextFieldCellModel("Room Number", purpose: .roomNumber)
 		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.room_number") { observer, observed in 
-			if let errors = observed.lastError?.fieldErrors?["room_number"] {
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["room_number"] {
 				observer.errorText = errors[0]
 			}
 			else {

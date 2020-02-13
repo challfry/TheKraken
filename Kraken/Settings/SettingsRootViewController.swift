@@ -110,6 +110,12 @@ class SettingsRootViewController: BaseCollectionViewController {
 		let clearCacheCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
 		clearCacheCell.labelText = NSAttributedString(string: "Resets the local database, fogretting everything cached from the Twitarr server.")
 		debugSettingsSection.append(clearCacheButtonCell)
+
+		// Version
+		let versionCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Version"))
+		let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
+		let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
+		versionCell.labelText = NSAttributedString(string:"Kraken Version \(appVersion)b\(buildVersion)")
 		
 		dataSource.enableAnimations	= true
     }

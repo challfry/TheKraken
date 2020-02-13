@@ -52,6 +52,7 @@ class ModalLoginViewController: BaseCollectionViewController {
 	    allowTransparency = false
     	super.viewDidAppear(animated)
 		loginDataSource.enableAnimations = true
+		CurrentUser.shared.clearErrors()
 	}
 }
 

@@ -99,8 +99,6 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		// Lighter Mode
 
   		dataSource.register(with: collectionView, viewController: self)
-  		
-  		
     }
     
     override func viewDidAppear(_ animated: Bool) {

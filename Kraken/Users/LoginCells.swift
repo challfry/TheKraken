@@ -133,7 +133,7 @@ class EditDisplayNameCellModel : TextFieldCellModel {
 		}?.execute()
 
 		CurrentUser.shared.tell(self, when: "lastError.fieldErrors.display_name") { observer, observed in 
-			if let errors = observed.lastError?.fieldErrors?["display_name"] {
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["display_name"] {
 				observer.errorText = errors[0]
 			}
 			else {
@@ -152,7 +152,7 @@ class RegistrationCodeCellModel: TextFieldCellModel {
 		}?.execute()
 		
 		CurrentUser.shared.tell(self, when: "lastError.fieldErrors.registration_code") { observer, observed in 
-			if let errors = observed.lastError?.fieldErrors?["registration_code"] {
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["registration_code"] {
 				observer.errorText = errors[0]
 			}
 		}
@@ -237,10 +237,10 @@ class EditUsernameCellModel: TextFieldCellModel {
 		
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.username", 
 				"lastError.fieldErrors.new_username"]) { observer, observed in 
-			if let errors = observed.lastError?.fieldErrors?["username"] {
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["username"] {
 				observer.errorText = errors[0]
 			}
-			else if let errors = observed.lastError?.fieldErrors?["new_username"] {
+			else if let errors = (observed.lastError as? ServerError)?.fieldErrors?["new_username"] {
 				observer.errorText = errors[0]
 			}
 			else {
@@ -256,13 +256,13 @@ class EditPasswordCellModel: TextFieldCellModel {
 		
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.new_password", 
 				"lastError.fieldErrors.current_password", "lastError.fieldErrors.password"]) { observer, observed in 
-			if let errors = observed.lastError?.fieldErrors?["new_password"] {
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["new_password"] {
 				observer.errorText = errors[0]
 			}
-			else if let errors = observed.lastError?.fieldErrors?["current_password"] {
+			else if let errors = (observed.lastError as? ServerError)?.fieldErrors?["current_password"] {
 				observer.errorText = errors[0]
 			}
-			else if let errors = observed.lastError?.fieldErrors?["password"] {
+			else if let errors = (observed.lastError as? ServerError)?.fieldErrors?["password"] {
 				observer.errorText = errors[0]
 			}
 			else {

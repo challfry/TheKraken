@@ -14,6 +14,7 @@ import UIKit
 	dynamic var errorText: String? { get set }
 	dynamic var showSpinner: Bool { get set }
 	dynamic var disableCancelButton: Bool { get set }
+	dynamic var hideCancelButton: Bool { get set }
 }
 
 @objc class OperationStatusCellModel: BaseCellModel, PostOpStatusCellProtocol {
@@ -25,6 +26,7 @@ import UIKit
 	@objc dynamic var statusText: String?
 	@objc dynamic var showSpinner: Bool = false
 	@objc dynamic var disableCancelButton: Bool = false
+	@objc dynamic var hideCancelButton: Bool = false
 	
 	var cancelAction: (() -> Void)?
 
@@ -97,6 +99,12 @@ class PostOpStatusCell: BaseCollectionViewCell, PostOpStatusCellProtocol {
 	var disableCancelButton: Bool = false {
 		didSet {
 			cancelButton.isEnabled = !disableCancelButton
+		}
+	}
+	
+	var hideCancelButton: Bool = false {
+		didSet {
+			cancelButton.isHidden = hideCancelButton
 		}
 	}
 	
