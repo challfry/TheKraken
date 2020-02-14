@@ -28,6 +28,11 @@ import Compression
 	var avgRating: Float?
 	var complexity: Float?			// BGG calls this 'weight'. 0 to 5
 	
+	var donatedBy: String?
+	var notes: String?
+	var expands: String?
+	var numCopies: Int = 1
+	
 	@objc dynamic var isFavorite: Bool
 	
 	// Why have this object create itself from a near-identical JSON Codable struct? Because having your model and UI
@@ -50,7 +55,17 @@ import Compression
 		complexity = from.complexity
 		isFavorite = false
 		
+		donatedBy = from.donatedBy
+		notes = from.notes
+		expands = from.expands
+		numCopies = from.numCopies
+		
+		
 		super.init()
+	}
+	
+	func getBestName() -> String {
+		return bggGameName ?? gameName
 	}
 }
 
@@ -72,11 +87,11 @@ import Compression
 	@objc dynamic var loadingComplete: Bool = false
 	@objc dynamic var loadingStarted: Bool = false
 	
-	var gamesByName: [String : GamesListGame] = [:]
-	var gameTitleArray: [String] = []							// All game titles, sorted alphabetically
+	var gamesListGames: [GamesListGame] = []
 	
 	func loadGamesFile( done: @escaping ()-> Void) {
-		if !loadingStarted {
+		
+		if !loadingStarted && !loadingComplete {
 			loadingStarted = true
 			backgroundQ.async {
 	//			let startTime = ProcessInfo.processInfo.systemUptime
@@ -108,12 +123,10 @@ import Compression
 	//			print ("Decode Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
 				
 				// Step 3: Parse the file, creating local versions of the 'full state' vars.
-				var threadGamesByName: [String : GamesListGame] = [:]
-				var threadGameTitles: [String] = []
+				var threadGames: [GamesListGame] = []
 				let gameArray = try! JSONDecoder().decode([JsonGamesListGame].self, from: fileData)
 				for game in gameArray {
-					threadGamesByName[game.gameName] = GamesListGame(from: game)
-					threadGameTitles.append(game.gameName)
+					threadGames.append(GamesListGame(from: game))
 				}
 				
 				// Step 4: Set up favorites
@@ -124,8 +137,8 @@ import Compression
 						let cdFavoriteGames = try context.fetch(fetchRequest)
 						
 						for favoriteGame in cdFavoriteGames {
-							if let game = threadGamesByName[favoriteGame.gameName] {
-								game.isFavorite = true
+							if let gameToFavorite = threadGames.first(where: { $0.gameName == favoriteGame.gameName }) {
+								gameToFavorite.isFavorite = true
 							}
 						}
 					}	
@@ -134,12 +147,9 @@ import Compression
 					}
 				}
 
-				// Step 5: Sort the arrays
-				threadGameTitles = threadGameTitles.sorted { $0.caseInsensitiveCompare($1) == .orderedAscending }
 	//			print ("Total Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
 				
-				self.gamesByName = threadGamesByName
-				self.gameTitleArray = threadGameTitles
+				self.gamesListGames = threadGames
 				self.loadingComplete = true
 			}
 		}
@@ -152,6 +162,14 @@ import Compression
 				done()
 			}
 		}
+	}
+	
+	func findGame(named: String) -> GamesListGame? {
+		if let game = gamesListGames.first(where: { $0.bggGameName == named || $0.gameName == named }) {
+			return game
+		}
+		
+		return nil
 	}
 
 	func setFavoriteGameStatus(for gameObject: GamesListGame?, to newState: Bool) {
@@ -170,15 +188,15 @@ import Compression
 				for game in cdFavoriteGames {
 					context.delete(game)
 				}
-				let favoriteGames = self.gamesByName.filter { $0.1.isFavorite == true }
+				let favoriteGames = self.gamesListGames.filter { $0.isFavorite == true }
 				for fav in favoriteGames {
 					let newFavGame = GameListFavorite(context: context)
-					newFavGame.gameName = fav.key
+					newFavGame.gameName = fav.gameName
 				}
 				try context.save()
 			}
 			catch {
-				CoreDataLog.error("Couldn't save Favorite Karaoke Songs to Core Data.", ["Error" : error])
+				CoreDataLog.error("Couldn't save Favorite Games to Core Data.", ["Error" : error])
 			}
 		}
 	}

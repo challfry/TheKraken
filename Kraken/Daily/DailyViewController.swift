@@ -24,6 +24,25 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		cell.text = "A big thank you to our wonderful beta testers!"
 		return cell
 	}()
+	
+	// Shows up after cruise
+	lazy var dataDeletionReminderCellModel: LocalAnnouncementCellModel = {
+		let cell = LocalAnnouncementCellModel()
+		let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
+		let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
+		cell.headerText = "Reminder"
+		cell.authorName = "From: Chall Fry"
+		cell.text = """
+				Kraken will automatically purge all cached data a couple of months after the cruise ends. Photos, \
+				posts, messages, favorites, and users will all be gone. You should save any info you want to keep.
+				
+				If you have photos you want to save, you can do so by tapping on the photo, tapping the Share button, \
+				and tapping Save Image.
+				"""
+				
+		cell.shouldBeVisible = (dayAfterCruise() ?? 0) > 1
+		return cell
+	}()
 
 	var twitarrCell: SocialCellModel?
 	var forumsCell: SocialCellModel?
@@ -63,7 +82,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		dataSource.append(segment: dailySegment)
 		dailySegment.append(DailyActivityCellModel())
 		dailySegment.append(PortAndThemeCellModel())
-		dailySegment.append(betaCellModel)
+//		dailySegment.append(betaCellModel)
+		dailySegment.append(dataDeletionReminderCellModel)
 		
 		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true"),
 				sort: [ NSSortDescriptor(key: "timestamp", ascending: false) ], 

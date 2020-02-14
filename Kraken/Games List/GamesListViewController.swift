@@ -31,11 +31,15 @@ class GamesListViewController: BaseCollectionViewController {
 		dataSource.append(segment: gamesSegment)
 
 		gamesData.loadGamesFile {
-			for gameName in self.gamesData.gameTitleArray {
-				if let model = self.gamesData.gamesByName[gameName] {
-					let cellModel = BoardGameCellModel(with: model)
-					self.gamesSegment.append(cellModel)
-				}
+			let sortedGamesList = self.gamesData.gamesListGames.sorted { 
+				let leftName = $0.getBestName()
+				let rightName = $1.getBestName()
+				return leftName.caseInsensitiveCompare(rightName) == .orderedAscending
+			}
+		
+			for model in sortedGamesList {
+				let cellModel = BoardGameCellModel(with: model)
+				self.gamesSegment.append(cellModel)
 			}
 			self.updateCellVisibility()
 		}

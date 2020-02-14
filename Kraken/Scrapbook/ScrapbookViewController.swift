@@ -118,10 +118,10 @@ class ScrapbookViewController: BaseCollectionViewController {
 		return cellModel
 	}
 	
-	func createGameCellModel(_ model: GameListFavorite) -> BaseCellModel {
+	func createGameCellModel(_ fav: GameListFavorite) -> BaseCellModel {
 		let cellModel = BoardGameCellModel()
 		GamesDataManager.shared.loadGamesFile {
-			cellModel.model = GamesDataManager.shared.gamesByName[model.gameName]
+			cellModel.model = GamesDataManager.shared.findGame(named: fav.gameName)
 		}
 		return cellModel
 	}

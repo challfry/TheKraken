@@ -40,15 +40,18 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
 	@IBOutlet var playTimeLabel: UILabel!
 	@IBOutlet var ratingsLabel: UILabel!
 	@IBOutlet var complexityLabel: UILabel!
-	@IBOutlet var descriptionLabel: UILabel!
-	@IBOutlet var descriptionHeightConstraint: NSLayoutConstraint!
+	@IBOutlet var 	expandsLabel: UILabel!
+	@IBOutlet var 	numCopiesLabel: UILabel!
+	@IBOutlet var 	descriptionLabel: UILabel!
+	@IBOutlet var 	donatedByLabel: UILabel!
+	@IBOutlet var 	stackViewHeightConstraint: NSLayoutConstraint!
 	
 	var model: GamesListGame? {
     	didSet {
     		clearObservations()
     		
     		if let model = model {
-	    		gameTitleLabel.text = model.gameName
+	    		gameTitleLabel.text = model.bggGameName ?? model.gameName
 	    		publishYearLabel.text = model.yearPublished
 	    		
 	    		addObservation(model.tell(self, when: "isFavorite") { observer, observed in 
@@ -119,8 +122,38 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
 					complexityLabel.text = nil
 				}
 				
+				if let expandsGame = model.expands {
+					expandsLabel.text = "Expansion for: \(expandsGame)"
+				}
+				else {
+					expandsLabel.text = nil
+				}
+				
+				// Only show the Num Copies label if there's more than one copy of the game
+				if model.numCopies > 1 {
+					numCopiesLabel.text = "\(model.numCopies) copies"
+				}
+				else {
+					numCopiesLabel.text = nil
+				}
+				
+				if let donatedBy = model.donatedBy {
+					donatedByLabel.text = "Donated to Library by: \(donatedBy)"
+				}
+				else {
+					donatedByLabel.text = nil
+				}
+				
+				var extendedDescription: String = ""
 				if let desc = model.gameDescription {
-					descriptionLabel.attributedText = StringUtilities.cleanupText(desc, addLinks: false)
+					extendedDescription = desc
+				}
+				if let notes = model.notes {
+					extendedDescription.append("\n\nNotes: \(notes)")
+				}
+				
+				if !extendedDescription.isEmpty {
+					descriptionLabel.attributedText = StringUtilities.cleanupText(extendedDescription, addLinks: false)
 				}
 				else {
 					descriptionLabel.text = nil
@@ -142,9 +175,17 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
 		playTimeLabel.styleFor(.body)
 		ratingsLabel.styleFor(.body)
 		complexityLabel.styleFor(.body)
+		expandsLabel.styleFor(.body)
+		numCopiesLabel.styleFor(.body)
+		donatedByLabel.styleFor(.body)
 		descriptionLabel.styleFor(.body)
 		
 		allowsSelection = true
+		
+		expandsLabel.text = nil
+		numCopiesLabel.text = nil
+		donatedByLabel.text = nil
+		descriptionLabel.text = nil
 	}
 
 	override var isHighlighted: Bool {
@@ -160,11 +201,11 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
 			standardSelectionHandler()
 			
 			if isPrototypeCell {
-				descriptionHeightConstraint.isActive = !privateSelected
+				stackViewHeightConstraint.isActive = !privateSelected
 			}
 			else {
 				UIView.animate(withDuration: 0.3) {
-					self.descriptionHeightConstraint.isActive = !self.privateSelected
+					self.stackViewHeightConstraint.isActive = !self.privateSelected
 					self.cellSizeChanged()
 					self.layoutIfNeeded()
 				}

@@ -92,7 +92,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 		let prefsSection = dataSource.appendFilteringSegment(named: "App Prefs")
 		let prefsHeaderCell = prefsSection.append(cell: SettingsInfoCellModel("Preference Settings"))
 		prefsHeaderCell.labelText = NSAttributedString(string: "App-wide settings")
-		prefsSection.append(cell: BlockNetworkSwitchCellModel())
+//		prefsSection.append(cell: BlockNetworkSwitchCellModel())
 		prefsSection.append(cell: DelayPostsSwitchCellModel())
 		prefsSection.append(cell: FullScreenCameraSwitchCellModel())
 		if #available(iOS 13.0, *) {
@@ -102,10 +102,10 @@ class SettingsRootViewController: BaseCollectionViewController {
 		
 		// Debug Settings
 		let debugSettingsSection = dataSource.appendFilteringSegment(named: "Debug Prefs")
-		let debugHeaderCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
-		debugHeaderCell.labelText = NSAttributedString(string: "Support for Debugging and Testing")
-		debugSettingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
-		debugSettingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
+//		let debugHeaderCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
+//		debugHeaderCell.labelText = NSAttributedString(string: "Support for Debugging and Testing")
+//		debugSettingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
+//		debugSettingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
 		
 		let clearCacheCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
 		clearCacheCell.labelText = NSAttributedString(string: "Resets the local database, fogretting everything cached from the Twitarr server.")

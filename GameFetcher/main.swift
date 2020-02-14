@@ -18,15 +18,16 @@ import Compression
 let queryBaseURL = "http://www.boardgamegeek.com/xmlapi"
 var gamesList: [JsonGamesListGame] = []
 
-func getGame(named: String) {
+func getGame(named: String) -> JsonGamesListGame {
+	var resultGame = JsonGamesListGame(gameName: named)
 	var queryItems = [URLQueryItem(name:"search", value: named), URLQueryItem(name:"exact", value: "1")]
-	guard var components = URLComponents(string: "\(queryBaseURL)/search") else { return }
+	guard var components = URLComponents(string: "\(queryBaseURL)/search") else { return resultGame }
 	components.queryItems = queryItems
 	if let url = components.url {
 		var xmlResponse = try! String(contentsOf: url)
 		var del = ParserDelegate(xml: xmlResponse, for: named, isExtended: false)
 		if del.objectIDs.count > 0 {
-			getGameInfo(from: del)
+			resultGame = getGameInfo(from: del)
 		}
 		else {
 			// Fuzzy search. Very vew games end with " Game" and if they do, we can still lop it off
@@ -41,28 +42,44 @@ func getGame(named: String) {
 				Thread.sleep(forTimeInterval: 2.0)
 				xmlResponse = try! String(contentsOf: url)
 				del = ParserDelegate(xml: xmlResponse, for: named, isExtended: true)
-				getGameInfo(from: del)
+				resultGame = getGameInfo(from: del)
 			}
 		}
 	}
+	
+	return resultGame
 }
 		
-func getGameInfo(from del: ParserDelegate) {		
+func getGameInfo(from del: ParserDelegate) -> JsonGamesListGame {	
+	if del.objectIDs.count > 0 {
+		return getGameInfo(from: del.objectIDs[0], gameName: del.gameName)
+	}
+	else {
+		// Couldn't find game in BGG.
+		return JsonGamesListGame(gameName: del.gameName)
+	}
+}
+
+func getGameInfo(from objectID: String, gameName: String)	-> JsonGamesListGame {
 	let queryItems = [URLQueryItem(name:"stats", value: "1")]
-	if del.objectIDs.count > 0, var components = URLComponents(string: "\(queryBaseURL)/boardgame/\(del.objectIDs[0])") {
+	var resultGame: JsonGamesListGame
+	if var components = URLComponents(string: "\(queryBaseURL)/boardgame/\(objectID)") {
 		components.queryItems = queryItems
 		if let bgURL = components.url {
 			Thread.sleep(forTimeInterval: 2.0)
 			let xmlResponse = try! String(contentsOf: bgURL)
-			let boardGameDel = BoardGameParserDelegate(del.gameName, xml: xmlResponse)
-			gamesList.append(boardGameDel.gameObj)
+			let boardGameDel = BoardGameParserDelegate(gameName, xml: xmlResponse)
+			resultGame = boardGameDel.gameObj
+		}
+		else {
+			resultGame = JsonGamesListGame(gameName: gameName)
 		}
 	}
 	else {
 		// Couldn't find game in BGG.
-		let gameObj = JsonGamesListGame(gameName: del.gameName)
-		gamesList.append(gameObj)
+		resultGame = JsonGamesListGame(gameName: gameName)
 	}
+	return resultGame
 }
 
 // Parses "/search" response
@@ -185,30 +202,50 @@ guard var fileContents = try? String(contentsOf: fileUrl) else {
 // Shortened contents for testing
 if false {
 	fileContents = """
-	Bill of Rights
-	Blood Bowl Team Manager
-	Boomtown Bandit Game
-	Boss Monster 2: The Next Level
-	Bottom of the 9th Game
-	Braintopia 2
-	Breaking Bad
-	Call of Cathulu The Card Game
+	Elder Sign	2				
+	Eldritch Horror	2				
+	Epic Spell Wars	1				
+	Evolution	1				
+	Evolution: Climate	1				
+	Exoplanets	2				
+	Exploding Kittens	3				
+	Exploding Kittens NSFW	3				
+	Fake News	1				
 	"""
 }
 
 // Get the XML for each record, convert to JSON, store in gamesList array
 let scanner = Scanner(string: fileContents)
 while !scanner.isAtEnd, let nextLine = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
-	getGame(named: nextLine)
+	let tabFields = nextLine.split(separator: "\t", maxSplits: 8, omittingEmptySubsequences: false)
+	var gameObj = getGame(named: String(tabFields[0]))
+//	var gameObj = getGameInfo(from: "230305", gameName: String(tabFields[0]))
+	
+	gameObj.numCopies = Int(String(tabFields[1])) ?? 1
+	gameObj.donatedBy = tabFields[2].isEmpty ? nil : String(tabFields[2])
+	gameObj.notes = tabFields[3].isEmpty ? nil : String(tabFields[3])
+	gameObj.expands = tabFields[4].isEmpty ? nil : String(tabFields[4])
+	
+	gamesList.append(gameObj)
 	Thread.sleep(forTimeInterval: 2.0)
 }
+
+//let outputFileData = try JSONEncoder().encode(gamesList)
+//print(String(data: outputFileData, encoding: .utf8)!)
+
+
 do {
 	// Save JSON to file
 	let outputFileData = try JSONEncoder().encode(gamesList)
 	let outputFileUrl = URL(fileURLWithPath: "/Users/cfry/Documents/GamesListGames.json")
 	try outputFileData.write(to: outputFileUrl, options: [])
+	
+	guard let outputFileData = try? Data(contentsOf: outputFileUrl) else { 
+		print ("Couldn't load file.")
+		exit(0)
+	}
 
-	// Compress the ata in to .lzfse, save again
+	// Compress the data into .lzfse, save again
 	let sourceBufferMutable = UnsafeMutablePointer<UInt8>.allocate(capacity: outputFileData.count)
 	outputFileData.copyBytes(to: sourceBufferMutable, count: outputFileData.count)
 	let sourceBuffer = UnsafePointer(sourceBufferMutable)

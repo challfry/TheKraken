@@ -30,4 +30,9 @@ struct JsonGamesListGame: Codable {
 	var numRatings: Int?
 	var avgRating: Float?
 	var complexity: Float?
+	
+	var donatedBy: String?
+	var notes: String?
+	var expands: String?
+	var numCopies: Int = 1
 }
