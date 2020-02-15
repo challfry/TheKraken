@@ -1,6 +1,6 @@
-# Kraken Is Currently In Beta #
+# The Kraken is Released! #
 
-And _everyone_ is going to make the "Release The Kraken" joke when it is released. _Everyone_.
+(... yay!)
 
 ## What is The Kraken? ##
 
@@ -44,6 +44,8 @@ The 'likes' of games, karaoke songs, and forums are stored locally as Twitarr do
 ## Credits ##
 
 Chall Fry wrote The Kraken app.
+
+Julie Wong, Eric Graf, and Keith Stattenfield beta tested it.
 
 Media credits for Kraken assets:
  - Pirate Icon made by Freepik at flaticon.com

@@ -23,7 +23,8 @@ import Foundation
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://127.0.0.1:3000")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.1.20:3000")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://208.113.200.254")!) }
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.wookieefive.net")!) }
+	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.wookieefive.net")!) }
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://joco.hollandamerica.com")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
 

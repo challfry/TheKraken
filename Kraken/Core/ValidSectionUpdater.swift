@@ -51,6 +51,13 @@ import UIKit
 							if let sectionEnum = Section(rawValue: section.name) {
 								newDisabledSections.insert(sectionEnum)
 							}
+							if section.name.hasPrefix("Kraken_") {
+								let nameSuffix = section.name.dropFirst(7)
+								if let sectionEnum = Section(rawValue: String(nameSuffix)) {
+									newDisabledSections.insert(sectionEnum)
+								}
+
+							}
 						}
 					}
 					self.disabledSections = newDisabledSections
