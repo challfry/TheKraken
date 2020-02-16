@@ -354,10 +354,10 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 			// TODO: show error state
 			return		
 		}
-		guard passwordCellModel.editedText == confirmPasswordCellModel.editedText else {
-			// TODO: show error state
-			return		
-		}
+//		guard passwordCellModel.editedText == confirmPasswordCellModel.editedText else {
+//			// TODO: show error state
+//			return		
+//		}
 	
 		CurrentUser.shared.clearErrors() 
     	if let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText,

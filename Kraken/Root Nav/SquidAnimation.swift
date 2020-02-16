@@ -30,7 +30,8 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
     let filter = CIFilter(name: "CIGaussianBlur")!
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     
-    var inputImage: UIImage = UIImage(named: "Squid3")! 
+//    var inputImage: UIImage = UIImage(named: "Squid3")! 
+    var inputImage: UIImage = UIImage(named: "octopus2")! 
     var centerTransform: CGAffineTransform = CGAffineTransform.identity
 	var offsetAnimation: UIViewPropertyAnimator?
 	var seconds: Double = 0
