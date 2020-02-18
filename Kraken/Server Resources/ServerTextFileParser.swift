@@ -52,8 +52,9 @@ class ServerTextFileParser: NSObject {
 				do {
 					let decoder = JSONDecoder()
 					let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: data)
-					self.parseJSONToString(from: response, cachedAtDate: nil)
-					self.saveResponseFile(named: named, withData: data)
+					if self.parseJSONToString(from: response, cachedAtDate: nil) {
+						self.saveResponseFile(named: named, withData: data)
+					}
 				}
 				catch {
 					self.lastError = ServerError()
@@ -65,9 +66,9 @@ class ServerTextFileParser: NSObject {
 	}
 	
 	// cachedAtDate is only for when we fail to get a server response, but have a possibly out-of-date version cached locally.
-	func parseJSONToString(from response: TwitarrV2TextFileResponse, cachedAtDate: Date?) {
+	func parseJSONToString(from response: TwitarrV2TextFileResponse, cachedAtDate: Date?) -> Bool {
 		guard response.count == 1, let sectionDict = response.first?.value, 
-				let sections: [TwitarrV2TextFileSection] = sectionDict["sections"] else { return }
+				let sections: [TwitarrV2TextFileSection] = sectionDict["sections"] else { return false }
 				
 		let baseFont = UIFont(name:"Georgia", size: 17)
 		let headerFont = UIFont(name:"Georgia-Bold", size: 17)
@@ -126,6 +127,7 @@ class ServerTextFileParser: NSObject {
 		}
 		
 		fileContents = resultString
+		return true
 	}
 	
 	func saveResponseFile(named: String, withData: Data) {
@@ -145,7 +147,11 @@ class ServerTextFileParser: NSObject {
 		}
 	}
 	
+	// When we get here, we've already set the error state with the network error. If this code succeeds it needs
+	// to clear the error.
 	func loadLocallySavedFile(named: String) {
+	
+		// If we have a cached copy, use that
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
 			do {
@@ -155,13 +161,24 @@ class ServerTextFileParser: NSObject {
 				if let serverTextFile = results.first {
 					let decoder = JSONDecoder()
 					let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: serverTextFile.jsonData)
-					self.parseJSONToString(from: response, cachedAtDate: serverTextFile.fetchDate)
+					if self.parseJSONToString(from: response, cachedAtDate: serverTextFile.fetchDate) {
+						self.lastError = nil
+					}
+				}
+				else if let localTextFileURL = Bundle.main.url(forResource: named, withExtension: "json") {
+					let fileData = try Data(contentsOf: localTextFileURL)
+					let decoder = JSONDecoder()
+					let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: fileData)
+					if self.parseJSONToString(from: response, cachedAtDate: nil) {
+						self.lastError = nil
+					}
 				}
 			}
 			catch {
 				CoreDataLog.error("Failed to load server file from CD.", ["error" : error])
 			}
 		}
+		
 	}
 	
 }

@@ -142,6 +142,8 @@
 		EAA62C7122C55CC00031A999 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C7022C55CC00031A999 /* Logging.swift */; };
 		EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAA62C7222CC57060031A999 /* DraftImageCell.xib */; };
 		EAA8A577236F963E0021C43C /* Decks.pdf in Resources */ = {isa = PBXBuildFile; fileRef = EAA8A576236F963E0021C43C /* Decks.pdf */; };
+		EAAA68D823FB209300C9EF82 /* codeofconduct.json in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68D723FB209200C9EF82 /* codeofconduct.json */; };
+		EAAA68DA23FB209900C9EF82 /* helptext.json in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68D923FB209900C9EF82 /* helptext.json */; };
 		EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
@@ -374,6 +376,8 @@
 		EAA62C7022C55CC00031A999 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EAA62C7222CC57060031A999 /* DraftImageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DraftImageCell.xib; sourceTree = "<group>"; };
 		EAA8A576236F963E0021C43C /* Decks.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Decks.pdf; sourceTree = "<group>"; };
+		EAAA68D723FB209200C9EF82 /* codeofconduct.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeofconduct.json; sourceTree = "<group>"; };
+		EAAA68D923FB209900C9EF82 /* helptext.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = helptext.json; sourceTree = "<group>"; };
 		EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCommentCell.swift; sourceTree = "<group>"; };
 		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
 		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
@@ -731,6 +735,8 @@
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EAAA68D723FB209200C9EF82 /* codeofconduct.json */,
+				EAAA68D923FB209900C9EF82 /* helptext.json */,
 				EA2286DC23E275A40036C20E /* KrakenIcon100px.png */,
 				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
 				EAC2D3B323CC7AEC0055780C /* Hats.scnassets */,
@@ -1078,6 +1084,8 @@
 				EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */,
 				EA86ADDA22730C7300363CBF /* ButtonCell.xib in Resources */,
 				EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */,
+				EAAA68D823FB209300C9EF82 /* codeofconduct.json in Resources */,
+				EAAA68DA23FB209900C9EF82 /* helptext.json in Resources */,
 				EA3C63172297EFD400077E3B /* SettingsInfoCell.xib in Resources */,
 				EA444A59229BEC640098DE97 /* EmojiSelectionCell.xib in Resources */,
 				EA86ADE6227983E500363CBF /* SingleValueCell.xib in Resources */,
