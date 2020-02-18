@@ -39,6 +39,7 @@ import CoreData
 	var canReply: Bool { get set }
 	var canEdit: Bool { get set }
 	var canDelete: Bool { get set }
+	var canReport: Bool { get set }
 	
 	var deleteConfirmationMessage: String { get set }
 	var isDeleted: Bool { get set }
@@ -54,6 +55,7 @@ import CoreData
 	func cancelEditOpButtonTapped()
 	func viewPendingRepliesButtonTapped()
 	func cancelReactionOpButtonTapped()
+	func reportContentButtonTapped()
 }
 
 @objc class TwitarrTweetCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {	
@@ -82,6 +84,7 @@ import CoreData
 	dynamic var canReply: Bool = true
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
+	dynamic var canReport: Bool = true
 
 	dynamic var deleteConfirmationMessage: String = "Are you sure you want to delete this post?"
 	dynamic var isDeleted: Bool = false
@@ -137,6 +140,7 @@ import CoreData
 			observer.loggedInUserIsAuthor = authorUsername == currentUsername
 			observer.canEdit = observer.loggedInUserIsAuthor
 			observer.canDelete = observer.loggedInUserIsAuthor
+			observer.canReport = !currentUsername.isEmpty && !observer.loggedInUserIsAuthor
 		
 			// When the current user changes, need to re-evaluate: Replies, DeleteOps, EditOps, Likes, LikeOps
 			observer.currentUserReplyOpCount = tweetModel.opsWithThisParent?.reduce(0) { (result, operation) in 
@@ -265,6 +269,11 @@ import CoreData
 		tweetModel.cancelReactionOp("like")   		
 	}
 
+	func reportContentButtonTapped() {
+		guard let tweetModel = model as? TwitarrPost else { return } 
+		viewController?.performKrakenSegue(.reportContent, sender: tweetModel)
+	}
+
 }
 
 @objc class TwitarrTweetOpCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {
@@ -293,6 +302,7 @@ import CoreData
 	dynamic var canReply: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
+	dynamic var canReport: Bool = false
 
 	dynamic var deleteConfirmationMessage: String = "This draft post hasn't been delivered to the server yet. Delete it?"
 	dynamic var isDeleted: Bool = false
@@ -357,6 +367,7 @@ import CoreData
 	func cancelEditOpButtonTapped() { }
 	func viewPendingRepliesButtonTapped() { }
 	func cancelReactionOpButtonTapped() { }
+	func reportContentButtonTapped() { }
 }
 
 // MARK: -
@@ -391,7 +402,8 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	@IBOutlet var 			editButton: UIButton!
 	@IBOutlet var 			replyButton: UIButton!
 	@IBOutlet var 			deleteButton: UIButton!
-
+	@IBOutlet var 			reportButton: UIButton!
+	
 	private static let cellInfo = [ "tweet" : PrototypeCellInfo("TwitarrTweetCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return TwitarrTweetCell.cellInfo }
 	
@@ -599,6 +611,12 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	var canDelete: Bool = false {
 		didSet {
 			deleteButton.isHidden = !canDelete
+		}
+	}
+	
+	var canReport: Bool = false {
+		didSet {
+			reportButton.isHidden = !canReport
 		}
 	}
 	
@@ -836,6 +854,13 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	func eliteDeleteTweetConfirmationComplete(_ action: UIAlertAction) {
    		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
 			bindingModel.deleteButtonTapped()
+		}
+	}
+	
+	@IBAction func reportContentButtonTapped() {
+ 		guard isInteractive else { return }
+   		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+			bindingModel.reportContentButtonTapped()
 		}
 	}
 	

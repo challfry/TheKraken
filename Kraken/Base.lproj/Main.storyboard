@@ -511,9 +511,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="88" width="200" height="200.5"/>
+                                <rect key="frame" x="214" y="88" width="200" height="201"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -1156,6 +1156,7 @@
                         <segue destination="Bly-1t-Nf9" kind="show" identifier="ComposeReplyTweet" id="YAp-ch-2PT"/>
                         <segue destination="Bly-1t-Nf9" kind="show" identifier="EditTweet" id="1ve-Md-YVN"/>
                         <segue destination="bTt-YI-q15" kind="show" identifier="PendingReplies" id="PTQ-G9-xUB"/>
+                        <segue destination="Mfl-7M-Dg4" kind="presentation" identifier="ReportContent" id="eWg-hD-M7J"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0A9-f0-5vG" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1413,6 +1414,7 @@
                         <segue destination="H8G-Ue-1rY" kind="show" identifier="ComposeForumPost" id="7hu-nA-wtf"/>
                         <segue destination="H8G-Ue-1rY" kind="show" identifier="EditForumPost" id="Wbs-WK-1Tg"/>
                         <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="zfC-bE-cbO"/>
+                        <segue destination="Mfl-7M-Dg4" kind="presentation" identifier="ReportContent" id="j6p-gx-tT1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NQ2-e3-oN1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1681,7 +1683,7 @@
                                                     </constraints>
                                                 </imageView>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
-                                                    <rect key="frame" x="101.5" y="460" width="211" height="30"/>
+                                                    <rect key="frame" x="113.5" y="460" width="187" height="30"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXK-dg-jQa">
                                                             <rect key="frame" x="0.0" y="0.0" width="37" height="30"/>
@@ -1698,7 +1700,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTK-iM-bIb">
-                                                            <rect key="frame" x="163" y="-9" width="48" height="48"/>
+                                                            <rect key="frame" x="163" y="3" width="24" height="24"/>
                                                             <state key="normal" image="square.and.arrow.up"/>
                                                             <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                             <connections>
@@ -1900,7 +1902,7 @@
                                                 </constraints>
                                             </imageView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UWX-sY-qUX">
-                                                <rect key="frame" x="84" y="612" width="246" height="30"/>
+                                                <rect key="frame" x="96" y="612" width="222" height="30"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ai0-Gf-Ots">
                                                         <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -1917,7 +1919,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-me-ViO">
-                                                        <rect key="frame" x="198" y="-9" width="48" height="48"/>
+                                                        <rect key="frame" x="198" y="3" width="24" height="24"/>
                                                         <state key="normal" image="square.and.arrow.up"/>
                                                         <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                         <connections>
@@ -2089,6 +2091,99 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0OX-cB-6wT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3595" y="-1524"/>
+        </scene>
+        <!--Report Content View Controller-->
+        <scene sceneID="Flt-dW-pyd">
+            <objects>
+                <viewController storyboardIdentifier="ReportContentViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Mfl-7M-Dg4" customClass="ReportContentViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="gVh-O5-xQ8">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" text="Reporting Content" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yYm-n6-LGe">
+                                <rect key="frame" x="20" y="20" width="330" height="36"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J89-bd-5Gy">
+                                <rect key="frame" x="370" y="26" width="24" height="24"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="24" id="UTk-SM-3Fi"/>
+                                    <constraint firstAttribute="height" constant="24" id="vz8-fl-JUX"/>
+                                </constraints>
+                                <state key="normal" image="CameraClose"/>
+                                <connections>
+                                    <action selector="closeButtonTapped:" destination="Mfl-7M-Dg4" eventType="touchUpInside" id="o0D-ju-D6Z"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dmj-ci-olO">
+                                <rect key="frame" x="20" y="64" width="374" height="203"/>
+                                <string key="text">Is this post inappropriate, objectionable, or harassing? Does it violate the Code Of Conduct?
+
+Use this form to report it to the Twitarr Moderation Team. We'll review it within 24 hours, and if deemed inappropriate the post will be removed and we may take actions against its author.
+
+Additional info:</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Ckw-eR-xJh">
+                                <rect key="frame" x="20" y="275" width="374" height="70"/>
+                                <color key="backgroundColor" name="Text View Background"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="70" id="n3y-uq-Xbz"/>
+                                </constraints>
+                                <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jtl-fY-Cfl">
+                                <rect key="frame" x="20" y="353" width="195" height="35"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                <state key="normal" title="View Code Of Conduct"/>
+                                <connections>
+                                    <action selector="viewCodeOfConductButtonTapped:" destination="Mfl-7M-Dg4" eventType="touchUpInside" id="5Dh-Yq-33O"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TDB-ML-Y7T">
+                                <rect key="frame" x="287" y="353" width="107" height="35"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                <state key="normal" title="Send Report"/>
+                                <connections>
+                                    <action selector="sendReportButtonTapped:" destination="Mfl-7M-Dg4" eventType="touchUpInside" id="y3V-vj-NNa"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" name="VC Background"/>
+                        <constraints>
+                            <constraint firstItem="AGl-lZ-1zH" firstAttribute="trailing" secondItem="J89-bd-5Gy" secondAttribute="trailing" constant="20" id="6xs-kx-4wi"/>
+                            <constraint firstItem="dmj-ci-olO" firstAttribute="trailing" secondItem="J89-bd-5Gy" secondAttribute="trailing" id="IS7-hv-OJe"/>
+                            <constraint firstItem="yYm-n6-LGe" firstAttribute="leading" secondItem="AGl-lZ-1zH" secondAttribute="leading" constant="20" id="Lra-Lg-CE9"/>
+                            <constraint firstItem="Ckw-eR-xJh" firstAttribute="leading" secondItem="dmj-ci-olO" secondAttribute="leading" id="R2Z-jh-cQP"/>
+                            <constraint firstItem="Ckw-eR-xJh" firstAttribute="top" secondItem="dmj-ci-olO" secondAttribute="bottom" constant="8" id="Sos-jD-En4"/>
+                            <constraint firstItem="Ckw-eR-xJh" firstAttribute="trailing" secondItem="dmj-ci-olO" secondAttribute="trailing" id="XhO-O4-uSd"/>
+                            <constraint firstItem="TDB-ML-Y7T" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Jtl-fY-Cfl" secondAttribute="trailing" constant="10" id="g5b-bq-2hh"/>
+                            <constraint firstItem="TDB-ML-Y7T" firstAttribute="trailing" secondItem="Ckw-eR-xJh" secondAttribute="trailing" id="gWj-5U-63d"/>
+                            <constraint firstItem="J89-bd-5Gy" firstAttribute="leading" secondItem="yYm-n6-LGe" secondAttribute="trailing" constant="20" id="iAr-kO-kkR"/>
+                            <constraint firstItem="dmj-ci-olO" firstAttribute="top" secondItem="yYm-n6-LGe" secondAttribute="bottom" constant="8" id="kUg-Nv-gwA"/>
+                            <constraint firstItem="TDB-ML-Y7T" firstAttribute="firstBaseline" secondItem="Jtl-fY-Cfl" secondAttribute="firstBaseline" id="kuA-IP-EEK"/>
+                            <constraint firstItem="dmj-ci-olO" firstAttribute="leading" secondItem="yYm-n6-LGe" secondAttribute="leading" id="lkJ-AP-bwB"/>
+                            <constraint firstItem="J89-bd-5Gy" firstAttribute="centerY" secondItem="yYm-n6-LGe" secondAttribute="centerY" id="qmJ-yp-55j"/>
+                            <constraint firstItem="Jtl-fY-Cfl" firstAttribute="top" secondItem="Ckw-eR-xJh" secondAttribute="bottom" constant="8" id="vCn-Dd-ekr"/>
+                            <constraint firstItem="yYm-n6-LGe" firstAttribute="top" secondItem="AGl-lZ-1zH" secondAttribute="top" constant="20" id="vHz-Ep-5Z3"/>
+                            <constraint firstItem="Jtl-fY-Cfl" firstAttribute="leading" secondItem="Ckw-eR-xJh" secondAttribute="leading" id="xDl-sS-Pr1"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="AGl-lZ-1zH"/>
+                    </view>
+                    <connections>
+                        <outlet property="textView" destination="Ckw-eR-xJh" id="o1f-WO-eke"/>
+                        <segue destination="5d8-Ik-lrJ" kind="presentation" identifier="CodeOfConduct" id="FIa-Xg-OnU"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="i4F-kV-qmc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3647.826086956522" y="-1096.2053571428571"/>
         </scene>
         <!--Server Text File-->
         <scene sceneID="0Ge-ik-Eaj">
@@ -2324,6 +2419,7 @@
     <resources>
         <image name="BlueButtonHighlight" width="60" height="60"/>
         <image name="BlueButtonHighlight.png" width="57.599998474121094" height="57.599998474121094"/>
+        <image name="CameraClose" width="36" height="36"/>
         <image name="CameraClose.png" width="54" height="54"/>
         <image name="CameraCloseHighlight" width="36" height="36"/>
         <image name="CameraRotate.png" width="54" height="54"/>
@@ -2370,16 +2466,18 @@
         </namedColor>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="FIa-Xg-OnU"/>
+        <segue reference="j6p-gx-tT1"/>
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
         <segue reference="K3u-jj-2ul"/>
-        <segue reference="Cci-1G-tOu"/>
+        <segue reference="ZaT-fl-KcI"/>
         <segue reference="Wbs-WK-1Tg"/>
         <segue reference="N8d-TY-d67"/>
         <segue reference="1ve-Md-YVN"/>
-        <segue reference="d2l-zp-S48"/>
+        <segue reference="yZ3-I6-e7Y"/>
         <segue reference="RHM-8H-1Ru"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="zfC-bE-cbO"/>
         <segue reference="gdr-Cd-yXW"/>
         <segue reference="ZQM-8h-AgF"/>
         <segue reference="wjx-Zr-mfc"/>

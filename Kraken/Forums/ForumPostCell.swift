@@ -34,6 +34,7 @@ import UIKit
 	dynamic var canReply: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
+	dynamic var canReport: Bool = false
 
 	dynamic var deleteConfirmationMessage: String = "Are you sure you want to delete this post?"
 	dynamic var isDeleted: Bool = false
@@ -89,6 +90,7 @@ import UIKit
 			observer.loggedInUserIsAuthor = authorUsername == currentUsername
 			observer.canEdit = observer.loggedInUserIsAuthor
 			observer.canDelete = observer.loggedInUserIsAuthor
+			observer.canReport = !currentUsername.isEmpty && !observer.loggedInUserIsAuthor
 			
 			// When the current user changes, need to re-evaluate: DeleteOps, EditOps, Likes, LikeOps
 //			observer.currentUserHasDeleteOp = postModel.opsDeletingThisTweet?.contains { 
@@ -208,6 +210,10 @@ import UIKit
 		postModel.cancelReactionOp("like")   		
 	}
 
+	func reportContentButtonTapped() {
+   		guard let postModel = model as? ForumPost else { return } 
+		viewController?.performKrakenSegue(.reportContent, sender: postModel)
+	}
 }
 
 @objc class ForumPostOpCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {	
@@ -236,6 +242,7 @@ import UIKit
 	dynamic var canReply: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
+	dynamic var canReport: Bool = false
 
 	dynamic var deleteConfirmationMessage: String = "This draft post hasn't been delivered to the server yet. Delete it?"
 	dynamic var isDeleted: Bool = false
@@ -330,5 +337,5 @@ import UIKit
 	
 	func cancelReactionOpButtonTapped() {
 	}
-
+	func reportContentButtonTapped() { }
 }

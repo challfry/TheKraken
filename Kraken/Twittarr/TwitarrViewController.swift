@@ -54,7 +54,7 @@ class TwitarrViewController: BaseCollectionViewController {
 		filterPack?.frc = tweetSegment.frc
 		
 		knownSegues = Set([.tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
-				.composeTweet])
+				.composeTweet, .reportContent])
 	}
     
     override func viewWillAppear(_ animated: Bool) {

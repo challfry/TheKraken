@@ -14,6 +14,7 @@ enum GlobalKnownSegue: String {
 	case dismissCamera =			"dismissCamera"
 	
 	case modalLogin = 				"ModalLogin"
+	case reportContent = 			"ReportContent"
 
 	case twitarrRoot = 				"TwitarrRoot"
 	case tweetFilter = 				"TweetFilter"
@@ -62,6 +63,7 @@ enum GlobalKnownSegue: String {
 		case .dismissCamera: return Data?.self
 		
 		case .modalLogin: return LoginSegueWithAction.self
+		case .reportContent: return KrakenManagedObject.self
 
 		case .twitarrRoot: return Void.self
 		case .tweetFilter: return String.self
@@ -607,6 +609,11 @@ class BaseCollectionViewController: UIViewController {
 				else {
 					destVC.modalPresentationStyle = .fullScreen
 				}
+			}
+
+		case .reportContent:
+			if let destVC = segue.destination as? ReportContentViewController, let post = sender as? KrakenManagedObject {
+				destVC.postToReport = post
 			}
 			
 // Settings

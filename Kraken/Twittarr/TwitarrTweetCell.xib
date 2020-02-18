@@ -233,31 +233,38 @@
                                         <rect key="frame" x="0.0" y="200" width="315" height="44"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="wD7-pt-H3w">
-                                                <rect key="frame" x="105" y="0.0" width="210" height="44"/>
+                                                <rect key="frame" x="40" y="0.0" width="275" height="44"/>
                                                 <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yCe-UE-zna">
+                                                        <rect key="frame" x="0.0" y="0.0" width="47" height="44"/>
+                                                        <state key="normal" title="Report"/>
+                                                        <connections>
+                                                            <action selector="reportContentButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="QVH-Ij-GLl"/>
+                                                        </connections>
+                                                    </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="enx-3S-79P">
-                                                        <rect key="frame" x="0.0" y="0.0" width="45" height="44"/>
+                                                        <rect key="frame" x="57" y="0.0" width="47" height="44"/>
                                                         <state key="normal" title="Delete"/>
                                                         <connections>
                                                             <action selector="deleteButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="aAe-xb-uIV"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gAH-td-gvz">
-                                                        <rect key="frame" x="55" y="0.0" width="45" height="44"/>
+                                                        <rect key="frame" x="114" y="0.0" width="47" height="44"/>
                                                         <state key="normal" title="Edit"/>
                                                         <connections>
                                                             <action selector="editButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="9yL-N7-d66"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zKk-L1-jDy">
-                                                        <rect key="frame" x="110" y="0.0" width="45" height="44"/>
+                                                        <rect key="frame" x="171" y="0.0" width="47" height="44"/>
                                                         <state key="normal" title="Reply"/>
                                                         <connections>
                                                             <action selector="replyButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="KfQ-BD-oDZ"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KMk-Wd-mQa">
-                                                        <rect key="frame" x="165" y="0.0" width="45" height="44"/>
+                                                        <rect key="frame" x="228" y="0.0" width="47" height="44"/>
                                                         <state key="normal" title="Like"/>
                                                         <connections>
                                                             <action selector="likeButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="rBR-Yu-cD4"/>
@@ -320,6 +327,7 @@
                 <outlet property="replyButton" destination="zKk-L1-jDy" id="1PE-yI-wqO"/>
                 <outlet property="replyQueuedLabel" destination="oVH-7E-xXY" id="rMK-VF-9Ur"/>
                 <outlet property="replyQueuedView" destination="Qao-VE-b6f" id="4T8-pL-fXD"/>
+                <outlet property="reportButton" destination="yCe-UE-zna" id="c4j-VO-pDD"/>
                 <outlet property="titleLabel" destination="O8q-zM-KLF" id="de7-YQ-HQk"/>
                 <outlet property="tweetTextView" destination="ZqV-9f-4d4" id="Ph4-t0-rln"/>
                 <outlet property="userButton" destination="VUr-DA-Pmu" id="QJ0-nc-4Ym"/>
