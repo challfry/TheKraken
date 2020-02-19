@@ -48,6 +48,8 @@ import CoreData
 	
 	// Specific to the logged-in user
 	@NSManaged public var postOps: Set<PostOperation>?
+	
+	@NSManaged public var blockedUsers: Set<KrakenUser>
 
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
 	@NSManaged public var starredUsers: Set<KrakenUser>?			// Set of users the logged in user has starred.
@@ -198,7 +200,19 @@ import CoreData
 
 	}
 
-    
+    func setupBlockOnUser(_ user: KrakenUser, isBlocked: Bool) {
+		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+			context.pushOpErrorExplanation("Failed to setup block on user.")
+			if let userToBlock = context.object(with: user.objectID) as? KrakenUser {
+				if isBlocked {
+					currentUser.blockedUsers.insert(userToBlock)
+				}
+				else {
+					currentUser.blockedUsers.remove(userToBlock)
+				}
+			}
+		}
+    }
 }
 
 @objc(UserComment) public class UserComment : KrakenManagedObject {

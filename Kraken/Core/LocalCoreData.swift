@@ -181,7 +181,7 @@ class LocalCoreData: NSObject {
 	// That is, use this for *changing* semantic state, no just loading and caching data from the server.
 	// The wrapper checks for a logged-in user, and won't execute the change if nobody's logged in. If you
 	// really need to make a change with nobody logged in just roll your own. 
-	func performLocalCoreDataChange(_ block: @escaping (NSManagedObjectContext, KrakenUser) throws -> Void) {
+	func performLocalCoreDataChange(_ block: @escaping (NSManagedObjectContext, LoggedInKrakenUser) throws -> Void) {
 		let context = networkOperationContext
 		context.perform {
 			var saveSucceeded = false

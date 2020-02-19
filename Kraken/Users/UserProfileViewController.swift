@@ -74,6 +74,30 @@ import UIKit
     var editProfileCell: ProfileDisclosureCellModel?
     var profileCommentCell: ProfileCommentCellModel?
     
+    lazy var blockUserCell: ButtonCellModel = {
+		let cell = ButtonCellModel(alignment: .center)
+		cell.button1Action = {
+			self.showBlockUserAlert()
+		}
+		cell.button1Enabled = true
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
+			cell.shouldBeVisible = observed.isLoggedIn() && observed.loggedInUser?.username != observer.modelUserName
+		}?.execute()
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in 
+			if let currentUser = observed.loggedInUser, let viewingUser = observer.modelKrakenUser,
+					currentUser.blockedUsers.contains(viewingUser) {
+				cell.button1Text = "Unblock User"		
+			}
+			else {
+				cell.button1Text = "Block User"
+			}	
+		}?.execute()
+
+		return cell
+    }()
+    
     func setupCellModels() {
 
     	let section = dataSource.appendFilteringSegment(named: "UserProfile")
@@ -109,6 +133,7 @@ import UIKit
 		section.append(sendSeamailCell!)		
 		section.append(editProfileCell!)		
 		section.append(profileCommentCell!)
+		section.append(blockUserCell)
     }
     
     func updateCellModels(to newUser: KrakenUser?) {
@@ -127,6 +152,33 @@ import UIKit
 	
 	func mapButtonTapped() {
 		pushMapView()
+	}
+	
+	func showBlockUserAlert() {
+		// If the user hit the "Unblock" button we'll get here. No need for alert, just unblock.
+		if let curUser = CurrentUser.shared.loggedInUser, let userToBlock = modelKrakenUser,
+				curUser.blockedUsers.contains(userToBlock) {
+			curUser.setupBlockOnUser(userToBlock, isBlocked: false)
+			return		
+		}
+	
+		var message = "This will hide all posts by this user."
+		if let user = modelUserName {
+			message = "This will hide all posts by user \"\(user)\"."
+		}
+	
+   		let alert = UIAlertController(title: "Block User", message: message, preferredStyle: .alert) 
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), 
+				style: .cancel, handler: nil))
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Block", comment: "Default action"), 
+				style: .destructive, handler: blockUserConfirmed))
+		present(alert, animated: true, completion: nil)
+	}
+	
+	func blockUserConfirmed(action: UIAlertAction) {
+		if let userToBlock = modelKrakenUser {
+			CurrentUser.shared.loggedInUser?.setupBlockOnUser(userToBlock, isBlocked: true)
+		}
 	}
     
     // MARK: Navigation
@@ -170,6 +222,7 @@ import UIKit
 	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
 		
 	}
+	
 
 }
 

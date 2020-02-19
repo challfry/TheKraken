@@ -35,6 +35,7 @@ import UIKit
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = false
+	dynamic var authorIsBlocked: Bool = true
 
 	dynamic var deleteConfirmationMessage: String = "Are you sure you want to delete this post?"
 	dynamic var isDeleted: Bool = false
@@ -80,6 +81,16 @@ import UIKit
 			}
 			else {
 				observer.photos = nil
+			}
+		}?.execute())
+		
+		// Blocked users
+		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in
+			if let author = observer.author {
+				observer.authorIsBlocked = observed.loggedInUser?.blockedUsers.contains(author) == true
+			}
+			else {
+				observer.authorIsBlocked = false
 			}
 		}?.execute())
 		
@@ -243,6 +254,7 @@ import UIKit
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = false
+	dynamic var authorIsBlocked: Bool = false
 
 	dynamic var deleteConfirmationMessage: String = "This draft post hasn't been delivered to the server yet. Delete it?"
 	dynamic var isDeleted: Bool = false

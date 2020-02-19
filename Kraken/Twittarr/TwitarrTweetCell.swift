@@ -40,6 +40,7 @@ import CoreData
 	var canEdit: Bool { get set }
 	var canDelete: Bool { get set }
 	var canReport: Bool { get set }
+	var authorIsBlocked: Bool { get set }
 	
 	var deleteConfirmationMessage: String { get set }
 	var isDeleted: Bool { get set }
@@ -85,6 +86,7 @@ import CoreData
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = true
+	dynamic var authorIsBlocked: Bool = false
 
 	dynamic var deleteConfirmationMessage: String = "Are you sure you want to delete this post?"
 	dynamic var isDeleted: Bool = false
@@ -131,6 +133,10 @@ import CoreData
 			else {
 				observer.photos = []
 			}
+		}?.execute())
+		
+		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in
+			observer.authorIsBlocked = observed.loggedInUser?.blockedUsers.contains(tweetModel.author) == true
 		}?.execute())
 		
 		// Watch for login/out, so we can update like/unlike button state
@@ -303,6 +309,7 @@ import CoreData
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = false
+	dynamic var authorIsBlocked: Bool = false
 
 	dynamic var deleteConfirmationMessage: String = "This draft post hasn't been delivered to the server yet. Delete it?"
 	dynamic var isDeleted: Bool = false
@@ -429,7 +436,12 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				author.loadUserThumbnail()
 				authorIconObservation?.stopObservations()
 				authorIconObservation = author.tell(self, when:"thumbPhoto") { observer, observed in
-					observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
+					if observer.authorIsBlocked {
+						observer.userButton.setBackgroundImage(nil, for: .normal)
+					}
+					else {
+						observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
+					}
 				}?.execute()
 			}
 		}
@@ -455,29 +467,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	var postText: String? {
 		didSet {
-			// Can the user tap on a link and open a filtered view?
-			var addLinksToText = !isPrototypeCell
-			if isInteractive, let vc = viewController as? BaseCollectionViewController {
-				addLinksToText = vc.canPerformSegue(.tweetFilter)
-			}
-					
-	// Damascus is pretty good; really like Helvetica. Hoefler doesn't work here. Times New Roman isn't bad.
-	// 
-	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Damascus", size: 16.0) as Any ]
-	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Helvetica", size: 17.0) as Any ]
-	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17.0) as Any ]
-	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "HoeflerText-Regular", size: 16.0) as Any ]
-	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "TimesNewRomanPSMT", size: 17.0) as Any ]
-	//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Verdana", size: 15.0) as Any ]
-
-			let tweetTextFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
-			let tweetTextWithLinks = StringUtilities.cleanupText(postText ?? "", addLinks: addLinksToText, font: tweetTextFont)
-			tweetTextView.attributedText = tweetTextWithLinks
-			
-			let fixedWidth = tweetTextView.frame.size.width
-			let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, 
-					height: CGFloat.greatestFiniteMagnitude))
-			tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+			setupPostText()
 		}
 	}
 	
@@ -494,6 +484,51 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 	}
 	
+	var authorIsBlocked: Bool = false {
+		didSet {
+			setupPhotos()
+			setupPostText()
+			if let auth = author {
+				author = auth
+			}
+		}
+	}
+	
+	func setupPostText() {
+		if authorIsBlocked {
+			let tweetTextFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
+			let text = NSAttributedString(string: "<Content by this user is blocked>", attributes: 
+					[.foregroundColor : UIColor(named: "Red Alert Text") as Any, .font : tweetTextFont as Any])
+			tweetTextView.attributedText = text
+			return
+		}
+		
+		// Can the user tap on a link and open a filtered view?
+		var addLinksToText = !isPrototypeCell
+		if isInteractive, let vc = viewController as? BaseCollectionViewController {
+			addLinksToText = vc.canPerformSegue(.tweetFilter)
+		}
+				
+// Damascus is pretty good; really like Helvetica. Hoefler doesn't work here. Times New Roman isn't bad.
+// 
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Damascus", size: 16.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Helvetica", size: 17.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont.systemFont(ofSize: 17.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "HoeflerText-Regular", size: 16.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "TimesNewRomanPSMT", size: 17.0) as Any ]
+//		let tweetTextAttrs: [NSAttributedString.Key : Any] = [ .font : UIFont(name: "Verdana", size: 15.0) as Any ]
+
+		let tweetTextFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
+		let tweetTextWithLinks = StringUtilities.cleanupText(postText ?? "", addLinks: addLinksToText, font: tweetTextFont)
+		tweetTextView.attributedText = tweetTextWithLinks
+		
+		let fixedWidth = tweetTextView.frame.size.width
+		let newSize = tweetTextView.sizeThatFits(CGSize(width: fixedWidth, 
+				height: CGFloat.greatestFiniteMagnitude))
+		tweetTextView.frame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+	}
+
+	
 	dynamic var photoImages: [Data]? {
 		didSet {
 			setupPhotos()
@@ -501,8 +536,15 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 	
 	func setupPhotos() {
+		if authorIsBlocked {
+			postImage.image = nil
+			postImage.isHidden = true
+			postImagesCollection.isHidden = true
+			photoPageControl.numberOfPages = 1
+			return
+		}
+		
 		var numDisplayedPhotos = 0
-//		var newImageHeight: CGFloat = 200.0
 		if let photoArray = photos, photoArray.count > 0 {
 			numDisplayedPhotos = photoArray.count
 			if numDisplayedPhotos == 1 {
@@ -512,20 +554,17 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 						self.postImage.image = image
 					}
 				}
-//				newImageHeight = postImage.bounds.width / firstPhoto.aspectRatio
 			}
 		}
 		else if let photoArray = photoImages, photoArray.count > 0 {
 			numDisplayedPhotos = photoArray.count
 			if numDisplayedPhotos == 1, let newImage = UIImage(data: photoArray[0]) {
 				postImage.image = newImage
-//				newImageHeight = postImage.bounds.width * newImage.size.width / newImage.size.height
 			}
 		}
 		else {
 			postImage.image = nil
 			numDisplayedPhotos = 0
-//			newImageHeight = 200
 		}
 		
 		// TODO: Why this repeat loop is required is beyond me. Never seen it require
@@ -536,12 +575,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			postImage.isHidden = numDisplayedPhotos != 1
 			loopBreak = loopBreak + 1
 		} while (postImage.isHidden != (numDisplayedPhotos != 1)) && loopBreak < 200
-//		let finalImageHeight = privateSelected ? newImageHeight : 200
-//		loopBreak = 0
-//		repeat {
-//			postImageHeightConstraint.constant = finalImageHeight
-//			loopBreak = loopBreak + 1
-//		} while postImageHeightConstraint.constant != finalImageHeight && loopBreak < 200
 		
 		loopBreak = 0
 		repeat {
@@ -549,7 +582,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			loopBreak = loopBreak + 1
 		} while (postImagesCollection.isHidden != (numDisplayedPhotos < 2)) && loopBreak < 200
 		photoPageControl.numberOfPages = numDisplayedPhotos == 0 ? 1 : numDisplayedPhotos
-//		photoPageControl.isHidden = numDisplayedPhotos == 0
 	}
 	
 	var currentUserReplyOpCount: Int32 = 0 {

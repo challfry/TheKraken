@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19C57" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19D76" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="isActive" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
@@ -97,6 +97,8 @@
         <attribute name="thumbPhotoData" optional="YES" attributeType="Binary"/>
         <attribute name="username" optional="YES" attributeType="String"/>
         <relationship name="announcements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="author" inverseEntity="Announcement"/>
+        <relationship name="blockedBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedUsers" inverseEntity="KrakenUser"/>
+        <relationship name="blockedUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedBy" inverseEntity="KrakenUser"/>
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserComment" inverseName="commentedOnUser" inverseEntity="UserComment"/>
         <relationship name="commentOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserComment" inverseName="userCommentedOn" inverseEntity="PostOpUserComment"/>
         <relationship name="favoritedByOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserFavorite" inverseName="userBeingFavorited" inverseEntity="PostOpUserFavorite"/>
@@ -307,7 +309,7 @@
         <element name="ForumThread" positionX="117" positionY="117" width="128" height="223"/>
         <element name="GameListFavorite" positionX="117" positionY="117" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="613"/>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="643"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="193"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="118"/>
