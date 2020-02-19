@@ -52,6 +52,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	var karaokeCell: SocialCellModel?
 	var gamesCell: SocialCellModel?
 	var scrapbookCell: SocialCellModel?
+	var lighterModeCell: SocialCellModel?
 	var settingsCell : SocialCellModel?
 	var helpCell: SocialCellModel?
 	var aboutCell: SocialCellModel?
@@ -59,7 +60,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		knownSegues = [.twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .deckMapRoot, .karaokeRoot, .gamesRoot,
-				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about]
+				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode]
 		
 		// Set the badge on the Daily tab
 		AnnouncementDataManager.shared.tell(self, when: ["dailyTabBadgeCount"]) { observer, observed in
@@ -99,6 +100,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		karaokeCell = SocialCellModel("Karaoke", imageNamed: "Karaoke", nav: GlobalNavPacket(from: self, tab: .karaoke))
 		gamesCell = SocialCellModel("Games", imageNamed: "Games", nav: GlobalNavPacket(from: self, tab: .games))
 		scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(from: self, tab: .scrapbook))
+		lighterModeCell = SocialCellModel("Lighter Mode", imageNamed: "Flame", nav: GlobalNavPacket(from: self, tab: .lighter))
 		settingsCell = SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(from: self, tab: .settings))
 		helpCell = SocialCellModel("Help", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .twitarrHelp, arguments: ["filename" : "helptext.json"]))
 		aboutCell = SocialCellModel("About", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .about))
@@ -112,11 +114,20 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		appFeaturesSegment.append(karaokeCell!)
 		appFeaturesSegment.append(gamesCell!)
 		appFeaturesSegment.append(scrapbookCell!)
+		appFeaturesSegment.append(lighterModeCell!)
 		appFeaturesSegment.append(settingsCell!)
 		appFeaturesSegment.append(helpCell!)
 		appFeaturesSegment.append(aboutCell!)
 		
 		// Lighter Mode
+		#if targetEnvironment(macCatalyst) 
+			lighterModeCell?.shouldBeVisible = false		
+		#endif
+		if UIDevice.current.userInterfaceIdiom != .phone {
+			lighterModeCell?.shouldBeVisible = false		
+		}
+
+		
 
   		dataSource.register(with: collectionView, viewController: self)
     }
@@ -161,6 +172,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .games: performKrakenSegue(.gamesRoot, sender: packet)
 			case .scrapbook: performKrakenSegue(.scrapbookRoot, sender: packet)
 			case .settings: performKrakenSegue(.settingsRoot, sender: packet)
+			case .lighter: performKrakenSegue(.lighterMode, sender: packet)
 			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: packet.arguments["filename"])
 			case .about: performKrakenSegue(.about, sender: packet)			
 			default: break

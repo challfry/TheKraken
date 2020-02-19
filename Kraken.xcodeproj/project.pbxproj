@@ -145,6 +145,8 @@
 		EAAA68D823FB209300C9EF82 /* codeofconduct.json in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68D723FB209200C9EF82 /* codeofconduct.json */; };
 		EAAA68DA23FB209900C9EF82 /* helptext.json in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68D923FB209900C9EF82 /* helptext.json */; };
 		EAAA68DC23FC977800C9EF82 /* ReportContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68DB23FC977800C9EF82 /* ReportContentViewController.swift */; };
+		EAAA68E123FD0C1600C9EF82 /* RockBalladViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */; };
+		EAAA68E323FD122F00C9EF82 /* RockBalladMode.mov in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */; };
 		EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
@@ -380,6 +382,8 @@
 		EAAA68D723FB209200C9EF82 /* codeofconduct.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeofconduct.json; sourceTree = "<group>"; };
 		EAAA68D923FB209900C9EF82 /* helptext.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = helptext.json; sourceTree = "<group>"; };
 		EAAA68DB23FC977800C9EF82 /* ReportContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportContentViewController.swift; sourceTree = "<group>"; };
+		EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RockBalladViewController.swift; sourceTree = "<group>"; };
+		EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = RockBalladMode.mov; sourceTree = "<group>"; };
 		EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCommentCell.swift; sourceTree = "<group>"; };
 		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
 		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
@@ -738,6 +742,7 @@
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */,
 				EAAA68D723FB209200C9EF82 /* codeofconduct.json */,
 				EAAA68D923FB209900C9EF82 /* helptext.json */,
 				EA2286DC23E275A40036C20E /* KrakenIcon100px.png */,
@@ -842,6 +847,7 @@
 				EA39B18723DA824500A2FB1B /* About */,
 				EA1E3B962245849B00017F07 /* Users */,
 				EA1E3BA1224D79C400017F07 /* Server Resources */,
+				EAAA68DF23FD0BF900C9EF82 /* Rock Ballad Mode */,
 				EAC71D48228A13BC002F7BB3 /* Data Sources */,
 				EA4A1D0422540801008501A3 /* EBNObservable */,
 				EA444A552298B5410098DE97 /* Common UI */,
@@ -866,6 +872,14 @@
 				EAA2E4E02242D301009F287F /* Info.plist */,
 			);
 			path = KrakenUITests;
+			sourceTree = "<group>";
+		};
+		EAAA68DF23FD0BF900C9EF82 /* Rock Ballad Mode */ = {
+			isa = PBXGroup;
+			children = (
+				EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */,
+			);
+			path = "Rock Ballad Mode";
 			sourceTree = "<group>";
 		};
 		EABD2FFD23DAD7E000232F28 /* SwiftyMarkdown */ = {
@@ -1057,6 +1071,7 @@
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
 				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
 				EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */,
+				EAAA68E323FD122F00C9EF82 /* RockBalladMode.mov in Resources */,
 				EA8694AF23D47FB600ABE391 /* DailyActivityCell.xib in Resources */,
 				EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */,
 				EA1099F8239663C100F5172D /* ForumsLoadTimeCell.xib in Resources */,
@@ -1220,6 +1235,7 @@
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
 				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,
 				EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */,
+				EAAA68E123FD0C1600C9EF82 /* RockBalladViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
 				EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */,
 				EA47886D23EBC14700897A5A /* BaseCollectionSupplementaryView.swift in Sources */,

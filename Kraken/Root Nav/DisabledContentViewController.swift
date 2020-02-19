@@ -42,6 +42,8 @@ class DisabledContentViewController: UIViewController {
 			tabName = "Deck Maps"
 		case .scrapbook:
 			tabName = "Scrapbook"
+		case .lighter:
+			tabName = "Lighter"
 		case .twitarrHelp:
 			tabName = "Help"
 		case .about:
@@ -96,6 +98,9 @@ class DisabledContentViewController: UIViewController {
 			featurePath = ""
 		case .scrapbook:
 			featureName = "Scrapbook"
+			featurePath = ""
+		case .lighter:
+			featureName = "Lighter"
 			featurePath = ""
 		case .twitarrHelp:
 			featureName = "Help"

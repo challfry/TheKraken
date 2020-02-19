@@ -24,6 +24,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case games = "GamesListNavController"
 		case deckPlans = "DeckMapNavController"
 		case scrapbook = "ScrapbookNavController"
+		case lighter = "RockBalladViewController"
 		case twitarrHelp = "ServerTextFileDisplay"
 		case about = "AboutViewController"
 		case unknown = ""

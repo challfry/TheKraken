@@ -218,6 +218,51 @@
             </objects>
             <point key="canvasLocation" x="-3159" y="2704"/>
         </scene>
+        <!--Rock Ballad View Controller-->
+        <scene sceneID="kvI-oC-EAC">
+            <objects>
+                <viewController id="Sic-CI-J08" customClass="RockBalladViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="0CV-IX-yhW">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PMF-8Q-ho4" customClass="VideoView" customModule="Kraken" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ecI-5j-4Do">
+                                <rect key="frame" x="20" y="816" width="30" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="8SP-Jh-nJ7"/>
+                                    <constraint firstAttribute="width" constant="30" id="CN5-fL-WU9"/>
+                                </constraints>
+                                <state key="normal" image="CameraClose.png"/>
+                                <state key="highlighted" image="CameraCloseHighlight"/>
+                                <connections>
+                                    <action selector="closeButtonTapped:" destination="Sic-CI-J08" eventType="touchUpInside" id="4Cz-g9-WCo"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="PMF-8Q-ho4" firstAttribute="leading" secondItem="0CV-IX-yhW" secondAttribute="leading" id="EPb-fa-qDu"/>
+                            <constraint firstItem="PMF-8Q-ho4" firstAttribute="bottom" secondItem="0CV-IX-yhW" secondAttribute="bottom" id="IMq-wQ-pmY"/>
+                            <constraint firstAttribute="trailing" secondItem="PMF-8Q-ho4" secondAttribute="trailing" id="P15-sc-s1v"/>
+                            <constraint firstAttribute="bottom" secondItem="ecI-5j-4Do" secondAttribute="bottom" constant="50" id="Y4r-gf-oxh"/>
+                            <constraint firstItem="ecI-5j-4Do" firstAttribute="leading" secondItem="0CV-IX-yhW" secondAttribute="leading" constant="20" id="xeU-wj-HFh"/>
+                            <constraint firstItem="PMF-8Q-ho4" firstAttribute="top" secondItem="0CV-IX-yhW" secondAttribute="top" id="ze8-C8-hDs"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="oRo-D8-LJ8"/>
+                    <connections>
+                        <outlet property="closeButton" destination="ecI-5j-4Do" id="CYl-2u-mzf"/>
+                        <outlet property="videoView" destination="PMF-8Q-ho4" id="6dL-Sp-Xz5"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PQs-7l-Tnc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1600.0000000000002" y="-972.32142857142856"/>
+        </scene>
         <!--About Kraken-->
         <scene sceneID="CXc-73-zJB">
             <objects>
@@ -2388,6 +2433,7 @@ Additional info:</string>
                         <segue destination="dsx-0M-o5B" kind="show" identifier="AboutViewController" id="Hz2-VR-63Q"/>
                         <segue destination="5d8-Ik-lrJ" kind="presentation" identifier="TwitarrHelp" id="iin-6d-KBo"/>
                         <segue destination="HrE-Zn-DrS" kind="show" identifier="GamesRoot" id="rR9-QS-2f0"/>
+                        <segue destination="Sic-CI-J08" kind="presentation" identifier="RockBalladMode" modalPresentationStyle="fullScreen" id="PcK-7L-7V5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R26-At-KAA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2466,7 +2512,7 @@ Additional info:</string>
         </namedColor>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="FIa-Xg-OnU"/>
+        <segue reference="iin-6d-KBo"/>
         <segue reference="j6p-gx-tT1"/>
         <segue reference="ip4-Rk-eQs"/>
         <segue reference="BLN-IY-2zK"/>
@@ -2475,7 +2521,7 @@ Additional info:</string>
         <segue reference="Wbs-WK-1Tg"/>
         <segue reference="N8d-TY-d67"/>
         <segue reference="1ve-Md-YVN"/>
-        <segue reference="yZ3-I6-e7Y"/>
+        <segue reference="d2l-zp-S48"/>
         <segue reference="RHM-8H-1Ru"/>
         <segue reference="zfC-bE-cbO"/>
         <segue reference="gdr-Cd-yXW"/>

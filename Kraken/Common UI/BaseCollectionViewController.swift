@@ -45,6 +45,7 @@ enum GlobalKnownSegue: String {
 	case karaokeRoot =				"KaraokeRoot"
 	case gamesRoot =				"GamesRoot"
 	case scrapbookRoot =			"ScrapbookRoot"
+	case lighterMode =				"RockBalladMode"
 	
 	case settingsRoot = 			"SettingsRoot"
 	case postOperations =			"PostOperations"
@@ -93,8 +94,8 @@ enum GlobalKnownSegue: String {
 		
 		case .karaokeRoot: return Void.self
 		case .gamesRoot: return Void.self
-		
 		case .scrapbookRoot: return Void.self
+		case .lighterMode: return Void.self
 
 		case .settingsRoot: return Void.self
 		case .postOperations: return Any.self
