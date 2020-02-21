@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -17,8 +17,8 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="283"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Personal Comment (only visible to you)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3dC-gn-cMU">
-                        <rect key="frame" x="20" y="10" width="268" height="18"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="240" verticalHuggingPriority="251" horizontalCompressionResistancePriority="740" text="Personal Comment (only visible to you)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3dC-gn-cMU">
+                        <rect key="frame" x="20" y="10" width="267.5" height="18"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
@@ -101,8 +101,10 @@
             <connections>
                 <outlet property="commentView" destination="Til-OV-JMZ" id="GWE-TY-Uok"/>
                 <outlet property="commentViewHeightConstraint" destination="hmg-nd-Xe4" id="ayR-h8-8df"/>
+                <outlet property="personalCommentTitle" destination="3dC-gn-cMU" id="8pJ-Hj-EXU"/>
                 <outlet property="postOpCancelButton" destination="3ST-Iq-oVF" id="qQY-8U-o7M"/>
                 <outlet property="postOpHeightConstraint" destination="jU4-6Y-UFh" id="DUo-uu-kmy"/>
+                <outlet property="postOpReviseButton" destination="NBV-QG-iDv" id="5WI-ax-QuL"/>
                 <outlet property="postOpView" destination="XtJ-eI-wAT" id="os7-gU-fSK"/>
                 <outlet property="saveButton" destination="fQl-d6-dET" id="Kqf-Cu-LLU"/>
                 <outlet property="statusLabel" destination="HG7-La-o4w" id="tM7-KH-icN"/>

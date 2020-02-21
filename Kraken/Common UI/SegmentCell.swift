@@ -64,6 +64,11 @@ class SegmentCell: BaseCollectionViewCell, SegmentCellProtocol {
 		}
 	}
 	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		titleLabel.styleFor(.body)
+	}
+	
 	@IBAction func segmentSelectionChanged() {
 		if let model = cellModel as? SegmentCellModel {
 			model.selectedSegment = segmentControl.selectedSegmentIndex

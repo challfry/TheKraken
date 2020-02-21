@@ -49,6 +49,7 @@ class ForumsLoadTimeCell: BaseCollectionViewCell, ForumsLoadTimeBindingProtocol 
 			if let lastLoad = lastLoadTime {
 				let timeString = StringUtilities.relativeTimeString(forDate: lastLoad)
 				lastRefreshLabel.text = "Last Refresh: \(timeString)"
+				cellSizeChanged()
 			}
 		}
 	}

@@ -10,24 +10,21 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="TextFieldCell" id="kis-5B-WWK" userLabel="TextFieldCell" customClass="TextFieldCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="LargeTextFieldCell" id="kis-5B-WWK" userLabel="TextFieldCell" customClass="TextFieldCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="122"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="122"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AaT-XN-9qq">
-                        <rect key="frame" x="20" y="14.5" width="160" height="21"/>
-                        <constraints>
-                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="160" id="CHP-p3-wo1"/>
-                        </constraints>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AaT-XN-9qq">
+                        <rect key="frame" x="20" y="15" width="335" height="21"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Gn9-H6-Irx">
-                        <rect key="frame" x="188" y="8" width="167" height="34"/>
+                        <rect key="frame" x="20" y="40" width="335" height="34"/>
                         <constraints>
                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="2q5-LF-Lsu"/>
                         </constraints>
@@ -38,8 +35,8 @@
                             <outlet property="delegate" destination="kis-5B-WWK" id="hkl-hS-Qy4"/>
                         </connections>
                     </textField>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="100" verticalCompressionResistancePriority="500" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dr-Xc-8rl">
-                        <rect key="frame" x="20" y="52" width="335" height="20"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="100" verticalCompressionResistancePriority="500" text="jkljkljklj" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Dr-Xc-8rl">
+                        <rect key="frame" x="20" y="84" width="335" height="30"/>
                         <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
                         <color key="textColor" name="Red Alert Text"/>
                         <nil key="highlightedColor"/>
@@ -48,23 +45,25 @@
             </view>
             <color key="backgroundColor" name="Cell Background"/>
             <constraints>
-                <constraint firstItem="3Dr-Xc-8rl" firstAttribute="trailing" secondItem="Gn9-H6-Irx" secondAttribute="trailing" id="216-dg-smE"/>
-                <constraint firstItem="Gn9-H6-Irx" firstAttribute="leading" secondItem="AaT-XN-9qq" secondAttribute="trailing" constant="8" id="4iE-pv-2tx"/>
-                <constraint firstItem="Gn9-H6-Irx" firstAttribute="top" secondItem="kis-5B-WWK" secondAttribute="top" constant="8" id="DOm-Lo-iFH"/>
-                <constraint firstItem="3Dr-Xc-8rl" firstAttribute="leading" secondItem="kis-5B-WWK" secondAttribute="leading" constant="20" id="Ic1-aW-R8N"/>
+                <constraint firstAttribute="bottom" secondItem="3Dr-Xc-8rl" secondAttribute="bottom" priority="999" constant="8" id="ARs-OJ-bHF"/>
                 <constraint firstItem="AaT-XN-9qq" firstAttribute="leading" secondItem="kis-5B-WWK" secondAttribute="leading" constant="20" id="Mf0-PE-tGH"/>
                 <constraint firstItem="3Dr-Xc-8rl" firstAttribute="top" secondItem="Gn9-H6-Irx" secondAttribute="bottom" priority="200" constant="10" id="NSa-dN-b3T"/>
+                <constraint firstAttribute="trailing" secondItem="AaT-XN-9qq" secondAttribute="trailing" constant="20" id="PXC-XQ-F9S"/>
+                <constraint firstItem="Gn9-H6-Irx" firstAttribute="trailing" secondItem="AaT-XN-9qq" secondAttribute="trailing" id="Pt4-nK-WEy"/>
+                <constraint firstItem="Gn9-H6-Irx" firstAttribute="top" secondItem="AaT-XN-9qq" secondAttribute="bottom" constant="4" id="VOi-xn-m0h"/>
                 <constraint firstAttribute="trailing" secondItem="Gn9-H6-Irx" secondAttribute="trailing" priority="900" constant="20" id="dTz-Tg-oWv"/>
-                <constraint firstAttribute="bottom" secondItem="3Dr-Xc-8rl" secondAttribute="bottom" priority="200" constant="8" id="h6X-q8-wdO"/>
-                <constraint firstItem="Gn9-H6-Irx" firstAttribute="firstBaseline" secondItem="AaT-XN-9qq" secondAttribute="firstBaseline" id="zYy-A7-Vqo"/>
+                <constraint firstItem="3Dr-Xc-8rl" firstAttribute="leading" secondItem="Gn9-H6-Irx" secondAttribute="leading" id="lGj-aW-fLw"/>
+                <constraint firstItem="Gn9-H6-Irx" firstAttribute="leading" secondItem="AaT-XN-9qq" secondAttribute="leading" id="qCR-qj-bNv"/>
+                <constraint firstItem="3Dr-Xc-8rl" firstAttribute="trailing" secondItem="Gn9-H6-Irx" secondAttribute="trailing" id="spY-64-mrp"/>
+                <constraint firstItem="AaT-XN-9qq" firstAttribute="top" secondItem="kis-5B-WWK" secondAttribute="top" constant="15" id="tP1-vd-ujW"/>
             </constraints>
-            <size key="customSize" width="375" height="86"/>
+            <size key="customSize" width="375" height="128"/>
             <connections>
                 <outlet property="errorLabel" destination="3Dr-Xc-8rl" id="Bp2-Nd-lPR"/>
                 <outlet property="label" destination="AaT-XN-9qq" id="alw-7D-z3e"/>
                 <outlet property="textField" destination="Gn9-H6-Irx" id="9kw-aT-Tin"/>
             </connections>
-            <point key="canvasLocation" x="116.66666666666667" y="64.955357142857139"/>
+            <point key="canvasLocation" x="116.66666666666667" y="79.017857142857139"/>
         </collectionViewCell>
     </objects>
     <resources>

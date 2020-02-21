@@ -90,6 +90,17 @@ class LoggedInUserCell: BaseCollectionViewCell, LoggedInUserCellProtocol {
 	}
 	
 	var modelKrakenUser: LoggedInKrakenUser?
+
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		
+		usernameLabel.styleFor(.body)
+		adminModLabel.styleFor(.body)
+		currentlyActiveLabel.styleFor(.body)
+		logoutButton.styleFor(.body)
+		viewProfileButton.styleFor(.body)
+		activeInactiveButton.styleFor(.body)
+	}
 	
 	@IBAction func logoutButtonTapped(_ sender: Any) {
 		CurrentUser.shared.logoutUser(modelKrakenUser)

@@ -52,4 +52,9 @@ class SwitchCell: BaseCollectionViewCell, SwitchCellProtocol {
 		(cellModel as? SwitchCellProtocol)?.switchState = switchControl.isOn
 		switchStateChanged?()
 	}
+	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		label.styleFor(.body)
+	}
 }

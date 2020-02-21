@@ -69,12 +69,14 @@ import UIKit
 
 
 class ProfileCommentCell: BaseCollectionViewCell, ProfileCommentCellProtocol, UITextViewDelegate {
+	@IBOutlet var personalCommentTitle: UILabel!
 	@IBOutlet weak var saveButton: UIButton!
 	@IBOutlet weak var commentView: UITextView!
 	@IBOutlet weak var commentViewHeightConstraint: NSLayoutConstraint!
 	@IBOutlet weak var postOpView: UIView!
 	@IBOutlet var 		postOpHeightConstraint: NSLayoutConstraint!
 	@IBOutlet weak var 	statusLabel: UILabel!
+	@IBOutlet var postOpReviseButton: UIButton!
 	@IBOutlet weak var 	postOpCancelButton: UIButton!
 	
 	private static let cellInfo = [ "ProfileComment"  : PrototypeCellInfo("ProfileCommentCell") ]
@@ -85,6 +87,13 @@ class ProfileCommentCell: BaseCollectionViewCell, ProfileCommentCellProtocol, UI
 		postOpHeightConstraint.constant = 0
 		postOpHeightConstraint.isActive = true
 		super.awakeFromNib()
+		
+		personalCommentTitle.styleFor(.body)
+		saveButton.styleFor(.body)
+		commentView.styleFor(.body)
+		statusLabel.styleFor(.body)
+		postOpCancelButton.styleFor(.body)
+		postOpReviseButton.styleFor(.body)
 	}
 	
 	var comment: String? {
@@ -98,7 +107,7 @@ class ProfileCommentCell: BaseCollectionViewCell, ProfileCommentCellProtocol, UI
 			setupCell()
 		}
 	}
-	
+		
 	func setupCell() {
 		var hasEditedComment: Bool = false
 		if let model = cellModel as? ProfileCommentCellModel, model.editedComment != nil, model.editedComment != model.comment{

@@ -392,7 +392,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 // MARK: Declarations
 	@IBOutlet var mainStackView: UIStackView!
-	@IBOutlet var titleLabel: UITextView!			// Author and timestamp
+	@IBOutlet var titleLabel: UILabel!			// Author and timestamp
 	@IBOutlet var likesLabel: UILabel!				
 	@IBOutlet var tweetTextView: UITextView!
 	@IBOutlet var postImage: UIImageView!
@@ -675,6 +675,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		allowsSelection = true
 
 		// Font styling
+		titleLabel.styleFor(.body)
 		likesLabel.styleFor(.body)
 		userButton.styleFor(.body)
 		deleteQueuedLabel.styleFor(.body)
@@ -689,10 +690,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		editButton.styleFor(.body)
 		replyButton.styleFor(.body)
 		deleteButton.styleFor(.body)
+		reportButton.styleFor(.body)
 		
 		tweetTextView.adjustsFontForContentSizeCategory = true
 
-		titleLabel.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		tweetTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		
 		if !isPrototypeCell {
@@ -779,7 +780,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			standardSelectionHandler()
 			setupPhotos()
 			
-			titleLabel.isUserInteractionEnabled = privateSelected
 			tweetTextView.isUserInteractionEnabled = privateSelected
 			
 			if isPrototypeCell {

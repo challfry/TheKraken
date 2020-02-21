@@ -362,7 +362,9 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 	
 	class func taskCanBeEdited(task: PostOperation) -> Bool {
 		if task is PostOpTweetReaction ||
+				task is PostOpForumPostReaction || 
 				task is PostOpTweetDelete || 
+				task is PostOpForumPostDelete || 
 				task is PostOpUserFavorite || 
 				task is PostOpEventFollow {
 			return false

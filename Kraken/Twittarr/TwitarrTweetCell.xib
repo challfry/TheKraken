@@ -34,29 +34,29 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1wj-CQ-Zuk">
                                 <rect key="frame" x="0.0" y="0.0" width="315" height="50"/>
                                 <subviews>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="User Name" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="O8q-zM-KLF" userLabel="Author Label">
-                                        <rect key="frame" x="0.0" y="0.0" width="86" height="50"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                    </textView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="240" verticalHuggingPriority="251" text="User and Time" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePf-bT-UrD">
+                                        <rect key="frame" x="4" y="0.0" width="268.5" height="50"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" name="Kraken Text Entry"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3 💛" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3II-e7-kC3" userLabel="Likes Label">
-                                        <rect key="frame" x="282.5" y="8" width="32.5" height="42"/>
+                                        <rect key="frame" x="282.5" y="2.5" width="32.5" height="17"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="O8q-zM-KLF" firstAttribute="leading" secondItem="1wj-CQ-Zuk" secondAttribute="leading" id="8Er-Gd-RNN"/>
-                                    <constraint firstItem="3II-e7-kC3" firstAttribute="firstBaseline" secondItem="O8q-zM-KLF" secondAttribute="firstBaseline" id="Yq4-tb-UKH"/>
-                                    <constraint firstItem="O8q-zM-KLF" firstAttribute="top" secondItem="1wj-CQ-Zuk" secondAttribute="top" id="adr-HP-0YN"/>
+                                    <constraint firstItem="ePf-bT-UrD" firstAttribute="leading" secondItem="1wj-CQ-Zuk" secondAttribute="leading" constant="4" id="7Gi-ku-pkJ"/>
+                                    <constraint firstItem="ePf-bT-UrD" firstAttribute="firstBaseline" secondItem="3II-e7-kC3" secondAttribute="firstBaseline" id="C5h-ps-bmK"/>
+                                    <constraint firstAttribute="bottom" secondItem="ePf-bT-UrD" secondAttribute="bottom" priority="999" id="eYg-wA-9as"/>
+                                    <constraint firstItem="ePf-bT-UrD" firstAttribute="top" secondItem="1wj-CQ-Zuk" secondAttribute="top" id="fXN-OL-f7d"/>
                                     <constraint firstAttribute="trailing" secondItem="3II-e7-kC3" secondAttribute="trailing" id="hLy-nB-ClS"/>
-                                    <constraint firstAttribute="bottom" secondItem="O8q-zM-KLF" secondAttribute="bottom" id="iO3-pb-WdO"/>
-                                    <constraint firstAttribute="bottom" secondItem="3II-e7-kC3" secondAttribute="bottom" id="xER-q3-7Cg"/>
-                                    <constraint firstItem="3II-e7-kC3" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="O8q-zM-KLF" secondAttribute="trailing" constant="10" id="zOa-5v-9Ex"/>
+                                    <constraint firstItem="3II-e7-kC3" firstAttribute="leading" secondItem="ePf-bT-UrD" secondAttribute="trailing" constant="10" id="v7p-Td-vcf"/>
                                 </constraints>
                             </view>
-                            <textView multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="250" insetsLayoutMarginsFromSafeArea="NO" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" editable="NO" text="Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ZqV-9f-4d4">
+                            <textView multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="250" insetsLayoutMarginsFromSafeArea="NO" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" contentInsetAdjustmentBehavior="never" bouncesZoom="NO" editable="NO" text="Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ZqV-9f-4d4">
                                 <rect key="frame" x="0.0" y="50" width="315" height="35.5"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="Imp-rw-T1I"/>
@@ -274,8 +274,8 @@
                                             </stackView>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="wD7-pt-H3w" secondAttribute="bottom" id="1SD-CB-z1T"/>
-                                            <constraint firstItem="wD7-pt-H3w" firstAttribute="top" secondItem="5gF-dv-jyP" secondAttribute="top" id="4Lh-0P-KnV"/>
+                                            <constraint firstAttribute="bottom" secondItem="wD7-pt-H3w" secondAttribute="bottom" priority="900" id="1SD-CB-z1T"/>
+                                            <constraint firstItem="wD7-pt-H3w" firstAttribute="top" secondItem="5gF-dv-jyP" secondAttribute="top" priority="999" id="4Lh-0P-KnV"/>
                                             <constraint firstAttribute="height" constant="44" id="K0e-Bc-Irs"/>
                                             <constraint firstItem="wD7-pt-H3w" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="5gF-dv-jyP" secondAttribute="leading" id="n87-bm-qBX"/>
                                             <constraint firstAttribute="trailing" secondItem="wD7-pt-H3w" secondAttribute="trailing" constant="8" id="qsv-27-gm8"/>
@@ -317,7 +317,6 @@
                 <outlet property="editStackView" destination="5gF-dv-jyP" id="GuE-GY-H03"/>
                 <outlet property="likeButton" destination="KMk-Wd-mQa" id="Ocg-9J-Bic"/>
                 <outlet property="likesLabel" destination="3II-e7-kC3" id="Ngh-ji-tJW"/>
-                <outlet property="mainStackView" destination="yR2-EL-Eir" id="h0r-ap-Y1h"/>
                 <outlet property="pendingOpsStackView" destination="atw-t9-ZLS" id="7k8-7g-ABA"/>
                 <outlet property="photoPageControl" destination="HiW-gZ-Jug" id="kQV-jl-sEF"/>
                 <outlet property="postImage" destination="WqQ-lV-DUd" id="Dku-7d-1I0"/>
@@ -329,7 +328,7 @@
                 <outlet property="replyQueuedLabel" destination="oVH-7E-xXY" id="rMK-VF-9Ur"/>
                 <outlet property="replyQueuedView" destination="Qao-VE-b6f" id="4T8-pL-fXD"/>
                 <outlet property="reportButton" destination="yCe-UE-zna" id="c4j-VO-pDD"/>
-                <outlet property="titleLabel" destination="O8q-zM-KLF" id="de7-YQ-HQk"/>
+                <outlet property="titleLabel" destination="ePf-bT-UrD" id="FIl-V3-wyS"/>
                 <outlet property="tweetTextView" destination="ZqV-9f-4d4" id="Ph4-t0-rln"/>
                 <outlet property="userButton" destination="VUr-DA-Pmu" id="QJ0-nc-4Ym"/>
                 <outlet property="viewQueuedRepliesButton" destination="jx8-8r-22C" id="aLV-02-zbK"/>
@@ -345,6 +344,9 @@
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="Icon Foreground">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Text Entry">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Pending Op Background">

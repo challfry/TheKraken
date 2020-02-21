@@ -117,6 +117,13 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 		button2Action?()
 	}
 	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		
+		button1.styleFor(.body)
+		button2.styleFor(.body)
+		infoLabel.styleFor(.body)
+	}
 }
 
 

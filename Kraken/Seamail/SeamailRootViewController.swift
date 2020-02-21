@@ -123,6 +123,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
     
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool{
 		if let userNames = packet.arguments["seamailThreadParticipants"] as? Set<String> {
+			let _ = self.view		// Force the view to load
 			if let nav = self.navigationController, let threads = threadSegment.frc?.fetchedObjects {
 				let storyboard = UIStoryboard(name: "Main", bundle: nil)
 				for thread in threads {

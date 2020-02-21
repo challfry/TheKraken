@@ -57,5 +57,8 @@ class DisclosureCell: BaseCollectionViewCell, DisclosureCellProtocol {
 		
 	override func awakeFromNib() {
 		super.awakeFromNib()
+		
+		titleLabel.styleFor(.body)
+		errorLabel.styleFor(.body)
 	}
 }

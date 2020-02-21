@@ -57,6 +57,11 @@ class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
 			cellSizeChanged()
 		}
 	}
+	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		label.styleFor(.body)
+	}
 }
 
 

@@ -20,7 +20,7 @@ import UIKit
 }
 
 @objc class TextFieldCellModel: BaseCellModel, TextFieldCellProtocol {	
-	private static let validReuseIDs = [ "TextFieldCell" : TextFieldCell.self ]
+	private static let validReuseIDs = [ "TextFieldCell" : TextFieldCell.self, "LargeTextFieldCell" : TextFieldCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	dynamic var labelText: String?
@@ -46,6 +46,22 @@ import UIKit
 		super.init(bindingWith: TextFieldCellProtocol.self)
 	}
 	
+	override func reuseID(traits: UITraitCollection) -> String {
+		let currentTextSize = traits.preferredContentSizeCategory
+		if currentTextSize > UIContentSizeCategory.extraExtraExtraLarge {
+			return "LargeTextFieldCell"
+		}
+
+		let sizingFont = UIFont.preferredFont(forTextStyle: .body)
+		if let subjectRect = labelText?.boundingRect(with: CGSize(width: 1000, height: 100), 
+				options: NSStringDrawingOptions.usesLineFragmentOrigin, 
+				attributes: [NSAttributedString.Key.font: sizingFont], context: nil),
+				subjectRect.size.width > 160 {
+			return "LargeTextFieldCell"
+		}
+		return "TextFieldCell"
+	}
+
 	func hasText() -> Bool {
 		if let text = getText() {
 			return !text.isEmpty
@@ -72,7 +88,8 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	@IBOutlet var label: UILabel!
 	@IBOutlet var errorLabel: UILabel!
 
-	private static let cellInfo = [ "TextFieldCell" : PrototypeCellInfo("TextFieldCell") ]
+	private static let cellInfo = [ "TextFieldCell" : PrototypeCellInfo("TextFieldCell"),
+			"LargeTextFieldCell" : PrototypeCellInfo("LargeTextFieldCell")]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
 	var labelText: String? {
@@ -125,6 +142,12 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 		didSet {
 			textField.clearButtonMode = showClearTextButton ? .always : .never
 		}
+	}
+	
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		label.styleFor(.body)
+		errorLabel.styleFor(.body)
 	}
 	
 	func textFieldDidBeginEditing(_ textField: UITextField) {

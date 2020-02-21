@@ -215,6 +215,9 @@ class UserListCell: BaseCollectionViewCell, UserListCellBindingProtocol {
 				userCollectionHeightConstraint.constant = newSize.height + 2
 			}
 		}
+		
+		titleLabel.styleFor(.body)
+		sourceLabel.styleFor(.body)
    }
 
 	func createUserCellModel(_ model:PossibleKrakenUser) -> SmallUserCellModel {

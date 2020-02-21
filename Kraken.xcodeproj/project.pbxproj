@@ -147,6 +147,7 @@
 		EAAA68DC23FC977800C9EF82 /* ReportContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68DB23FC977800C9EF82 /* ReportContentViewController.swift */; };
 		EAAA68E123FD0C1600C9EF82 /* RockBalladViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */; };
 		EAAA68E323FD122F00C9EF82 /* RockBalladMode.mov in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */; };
+		EAAA68E523FFBA4600C9EF82 /* LargeTextFieldCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68E423FFBA4600C9EF82 /* LargeTextFieldCell.xib */; };
 		EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
@@ -384,6 +385,7 @@
 		EAAA68DB23FC977800C9EF82 /* ReportContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportContentViewController.swift; sourceTree = "<group>"; };
 		EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RockBalladViewController.swift; sourceTree = "<group>"; };
 		EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = RockBalladMode.mov; sourceTree = "<group>"; };
+		EAAA68E423FFBA4600C9EF82 /* LargeTextFieldCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LargeTextFieldCell.xib; sourceTree = "<group>"; };
 		EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCommentCell.swift; sourceTree = "<group>"; };
 		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
 		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
@@ -657,6 +659,7 @@
 				EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */,
 				EAB4536A22D1F6DF00CD1671 /* TextCells.swift */,
 				EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */,
+				EAAA68E423FFBA4600C9EF82 /* LargeTextFieldCell.xib */,
 				EA3C63112296BE7800077E3B /* TextViewCell.xib */,
 				EAB4536C22D1F75600CD1671 /* ButtonCell.swift */,
 				EA86ADD922730C7300363CBF /* ButtonCell.xib */,
@@ -1094,6 +1097,7 @@
 				EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */,
 				EA2286DD23E275A40036C20E /* KrakenIcon100px.png in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
+				EAAA68E523FFBA4600C9EF82 /* LargeTextFieldCell.xib in Resources */,
 				EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,
 				EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */,
