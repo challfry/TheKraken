@@ -232,8 +232,8 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5gF-dv-jyP">
                                         <rect key="frame" x="0.0" y="200" width="315" height="44"/>
                                         <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="wD7-pt-H3w">
-                                                <rect key="frame" x="40" y="0.0" width="275" height="44"/>
+                                            <stackView opaque="NO" contentMode="scaleToFill" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="wD7-pt-H3w">
+                                                <rect key="frame" x="68" y="0.0" width="239" height="44"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yCe-UE-zna">
                                                         <rect key="frame" x="0.0" y="0.0" width="47" height="44"/>
@@ -243,28 +243,28 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="enx-3S-79P">
-                                                        <rect key="frame" x="57" y="0.0" width="47" height="44"/>
+                                                        <rect key="frame" x="59" y="0.0" width="45" height="44"/>
                                                         <state key="normal" title="Delete"/>
                                                         <connections>
                                                             <action selector="deleteButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="aAe-xb-uIV"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gAH-td-gvz">
-                                                        <rect key="frame" x="114" y="0.0" width="47" height="44"/>
+                                                        <rect key="frame" x="116" y="0.0" width="30" height="44"/>
                                                         <state key="normal" title="Edit"/>
                                                         <connections>
                                                             <action selector="editButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="9yL-N7-d66"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zKk-L1-jDy">
-                                                        <rect key="frame" x="171" y="0.0" width="47" height="44"/>
+                                                        <rect key="frame" x="158" y="0.0" width="39" height="44"/>
                                                         <state key="normal" title="Reply"/>
                                                         <connections>
                                                             <action selector="replyButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="KfQ-BD-oDZ"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KMk-Wd-mQa">
-                                                        <rect key="frame" x="228" y="0.0" width="47" height="44"/>
+                                                        <rect key="frame" x="209" y="0.0" width="30" height="44"/>
                                                         <state key="normal" title="Like"/>
                                                         <connections>
                                                             <action selector="likeButtonTapped" destination="jfs-vB-cbw" eventType="touchUpInside" id="rBR-Yu-cD4"/>
@@ -278,7 +278,7 @@
                                             <constraint firstItem="wD7-pt-H3w" firstAttribute="top" secondItem="5gF-dv-jyP" secondAttribute="top" id="4Lh-0P-KnV"/>
                                             <constraint firstAttribute="height" constant="44" id="K0e-Bc-Irs"/>
                                             <constraint firstItem="wD7-pt-H3w" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="5gF-dv-jyP" secondAttribute="leading" id="n87-bm-qBX"/>
-                                            <constraint firstAttribute="trailing" secondItem="wD7-pt-H3w" secondAttribute="trailing" id="qsv-27-gm8"/>
+                                            <constraint firstAttribute="trailing" secondItem="wD7-pt-H3w" secondAttribute="trailing" constant="8" id="qsv-27-gm8"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -317,6 +317,7 @@
                 <outlet property="editStackView" destination="5gF-dv-jyP" id="GuE-GY-H03"/>
                 <outlet property="likeButton" destination="KMk-Wd-mQa" id="Ocg-9J-Bic"/>
                 <outlet property="likesLabel" destination="3II-e7-kC3" id="Ngh-ji-tJW"/>
+                <outlet property="mainStackView" destination="yR2-EL-Eir" id="h0r-ap-Y1h"/>
                 <outlet property="pendingOpsStackView" destination="atw-t9-ZLS" id="7k8-7g-ABA"/>
                 <outlet property="photoPageControl" destination="HiW-gZ-Jug" id="kQV-jl-sEF"/>
                 <outlet property="postImage" destination="WqQ-lV-DUd" id="Dku-7d-1I0"/>

@@ -199,20 +199,6 @@ import CoreData
 		}
 
 	}
-
-    func setupBlockOnUser(_ user: KrakenUser, isBlocked: Bool) {
-		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
-			context.pushOpErrorExplanation("Failed to setup block on user.")
-			if let userToBlock = context.object(with: user.objectID) as? KrakenUser {
-				if isBlocked {
-					currentUser.blockedUsers.insert(userToBlock)
-				}
-				else {
-					currentUser.blockedUsers.remove(userToBlock)
-				}
-			}
-		}
-    }
 }
 
 @objc(UserComment) public class UserComment : KrakenManagedObject {

@@ -82,17 +82,14 @@ import UIKit
 		cell.button1Enabled = true
 		
 		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
-			cell.shouldBeVisible = observed.isLoggedIn() && observed.loggedInUser?.username != observer.modelUserName
+			cell.shouldBeVisible = observed.loggedInUser?.username != observer.modelUserName
 		}?.execute()
 		
 		CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in 
-			if let currentUser = observed.loggedInUser, let viewingUser = observer.modelKrakenUser,
-					currentUser.blockedUsers.contains(viewingUser) {
-				cell.button1Text = "Unblock User"		
-			}
-			else {
-				cell.button1Text = "Block User"
-			}	
+			cell.button1Text = UserManager.shared.userIsBlocked(observer.modelKrakenUser) ? "Unblock User" : "Block User"
+		}?.execute()
+		self.tell(self, when: "modelKrakenUser.blockedGlobally") { observer, observed in 
+			cell.button1Text = UserManager.shared.userIsBlocked(observer.modelKrakenUser) ? "Unblock User" : "Block User"
 		}?.execute()
 
 		return cell
@@ -156,9 +153,8 @@ import UIKit
 	
 	func showBlockUserAlert() {
 		// If the user hit the "Unblock" button we'll get here. No need for alert, just unblock.
-		if let curUser = CurrentUser.shared.loggedInUser, let userToBlock = modelKrakenUser,
-				curUser.blockedUsers.contains(userToBlock) {
-			curUser.setupBlockOnUser(userToBlock, isBlocked: false)
+		if let userToUnblock = modelKrakenUser, UserManager.shared.userIsBlocked(userToUnblock) {
+			UserManager.shared.setupBlockOnUser(userToUnblock, isBlocked: false)
 			return		
 		}
 	
@@ -177,7 +173,7 @@ import UIKit
 	
 	func blockUserConfirmed(action: UIAlertAction) {
 		if let userToBlock = modelKrakenUser {
-			CurrentUser.shared.loggedInUser?.setupBlockOnUser(userToBlock, isBlocked: true)
+			UserManager.shared.setupBlockOnUser(userToBlock, isBlocked: true)
 		}
 	}
     

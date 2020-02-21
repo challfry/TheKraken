@@ -29,6 +29,7 @@ import CoreData
 	@NSManaged public var thumbPhotoData: Data?
 	
 	@NSManaged public var reactions: Set<Reaction>?
+	@NSManaged public var blockedGlobally: Bool
 		
 		// Cached UIImages of the user avatar, keyed off the lastPhotoUpdated time they were built from.
 		// When the user changes their avatar, lastPhotoUpdated will change, and we should invalidate these.
@@ -419,6 +420,40 @@ class UserManager : NSObject {
 		}
 	}
 	
+	func userIsBlocked(_ user: KrakenUser?) -> Bool {
+		guard let user = user else { return false }
+		if let currentUser = CurrentUser.shared.loggedInUser, currentUser.blockedUsers.contains(user) {
+			return true		
+		}
+		else if user.blockedGlobally {
+			return true
+		} else {
+			return false		
+		}	
+	}
+	
+    func setupBlockOnUser(_ user: KrakenUser, isBlocked: Bool) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failed to setup block on user.")
+			if let userToBlock = context.object(with: user.objectID) as? KrakenUser {
+				if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+					if isBlocked {
+						currentUser.blockedUsers.insert(userToBlock)
+					}
+					else {
+						currentUser.blockedUsers.remove(userToBlock)
+						
+						// If you block someone while logged out, you shouldn't have to log out again
+						// just to unblock them.
+						userToBlock.blockedGlobally = false
+					}
+				}
+				else {
+					userToBlock.blockedGlobally = isBlocked
+				}
+			}
+		}
+    }
 }
 
 

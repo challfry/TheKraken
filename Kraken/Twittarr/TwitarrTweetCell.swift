@@ -135,8 +135,18 @@ import CoreData
 			}
 		}?.execute())
 		
+		let determineBlockState: () -> Bool = { [weak self] in
+			guard let self = self else { return false }
+			let newState = (CurrentUser.shared.loggedInUser?.blockedUsers.contains(tweetModel.author) ?? false) || 
+					(self.author?.blockedGlobally ?? false)
+			return newState
+		}
+		
 		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in
-			observer.authorIsBlocked = observed.loggedInUser?.blockedUsers.contains(tweetModel.author) == true
+			observer.authorIsBlocked = determineBlockState()
+		}?.execute())
+		addObservation(tweetModel.author.tell(self, when: "blockedGlobally") { observer, observed in
+			observer.authorIsBlocked = determineBlockState()
 		}?.execute())
 		
 		// Watch for login/out, so we can update like/unlike button state
@@ -381,6 +391,7 @@ import CoreData
 class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol, UITextViewDelegate {
 	
 // MARK: Declarations
+	@IBOutlet var mainStackView: UIStackView!
 	@IBOutlet var titleLabel: UITextView!			// Author and timestamp
 	@IBOutlet var likesLabel: UILabel!				
 	@IBOutlet var tweetTextView: UITextView!

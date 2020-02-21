@@ -80,6 +80,7 @@
     </entity>
     <entity name="KrakenUser" representedClassName="KrakenUser" syncable="YES">
         <attribute name="badgeTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="blockedGlobally" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="currentLocation" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
         <attribute name="emailAddress" optional="YES" attributeType="String"/>
@@ -309,7 +310,7 @@
         <element name="ForumThread" positionX="117" positionY="117" width="128" height="223"/>
         <element name="GameListFavorite" positionX="117" positionY="117" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="643"/>
+        <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="658"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
         <element name="PhotoDetails" positionX="298.0703125" positionY="58.640625" width="128" height="193"/>
         <element name="PostOperation" positionX="117" positionY="126" width="128" height="118"/>
