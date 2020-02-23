@@ -82,6 +82,12 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		return cell
 	}()
 
+	lazy var hashtagSuggestionsCell: HashtagCompletionCellModel = {
+		let cell = HashtagCompletionCellModel(withTitle: "#Hashtag Completions")
+		cell.selectionCallback = suggestedHashtagTappedAction
+		return cell
+	}()
+
 	lazy var postButtonCell: ButtonCellModel = {
 		let btnCell = ButtonCellModel()
 		btnCell.setupButton(2, title:"Post", action: weakify(self, ComposeTweetViewController.postAction))
@@ -170,6 +176,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		composeSection.append(draftSourceCellModel)
 		composeSection.append(tweetTextCell)
 		composeSection.append(userSuggestionsCell)
+		composeSection.append(hashtagSuggestionsCell)
         composeSection.append(postButtonCell)
         composeSection.append(postStatusCell)
 		composeSection.append(emojiSelectionCell)
@@ -197,6 +204,23 @@ class ComposeTweetViewController: BaseCollectionViewController {
 				 
 					// Ask the server for name completions
 					UserManager.shared.autocorrectUserLookup(for: partialUsername, done: self.userCompletionsCompletion)
+				}
+				else {
+					observer.shouldBeVisible = false
+				}
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		
+		// Let the hashtagSuggestion cell know about changes made to the post text field
+		tweetTextCell.tell(hashtagSuggestionsCell, when: "editedText") { observer, observed in 
+			if let text = observed.getText(), !text.isEmpty, let lastHash = text.lastIndex(of: "#") {
+				let partialTag = String(text.suffix(from: lastHash).dropFirst())
+				if !partialTag.contains(" "), partialTag.count > 0 {
+					observer.hashtagPrefix = partialTag
+					observer.shouldBeVisible = true
 				}
 				else {
 					observer.shouldBeVisible = false
@@ -250,6 +274,16 @@ class ComposeTweetViewController: BaseCollectionViewController {
 		let suffix = tweetText.suffix(from: lastAtSign)
 		if suffix.contains(" ") { return }
 		tweetText.replaceSubrange(lastAtSign..<tweetText.endIndex, with: "@\(username)")
+		tweetTextCell.editText = ""
+		tweetTextCell.editText = tweetText
+	}
+
+	func suggestedHashtagTappedAction(_ hashtag: String) {
+		
+		guard var tweetText = tweetTextCell.getText(), let lastHash = tweetText.lastIndex(of: "#") else { return }
+		let suffix = tweetText.suffix(from: lastHash)
+		if suffix.contains(" ") { return }
+		tweetText.replaceSubrange(lastHash..<tweetText.endIndex, with: "#\(hashtag)")
 		tweetTextCell.editText = ""
 		tweetTextCell.editText = tweetText
 	}

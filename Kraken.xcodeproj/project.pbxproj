@@ -137,7 +137,6 @@
 		EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */; };
 		EAA2E4D42242D301009F287F /* KrakenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4D32242D301009F287F /* KrakenTests.swift */; };
 		EAA2E4DF2242D301009F287F /* KrakenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4DE2242D301009F287F /* KrakenUITests.swift */; };
-		EAA62C6D22C2B5FA0031A999 /* DisclosureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */; };
 		EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */; };
 		EAA62C7122C55CC00031A999 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C7022C55CC00031A999 /* Logging.swift */; };
 		EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAA62C7222CC57060031A999 /* DraftImageCell.xib */; };
@@ -148,6 +147,8 @@
 		EAAA68E123FD0C1600C9EF82 /* RockBalladViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */; };
 		EAAA68E323FD122F00C9EF82 /* RockBalladMode.mov in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */; };
 		EAAA68E523FFBA4600C9EF82 /* LargeTextFieldCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68E423FFBA4600C9EF82 /* LargeTextFieldCell.xib */; };
+		EAAA68EB24012FE700C9EF82 /* HashtagCompletionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68EA24012FE700C9EF82 /* HashtagCompletionCell.swift */; };
+		EAAA68EE240140A200C9EF82 /* HashtagDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68ED240140A200C9EF82 /* HashtagDataManager.swift */; };
 		EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
@@ -187,6 +188,9 @@
 		EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF340F224ED88300C7A0D9 /* LoginCells.swift */; };
 		EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */; };
 		EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */; };
+		EAF589CF2401F1EE00ECB7DB /* DisclosureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF589CE2401F1EE00ECB7DB /* DisclosureCell.swift */; };
+		EAF589D12402296000ECB7DB /* HashtagCompletionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAF589D02402296000ECB7DB /* HashtagCompletionCell.xib */; };
+		EAF589D324025D6100ECB7DB /* HashtagButtonCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAF589D224025D6100ECB7DB /* HashtagButtonCell.xib */; };
 		EAF777F722A3B1D000B27803 /* ModalLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF777F622A3B1D000B27803 /* ModalLoginViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -330,7 +334,7 @@
 		EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextFieldCell.xib; sourceTree = "<group>"; };
 		EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingStatusCell.swift; sourceTree = "<group>"; };
 		EA86ADD922730C7300363CBF /* ButtonCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ButtonCell.xib; sourceTree = "<group>"; };
-		EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BaseCollectionViewController.swift; path = "Kraken/Common UI/BaseCollectionViewController.swift"; sourceTree = SOURCE_ROOT; };
+		EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BaseCollectionViewController.swift; path = "Kraken/Common UI/Basic VCs/BaseCollectionViewController.swift"; sourceTree = SOURCE_ROOT; };
 		EA86ADDD2275BD3500363CBF /* LabelCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LabelCell.xib; sourceTree = "<group>"; };
 		EA86ADDF2277A76D00363CBF /* TwitarrTweetCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TwitarrTweetCell.xib; sourceTree = "<group>"; };
 		EA86ADE12279836D00363CBF /* ProfileAvatarLeftCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileAvatarLeftCell.xib; sourceTree = "<group>"; };
@@ -375,7 +379,6 @@
 		EAA2E4DA2242D301009F287F /* KrakenUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KrakenUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4DE2242D301009F287F /* KrakenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenUITests.swift; sourceTree = "<group>"; };
 		EAA2E4E02242D301009F287F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DisclosureCell.swift; path = "Kraken/Common UI/DisclosureCell.swift"; sourceTree = SOURCE_ROOT; };
 		EAA62C6E22C2F10A0031A999 /* SettingsTasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTasksViewController.swift; sourceTree = "<group>"; };
 		EAA62C7022C55CC00031A999 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EAA62C7222CC57060031A999 /* DraftImageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DraftImageCell.xib; sourceTree = "<group>"; };
@@ -386,6 +389,8 @@
 		EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RockBalladViewController.swift; sourceTree = "<group>"; };
 		EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = RockBalladMode.mov; sourceTree = "<group>"; };
 		EAAA68E423FFBA4600C9EF82 /* LargeTextFieldCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LargeTextFieldCell.xib; sourceTree = "<group>"; };
+		EAAA68EA24012FE700C9EF82 /* HashtagCompletionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashtagCompletionCell.swift; sourceTree = "<group>"; };
+		EAAA68ED240140A200C9EF82 /* HashtagDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashtagDataManager.swift; sourceTree = "<group>"; };
 		EAAF5E4F233A00FC006361F4 /* ProfileCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCommentCell.swift; sourceTree = "<group>"; };
 		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
 		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
@@ -428,6 +433,9 @@
 		EAEF340F224ED88300C7A0D9 /* LoginCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCells.swift; sourceTree = "<group>"; };
 		EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailRootViewController.swift; sourceTree = "<group>"; };
 		EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrTweetCell.swift; sourceTree = "<group>"; };
+		EAF589CE2401F1EE00ECB7DB /* DisclosureCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisclosureCell.swift; sourceTree = "<group>"; };
+		EAF589D02402296000ECB7DB /* HashtagCompletionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HashtagCompletionCell.xib; sourceTree = "<group>"; };
+		EAF589D224025D6100ECB7DB /* HashtagButtonCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HashtagButtonCell.xib; sourceTree = "<group>"; };
 		EAF777F622A3B1D000B27803 /* ModalLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalLoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -533,10 +541,6 @@
 				EAC696E8228D653300EE6EEB /* SeamailMessageCell.swift */,
 				EA3C630B2290D3E300077E3B /* SeamailSelfMessageCell.xib */,
 				EAC696E9228D653300EE6EEB /* SeamailMessageCell.xib */,
-				EAB4537422D58FEA00CD1671 /* UserListCell.swift */,
-				EAB4537522D58FEA00CD1671 /* UserListCell.xib */,
-				EA90455E22DC032C00790F97 /* SmallUserCell.swift */,
-				EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */,
 				EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */,
 			);
 			path = Seamail;
@@ -640,38 +644,11 @@
 		EA444A552298B5410098DE97 /* Common UI */ = {
 			isa = PBXGroup;
 			children = (
-				EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */,
-				EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */,
-				EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */,
-				EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */,
-				EA47886C23EBC14700897A5A /* BaseCollectionSupplementaryView.swift */,
+				EAAA68E624012E8B00C9EF82 /* Complex Cells */,
+				EAAA68E924012F6A00C9EF82 /* Simple Cells */,
 				EA83FC6E2368F01D0042C0DC /* Styler.swift */,
-				EAA62C6C22C2B5FA0031A999 /* DisclosureCell.swift */,
-				EA86ADE72279B49400363CBF /* DisclosureCell.xib */,
-				EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */,
-				EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */,
-				EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */,
-				EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */,
-				EAB4536822D1F63900CD1671 /* LabelCell.swift */,
-				EA86ADDD2275BD3500363CBF /* LabelCell.xib */,
-				EA86ADE5227983E500363CBF /* SingleValueCell.xib */,
-				EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */,
-				EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */,
-				EAB4536A22D1F6DF00CD1671 /* TextCells.swift */,
-				EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */,
-				EAAA68E423FFBA4600C9EF82 /* LargeTextFieldCell.xib */,
-				EA3C63112296BE7800077E3B /* TextViewCell.xib */,
-				EAB4536C22D1F75600CD1671 /* ButtonCell.swift */,
-				EA86ADD922730C7300363CBF /* ButtonCell.xib */,
-				EA83FC6A2366332E0042C0DC /* SegmentCell.swift */,
-				EA83FC6C2366334A0042C0DC /* SegmentCell.xib */,
-				EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */,
-				EA278A49226A755400808AED /* LoadingStatusCell.xib */,
-				EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */,
-				EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */,
-				EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */,
-				EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */,
-				EA6A8A81231E212A0071BFEA /* Alerts.swift */,
+				EAAA68E824012F0F00C9EF82 /* Base Components */,
+				EAAA68E724012EEB00C9EF82 /* Basic VCs */,
 			);
 			path = "Common UI";
 			sourceTree = "<group>";
@@ -841,6 +818,7 @@
 				EA1E3B8D2245795100017F07 /* Twittarr */,
 				EA1E3B8E2245796F00017F07 /* Forums */,
 				EA1E3B8F2245798400017F07 /* Seamail */,
+				EAAA68EC24013A1200C9EF82 /* Hashtags */,
 				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
 				EA2286DE23E39B820036C20E /* Games List */,
@@ -883,6 +861,80 @@
 				EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */,
 			);
 			path = "Rock Ballad Mode";
+			sourceTree = "<group>";
+		};
+		EAAA68E624012E8B00C9EF82 /* Complex Cells */ = {
+			isa = PBXGroup;
+			children = (
+				EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */,
+				EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */,
+				EAB4537422D58FEA00CD1671 /* UserListCell.swift */,
+				EAB4537522D58FEA00CD1671 /* UserListCell.xib */,
+				EA90455E22DC032C00790F97 /* SmallUserCell.swift */,
+				EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */,
+			);
+			path = "Complex Cells";
+			sourceTree = "<group>";
+		};
+		EAAA68E724012EEB00C9EF82 /* Basic VCs */ = {
+			isa = PBXGroup;
+			children = (
+				EA6A8A81231E212A0071BFEA /* Alerts.swift */,
+				EA86ADDB22745A5800363CBF /* BaseCollectionViewController.swift */,
+				EA534E2822FD1B9200FE4787 /* KrakenNavController.swift */,
+				EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */,
+			);
+			path = "Basic VCs";
+			sourceTree = "<group>";
+		};
+		EAAA68E824012F0F00C9EF82 /* Base Components */ = {
+			isa = PBXGroup;
+			children = (
+				EA1B9E0A2266A1E50082A908 /* BaseCollectionViewCell.swift */,
+				EA47886C23EBC14700897A5A /* BaseCollectionSupplementaryView.swift */,
+			);
+			path = "Base Components";
+			sourceTree = "<group>";
+		};
+		EAAA68E924012F6A00C9EF82 /* Simple Cells */ = {
+			isa = PBXGroup;
+			children = (
+				EAF589CE2401F1EE00ECB7DB /* DisclosureCell.swift */,
+				EA86ADE72279B49400363CBF /* DisclosureCell.xib */,
+				EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */,
+				EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */,
+				EAB4536822D1F63900CD1671 /* LabelCell.swift */,
+				EA86ADDD2275BD3500363CBF /* LabelCell.xib */,
+				EA86ADE5227983E500363CBF /* SingleValueCell.xib */,
+				EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */,
+				EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */,
+				EAB4536A22D1F6DF00CD1671 /* TextCells.swift */,
+				EA86ADD52272B1EE00363CBF /* TextFieldCell.xib */,
+				EAAA68E423FFBA4600C9EF82 /* LargeTextFieldCell.xib */,
+				EA3C63112296BE7800077E3B /* TextViewCell.xib */,
+				EAB4536C22D1F75600CD1671 /* ButtonCell.swift */,
+				EA86ADD922730C7300363CBF /* ButtonCell.xib */,
+				EA83FC6A2366332E0042C0DC /* SegmentCell.swift */,
+				EA83FC6C2366334A0042C0DC /* SegmentCell.xib */,
+				EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */,
+				EA278A49226A755400808AED /* LoadingStatusCell.xib */,
+				EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */,
+				EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */,
+				EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */,
+				EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */,
+			);
+			path = "Simple Cells";
+			sourceTree = "<group>";
+		};
+		EAAA68EC24013A1200C9EF82 /* Hashtags */ = {
+			isa = PBXGroup;
+			children = (
+				EAAA68EA24012FE700C9EF82 /* HashtagCompletionCell.swift */,
+				EAF589D02402296000ECB7DB /* HashtagCompletionCell.xib */,
+				EAF589D224025D6100ECB7DB /* HashtagButtonCell.xib */,
+				EAAA68ED240140A200C9EF82 /* HashtagDataManager.swift */,
+			);
+			path = Hashtags;
 			sourceTree = "<group>";
 		};
 		EABD2FFD23DAD7E000232F28 /* SwiftyMarkdown */ = {
@@ -1056,6 +1108,7 @@
 			files = (
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
 				EA1099FC2397376700F5172D /* ForumsThreadCell.xib in Resources */,
+				EAF589D324025D6100ECB7DB /* HashtagButtonCell.xib in Resources */,
 				EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */,
 				EA3C63122296BE7800077E3B /* TextViewCell.xib in Resources */,
 				EA8694AD23D3091A00ABE391 /* DailyActivityCell2.xib in Resources */,
@@ -1082,6 +1135,7 @@
 				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
 				EA2286F923E430BC0036C20E /* JoCoGamesCatalog.lzfse in Resources */,
+				EAF589D12402296000ECB7DB /* HashtagCompletionCell.xib in Resources */,
 				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
 				EAC45AB023E6CACF00907B1F /* PortAndThemeCell.xib in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
@@ -1150,6 +1204,7 @@
 				EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */,
 				EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */,
 				EABD300A23DAD7E000232F28 /* SwiftyTokeniser.swift in Sources */,
+				EAAA68EB24012FE700C9EF82 /* HashtagCompletionCell.swift in Sources */,
 				EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */,
 				EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
@@ -1188,8 +1243,8 @@
 				EA8694B423D4A5A800ABE391 /* AnnouncementCell.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
+				EAAA68EE240140A200C9EF82 /* HashtagDataManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
-				EAA62C6D22C2B5FA0031A999 /* DisclosureCell.swift in Sources */,
 				EA86ADDC22745A5800363CBF /* BaseCollectionViewController.swift in Sources */,
 				EA86ADEE227D188A00363CBF /* ServerTextFileParser.swift in Sources */,
 				EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */,
@@ -1234,6 +1289,7 @@
 				EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */,
 				EABD300623DAD7E000232F28 /* SwiftyLineProcessor.swift in Sources */,
 				EA2286F023E3C7450036C20E /* GamesListStructs.swift in Sources */,
+				EAF589CF2401F1EE00ECB7DB /* DisclosureCell.swift in Sources */,
 				EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,

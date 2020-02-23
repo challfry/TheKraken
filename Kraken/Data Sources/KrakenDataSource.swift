@@ -245,6 +245,10 @@ class KrakenDataSource: NSObject {
 		}
 	}
 	
+	func forceRunUpdates() {
+		privateRunUpdates()
+	}
+	
 	fileprivate func privateRunUpdates() {
 								
 		let updateBlock = {

@@ -187,6 +187,19 @@ struct NetworkResponse {
 		let request = URLRequest(url:builtURL, cachePolicy:.reloadIgnoringLocalAndRemoteCacheData)
 		return request
 	}
+
+	class func buildTwittarV2Request(withEscapedPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
+	
+		var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
+		components?.percentEncodedPath = path
+		components?.queryItems = query
+		
+		// Fallback, no query params
+		let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(path)
+	//	let request = URLRequest(url:builtURL)
+		let request = URLRequest(url:builtURL, cachePolicy:.reloadIgnoringLocalAndRemoteCacheData)
+		return request
+	}
 	
 	// Depending on what the server wants, this could add a query parameter, a HTTP header, or a cookie.
 	// Currently it works by adding a URL query parameter, but the idea is that it can mutate the request however
@@ -430,3 +443,4 @@ extension NetworkGovernor: URLSessionDataDelegate {
     
 
 }
+

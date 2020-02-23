@@ -101,7 +101,11 @@ import CoreData
 			return
 		}
 		
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/photo/\(username)")
+		// Input sanitizing: URLComponents should percent escape username to make a valid path; 
+		// but the username could still have "/" in it. 
+		let encodedUsername = username.addingPathComponentPercentEncoding() ?? ""
+
+		let request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/photo/\(encodedUsername)")
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				ImageLog.error(error.errorString ?? "Unknown error in /api/v2/user/photo response")
@@ -198,7 +202,11 @@ class UserManager : NSObject {
 		let krakenUser = user(username)
 		let krakenUserID = krakenUser?.objectID
 		
-		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/user/profile/\(username)", query: nil)
+		// Input sanitizing: URLComponents should percent escape username to make a valid path; 
+		// but the username could still have "/" in it. 
+		let encodedUsername = username.addingPathComponentPercentEncoding() ?? ""
+
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v2/user/profile/\(encodedUsername)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -383,11 +391,11 @@ class UserManager : NSObject {
 		guard partialName.count >= 1 else { done(nil); return }
 		autocorrectCallInProgress = true
 		
-		// Input sanitizing:
-		// URLComponents should percent escape partialName to make a valid path; we may want to remove spaces
-		// manually first.
-		
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/ac/\(partialName)", query: nil)
+		// Input sanitizing: URLComponents should percent escape partialName to make a valid path; 
+		// but the username could still have "/" in it. 
+		let encodedUsername = partialName.addingPathComponentPercentEncoding() ?? ""
+
+		let request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/ac/\(encodedUsername)", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.autocorrectCallInProgress = false
 			if let error = NetworkGovernor.shared.parseServerError(package) {

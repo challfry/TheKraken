@@ -54,6 +54,10 @@ fileprivate struct Log: LoggingProtocol {
 		allCellModels.removeObject(at: at)
 	}
 	
+	func removeAll() {
+		allCellModels.removeAllObjects()
+	}
+	
 	override func invalidateLayoutCache() {
 		let cells = allCellModels as! [BaseCellModel]
 		cells.forEach { $0.cellSize = CGSize(width: 0, height: 0) }

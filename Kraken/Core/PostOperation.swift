@@ -606,8 +606,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		super.post(context: context)
 		
 		// POST/DELETE /api/v2/tweet/:id/react/:type
-		var request = NetworkGovernor.buildTwittarV2Request(withPath: 
-				"/api/v2/tweet/\(post.id)/react/\(reactionWord)", query: nil)
+		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
+				"/api/v2/tweet/\(post.id)/react/\(encodedReationWord)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		
@@ -843,8 +844,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		super.post(context: context)
 		
 		// POST/DELETE /api/v2/forums/:id/:post_id/react/:type
-		var request = NetworkGovernor.buildTwittarV2Request(withPath: 
-				"/api/v2/forums/\(post.thread.id)/\(post.id)/react/\(reactionWord)", query: nil)
+		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
+				"/api/v2/forums/\(post.thread.id)/\(post.id)/react/\(encodedReationWord)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		
@@ -980,7 +982,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let requestData = try! encoder.encode(userCommentStruct)
 				
 		// POST /api/v2/user/profile/:user/personal_comment
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile/\(userCommentedOn.username)/personal_comment", query: nil)
+		let encodedUsername = userCommentedOn.username.addingPathComponentPercentEncoding() ?? ""
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/profile/\(encodedUsername)/personal_comment", 
+				query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = "POST"
 		request.httpBody = requestData
@@ -1014,7 +1018,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		super.post(context: context)
 				
 		// POST /api/v2/user/profile/:username/star
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile/\(userFavorited.username)/star", query: nil)
+		let encodedUsername = userFavorited.username.addingPathComponentPercentEncoding() ?? ""
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/profile/\(encodedUsername)/star", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = "POST"
 		queueNetworkPost(request: request, success:  { data in

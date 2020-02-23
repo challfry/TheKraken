@@ -90,6 +90,9 @@ import UIKit
 		}
 		
 		buildReactionsFromV2(context: context, v2Object: v2Object.reactions)
+		
+		let hashtags = StringUtilities.extractHashtags(v2Object.text)
+		HashtagDataManager.shared.addHashtags(hashtags)
 	}
 	
 	func buildReactionsFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ReactionsSummary) {
@@ -325,10 +328,10 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		var query: [URLQueryItem] = []
 		
 		// If we have a text string as part of the filter, and can URL-sanitize the string, use it
-		if let queryString = textFilter, let escapedQuery = queryString.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
+		if let queryString = textFilter, let escapedQuery = queryString.addingPathComponentPercentEncoding() {
 			query.append(URLQueryItem(name: "limit", value: "\(limit)"))
 	//		query.append(URLQueryItem(name: "page", value: String(fromOffset)))
-			request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/search/tweets/\(escapedQuery)", query: query)
+			request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v2/search/tweets/\(escapedQuery)", query: query)
 			isSearchQuery = true
 		}
 		else {

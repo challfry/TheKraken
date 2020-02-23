@@ -218,6 +218,9 @@ import UIKit
 				photos.add(newPhoto)
 			}
 		}
+		
+		let hashtags = StringUtilities.extractHashtags(v2Object.text)
+		HashtagDataManager.shared.addHashtags(hashtags)
 	}
 
 	// Note that for forum posts, we're not putting in the effort to model reactions fully, as the server API

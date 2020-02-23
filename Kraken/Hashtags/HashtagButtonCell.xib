@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="HashtagButtonCell" id="Icv-6a-HNB" customClass="HashtagButtonCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="168" height="40"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="redraw" insetsLayoutMarginsFromSafeArea="NO" id="2Os-SH-1aF" customClass="HashtagButtonRoundedRectView" customModule="Kraken" customModuleProvider="target">
+                <rect key="frame" x="0.0" y="0.0" width="168" height="40"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oBn-kq-1NI">
+                        <rect key="frame" x="10" y="0.0" width="148" height="40"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <state key="normal" title="Button"/>
+                        <connections>
+                            <action selector="buttonTapped:" destination="-1" eventType="touchUpInside" id="t2v-rI-81X"/>
+                            <action selector="buttonTapped:" destination="Icv-6a-HNB" eventType="touchUpInside" id="v95-zt-evu"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <color key="backgroundColor" name="Text View Background"/>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="oBn-kq-1NI" secondAttribute="bottom" priority="999" id="WUF-vh-lba"/>
+                    <constraint firstItem="oBn-kq-1NI" firstAttribute="leading" secondItem="2Os-SH-1aF" secondAttribute="leading" constant="10" id="aW3-1o-iZZ"/>
+                    <constraint firstAttribute="trailing" secondItem="oBn-kq-1NI" secondAttribute="trailing" priority="999" constant="10" id="cUc-hZ-dpG"/>
+                    <constraint firstItem="oBn-kq-1NI" firstAttribute="top" secondItem="2Os-SH-1aF" secondAttribute="top" id="duE-Xv-KeQ"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="168" height="40"/>
+            <connections>
+                <outlet property="button" destination="oBn-kq-1NI" id="fpW-Cb-8dw"/>
+            </connections>
+            <point key="canvasLocation" x="159.42028985507247" y="-71.651785714285708"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="Text View Background">
+            <color red="0.8410000205039978" green="0.83700001239776611" blue="0.84500002861022949" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

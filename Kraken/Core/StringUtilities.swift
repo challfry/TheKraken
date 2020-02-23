@@ -115,6 +115,59 @@ class StringUtilities {
     	return outputString
     }
     
+    class func extractHashtags(_ text:String) -> Set<String> {
+    	var hashtags = Set<String>()
+    	var outputString = String()
+    	let openTag = CharacterSet(charactersIn: "<")
+    	let closeTag = CharacterSet(charactersIn: ">")
+    	let emptySet = CharacterSet(charactersIn: "")
+    	var tagStack = [HTMLTag]()
+    			
+    	// The second jankiest HTML fragment parser I've written this week.
+     	let scanner = Scanner(string: text)
+     	scanner.charactersToBeSkipped = emptySet
+		while !scanner.isAtEnd {
+			// Scan to the start of the next tag. If tagStack is empty, it's text 'outside' of all tags. 
+			// Else, it's text that's 'inside' all the tags in the stack.
+			if let tempString = scanner.KscanUpToCharactersFrom(openTag) {
+				outputString.append(tempString)
+			}
+			
+			// Now scan the tag and whatever junk is in it, from '<' to '>'
+			scanner.scanString("<", into: nil)
+	   		if let tagContents = scanner.KscanUpToCharactersFrom(closeTag) {
+	   			let firstSpace = tagContents.firstIndex(of: " ") ?? tagContents.endIndex
+				let tagName = String(tagContents[..<firstSpace])
+				if tagName.hasPrefix("/") {
+					// Close tag
+					let tagWithoutPrefix = tagName.dropFirst(1)
+					if let tagIndex = tagStack.lastIndex(where: { $0.tagName == tagWithoutPrefix }) {
+						let tag = tagStack.remove(at: tagIndex)
+						switch tag.tagName {
+						case "a": 
+							let linkText = outputString.suffix(outputString.count - tag.position)
+							if linkText.hasPrefix("#") && !linkText.contains(" ") {
+								let strippedTag = linkText.dropFirst()
+								hashtags.insert(String(strippedTag))
+							}
+						default: break
+						}
+					}
+				}
+				else if tagContents.hasSuffix("/") || isVoidElementTag(tagName) {
+					// This is an self-closing tag e.g. <br />, or a void eleement e.g. <br>
+				}
+				else {
+					// This is an open tag e.g. <a>
+					tagStack.append(HTMLTag(tagName: tagName, position: outputString.count))
+				}
+			}
+		   	scanner.scanString(">", into: nil)
+	   	}
+	   	
+    	return hashtags
+    }
+    
     class func boldFont(for baseFont: UIFont) -> UIFont {
     	if let desc = baseFont.fontDescriptor.withSymbolicTraits(.traitBold) {
 			let boldFont = UIFont(descriptor: desc, size: baseFont.pointSize)
@@ -316,5 +369,13 @@ extension String {
 			}
 		}
 		return outputString
+	}
+	
+	// Returns a percent encoded string for a COMPONENT of an URL path. Percent encodes non-urlPathAllowed chars plus "/".
+	func addingPathComponentPercentEncoding() -> String? {
+		var pathComponentChars = NSCharacterSet.urlPathAllowed
+		pathComponentChars.remove(charactersIn: "/")
+		let encoded = addingPercentEncoding(withAllowedCharacters: pathComponentChars) ?? ""
+		return encoded
 	}
 }
