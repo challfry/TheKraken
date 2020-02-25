@@ -34,14 +34,24 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 	@objc dynamic var buttonEnableState: Bool = false
 
 //	let items = ["😂", "😭", "😍", "❤️", "👉", "💜", ",💕", "😊", "🤔", "🙏", "⌚️", "❤️", "🏁", "🇩🇿" ]
-	let items = [ "😂", "❤️", "♻️", "😍", "♥️", "😭", "😊", "😒", "💕", "😘", "😩", "☺️", "👌", "😔", "😁", "😏", "😉", 
+	let jocomoji = [ ":buffet:", ":die-ship:", ":die:", ":fez:", ":hottub:", ":joco:", ":pirate:", ":ship-front:",
+			":ship:", ":towel-monkey:", ":tropical-drink:", ":zombie:" ]
+	let starterEmoji = [ "😂", "❤️", "♻️", "😍", "♥️", "😭", "😊", "😒", "💕", "😘", "😩", "☺️", "👌", "😔", "😁", "😏", "😉", 
 			"👍", "⬅️", "😅", "🙏", "😌", "😢", "👀", "💔", "😎", "🎶", "💙", "💜", "🙌", "😳", "✨", "💖", "🙈", "💯", 
 			"🔥", "✌️", "😄", "😴", "😑", "😋", "😜", "😕", "😞", "😪", "💗", "👏", "😐", "👉", "💞", "💘", "📷", "😱", 
 			"💛", "🌹", "💁", "🌸", "💋", "😡", "🙊", "💀", "😆", "😀", "😈", "🎉", "💪", "😃", "✋", "😫", "▶️", "😝", 
 			"💚", "😤", "💓", "🌚", "👊", "✔️", "➡️", "😣", "😓", "☀️", "😻", "😇", "😬", "😥", "✅", "👈", "😛"]
+	
+	lazy var items: [String] = {
+		var allItems: [String] = EmojiDataManager.shared.recentEmoji
+		allItems.append(contentsOf: self.jocomoji)
+		allItems.append(contentsOf: self.starterEmoji)
+		return allItems
+	}()
 			
 	override func awakeFromNib() {
 		super.awakeFromNib()
+		EmojiDataManager.shared.getRecentlyUsedEmoji()
 		emojiCollection.register(EmojiButtonCell.self, forCellWithReuseIdentifier: "EmojiButton")
 		(emojiCollection.collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize = CGSize(width: 41, height: 41)
 		cellHeightConstraint.constant = 41 * 3
@@ -165,6 +175,10 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
     }
     
     func emojiImage(for emoji: String) -> UIImage {
+    	if emoji.hasPrefix(":") {
+    		let imageName = emoji.dropFirst(1).dropLast(1).appending(".png")
+    		return UIImage(named: imageName) ?? UIImage()
+    	}
 		let imgSize = CGSize(width: self.bounds.size.width - 6, height: self.bounds.size.height - 6)
 		UIGraphicsBeginImageContextWithOptions(CGSize(width: imgSize.width, height: imgSize.height), false, 0.0)
 		let str = emoji as NSString

@@ -22,7 +22,7 @@ import UIKit
 	dynamic var hashtagPrefix: String? {
 		didSet {
 			if let str = hashtagPrefix, !str.isEmpty {
-				fetchedResults.fetchRequest.predicate = NSPredicate(format: "name CONTAINS %@", str)
+				fetchedResults.fetchRequest.predicate = NSPredicate(format: "name BEGINSWITH %@", str)
 				HashtagDataManager.shared.autocompleteHashtagLookup(for: str)
 			}
 			else {

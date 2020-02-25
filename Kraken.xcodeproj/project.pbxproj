@@ -177,6 +177,7 @@
 		EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC696EC2290159000EE6EEB /* StringUtilities.swift */; };
 		EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */; };
 		EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */; };
+		EACB06AE2404FF530075924E /* EmojiDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF589D42403EE8300ECB7DB /* EmojiDataManager.swift */; };
 		EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */; };
 		EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */; };
 		EADF5DA023DD30E7008BA172 /* DeckDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC8A236E33450042C0DC /* DeckDataManager.swift */; };
@@ -436,6 +437,7 @@
 		EAF589CE2401F1EE00ECB7DB /* DisclosureCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisclosureCell.swift; sourceTree = "<group>"; };
 		EAF589D02402296000ECB7DB /* HashtagCompletionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HashtagCompletionCell.xib; sourceTree = "<group>"; };
 		EAF589D224025D6100ECB7DB /* HashtagButtonCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HashtagButtonCell.xib; sourceTree = "<group>"; };
+		EAF589D42403EE8300ECB7DB /* EmojiDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiDataManager.swift; sourceTree = "<group>"; };
 		EAF777F622A3B1D000B27803 /* ModalLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalLoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -818,7 +820,7 @@
 				EA1E3B8D2245795100017F07 /* Twittarr */,
 				EA1E3B8E2245796F00017F07 /* Forums */,
 				EA1E3B8F2245798400017F07 /* Seamail */,
-				EAAA68EC24013A1200C9EF82 /* Hashtags */,
+				EAAA68EC24013A1200C9EF82 /* Users_Hashtags_Emoji */,
 				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
 				EA2286DE23E39B820036C20E /* Games List */,
@@ -866,12 +868,6 @@
 		EAAA68E624012E8B00C9EF82 /* Complex Cells */ = {
 			isa = PBXGroup;
 			children = (
-				EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */,
-				EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */,
-				EAB4537422D58FEA00CD1671 /* UserListCell.swift */,
-				EAB4537522D58FEA00CD1671 /* UserListCell.xib */,
-				EA90455E22DC032C00790F97 /* SmallUserCell.swift */,
-				EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */,
 			);
 			path = "Complex Cells";
 			sourceTree = "<group>";
@@ -926,15 +922,22 @@
 			path = "Simple Cells";
 			sourceTree = "<group>";
 		};
-		EAAA68EC24013A1200C9EF82 /* Hashtags */ = {
+		EAAA68EC24013A1200C9EF82 /* Users_Hashtags_Emoji */ = {
 			isa = PBXGroup;
 			children = (
+				EAB4537422D58FEA00CD1671 /* UserListCell.swift */,
+				EAB4537522D58FEA00CD1671 /* UserListCell.xib */,
+				EA90455E22DC032C00790F97 /* SmallUserCell.swift */,
+				EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */,
 				EAAA68EA24012FE700C9EF82 /* HashtagCompletionCell.swift */,
 				EAF589D02402296000ECB7DB /* HashtagCompletionCell.xib */,
 				EAF589D224025D6100ECB7DB /* HashtagButtonCell.xib */,
 				EAAA68ED240140A200C9EF82 /* HashtagDataManager.swift */,
+				EA444A56229BEC640098DE97 /* EmojiSelectionCell.swift */,
+				EA444A57229BEC640098DE97 /* EmojiSelectionCell.xib */,
+				EAF589D42403EE8300ECB7DB /* EmojiDataManager.swift */,
 			);
-			path = Hashtags;
+			path = Users_Hashtags_Emoji;
 			sourceTree = "<group>";
 		};
 		EABD2FFD23DAD7E000232F28 /* SwiftyMarkdown */ = {
@@ -1218,6 +1221,7 @@
 				EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */,
 				EA4767362341E6A700F56E08 /* LoggedInUserCell.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
+				EACB06AE2404FF530075924E /* EmojiDataManager.swift in Sources */,
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */,
 				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,

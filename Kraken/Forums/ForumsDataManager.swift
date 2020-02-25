@@ -581,6 +581,8 @@ import UIKit
 	
 	func queuePostEditOp(for editPost: ForumPost, newText: String, images: [PhotoUploadPackage]?, 
 			done: @escaping (PostOpForumPost?) -> Void) {
+		EmojiDataManager.shared.gatherEmoji(from: newText)
+		
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			// Make sure there's a logged in user and that the logged in user authored the post we're editing.
 			guard currentUser.username == editPost.author.username  else {
@@ -627,6 +629,8 @@ import UIKit
 	// If inThread is nil, this post is a new thread, and titleText must be non-nil.
 	func queuePost(existingDraft: PostOpForumPost?, inThread: ForumThread?, titleText: String?, postText: String, images: [PhotoUploadPackage]?,
 			done: @escaping (PostOpForumPost?) -> Void) {
+		EmojiDataManager.shared.gatherEmoji(from: postText)	
+
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			// Make sure there's a logged in user and that the logged in user authored the post we're editing.
 			guard inThread != nil || titleText != nil  else {

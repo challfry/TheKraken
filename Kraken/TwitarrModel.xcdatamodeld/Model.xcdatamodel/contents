@@ -8,6 +8,10 @@
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="announcements" inverseEntity="KrakenUser"/>
         <relationship name="viewedBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="upToDateAnnouncements" inverseEntity="KrakenUser"/>
     </entity>
+    <entity name="Emoji" representedClassName="Emoji" syncable="YES">
+        <attribute name="lastUseDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="Event" representedClassName="Event" syncable="YES">
         <attribute name="ekEventID" optional="YES" attributeType="String"/>
         <attribute name="endTimestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -312,6 +316,7 @@
         <element name="ForumReadCount" positionX="135" positionY="135" width="128" height="133"/>
         <element name="ForumThread" positionX="117" positionY="117" width="128" height="223"/>
         <element name="GameListFavorite" positionX="117" positionY="117" width="128" height="58"/>
+        <element name="Hashtag" positionX="126" positionY="126" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="117" positionY="117" width="128" height="75"/>
         <element name="KrakenUser" positionX="-63" positionY="-18" width="128" height="658"/>
         <element name="LoggedInKrakenUser" positionX="117" positionY="117" width="128" height="45"/>
@@ -338,6 +343,6 @@
         <element name="ServerTextFile" positionX="135" positionY="126" width="128" height="90"/>
         <element name="TwitarrPost" positionX="113.06640625" positionY="-37.14453125" width="128" height="270"/>
         <element name="UserComment" positionX="117" positionY="90" width="128" height="90"/>
-        <element name="Hashtag" positionX="126" positionY="126" width="128" height="58"/>
+        <element name="Emoji" positionX="117" positionY="117" width="128" height="73"/>
     </elements>
 </model>

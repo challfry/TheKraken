@@ -90,6 +90,19 @@ class StringUtilities {
 					case "br/": appendStr = "\n"
 					case "br": appendStr = "\n"
 					
+					case "img":
+						var fontSize: CGFloat = 17.0
+						if outputString.length > 0, let currentFont = outputString.attribute(.font, 
+								at: outputString.length - 1, effectiveRange: nil) as? UIFont {
+							fontSize = currentFont.pointSize
+						}
+
+						if let img = StringUtilities.getInlineImage(from: tagContents, size: fontSize) {
+							let attachment = NSTextAttachment()
+							attachment.image = img
+							outputString.append(NSAttributedString(attachment: attachment))
+						}
+					
 					// We don't care about the rest of the void elements.
 					default: break
 					}
@@ -113,6 +126,25 @@ class StringUtilities {
 	   	}
     	
     	return outputString
+    }
+    
+    class func getInlineImage(from: String, size: CGFloat) -> UIImage? {
+     	let scanner = Scanner(string: from)
+     	scanner.charactersToBeSkipped = CharacterSet(charactersIn: "")
+		scanner.KscanUpTo("src=\"")
+		scanner.KscanString("src=\"")
+		if let imagePath = scanner.KscanUpTo("\""), imagePath.hasPrefix("/img/emoji/small/"),
+				let imageName = imagePath.split(separator: "/").last, imageName.count < 40 {
+			let sourceImage = UIImage(named: String(imageName))
+			let outputImageSize = CGSize(width: size, height: size)
+			UIGraphicsBeginImageContext(outputImageSize)
+			sourceImage?.draw(in: CGRect(origin: CGPoint.zero, size: outputImageSize))
+			let outputImage = UIGraphicsGetImageFromCurrentImageContext()
+			UIGraphicsEndImageContext()
+			
+			return outputImage
+		}
+		return nil
     }
     
     class func extractHashtags(_ text:String) -> Set<String> {
