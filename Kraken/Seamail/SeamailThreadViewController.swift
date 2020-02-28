@@ -101,7 +101,8 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		
 		// When the cells finish getting added to the CV, scroll the CV to the bottom cell.
 		compositeDataSource.scheduleBatchUpdateCompletionBlock {
-			self.collectionView.scrollToItem(at: IndexPath(row: 1, section: 2), at: .bottom, animated: false)
+			let lastSection = self.compositeDataSource.numberOfSections(in: self.collectionView) - 1
+			self.collectionView.scrollToItem(at: IndexPath(row: 1, section: lastSection), at: .bottom, animated: false)
 		}
     }
     

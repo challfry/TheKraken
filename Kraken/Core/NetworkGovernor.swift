@@ -132,6 +132,9 @@ struct NetworkResponse {
 		config.httpShouldSetCookies = false
 		config.httpCookieAcceptPolicy = .never
 		
+		// Cancel calls after 20 seconds of no data.
+		config.timeoutIntervalForRequest = 20.0
+		
 		session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
 		
 		if let hostname = Settings.shared.baseURL.host {
@@ -314,7 +317,13 @@ struct NetworkResponse {
 		return nil
 	}
 	
-	
+	func cancelAllTasks() {
+		session.getAllTasks { tasks in
+			for task in tasks {
+				task.cancel()
+			}
+		}
+	}
 	
 }
 

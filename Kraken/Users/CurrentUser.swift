@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import UserNotifications
 
 @objc(LoggedInKrakenUser) public class LoggedInKrakenUser: KrakenUser {
 
@@ -388,6 +389,7 @@ import CoreData
 							user.twitarrV2AuthKey = keyUsedForLogin
 							self.saveLoginCredentials()
 							Settings.shared.activeUsername = user.username
+							self.checkForNotificationPermission()
 						}
 					}
 				}
@@ -399,6 +401,21 @@ import CoreData
 			// Success or failure, we are no longer trying to log in (if we had been).
 			if keyToUseDuringLogin != nil {
 				self.isChangingLoginState = false
+			}
+		}
+	}
+	
+	// When a user logs in, we ask them for permission to send them notifications, as logged in users can get updates
+	// on incoming seamails and announcements. Since we're not *immediately* posting a notification due to a user request,
+	// only show the alert if the state is .notDetermined.
+	func checkForNotificationPermission() {
+		let center = UNUserNotificationCenter.current()
+		center.getNotificationSettings { settings in
+			guard settings.authorizationStatus == .notDetermined else { return }
+				
+			center.requestAuthorization(options: [.alert, .sound]) { (granted, error) in
+				if granted {
+				}
 			}
 		}
 	}

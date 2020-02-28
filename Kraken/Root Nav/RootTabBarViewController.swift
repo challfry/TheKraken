@@ -35,6 +35,25 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 			observer.updateEnabledTabs(observed.disabledSections)
 		}?.execute()
 	}
+	
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		
+		// Set the badge on the Seamail tab
+		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
+				"loggedInUser.seamailParticipant.count"]) { observer, observed in
+			let seamailNav = observer.viewControllers?.first { $0.restorationIdentifier == Tab.seamail.rawValue }
+			if let currentUser = observed.loggedInUser {
+				let badgeCount = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count
+				seamailNav?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
+			}
+			else {
+				seamailNav?.tabBarItem.badgeValue = nil
+			}
+		}?.execute()
+
+
+	}
 		
 	// Nav to tabs in the tab bar if they exist; else return false
 	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {

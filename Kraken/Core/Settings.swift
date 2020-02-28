@@ -65,6 +65,16 @@ import Foundation
 		set { setSetting(name: "lastEventsUpdateTime", newValue: newValue) }
 	}
 	
+	public var seamailNotificationUUID: String {
+		get { return getSetting(name: "seamailNotificationUUID", defaultValue: "") }
+		set { setSetting(name: "seamailNotificationUUID", newValue: newValue) }
+	}
+	
+	public var seamailNotificationBadgeCount: Int {
+		get { return getSetting(name: "seamailNotificationBadgeCount", defaultValue: 0) }
+		set { setSetting(name: "seamailNotificationBadgeCount", newValue: newValue) }
+	}
+
 // MARK: Debug Settings
 	
 	// Makes all network calls immediately fail. Sorta like airplane mode, except we'll still detect a newtork.

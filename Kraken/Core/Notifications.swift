@@ -30,6 +30,18 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 			}
 			completionHandler()
 		}
+		else if let seamailThreadID = response.notification.request.content.userInfo["Seamail"] {
+			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .seamail, 
+					arguments: ["thread" : seamailThreadID, "response" : response]))
+			let notificationUUID = response.notification.request.identifier
+			SeamailDataManager.shared.markNotificationCompleted(notificationUUID)
+			
+			completionHandler()
+		}
+		else if let announcement = response.notification.request.content.userInfo["Announcement"] {
+			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .daily, 
+					arguments: ["Announcement" : announcement]))
+		}
 	}
 
 	class func appForegrounded() {

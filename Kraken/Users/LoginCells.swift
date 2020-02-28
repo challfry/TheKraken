@@ -98,7 +98,7 @@ class CreateAccountHeaderLabelModel: LabelCellModel {
 		let bodyText = """
 				
 				
-				By signing up for and using Twit-arr, you agree to abide by the JoCo Cruise 2019 Code of Conduct / harassment \
+				By signing up for and using Twit-arr, you agree to abide by the JoCo Cruise 2020 Code of Conduct / harassment \
 				policy that all JoCo Cruise attendees must sign. (The short version: everyone play nice!)
 
 				In the event that you encounter someone on Twit-arr not behaving in accordance with the Code of Conduct, \

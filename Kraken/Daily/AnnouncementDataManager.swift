@@ -115,7 +115,11 @@ import UIKit
 			let cdAnnouncements = try request.execute()
 			let cdAnnouncementsDict = Dictionary(cdAnnouncements.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
 
+			var hasNewAnnouncement = false
 			for ann in announcements {
+				if cdAnnouncementsDict[ann.id] == nil {
+					hasNewAnnouncement = true
+				}
 				let cdAnnouncement = cdAnnouncementsDict[ann.id] ?? Announcement(context: context)
 				cdAnnouncement.buildFromV2(context: context, v2Object: ann)
 			}
@@ -128,6 +132,37 @@ import UIKit
 				}
 			}
 			
+			DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(1)) {
+				self.updateBadgeCount()
+				if hasNewAnnouncement {
+					self.postNewAnnouncementNotification()
+				}
+			}
+		}
+	}
+	
+	// Only call this fn when there's a new announcement to show the user. Creates a local notification.
+	// And, only call this fn ONCE for each new announcement.
+	// For now, the notification just tells the user to open the app and read the announcement--it doesn't put the
+	// contents of the announcement in the notification.
+	func postNewAnnouncementNotification() {
+		let content = UNMutableNotificationContent()
+		content.title = "New Twitarr Announcement"
+		content.body = "Tap to view this announcement in The Kraken."
+		content.userInfo = ["Announcement" : 0]
+
+		let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+		let uuidString = UUID().uuidString
+		let request = UNNotificationRequest(identifier: uuidString, content: content, trigger: trigger)
+
+		// Schedule the request with the system.
+		let notificationCenter = UNUserNotificationCenter.current()
+		notificationCenter.add(request) { (error) in
+			if error != nil {
+				RefreshLog.error("Couldn't create local notification for Announcement.", ["error": error as Any])
+			}
+			else {
+			}
 		}
 	}
 }

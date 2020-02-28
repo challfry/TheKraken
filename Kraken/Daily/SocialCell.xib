@@ -25,8 +25,8 @@
                             <constraint firstAttribute="height" constant="36" id="cIs-mx-vLn"/>
                         </constraints>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hh5-8K-LPW">
-                        <rect key="frame" x="60" y="16" width="310" height="20"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" horizontalCompressionResistancePriority="700" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hh5-8K-LPW">
+                        <rect key="frame" x="60" y="16" width="254" height="20"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
@@ -38,10 +38,18 @@
                             <constraint firstAttribute="width" constant="16" id="ihh-Bq-vHe"/>
                         </constraints>
                     </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2 new" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7yO-jM-8U0">
+                        <rect key="frame" x="324" y="16" width="46" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" name="Red Alert Text"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
             </view>
             <color key="backgroundColor" name="Cell Background"/>
             <constraints>
+                <constraint firstItem="7yO-jM-8U0" firstAttribute="leading" secondItem="hh5-8K-LPW" secondAttribute="trailing" constant="10" id="3y9-4r-EZa"/>
+                <constraint firstItem="qny-Hw-RJx" firstAttribute="leading" secondItem="7yO-jM-8U0" secondAttribute="trailing" constant="8" id="7f6-sC-U3B"/>
                 <constraint firstAttribute="bottom" secondItem="sQc-it-ivw" secondAttribute="bottom" priority="900" constant="8" id="Cij-Ld-fjZ"/>
                 <constraint firstItem="sQc-it-ivw" firstAttribute="leading" secondItem="pPT-Gw-9vG" secondAttribute="leading" constant="8" id="Tod-sH-JLG"/>
                 <constraint firstItem="hh5-8K-LPW" firstAttribute="leading" secondItem="sQc-it-ivw" secondAttribute="trailing" constant="16" id="VJx-vS-z06"/>
@@ -49,10 +57,11 @@
                 <constraint firstAttribute="trailing" secondItem="qny-Hw-RJx" secondAttribute="trailing" priority="900" constant="20" id="iTb-dT-JE9"/>
                 <constraint firstItem="sQc-it-ivw" firstAttribute="top" secondItem="pPT-Gw-9vG" secondAttribute="top" constant="8" id="n77-eg-bsc"/>
                 <constraint firstItem="hh5-8K-LPW" firstAttribute="centerY" secondItem="sQc-it-ivw" secondAttribute="centerY" id="nEY-tW-7PJ"/>
-                <constraint firstItem="qny-Hw-RJx" firstAttribute="leading" secondItem="hh5-8K-LPW" secondAttribute="trailing" constant="8" id="opT-ab-ZUk"/>
+                <constraint firstItem="7yO-jM-8U0" firstAttribute="firstBaseline" secondItem="hh5-8K-LPW" secondAttribute="firstBaseline" id="wRG-rq-qOi"/>
             </constraints>
             <size key="customSize" width="414" height="51"/>
             <connections>
+                <outlet property="badgeLabel" destination="7yO-jM-8U0" id="ACv-45-Ak4"/>
                 <outlet property="imageView" destination="sQc-it-ivw" id="2ba-B6-M3U"/>
                 <outlet property="label" destination="hh5-8K-LPW" id="xeo-bJ-oHv"/>
             </connections>
@@ -70,6 +79,9 @@
         </namedColor>
         <namedColor name="Kraken Label Text">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Red Alert Text">
+            <color red="0.72500002384185791" green="0.045000001788139343" blue="0.045000001788139343" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
     </resources>
 </document>

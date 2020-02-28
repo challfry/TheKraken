@@ -33,7 +33,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		cell.headerText = "Reminder"
 		cell.authorName = "From: Chall Fry"
 		cell.text = """
-				Kraken will automatically purge all cached data a couple of months after the cruise ends. Photos, \
+				Kraken will automatically purge all cached data on April 1, a couple of weeks after the cruise ends. Photos, \
 				posts, messages, favorites, and users will all be gone. You should save any info you want to keep.
 				
 				If you have photos you want to save, you can do so by tapping on the photo, tapping the Share button, \
@@ -127,9 +127,20 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			lighterModeCell?.shouldBeVisible = false		
 		}
 
-		
-
   		dataSource.register(with: collectionView, viewController: self)
+  		
+		// Set the badge on the Seamail cell
+		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
+				"loggedInUser.seamailParticipant.count"]) { observer, observed in
+			if let currentUser = observed.loggedInUser {
+				let badgeCount = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count
+				observer.mailCell?.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
+			}
+			else {
+				observer.mailCell?.badgeValue = nil
+			}
+		}?.execute()
+
     }
     
     override func viewDidAppear(_ animated: Bool) {

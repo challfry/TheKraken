@@ -12,6 +12,7 @@ import UIKit
 	dynamic var labelText: String? { get set }
 	dynamic var iconName: String? { get set }
 	dynamic var contentDisabled: Bool { get set }
+	dynamic var badgeValue: String? { get set }
 }
 
 @objc class SocialCellModel : BaseCellModel, SocialCellProtocol {
@@ -20,8 +21,10 @@ import UIKit
 
 	dynamic var labelText: String? 
 	dynamic var iconName: String?
+	dynamic var badgeValue: String?
 	dynamic var contentDisabled: Bool = false
 	var navPacket: GlobalNavPacket
+	
 	
 
 	init(_ titleLabel: String, imageNamed: String, nav: GlobalNavPacket) {
@@ -41,6 +44,7 @@ import UIKit
 class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 	@IBOutlet var label: UILabel!
 	@IBOutlet var imageView: UIImageView!
+	@IBOutlet var badgeLabel: UILabel!
 	
 	private static let cellInfo = [ "SocialCell" : PrototypeCellInfo("SocialCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
@@ -60,6 +64,12 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 	var contentDisabled: Bool = false {
 		didSet {
 			setup() 
+		}
+	}
+	
+	var badgeValue: String? {
+		didSet {
+			badgeLabel.text = badgeValue
 		}
 	}
 	

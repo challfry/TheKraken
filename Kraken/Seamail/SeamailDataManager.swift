@@ -218,7 +218,76 @@ import CoreData
 			if lastChecked > 0, let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
 				currentUser.lastSeamailCheckTime = lastChecked
 			}
+			
+			LocalCoreData.shared.setAfterSaveBlock(for: context) { success in 
+				self.updateNotifications(context: context)
+			}
 		}
+	}
+	
+	// NOTE: At the time updateNotifications is called on a background thread, ingestSeamailThreads will have been called
+	// with data from an /api/v2/alerts call. This response data does not contain the messages in Seamail threads,
+	// just the counts.
+	func updateNotifications(context: NSManagedObjectContext) {
+		print ("updateNotifications")
+		guard globalAppIsInBackground else { return }
+		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
+		
+		// If the number of conversations with new messages hasn't changed, exit.
+		let numNewConvos = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count
+//		guard Settings.shared.seamailNotificationBadgeCount != numNewConvos else { return }
+
+		let content = UNMutableNotificationContent()
+		content.title = "New Seamail Messages"
+		content.body = "\(numNewConvos) seamail conversations have new messages."
+		content.userInfo = ["Seamail" : 0]
+		if numNewConvos == 1 {
+			let newConvoSet = currentUser.seamailParticipant.subtracting(currentUser.upToDateSeamailThreads)
+			if let newConvo = newConvoSet.first {
+				content.userInfo = ["Seamail" : newConvo.id]
+				if newConvo.participants.count == 2,
+						let otherUser = newConvo.participants.first(where: { $0.username != currentUser.username }) {
+					let displayName = otherUser.displayName.isEmpty ? otherUser.username : otherUser.displayName
+					content.body = "1 New seamail message from \(displayName)"
+
+					// For this to work we'd need to call loadSeamailThread to get the messages.
+//					if let lastMessage = newConvo.messages.max(by: { $0.timestamp < $1.timestamp }),
+//							lastMessage.author.username == otherUser.username {
+//						content.body = lastMessage.text
+//					}
+					
+					let debugmeh = newConvo.messages.map { "str: \($0.text) \n" }
+					print(debugmeh)
+				}
+			}
+		} 
+		
+		// Remove prev notification
+		let notificationCenter = UNUserNotificationCenter.current()
+		let currentNotification = Settings.shared.seamailNotificationUUID 
+		if !currentNotification.isEmpty {
+			notificationCenter.removePendingNotificationRequests(withIdentifiers: [currentNotification])
+		}
+				
+		let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+		let uuidString = UUID().uuidString
+		let request = UNNotificationRequest(identifier: uuidString, content: content, trigger: trigger)
+
+		// Schedule the request with the system.
+		notificationCenter.add(request) { (error) in
+			if error != nil {
+				RefreshLog.error("Couldn't create local notification for Seamail.", ["error": error as Any])
+			}
+			else {
+				Settings.shared.seamailNotificationUUID = uuidString
+				Settings.shared.seamailNotificationBadgeCount = numNewConvos
+			}
+		}
+	}
+	
+	func markNotificationCompleted(_ eventID: String) {
+		Settings.shared.seamailNotificationUUID = ""
+		Settings.shared.seamailNotificationBadgeCount = 0
 	}
 	
 	func addNewSeamailMessage(context: NSManagedObjectContext, threadID: String, v2Object: TwitarrV2SeamailMessage) {

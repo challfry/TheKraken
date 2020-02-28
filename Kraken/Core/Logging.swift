@@ -310,6 +310,13 @@ struct CameraLog: LoggingProtocol {
 	static var isEnabled = true
 }
 
+struct RefreshLog: LoggingProtocol {
+	var instanceEnabled: Bool
+	
+	static var logObject = OSLog.init(subsystem: "com.challfry.Kraken", category: "Refresher")
+	static var isEnabled = true
+}
+
 func makeAddrString(_ object: AnyObject) -> String {
 	return "\(Unmanaged.passUnretained(object).toOpaque())"
 }

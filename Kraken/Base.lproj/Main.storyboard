@@ -252,6 +252,7 @@
                             <constraint firstItem="ecI-5j-4Do" firstAttribute="leading" secondItem="0CV-IX-yhW" secondAttribute="leading" constant="20" id="xeU-wj-HFh"/>
                             <constraint firstItem="PMF-8Q-ho4" firstAttribute="top" secondItem="0CV-IX-yhW" secondAttribute="top" id="ze8-C8-hDs"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="7IX-zv-qk5"/>
                     </view>
                     <navigationItem key="navigationItem" id="oRo-D8-LJ8"/>
                     <connections>
@@ -556,9 +557,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="88" width="200" height="201"/>
+                                <rect key="frame" x="214" y="88" width="200" height="200.5"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -1728,7 +1729,7 @@
                                                     </constraints>
                                                 </imageView>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Leu-aO-PLT">
-                                                    <rect key="frame" x="113.5" y="460" width="187" height="30"/>
+                                                    <rect key="frame" x="101.5" y="460" width="211" height="30"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXK-dg-jQa">
                                                             <rect key="frame" x="0.0" y="0.0" width="37" height="30"/>
@@ -1745,7 +1746,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cTK-iM-bIb">
-                                                            <rect key="frame" x="163" y="3" width="24" height="24"/>
+                                                            <rect key="frame" x="163" y="-9" width="48" height="48"/>
                                                             <state key="normal" image="square.and.arrow.up"/>
                                                             <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                             <connections>
@@ -1947,7 +1948,7 @@
                                                 </constraints>
                                             </imageView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UWX-sY-qUX">
-                                                <rect key="frame" x="96" y="612" width="222" height="30"/>
+                                                <rect key="frame" x="84" y="612" width="246" height="30"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ai0-Gf-Ots">
                                                         <rect key="frame" x="0.0" y="0.0" width="47" height="30"/>
@@ -1964,7 +1965,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-me-ViO">
-                                                        <rect key="frame" x="198" y="3" width="24" height="24"/>
+                                                        <rect key="frame" x="198" y="-9" width="48" height="48"/>
                                                         <state key="normal" image="square.and.arrow.up"/>
                                                         <state key="highlighted" image="square.and.arrow.up.fill"/>
                                                         <connections>
@@ -2530,6 +2531,6 @@ Additional info:</string>
         <segue reference="rR9-QS-2f0"/>
         <segue reference="2Ae-eC-yt5"/>
         <segue reference="hV8-Mc-Uo7"/>
-        <segue reference="jrK-s2-V8J"/>
+        <segue reference="RRQ-tC-exJ"/>
     </inferredMetricsTieBreakers>
 </document>
