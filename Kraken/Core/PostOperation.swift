@@ -957,7 +957,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving new Schedule Event to Core Data. Was setting follow state on event.")
 				let response = try JSONDecoder().decode(TwitarrV2EventFavoriteResponse.self, from: data)
-				EventsDataManager.shared.parseEvents([response.event], isFullList: false)
+				EventsDataManager.shared.parseV2Events([response.event], isFullList: false)
 			}
 		})
 	}

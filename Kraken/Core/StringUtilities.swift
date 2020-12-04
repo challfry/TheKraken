@@ -14,6 +14,15 @@ class StringUtilities {
 		var tagName: String
 		var position: Int
 	}
+	
+	static var isoDateNoFraction = ISO8601DateFormatter()
+	static var isoDateWithFraction: ISO8601DateFormatter {
+		let formatter = ISO8601DateFormatter()
+		formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime, 
+				.withTimeZone, .withFractionalSeconds]
+		return formatter
+	}
+		
  
  	// Takes text that may contain HTML fragment tags and removes the tags. This fn can also perform SOME TYPES of transforms,
  	// parsing the HTML tags and applying their attributes to the text, converting HTML to Attributed String attributes.
@@ -244,6 +253,21 @@ class StringUtilities {
 			return resultStr
 		}
 		return "some time ago"
+	}
+	
+	// Apple's ISO8601 date formatter does not actually parse most of the variants the standard specsifies. And,
+	// for the cases it does handle you generally have to specify beforehand what options you're expecting. For 
+	// our purposes, V3 sends dates with fractional seconds, but the default ISO8601DateFormatter won't parse them
+	// unless you set the .withFractionalSeconds option. But maybe the server won't always do this--therefore this fn
+	// exists to handle slightly different ISO 8601 date formats.
+	class func parseISO8601DateString(_ decoder: Decoder) throws -> Date {
+		let container = try decoder.singleValueContainer()
+		let str = try container.decode(String.self)
+		if let result = StringUtilities.isoDateWithFraction.date(from: str) ??
+				StringUtilities.isoDateNoFraction.date(from: str) {
+			return result
+		}
+        throw DecodingError.dataCorruptedError(in: container, debugDescription: "Couldn't build date from string: \(str)")
 	}
 }
 

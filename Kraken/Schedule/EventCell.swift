@@ -221,7 +221,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		if Settings.shared.debugTestLocalNotificationsForEvents {
 			enableButton = true
 		}
-		if let eventModel = model as? Event, let startTime = eventModel.startTime, startTime > Date() + 300.0 {
+		if let eventModel = model as? Event, eventModel.startTime > Date() + 300.0 {
 			enableButton = true
 		}
 		localNotificationButton.isEnabled = enableButton
@@ -245,7 +245,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		let baseAttrs = timeStringAttributes(baseFont: baseFont)
 		let boatAttrs = timeStringBoatTimeAttributes(baseFont: baseFont)
 		
-		if let event = model as? Event, let startTime = event.startTime {
+		if let event = model as? Event {
 			let dateFormatter = DateFormatter()
 			dateFormatter.dateStyle = .short
 			dateFormatter.timeStyle = .short
@@ -253,11 +253,10 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 			var includeDeviceTime = false
 			if let serverTZ = ServerTimeUpdater.shared.serverTimezone {
 				dateFormatter.timeZone = serverTZ
-				timeString.append(string: dateFormatter.string(from: startTime), attrs: baseAttrs)
-				if let endTime = event.endTime {
-					dateFormatter.dateStyle = .none
-					timeString.append(string: " - \(dateFormatter.string(from: endTime))")
-				}
+				timeString.append(string: dateFormatter.string(from: event.startTime), attrs: baseAttrs)
+				dateFormatter.dateStyle = .none
+				timeString.append(string: " - \(dateFormatter.string(from: event.endTime))")
+
 				if abs(ServerTimeUpdater.shared.deviceTimeOffset + TimeInterval(ServerTimeUpdater.shared.timeZoneOffset)) > 300.0 {
 					timeString.append(string: " (Boat Time)\n", attrs: boatAttrs)
 					includeDeviceTime = true
@@ -272,10 +271,8 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 			if includeDeviceTime {
 				dateFormatter.timeZone = ServerTimeUpdater.shared.deviceTimezone
 				dateFormatter.dateStyle = .none
-				timeString.append(string: "\(dateFormatter.string(from: startTime))", attrs: baseAttrs)
-				if let endTime = event.endTime {
-					timeString.append(string: " - \(dateFormatter.string(from: endTime))")
-				}
+				timeString.append(string: "\(dateFormatter.string(from: event.startTime))", attrs: baseAttrs)
+				timeString.append(string: " - \(dateFormatter.string(from: event.endTime))")
 				timeString.append(string: " (Device Time)", attrs: boatAttrs)
 			}
 		}

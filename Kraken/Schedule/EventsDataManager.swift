@@ -15,17 +15,15 @@ import UserNotifications
     @NSManaged public var title: String
 	@NSManaged public var eventDescription: String?
 	@NSManaged public var location: String?
-    @NSManaged public var official: Bool
+    @NSManaged public var eventType: String
+	@NSManaged public var startTime: Date
+	@NSManaged public var endTime: Date
+    
     
     // Note that both the linked Calendar Event and the linked Local Notification are NOT gated on the logged in user!
     // Both of these are local to the device we're running on, and not attached to the Twitarr user!
     @NSManaged public var ekEventID: String?				// EventKit calendar item for this event, if any.
     @NSManaged public var localNotificationID: String?		// Local Notification alert for this event, if any.
-    
-    @NSManaged public var startTimestamp: Int64
-    @NSManaged public var endTimestamp: Int64
-    public var startTime: Date?
-    public var endTime: Date?
     
     @NSManaged public var followedBy: Set<KrakenUser>
     @NSManaged public var opsFollowing: Set<PostOpEventFollow>
@@ -37,8 +35,6 @@ import UserNotifications
 		super.awakeFromFetch()
 
 		// Update derived properties
-		startTime = Date(timeIntervalSince1970: Double(startTimestamp) / 1000.0)
-		endTime = Date(timeIntervalSince1970: Double(endTimestamp) / 1000.0)
 		followCount = followedBy.count
 		opsFollowingCount = opsFollowing.count
 	}
@@ -47,7 +43,7 @@ import UserNotifications
 	// The purpose of this fn is really to discriminate between events where you can show up anytime and events
 	// where you should attend the entire thing from the start.
 	public func isAllDayTypeEvent() -> Bool {
-		if let start = self.startTime, let end = self.endTime, end.timeIntervalSince(start) >= 2 * 60 * 60 + 10 {
+		if endTime.timeIntervalSince(startTime) >= 2 * 60 * 60 + 10 {
 			return true
 		}
 		return false
@@ -59,7 +55,7 @@ import UserNotifications
 			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
 		}
 		
-		if startTime?.compare(currentTime) == .orderedAscending && endTime?.compare(currentTime) == .orderedDescending {
+		if startTime.compare(currentTime) == .orderedAscending && endTime.compare(currentTime) == .orderedDescending {
 			return true
 		}
 		
@@ -73,7 +69,7 @@ import UserNotifications
 		}
 		
 		let searchEndTime = Date(timeInterval: within, since: currentTime)
-		if startTime?.compare(currentTime) == .orderedDescending && startTime?.compare(searchEndTime) == .orderedAscending {
+		if startTime.compare(currentTime) == .orderedDescending && startTime.compare(searchEndTime) == .orderedAscending {
 			return true
 		}
 		
@@ -85,13 +81,10 @@ import UserNotifications
 		TestAndUpdate(\.title, v2Object.title)
 		TestAndUpdate(\.eventDescription, v2Object.eventDescription?.decodeHTMLEntities())
 		TestAndUpdate(\.location, v2Object.location)
-		TestAndUpdate(\.official, v2Object.official ?? false)
-		TestAndUpdate(\.startTimestamp, v2Object.startTime)
-		TestAndUpdate(\.endTimestamp, v2Object.endTime)
-		
-		startTime = Date(timeIntervalSince1970: Double(v2Object.startTime) / 1000.0)
-		endTime = Date(timeIntervalSince1970: Double(v2Object.endTime) / 1000.0)
-		
+		TestAndUpdate(\.eventType, v2Object.official == true ? "Official" : "Shadow Event")
+		TestAndUpdate(\.startTime, Date(timeIntervalSince1970: Double(v2Object.startTime) / 1000.0 ))
+		TestAndUpdate(\.endTime, Date(timeIntervalSince1970: Double(v2Object.endTime) / 1000.0 ))
+				
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
 			if followedBy.contains(currentUser) {
 				if !v2Object.following {
@@ -101,6 +94,33 @@ import UserNotifications
 			}
 			else {
 				if v2Object.following {
+					followedBy.insert(currentUser)
+					followCount = followedBy.count
+				}
+			}
+		}
+	}
+	
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3Event) {
+		TestAndUpdate(\.id, v3Object.id)
+		TestAndUpdate(\.title, v3Object.title)
+		TestAndUpdate(\.eventDescription, v3Object.eventDescription?.decodeHTMLEntities())
+		TestAndUpdate(\.location, v3Object.location)
+		TestAndUpdate(\.eventType, v3Object.eventType)
+		TestAndUpdate(\.startTime, v3Object.startTime)
+		TestAndUpdate(\.endTime, v3Object.endTime)
+		
+		// FIXME if the event has a forum, associate it here
+				
+		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+			if followedBy.contains(currentUser) {
+				if !v3Object.following {
+					followedBy.remove(currentUser)
+					followCount = followedBy.count
+				}
+			}
+			else {
+				if v3Object.following {
 					followedBy.insert(currentUser)
 					followCount = followedBy.count
 				}
@@ -301,9 +321,7 @@ import UserNotifications
 		}
 	}
 	
-	private func createLocalAlarmAuthCallback(done: @escaping (UNNotificationRequest) -> Void) {
-		guard let eventStartTime = startTime else { return }
-	
+	private func createLocalAlarmAuthCallback(done: @escaping (UNNotificationRequest) -> Void) {	
 		let content = UNMutableNotificationContent()
 		content.title = "JoCo Cruise Event Reminder"
 		content.body = "\"\(title)\" starts in 5 minutes!"
@@ -314,7 +332,7 @@ import UserNotifications
 			alarmTime = Date() + 10.0 
 		}
 		else {
-			alarmTime = eventStartTime - 300.0
+			alarmTime = startTime - 300.0
 		}
 		
 //		let tz = TimeZone.current
@@ -395,18 +413,14 @@ import UserNotifications
 class EventsDataManager: NSObject {
 	static let shared = EventsDataManager()
 	private let coreData = LocalCoreData.shared
-	
-	// 
-	var fetchedData: NSFetchedResultsController<Event>
-	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
-	
+	fileprivate let ekEventStore = EKEventStore()
+		
 	// This is how much time to add to the current time to use the 2019 cruise schedule.
 	var debugEventsTimeOffset: TimeInterval = 0.0
 	
 	// TRUE when we've got a network call running to update the stream, or the current filter.
 	@objc dynamic var networkUpdateActive: Bool = false  
 
-	let ekEventStore = EKEventStore()
 	
 // MARK: Methods
 
@@ -423,35 +437,22 @@ class EventsDataManager: NSObject {
 				debugTime = Date(timeInterval: debugEventsTimeOffset, since: currentTime)
 			}
 		}
-
-
-		let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
-		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "startTimestamp", ascending: true),
-				 NSSortDescriptor(key: "endTimestamp", ascending: true),
-				 NSSortDescriptor(key: "title", ascending: true)]
-		fetchRequest.fetchBatchSize	= 50
-		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
-				sectionNameKeyPath: "startTimestamp", cacheName: nil)
-		super.init()
-		fetchedData.delegate = self
-		do {
-			try fetchedData.performFetch()
-			getAllLocations()
-		}
-		catch {
-			CoreDataLog.error("Couldn't fetch events.", [ "error" : error ])
-		}
 	}
 	
 	// Initiates a network load of Schedule events if CD has no events, or if it's been > 1 hour since the last time we checked.
 	func refreshEventsIfNecessary() {
+		if networkUpdateActive { return }
+		
 		var needToUpdate = false 
-		if Settings.shared.lastEventsUpdateTime == nil { needToUpdate = true }
-		if let lastUpdate = Settings.shared.lastEventsUpdateTime, lastUpdate.timeIntervalSinceNow < 0 - 60 * 60 {
+		if Settings.shared.lastEventsUpdateTime.timeIntervalSinceNow < 0 - 60 * 60 {
 			needToUpdate = true
 		}
-		if fetchedData.fetchedObjects == nil || fetchedData.fetchedObjects?.count == 0 { needToUpdate = true }
-		
+		else {
+			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
+			let eventCount = (try? coreData.mainThreadContext.count(for: fetchRequest)) ?? 0
+			needToUpdate = needToUpdate || eventCount == 0
+		}
+				
 		if needToUpdate {
 			// LoadEvents will update the lastEventsUpdateTime when it succeeds.
 			loadEvents()
@@ -459,7 +460,8 @@ class EventsDataManager: NSObject {
 	}
 		
 	func loadEvents() {
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/event", query: nil)
+		let path = Settings.apiV3 ? "/api/v3/events" : "/api/v2/event"
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:path, query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
@@ -471,8 +473,15 @@ class EventsDataManager: NSObject {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {
-					let eventResponse = try decoder.decode(TwitarrV2EventResponse.self, from: data)
-					self.parseEvents(eventResponse.events, isFullList: true)
+					if Settings.apiV3 {
+						decoder.dateDecodingStrategy = .custom(StringUtilities.parseISO8601DateString)
+						let eventResponse = try decoder.decode(TwitarrV3EventResponse.self, from: data)
+						self.parseV3Events(eventResponse, isFullList: true)
+					}
+					else {
+						let eventResponse = try decoder.decode(TwitarrV2EventResponse.self, from: data)
+						self.parseV2Events(eventResponse.events, isFullList: true)
+					}
 					Settings.shared.lastEventsUpdateTime = Date()
 				} catch 
 				{
@@ -488,45 +497,60 @@ class EventsDataManager: NSObject {
 	
 	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
 	// not in the new list. Otherwise it only adds/updates events.
-	func  parseEvents(_ events: [TwitarrV2Event], isFullList: Bool) {
+	func  parseV2Events(_ events: [TwitarrV2Event], isFullList: Bool) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
+			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
+			let cdEvents = try? context.fetch(fetchRequest)
+
 			if isFullList {
 				// Delete events not in the new event list
 				let newEventIds = Set(events.map( { $0.id } ))
-				self.fetchedData.fetchedObjects?.forEach { event in
-					if !newEventIds.contains(event.id) {
-						context.delete(event)
+				cdEvents?.forEach { cdEvent in
+					if !newEventIds.contains(cdEvent.id) {
+						context.delete(cdEvent)
 					}
 				}
 			}
 		
 			// Add/update
 			for v2Event in events {
-				var eventInContext: Event?
-				if let event = self.fetchedData.fetchedObjects?.first(where: { $0.id == v2Event.id }) {
-					eventInContext = try? context.existingObject(with: event.objectID) as? Event
-				}
-				if eventInContext == nil {
-					eventInContext = Event(context: context)
-				}
-				eventInContext?.buildFromV2(context: context, v2Object: v2Event)
+				let eventInContext = cdEvents?.first(where: { $0.id == v2Event.id }) ?? Event(context: context)
+				eventInContext.buildFromV2(context: context, v2Object: v2Event)
 			}
 				
 			self.getAllLocations()
 		}
 	}
 	
-	func addDelegate(_ newDelegate: NSObject & NSFetchedResultsControllerDelegate) {
-		if !viewDelegates.contains(where: { $0 === newDelegate } ) {
-			viewDelegates.insert(newDelegate, at: 0)
+	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
+	// not in the new list. Otherwise it only adds/updates events.
+	func  parseV3Events(_ events: [TwitarrV3Event], isFullList: Bool) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
+			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
+			let cdEvents = try? context.fetch(fetchRequest)
+
+			if isFullList {
+				// Delete events not in the new event list
+				let newEventIds = Set(events.map( { $0.id } ))
+				cdEvents?.forEach { cdEvent in
+					if !newEventIds.contains(cdEvent.id) {
+						context.delete(cdEvent)
+					}
+				}
+			}
+		
+			// Add/update
+			for v3Event in events {
+				let eventInContext = cdEvents?.first(where: { $0.id == v3Event.id }) ?? Event(context: context)
+				eventInContext.buildFromV3(context: context, v3Object: v3Event)
+			}
+				
+			self.getAllLocations()
 		}
 	}
-	
-	func removeDelegate(_ oldDelegate: NSObject & NSFetchedResultsControllerDelegate) {
-		viewDelegates.removeAll(where: { $0 === oldDelegate } )
-	}
-	
+		
 	// Processes the events data to build a list of locations, asynchronously. Works by simply putting all
 	// event locations into a set, so near-identical names for the same place won't get uniqued.
 	// AllLocations, once it gets set, is sorted alphabetically by location name.
@@ -550,37 +574,16 @@ class EventsDataManager: NSObject {
 	}
 	
 	func markNotificationCompleted(_ eventID: String) {
-		if let cdEvent = fetchedData.fetchedObjects?.first(where: { $0.id == eventID }) {
-			cdEvent.markLocalNotificationDeleted()
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving change to a Scheduled Ship Event Notification. (the network call succeeded, but we couldn't save the change).")
+			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
+			let cdEvents = try? context.fetch(fetchRequest)
+			if let event = cdEvents?.first(where: { $0.id == eventID }) {
+				event.localNotificationID = nil
+			}
 		}
 	}
 	
-}
-
-extension EventsDataManager : NSFetchedResultsControllerDelegate {
-	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		viewDelegates.forEach( { $0.controllerWillChangeContent?(controller) } )
-	}
-
-	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
-			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-		viewDelegates.forEach( { $0.controller?(controller, didChange: anObject, at: indexPath, for: type, newIndexPath: newIndexPath) } )
-	}
-
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, 
-    		atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-    	viewDelegates.forEach( { $0.controller?(controller, didChange: sectionInfo, atSectionIndex: sectionIndex, for: type) } )		
-	}
-
-	// We can't actually implement this in a multi-delegate model. Also, wth is NSFetchedResultsController doing having a 
-	// delegate method that does this?
- //   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, sectionIndexTitleForSectionName sectionName: String) -> String?
-    
-	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		viewDelegates.forEach( { $0.controllerDidChangeContent?(controller) } )
-	}
-
-
 }
 
 
@@ -615,3 +618,36 @@ struct TwitarrV2EventResponse : Codable {
 	let total_count: Int
 	let events: [TwitarrV2Event]
 }
+
+// MARK: - API V3 Parsing
+struct TwitarrV3Event: Codable {
+	let id: String
+	let title: String
+	let eventDescription: String?
+	let location: String?
+	let eventType: String
+
+	let startTime: Date
+	let endTime: Date
+	
+	let following: Bool
+	let forum: UUID?
+
+	enum CodingKeys: String, CodingKey {
+		case id = "eventID"
+		case title
+		case eventDescription = "description"
+		case location
+		case eventType
+		case startTime
+		case endTime
+		case following = "isFavorite"
+		case forum
+	}
+}
+
+// GET /api/v3/events
+typealias TwitarrV3EventResponse = [TwitarrV3Event]
+
+
+

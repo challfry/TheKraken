@@ -62,8 +62,8 @@ import EventKitUI
 		// Then, the events segment
 		let events = FRCDataSourceSegment<Event>()
 		events.fetchRequest.predicate = NSPredicate(value: true)
-		events.fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "startTimestamp", ascending: true),
-				 NSSortDescriptor(key: "endTimestamp", ascending: true),
+		events.fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "startTime", ascending: true),
+				 NSSortDescriptor(key: "endTime", ascending: true),
 				 NSSortDescriptor(key: "title", ascending: true)]
   		scheduleDataSource.append(segment: events)
 		eventsSegment = events
@@ -74,7 +74,7 @@ import EventKitUI
 //		events.log.instanceEnabled = true
 //		loadingSegment.log.instanceEnabled = true
 
-		events.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel, sectionNameKeyPath: "startTimestamp")
+		events.activate(predicate: nil, sort: nil, cellModelFactory: createCellModel, sectionNameKeyPath: "startTime")
 		scheduleDataSource.register(with: collectionView, viewController: self)
 		
 		// Register the nib for the section header view
@@ -164,19 +164,19 @@ import EventKitUI
 					for (rowIndex, object) in objects.enumerated() {
 						if let event = object as? Event {
 							// Grab the first result that has an end time in the future.
-							if bestResult == nil, event.endTime?.compare(currentTime) == .orderedDescending {
+							if bestResult == nil, event.endTime.compare(currentTime) == .orderedDescending {
 								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
 							}
 							
 							// Look for a better match--an event < 2 hours long that's currently occuring.
-							if event.endTime?.compare(currentTime) == .orderedDescending, 
-									event.startTime?.compare(currentTime) == .orderedAscending,
-									(event.endTimestamp - event.startTimestamp) / 1000  <= 2 * 60 * 60 {
+							if event.endTime.compare(currentTime) == .orderedDescending, 
+									event.startTime.compare(currentTime) == .orderedAscending,
+									!event.isAllDayTypeEvent() {
 								bestResult = IndexPath(row: rowIndex, section: sectionIndex)
 								break foundEvent
 							}
 							
-							if event.startTime?.compare(currentTime) == .orderedDescending {
+							if event.startTime.compare(currentTime) == .orderedDescending {
 								break foundEvent
 							}
 						}
@@ -336,8 +336,7 @@ import EventKitUI
 		}
 		else {
 			let currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: Date())
-			let currentTimeTimestamp: Int64 = Int64(currentTime.timeIntervalSince1970 * 1000.0)
-			pastEventsPredicate = NSPredicate(format: "endTimestamp > %@", argumentArray: [currentTimeTimestamp])
+			pastEventsPredicate = NSPredicate(format: "endTime > %@", argumentArray: [currentTime])
 		}
 		setCompoundPredicate()
 	}
@@ -356,10 +355,7 @@ import EventKitUI
 		}
 		
 		if let selectedEvent = eventsSegment?.frc?.fetchedObjects?.first( where: { event in
-					if let startTime = event.startTime {
-						return Calendar.current.component(.weekday, from: startTime) == dayOfWeek
-					}
-					return false
+					return Calendar.current.component(.weekday, from: event.startTime) == dayOfWeek
 				}) {
 			
 			if var indexPath = eventsSegment?.frc?.indexPath(forObject: selectedEvent) {

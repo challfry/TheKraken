@@ -55,7 +55,7 @@ class ScrapbookViewController: BaseCollectionViewController {
 						sort: [ NSSortDescriptor(key: "displayName", ascending: true)], 
 						cellModelFactory: observer.createFavoriteUserCellModel)
 				observer.eventSegment.activate(predicate: NSPredicate(format: "ANY followedBy == %@", currentUser), 
-						sort: [ NSSortDescriptor(key: "startTimestamp", ascending: false)], 
+						sort: [ NSSortDescriptor(key: "startTime", ascending: false)], 
 						cellModelFactory: observer.createEventCellModel)
 				observer.songSegment.activate(predicate: NSPredicate(value: true), 
 						sort: [ NSSortDescriptor(key: "songTitle", ascending: true)], 

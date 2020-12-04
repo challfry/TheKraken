@@ -46,9 +46,8 @@ class EventSectionHeaderView: BaseCollectionSupplementaryView {
 	}
 
 	override func setup(cellModel: BaseCellModel) {
-		if let eventCellModel = cellModel as? EventCellModel, let event = eventCellModel.model as? Event,
-				let startTime = event.startTime {
-			setTime(to: startTime)
+		if let eventCellModel = cellModel as? EventCellModel, let event = eventCellModel.model as? Event {
+			setTime(to: event.startTime)
 		}
 	}
 }
