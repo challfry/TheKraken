@@ -58,7 +58,9 @@ import UserNotifications
 	@NSManaged public var lastAlertCheckTime: Int64
 	@NSManaged public var lastSeamailCheckTime: Int64
 	
-	var twitarrV2AuthKey: String?
+	// Either a Twitarr V2 key as returned by /api/v2/user/auth, or a V3 token as returned by /api/v3/auth/login 
+	// Shouldn't have collisions because one server URL can only be one or the other.
+	@NSManaged public var authKey: String?
 	
 	// Alerts
 	@NSManaged public var badgeTweets: Int32
@@ -284,6 +286,7 @@ import UserNotifications
 					loggedInUser = userInMainContext
 					loggedInUserObjectID = userInMainContext.objectID
 					Settings.shared.activeUsername = user.username
+					self.checkForNotificationPermission()
 				}
 			}
 		}
@@ -297,71 +300,98 @@ import UserNotifications
 		isChangingLoginState = true
 		clearErrors()
 		
-		let authStruct = TwitarrV2AuthRequestBody(username: name, password: password)
-		let authData = try! JSONEncoder().encode(authStruct)
-		
 		// For content-type form-data
 //		let authQuery = "username=\(name)&password=\(password)".data(using: .utf8)!
 		
-		// Call /api/v2/user/auth, and then call whoami
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/auth", query: nil)
+		// Call login, and then call whoami
+		let loginAPIPath = Settings.apiV3 ? "/api/v3/auth/login" : "/api/v2/user/auth"
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: loginAPIPath, query: nil)
 		request.httpMethod = "POST"
-		request.httpBody = authData
-		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		if Settings.apiV3 {
+			let credentials = "\(name):\(password)".data(using: .utf8)!.base64EncodedString()
+			request.addValue("Basic \(credentials)", forHTTPHeaderField: "Authorization")
+		}
+		else {
+			let authStruct = TwitarrV2AuthRequestBody(username: name, password: password)
+			let authData = try! JSONEncoder().encode(authStruct)
+			request.httpBody = authData
+			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		}
+		
 		NetworkGovernor.shared.queue(request) { package in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				// Login failed.
 				self.lastError = error
-				self.isChangingLoginState = false
 			}
 			else if let data = package.data {
 				let decoder = JSONDecoder()
-				if let authResponse = try? decoder.decode(TwitarrV2AuthResponse.self, from: data) {
-					if authResponse.status == "ok" {
-						self.loadProfileInfo(keyToUseDuringLogin: authResponse.key)
-					}
-					else
-					{
-						self.lastError = ServerError("Unknown error")
-						self.isChangingLoginState = false
-					}
+				if let authResponse = try? decoder.decode(TwitarrV2AuthResponse.self, from: data), authResponse.status == "ok" {
+					self.loginSuccess(username: authResponse.username, authKey: authResponse.key)
+				} 
+				else if let loginResponse = try? decoder.decode(TwitarrV3LoginResponse.self, from: data) {
+					self.loginSuccess(username: name, authKey: loginResponse.token)
+				}
+				else {
+					self.lastError = ServerError("Unknown error")
 				}
 			} 
 			else {
 				// Login failed.
 				self.lastError = package.networkError
-				self.isChangingLoginState = false
+			}
+			
+			self.isChangingLoginState = false
+		}
+	}
+	
+	// Only call this when a user successfully completes login auth, and moves from not-logged-in to logged in.
+	// Or, when the auth token changes, such as password reset or recovery.
+	// Call setActiveUser() to switch between users that have already authed.
+	// On exit from this fn, the user is fully logged in
+	func loginSuccess(username: String, authKey: String) {
+		let context = LocalCoreData.shared.networkOperationContext
+		var krakenUser: LoggedInKrakenUser?
+		context.performAndWait {
+			do {
+				krakenUser = UserManager.shared.user(username, inContext: context) as? LoggedInKrakenUser
+
+				// Adds the user to the cache if it doesn't exist.
+				if krakenUser == nil {
+					krakenUser = LoggedInKrakenUser(context: context)
+					krakenUser?.username = username
+				}
+				
+				if let user = krakenUser {
+					user.authKey = authKey
+					try context.save()
+				}
+			} 
+			catch {
+				CoreDataLog.error("Failure saving CoreData context.", ["Error" : error])
+			}
+		}
+			
+		if let networkThreadUser = krakenUser {
+			DispatchQueue.main.sync {
+				if let user = try? LocalCoreData.shared.mainThreadContext.existingObject(with: networkThreadUser.objectID)
+						as? LoggedInKrakenUser {
+					self.credentialedUsers.insert(user)
+					self.setActiveUser(to: user)
+					
+					// Login is now complete. Process after-login actions.
+					self.checkForNotificationPermission()
+					
+					// Immediately after login, load the user's profile
+					self.loadProfileInfo()
+				}
 			}
 		}
 	}
 	
-	// Loads the profile info for the logged-in user. During login, this is called both to get 
-	// initial profile info and to validate the login key. Note that if this call fails during login, the user
-	// doesn't log in.
-	func loadProfileInfo(keyToUseDuringLogin: String? = nil) {
-		
-		// If we're not logged in, addUserCredential will do nothing. If we are logged in, addUserCredential
-		// will replace 'key' in the query with the logged in user's key.
-		var queryParams = [URLQueryItem]()
-		if let key = keyToUseDuringLogin {
-			queryParams.append(URLQueryItem(name: "key", value: key))
-		}
-		else {
-			// Make sure we pull the auth key from the main thread
-			let mainContext = LocalCoreData.shared.mainThreadContext
-			var authKey: String?
-			mainContext.performAndWait {
-				authKey = loggedInUser?.twitarrV2AuthKey
-			}
-			if let authKey = authKey {
-				queryParams.append(URLQueryItem(name: "key", value: authKey))
-			}
-			else {
-				// If we aren't handed an auth key and there's no logged in user, we can't load the profile info
-				return
-			}
-		}
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
+	func loadProfileInfo() {
+		let queryParams = [URLQueryItem]()
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: queryParams)
+		NetworkGovernor.addUserCredential(to: &request)
 		
 		NetworkGovernor.shared.queue(request) { package in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -378,29 +408,11 @@ import UserNotifications
 				if let data = package.data,  let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
 					
 					// Adds the user to the cache if it doesn't exist.
-					let krakenUser = UserManager.shared.updateLoggedInUserInfo(from: profileResponse.userAccount)
-										
-					// If this is a login action, set the logged in user, their key, and other values 
-					if let keyUsedForLogin = keyToUseDuringLogin, let user = krakenUser {
-						DispatchQueue.main.async {
-							self.credentialedUsers.insert(user)
-							self.loggedInUser = user
-							self.loggedInUserObjectID = user.objectID
-							user.twitarrV2AuthKey = keyUsedForLogin
-							self.saveLoginCredentials()
-							Settings.shared.activeUsername = user.username
-							self.checkForNotificationPermission()
-						}
-					}
+					let _ = UserManager.shared.updateLoggedInUserInfo(from: profileResponse.userAccount)
 				}
 				else {
 					self.lastError = ServerError("Received a response from the server, but couldn't parse it.")
 				}
-			}
-			
-			// Success or failure, we are no longer trying to log in (if we had been).
-			if keyToUseDuringLogin != nil {
-				self.isChangingLoginState = false
 			}
 		}
 	}
@@ -424,65 +436,76 @@ import UserNotifications
 	// doesn't (currently) do anything for us. In order to logout (and requre auth to log in again) we only
 	// have to discard the keys.
 	func logoutUser(_ passedInUser: LoggedInKrakenUser? = nil) {
-		// Only allow one login state change action at a time
-		guard !isChangingLoginState else {
-			return
-		}
-		var user = passedInUser
-		if user == nil {
-			user = loggedInUser
-		}
-		guard let userToLogout = user else  { return }
-		guard credentialedUsers.contains(userToLogout) else { return }
-		
-		isChangingLoginState = true
-		clearErrors()
-		
-		// We send a logout request, but don't care about its result
-		let queryParams = [ URLQueryItem(name: "key", value: userToLogout.twitarrV2AuthKey) ]
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/logout", query: queryParams)
-		NetworkGovernor.shared.queue(request) { package in
-			let _ = NetworkGovernor.shared.parseServerError(package)
-		}
-		
-		// Throw away all login info
-		credentialedUsers.remove(userToLogout)
-		if loggedInUser?.username == userToLogout.username {
-			if credentialedUsers.count == 1, let stillThereUser = credentialedUsers.first {
-				// If there's exactly one credentialed user, make them active.
-				setActiveUser(to: stillThereUser)
+		DispatchQueue.main.sync {
+			// Only allow one login state change action at a time
+			guard !isChangingLoginState else { return }
+			guard let userToLogout = passedInUser ?? loggedInUser else { return }
+			guard credentialedUsers.contains(userToLogout) else { return }
+			
+			isChangingLoginState = true
+			clearErrors()
+			
+			// We send a logout request, but don't care about its result
+			let logoutAPIPath = Settings.apiV3 ? "/api/v3/auth/logout" : "/api/v2/user/logout"
+			let queryParams: [URLQueryItem] = []
+			var request = NetworkGovernor.buildTwittarV2Request(withPath:logoutAPIPath, query: queryParams)
+			NetworkGovernor.addUserCredential(to: &request)
+			request.httpMethod = "POST"
+			NetworkGovernor.shared.queue(request) { package in
+				// The only server errors we can get are variants of "That guy wasn't logged in" or "Your token is wrong"
+				let _ = NetworkGovernor.shared.parseServerError(package)
 			}
-			else {
-				self.loggedInUser = nil
-				self.loggedInUserObjectID = nil
+			
+			LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+				context.pushOpErrorExplanation("Failure saving logout to Core Data.")
+				userToLogout.authKey = nil
 			}
+
+			// Throw away all login info, if there's exactly 1 other logged-in user make them active, else nobody's active.
+			credentialedUsers.remove(userToLogout)
+			if loggedInUser?.username == userToLogout.username {
+				if credentialedUsers.count == 1, let stillThereUser = credentialedUsers.first {
+					// If there's exactly one credentialed user, make them active.
+					setActiveUser(to: stillThereUser)
+				}
+				else {
+					self.loggedInUser = nil
+					self.loggedInUserObjectID = nil
+				}
+			}
+			
+			let cookiesToDelete = HTTPCookieStorage.shared.cookies?.filter { $0.name == "_twitarr_session" }
+			for cookie in cookiesToDelete ?? [] {
+				HTTPCookieStorage.shared.deleteCookie(cookie)
+			}
+			
+			// Todo: Tell Seamail and Forums to reap for logout
+			
+			isChangingLoginState = false
 		}
-		
-		let cookiesToDelete = HTTPCookieStorage.shared.cookies?.filter { $0.name == "_twitarr_session" }
-		for cookie in cookiesToDelete ?? [] {
-			HTTPCookieStorage.shared.deleteCookie(cookie)
-		}
-		removeLoginCredentials(for: userToLogout.username)
-		
-		// Todo: Tell Seamail and Forums to reap for logout
-		
-		isChangingLoginState = false
 	}
 	
 	func createNewAccount(name: String, password: String, displayName: String?, regCode: String) {
-		guard !isChangingLoginState else {
-			return
-		}
+		guard !isChangingLoginState else { return }
 		isChangingLoginState = true
 		clearErrors()
 		
-		let authStruct = TwitarrV2CreateAccountRequest(username: name, password: password, displayName: displayName, regCode: regCode)
 		let encoder = JSONEncoder()
-		let authData = try! encoder.encode(authStruct)
-//		print (String(decoding:authData, as: UTF8.self))
+		var authData: Data
+		var authPath: String
+		if Settings.apiV3 {
+			authPath = "/api/v3/user/create"
+			let authStruct = TwitarrV3CreateAccountRequest(username: name, password: password)
+			authData = try! encoder.encode(authStruct)
+		} else {
+			authPath = "/api/v2/user/new"
+			let authStruct = TwitarrV2CreateAccountRequest(username: name, password: password, displayName: displayName, regCode: regCode)
+			authData = try! encoder.encode(authStruct)
+		}
+	//	print (String(decoding:authData, as: UTF8.self))
 				
-		// Call /api/v2/user/new, and then call whoami
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/new", query: nil)
+		// Call the login endpoint
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:authPath, query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -492,11 +515,27 @@ import UserNotifications
 				self.lastError = error
 				self.isChangingLoginState = false
 			}
-			else {
+			else if Settings.apiV3 {
+				let decoder = JSONDecoder()
+				if let data = package.data, let createAcctResponse = try? decoder.decode(TwitarrV3CreateAccountResponse.self, 
+						from: data) {
+					// If we have a regCode, use it to verify the new user. Use basic auth to do it.
+					
+					// Login the user immediately after account creation
+					self.loginUser(name: createAcctResponse.username, password: password)
+				}
+				else
+				{
+					self.lastError = ServerError("Unknown error")
+					self.isChangingLoginState = false
+				}
+			} else {
 				let decoder = JSONDecoder()
 				if let data = package.data, let authResponse = try? decoder.decode(TwitarrV2CreateAccountResponse.self, 
 						from: data), authResponse.status == "ok" {
-					self.loadProfileInfo(keyToUseDuringLogin: authResponse.key)
+						
+					// In V2, /user/new both creates an account and logs it in. The result packet has the auth key.
+					self.loginSuccess(username: authResponse.user.username, authKey: authResponse.key)
 				}
 				else
 				{
@@ -507,19 +546,27 @@ import UserNotifications
 		}
 	}
 	
-	// Must be logged in to change password; resetPassword works while logged but requres reg code.
+	// Must be logged in to change password; resetPassword works while logged out but requres reg code.
 	func changeUserPassword(currentPassword: String, newPassword: String, done: @escaping () -> Void) {
 		guard !isChangingLoginState, let savedCurrentUserName = self.loggedInUser?.username else {
 			return
 		}
 		clearErrors()
 		
-		let changePasswordStruct = TwitarrV2ChangePasswordRequest(currentPassword: currentPassword, newPassword: newPassword)
+		let authData: Data
 		let encoder = JSONEncoder()
-		let authData = try! encoder.encode(changePasswordStruct)
+		if Settings.apiV3 {
+			let changePasswordStruct = TwitarrV3ChangePasswordRequest(password: newPassword)
+			authData = try! encoder.encode(changePasswordStruct)
+		}
+		else {
+			let changePasswordStruct = TwitarrV2ChangePasswordRequest(currentPassword: currentPassword, newPassword: newPassword)
+			authData = try! encoder.encode(changePasswordStruct)
+		}
 				
 		// Call /api/v2/user/change_password
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/change_password", query: nil)
+		let path = Settings.apiV3 ? "/api/v3/user/password" : "/api/v2/user/change_password"
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:path, query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -528,12 +575,15 @@ import UserNotifications
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
 			}
-			else {
+			else if Settings.apiV3, let response = package.response, response.statusCode == 201 {
+				// Success. Resetting a V3 password doesn't change the auth token.
+				done()
+			}
+			else if let data = package.data {
 				let decoder = JSONDecoder()
-				if  let data = package.data, let response = try? decoder.decode(TwitarrV2ChangePasswordResponse.self, from: data),
+				if let response = try? decoder.decode(TwitarrV2ChangePasswordResponse.self, from: data),
 						response.status == "ok" && savedCurrentUserName == self.loggedInUser?.username {
-					self.loggedInUser?.twitarrV2AuthKey = response.key
-					self.saveLoginCredentials()
+					self.loginSuccess(username: savedCurrentUserName, authKey: response.key)
 					done()
 				}
 				else
@@ -541,31 +591,44 @@ import UserNotifications
 					self.lastError = ServerError("Unknown error")
 				}
 			} 
+			else {
+				self.lastError = ServerError("Unknown error")
+			}
 		}
 	}
 	
 	// ?? Can Reset be used when you're logged in? It doesn't send a new auth key.
+	// Reset is the thing that requires a regCode, or in v3 a recovery code.
 	func resetPassword(name: String, regCode: String, newPassword: String, done: @escaping () -> Void) {
 		guard !isChangingLoginState else {
 			return
 		}
 		clearErrors()
 		
-		let resetPasswordStruct = TwitarrV2ResetPasswordRequest(username: name, regCode: regCode, newPassword: newPassword)
+		let authData: Data
 		let encoder = JSONEncoder()
-		let authData = try! encoder.encode(resetPasswordStruct)
+		if Settings.apiV3 {
+			let resetPasswordStruct = TwitarrV3RecoverPasswordRequest(username: name, recoveryKey: regCode)
+			authData = try! encoder.encode(resetPasswordStruct)
+		}
+		else {
+			let resetPasswordStruct = TwitarrV2ResetPasswordRequest(username: name, regCode: regCode, newPassword: newPassword)
+			authData = try! encoder.encode(resetPasswordStruct)
+		}
 				
-		// Call /api/v2/user/reset_password
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/reset_password", query: nil)
+		// Call reset_password
+		let path = Settings.apiV3 ? "/api/v3/auth/recovery" : "/api/v2/user/reset_password"
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
 			}
-			else {
+			else if let data = package.data {
 				let decoder = JSONDecoder()
-				if  let data = package.data, let response = try? decoder.decode(TwitarrV2ResetPasswordResponse.self, from: data) {
+				if let response = try? decoder.decode(TwitarrV2ResetPasswordResponse.self, from: data) {
 					if response.status == "ok" {
 						done()
 					}
@@ -573,6 +636,13 @@ import UserNotifications
 					{
 						self.lastError = ServerError("Unknown error")
 					}
+				}
+				else if let response = try? decoder.decode(TwitarrV3RecoverPasswordResponse.self, from: data) {
+					self.loginSuccess(username: name, authKey: response.token)
+					self.changeUserPassword(currentPassword: "", newPassword: newPassword, done: done)
+				}
+				else {
+					self.lastError = ServerError("Unknown error")
 				}
 			} 
 		}
@@ -666,122 +736,26 @@ import UserNotifications
 		}
 	}
 	
-	
-}
-
-/* Secure storage of user auth data.
-
-	We save a single item into KeychainServices. That item is a small struct containing both the username and the 
-	auth key--not the password--of the logged-in user. The auth key comes from the server. The item is stored in the 
-	keychain dictionary with a key that contains the base URL of the server that user was logged in to.
-	
-	This means that the app can support being 'logged in' to multiple servers at once, with different credentials, in
-	that the auth key comes from the server and doesn't really time out. The app still only supports talking to a single
-	server per launch. But, for a particular server URL, we can save only one login credential at a time; that of the 
-	logged-in user.
-	
-	Also--we don't track previous values of the base URL, so we don't have a way to know if switching the baseURL to point
-	to another server will cause a user to be logged in at next app launch.
-*/
-extension CurrentUser {
-	
-	// Only save login creds as a result of successful server reponse to login.
- 	@discardableResult public func saveLoginCredentials() -> Bool {
- 		guard let user = loggedInUser, let authKey = user.twitarrV2AuthKey, 
- 				let keyData = authKey.data(using:.utf8, allowLossyConversion: false) else { return false }
- 				
-		// Keychain won't let us 'add' creds that already exist--have to either 'update' instead, or delete and re-add.
-		removeLoginCredentials(for: user.username)
- 		
- 		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
-		let query: [String : Any] = [
-				kSecClass as String: kSecClassInternetPassword as String,
-				kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-				kSecAttrAccount as String: user.username,
-				kSecAttrServer as String: keychainObjectKey,
-				kSecAttrSecurityDomain as String: LoggedInKrakenUser.UserRole.stringForRole(role: user.userRole),	// Heh. Not what SecurityDomain is actually for.
-				kSecValueData as String: keyData as NSData]
-
-		let status: OSStatus = SecItemAdd(query as CFDictionary, nil)
-		KeychainLog.assert(status == noErr, "Failure to save login creds.", ["status" : status])
-		return status == noErr
-	}
-	
-	// loggedInUser may already be nil when this is called, or this may get used to remove creds for users
-	// not the currently logged in user.
-	func removeLoginCredentials(for username: String) {
- 		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
-		let query: [String : Any] = [
-				kSecClass as String: kSecClassInternetPassword as String,
-				kSecAttrServer as String: keychainObjectKey,
-				kSecAttrAccount as String: username,
-				kSecReturnData as String: true]
-
-        // Delete any existing items, for all accounts on this server.
-        let status = SecItemDelete(query as CFDictionary)
-		KeychainLog.assert(status == errSecSuccess || status == errSecItemNotFound, 
-				"Keychain credential remove failed.", ["status" : status])
-
-	}
-
 	// Called early on during app launch. Finds all the users who are logged in, sets up one of them as active.
 	func setInitialLoginState() {
- 		let keychainObjectKey: String = Settings.shared.baseURL.absoluteString
-		let query: [String : Any] = [
-				kSecClass as String : kSecClassInternetPassword,
-				kSecAttrServer as String : keychainObjectKey,
-				kSecReturnAttributes as String : true,
-				kSecReturnData as String : true,
-				kSecMatchLimit as String : kSecMatchLimitAll]
-
-		var dataTypeRef: AnyObject?
-		let status: OSStatus = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
-		if status == errSecSuccess, let recordArray = dataTypeRef as? [[String : Any]] {
-			var usersWithCreds = Set<LoggedInKrakenUser>()
-			for recordDict in recordArray {
-				if let accountName = recordDict[kSecAttrAccount as String] as? String,
-						let passwordData = recordDict[kSecValueData as String] as? Data,
-						let authKey = String(data: passwordData, encoding: String.Encoding.utf8),
-						let userRoleStr = recordDict[kSecAttrSecurityDomain as String] as? String {
-
-					// In the future (post-2020 cruise?), we should use the creationDate key to find and remove
-					// old passwords.
-
-					//
-					if let krakenUser = UserManager.shared.user(accountName) as? LoggedInKrakenUser {
-						krakenUser.twitarrV2AuthKey = authKey
-						krakenUser.userRole = LoggedInKrakenUser.UserRole.roleForString(str: userRoleStr) ?? .user
-						usersWithCreds.insert(krakenUser)
-					}
+		let context = LocalCoreData.shared.mainThreadContext
+		context.performAndWait {
+			do {
+				let request = LoggedInKrakenUser.fetchRequest()
+				request.predicate = NSPredicate(format: "authKey != NIL")
+				let results = try context.fetch(request) as! [LoggedInKrakenUser]
+				self.credentialedUsers = Set(results)
+				if let activeUsername = Settings.shared.activeUsername, 
+						let activeUser = results.first(where: { $0.username == activeUsername }) {
+					self.setActiveUser(to: activeUser)
+				}
+				else if self.credentialedUsers.count == 1 {
+					self.setActiveUser(to: self.credentialedUsers.first!)
 				}
 			}
-			credentialedUsers = usersWithCreds
-
-			if let activeUsername = Settings.shared.activeUsername,
-					let activeUser = usersWithCreds.first(where: { $0.username == activeUsername }) {
-				// 
-				loggedInUser = activeUser
-				loggedInUserObjectID = activeUser.objectID
-				loadProfileInfo()
-				KeychainLog.debug("Logging in as a user at app launch")
+			catch {
+				CoreDataLog.error("Failure fetching logged in users.", ["Error" : error])
 			}
-			else if usersWithCreds.count == 1, let activeUser = usersWithCreds.first {
-				loggedInUser = activeUser
-				loggedInUserObjectID = activeUser.objectID
-				loadProfileInfo()
-				Settings.shared.activeUsername = activeUser.username
-				KeychainLog.debug("Logging in default credentialed user at app launch")
-			}
-			else {
-				KeychainLog.debug("Found \(credentialedUsers.count) users with creds, but launching inactive.")
-			}
-		}
-		else if status == errSecItemNotFound {	// errSecItemNotFound is -25300
-			// No record found; this is fine. Means we're not logging in as anyone at app launch.
-			KeychainLog.debug("App launching with no logged in user.")
-		}
-		else {
-			KeychainLog.error("Failure loading keychain info at app launch.", ["status" : status])
 		}
 	}
 }
@@ -914,4 +888,38 @@ struct TwitarrV2UserAccount: Codable {
 		case homeLocation = "home_locations"
 		case unnoticedAlerts = "unnoticed_alerts"
 	}
+}
+
+// MARK: - Twitarr V3 API Structs
+
+// POST /api/v3/user/create 
+struct TwitarrV3CreateAccountRequest: Codable {
+	let username: String
+	let password: String
+}
+
+struct TwitarrV3CreateAccountResponse: Codable {
+	let userID: UUID
+	let username: String
+	let recoveryKey: String
+}
+
+struct TwitarrV3LoginResponse: Codable {
+	let token: String
+}
+
+// POST /api/v3/user/password - UserPasswordData
+struct TwitarrV3ChangePasswordRequest: Codable {
+	let password: String					
+}
+
+// POST /api/v3/auth/recovery - UserRecoveryData
+struct TwitarrV3RecoverPasswordRequest: Codable {
+	let username: String
+	let recoveryKey: String						// Password OR registration key OR recovery key
+}
+
+// POST /api/v3/auth/recovery - TokenStringData
+struct TwitarrV3RecoverPasswordResponse: Codable {
+	let token: String
 }

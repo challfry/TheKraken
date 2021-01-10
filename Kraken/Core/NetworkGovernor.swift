@@ -72,7 +72,7 @@ import Foundation
 // network errors, and the results are displayed app-wide. Most handlers can ignore the networkError. If 
 // the network error is set, the response and data are likely nil.
 struct NetworkResponse {
-	var response: URLResponse?
+	var response: HTTPURLResponse?
 	var data: Data?
 	var networkError: NetworkError?
 	
@@ -205,25 +205,30 @@ struct NetworkResponse {
 	}
 	
 	// Depending on what the server wants, this could add a query parameter, a HTTP header, or a cookie.
-	// Currently it works by adding a URL query parameter, but the idea is that it can mutate the request however
-	// necessary.
+	// In V2 it works by adding a URL query parameter. V3 adds a "Authorization" HTTP header.
+	// The idea is that this fn can mutate the request however necessary.
 	class func addUserCredential(to request: inout URLRequest)  {
 		// We can only add user creds if we're logged in--otherwise, we return request unchanged.
-		guard CurrentUser.shared.isLoggedIn(), let authKey = CurrentUser.shared.loggedInUser?.twitarrV2AuthKey else {
+		guard CurrentUser.shared.isLoggedIn(), let authKey = CurrentUser.shared.loggedInUser?.authKey else {
 			return
 		}
 	
-		if let url = request.url, var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-			var query = components.queryItems ?? [URLQueryItem]()
-			for index in 0..<query.count {
-				if query[index].name == "key" {
-					query.remove(at: index)
-					break
+		if Settings.apiV3 {
+			request.addValue("Bearer \(authKey)", forHTTPHeaderField: "Authorization")
+		}
+		else {
+			if let url = request.url, var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+				var query = components.queryItems ?? [URLQueryItem]()
+				for index in 0..<query.count {
+					if query[index].name == "key" {
+						query.remove(at: index)
+						break
+					}
 				}
+				query.append(URLQueryItem(name: "key", value: authKey))
+				components.queryItems = query
+				request.url = components.url
 			}
-			query.append(URLQueryItem(name: "key", value: authKey))
-			components.queryItems = query
-			request.url = components.url
 		}
 	}
 	
@@ -260,7 +265,7 @@ struct NetworkResponse {
 	
 	// Parses the responses as the different type of server errors that can happen.
 	@discardableResult func parseServerError(_ package: NetworkResponse) -> ServerError? {
-		if let response = package.response as? HTTPURLResponse {
+		if let response = package.response {
 			if response.statusCode >= 300 {
 				let resultError = ServerError()
 				resultError.httpStatus = response.statusCode
@@ -421,7 +426,10 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 			responseData = nil
 		}
 		
-		let responsePacket = NetworkResponse(response: task.response, data: responseData, networkError: networkError)
+		// According to docs, this will always be an HTTPURLResponse for our HTTP calls
+		let resp = task.response as! HTTPURLResponse
+		
+		let responsePacket = NetworkResponse(response: resp, data: responseData, networkError: networkError)
 
 		for doneCallback in foundTask.doneCallbacks {
 			doneCallback(responsePacket)

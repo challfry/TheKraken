@@ -345,6 +345,7 @@ class UserManager : NSObject {
 		}
 	}
 	
+// MARK: Username Autocomplete Searches
 	// Autocomplete variables for minimizing calls to /api/v2/user/ac.
 	fileprivate var recentAutocorrectSearches = [String]()
 	var autocorrectCallDelayTimer: Timer?

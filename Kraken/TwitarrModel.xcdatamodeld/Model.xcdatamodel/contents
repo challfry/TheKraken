@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17511" systemVersion="20B29" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20C69" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="isActive" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
@@ -88,6 +88,7 @@
         <attribute name="songTitle" optional="YES" attributeType="String"/>
     </entity>
     <entity name="KrakenUser" representedClassName="KrakenUser" syncable="YES">
+        <attribute name="authKey" optional="YES" attributeType="String"/>
         <attribute name="badgeTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="blockedGlobally" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="currentLocation" optional="YES" attributeType="String"/>
@@ -300,10 +301,11 @@
         <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="userComments" inverseEntity="KrakenUser"/>
     </entity>
     <fetchRequest name="AnnouncementsWithIDs" entity="Announcement" predicateString="id IN $ids"/>
-    <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="username == $username"/>
+    <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="authKey != &quot;&quot;"/>
     <fetchRequest name="FindServerTextFile" entity="ServerTextFile" predicateString="fileName == $fileName"/>
     <fetchRequest name="FindUsers" entity="KrakenUser" predicateString="username IN $usernames"/>
     <fetchRequest name="ForumThreadsWithIds" entity="ForumThread" predicateString="id IN $ids"/>
+    <fetchRequest name="LoggedInUsers" entity="LoggedInKrakenUser" predicateString="id CONTAINS &quot;&quot;"/>
     <fetchRequest name="PhotosWithIds" entity="PhotoDetails" predicateString="id IN $ids"/>
     <fetchRequest name="PostsInDateRange" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate"/>
     <fetchRequest name="SeamailThreadsForUser" entity="SeamailThread" predicateString="$user IN participants"/>
@@ -321,7 +323,7 @@
         <element name="GameListFavorite" positionX="-1056.041381835938" positionY="192.8661499023438" width="128" height="58"/>
         <element name="Hashtag" positionX="-1057.814025878906" positionY="260.6491088867188" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="-1056.693969726562" positionY="337.1846923828125" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="658"/>
+        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="659"/>
         <element name="LoggedInKrakenUser" positionX="34.24688720703125" positionY="-391.6840209960938" width="128" height="45"/>
         <element name="PhotoDetails" positionX="-422.6431884765625" positionY="193.2229614257812" width="128" height="193"/>
         <element name="PostOperation" positionX="-418.780029296875" positionY="-659.5100402832031" width="128" height="118"/>
