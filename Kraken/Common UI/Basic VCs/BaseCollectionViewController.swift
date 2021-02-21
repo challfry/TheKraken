@@ -27,6 +27,7 @@ enum GlobalKnownSegue: String {
 	case showUserMentions = 		"ShowUserMentions"
 	
 	case forumsRoot = 				"ForumsRoot"
+	case showForumCategory = 		"ShowForumCategory"
 	case showForumThread = 			"ShowForumThread"
 	case composeForumThread = 		"ComposeForumThread"
 	case composeForumPost = 		"ComposeForumPost"
@@ -77,6 +78,7 @@ enum GlobalKnownSegue: String {
 		case .showUserMentions: return String.self
 		
 		case .forumsRoot: return Void.self
+		case .showForumCategory: return ForumCategory.self
 		case .showForumThread: return ForumThread.self
 		case .composeForumThread: return Void.self 
 		case .composeForumPost: return ForumThread.self 
@@ -543,6 +545,11 @@ class BaseCollectionViewController: UIViewController {
 			}
 			
 // Forums
+		case .showForumCategory:
+			if let destVC = segue.destination as? ForumsCategoryViewController, let cat = sender as? ForumCategory {
+				destVC.categoryModel = cat
+			}
+			
 		case .showForumThread:
 			if let destVC = segue.destination as? ForumThreadViewController, let thread = sender as? ForumThread {
 				destVC.threadModel = thread

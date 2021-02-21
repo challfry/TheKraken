@@ -244,9 +244,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
     	super.viewDidDisappear(animated)
-		if !postSuccess {
-			TwitarrDataManager.shared.saveDraftPost(text: tweetTextCell.editedText, replyingTo: parentTweet?.id)
-		}
+		TwitarrDataManager.shared.saveDraftPost(text: postSuccess ? nil : tweetTextCell.editedText, replyingTo: parentTweet?.id)
 	}
 
 	// When the Username Completions call returns we need to re-set the predicate. If we were using a fetchedResultsController,
@@ -309,7 +307,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
 					progress: imageiCloudDownloadProgress) { photoData, mimeType, error in
 				if let err = error {
-					self.postStatusCell.errorText = err.getErrorString()
+					self.postStatusCell.errorText = err.getCompleteError()
 					self.setPostingState(false)
 				}
 				else {

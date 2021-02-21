@@ -49,7 +49,7 @@ class ScrapbookViewController: BaseCollectionViewController {
 						sort: [ NSSortDescriptor(key: "sourceTweet.timestamp", ascending: false)], 
 						cellModelFactory: observer.createTwitarrCellModel)
 				observer.forumSegment.activate(predicate: NSPredicate(format: "ANY likedByUsers == %@", currentUser), 
-						sort: [ NSSortDescriptor(key: "timestamp", ascending: false)], 
+						sort: [ NSSortDescriptor(key: "createTime", ascending: false)], 
 						cellModelFactory: observer.createForumPostCellModel)
 				observer.userSegment.activate(predicate: NSPredicate(format: "ANY starredBy == %@", currentUser), 
 						sort: [ NSSortDescriptor(key: "displayName", ascending: true)], 

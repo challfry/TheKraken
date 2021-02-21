@@ -63,11 +63,15 @@ import UIKit
 	
 		// Directly set some stuff that can't change.
 		author = postModel.author
-		postTime = postModel.postDate()
+		postTime = postModel.createTime
 					
 		// We can't show the current number of likes this post has, as the API support is kinda lacking.
 		// (There's a separate call to get the likes for a post, but it's per-post).
-		numLikes = 0
+		addObservation(postModel.tell(self, when: "reactionDict.like.count") { observer, observed in
+			if let likeReaction = observed.reactionDict?["like"] as? Reaction {
+				observer.numLikes = likeReaction.count
+			}
+		}?.execute())
 		
 		// Post text
 		addObservation(postModel.tell(self, when: "text") { observer, observed in 	
@@ -129,16 +133,18 @@ import UIKit
 //			} ?? false
 //		}?.execute())
 //		
-//		// Ops editing this tweet
+//		// Ops editing this post
 //		addObservation(tweetModel.tell(self, when: "opsEditingThisTweet") { observer, observed in
 //			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
 //			observer.currentUserHasEditOp = observed.opsEditingThisTweet?.author.username == currentUsername
 //		}?.execute())
 //		
 		// Likes by current user
-		addObservation(postModel.tell(self, when: "likedByUsers.count") { observer, observed in
+		addObservation(postModel.tell(self, when: "reactionDict.like.users.count") { observer, observed in
 			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-			observer.currentUserLikesThis = observed.likedByUsers.contains  { $0.username == currentUsername }
+			if let likeReaction = observed.reactionDict?["like"] as? Reaction {
+				observer.currentUserLikesThis = likeReaction.users.contains  { $0.username == currentUsername }
+			}
 		}?.execute())
 							
 		// Like/Unlike ops

@@ -16,16 +16,22 @@ import UIKit
     @NSManaged public var id: String
     @NSManaged public var locked: Bool
     @NSManaged public var reactions: Set<Reaction>
+    @NSManaged public var numReactions: Int64			// V3 returns this rollup, separate from individual reactions.
     @NSManaged public var text: String
-    @NSManaged public var timestamp: Int64
-    @NSManaged public var contigWithOlder: Bool
     @NSManaged public var author: KrakenUser
     @NSManaged public var parentID: String?
     @NSManaged public var parent: TwitarrPost?
     @NSManaged public var children: Set<TwitarrPost>?
-    @NSManaged public var photoDetails: PhotoDetails?
+    @NSManaged public var image: String?
+	@NSManaged public var createdAt: Date
     
-    	// Kraken relationships to other data
+    	// Only used by V2
+    @NSManaged public var contigWithOlder: Bool
+    @NSManaged public var photoDetails: PhotoDetails?
+	@NSManaged public var timestamp: Int64
+
+
+    	// Kraken Operation relationships to other data
     @NSManaged public var opsWithThisParent: Set<PostOpTweet>?
     @NSManaged public var opsDeletingThisTweet: Set<PostOpTweetDelete>?	// Still needs to be to-many. Sigh.
     @NSManaged public var opsEditingThisTweet: PostOpTweet?		// I *think* this one can be to-one?
@@ -36,6 +42,11 @@ import UIKit
 	@objc dynamic public var likeReaction: Reaction?
   
 // MARK: Methods
+
+	override public func awakeFromInsert() {
+		// createdAt = Date()
+		setPrimitiveValue(Date(), forKey: "createdAt")
+	}
 
 	public override func awakeFromFetch() {
 		super.awakeFromFetch()
@@ -93,6 +104,88 @@ import UIKit
 		
 		let hashtags = StringUtilities.extractHashtags(v2Object.text)
 		HashtagDataManager.shared.addHashtags(hashtags)
+	}
+	
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3TwarrtData) {
+		var changed = TestAndUpdate(\.id, String(v3Object.twarrtID))
+		changed = TestAndUpdate(\.createdAt, v3Object.createdAt) || changed
+		TestAndUpdate(\.timestamp, Int64(v3Object.createdAt.timeIntervalSince1970 * 1000.0))
+		changed = TestAndUpdate(\.text, v3Object.text) || changed 
+//		changed = TestAndUpdate(\.image, v3Object.image) || changed 
+		changed = TestAndUpdate(\.numReactions, v3Object.likeCount) || changed 
+		if let replyTo = v3Object.replyToID {
+			changed = TestAndUpdate(\.parentID, String(replyTo)) || changed
+		}
+		else {
+			changed = TestAndUpdate(\.parentID, nil) || changed
+		}
+
+		if let image = v3Object.image {
+			if photoDetails?.id != image {
+				let photoDict: [String : PhotoDetails ] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails]
+				if let newPhotoDetails = photoDict[image] {
+	 				photoDetails = newPhotoDetails
+				}
+			}
+		}
+		else {
+			if photoDetails != nil {
+				photoDetails = nil	// Can happen if photo was deleted from tweet
+			}
+		}
+
+		let userDict: [UUID : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser] 
+		if let krakenUser = userDict[v3Object.author.userID] {
+			if value(forKey: "author") == nil || krakenUser.userID != author.userID {
+				author = krakenUser
+			}
+		}
+		
+		// Set the user's reaction to the tweet
+		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+			// Find any existing reaction the user has
+			var userCurrentReaction: Reaction?
+			if let userReacts = currentUser.reactions {
+				var userCurrentReactions = reactions.intersection(userReacts)
+				
+				// If the user has multiple reactions, something bad has happended. Remove all.
+				if userCurrentReactions.count > 1 {
+					userCurrentReactions.forEach { 
+						if let _ = $0.users.remove(currentUser) {
+							$0.count -= 1
+						}
+					}
+					userCurrentReactions.removeAll()
+				}
+				
+				// If the new reaction is different or deleted, remove existing reaction from CD.
+				userCurrentReaction = userCurrentReactions.first
+				if let ucr = userCurrentReaction, v3Object.userLike?.rawValue != ucr.word {
+					if let _ = ucr.users.remove(currentUser) {
+						ucr.count -= 1
+					}
+				}
+			}
+				
+			// Add new reaction, if any
+			if let newReactionWord = v3Object.userLike?.rawValue, userCurrentReaction?.word != newReactionWord {
+				if let reaction = reactions.first(where: { $0.word == newReactionWord } ) {
+					let (didInsert, _) = reaction.users.insert(currentUser)
+					if didInsert {
+						reaction.count += 1
+					}
+				}
+				else {
+					let newReaction = Reaction(context: context)
+					newReaction.word = newReactionWord
+					newReaction.count = 1
+					newReaction.users = Set([currentUser])
+					newReaction.sourceTweet	= self
+				}
+			}
+		}
+		
+		// Not handled: isBookmarked,
 	}
 	
 	func buildReactionsFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ReactionsSummary) {
@@ -207,6 +300,10 @@ import UIKit
 
 // MARK: -
 
+// TODO: I think this needs to be reworked, as it doesn't handle filtered views well. Each recent call should
+// store an array of IDs of the tweets it loaded, and we'd build contiguous covered regions by checking
+// for one member's anchor being in another's loaded list.
+
 // Stores info about recent successful calls that loaded tweets. 
 fileprivate class TwitarrRecentNetworkCall: NSObject {
 
@@ -255,6 +352,8 @@ fileprivate class TwitarrRecentNetworkCall: NSObject {
 		return returnString
 	}
 }
+
+// MARK: - Filter Pack
 
 // 5 minute freshness period.
 let tweetCacheFreshTime = 300.0
@@ -323,37 +422,42 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		super.init()
 	}
 	
-	func buildRequest(anchorTime: Int64?, newer: Bool, limit: Int = 50) -> URLRequest {
+	// Builds a request for some tweets, anchored at the given offset, or newest available if index is nil.
+	// The filterPack's filters are used to build the request: if e.g. authorFilter is nonnull, the request will be for
+	// tweets by that author.
+	func buildRequest(anchorFRCIndex: Int?, newer: Bool, limit: Int = 50) -> URLRequest {
 		var request: URLRequest
 		var query: [URLQueryItem] = []
 		
-		// If we have a text string as part of the filter, and can URL-sanitize the string, use it
-		if let queryString = textFilter, let escapedQuery = queryString.addingPathComponentPercentEncoding() {
-			query.append(URLQueryItem(name: "limit", value: "\(limit)"))
-	//		query.append(URLQueryItem(name: "page", value: String(fromOffset)))
-			request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v2/search/tweets/\(escapedQuery)", query: query)
-			isSearchQuery = true
+		// Get the tweet at the FRC index
+		if let index = anchorFRCIndex, frc?.fetchedObjects?.count ?? -1 > index, let tweet = frc?.fetchedObjects?[index] {
+			if Settings.apiV3 {
+				query.append(URLQueryItem(name: newer ? "after" : "before", value: tweet.id))
+			}
+			else {
+			}
 		}
 		else {
-			var query: [URLQueryItem] = []
-			if let hashtag = hashtagFilter {
-				query.append(URLQueryItem(name:"hashtag", value: hashtag))
-			}
-			if let mentions = mentionsFilter {
-				query.append(URLQueryItem(name:"mentions", value: mentions))
-			}
-			if let author = authorFilter {
-				query.append(URLQueryItem(name:"author", value: author))
-			}
-			query.append(URLQueryItem(name:"newer_posts", value:newer ? "true" : "false"))
-			query.append(URLQueryItem(name:"limit", value:"\(limit)"))
-	//		query.append(URLQueryItem(name:"app", value:"plain"))
-			if let anchor = anchorTime {
-				query.append(URLQueryItem(name: "start", value: String(anchor)))
-			}
-			request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/stream", query: query)
-			isSearchQuery = false
+			query.append(URLQueryItem(name: "from", value: newer ? "last" : "first"))
 		}
+		
+		// If we have a text string as part of the filter, and can URL-sanitize the string, use it
+		if let searchString = textFilter {
+			query.append(URLQueryItem(name: "search", value: searchString))
+		}
+		if let nameString = authorFilter {
+			query.append(URLQueryItem(name: "byusername", value: nameString)) // FIXME: no such query param exists yet
+		}
+		if let nameString = mentionsFilter {
+			query.append(URLQueryItem(name: "mentions", value: nameString))
+		}
+		if let hashtag = hashtagFilter {
+			query.append(URLQueryItem(name: "hashtag", value: hashtag))
+		}
+		query.append(URLQueryItem(name: "limit", value: "\(limit)"))
+	//	query.append(URLQueryItem(name: "page", value: String(fromOffset)))
+
+		request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v3/twitarr/", query: query)
 		NetworkGovernor.addUserCredential(to: &request)
 		return request		
 	}
@@ -387,23 +491,43 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		}
 	}
 	
-	func checkLoadRequiredFor(index: Int) {
+	// Forces a reload, asking for tweets newer than the newest. Usually tied to pull-to-refresh.
+	func loadNewestTweets(done: (() -> Void)? = nil) {
+		let request: URLRequest
+		// If we have a newest loaded tweet, make it the anchor and load 50 tweets newer than that.
+//		if frc?.fetchedObjects?.count ?? -1 > 0, let _ = frc?.fetchedObjects?[0] {
+//			request = buildRequest(anchorFRCIndex: 0, newer: true)
+//		}
+//		else {
+			// No anchor-load the 50 newest tweets.
+			request = buildRequest(anchorFRCIndex: nil, newer: false)
+//		}
+		TwitarrDataManager.shared.loadV3Tweets(request: request, done: done)
+	}
+
+	// Input index is usually a collectionView row index. This fn checks that we have recently loaded
+	// from the server all the cells near the current cell, both 'newer' and 'older' than the current tweet.
+	// Note that coveredTweets is an index set and needn't be contiguous.
+	func checkLoadRequiredFor(frcIndex: Int) {
 		if Date() > nextRecalculateTime {
 			recalculateCoveredTweets()
 		}
 		var callAnchor: CallToMake?
 		recentNetworkCallsQ.sync {
+			// If everything's stale, (re)load the 50 tweets centered on the anchor index.
 			if self.coveredIndices.isEmpty {
-				callAnchor = CallToMake(index: max (0, index - 25), directionIsNewer: false)
+				callAnchor = CallToMake(index: max (0, frcIndex - 25), directionIsNewer: false)
 			}
 			else {
-				if !self.coveredIndices.contains(integersIn: index ..< index + 11) {
-					let uncovered = IndexSet(index ..< index + 11).subtracting(self.coveredIndices)
+				// If there are stale/missing tweets 'below' but near the index, load older tweets
+				if !self.coveredIndices.contains(integersIn: frcIndex ..< frcIndex + 11) {
+					let uncovered = IndexSet(frcIndex ..< frcIndex + 11).subtracting(self.coveredIndices)
 					if let firstUncovered = uncovered.min() {
 						callAnchor = CallToMake(index: firstUncovered - 1, directionIsNewer: false)
 					}
 				}
-				let prevCheckRange = max(index - 10, 0) ..< index
+				// If there are stale/missing tweets 'above' but near the index, load newer tweets
+				let prevCheckRange = max(frcIndex - 10, 0) ..< frcIndex
 				if callAnchor == nil, !prevCheckRange.isEmpty, !self.coveredIndices.contains(integersIn: prevCheckRange) {
 					let uncovered = IndexSet(prevCheckRange).subtracting(self.coveredIndices)
 					if let firstUncovered = uncovered.max() {
@@ -411,29 +535,30 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 					}
 				}
 			}
-			
-
 		} 
 		
 		// NOTE: Currently, increasing indices always indicates decreasing timestamps. That is,
 		// all sort orders are (... "timestamp", ascending: false). If that changes we need to change logic here.
 		
 		if let anchor = callAnchor {
-			if  let numFRCResults = frc?.fetchedObjects?.count, anchor.index >= 0, anchor.index < numFRCResults {
+			let request = buildRequest(anchorFRCIndex: anchor.index, newer: anchor.directionIsNewer)
+			TwitarrDataManager.shared.loadV3Tweets(request: request)
+		
+			if let numFRCResults = frc?.fetchedObjects?.count, anchor.index >= 0, anchor.index < numFRCResults {
 				let anchorTweet = frc?.object(at: IndexPath(row: anchor.index, section: 0))
-				TwitarrDataManager.shared.loadStreamTweets(anchorTweet: anchorTweet, newer: anchor.directionIsNewer, done: nil)
 				let newNetworkResults = TwitarrRecentNetworkCall(anchor: anchorTweet, count: 50, newer: anchor.directionIsNewer)
 				recalculateCoveredTweets(adding: newNetworkResults)
 			}
 			else if anchor.index == 0 {
-				TwitarrDataManager.shared.loadNewestTweets(self)
+				loadNewestTweets()
 			}
 		}
 		
 	}
 	
+	// FRCLoaderDelegate fn
 	func userIsViewingCell(at indexPath: IndexPath) {
-		checkLoadRequiredFor(index: indexPath.row)
+		checkLoadRequiredFor(frcIndex: indexPath.row)
 	}
 
 }
@@ -450,7 +575,7 @@ class TwitarrDataManager: NSObject {
 	static let shared = TwitarrDataManager()
 	
 	private let coreData = LocalCoreData.shared
-	var fetchedData: NSFetchedResultsController<TwitarrPost>
+//	var fetchedData: NSFetchedResultsController<TwitarrPost>
 	
 	// TRUE when we've got a network call running to update the stream, or the current filter.
 	@objc dynamic var networkUpdateActive: Bool = false  
@@ -468,21 +593,7 @@ class TwitarrDataManager: NSObject {
 // MARK: Methods
 	
 	init(filterString: String? = nil) {
-		let fetchRequest = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
-		fetchRequest.predicate = NSPredicate(value: true)
-		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
-		fetchRequest.fetchBatchSize = 50
-		fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreData.mainThreadContext, 
-				sectionNameKeyPath: nil, cacheName: nil)
-		
 		super.init()
-		fetchedData.delegate = self
-		do {
-			try fetchedData.performFetch()
-		}
-		catch {
-			CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
-		}
 	}
 	
 	// Maps parent post IDs to draft reply text. The most recent 'mainline' post draft is in the "" entry.
@@ -495,31 +606,37 @@ class TwitarrDataManager: NSObject {
 		if let text = text {
 			recentTwitarrPostDrafts[replyingTo ?? ""] = text
 		}
-	}
-	
-	func loadNewestTweets(_ filterPack: TwitarrFilterPack?,  done: (() -> Void)? = nil) {
-		if filterPack?.isContiguousTweets ?? true {
-			loadStreamTweets(anchorTweet: nil, newer: false, done: done)
-		}
-		else if let filter = filterPack {
-			loadFilterTweets(filterPack: filter, fromOffset: 0, done: done)
+		else {
+			recentTwitarrPostDrafts.removeValue(forKey: replyingTo ?? "")
 		}
 	}
-	
+		
 	// This call loads a contiguous series of tweets from the stream. When processing the response, we infer 
 	// deleted tweets by finding tweets in our CoreData cache that are in the timeframe the response covers but not
 	// in the repsonse.
 	func loadStreamTweets(anchorTweet: TwitarrPost?, newer: Bool = false, done: (() -> Void)? = nil) {
-		var queryParams = [ URLQueryItem(name:"newer_posts", value:newer ? "true" : "false") ]
-		queryParams.append(URLQueryItem(name:"limit", value:"50"))
-//		queryParams.append(URLQueryItem(name:"app", value:"plain"))
+		var queryParams = [URLQueryItem]()
 		var anchorTime: Int64 = 0
-		if let anchorTweet = anchorTweet {
-			anchorTime = newer ? anchorTweet.timestamp + 1 : anchorTweet.timestamp - 1
-			queryParams.append(URLQueryItem(name: "start", value: String(anchorTime)))
+		let path: String
+		if Settings.apiV3 {
+			path = "/api/v3/twitarr"
+			queryParams.append(URLQueryItem(name: "limit", value: "50"))
+			if let anchorIDStr = anchorTweet?.id {
+				queryParams.append(URLQueryItem(name: newer ? "after" : "before", value: anchorIDStr))
+			}
+		}
+		else {
+			path = "/api/v2/stream"
+			queryParams.append(URLQueryItem(name:"newer_posts", value:newer ? "true" : "false"))
+			queryParams.append(URLQueryItem(name:"limit", value:"50"))
+//			queryParams.append(URLQueryItem(name:"app", value:"plain"))
+			if let anchorTweet = anchorTweet {
+				anchorTime = newer ? anchorTweet.timestamp + 1 : anchorTweet.timestamp - 1
+				queryParams.append(URLQueryItem(name: "start", value: String(anchorTime)))
+			}
 		}
 		
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/stream", query: queryParams)
+		var request = NetworkGovernor.buildTwittarV2Request(withPath:path, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
@@ -529,12 +646,17 @@ class TwitarrDataManager: NSObject {
 			}
 			else if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
-				let decoder = JSONDecoder()
 				do {
-					let tweetStream = try decoder.decode(TwitarrV2TweetStreamResponse.self, from: data)
-					let morePostsExist = tweetStream.hasNextPage
-					self.ingestStreamPosts(posts: tweetStream.streamPosts, anchorTime: anchorTime,
-							extendsNewer: newer, morePostsExist: morePostsExist)
+					if Settings.apiV3 {
+						let twarrts = try Settings.v3Decoder.decode([TwitarrV3TwarrtData].self, from: data)
+						self.ingestV3StreamPosts(twarrts: twarrts)						
+					}
+					else {
+						let tweetStream = try JSONDecoder().decode(TwitarrV2TweetStreamResponse.self, from: data)
+						let morePostsExist = tweetStream.hasNextPage
+						self.ingestStreamPosts(posts: tweetStream.streamPosts, anchorTime: anchorTime,
+								extendsNewer: newer, morePostsExist: morePostsExist)
+					}
 				} catch 
 				{
 					NetworkLog.error("Failure parsing stream tweets.", ["Error" : error, "URL" : request.url as Any])
@@ -545,10 +667,7 @@ class TwitarrDataManager: NSObject {
 		}
 	}
 	
-	func loadFilterTweets(filterPack: TwitarrFilterPack, fromOffset: Int, done: (() -> Void)? = nil) {
-
-		let request = filterPack.buildRequest(anchorTime: nil, newer: false)
-		let isSearchQuery = filterPack.isSearchQuery		// Cache now; could change while call is inflight
+	func loadV3Tweets(request: URLRequest, done: (() -> Void)? = nil) {
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
@@ -556,23 +675,17 @@ class TwitarrDataManager: NSObject {
 				NetworkLog.error(error.localizedDescription)
 			}
 			else if let data = package.data {
-				let decoder = JSONDecoder()
+				print (String(decoding:data, as: UTF8.self))
 				do {
-//					print (String(decoding:data, as: UTF8.self))
-					if isSearchQuery {
-						let tweetQueryResponse = try decoder.decode(TwitarrV2TweetQueryResponse.self, from: data)
-						filterPack.morePostsExist = tweetQueryResponse.tweets.more
-						self.ingestFilterPosts(posts: tweetQueryResponse.tweets.matches)
-					}
-					else {
-						let tweetStream = try decoder.decode(TwitarrV2TweetStreamResponse.self, from: data)
-						self.ingestFilterPosts(posts: tweetStream.streamPosts)
-					}
+					let twarrts = try Settings.v3Decoder.decode([TwitarrV3TwarrtData].self, from: data)
+					self.ingestV3StreamPosts(twarrts: twarrts)						
 				} catch 
 				{
-					NetworkLog.error("Failure parsing search tweets.", ["Error" : error, "URL" : request.url as Any])
+					NetworkLog.error("Failure parsing stream tweets.", ["Error" : error, "URL" : request.url as Any])
 				} 
 			}
+			
+			done?()
 		}
 	}
 	
@@ -644,6 +757,46 @@ class TwitarrDataManager: NSObject {
 				}
 			}
 		}
+	}
+	
+	fileprivate func ingestV3StreamPosts(twarrts: [TwitarrV3TwarrtData]) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure adding stream tweets to Core Data.")
+			
+			// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
+			// relationship links to the already-established sub-objects. 
+		
+			// Make a uniqued list of users from the posts, and get them inserted/updated.
+			let userArray = twarrts.map { $0.author }
+			UserManager.shared.update(users: userArray, inContext: context)
+		
+			// Photos, same idea
+			let tweetPhotos = twarrts.compactMap { $0.image }
+			ImageManager.shared.updateV3(imageFilenames: tweetPhotos, inContext: context)
+
+			// IF we have a post in CD in the # range of the incoming twarrts, but 'skipped' by the incoming twarrts,
+			// that means the post is 1) Muted, 2) Blocked, 3) Muteword-muted, or 4) Mod-deleted. We might be able to infer
+			// which by running the CD post contents against the user's mutes, etc. 
+		
+			// Get all the existing posts in CD that match posts in the call
+			let newPostIDs = twarrts.map { $0.twarrtID }
+			let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+			request.predicate = NSPredicate(format: "id IN %@", newPostIDs)
+			request.fetchLimit = twarrts.count + 10 
+			let cdResults = try context.fetch(request)
+			var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+
+			for twarrt in twarrts {
+				let removedValue = cdPostsDict.removeValue(forKey: String(twarrt.twarrtID))
+				let cdPost = removedValue ?? TwitarrPost(context: context)
+				cdPost.buildFromV3(context: context, v3Object: twarrt)
+			}
+		}
+	}
+	
+	// This is for posts created by the user; the responses from create methods return the post that got made.
+	func ingestNewUserPost(post: TwitarrV3TwarrtData) {
+		TwitarrDataManager.shared.ingestV3StreamPosts(twarrts: [post])
 	}
 	
 	// This is for posts created by the user; the responses from create methods return the post that got made.
@@ -732,29 +885,6 @@ class TwitarrDataManager: NSObject {
 	
 }
 
-// The data manager can have multiple delegates, all of which are watching the same results set.
-extension TwitarrDataManager: NSFetchedResultsControllerDelegate {
-	// MARK: NSFetchedResultsControllerDelegate
-
-	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-	}
-
-	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
-			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-	}
-
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, 
-    		atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-	}
-
-	// We can't actually implement this in a multi-delegate model. Also, wth is NSFetchedResultsController doing having a 
-	// delegate method that does this?
- //   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, sectionIndexTitleForSectionName sectionName: String) -> String?
-    
-	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-	}
-}
-
 // MARK: - V2 API Decoding
 
 // Around Feb 2020 Twittar changed its API for a few fields, changing string-valued fields to ints.
@@ -836,3 +966,28 @@ struct TwitarrV2TweetQueryResponse: Codable {
 	let query: TwitarrV2QueryText
 	let tweets: TwitarrV2TweetQuery
 }
+
+// MARK: - V3 API Decoding
+
+
+struct TwitarrV3TwarrtData: Codable {
+    /// The ID of the twarrt.
+    var twarrtID: Int64
+    /// The timestamp of the twarrt.
+    var createdAt: Date
+    /// The twarrt's author.
+    var author: TwitarrV3UserHeader
+    /// The text of the twarrt.
+    var text: String
+    /// The filename of the twarrt's optional image.
+    var image: String?
+    /// The ID of the twarrt to which this twarrt is a reply.
+    var replyToID: Int64?
+    /// Whether the current user has bookmarked the twarrt.
+    var isBookmarked: Bool
+    /// The current user's `LikeType` reaction on the twarrt.
+    var userLike: TwitarrV3LikeType?
+    /// The total number of `LikeType` reactions on the twarrt.
+    var likeCount: Int64
+}
+

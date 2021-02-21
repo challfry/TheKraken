@@ -96,7 +96,7 @@ class AlertsUpdater: ServerUpdater {
 		
 		// Forum Threads
 		if let forumThreads = response.forumMentions, forumThreads.count > 0 {
-			ForumsDataManager.shared.ingestForumThreads(from: forumThreads)
+//			ForumsDataManager.shared.ingestForumThreads(from: forumThreads)
 		}
 		
 		// Unread Seamails

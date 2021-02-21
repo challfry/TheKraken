@@ -428,6 +428,8 @@ extension String {
 	}
 	
 	// Returns a percent encoded string for a COMPONENT of an URL path. Percent encodes non-urlPathAllowed chars plus "/".
+	// URLComponents and URLQueryItem and such handle most of these types of cases, and setting the whole path of
+	// a URLComponents works. Ths sanitizes appending a single path component.
 	func addingPathComponentPercentEncoding() -> String? {
 		var pathComponentChars = NSCharacterSet.urlPathAllowed
 		pathComponentChars.remove(charactersIn: "/")

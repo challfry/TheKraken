@@ -290,7 +290,7 @@ class KrakenDataSource: NSObject {
 				// as they don't know they've been removed.
 				if visibleSegmentIndex < self.visibleSegments.count {
 					let visibleSegment = self.visibleSegments[visibleSegmentIndex]
-					if !allSegments.contains { $0 === visibleSegment } {
+					if !allSegments.contains(where: { $0 === visibleSegment }) {
 						let nextDeleteOffset = deleteOffset + visibleSegment.numVisibleSections
 						deletedSegmentSections.insert(integersIn: deleteOffset..<nextDeleteOffset)
 						visibleSegmentIndex += 1
@@ -301,7 +301,7 @@ class KrakenDataSource: NSObject {
 
 				if allSegmentIndex < allSegments.count {
 					let allSegment = allSegments[allSegmentIndex]
-					if !self.visibleSegments.contains { $0 === allSegment } {
+					if !self.visibleSegments.contains(where: { $0 === allSegment }) {
 						allSegment.internalRunUpdates(for: cv, 
 								deleteOffset: deleteOffset, insertOffset: insertOffset)
 						allSegmentIndex += 1

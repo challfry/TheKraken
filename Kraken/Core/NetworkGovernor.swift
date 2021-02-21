@@ -16,42 +16,51 @@ import Foundation
 // here. UI-level code generally treats all server errors the same, but wants good description strings.
 @objc class ServerError: NSObject, Error {
 	var httpStatus: Int?
-	var errorString: String?
-	dynamic var fieldErrors: [String: [String]]?
+	var errorString: String						// All errors, concatenated.
+	dynamic var fieldErrors: [String: String]?
 
 	init(_ error: String) {
-		super.init()
 		errorString = error
+		super.init()
 	}
 
 	override init() {
+		errorString = ""
 		super.init()
 	}
 	
-	func getErrorString() -> String {
-		if let errorString = errorString {
-			return errorString
+	// Gets the part of the error that applies to the whole operation. Should be used in cases where the field errors
+	// will be shown separately.
+	func getGeneralError() -> String {
+		if let fields = fieldErrors {
+			return fields["general"] ?? ""
 		}
-		else if let generalErrors = fieldErrors?["general"] {
-			let errorString = generalErrors[0]
-			return errorString
-		}
-		else if let fieldCount = fieldErrors?.count, fieldCount > 0 {
-			if fieldCount == 1, let fieldName = fieldErrors?.first?.key {
-				return "Error in field \(fieldName)"
-			}
-			else {
-				return "\(fieldCount) fields have errors"
-			}
-		}
-		else {
-			return "Unknown Error"
-		}
+		return errorString
+	}
+	
+	// Concats everything into a single error string.
+	func getCompleteError() -> String {
+//		if let generalErrors = fieldErrors?["general"] {
+//			let errorString = generalErrors
+//			return errorString
+//		}
+//		else if let fieldCount = fieldErrors?.count, fieldCount > 0 {
+//			if fieldCount == 1, let fieldName = fieldErrors?.first?.key {
+//				return "Error in field \(fieldName)"
+//			}
+//			else {
+//				return "\(fieldCount) fields have errors"
+//			}
+//		}
+//		else {
+//			return "Unknown Error"
+//		}
+		return errorString
 	}
 	
 	override var debugDescription: String {
 		get {
-			return getErrorString()
+			return getCompleteError()
 		}
 	}
 }
@@ -270,50 +279,55 @@ struct NetworkResponse {
 				let resultError = ServerError()
 				resultError.httpStatus = response.statusCode
 				
+				// Hopefully replaced with something better, see below
+				resultError.errorString = "HTTP Error \(response.statusCode)"
+				
 				if let data = package.data, data.count > 0 {
 //					print (String(decoding:data, as: UTF8.self))
 					let decoder = JSONDecoder()
-	
-					// There's 3 types of error JSON that could happen. Single, Multi, and FieldTagged.
-	
-					// Single "error" = "message" in error response
-					if let errorInfo = try? decoder.decode(TwitarrV2ErrorResponse.self, from: data) {
-						resultError.errorString = errorInfo.error
-					}
 					
-					// Multi Errors, an array of error strings.
-					else if let errorInfo = try? decoder.decode(TwitarrV2ErrorsResponse.self, from: data) {
-						var errorString = ""
-						for multiError in errorInfo.errors {
-							errorString.append(multiError + "\n")
-						}
-						resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
-					}
-					
-					// Dictionary Errors. A dict of tagged errors. Tags *usually* refer to form fields.
-					else if let errorInfo = try? decoder.decode(TwitarrV2ErrorDictionaryResponse.self, from: data) {
-					
-						resultError.fieldErrors = errorInfo.errors
-						
-						// Any errors in the "general" category get set in errorString
-						if let generalErrors = errorInfo.errors["general"] {
-							let errorString = generalErrors.reduce("") { $0 + $1 + "\n" }
-							resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
+					if Settings.apiV3 {
+						if let errorInfo = try? decoder.decode(TwitarrV3ErrorResponse.self, from: data) {
+							resultError.errorString = errorInfo.reason
+							resultError.fieldErrors = errorInfo.fieldErrors
 						}
 					}
 					else {
-						resultError.errorString = "HTTP Error \(response.statusCode)"
+						// There's 3 types of error JSON that could happen. Single, Multi, and FieldTagged.
+		
+						// Single "error" = "message" in error response
+						if let errorInfo = try? decoder.decode(TwitarrV2ErrorResponse.self, from: data) {
+							resultError.errorString = errorInfo.error
+						}
+						
+						// Multi Errors, an array of error strings.
+						else if let errorInfo = try? decoder.decode(TwitarrV2ErrorsResponse.self, from: data) {
+							var errorString = ""
+							for multiError in errorInfo.errors {
+								errorString.append(multiError + "\n")
+							}
+							resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
+						}
+						
+						// Dictionary Errors. A dict of tagged errors. Tags *usually* refer to form fields.
+						else if let errorInfo = try? decoder.decode(TwitarrV2ErrorDictionaryResponse.self, from: data) {
+						
+							// Server returns an array of errors for each field. We map those into a single string per field.
+							let errors = errorInfo.errors.mapValues { $0.joined(separator: ", ") }
+							resultError.fieldErrors = errors
+							
+							// Any errors in the "general" category get set in errorString
+							if let generalErrors = errorInfo.errors["general"] {
+								let errorString = generalErrors.reduce("") { $0 + $1 + "\n" }
+								resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
+							}
+						}
 					}
-				}
-				else {
-					// No body data in response -- make a generic error string
-					resultError.errorString = "HTTP Error \(response.statusCode)"
 				}
 				
 				// Field errors from the server are almost always form input errors; don't log 'em.
-				if let serverError = resultError.errorString {
-					NetworkLog.error("Server Error:", ["Error" : serverError])
-				}
+				let serverError = resultError.errorString
+				NetworkLog.error("Server Error:", ["Error" : serverError])
 			
 				return resultError
 			}
@@ -426,8 +440,8 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 			responseData = nil
 		}
 		
-		// According to docs, this will always be an HTTPURLResponse for our HTTP calls
-		let resp = task.response as! HTTPURLResponse
+		// According to docs, this will always be an HTTPURLResponse (or nil) for our HTTP calls. It's never an URLResponse.
+		let resp = task.response as? HTTPURLResponse
 		
 		let responsePacket = NetworkResponse(response: resp, data: responseData, networkError: networkError)
 
@@ -461,3 +475,27 @@ extension NetworkGovernor: URLSessionDataDelegate {
 
 }
 
+// MARK: - Twitarr V2 API Structs
+
+struct TwitarrV2ErrorResponse: Codable {
+	let status: String
+	let error: String
+}
+
+struct TwitarrV2ErrorsResponse: Codable {
+	let status: String
+	let errors: [String]
+}
+
+struct TwitarrV2ErrorDictionaryResponse: Codable {
+	let status: String
+	let errors: [String : [String]]
+}
+
+// MARK: - Twitarr V3 API Structs
+
+struct TwitarrV3ErrorResponse: Codable {
+	let error: Bool
+	let reason: String
+	let fieldErrors: [String : String]?
+}

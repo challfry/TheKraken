@@ -1,5 +1,5 @@
 //
-//  ForumsRootViewController.swift
+//  ForumsCategoryVC.swift
 //  Kraken
 //
 //  Created by Chall Fry on 3/20/19.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ForumsRootViewController: BaseCollectionViewController {
+class ForumsCategoryViewController: BaseCollectionViewController {
 	var forumsNavTitleButton: UIButton!
 	@IBOutlet weak var forumsFilterView: UIVisualEffectView!
 	@IBOutlet weak var forumsFilterViewTop: NSLayoutConstraint!
@@ -16,10 +16,15 @@ class ForumsRootViewController: BaseCollectionViewController {
 	@IBOutlet weak var forumsFilterStackView: UIStackView!
 	@IBOutlet weak var forumsFilterHeightConstraint: NSLayoutConstraint!
 	
+	// Set during segue
+	var categoryModel: ForumCategory?
+	
+	//
+	@objc dynamic var filterPack: ForumFilterPack?
+	
 	enum FilterType {
 		case allWithActivitySort
-//		case allWithCreationSort		// CreationSort doesn't quite work as we don't know creation time
-										// until we load the first post.
+		case allWithCreationSort		
 		case favorites					// Forums the user has favorited. Favoriting forums is local only, the server 
 										// has no API to track it.
 		case history					// Shows the last forums visited, most recent at top.
@@ -41,7 +46,7 @@ class ForumsRootViewController: BaseCollectionViewController {
     	
     	ForumsDataManager.shared.tell(cell, when: ["isPerformingLoad", "lastError"]) { observer, observed in 
     		observer.shouldBeVisible = observed.isPerformingLoad || observed.lastError != nil
-    		observer.errorText = observed.lastError?.getErrorString()
+    		observer.errorText = observed.lastError?.getCompleteError()
     	}?.execute()
      	
     	return cell
@@ -49,18 +54,16 @@ class ForumsRootViewController: BaseCollectionViewController {
     
     lazy var loadTimeCellModel: ForumsLoadTimeCellModel = {
     	let cell = ForumsLoadTimeCellModel()
-    	cell.refreshButtonAction = {
-			ForumsDataManager.shared.loadForumThreads(fromOffset: 0) 
+    	cell.refreshButtonAction = { [weak self] in
+    		if let strongSelf = self, let cat = strongSelf.categoryModel {
+    			let sort = strongSelf.currentFilterType == .allWithActivitySort ? ForumFilterPack.SortType.update :
+    					ForumFilterPack.SortType.create
+				strongSelf.filterPack = ForumsDataManager.shared.forceRefreshForumThreads(for: cat, sort: sort) 
+			}
     	}
     	
-    	ForumsDataManager.shared.tell(self, when: ["allThreadsCacheInfo.lastForumRefreshTime", 
-    			"participatedThreadsCacheInfo.lastForumRefreshTime"]) { [weak cell] observer, observed in 
-			if observer.currentFilterType == .allWithActivitySort {
-	    		cell?.lastLoadTime = observed.allThreadsCacheInfo.lastForumRefreshTime
-			}
-			else if observer.currentFilterType == .userHasPosted {
-				cell?.lastLoadTime = observed.participatedThreadsCacheInfo.lastForumRefreshTime
-			}
+    	self.tell(cell, when: ["filterPack.refreshTime"]) { observer, observed in 
+			observer.lastLoadTime = observed.filterPack?.refreshTime
     	}?.execute()
     	return cell
     }()
@@ -70,15 +73,20 @@ class ForumsRootViewController: BaseCollectionViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		buildFilterView()		
+		buildFilterView()
 		
 		threadDataSource.append(segment: loadingSegment)
 		loadingSegment.append(loadingStatusCellModel)
 		loadingSegment.append(loadTimeCellModel)
 		
+		guard let cat = categoryModel else {
+			//
+			return
+		}
+		
 		threadDataSource.append(segment: threadSegment)
 		threadSegment.loaderDelegate = self
-		threadSegment.activate(predicate: NSPredicate(value: true), 
+		threadSegment.activate(predicate: NSPredicate(format: "category == %@", cat), 
 				sort: [NSSortDescriptor(key: "sticky", ascending: false),
 				NSSortDescriptor(key: "lastPostTime", ascending: false)], cellModelFactory: createCellModel)
 
@@ -93,11 +101,11 @@ class ForumsRootViewController: BaseCollectionViewController {
 		
     override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		if currentFilterType == .allWithActivitySort {
-			ForumsDataManager.shared.checkRefreshForumTheads(false)
-		}
-		else if currentFilterType == .userHasPosted {
-			ForumsDataManager.shared.checkRefreshForumTheads(true)
+		
+		// This will ensure we have *some* content loaded, and also that we'll do a refresh if the content is really stale.
+		if let cat = categoryModel {
+			let sort: ForumFilterPack.SortType = currentFilterType == .allWithActivitySort ? .update : .create
+			filterPack = ForumsDataManager.shared.checkLoadForumTheads(for: cat, sort: sort, userViewingIndex: 0)
 		}
 	}
 	
@@ -140,11 +148,20 @@ class ForumsRootViewController: BaseCollectionViewController {
 	
 		if newType != currentFilterType {
 			currentFilterType = newType
-			switch(newType) {
+			switch (newType) {
 			case .allWithActivitySort:
 				threadSegment.activate(predicate: NSPredicate(value: true), 
 						sort: [NSSortDescriptor(key: "sticky", ascending: false),
 						NSSortDescriptor(key: "lastPostTime", ascending: false)], 
+						cellModelFactory: createCellModel)
+				readCountSegment.activate(predicate: NSPredicate(value: false), 
+						sort: [ NSSortDescriptor(key: "lastReadTime", ascending: false)], 
+						cellModelFactory: createReadCountCellModel)
+				forumsNavTitleButton.setTitle("All Forums", for: .normal)
+			case .allWithCreationSort:
+				threadSegment.activate(predicate: NSPredicate(value: true), 
+						sort: [NSSortDescriptor(key: "sticky", ascending: false),
+						NSSortDescriptor(key: "createTime", ascending: false)], 
 						cellModelFactory: createCellModel)
 				readCountSegment.activate(predicate: NSPredicate(value: false), 
 						sort: [ NSSortDescriptor(key: "lastReadTime", ascending: false)], 
@@ -179,7 +196,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 			}
 			
 			// Only show the refresh time cell if we're showing all forums
-			loadTimeCellModel.shouldBeVisible = newType == .allWithActivitySort || newType == .userHasPosted
+			loadTimeCellModel.shouldBeVisible = [.allWithActivitySort, .allWithCreationSort, .userHasPosted].contains(newType)
 		}
 		
 		forumsNavTitleButton.frame = CGRect(origin: CGPoint(x: 0, y: 0), size: forumsNavTitleButton.intrinsicContentSize)
@@ -247,17 +264,18 @@ class ForumsRootViewController: BaseCollectionViewController {
 	// This is the unwind segue from the compose view.
 	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
 		// Load new threads when the user creates a new thread.
-		ForumsDataManager.shared.loadForumThreads(fromOffset: 0) 
+		if let cat = categoryModel {
+			let sort: ForumFilterPack.SortType = currentFilterType == .allWithActivitySort ? .update : .create
+			filterPack = ForumsDataManager.shared.forceRefreshForumThreads(for: cat, sort: sort ) 
+		}
 	}	
 }
 
-extension ForumsRootViewController: FRCDataSourceLoaderDelegate {
+extension ForumsCategoryViewController: FRCDataSourceLoaderDelegate {
 	func userIsViewingCell(at indexPath: IndexPath) {
-		if currentFilterType == .allWithActivitySort {
-			ForumsDataManager.shared.checkLoadPageOfForumThreads(false, userViewingIndex: indexPath.row)
-		}
-		else if currentFilterType == .userHasPosted {
-			ForumsDataManager.shared.checkLoadPageOfForumThreads(true, userViewingIndex: indexPath.row)
+		if let cat = categoryModel {
+			let sort: ForumFilterPack.SortType = currentFilterType == .allWithActivitySort ? .update : .create
+			ForumsDataManager.shared.checkLoadForumTheads(for: cat, sort: sort, userViewingIndex: indexPath.row)
 		}
 	}
 }

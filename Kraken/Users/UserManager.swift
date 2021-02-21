@@ -12,6 +12,7 @@ import CoreData
 
 // This is our internal model object for users.
 @objc(KrakenUser) public class KrakenUser : KrakenManagedObject {
+	@NSManaged public var userID: UUID
 	@NSManaged public var username: String
 	@NSManaged public var displayName: String
 	@NSManaged public var realName: String?
@@ -26,6 +27,7 @@ import CoreData
 	@NSManaged public var numberOfMentions: Int32
 	
 	@NSManaged public var lastPhotoUpdated: Int64
+	@NSManaged public var userImageName: String?
 	@NSManaged public var thumbPhotoData: Data?
 	
 	@NSManaged public var reactions: Set<Reaction>?
@@ -44,6 +46,14 @@ import CoreData
 	@NSManaged public var seamailParticipant: Set<SeamailThread>
 	@NSManaged public var upToDateAnnouncements: Set<Announcement>
 	
+	// KrakenUser has more relationships in the datamodel that aren't declared here.
+	@NSManaged public var forumThreads: Set<ForumThread>
+	
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
+		userID = UUID()
+	}
+
 	override public func awakeFromFetch() {
 		super.awakeFromFetch()
 		if thumbPhotoData == nil || lastPhotoUpdated != builtPhotoUpdateTime {
@@ -53,8 +63,7 @@ import CoreData
 		}
 	}
 	
-	func buildFromV2UserInfo(context: NSManagedObjectContext, v2Object: TwitarrV2UserInfo)
-	{
+	func buildFromV2UserInfo(context: NSManagedObjectContext, v2Object: TwitarrV2UserInfo) {
 		TestAndUpdate(\.username, v2Object.username)
 		TestAndUpdate(\.displayName, v2Object.displayName)
 		if v2Object.lastPhotoUpdated > lastPhotoUpdated {
@@ -87,6 +96,16 @@ import CoreData
 		}
 	}
 	
+	func buildFromV3UserHeader(context: NSManagedObjectContext, v3Object: TwitarrV3UserHeader) {
+		TestAndUpdate(\.username, v3Object.username)
+		TestAndUpdate(\.userID, v3Object.userID)
+		TestAndUpdate(\.displayName, v3Object.displayName ?? v3Object.username)
+		if v3Object.userImage != userImageName {
+			invalidateUserPhoto(context)
+		}
+		TestAndUpdate(\.userImageName, v3Object.userImage)
+	}
+	
 	// Note that this method gets called A LOT for user thumbnails that are already built.
 	func loadUserThumbnail() {
 		// Is the UIImage already built?
@@ -103,9 +122,20 @@ import CoreData
 		
 		// Input sanitizing: URLComponents should percent escape username to make a valid path; 
 		// but the username could still have "/" in it. 
-		let encodedUsername = username.addingPathComponentPercentEncoding() ?? ""
+		var path: String
+		if Settings.apiV3, let imageFilename = userImageName {
+			path = "api/v3/image/\(imageFilename)"
+		}
+		else if !Settings.apiV3, let encodedUsername = username.addingPathComponentPercentEncoding() {
+			path = "/api/v2/user/photo/\(encodedUsername)"
+		}
+		else {
+			thumbPhoto = UIImage(named: "NoAvatarUser")
+			builtPhotoUpdateTime = self.lastPhotoUpdated
+			return
+		}
 
-		let request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/photo/\(encodedUsername)")
+		let request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: path)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				ImageLog.error(error.errorString ?? "Unknown error in /api/v2/user/photo response")
@@ -115,20 +145,27 @@ import CoreData
 					context.pushOpErrorExplanation("Couldn't save context while saving User avatar.")
 					let userInNetworkContext = context.object(with: self.objectID) as! KrakenUser
 					userInNetworkContext.thumbPhotoData = data
-					try context.save()
-					
-					// Now load the main context and set the thumbnail photo
-					let mainContext = LocalCoreData.shared.mainThreadContext
-					mainContext.perform {
-						let userInMainContext = mainContext.object(with: self.objectID) as! KrakenUser
-						userInMainContext.thumbPhoto = UIImage(data: data)
-						userInMainContext.builtPhotoUpdateTime = self.lastPhotoUpdated
-					}
 				}
 			} else 
 			{
 				// Load failed for some reason
 				ImageLog.error("/api/v2/user/photo returned no error, but also no image data.")
+			}
+			
+			// Now load the main context and set the thumbnail photo
+			let mainContext = LocalCoreData.shared.mainThreadContext
+			mainContext.perform {
+				let userInMainContext = mainContext.object(with: self.objectID) as! KrakenUser
+				if let photoData = userInMainContext.thumbPhotoData {
+					// rcf Not sure thumbPhotoData will be actually be updated here. May need to call context.refresh(user).
+					userInMainContext.thumbPhoto = UIImage(data: photoData)
+				}
+				else {
+					// If we have a photo but no photo data, the blank avatar will continue until the user
+					// changes their pic, which forces a reload. Will also re-ask the server on app restart.
+					userInMainContext.thumbPhoto = UIImage(named: "NoAvatarUser")
+				}
+				userInMainContext.builtPhotoUpdateTime = self.lastPhotoUpdated
 			}
 		}
 	}
@@ -269,44 +306,22 @@ class UserManager : NSObject {
 	}
 	
 	// Only used to update info for logged in user.
-	@discardableResult func updateLoggedInUserInfo(from userAccount: TwitarrV2UserAccount) -> LoggedInKrakenUser? {			
-		let context = coreData.networkOperationContext
-		var krakenUser: LoggedInKrakenUser?
-		
-		// Needs to be sync, to return the user. This is used by the login mechanism.
-		context.performAndWait {
-			do {
-				if let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == userAccount.username {
-					krakenUser = currentUser
-				}
-				else {
-					// If we have an objectID, use it to get the KrakenUser. Else we do a search.
-					let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindAUser", 
-							substitutionVariables: [ "username" : userAccount.username ]) as! NSFetchRequest<LoggedInKrakenUser>
-					let results = try request.execute()
-					krakenUser = results.first 
-				}
-				
-				if krakenUser == nil {
-					krakenUser = LoggedInKrakenUser(context: context)
-				}
-				
-				if let user = krakenUser {
-					user.buildFromV2UserAccount(context: context, v2Object: userAccount)
-					try context.save()
-				}
-			}
-			catch
-			{
-				CoreDataLog.error("Failure updating user info.", ["Error" : error])
+	func updateLoggedInUserInfo(from userAccount: TwitarrV2UserAccount) {			
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure updating user info.")
+			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == userAccount.username {
+				currentUser.buildFromV2UserAccount(context: context, v2Object: userAccount)
 			}
 		}
-		
-		if let objectID = krakenUser?.objectID {
-			return try? coreData.mainThreadContext.existingObject(with: objectID) as? LoggedInKrakenUser
+	}
+	
+	func updateLoggedInUserInfo(from userProfile: TwitarrV3UserProfileData) {			
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure updating user info.")
+			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == userProfile.username {
+				currentUser.buildFromV3UserProfile(context: context, v3Object: userProfile)
+			}
 		}
-		
-		return nil
 	}
 	
 	// Updates a bunch of users at once. The array of UserInfo objects can have duplicates, but is assumed
@@ -337,6 +352,42 @@ class UserManager : NSObject {
 			if let currentUser = CurrentUser.shared.loggedInUser, 
 				let userInContext = try? context.existingObject(with: currentUser.objectID) as? KrakenUser {
 				resultDict[currentUser.username] = userInContext
+			}
+			context.userInfo.setObject(resultDict, forKey: "Users" as NSString)
+		}
+		catch {
+			CoreDataLog.error("Couldn't add users to Core Data.", ["Error" : error])
+		}
+	}
+	
+	// Updates a bunch of users at once. The array of UserInfo objects can have duplicates, but is assumed
+	// to be the parsed out of a single network call. Does not save the context.
+	func update(users origUsers: [TwitarrV3UserHeader], inContext context: NSManagedObjectContext) {
+		do {
+			// Unique all the users
+			let usersDict = Dictionary(origUsers.map { ($0.userID, $0) }, uniquingKeysWith: { (first,_) in first })
+		
+			let userIDs = Array(usersDict.keys)
+			let request = NSFetchRequest<KrakenUser>(entityName: "KrakenUser")
+			request.predicate = NSPredicate(format: "userID IN %@", userIDs)
+			let results = try request.execute()
+			var resultDict: [UUID : KrakenUser] = Dictionary(uniqueKeysWithValues: zip(results.map { $0.userID } , results))
+			
+			// Perform adds and updates on users
+			for user in usersDict.values {
+				// Users in the user table must always be *created* as LoggedInKrakenUser, so that if that user
+				// logs in on this device we can load them as a LoggedInKrakenUser. Generally we *search* for KrakenUsers,
+				// the superclass.
+				let addingUser = resultDict[user.userID] ?? LoggedInKrakenUser(context: context)
+				addingUser.buildFromV3UserHeader(context: context, v3Object: user)
+				resultDict[addingUser.userID] = addingUser
+			}
+						
+			// Results should now have all the users that were passed in. Add the logged in user, because several
+			// parsers require it.
+			if let currentUser = CurrentUser.shared.loggedInUser, 
+				let userInContext = try? context.existingObject(with: currentUser.objectID) as? KrakenUser {
+				resultDict[currentUser.userID] = userInContext
 			}
 			context.userInfo.setObject(resultDict, forKey: "Users" as NSString)
 		}
@@ -529,5 +580,19 @@ struct TwitarrV2UserProfileResponse: Codable {
 struct TwitarrV2UserAutocompleteResponse: Codable {
 	let status: String
 	let users: [TwitarrV2UserInfo]
+}
+
+// MARK: Twitarr V3 API Encoding/Decoding
+
+
+struct TwitarrV3UserHeader: Codable {
+    /// The user's ID.
+    var userID: UUID
+    /// The user's username.
+    var username: String
+    /// The user's displayName.
+    var displayName: String?
+    /// The user's profile image.
+    var userImage: String?
 }
 

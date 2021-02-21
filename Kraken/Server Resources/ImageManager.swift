@@ -12,6 +12,72 @@ import CoreData
 import Photos
 import MobileCoreServices
 
+@objc(PhotoDetails) public class PhotoDetails : KrakenManagedObject {
+	@NSManaged var id: String
+	@NSManaged var animated: Bool
+	@NSManaged private var thumbWidth: Int32
+	@NSManaged private var thumbHeight: Int32
+	@NSManaged private var mediumWidth: Int32
+	@NSManaged private var mediumHeight: Int32
+	@NSManaged private var fullWidth: Int32
+	@NSManaged private var fullHeight: Int32
+	
+	var thumbSize: CGSize? {
+		get {
+			return thumbWidth > 0 && thumbHeight > 0 ? CGSize(width: Int(thumbWidth), height: Int(thumbHeight)) : nil
+		}
+		set {
+			thumbWidth = Int32(newValue?.width ?? 0)
+			thumbHeight = Int32(newValue?.height ?? 0)
+		}
+	}
+
+	var mediumSize: CGSize? {
+		get {
+			return mediumWidth > 0 && mediumHeight > 0 ? CGSize(width: Int(mediumWidth), height: Int(mediumHeight)) : nil
+		}
+		set {
+			mediumWidth = Int32(newValue?.width ?? 0)
+			mediumHeight = Int32(newValue?.height ?? 0)
+		}
+	}
+
+	var fullSize: CGSize? {
+		get {
+			return fullWidth > 0 && fullHeight > 0 ? CGSize(width: Int(fullWidth), height: Int(fullHeight)) : nil
+		}
+		set {
+			fullWidth = Int32(newValue?.width ?? 0)
+			fullHeight = Int32(newValue?.height ?? 0)
+		}
+	}
+	
+	var aspectRatio: CGFloat {
+		get {
+			return fullWidth > 0 && fullHeight > 0 ? CGFloat(fullWidth) / CGFloat(fullHeight) : 4.0 / 3.0
+		}
+	}
+
+	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2PhotoDetails) {
+		TestAndUpdate(\.id, v2Object.id)
+		TestAndUpdate(\.animated, v2Object.animated)
+		TestAndUpdate(\.thumbSize, v2Object.thumbSize)
+		TestAndUpdate(\.mediumSize, v2Object.mediumSize)
+		TestAndUpdate(\.fullSize, v2Object.fullSize)
+	}
+	
+	func buildFromV3(context: NSManagedObjectContext, v3photoID: String) {
+		TestAndUpdate(\.id, v3photoID)
+		if thumbWidth == 0 {
+			animated = false
+			thumbWidth = 100
+			thumbHeight = 100
+			fullWidth = 2048
+			fullHeight = 2048
+		}
+	}
+}
+
 // Why not just use NSCache? 
 // I have a personal dislike for NSCache's complete lack of transparency and debuggability.
 // If I want to inspect the cache to see what's in it -- haha! You can't! Never mind doing something
@@ -220,15 +286,25 @@ class ImageManager : NSObject {
 	}
 	
 	// Caches images of the indicated sizes; all 3  caches use homogenous keys which are random server strings.
-	var smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v2/photo/small_thumb/", limit: 1000)
-	var medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v2/photo/medium_thumb/", limit: 1000)
-	var largeImageCache = ImageCache(dirName: "largeImageCache", fetchURL: "/api/v2/photo/full/", limit: 1000)
+	var smallImageCache: ImageCache
+	var medImageCache: ImageCache
+	var largeImageCache: ImageCache
 
 	// Caches full-sized user images. Keyed by username
 	// GET /api/v2/user/photo/:username?full=true
 	var userImageCache = ImageCache(dirName: "userImageCache", fetchURL: "/api/v2/user/photo/", limit: 2000)
 
 	override init() {
+		if Settings.apiV3 {
+			smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v3/image/thumb/", limit: 1000)
+			medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v3/image/full/", limit: 1000)
+			largeImageCache = medImageCache
+		}
+		else {
+			smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v2/photo/small_thumb/", limit: 1000)
+			medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v2/photo/medium_thumb/", limit: 1000)
+			largeImageCache = ImageCache(dirName: "largeImageCache", fetchURL: "/api/v2/photo/full/", limit: 1000)
+		}
 		super.init()
 		let userImageQueryParams = [ URLQueryItem(name:"full", value:"true") ]
 		userImageCache.serverQueryParams = userImageQueryParams
@@ -242,10 +318,11 @@ class ImageManager : NSObject {
 	// Also, the returned image could be smaller or larger than the requested size class.
 	// If the done block is called with nil, that indicates fetching completed with some sort of failure.
 	func image(withSize: ImageSizeEnum, forKey: String, done: @escaping (UIImage?) -> Void) {
+		let imageFileName = forKey
 		switch withSize {
-			case .small: smallImageCache.image(forKey: forKey, done: done)
-			case .medium: medImageCache.image(forKey: forKey, done: done)
-			case .full: largeImageCache.image(forKey: forKey, done: done)
+			case .small: smallImageCache.image(forKey: imageFileName, done: done)
+			case .medium: medImageCache.image(forKey: imageFileName, done: done)
+			case .full: largeImageCache.image(forKey: imageFileName, done: done)
 		}
 	}
 	
@@ -283,6 +360,34 @@ class ImageManager : NSObject {
 		}
 		catch {
 			ImageLog.error("Failed to fetch photoDetail ids while updating with new ids.", ["Error" : error])
+			// I think it's better to eat the error; we just end up with a post with no photo
+			//throw error
+		}
+	}
+	
+	func updateV3(imageFilenames: [String], inContext context: NSManagedObjectContext) {
+		do {
+			let inputPhotoSet = Set(imageFilenames)
+			let request = NSFetchRequest<PhotoDetails>(entityName: "PhotoDetails")
+			request.predicate = NSPredicate(format: "id IN %@", imageFilenames)
+			let results = try request.execute()
+			var resultDict = Dictionary(uniqueKeysWithValues: zip(results.map { $0.id } , results))
+
+			// I don't think PhotoDetails objects can ever change; therefore there's no updating that needs to be done.
+			let newphotos = inputPhotoSet.subtracting(resultDict.keys)
+			for photoId in newphotos {
+				let newPhotoDetails = PhotoDetails(context: context)
+				newPhotoDetails.buildFromV3(context: context, v3photoID: photoId)
+				resultDict[photoId] = newPhotoDetails
+			}
+
+			// Results should now have all the users that were passed in.
+			context.userInfo.setObject(resultDict, forKey: "PhotoDetails" as NSString)
+		}
+		catch {
+			ImageLog.error("Failed to fetch photoDetail ids while updating with new ids.", ["Error" : error])
+			// I think it's better to eat the error; we just end up with a post with no photo
+			//throw error
 		}
 	}
 
@@ -392,60 +497,6 @@ class ImageManager : NSObject {
 	
 }
 
-@objc(PhotoDetails) public class PhotoDetails : KrakenManagedObject {
-	@NSManaged var id: String
-	@NSManaged var animated: Bool
-	@NSManaged private var thumbWidth: Int32
-	@NSManaged private var thumbHeight: Int32
-	@NSManaged private var mediumWidth: Int32
-	@NSManaged private var mediumHeight: Int32
-	@NSManaged private var fullWidth: Int32
-	@NSManaged private var fullHeight: Int32
-	
-	var thumbSize: CGSize? {
-		get {
-			return thumbWidth > 0 && thumbHeight > 0 ? CGSize(width: Int(thumbWidth), height: Int(thumbHeight)) : nil
-		}
-		set {
-			thumbWidth = Int32(newValue?.width ?? 0)
-			thumbHeight = Int32(newValue?.height ?? 0)
-		}
-	}
-
-	var mediumSize: CGSize? {
-		get {
-			return mediumWidth > 0 && mediumHeight > 0 ? CGSize(width: Int(mediumWidth), height: Int(mediumHeight)) : nil
-		}
-		set {
-			mediumWidth = Int32(newValue?.width ?? 0)
-			mediumHeight = Int32(newValue?.height ?? 0)
-		}
-	}
-
-	var fullSize: CGSize? {
-		get {
-			return fullWidth > 0 && fullHeight > 0 ? CGSize(width: Int(fullWidth), height: Int(fullHeight)) : nil
-		}
-		set {
-			fullWidth = Int32(newValue?.width ?? 0)
-			fullHeight = Int32(newValue?.height ?? 0)
-		}
-	}
-	
-	var aspectRatio: CGFloat {
-		get {
-			return fullWidth > 0 && fullHeight > 0 ? CGFloat(fullWidth) / CGFloat(fullHeight) : 4.0 / 3.0
-		}
-	}
-
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2PhotoDetails) {
-		TestAndUpdate(\.id, v2Object.id)
-		TestAndUpdate(\.animated, v2Object.animated)
-		TestAndUpdate(\.thumbSize, v2Object.thumbSize)
-		TestAndUpdate(\.mediumSize, v2Object.mediumSize)
-		TestAndUpdate(\.fullSize, v2Object.fullSize)
-	}
-}
 
 // MARK: - V2 API Decoding
 

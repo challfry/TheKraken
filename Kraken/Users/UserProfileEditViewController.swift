@@ -21,7 +21,7 @@ import Photos
 		let cell = TextFieldCellModel("Display Name", purpose: .normal)
 		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.display_name") { observer, observed in 
 			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["display_name"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else {
 				observer.errorText = nil
@@ -35,7 +35,7 @@ import Photos
 		let cell = TextFieldCellModel("Email", purpose: .email)
 		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.email") { observer, observed in 
 			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["email"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else {
 				observer.errorText = nil
@@ -48,7 +48,7 @@ import Photos
 		let cell  = TextFieldCellModel("Room Number", purpose: .roomNumber)
 		CurrentUser.shared.tell(cell, when: "lastError.fieldErrors.room_number") { observer, observed in 
 			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["room_number"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else {
 				observer.errorText = nil
@@ -174,7 +174,7 @@ import Photos
 		ImageManager.shared.resizeImageForUpload(imageContainer: photoContainer, 
 				progress: imageiCloudDownloadProgress) { jpegData, mimeType, error in 
 			if let err = error {
-				self.avatarUpdateStatusCell.errorText = err.getErrorString()
+				self.avatarUpdateStatusCell.errorText = err.getCompleteError()
 			}
 			else if let data = jpegData, let user = self.modelKrakenUser {
 				user.setUserProfilePhoto(photoData: data, mimeType: mimeType ?? "image/jpeg")

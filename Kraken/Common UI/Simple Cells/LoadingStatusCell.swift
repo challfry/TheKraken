@@ -53,7 +53,7 @@ import UIKit
 			}
 			if let error = observed.lastError {
 				switch error {
-					case let serverError as ServerError: observer.errorText = serverError.getErrorString()
+					case let serverError as ServerError: observer.errorText = serverError.getGeneralError()
 					case let networkError as NetworkError: observer.errorText = networkError.getErrorString()
 					default: observer.errorText = "Unknown Error"
 				}

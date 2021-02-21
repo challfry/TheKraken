@@ -20,7 +20,7 @@ import CoreData
     
     // Reactions must have a source of some sort.
 	@NSManaged public var sourceTweet: TwitarrPost?
-//	@NSManaged public var sourceForumPost: TwitarrPost?
+	@NSManaged public var sourceForumPost: ForumPost?
 
 	func buildFromV2(context: NSManagedObjectContext, post: TwitarrPost, v2Object: TwitarrV2Reactions, reactionName: String) {
 		TestAndUpdate(\.word, reactionName)

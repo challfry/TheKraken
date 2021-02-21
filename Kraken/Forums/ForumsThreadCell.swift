@@ -181,9 +181,11 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 	}
 	
 	func updatePostTime() {
-		if let thread = thread {
-			let postDate: TimeInterval = TimeInterval(thread.lastPostTime) / 1000.0
-			self.lastPostTimeLabel.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
+		if let thread = thread, let lastPostTime = thread.lastPostTime {
+			self.lastPostTimeLabel.text = StringUtilities.relativeTimeString(forDate: lastPostTime)
+		}
+		else {
+			self.lastPostTimeLabel.text = ""
 		}
 	}
 	

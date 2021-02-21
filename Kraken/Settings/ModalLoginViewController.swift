@@ -32,7 +32,7 @@ class ModalLoginViewController: BaseCollectionViewController {
 
 		// Note that this observation dismisses the VC if a user enters the logged in state *for any reason*, including
 		// if they somehow managed to open a second login window (via another tab, perhaps) and log in there.
-        CurrentUser.shared.tell(self, when: "credentialedUsers") { observer, observed in
+        CurrentUser.shared.tell(self, when: "credentialedUsers.count") { observer, observed in
         	if observed.credentialedUsers.count > observer.previousCredentialedUserCount
         	{
         		// Someone logged in -- time to dismiss

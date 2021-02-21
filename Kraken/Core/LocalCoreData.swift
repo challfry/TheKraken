@@ -15,7 +15,7 @@ import CoreData
 protocol TestAndSettable : AnyObject {}
 extension TestAndSettable where Self : KrakenManagedObject {
 	@discardableResult func TestAndUpdate<ValueType: Equatable>(_ keypath: ReferenceWritableKeyPath<Self, ValueType>, _ newValue: ValueType) -> Bool {
-		if self[keyPath: keypath] != newValue {
+		if self.isInserted || self[keyPath: keypath] != newValue {
     		self[keyPath: keypath] = newValue
     		return true
     	}

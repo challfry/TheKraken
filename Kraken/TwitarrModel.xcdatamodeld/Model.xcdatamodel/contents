@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20C69" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20D74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="isActive" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
@@ -31,17 +31,23 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="ForumCategory" representedClassName="ForumCategory" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isAdmin" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="forums" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="category" inverseEntity="ForumThread"/>
+    </entity>
     <entity name="ForumPost" representedClassName="ForumPost" syncable="YES">
-        <attribute name="id" attributeType="String"/>
+        <attribute name="createTime" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="reactionCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="text" attributeType="String"/>
-        <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="totalLikes" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="forumPostAuthor" inverseEntity="KrakenUser"/>
         <relationship name="editedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpForumPost" inverseName="editPost" inverseEntity="PostOpForumPost"/>
-        <relationship name="likedByUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="likesForumPosts" inverseEntity="KrakenUser"/>
         <relationship name="opDeleting" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpForumPostDelete" inverseName="postToDelete" inverseEntity="PostOpForumPostDelete"/>
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="PhotoDetails" inverseName="forumPosts" inverseEntity="PhotoDetails"/>
         <relationship name="reactionOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpForumPostReaction" inverseName="sourcePost" inverseEntity="PostOpForumPostReaction"/>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="sourceForumPost" inverseEntity="Reaction"/>
         <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="posts" inverseEntity="ForumThread"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -58,14 +64,16 @@
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="forumReadCount" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="ForumThread" representedClassName="ForumThread" syncable="YES">
-        <attribute name="firstPostTime" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="id" attributeType="String"/>
-        <attribute name="lastPostTime" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="createTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lastPostTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="lastUpdateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="locked" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="postCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="sticky" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="subject" attributeType="String"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumCategory" inverseName="forums" inverseEntity="ForumCategory"/>
+        <relationship name="creator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="forumThreads" inverseEntity="KrakenUser"/>
         <relationship name="lastPoster" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="lastPosterInForum" inverseEntity="KrakenUser"/>
         <relationship name="newPostOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpForumPost" inverseName="thread" inverseEntity="PostOpForumPost"/>
         <relationship name="posts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="thread" inverseEntity="ForumPost"/>
@@ -106,6 +114,8 @@
         <attribute name="role" optional="YES" attributeType="String"/>
         <attribute name="roomNumber" optional="YES" attributeType="String"/>
         <attribute name="thumbPhotoData" optional="YES" attributeType="Binary"/>
+        <attribute name="userID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="userImageName" optional="YES" attributeType="String"/>
         <attribute name="username" optional="YES" attributeType="String"/>
         <relationship name="announcements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="author" inverseEntity="Announcement"/>
         <relationship name="blockedBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedUsers" inverseEntity="KrakenUser"/>
@@ -116,9 +126,9 @@
         <relationship name="followedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Event" inverseName="followedBy" inverseEntity="Event"/>
         <relationship name="forumPostAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="author" inverseEntity="ForumPost"/>
         <relationship name="forumReadCount" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumReadCount" inverseName="user" inverseEntity="ForumReadCount"/>
+        <relationship name="forumThreads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="creator" inverseEntity="ForumThread"/>
         <relationship name="fromPotential" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="actualUser" inverseEntity="PotentialUser"/>
         <relationship name="lastPosterInForum" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="lastPoster" inverseEntity="ForumThread"/>
-        <relationship name="likesForumPosts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="likedByUsers" inverseEntity="ForumPost"/>
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction"/>
         <relationship name="seamailAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="author" inverseEntity="SeamailMessage"/>
@@ -166,6 +176,7 @@
         <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Event" inverseName="opsFollowing" inverseEntity="Event"/>
     </entity>
     <entity name="PostOpForum_Photo" representedClassName="PostOpForum_Photo" syncable="YES">
+        <attribute name="filename" optional="YES" attributeType="String"/>
         <attribute name="image" optional="YES" attributeType="Binary"/>
         <attribute name="mimetype" optional="YES" attributeType="String"/>
         <relationship name="parentOp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpForumPost" inverseName="photos" inverseEntity="PostOpForumPost"/>
@@ -195,6 +206,7 @@
         <relationship name="recipients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inSeamailThread" inverseEntity="PotentialUser"/>
     </entity>
     <entity name="PostOpTweet" representedClassName="PostOpTweet" parentEntity="PostOperation" syncable="YES">
+        <attribute name="deleteExistingImage" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="image" optional="YES" attributeType="Binary"/>
         <attribute name="imageMimetype" optional="YES" attributeType="String"/>
         <attribute name="text" attributeType="String"/>
@@ -237,6 +249,7 @@
     <entity name="Reaction" representedClassName="Reaction" syncable="YES">
         <attribute name="count" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="word" optional="YES" attributeType="String"/>
+        <relationship name="sourceForumPost" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="reactions" inverseEntity="ForumPost"/>
         <relationship name="sourceTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="reactions" inverseEntity="TwitarrPost"/>
         <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="reactions" inverseEntity="KrakenUser"/>
     </entity>
@@ -275,8 +288,11 @@
     </entity>
     <entity name="TwitarrPost" representedClassName="TwitarrPost" syncable="YES">
         <attribute name="contigWithOlder" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="String"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="locked" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="numReactions" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="parentID" optional="YES" attributeType="String"/>
         <attribute name="text" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -301,7 +317,7 @@
         <relationship name="commentingUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="userComments" inverseEntity="KrakenUser"/>
     </entity>
     <fetchRequest name="AnnouncementsWithIDs" entity="Announcement" predicateString="id IN $ids"/>
-    <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="authKey != &quot;&quot;"/>
+    <fetchRequest name="FindAUser" entity="KrakenUser" predicateString="username == &quot;$username&quot;"/>
     <fetchRequest name="FindServerTextFile" entity="ServerTextFile" predicateString="fileName == $fileName"/>
     <fetchRequest name="FindUsers" entity="KrakenUser" predicateString="username IN $usernames"/>
     <fetchRequest name="ForumThreadsWithIds" entity="ForumThread" predicateString="id IN $ids"/>
@@ -317,24 +333,25 @@
         <element name="Announcement" positionX="-131.487060546875" positionY="-196.2130737304688" width="128" height="133"/>
         <element name="Emoji" positionX="-1057.217041015625" positionY="106.9619140625" width="128" height="73"/>
         <element name="Event" positionX="190.848388671875" positionY="-508.4818725585938" width="128" height="28"/>
-        <element name="ForumPost" positionX="-928.894775390625" positionY="-490.3908386230469" width="128" height="208"/>
+        <element name="ForumCategory" positionX="-864" positionY="-675" width="128" height="89"/>
+        <element name="ForumPost" positionX="-928.894775390625" positionY="-490.3908386230469" width="128" height="194"/>
         <element name="ForumReadCount" positionX="-768.2960815429688" positionY="-493.8979797363281" width="128" height="133"/>
-        <element name="ForumThread" positionX="-623.646728515625" positionY="-495.2050476074219" width="128" height="238"/>
+        <element name="ForumThread" positionX="-623.646728515625" positionY="-495.2050476074219" width="128" height="254"/>
         <element name="GameListFavorite" positionX="-1056.041381835938" positionY="192.8661499023438" width="128" height="58"/>
         <element name="Hashtag" positionX="-1057.814025878906" positionY="260.6491088867188" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="-1056.693969726562" positionY="337.1846923828125" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="659"/>
+        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="689"/>
         <element name="LoggedInKrakenUser" positionX="34.24688720703125" positionY="-391.6840209960938" width="128" height="45"/>
-        <element name="PhotoDetails" positionX="-422.6431884765625" positionY="193.2229614257812" width="128" height="193"/>
+        <element name="PhotoDetails" positionX="-422.6431884765625" positionY="193.2229614257812" width="128" height="179"/>
         <element name="PostOperation" positionX="-418.780029296875" positionY="-659.5100402832031" width="128" height="118"/>
         <element name="PostOpEventFollow" positionX="190.5164184570312" positionY="-599.2312164306641" width="128" height="75"/>
-        <element name="PostOpForum_Photo" positionX="-833.66943359375" positionY="-811.6986083984375" width="128" height="88"/>
+        <element name="PostOpForum_Photo" positionX="-833.66943359375" positionY="-811.6986083984375" width="128" height="89"/>
         <element name="PostOpForumPost" positionX="-578.6613159179688" positionY="-826.2532196044922" width="128" height="118"/>
         <element name="PostOpForumPostDelete" positionX="-577.3396606445312" positionY="-599.9921264648438" width="128" height="58"/>
         <element name="PostOpForumPostReaction" positionX="-577.9452514648438" positionY="-702.4114227294922" width="128" height="88"/>
         <element name="PostOpSeamailMessage" positionX="33.2459716796875" positionY="-657.3016967773438" width="128" height="30"/>
         <element name="PostOpSeamailThread" positionX="36.12725830078125" positionY="-616.0679168701172" width="128" height="90"/>
-        <element name="PostOpTweet" positionX="-266.8650512695312" positionY="-818.3788757324219" width="128" height="120"/>
+        <element name="PostOpTweet" positionX="-266.8650512695312" positionY="-818.3788757324219" width="128" height="119"/>
         <element name="PostOpTweetDelete" positionX="-268.885009765625" positionY="-579.7364196777344" width="128" height="60"/>
         <element name="PostOpTweetReaction" positionX="-266.48974609375" positionY="-684.15625" width="128" height="90"/>
         <element name="PostOpUserComment" positionX="-831.2529907226562" positionY="-637.8227081298828" width="128" height="75"/>
@@ -342,11 +359,11 @@
         <element name="PostOpUserPhoto" positionX="184.8289794921875" positionY="-730.4626312255859" width="128" height="73"/>
         <element name="PostOpUserProfileEdit" positionX="-115.105712890625" positionY="-655.0635681152344" width="128" height="133"/>
         <element name="PotentialUser" positionX="34.7012939453125" positionY="-496.3875122070312" width="128" height="90"/>
-        <element name="Reaction" positionX="183.7169189453125" positionY="-77.63458251953125" width="128" height="105"/>
+        <element name="Reaction" positionX="183.7169189453125" positionY="-77.63458251953125" width="128" height="104"/>
         <element name="SeamailMessage" positionX="57.231201171875" positionY="97.29388427734375" width="128" height="135"/>
         <element name="SeamailThread" positionX="-90.0880126953125" positionY="98.1715087890625" width="128" height="163"/>
         <element name="ServerTextFile" positionX="-1059.060791015625" positionY="425.644287109375" width="128" height="90"/>
-        <element name="TwitarrPost" positionX="-137.9462890625" positionY="-494.467041015625" width="128" height="270"/>
+        <element name="TwitarrPost" positionX="-137.9462890625" positionY="-494.467041015625" width="128" height="299"/>
         <element name="UserComment" positionX="-602.1513061523438" positionY="82.88018798828125" width="128" height="90"/>
     </elements>
 </model>

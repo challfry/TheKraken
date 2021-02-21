@@ -77,9 +77,14 @@ class LoginButtonCellModel: ButtonCellModel {
 	}
 	
 	func calcButtonEnable() {
-		button1Enabled = segment?.usernameCellModel.editedText?.isEmpty == false && 
+		let newState = segment?.usernameCellModel.editedText?.isEmpty == false && 
 					segment?.passwordCellModel.editedText?.isEmpty == false &&
 					!CurrentUser.shared.isChangingLoginState
+		// If the button is transitioning to enabled, clear errors from any failed prior attempt
+		if newState && !button1Enabled {
+			CurrentUser.shared.clearErrors()
+		}
+		button1Enabled = newState
 	}
 }
 
@@ -134,7 +139,7 @@ class EditDisplayNameCellModel : TextFieldCellModel {
 
 		CurrentUser.shared.tell(self, when: "lastError.fieldErrors.display_name") { observer, observed in 
 			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["display_name"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else {
 				observer.errorText = ""
@@ -151,9 +156,9 @@ class RegistrationCodeCellModel: TextFieldCellModel {
 				observer.shouldBeVisible = observed.mode == .createAccount || observed.mode == .forgotPassword
 		}?.execute()
 		
-		CurrentUser.shared.tell(self, when: "lastError.fieldErrors.registration_code") { observer, observed in 
-			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["registration_code"] {
-				observer.errorText = errors[0]
+		CurrentUser.shared.tell(self, when: "lastError.fieldErrors.verification") { observer, observed in 
+			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["verification"] {
+				observer.errorText = errors
 			}
 		}
 	}
@@ -166,6 +171,16 @@ class ConfirmPasswordCellModel: TextFieldCellModel {
 		segment.tell(self, when: "mode") { observer, observed in 
 				observer.shouldBeVisible = observed.mode == .createAccount || observed.mode == .forgotPassword
 		}?.execute()
+	
+		// Async to prevent recursive access to self (from segment's lazy property) during init.
+		DispatchQueue.main.async {	
+			segment.tell(self, when: ["passwordCellModel.editedText", 
+					"confirmPasswordCellModel.editedText"]) { observer, observed in
+				observer.errorText = (observed.passwordCellModel.editedText?.count ?? 0) > 0 &&
+						(observer.editedText?.count ?? 0) > 0 &&
+						observed.passwordCellModel.editedText != observer.editedText ? "Password fields do not match." : nil
+			}
+		}
 	}
 }
 
@@ -177,10 +192,11 @@ class CreateAccountButtonCellModel: ButtonCellModel {
 		super.init(alignment: .right)
 		setupButton(1, title: title, action: action)
 
-//		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
-//			observer.calcButtonEnable()
-//		}
-		segment?.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText"]) { observer, observed in 
+		CurrentUser.shared.tell(self, when:"isChangingLoginState") { observer, observed in 
+			observer.calcButtonEnable()
+		}
+		segment?.tell(self, when: ["usernameCellModel.editedText", "passwordCellModel.editedText",
+				"confirmPasswordCellModel.editedText"]) { observer, observed in 
 			observer.calcButtonEnable()
 		}?.execute()
 
@@ -190,9 +206,15 @@ class CreateAccountButtonCellModel: ButtonCellModel {
 	}
 	
 	func calcButtonEnable() {
-		button1Enabled = segment?.usernameCellModel.editedText?.isEmpty == false && 
+		let newState = segment?.usernameCellModel.editedText?.isEmpty == false && 
 					segment?.passwordCellModel.editedText?.isEmpty == false &&
+					segment?.passwordCellModel.editedText == segment?.confirmPasswordCellModel.editedText &&
 					!CurrentUser.shared.isChangingLoginState
+		// If the button is transitioning to enabled, clear errors from any failed prior attempt
+		if newState && !button1Enabled {
+			CurrentUser.shared.clearErrors()
+		}
+		button1Enabled = newState
 	}
 }
 
@@ -220,11 +242,16 @@ class ForgotPasswordButtonCellModel: ButtonCellModel {
 	}
 	
 	func calcButtonEnable() {
-		button1Enabled = segment?.usernameCellModel.editedText?.isEmpty == false && 
+		let newState = segment?.usernameCellModel.editedText?.isEmpty == false && 
 					segment?.passwordCellModel.editedText?.isEmpty == false &&
 					segment?.confirmPasswordCellModel.editedText?.isEmpty == false &&
 					segment?.registrationCodeCellModel.editedText?.isEmpty == false &&
 					!CurrentUser.shared.isChangingLoginState
+		// If the button is transitioning to enabled, clear errors from any failed prior attempt
+		if newState && !button1Enabled {
+			CurrentUser.shared.clearErrors()
+		}
+		button1Enabled = newState
 	}
 }
 
@@ -238,10 +265,10 @@ class EditUsernameCellModel: TextFieldCellModel {
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.username", 
 				"lastError.fieldErrors.new_username"]) { observer, observed in 
 			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["username"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else if let errors = (observed.lastError as? ServerError)?.fieldErrors?["new_username"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else {
 				observer.errorText = ""
@@ -257,13 +284,13 @@ class EditPasswordCellModel: TextFieldCellModel {
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.new_password", 
 				"lastError.fieldErrors.current_password", "lastError.fieldErrors.password"]) { observer, observed in 
 			if let errors = (observed.lastError as? ServerError)?.fieldErrors?["new_password"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else if let errors = (observed.lastError as? ServerError)?.fieldErrors?["current_password"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else if let errors = (observed.lastError as? ServerError)?.fieldErrors?["password"] {
-				observer.errorText = errors[0]
+				observer.errorText = errors
 			}
 			else {
 				observer.errorText = ""
@@ -350,18 +377,20 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	}
 	
 	func startAccountCreation() {
-		guard usernameCellModel.hasText() && passwordCellModel.hasText() && registrationCodeCellModel.hasText() else {
+		guard usernameCellModel.hasText() && passwordCellModel.hasText() && 
+				passwordCellModel.editedText == confirmPasswordCellModel.editedText else {
 			// TODO: show error state
 			return		
 		}
+//		if !Settings.apiV3, registrationCodeCellModel.hasText()
 //		guard passwordCellModel.editedText == confirmPasswordCellModel.editedText else {
 //			// TODO: show error state
 //			return		
 //		}
 	
-		CurrentUser.shared.clearErrors() 
-    	if let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText,
-    			let regCode = registrationCodeCellModel.editedText {
+		CurrentUser.shared.clearErrors()
+		let regCode = registrationCodeCellModel.editedText 
+    	if let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText {
 	    	let displayName = displayNameCellModel.editedText
 	    	CurrentUser.shared.createNewAccount(name: userName, password: password, displayName: displayName, regCode: regCode)
 			clearAllSensitiveFields()

@@ -74,6 +74,8 @@ import UIKit
     var editProfileCell: ProfileDisclosureCellModel?
     var profileCommentCell: ProfileCommentCellModel?
     
+    // TODO: Add Change Password cell
+    
     lazy var blockUserCell: ButtonCellModel = {
 		let cell = ButtonCellModel(alignment: .center)
 		cell.button1Action = {

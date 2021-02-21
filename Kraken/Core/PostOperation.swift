@@ -82,8 +82,8 @@ struct PhotoUploadPackage {
 	@objc dynamic var pendingOperationCount: Int = 0
 	@objc dynamic var operationsWithErrorsCount: Int = 0
 
+	// This controller operates in the network operation context.
 	fileprivate let controller: NSFetchedResultsController<PostOperation>
-	var viewDelegates: [NSObject & NSFetchedResultsControllerDelegate] = []
 	
 	var nextCheckTimer: Timer?
 	var insideCheckForOpsToDeliver = false
@@ -239,42 +239,13 @@ struct PhotoUploadPackage {
 
 }
 
-// The data manager can have multiple delegates, all of which are watching the same results set.
 extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 
-	public func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		viewDelegates.forEach( { $0.controllerWillChangeContent?(controller) } )
-	}
-
-	public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any,
-			at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-		viewDelegates.forEach( { $0.controller?(controller, didChange: anObject, at: indexPath, for: type, newIndexPath: newIndexPath) } )
-	}
-
-    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, 
-    		atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-    	viewDelegates.forEach( { $0.controller?(controller, didChange: sectionInfo, atSectionIndex: sectionIndex, for: type) } )		
-	}
-
-	// We can't actually implement this in a multi-delegate model. Also, wth is NSFetchedResultsController doing having a 
-	// delegate method that does this?
- //   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, sectionIndexTitleForSectionName sectionName: String) -> String?
-    
+	// This alerts us whenever an op gets added. We then check all the ops in the queue, to see if any can be delivered.
 	public func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
 		pendingOperationCount = controller.fetchedObjects?.count ?? 0
 		checkForOpsToDeliver()
 		countOpsWithErors()
-		viewDelegates.forEach( { $0.controllerDidChangeContent?(controller) } )
-	}
-	
-	func addDelegate(_ newDelegate: NSObject & NSFetchedResultsControllerDelegate) {
-		if !viewDelegates.contains(where: { $0 === newDelegate } ) {
-			viewDelegates.insert(newDelegate, at: 0)
-		}
-	}
-	
-	func removeDelegate(_ oldDelegate: NSObject & NSFetchedResultsControllerDelegate) {
-		viewDelegates.removeAll(where: { $0 === oldDelegate } )
 	}
 }
 
@@ -312,19 +283,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// so we can display it to the user later.
 	@NSManaged public var errorString: String?
 	
-		// After this object is deleted we may still need to know its operation state--so this saves it.
-	public var lastKnownOperationState: PostOperationState = .notReadyToSend
-		
+	// NOTE: All variables NOT @NSManaged are transient, as this object could get faulted at any time.
+	// They also don't update between contexts, so they are all considered NetworkOperationContext only.
+			
 	// For a poor-man's exponential backoff algorithm. 2s, 4s, 8s, 16s 32s.
 	public var nextNetworkCallTime: Date?
 	public var retryCount = 0
 	
-		// TODO: We'll need a policy for attempting to send content that fails. We can:
-			// - Resend X times, then delete?
-			// - Allow user to resend manually from the list of deferred posts in Settings
-			// - Tell the user immediately, then go to an editor screen?
-
-
 // MARK: Methods
 	
 	// AwakeFromInsert is called when a new PostOp is initialized. NOT called when it's fetched or faulted.
@@ -337,18 +302,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		originalPostTime = Date()
 		operationState = .notReadyToSend
 	}
-	
-	// Remember, deletion in this sense means: Removed from the Core Data context. We may still be around, but isDeleted will be true.
-	override public func prepareForDeletion() {
-		// Save the last known op state to a non-managed variable, so an object already referring to us can see it after
-		// we get removed from Core Data.
-		lastKnownOperationState = operationState
-	}
-	
+		
 	func operationStatus() -> String {
 		var statusString: String
-		let currentStatus = isDeleted ? lastKnownOperationState : operationState
-		switch currentStatus {
+		if isDeleted {
+			return "Operation Cancelled"
+		}
+		switch operationState {
 		case .notReadyToSend: statusString = "Not ready to send to the server yet"
 		case .readyToSend: statusString = "Waiting to send"
 		case .sentNetworkCall: statusString = "Posting to server"
@@ -359,9 +319,26 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		return statusString
 	}
 	
-	// Subclasses override this to send this post to the server. Subclass should call super iff the post can be
-	// sent; this fn marks the post as being sent in Core Data.
 	func post(context: NSManagedObjectContext) {
+		if Settings.apiV3 {
+			postV3(context: context)
+		}
+		else {
+			postV2(context: context)
+		}
+	}
+	
+	func postV2(context: NSManagedObjectContext) {
+		operationState = .serverError
+		errorString = "Kraken hasn't implemented this operation yet."
+	}
+	func postV3(context: NSManagedObjectContext) {
+		operationState = .serverError
+		errorString = "Kraken hasn't implemented this operation yet."
+	}
+	
+	// Ops should call this fn during post() iff the op can be sent; this fn marks the post as being sent in Core Data.
+	func confirmPostBeingSent(context: NSManagedObjectContext) {
 		context.pushOpErrorExplanation("A postOp got a CoreData error; couldn't store state change back into op.")
 		operationState = .sentNetworkCall
 		errorString = nil					// If we're retrying after error, error gets cleared.
@@ -369,44 +346,50 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 	// Subclasses can call this to get their URLRequest sent to the server. Handles some of the common
 	// error-handling and bookeeping functions.
-	fileprivate func queueNetworkPost(request: URLRequest, success: @escaping (Data) -> Void, 
+	fileprivate func queueNetworkPost(request: URLRequest, success: @escaping (Data) throws -> Void, 
 			failure: ((ServerError) -> Void)? = nil) {
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let err = NetworkGovernor.shared.parseServerError(package) {
-				self.recordServerErrorFailure(err)
-				failure?(err)
-			}
-			else if package.networkError != nil {
-				if self.retryCount > 4 {
-					// If we network error too many times, record the error and stop trying.
-					LocalCoreData.shared.performLocalCoreDataChange { context, user in 
-						let opInContext = context.object(with: self.objectID) as! PostOperation
-						opInContext.operationState = .networkError
+			do {
+				if let err = NetworkGovernor.shared.parseServerError(package) {
+					self.recordServerErrorFailure(err)
+					failure?(err)
+				}
+				else if package.networkError != nil {
+					if self.retryCount > 4 {
+						// If we network error too many times, record the error and stop trying.
+						LocalCoreData.shared.performLocalCoreDataChange { context, user in 
+							let opInContext = context.object(with: self.objectID) as! PostOperation
+							opInContext.operationState = .networkError
+						}
 					}
+					else {
+						// Exponential backoff, but try again by moving to the ready state.
+						self.retryCount += 1
+						self.nextNetworkCallTime = Date().addingTimeInterval(TimeInterval(pow(2.0, Double(min(self.retryCount, 5)))))
+						LocalCoreData.shared.performLocalCoreDataChange { context, user in 
+							let opInContext = context.object(with: self.objectID) as! PostOperation
+							opInContext.operationState = .readyToSend
+						}
+					}
+				}
+				else if let data = package.data {
+					// The assumption here is that if we get a non-error response from the server, the call worked and 
+					// the server has enacted the change we posted. So, even if we fail to decode and process the response
+					// or save to Core Data, the call still succeeded.
+					self.recordOpSuccess()
+					try success(data)
+					
+					return
 				}
 				else {
-					// Exponential backoff, but try again by moving to the ready state.
-					self.retryCount += 1
-					self.nextNetworkCallTime = Date().addingTimeInterval(TimeInterval(pow(2.0, Double(min(self.retryCount, 5)))))
-					LocalCoreData.shared.performLocalCoreDataChange { context, user in 
-						let opInContext = context.object(with: self.objectID) as! PostOperation
-						opInContext.operationState = .readyToSend
-					}
+					// Some operations don't return any data on success, such as DELETE /api/v2/tweet/:id.
+					self.recordOpSuccess()
+					try success(Data())
+					return
 				}
 			}
-			else if let data = package.data {
-				// The assumption here is that if we get a non-error response from the server, the call worked and 
-				// the server has enacted the change we posted. So, even if we fail to decode and process the response
-				// or save to Core Data, the call still succeeded.
-				self.recordOpSuccess()
-				success(data)
-				return
-			}
-			else {
-				// Some operations don't return any data on success, such as DELETE /api/v2/tweet/:id.
-				self.recordOpSuccess()
-				success(Data())
-				return
+			catch {
+				NetworkLog.error("Failure processing network response.", ["Error" : error, "URL" : request.url as Any])
 			}
 		}
 	}
@@ -487,7 +470,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			context.pushOpErrorExplanation("A postOp got a server error, which we couldn't store back in the postOp.")
 			let opInContext = context.object(with: self.objectID) as! PostOperation
-			opInContext.errorString = serverError.getErrorString()
+			opInContext.errorString = serverError.getCompleteError()
 			opInContext.operationState = .serverError
 		}
 	}
@@ -507,6 +490,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 		// If non-nil, this op edits the given tweet.
 	@NSManaged public var tweetToEdit: TwitarrPost?
+	
+		// If editing a post, TRUE will delete existing image. FALSE and no image data will keep the existing image unchanged.
+		// False and new image data will replace.
+	@NSManaged public var deleteExistingImage: Bool
 			
 	override public func willSave() {
 		super.willSave()
@@ -519,15 +506,60 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 
-	override func post(context: NSManagedObjectContext) {
-		super.post(context: context)
+	override func postV3(context: NSManagedObjectContext) {
+		confirmPostBeingSent(context: context)
+		
+		var httpContentData: Data
+		var path: String
+		if let editingPost = self.tweetToEdit {
+			path = "/api/v3/twitarr/\(editingPost.id)/update"
+			var newImageFilename: String? = nil
+			var uploadData: TwitarrV3ImageUploadData? = nil
+			if deleteExistingImage == false {
+				if let imageData = image {
+					uploadData = TwitarrV3ImageUploadData(filename: "1", image: (imageData as Data))
+					newImageFilename = "1"
+				}
+				else {
+					newImageFilename = editingPost.image		// "" also works
+				}				
+			}
+			let editingPostStruct = TwitarrV3PostContentData(text: text, imageFilename: newImageFilename, newImage: uploadData)
+			httpContentData = try! JSONEncoder().encode(editingPostStruct)
+		}
+		else {
+			// POST /api/v3/twitarr/create
+			path = "/api/v3/twitarr/create"
+			if let replyTo = parent {
+				path = "/api/v3/twitarr/\(replyTo.id)/reply"
+			}
+			
+			let newPostStruct = TwitarrV3PostCreateData(text: self.text, imageData: (image as Data?))
+			httpContentData = try! JSONEncoder().encode(newPostStruct)
+		}
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)				
+		request.httpBody = httpContentData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "POST"
+
+		self.queueNetworkPost(request: request) { data in
+			do {
+				let response = try Settings.v3Decoder.decode(TwitarrV3TwarrtData.self, from: data)
+				TwitarrDataManager.shared.ingestNewUserPost(post: response)
+			} 
+			catch {
+				self.recordServerErrorFailure(ServerError("Failure parsing response to new Twitarr post request."))
+				NetworkLog.error("Failure parsing response to new Twitarr post request.", 
+						["Error" : error, "URL" : request.url as Any])
+			}
+		}
+	}
+
+	override func postV2(context: NSManagedObjectContext) {
+		confirmPostBeingSent(context: context)
 		
 		let twittarrPostBlock = { (photoID: String?) in
-		
-			// Test code
-//			let err = ServerError("Text can\'t be blank.")
-//			self.recordServerErrorFailure(err)
-//			return
 			
 			// Build the request and the body JSON
 			var request: URLRequest
@@ -580,7 +612,6 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		else {
 			twittarrPostBlock(nil)
 		}
-
 	}
 }
 
@@ -598,12 +629,33 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Posting a reaction to a Twitarr tweet."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV3(context: NSManagedObjectContext) {
 		guard let post = sourcePost else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
+		
+		// POST/DELETE /api/v3/twitarr/ID/<like|laugh|love>
+		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? "like"
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
+				"/api/v3/twitarr/\(post.id)/\(encodedReationWord)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = isAdd ? "POST" : "DELETE"
+		
+		self.queueNetworkPost(request: request, success:  { data in
+			if let response = try? Settings.v3Decoder.decode(TwitarrV3TwarrtData.self, from: data) {
+				TwitarrDataManager.shared.ingestNewUserPost(post: response)
+			}
+		})
+	}
+
+	override func postV2(context: NSManagedObjectContext) {
+		guard let post = sourcePost else { 
+			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
+			return
+		}
+		confirmPostBeingSent(context: context)
 		
 		// POST/DELETE /api/v2/tweet/:id/react/:type
 		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
@@ -632,12 +684,43 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Deleting a Twitarr tweet."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV3(context: NSManagedObjectContext) {
 		guard let post = tweetToDelete else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
+		
+		// DELETE /api/v3/twitarr/ID
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v3/twitarr/\(post.id)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "DELETE"
+		
+		self.queueNetworkPost(request: request, success: { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving tweet deletion back to Core Data.")
+				let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
+				context.delete(postInContext)
+			}
+		}, failure: { error in
+			// Even if the call fails we may need to delete the tweet--particularly if the call fails because the 
+			// tweet is no longer there
+			if let statusCode = error.httpStatus, statusCode == 404 {
+				LocalCoreData.shared.performNetworkParsing { context in
+					context.pushOpErrorExplanation("Failure saving tweet deletion back to Core Data.")
+					let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
+					context.delete(postInContext)
+				}
+			}		
+		})
+	}
+
+	override func postV2(context: NSManagedObjectContext) {
+		guard let post = tweetToDelete else { 
+			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
+			return
+		}
+		confirmPostBeingSent(context: context)
 		
 		// DELETE /api/v2/tweet/:id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/tweet/\(post.id)", query: nil)
@@ -664,13 +747,14 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
-// Used for both creating NEW forum threads and for adding posts to EXISTING threads.
+// Used for creating NEW forum threads, adding posts to existing threads, and editing existing posts.
 @objc(PostOpForumPost) public class PostOpForumPost: PostOperation {
-	@NSManaged public var subject: String?
-	@NSManaged public var text: String?
+	@NSManaged public var subject: String?				// Non-nil iff we're making a new thread
+	@NSManaged public var text: String?					// nil to not change text. Can't be "".
 	
-	@NSManaged public var photos: NSOrderedSet?			// PostOpForum_Photo
+	@NSManaged public var photos: NSOrderedSet?			// PostOpForum_Photo. Always matches new state.
 	@NSManaged public var thread: ForumThread?			// If nil, this is a new thread (and subject must be non-nil).
+	@NSManaged public var category: ForumCategory?		// Non-nil iff we're making a new thread
 	@NSManaged public var editPost: ForumPost?			// If non-nil, we are editing this post.
 	
 	override public func willSave() {
@@ -684,10 +768,94 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV3(context: NSManagedObjectContext) {
+		
+		var path: String
+		var content: Data
+		var isNewThread = false
+		if let editPost = editPost {
+			// If it's an edit, takes a TwitarrV3PostContentData, returns a TwitarrV3PostData
+			path = "/api/v3/forum/post/\(editPost.id)/update"
+			let newText = text ?? editPost.text
+			var imageData: TwitarrV3ImageUploadData? = nil
+			var filename = (editPost.photos.firstObject as? PhotoDetails)?.id
+			if let photo = photos?.firstObject as? PostOpForum_Photo {
+				filename = UUID().uuidString
+				imageData = TwitarrV3ImageUploadData(filename: filename!, image: photo.image)
+			}
+			let postData = TwitarrV3PostContentData(text: newText, imageFilename: filename, newImage: imageData)
+			content = try! JSONEncoder().encode(postData)
+		}
+		else if let existingThread = thread {
+			guard let text = text else {
+				recordServerErrorFailure(ServerError("Forum posts must contain non-empty text."))
+				return
+			}
+			// If it's a new post in an existing thread, takes a TwitarrV3PostCreateData, returns a TwitarrV3PostData
+			path = "/api/v3/forum/\(existingThread.id)/create"
+			var imageData: Data? = nil
+			if let photo = photos?.firstObject as? PostOpForum_Photo {
+				imageData = photo.image
+			}
+			let postData = TwitarrV3PostCreateData(text: text, imageData: imageData)
+			content = try! JSONEncoder().encode(postData)
+		}
+		else if let category = category {
+			// New thread, takes a TwitarrV3ForumCreateData, returns a TwitarrV3ForumData
+			guard let subject = subject else { 
+				recordServerErrorFailure(ServerError("Forum posts must have either a subject, or a parent Forum Thread to post to."))
+				return
+			}
+			guard let text = text else {
+				recordServerErrorFailure(ServerError("Forum posts must contain non-empty text."))
+				return
+			}
+			isNewThread = true
+			path = "/api/v3/forum/categories/\(category.id)/create"
+			var imageData: Data? = nil
+			if let photo = photos?.firstObject as? PostOpForum_Photo {
+				imageData = photo.image
+			}
+			let postData = TwitarrV3ForumCreateData(title: subject, text: text, image: imageData)
+			content = try! JSONEncoder().encode(postData)
+		}
+		else {
+			recordServerErrorFailure(ServerError("Forum post operation is malformed."))
+			return
+		}
+		confirmPostBeingSent(context: context)
+		
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "POST"
+		request.httpBody = content
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		self.queueNetworkPost(request: request, success: { data in
+			if isNewThread {
+				let response = try Settings.v3Decoder.decode(TwitarrV3ForumData.self, from: data)
+				ForumPostDataManager.shared.parseThreadWithPosts(for: self.thread, inCategory: self.category, from: response)
+			}
+			else {
+				let response = try Settings.v3Decoder.decode(TwitarrV3PostData.self, from: data)
+				
+				// Only build CD objects out of the response if this is an edit. For new posts, we don't know
+				// whether there were intervening posts betwen the last post we know about and this new post.
+				// Therefore, don't show the new post until we do a normal load on the thread.
+				if let editingPost = self.editPost, editingPost.id == response.postID {
+					ForumPostDataManager.shared.parsePostData(inThread: editingPost.thread, from: response)
+				}
+				else if let thread = self.thread {
+					ForumPostDataManager.shared.loadThreadPosts(for: thread, fromOffset: thread.posts.count - 1, 
+							done: { x in })
+				}
+			}
+		})
+	}
+	
+	override func postV2(context: NSManagedObjectContext) {
 		guard let postText = text else { return }
 		guard subject != nil || thread != nil else { return }
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
 
 		// Upload any photos first, then chain the post call.
 		// Declared as a placeholder closure, then redefined immediately as it references itself.
@@ -739,26 +907,27 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			request.httpBody = newThreadData
 			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-			self.queueNetworkPost(request: request, success: { data in
-				LocalCoreData.shared.performNetworkParsing { context in 
-					if isNewThread {
-						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Thread.")
-						let response = try JSONDecoder().decode(TwitarrV2ForumNewThreadResponse.self, from: data)
-						try ForumsDataManager.shared.internalParseNewThreadPosts(context: context, from: response.forum_thread)
-					}
-					else {
-						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Post.")
-						let response = try JSONDecoder().decode(TwitarrV2ForumNewPostResponse.self, from: data)
-						
-						// Only build CD objects out of the response if this is an edit. For new posts, we don't know
-						// whether there were intervening posts betwen the last post we know about and this new post.
-						// Therefore, don't show the new post until we do a normal load on the thread.
-						if let editingPost = self.editPost, editingPost.id == response.forum_post.id {
-							editingPost.buildFromV2(context: context, v2Object: response.forum_post, thread: editingPost.thread)
-						}
-					}
-				}
-			})
+// rcf removing until more V3 code is built
+//			self.queueNetworkPost(request: request, success: { data in
+//				LocalCoreData.shared.performNetworkParsing { context in 
+//					if isNewThread {
+//						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Thread.")
+//						let response = try JSONDecoder().decode(TwitarrV2ForumNewThreadResponse.self, from: data)
+//						try ForumPostDataManager.shared.internalParseNewThreadPosts(context: context, from: response.forum_thread)
+//					}
+//					else {
+//						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Post.")
+//						let response = try JSONDecoder().decode(TwitarrV2ForumNewPostResponse.self, from: data)
+//						
+//						// Only build CD objects out of the response if this is an edit. For new posts, we don't know
+//						// whether there were intervening posts betwen the last post we know about and this new post.
+//						// Therefore, don't show the new post until we do a normal load on the thread.
+//						if let editingPost = self.editPost, editingPost.id == response.forum_post.id {
+//							editingPost.buildFromV2(context: context, v2Object: response.forum_post, thread: editingPost.thread)
+//						}
+//					}
+//				}
+//			})
 		}
 		
 		// Call the posting block to start things off. This block uploads photos until they're all uploaded, then
@@ -773,6 +942,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var image: Data
 	@NSManaged public var mimetype: String
 	@NSManaged public var parentOp: PostOpForumPost
+	@NSManaged public var filename: String?				// Only set if image came from server.
 	
 	func setupFromPackage(_ from: PhotoUploadPackage) {
 		image = from.iamgeData
@@ -788,12 +958,33 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Deleting a Forum Post."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV3(context: NSManagedObjectContext) {
 		guard let post = postToDelete else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
+		
+		// DELETE  /api/v2/forums/:id/:post_id
+		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v3/forum/post/\(post.id)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "DELETE"
+		self.queueNetworkPost(request: request, success:  { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving forum post deletion back to Core Data.")
+				if let postInContext = try context.existingObject(with: post.objectID) as? ForumPost {
+					context.delete(postInContext)
+				}
+			}
+		})
+	}
+	
+	override func postV2(context: NSManagedObjectContext) {
+		guard let post = postToDelete else { 
+			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
+			return
+		}
+		confirmPostBeingSent(context: context)
 		
 		// DELETE  /api/v2/forums/:id/:post_id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/forums/\(post.thread.id)/\(post.id)", query: nil)
@@ -825,7 +1016,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpForumPostReaction) public class PostOpForumPostReaction: PostOperation {
 	@NSManaged public var reactionWord: String
 		
-		// Parent tweet, if this is a response. Can be nil.
+		// The post to apply the reaction to.
 	@NSManaged public var sourcePost: ForumPost?
 	
 		// True to add this reaction to this post, false to delete it.
@@ -836,12 +1027,35 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Posting a reaction to a Forums post."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV3(context: NSManagedObjectContext) {
 		guard let post = sourcePost else { 
 			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
 			return
 		}
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
+		
+		// POST/DELETE /api/v3/forum/post/ID/laugh
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
+				"/api/v3/forum/post/\(post.id)/\(reactionWord)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = isAdd ? "POST" : "DELETE"
+		
+		self.queueNetworkPost(request: request, success:  { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving change to Forum Post reaction.")
+				
+				let response = try Settings.v3Decoder.decode(TwitarrV3PostData.self, from: data)
+				ForumPostDataManager.shared.parsePostData(inThread: post.thread, from: response)
+			}
+		})
+	}
+	
+	override func postV2(context: NSManagedObjectContext) {
+		guard let post = sourcePost else { 
+			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
+			return
+		}
+		confirmPostBeingSent(context: context)
 		
 		// POST/DELETE /api/v2/forums/:id/:post_id/react/:type
 		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
@@ -873,8 +1087,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Creating a new Seamail thread."
 	}
 
-	override func post(context: NSManagedObjectContext) {
-		super.post(context: context)
+	override func postV2(context: NSManagedObjectContext) {
+		confirmPostBeingSent(context: context)
 		
 		// POST /api/v2/seamail
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/seamail", query: nil)
@@ -905,12 +1119,12 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Post a new Seamail message."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV2(context: NSManagedObjectContext) {
 		guard let seamailThread = thread else { 
 			self.recordServerErrorFailure(ServerError("The Seamail thread has disappeared. Perhaps it was deleted on the server?"))
 			return
 		}
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
 		
 		// POST /api/v2/seamail/:id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/seamail/\(seamailThread.id)", query: nil)
@@ -941,13 +1155,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = newState ? "Follow an Event." : "Unfollow an Event."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV2(context: NSManagedObjectContext) {
 		guard let event = event else { 
 			self.recordServerErrorFailure(ServerError("The Schedule Event we were going to follow has disappeared. Perhaps it was deleted on the server?"))
 			return
 		}
 		guard CurrentUser.shared.getLoggedInUser(in: context)?.username == author.username else { return }
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
 		
 		// POST or DELETE /api/v2/event/:id/favorite
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/event/\(event.id)/favorite", query: nil)
@@ -972,10 +1186,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Post a private comment about another user."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV2(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == author.username else { return }
 		guard let userCommentedOn = userCommentedOn else { return }
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
 
 		let userCommentStruct = TwitarrV2ChangeUserCommentRequest(comment: comment)
 		let encoder = JSONEncoder()
@@ -1012,10 +1226,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = isFavorite ? "Pending: favorite another user." : "Pending: unfavorite another user."
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV2(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
 		guard let userFavorited = userBeingFavorited else { return }
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
 				
 		// POST /api/v2/user/profile/:username/star
 		let encodedUsername = userFavorited.username.addingPathComponentPercentEncoding() ?? ""
@@ -1049,10 +1263,10 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Pending update to your user profile"
 	}
 
-	override func post(context: NSManagedObjectContext) {
+	override func postV2(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), 
 				currentUser.username == author.username else { return }
-		super.post(context: context)
+		confirmPostBeingSent(context: context)
 		
 		let profileUpdateStruct = TwitarrV2UpdateProfileRequest(displayName: displayName, email: email, 
 				homeLocation: homeLocation, pronouns: pronouns, realName: realName, roomNumber: roomNumber)
@@ -1093,8 +1307,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Pending update to your avatar image"
 	}
 
-	override func post(context: NSManagedObjectContext) {
-		super.post(context: context)
+	override func postV2(context: NSManagedObjectContext) {
+		confirmPostBeingSent(context: context)
 
 //		self.recordServerErrorFailure(ServerError("This is a test error, for testing."))
 		
@@ -1273,4 +1487,39 @@ struct TwitarrV2UpdateUserPhotoResponse: Codable {
 		case status = "status"
 		case md5Hash = "md5_hash"
 	}
+}
+
+// MARK: - V3 JSON Structs
+
+struct TwitarrV3PostCreateData: Codable {
+    /// The text of the forum post or twarrt.
+    var text: String
+    /// An optional image in Data format.
+    var imageData: Data?
+}
+
+struct TwitarrV3PostContentData: Codable {
+    /// The new text of the forum post.
+    var text: String
+    /// The filename of an existing image. Ignored if newImage is set. Set to "" to delete image. Be sure to set this field to 
+    /// match the existing image filename if not changing.
+    var imageFilename: String?
+    /// A new image to replace the existing image.
+    var newImage: TwitarrV3ImageUploadData?
+}
+
+struct TwitarrV3ImageUploadData: Codable {
+    /// The name of the image file.
+    var filename: String
+    /// The image in `Data` format.
+    var image: Data
+}
+
+struct TwitarrV3ForumCreateData: Codable {
+    /// The forum's title.
+    var title: String
+    /// The text content of the forum post.
+    var text: String
+    /// The image content of the forum post.
+    var image: Data?
 }

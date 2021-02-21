@@ -262,7 +262,7 @@ import MobileCoreServices
 			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
 					progress: imageiCloudDownloadProgress) { photoData, mimeType, error in
 				if let err = error {
-					self.statusCell.errorText = err.getErrorString()
+					self.statusCell.errorText = err.getCompleteError()
 				}
 				else if let data = photoData, let mimeType = mimeType {
 					let package = PhotoUploadPackage(iamgeData: data, mimetype: mimeType)
@@ -319,11 +319,11 @@ import MobileCoreServices
     	
     	if let edit = editPost {
     		// This is an edit of an existing post.
-			ForumsDataManager.shared.queuePostEditOp(for: edit, newText: postText, images: images, done: postEnqueued)    	
+			ForumPostDataManager.shared.queuePostEditOp(for: edit, newText: postText, images: images, done: postEnqueued)    	
     	}
 		else {
 			// This is a new post in an existing thread, or a new thread, or an update to a draft of a post.
-			ForumsDataManager.shared.queuePost(existingDraft: draftPost, inThread: thread, titleText: subjectText,
+			ForumPostDataManager.shared.queuePost(existingDraft: draftPost, inThread: thread, titleText: subjectText,
 					postText: postText, images: images, done: postEnqueued)
 		}
     }

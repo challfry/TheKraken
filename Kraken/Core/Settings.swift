@@ -20,6 +20,13 @@ import Foundation
 		return Settings.shared.apiVersion == 3
 	}
 	
+	// Need somewhere this can be referenced easily.
+	static var v3Decoder: JSONDecoder {
+		let v3 = JSONDecoder()
+		v3.dateDecodingStrategy = .formatted(DateFormatter.iso8601Full)
+		return v3
+	}
+	
 	// Settings that can't be changed once we initialize, but can be mutated for the next launch declared here.
 	@objc dynamic public lazy var baseURL = settingsBaseURL
 	@objc dynamic public lazy var apiVersion = 3

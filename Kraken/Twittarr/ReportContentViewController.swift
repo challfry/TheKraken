@@ -53,7 +53,7 @@ class ReportContentViewController: UIViewController {
 		else if let forumPostToReport = postToReport as? ForumPost {
 			subject = "Reporting a Forums post by \(forumPostToReport.author.username)"
 			message.append("Reporting Forums post by \(forumPostToReport.author.username) in forum titled \"\(forumPostToReport.thread.subject)\".")
-			message.append(" Posted at \(forumPostToReport.postDate()). Post text: \n\n\(forumPostToReport.text)")
+			message.append(" Posted at \(forumPostToReport.createTime). Post text: \n\n\(forumPostToReport.text)")
 			if forumPostToReport.photos.count > 0 {
 				message.append("\n\n<Post has \(forumPostToReport.photos.count) attached photos>")
 			}

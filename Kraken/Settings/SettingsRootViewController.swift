@@ -57,10 +57,11 @@ class SettingsRootViewController: BaseCollectionViewController {
 		
 		// Login State, login/out
 		let loginInfoSection = dataSource.appendFilteringSegment(named: "LoginInfo")
-		CurrentUser.shared.tell(self, when: ["credentialedUsers", "loggedInUser"]) { observer, observed in 
+		CurrentUser.shared.tell(self, when: ["credentialedUsers.count", "loggedInUser"]) { observer, observed in 
 			loginInfoSection.allCellModels.removeAllObjects()
 			loginInfoSection.append(cell: LoginInfoCellModel())
-			let userArray = CurrentUser.shared.credentialedUsers.sorted(by: { $0.username < $1.username } )
+			var userArray: Array<LoggedInKrakenUser> = Array(CurrentUser.shared.credentialedUsers.allObjects as! Array<LoggedInKrakenUser>)
+			userArray.sort(by: { $0.username < $1.username } )
 			for user in userArray {
 				let cell = LoggedInUserCellModel(user: user, action: weakify(self, SettingsRootViewController.userButtonTapped))
 				cell.showUserProfileAction = { [weak self] in

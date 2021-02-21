@@ -26,7 +26,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 			if let tm = self.threadModel {
 				self.postButton.isEnabled = !tm.locked
 				let lastKnownPost = tm.posts.count
-				ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) { lastIndex in
+				ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) { lastIndex in
 				}
 			}
     	}
@@ -46,13 +46,13 @@ class ForumThreadViewController: BaseCollectionViewController {
 		threadDataSource.append(segment: threadSegment)
 		var threadPredicate: NSPredicate
 		if let tm = threadModel {
-			threadPredicate = NSPredicate(format: "thread.id == %@", tm.id)
+			threadPredicate = NSPredicate(format: "thread.id == %@", tm.id as CVarArg)
 		}
 		else {
 			threadPredicate = NSPredicate(value: false)
 		}
 		threadSegment.activate(predicate: threadPredicate, 
-					sort: [ NSSortDescriptor(key: "timestamp", ascending: true)], cellModelFactory: createCellModel)
+					sort: [ NSSortDescriptor(key: "createTime", ascending: true)], cellModelFactory: createCellModel)
 		threadSegment.loaderDelegate = self
 
 		// Then add the loading segment
@@ -68,7 +68,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 
 		if let tm = threadModel {
 			postButton.isEnabled = !tm.locked
-			ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: 0) { lastIndex in
+			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: 0) { lastIndex in
 				self.highestRefreshedIndex = lastIndex
 			}
 					
@@ -107,7 +107,7 @@ extension ForumThreadViewController: FRCDataSourceLoaderDelegate {
 	func userIsViewingCell(at indexPath: IndexPath) {
 		if let tm = threadModel,  indexPath.row + 10 > highestRefreshedIndex, 
 				highestRefreshedIndex + 1 < tm.postCount, !ForumsDataManager.shared.isPerformingLoad {
-			ForumsDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex + 1) { lastIndex in
+			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex + 1) { lastIndex in
 				self.highestRefreshedIndex = lastIndex
 			}
 		}
