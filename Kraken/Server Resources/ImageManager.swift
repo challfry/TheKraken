@@ -304,10 +304,10 @@ class ImageManager : NSObject {
 			smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v2/photo/small_thumb/", limit: 1000)
 			medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v2/photo/medium_thumb/", limit: 1000)
 			largeImageCache = ImageCache(dirName: "largeImageCache", fetchURL: "/api/v2/photo/full/", limit: 1000)
+			let userImageQueryParams = [ URLQueryItem(name:"full", value:"true") ]
+			userImageCache.serverQueryParams = userImageQueryParams
 		}
 		super.init()
-		let userImageQueryParams = [ URLQueryItem(name:"full", value:"true") ]
-		userImageCache.serverQueryParams = userImageQueryParams
 	}
 
 // MARK: Image Caching

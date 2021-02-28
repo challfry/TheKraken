@@ -29,6 +29,7 @@ import UIKit
 		if let userName = modelUserName {
 	        modelKrakenUser = UserManager.shared.loadUserProfile(userName) { resultUser in
 				if self.modelKrakenUser != resultUser {
+					self.modelKrakenUser = resultUser
 					self.updateCellModels(to: resultUser)
 				}
 			}
@@ -287,8 +288,10 @@ import UIKit
 				userModel.tell(self, when: "pronouns") { observer, observed in
 					observer.pronounsLabel.text = observed.pronouns
 				}?.execute()
-				userModel.tell(self, when: [ "fullPhoto", "thumbPhoto", "thumbPhotoData" ]) { observer, observed in
-					observed.loadUserThumbnail()
+				userModel.tell(self, when: [ "userImageName" ]) { observer, observed in
+					observed.loadUserFullPhoto()
+				}?.execute()
+				userModel.tell(self, when: [ "fullPhoto", "thumbPhoto" ]) { observer, observed in
 					if let fullPhoto = observed.fullPhoto {
 						observer.userAvatar.image = fullPhoto
 					}
@@ -345,7 +348,7 @@ import UIKit
 	private static let validReuseIDs = [ "SingleValue" : SingleValueCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
-	var userModel: KrakenUser?
+	@objc dynamic var userModel: KrakenUser?
 	dynamic var title: String?
 	dynamic var value: String?
 
@@ -363,36 +366,34 @@ import UIKit
 		title = displayMode.rawValue
 		super.init(bindingWith: SingleValueCellProtocol.self)
 
-		if let user = userModel {
-			switch displayMode {
-			case .email:
-				addObservation(user.tell(self, when: "emailAddress") { observer, observed in
-					observer.value = observed.emailAddress
-					observer.shouldBeVisible = observed.emailAddress != nil
-				}?.schedule())
-			case .roomNumber: 
-				addObservation(user.tell(self, when: "roomNumber") { observer, observed in
-					observer.value = observed.roomNumber
-					observer.shouldBeVisible = observed.roomNumber != nil
-				}?.schedule())
-			case .homeLocation:
-				addObservation(user.tell(self, when: "homeLocation") { observer, observed in
-					observer.value = observed.homeLocation
-					observer.shouldBeVisible = observed.homeLocation != nil
-				}?.schedule())
-			case .currentLocation:
-				addObservation(user.tell(self, when: "currentLocation") { observer, observed in
-					observer.value = observed.currentLocation
-					observer.shouldBeVisible = observed.currentLocation != nil
-				}?.schedule())
-			}
+		switch displayMode {
+		case .email:
+			addObservation(self.tell(self, when: "userModel.emailAddress") { observer, observed in
+				observer.value = observed.userModel?.emailAddress
+				observer.shouldBeVisible = observed.userModel?.emailAddress != nil
+			}?.schedule())
+		case .roomNumber: 
+			addObservation(self.tell(self, when: "userModel.roomNumber") { observer, observed in
+				observer.value = observed.userModel?.roomNumber
+				observer.shouldBeVisible = observed.userModel?.roomNumber != nil
+			}?.schedule())
+		case .homeLocation:
+			addObservation(self.tell(self, when: "userModel.homeLocation") { observer, observed in
+				observer.value = observed.userModel?.homeLocation
+				observer.shouldBeVisible = observed.userModel?.homeLocation != nil
+			}?.schedule())
+		case .currentLocation:
+			addObservation(self.tell(self, when: "userModel.currentLocation") { observer, observed in
+				observer.value = observed.userModel?.currentLocation
+				observer.shouldBeVisible = observed.userModel?.currentLocation != nil
+			}?.schedule())
 		}
 	}
 }
 
 @objc class ProfileDisclosureCellModel: DisclosureCellModel {
 
-	var userModel: KrakenUser?
+	@objc dynamic var userModel: KrakenUser?
 	var viewController: UserProfileViewController?
 
 	enum DisplayMode {
@@ -409,50 +410,64 @@ import UIKit
 		viewController = vc
 		super.init()
 
-		if let user = userModel {
-			switch displayMode {
-			case .authoredTweets:
-				user.tell(self, when: "numberOfTweets") { observer, observed in
-					if observed.numberOfTweets == 0 {
-						observer.title = String("No Tweets")
+		switch displayMode {
+		case .authoredTweets:
+			self.tell(self, when: ["userModel.numberOfTweets", "userModel.tweets.count"]) { observer, observed in
+				switch observed.userModel?.getAuthoredTweetCount() {
+				case 0: observer.title = "No Tweets"
+				case 1: observer.title = "1 Tweet"
+				default: 
+					if let num = observed.userModel?.getAuthoredTweetCount() {
+						observer.title = "\(num) Tweets"
+					}
+					else {
+						observer.title = "See Tweets"
 					} 
-					if observed.numberOfTweets == 1 {
-						observer.title = String("1 Tweet")
+				}
+			}?.schedule()
+			shouldBeVisible = true
+		case .mentions:
+			self.tell(self, when: "userModel.numberOfMentions") { observer, observed in
+				switch observed.userModel?.numberOfMentions {
+				case 0: observer.title = "No Mentions"
+				case 1: observer.title = "1 Mention"
+				default: 
+					if let num = observed.userModel?.numberOfMentions {
+						observer.title = "\(num) Mentions"
 					}
 					else {
-						observer.title = String("\(observed.numberOfTweets) Tweets")
-					}
-				}?.schedule()
-				shouldBeVisible = true
-			case .mentions:
-				user.tell(self, when: "numberOfMentions") { observer, observed in
-					if observed.numberOfMentions == 0 {
-						observer.title = String("No Mentions")
+						observer.title = "See Mentions"
 					} 
-					else if observed.numberOfMentions == 1 {
-						observer.title = String("\(observed.numberOfMentions) Mention")
-					}
-					else {
-						observer.title = String("\(observed.numberOfMentions) Mentions")
-					}
-				}?.schedule()
-				shouldBeVisible = true
-			case .sendSeamail:
-				title = "Send Seamail to \(user.username)"
-				CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-					self.shouldBeVisible = user.username != observed.loggedInUser?.username
-				}?.execute()
-			case .editOwnProfile:
-				title = "Edit your user profile"
-				CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-					if let loggedInUsername = observed.loggedInUser?.username {
-						self.shouldBeVisible = self.userModel?.username == loggedInUsername
-					}
-					else {
-						self.shouldBeVisible = false
-					}
-				}?.execute()
+				}
+			}?.schedule()
+			shouldBeVisible = true
+		case .sendSeamail:
+			self.tell(self, when: "userModel.username") { observer, observed in
+				observer.title = "Send Seamail to \(observed.userModel?.username ?? "user")"
+				observer.shouldBeVisible = observed.userModel?.username != CurrentUser.shared.loggedInUser?.username &&
+						observed.userModel?.username != nil
+			}?.execute()
+			CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+				observer.shouldBeVisible = observer.userModel?.username != observed.loggedInUser?.username
+			}?.execute()
+		case .editOwnProfile:
+			title = "Edit your user profile"
+			self.tell(self, when: "userModel") { observer, observed in
+				if let loggedInUser = CurrentUser.shared.loggedInUser, let profileUser = observed.userModel {
+					observer.shouldBeVisible = profileUser.username == loggedInUser.username
+				}
+				else {
+					observer.shouldBeVisible = false
+				}
 			}
+			CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+				if let loggedInUser = observed.loggedInUser, let profileUser = observer.userModel {
+					observer.shouldBeVisible = profileUser.username == loggedInUser.username
+				}
+				else {
+					observer.shouldBeVisible = false
+				}
+			}?.execute()
 		}
 	}
 	

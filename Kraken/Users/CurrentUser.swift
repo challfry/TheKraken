@@ -69,26 +69,10 @@ import UserNotifications
 	// Info about the current user that should not be in KrakenUser nor cached to disk.
 	@objc dynamic var userRole: UserRole = .loggedOut
 	
-	func buildFromV2UserAccount(context: NSManagedObjectContext, v2Object: TwitarrV2UserAccount) {
-		TestAndUpdate(\.username, v2Object.username)
-		TestAndUpdate(\.displayName, v2Object.displayName)
-		TestAndUpdate(\.realName, v2Object.realName)
-		TestAndUpdate(\.pronouns, v2Object.pronouns)
-
-		TestAndUpdate(\.emailAddress, v2Object.emailAddress)
-		TestAndUpdate(\.homeLocation, v2Object.homeLocation)
-		TestAndUpdate(\.currentLocation, v2Object.currentLocation)
-		TestAndUpdate(\.roomNumber, v2Object.roomNumber)
-
-		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
-		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
-		userRole = UserRole.roleForString(str: v2Object.role) ?? .user
-//		TestAndUpdate(\.emptyPassword, v2Object.emptyPassword)
-	}
-	
+// MARK: Model Builders
 	func buildFromV3UserProfile(context: NSManagedObjectContext, v3Object: TwitarrV3UserProfileData) {
 		TestAndUpdate(\.username, v3Object.username)
-		TestAndUpdate(\.displayName, v3Object.displayName)
+		TestAndUpdate(\.displayName, v3Object.displayName ?? "")
 		TestAndUpdate(\.realName, v3Object.realName)
 		TestAndUpdate(\.pronouns, v3Object.preferredPronoun)
 
@@ -161,6 +145,24 @@ import UserNotifications
 		}
 		return nil
 	}
+
+// MARK: V2	
+	func buildFromV2UserAccount(context: NSManagedObjectContext, v2Object: TwitarrV2UserAccount) {
+		TestAndUpdate(\.username, v2Object.username)
+		TestAndUpdate(\.displayName, v2Object.displayName)
+		TestAndUpdate(\.realName, v2Object.realName)
+		TestAndUpdate(\.pronouns, v2Object.pronouns)
+
+		TestAndUpdate(\.emailAddress, v2Object.emailAddress)
+		TestAndUpdate(\.homeLocation, v2Object.homeLocation)
+		TestAndUpdate(\.currentLocation, v2Object.currentLocation)
+		TestAndUpdate(\.roomNumber, v2Object.roomNumber)
+
+		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
+		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
+		userRole = UserRole.roleForString(str: v2Object.role) ?? .user
+//		TestAndUpdate(\.emptyPassword, v2Object.emptyPassword)
+	}
 	
 	// The v2Object in this instance is NOT (generally) the logged-in user. It's another userProfile where
 	// it contains data specific to the logged-in user's POV--user comments and stars.
@@ -224,7 +226,51 @@ import UserNotifications
 				CoreDataLog.error("Couldn't save context.", ["error" : error])
 			}
 		}
+	}
+	
+	// This lets the logged in user set a private comment about another user, by creating a
+	// PostOp to send to the server with the comment.
+	func setUserComment(_ comment: String, forUser: KrakenUser) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving user note op.")
+			// get foruser in context
+			let selfInContext = try context.existingObject(with: self.objectID) as! LoggedInKrakenUser
+			let targetUserInContext = try context.existingObject(with: forUser.objectID) as! KrakenUser
+					
+			// Check for existing op for this user
+			let op = selfInContext.getPendingUserCommentOp(commentingOn: targetUserInContext,
+					inContext: context) ?? PostOpUserComment(context: context)
+			op.comment = comment
+			op.userCommentedOn = targetUserInContext
+			op.operationState = .readyToSend
+		}
+	}
 
+	func cancelUserCommentOp(_ op: PostOpUserComment) {
+		// Disallow cancelling other people's ops
+		guard username == op.author.username else { return }
+		PostOperationDataManager.shared.remove(op: op)
+	}
+	
+	func ingestUserComment(from: TwitarrV3NoteData) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving user note.")
+			// get foruser in context
+			let selfInContext = try context.existingObject(with: self.objectID) as! LoggedInKrakenUser
+			let targetUserInContext = UserManager.shared.user(from.targetUser.userID, inContext: context) ??
+					KrakenUser(context: context)
+			targetUserInContext.buildFromV3UserHeader(context: context, v3Object: from.targetUser)
+
+			// Find existing comment object--only create a comment object if there's some content to put in it
+			var commentToUpdate = selfInContext.userComments?.first(where: { $0.commentedOnUser.userID == targetUserInContext.userID })
+			if commentToUpdate == nil && !from.note.isEmpty {
+				commentToUpdate = UserComment(context: context)
+			}
+			// We won't ever delete the comment object once one has been created; that's okay--the comment 
+			// itself should become "".
+			commentToUpdate?.build(context: context, userCommentedOn: targetUserInContext, loggedInUser: selfInContext, 
+					comment: from.note)
+		}
 	}
 }
 
@@ -251,7 +297,7 @@ import UserNotifications
 	
 	// This var, right here, is what the whole app looks at to see if someone is logged in, and if so--who.
 	// If nil, the whole app sees 'nobody is logged in'.
-	// This var is widely observed via KVO.
+	// This var is widely observed via KVO. And, this should be used by the main thread only.
 	@objc dynamic var loggedInUser: LoggedInKrakenUser?
 	private var loggedInUserObjectID: NSManagedObjectID?
 	
@@ -696,40 +742,7 @@ import UserNotifications
 	}
 	
 // MARK: Move these to LoggedInKrakenUser!!!
-	
-	// This lets the logged in user set a private comment about another user.
-	func setUserComment(_ comment: String, forUser: KrakenUser) {
-		clearErrors()
-		let context = LocalCoreData.shared.networkOperationContext
-		guard let loggedInUser = self.getLoggedInUser(in: context) else { return }
 		
-		context.performAndWait {
-			do {
-				// get foruser in context
-				let userInContext = try context.existingObject(with: forUser.objectID) as! KrakenUser
-					
-				// Check for existing op for this user
-				let op = loggedInUser.getPendingUserCommentOp(commentingOn: userInContext, inContext: context) ?? PostOpUserComment(context: context)
-				op.comment = comment
-				op.userCommentedOn = userInContext
-				op.operationState = .readyToSend
-
-			
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
-			}
-		}
-	}
-	
-	func cancelUserCommentOp(_ op: PostOpUserComment) {
-		// Disallow cancelling other people's ops
-		guard let currentUser = loggedInUser, currentUser.username == op.author.username else { return }
-		
-		PostOperationDataManager.shared.remove(op: op)
-	}
-	
 	// This lets the logged in user favorite another user.
 	func setFavoriteUser(forUser: KrakenUser, to newState: Bool) {
 		guard let loggedInUser = loggedInUser else { return }
@@ -963,25 +976,22 @@ struct TwitarrV3RecoverPasswordResponse: Codable {
 struct TwitarrV3UserProfileData: Codable {
     /// The user's username. [not editable here]
     let username: String
-    /// A generated displayName + username string. [not editable]
-    var displayedName: String
     /// An optional blurb about the user.
-    var about: String
+    var about: String?
     /// An optional name for display alongside the username.
-    var displayName: String
+    var displayName: String?
     /// An optional email address.
-    var email: String
+    var email: String?
     /// An optional home location (e.g. city).
-    var homeLocation: String
+    var homeLocation: String?
     /// An optional greeting/message to visitors of the profile.
-    var message: String
+    var message: String?
     /// An optional preferred form of address.
-    var preferredPronoun: String
+    var preferredPronoun: String?
     /// An optional real name of the user.
-    var realName: String
+    var realName: String?
     /// An optional ship cabin number.
-    var roomNumber: String
+    var roomNumber: String?
     /// Whether display of the optional fields' data should be limited to logged in users.
     var limitAccess: Bool
 }
-

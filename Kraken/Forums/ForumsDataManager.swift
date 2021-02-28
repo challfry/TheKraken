@@ -16,16 +16,15 @@ import UIKit
     @NSManaged public var createTime: Date
     @NSManaged public var lastPostTime: Date?
     @NSManaged public var postCount: Int64			// == posts.count iff we've downloaded all the posts.
-    
-    @NSManaged public var posts: Set<ForumPost>
+    @NSManaged public var lastUpdateTime: Date?		// Last time we loaded *posts* on this thread. ThreadMeta doesn't count.
+
+// Relations
+    @NSManaged public var creator: KrakenUser
     @NSManaged public var lastPoster: KrakenUser
     @NSManaged public var readCount: Set<ForumReadCount>
-    @NSManaged public var creator: KrakenUser
-    
-    @NSManaged public var lastUpdateTime: Date?				// Last time we loaded *posts* on this thread. ThreadMeta doesn't count.
-    
-    // 
     @NSManaged public var category: ForumCategory
+    @NSManaged public var posts: Set<ForumPost>
+    @NSManaged public var event: Event?				// Only for event forums
 
     // Sets reasonable default values for properties that could conceivably not change during buildFromV2 methods.
 	public override func awakeFromInsert() {
@@ -64,9 +63,9 @@ import UIKit
 	}
 	
 	// TwitarrV3ForumData does have data about posts in the thread.
-	func buildFromV3(context: NSManagedObjectContext, category: ForumCategory, v3ForumData: TwitarrV3ForumData) {
-		if self.category.objectID != category.objectID {
-			self.category = category
+	func buildFromV3(context: NSManagedObjectContext, category: ForumCategory?, v3ForumData: TwitarrV3ForumData) {
+		if let cat = category, self.category.objectID != cat.objectID {
+			self.category = cat
 		}
 		if self.id != v3ForumData.forumID {
 			self.id = v3ForumData.forumID

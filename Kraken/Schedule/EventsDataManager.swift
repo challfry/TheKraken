@@ -18,16 +18,19 @@ import UserNotifications
     @NSManaged public var eventType: String
 	@NSManaged public var startTime: Date
 	@NSManaged public var endTime: Date
-    
+	@NSManaged public var forumThreadID: UUID?
     
     // Note that both the linked Calendar Event and the linked Local Notification are NOT gated on the logged in user!
     // Both of these are local to the device we're running on, and not attached to the Twitarr user!
     @NSManaged public var ekEventID: String?				// EventKit calendar item for this event, if any.
     @NSManaged public var localNotificationID: String?		// Local Notification alert for this event, if any.
-    
+  
+// Relations
     @NSManaged public var followedBy: Set<KrakenUser>
     @NSManaged public var opsFollowing: Set<PostOpEventFollow>
-    
+    @NSManaged public var forum: ForumThread?
+
+// Not saved in CD    
     @objc dynamic public var followCount: Int = 0
     @objc dynamic public var opsFollowingCount: Int = 0
     
@@ -86,22 +89,11 @@ import UserNotifications
 		TestAndUpdate(\.endTime, Date(timeIntervalSince1970: Double(v2Object.endTime) / 1000.0 ))
 				
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			if followedBy.contains(currentUser) {
-				if !v2Object.following {
-					followedBy.remove(currentUser)
-					followCount = followedBy.count
-				}
-			}
-			else {
-				if v2Object.following {
-					followedBy.insert(currentUser)
-					followCount = followedBy.count
-				}
-			}
+			setFavoriteState(context: context, user: currentUser, to: v2Object.following)
 		}
 	}
 	
-	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3Event) {
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3Event) throws {
 		TestAndUpdate(\.id, v3Object.id)
 		TestAndUpdate(\.title, v3Object.title)
 		TestAndUpdate(\.eventDescription, v3Object.eventDescription?.decodeHTMLEntities())
@@ -109,22 +101,33 @@ import UserNotifications
 		TestAndUpdate(\.eventType, v3Object.eventType)
 		TestAndUpdate(\.startTime, v3Object.startTime)
 		TestAndUpdate(\.endTime, v3Object.endTime)
-		
-		// FIXME if the event has a forum, associate it here
-				
+		TestAndUpdate(\.forumThreadID, v3Object.forum)
+
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			if followedBy.contains(currentUser) {
-				if !v3Object.following {
-					followedBy.remove(currentUser)
-					followCount = followedBy.count
-				}
+			setFavoriteState(context: context, user: currentUser, to: v3Object.following)
+		}
+
+		// Try to associate the event to its thread
+		if let threadID = forumThreadID, forum?.id != threadID {
+			let request = NSFetchRequest<ForumThread>(entityName: "ForumThread")
+			request.predicate = NSPredicate(format: "id == %@", threadID as CVarArg)
+			let cdThreads = try request.execute()
+			if let foundThread = cdThreads.first {
+				forum = foundThread
 			}
-			else {
-				if v3Object.following {
-					followedBy.insert(currentUser)
-					followCount = followedBy.count
-				}
+		}			
+	}
+	
+	func setFavoriteState(context: NSManagedObjectContext, user: KrakenUser, to newState: Bool) {
+		if followedBy.contains(user) {
+			if !newState {
+				followedBy.remove(user)
+				followCount = followedBy.count
 			}
+		}
+		else if newState {
+			followedBy.insert(user)
+			followCount = followedBy.count
 		}
 	}
 	
@@ -525,7 +528,7 @@ class EventsDataManager: NSObject {
 	
 	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
 	// not in the new list. Otherwise it only adds/updates events.
-	func  parseV3Events(_ events: [TwitarrV3Event], isFullList: Bool) {
+	func parseV3Events(_ events: [TwitarrV3Event], isFullList: Bool) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
 			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
@@ -544,10 +547,19 @@ class EventsDataManager: NSObject {
 			// Add/update
 			for v3Event in events {
 				let eventInContext = cdEvents?.first(where: { $0.id == v3Event.id }) ?? Event(context: context)
-				eventInContext.buildFromV3(context: context, v3Object: v3Event)
+				try eventInContext.buildFromV3(context: context, v3Object: v3Event)
 			}
 				
 			self.getAllLocations()
+		}
+	}
+	
+	func setEventFavorite(_ event: Event, to newState: Bool, for user: KrakenUser) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving new Schedule Event to Core Data. Was setting follow state on event.")
+			let eventInContext = try context.existingObject(with: event.objectID) as! Event
+			let userInContext = try context.existingObject(with: user.objectID) as! KrakenUser
+			eventInContext.setFavoriteState(context: context, user: userInContext, to: newState)
 		}
 	}
 		

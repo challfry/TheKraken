@@ -112,6 +112,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	@IBOutlet var 	localNotificationButton: UIButton!
 	@IBOutlet var 	addToCalendarButton: UIButton!
 	@IBOutlet var 	mapButton: UIButton!
+	@IBOutlet var 	forumButton: UIButton!
 	
 	private static let cellInfo = [ "EventCell" : PrototypeCellInfo("EventCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return EventCell.cellInfo }
@@ -135,6 +136,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		localNotificationButton.styleFor(.body)
 		addToCalendarButton.styleFor(.body)
 		mapButton.styleFor(.body)
+		forumButton.styleFor(.body)
 
 		// Set up the ribbon view -- the colored label on the left edge
 		ribbonViewLabel.layer.anchorPoint = CGPoint(x: 0.0, y: 0.0)
@@ -197,9 +199,16 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 						observer.mapButton.isHidden = true
 					}
 				}?.execute())
+				addObservation(eventModel.tell(self, when:"forumThreadID") { observer, observed in
+					observer.setForumButtonState()
+				}?.execute())
+				addObservation(CurrentUser.shared.tell(self, when:"loggedInUser") { observer, observed in
+					observer.setForumButtonState()
+				}?.execute())
 			}
 			else {
 				setFollowState()
+				setForumButtonState()
 			}
 		}
 	}
@@ -225,6 +234,15 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 			enableButton = true
 		}
 		localNotificationButton.isEnabled = enableButton
+	}
+	
+	func setForumButtonState() {
+		if let eventModel = model as? Event {
+			forumButton.isHidden = eventModel.forumThreadID == nil || !CurrentUser.shared.isLoggedIn()
+		}
+		else {
+			forumButton.isHidden = true
+		}
 	}
 	
 	func setLabelStrings() {
@@ -461,6 +479,18 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	@IBAction func mapButtonHit() {
 		if let eventModel = model as? Event, let locationName = eventModel.location {
 			dataSource?.performKrakenSegue(.showRoomOnDeckMap, sender: locationName)
+		}
+	}
+	
+	@IBAction func forumButtonHit() {
+		if let eventModel = model as? Event {
+			// FIXME: Shortcut where we don't try loading the thead
+			if let thread = eventModel.forum {
+				dataSource?.performKrakenSegue(.showForumThread, sender: thread)
+			}
+			else if let threadID = eventModel.forumThreadID {
+				dataSource?.performKrakenSegue(.showForumThread, sender: threadID)
+			}
 		}
 	}
 	

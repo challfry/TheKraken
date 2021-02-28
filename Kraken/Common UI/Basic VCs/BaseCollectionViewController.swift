@@ -79,7 +79,7 @@ enum GlobalKnownSegue: String {
 		
 		case .forumsRoot: return Void.self
 		case .showForumCategory: return ForumCategory.self
-		case .showForumThread: return ForumThread.self
+		case .showForumThread: return Any.self					// ForumThread or UUID of a thread
 		case .composeForumThread: return Void.self 
 		case .composeForumPost: return ForumThread.self 
 		case .editForumPost: return ForumPost.self 
@@ -553,6 +553,9 @@ class BaseCollectionViewController: UIViewController {
 		case .showForumThread:
 			if let destVC = segue.destination as? ForumThreadViewController, let thread = sender as? ForumThread {
 				destVC.threadModel = thread
+			}
+			if let destVC = segue.destination as? ForumThreadViewController, let threadID = sender as? UUID {
+				destVC.threadModelID = threadID
 			}
 			
 		case .composeForumThread:

@@ -266,38 +266,43 @@ import UIKit
 	@objc dynamic var isPerformingLoad: Bool = false
 
 	// Requests the posts in a forum thread, merges the response into CoreData's store.
-	func loadThreadPosts(for thread: ForumThread, fromOffset: Int, done: @escaping (Int) -> Void) {
+	func loadThreadPosts(for thread: ForumThread? = nil, forID: UUID? = nil, fromOffset: Int, 
+			done: ((ForumThread?, Int) -> Void)? = nil) {
+		let threadIDOptional: UUID? = thread?.id ?? forID
+		guard let threadID = threadIDOptional else {
+			AppLog.debug("LoadThreadPosts requires either a thread or a threadID to load from.")
+			return
+		}
 		isPerformingLoad = true
 		
 		let queryParams: [URLQueryItem] = []
-
-		let path = "api/v3/forum/\(thread.id)"
+		let path = "api/v3/forum/\(threadID)"
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
+				done?(thread, fromOffset)
 			}
 			else if let data = package.data {
 				self.lastError = nil
 			//	print (String(data: data, encoding: .utf8))
 				do {
 					let response = try Settings.v3Decoder.decode(TwitarrV3ForumData.self, from: data)
-					self.parseThreadWithPosts(for: thread, from: response)
-					let lastLoadedIndex = fromOffset + response.posts.count 
-					done(lastLoadedIndex)
+					self.parseThreadWithPosts(for: thread, from: response, offset: fromOffset, done: done)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
+					done?(thread, fromOffset)
 				} 
 			}
 			self.isPerformingLoad = false
 		}
 	}
 	
-	// Must specify either thread or category. If thread is nil, creates a new thread in category from v3Data.
-	// Else, updates an existing thread.
-	func parseThreadWithPosts(for thread: ForumThread? = nil, inCategory: ForumCategory? = nil, from v3Data: TwitarrV3ForumData) {
+	// Passing in either the thread or category reduces fetches that need to be done.
+	func parseThreadWithPosts(for thread: ForumThread? = nil, inCategory: ForumCategory? = nil, 
+			from v3Data: TwitarrV3ForumData, offset: Int = 0, done: ((ForumThread?, Int) -> Void)? = nil) {
 		LocalCoreData.shared.performNetworkParsing { context in 
 			context.pushOpErrorExplanation("Failed to parse Forum thread and add its posts to Core Data.")
 		
@@ -306,16 +311,30 @@ import UIKit
 			var categoryInContext: ForumCategory
 			if let thread = thread {
 				threadInContext = try context.existingObject(with: thread.objectID) as! ForumThread
-				categoryInContext = threadInContext.category
-			}
-			else if let cat = inCategory {
-				categoryInContext = try context.existingObject(with: cat.objectID) as! ForumCategory
-				threadInContext = ForumThread(context: context)
 			}
 			else {
-				CoreDataLog.debug("Parsing thread posts requires that there either be a forum or a category.")
-				return
+				// Search for a thread, or make one
+				let request = NSFetchRequest<ForumThread>(entityName: "ForumThread")
+				request.predicate = NSPredicate(format: "id == %@", v3Data.forumID as CVarArg)
+				let cdThreads = try context.fetch(request)
+				threadInContext = cdThreads.first ?? ForumThread(context: context)
 			}
+			categoryInContext = threadInContext.category
+			if let cat = inCategory {
+				categoryInContext = try context.existingObject(with: cat.objectID) as! ForumCategory
+			}
+			
+			if let callback = done {
+				LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
+					DispatchQueue.main.async {
+						let highestLoadedOffset = saveSuccess ? offset + v3Data.posts.count : offset
+						let mainThreadForumThread = 
+								LocalCoreData.shared.mainThreadContext.object(with: threadInContext.objectID) as? ForumThread 
+						callback(mainThreadForumThread, highestLoadedOffset)
+					}
+				}
+			}
+
 			// Update values on the thread
 			threadInContext.buildFromV3(context: context, category: categoryInContext, v3ForumData: v3Data)
 		}

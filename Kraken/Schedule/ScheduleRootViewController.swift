@@ -87,7 +87,7 @@ import EventKitUI
 		locationPicker.delegate = self
 		locationPickerContainer.isHidden = true
 
-		knownSegues = Set([.modalLogin, .showRoomOnDeckMap])
+		knownSegues = Set([.modalLogin, .showRoomOnDeckMap, .showForumThread])
     }
 	
 	var minuteNotification: Any?

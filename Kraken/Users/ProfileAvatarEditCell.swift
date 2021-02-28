@@ -49,8 +49,10 @@ import MobileCoreServices
 					}
 				}?.execute()
 
+				userModel.tell(self, when: [ "userImageName" ]) { observer, observed in
+					observed.loadUserFullPhoto()
+				}?.execute()
 				userModel.tell(self, when: [ "fullPhoto", "thumbPhoto" ]) { observer, observed in
-					userModel.loadUserThumbnail()
 					if let fullPhoto = observed.fullPhoto {
 						observer.avatarImageView.image = fullPhoto
 					}

@@ -148,14 +148,14 @@ class ProfileCommentCell: BaseCollectionViewCell, ProfileCommentCellProtocol, UI
 // MARK: Actions	
 	@IBAction func saveButtonTapped() {
 		if let model = cellModel as? ProfileCommentCellModel, let userModel = model.userModel {
-			CurrentUser.shared.setUserComment(commentView.text, forUser: userModel)
+			CurrentUser.shared.loggedInUser?.setUserComment(commentView.text, forUser: userModel)
 		}
 	}
 	
 	// 'Cancel' deletes the pending postOp and clears edits, leaving the user comment in the state the server last gave us.
 	@IBAction func cancelEditOp(_ sender: Any) {
 		if let op = commentOp {
-			CurrentUser.shared.cancelUserCommentOp(op)
+			CurrentUser.shared.loggedInUser?.cancelUserCommentOp(op)
 			if let model = cellModel as? ProfileCommentCellModel {
 				model.editedComment = nil
 			}
@@ -166,7 +166,7 @@ class ProfileCommentCell: BaseCollectionViewCell, ProfileCommentCellProtocol, UI
 	// hit save again and re-queue the postOp.
 	@IBAction func reviseEditOp(_ sender: Any) {
 		if let op = commentOp {
-			CurrentUser.shared.cancelUserCommentOp(op)
+			CurrentUser.shared.loggedInUser?.cancelUserCommentOp(op)
 		}
 	}
 	

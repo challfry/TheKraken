@@ -17,6 +17,7 @@
         <attribute name="endTime" attributeType="Date" defaultDateTimeInterval="628800960" usesScalarValueType="NO"/>
         <attribute name="eventDescription" optional="YES" attributeType="String"/>
         <attribute name="eventType" optional="YES" attributeType="String"/>
+        <attribute name="forumThreadID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="localNotificationID" optional="YES" attributeType="String"/>
         <attribute name="location" optional="YES" attributeType="String"/>
@@ -96,6 +97,7 @@
         <attribute name="songTitle" optional="YES" attributeType="String"/>
     </entity>
     <entity name="KrakenUser" representedClassName="KrakenUser" syncable="YES">
+        <attribute name="aboutMessage" optional="YES" attributeType="String"/>
         <attribute name="authKey" optional="YES" attributeType="String"/>
         <attribute name="badgeTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="blockedGlobally" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -107,8 +109,10 @@
         <attribute name="lastLogin" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastPhotoUpdated" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastSeamailCheckTime" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="limitProfileAccess" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="numberOfMentions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="numberOfTweets" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="profileMessage" optional="YES" attributeType="String"/>
         <attribute name="pronouns" optional="YES" attributeType="String"/>
         <attribute name="realName" optional="YES" attributeType="String"/>
         <attribute name="role" optional="YES" attributeType="String"/>
@@ -332,7 +336,7 @@
     <elements>
         <element name="Announcement" positionX="-131.487060546875" positionY="-196.2130737304688" width="128" height="133"/>
         <element name="Emoji" positionX="-1057.217041015625" positionY="106.9619140625" width="128" height="73"/>
-        <element name="Event" positionX="190.848388671875" positionY="-508.4818725585938" width="128" height="28"/>
+        <element name="Event" positionX="190.848388671875" positionY="-508.4818725585938" width="128" height="224"/>
         <element name="ForumCategory" positionX="-864" positionY="-675" width="128" height="89"/>
         <element name="ForumPost" positionX="-928.894775390625" positionY="-490.3908386230469" width="128" height="194"/>
         <element name="ForumReadCount" positionX="-768.2960815429688" positionY="-493.8979797363281" width="128" height="133"/>
@@ -340,7 +344,7 @@
         <element name="GameListFavorite" positionX="-1056.041381835938" positionY="192.8661499023438" width="128" height="58"/>
         <element name="Hashtag" positionX="-1057.814025878906" positionY="260.6491088867188" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="-1056.693969726562" positionY="337.1846923828125" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="689"/>
+        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="734"/>
         <element name="LoggedInKrakenUser" positionX="34.24688720703125" positionY="-391.6840209960938" width="128" height="45"/>
         <element name="PhotoDetails" positionX="-422.6431884765625" positionY="193.2229614257812" width="128" height="179"/>
         <element name="PostOperation" positionX="-418.780029296875" positionY="-659.5100402832031" width="128" height="118"/>

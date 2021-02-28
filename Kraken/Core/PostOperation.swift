@@ -161,7 +161,7 @@ struct PhotoUploadPackage {
 
 				for op in operations {
 					// Test 1. Only send ops authored by the logged in user.
-					if op.author.username != currentUser.username {
+					if op.author.userID != currentUser.userID {
 						continue
 					}	
 				
@@ -398,7 +398,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let filename = "photo.jpg"
 		let path = isUserPhoto ? "/api/v2/user/photo" : "/api/v2/photo"
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		
 		// Choose a multipart boundary that isn't contained in the picture data
@@ -540,7 +540,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)				
 		request.httpBody = httpContentData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 
 		self.queueNetworkPost(request: request) { data in
@@ -580,7 +580,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			}
 			
 			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-			NetworkGovernor.addUserCredential(to: &request)
+			NetworkGovernor.addUserCredential(to: &request, forUser: self.author)
 			request.httpMethod = "POST"
 			
 			self.queueNetworkPost(request: request, success: { data in
@@ -640,7 +640,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? "like"
 		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
 				"/api/v3/twitarr/\(post.id)/\(encodedReationWord)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		
 		self.queueNetworkPost(request: request, success:  { data in
@@ -661,7 +661,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
 		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
 				"/api/v2/tweet/\(post.id)/react/\(encodedReationWord)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		
 		self.queueNetworkPost(request: request, success:  { data in
@@ -693,7 +693,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// DELETE /api/v3/twitarr/ID
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v3/twitarr/\(post.id)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "DELETE"
 		
 		self.queueNetworkPost(request: request, success: { data in
@@ -724,7 +724,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// DELETE /api/v2/tweet/:id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/tweet/\(post.id)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "DELETE"
 		
 		self.queueNetworkPost(request: request, success: { data in
@@ -826,7 +826,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		confirmPostBeingSent(context: context)
 		
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		request.httpBody = content
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -846,7 +846,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				}
 				else if let thread = self.thread {
 					ForumPostDataManager.shared.loadThreadPosts(for: thread, fromOffset: thread.posts.count - 1, 
-							done: { x in })
+							done: { _,_ in })
 				}
 			}
 		})
@@ -897,7 +897,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				isNewThread = false
 			}
 			var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
-			NetworkGovernor.addUserCredential(to: &request)
+			NetworkGovernor.addUserCredential(to: &request, forUser: self.author)
 			request.httpMethod = "POST"
 			
 			let postRequestStruct = TwitarrV2ForumNewPostRequest(subject: self.subject, text: postText,
@@ -967,7 +967,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// DELETE  /api/v2/forums/:id/:post_id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v3/forum/post/\(post.id)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "DELETE"
 		self.queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
@@ -988,7 +988,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// DELETE  /api/v2/forums/:id/:post_id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/forums/\(post.thread.id)/\(post.id)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "DELETE"
 		
 		self.queueNetworkPost(request: request, success:  { data in
@@ -1037,7 +1037,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// POST/DELETE /api/v3/forum/post/ID/laugh
 		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
 				"/api/v3/forum/post/\(post.id)/\(reactionWord)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		
 		self.queueNetworkPost(request: request, success:  { data in
@@ -1061,7 +1061,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
 		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: 
 				"/api/v2/forums/\(post.thread.id)/\(post.id)/react/\(encodedReationWord)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = isAdd ? "POST" : "DELETE"
 		
 		self.queueNetworkPost(request: request, success:  { data in
@@ -1092,7 +1092,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// POST /api/v2/seamail
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/seamail", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		let usernames = recipients?.map { $0.username } ?? []
 		let newThreadStruct = TwitarrV2NewSeamailThreadRequest(users: usernames, subject: subject, text: text)
@@ -1128,7 +1128,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// POST /api/v2/seamail/:id
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/seamail/\(seamailThread.id)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		let newMessageStruct = TwitarrV2NewSeamailMessageRequest(text: text)
 		let newMessageData = try! JSONEncoder().encode(newMessageStruct)
@@ -1155,6 +1155,24 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = newState ? "Follow an Event." : "Unfollow an Event."
 	}
 
+	override func postV3(context: NSManagedObjectContext) {
+		guard let event = event else { 
+			self.recordServerErrorFailure(ServerError("The Schedule Event we were going to follow has disappeared. Perhaps it was deleted on the server?"))
+			return
+		}
+		confirmPostBeingSent(context: context)
+		
+		// POST/DELETE /api/v3/events/ID/favorite
+		let path = "/api/v3/events/\(event.id)/favorite"
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: path, query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		request.httpMethod = newState ? "POST" : "DELETE"
+		
+		queueNetworkPost(request: request, success:  { data in
+			EventsDataManager.shared.setEventFavorite(event, to: self.newState, for: self.author)
+		})
+	}
+
 	override func postV2(context: NSManagedObjectContext) {
 		guard let event = event else { 
 			self.recordServerErrorFailure(ServerError("The Schedule Event we were going to follow has disappeared. Perhaps it was deleted on the server?"))
@@ -1165,7 +1183,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// POST or DELETE /api/v2/event/:id/favorite
 		var request = NetworkGovernor.buildTwittarV2Request(withPath: "/api/v2/event/\(event.id)/favorite", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod =  newState ? "POST" : "DELETE"		
 		queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
@@ -1186,6 +1204,33 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Post a private comment about another user."
 	}
 
+	override func postV3(context: NSManagedObjectContext) {
+		guard let userCommentedOn = userCommentedOn else { return }
+		confirmPostBeingSent(context: context)
+		
+		// POST /api/v3/user/profile`
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v3/users/\(userCommentedOn.userID)/note", query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		if comment.isEmpty {
+			request.httpMethod = "DELETE"
+		}
+		else {
+			let postContent = TwitarrV3NoteCreateData(note: comment)
+			let postData = try! JSONEncoder().encode(postContent)
+			request.httpMethod = "POST"
+			request.httpBody = postData
+			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		}
+		
+		queueNetworkPost(request: request, success:  { data in
+			if let response = try? Settings.v3Decoder.decode(TwitarrV3NoteData.self, from: data) {
+				if let loggedInAuthoor = self.author as? LoggedInKrakenUser {
+					loggedInAuthoor.ingestUserComment(from: response)
+				}
+			}
+		})
+	}
+
 	override func postV2(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == author.username else { return }
 		guard let userCommentedOn = userCommentedOn else { return }
@@ -1199,7 +1244,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let encodedUsername = userCommentedOn.username.addingPathComponentPercentEncoding() ?? ""
 		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/profile/\(encodedUsername)/personal_comment", 
 				query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		request.httpBody = requestData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1234,7 +1279,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// POST /api/v2/user/profile/:username/star
 		let encodedUsername = userFavorited.username.addingPathComponentPercentEncoding() ?? ""
 		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/profile/\(encodedUsername)/star", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
@@ -1263,6 +1308,28 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Pending update to your user profile"
 	}
 
+	override func postV3(context: NSManagedObjectContext) {
+		confirmPostBeingSent(context: context)
+		
+		let postContent = TwitarrV3UserProfileData(username: author.username, about: "", displayName: displayName, 
+				email: email, homeLocation: homeLocation, message: "", preferredPronoun: pronouns, 
+				realName: realName, roomNumber: roomNumber, limitAccess: false)
+		let postData = try! JSONEncoder().encode(postContent)
+		
+		// POST /api/v3/user/profile`
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v3/user/profile", query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		request.httpMethod = "POST"
+		request.httpBody = postData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		
+		queueNetworkPost(request: request, success:  { data in
+			if let response = try? Settings.v3Decoder.decode(TwitarrV3UserProfileData.self, from: data) {
+				UserManager.shared.updateV3Profile(for: self.author, from: response)
+			}
+		})
+	}
+
 	override func postV2(context: NSManagedObjectContext) {
 		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), 
 				currentUser.username == author.username else { return }
@@ -1274,7 +1341,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let requestData = try! encoder.encode(profileUpdateStruct)
 
 		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/profile", query: nil)
-		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		request.httpBody = requestData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1307,6 +1374,33 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Pending update to your avatar image"
 	}
 
+	// /api/v3/user/image
+	override func postV3(context: NSManagedObjectContext) {
+		confirmPostBeingSent(context: context)
+		
+		// POST api/v3/user/image
+		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "api/v3/user/image", query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		if let imageData = image {
+			let uploadData = TwitarrV3ImageUploadData(filename: "userAvatar", image: imageData as Data)
+			let postData = try! JSONEncoder().encode(uploadData)
+			request.httpBody = postData
+			request.httpMethod = "POST"
+			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		}
+		else {
+			request.httpMethod = "DELETE"
+		}
+		
+		queueNetworkPost(request: request, success: { data in
+			var newFilename: String?
+			if let response = try? Settings.v3Decoder.decode(TwitarrV3UploadedImageData.self, from: data) {
+				newFilename = response.filename
+			}
+			UserManager.shared.updateUserImageInfo(user: self.author, newFilename: newFilename)
+		})
+	}
+
 	override func postV2(context: NSManagedObjectContext) {
 		confirmPostBeingSent(context: context)
 
@@ -1326,7 +1420,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		else {
 			// We're deleting the image
 			var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/user/photo", query: nil)
-			NetworkGovernor.addUserCredential(to: &request)
+			NetworkGovernor.addUserCredential(to: &request, forUser: author)
 			request.httpMethod = "DELETE"
 			queueNetworkPost(request: request, success:  { data in
 				do {
@@ -1522,4 +1616,14 @@ struct TwitarrV3ForumCreateData: Codable {
     var text: String
     /// The image content of the forum post.
     var image: Data?
+}
+
+struct TwitarrV3UploadedImageData: Codable {
+    /// The generated name of the uploaded image.
+    var filename: String
+}
+
+struct TwitarrV3NoteCreateData: Codable {
+    /// The text of the note.
+    var note: String
 }

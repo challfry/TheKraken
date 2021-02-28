@@ -216,9 +216,12 @@ struct NetworkResponse {
 	// Depending on what the server wants, this could add a query parameter, a HTTP header, or a cookie.
 	// In V2 it works by adding a URL query parameter. V3 adds a "Authorization" HTTP header.
 	// The idea is that this fn can mutate the request however necessary.
-	class func addUserCredential(to request: inout URLRequest)  {
+	class func addUserCredential(to request: inout URLRequest, forUser: KrakenUser? = nil) {
+		// We usually add the current user's creds; some deferred PostOps may need to run for an author
+		// other than the current user.
+		let userToAuth = forUser ?? CurrentUser.shared.loggedInUser
 		// We can only add user creds if we're logged in--otherwise, we return request unchanged.
-		guard CurrentUser.shared.isLoggedIn(), let authKey = CurrentUser.shared.loggedInUser?.authKey else {
+		guard let loggedInUserToAuth = userToAuth as? LoggedInKrakenUser, let authKey = loggedInUserToAuth.authKey else {
 			return
 		}
 	

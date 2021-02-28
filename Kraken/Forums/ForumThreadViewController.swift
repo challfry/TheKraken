@@ -11,8 +11,10 @@ import UIKit
 class ForumThreadViewController: BaseCollectionViewController {
 	@IBOutlet weak var postButton: UIBarButtonItem!
 	
-	// Not set up for the threadModel to change while the VC is visible.
+	// ThreadModel is what we're modelling, but you can set threadModelID and we'll load that thread ID 
+	// and set threadModel ourselves.
 	@objc dynamic var threadModel: ForumThread?
+	@objc dynamic var threadModelID: UUID?
 	
 	var highestRefreshedIndex: Int = 0
 
@@ -26,7 +28,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 			if let tm = self.threadModel {
 				self.postButton.isEnabled = !tm.locked
 				let lastKnownPost = tm.posts.count
-				ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) { lastIndex in
+				ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) { thread, lastIndex in
 				}
 			}
     	}
@@ -36,23 +38,13 @@ class ForumThreadViewController: BaseCollectionViewController {
     	}?.execute()
     	return cell
     }()
-
+    
 	override func viewDidLoad() {
         super.viewDidLoad()
 		knownSegues = Set([.composeForumPost, .editForumPost, .tweetFilter, .userProfile, .modalLogin, .reportContent])
-		title = threadModel?.subject ?? "Thread"
-
+		
 		// First add the segment with all the posts
 		threadDataSource.append(segment: threadSegment)
-		var threadPredicate: NSPredicate
-		if let tm = threadModel {
-			threadPredicate = NSPredicate(format: "thread.id == %@", tm.id as CVarArg)
-		}
-		else {
-			threadPredicate = NSPredicate(value: false)
-		}
-		threadSegment.activate(predicate: threadPredicate, 
-					sort: [ NSSortDescriptor(key: "createTime", ascending: true)], cellModelFactory: createCellModel)
 		threadSegment.loaderDelegate = self
 
 		// Then add the loading segment
@@ -61,17 +53,28 @@ class ForumThreadViewController: BaseCollectionViewController {
 
 		// Then register the whole thing.
 		threadDataSource.register(with: collectionView, viewController: self)
+
+		self.tell(self, when: "threadModel") { observer, observed in 
+			observer.title = observed.threadModel?.subject ?? "Thread"
+			var threadPredicate: NSPredicate
+			if let tm = observed.threadModel {
+				threadPredicate = NSPredicate(format: "thread.id == %@", tm.id as CVarArg)
+			}
+			else {
+				threadPredicate = NSPredicate(value: false)
+			}
+			observer.threadSegment.activate(predicate: threadPredicate, 
+					sort: [ NSSortDescriptor(key: "createTime", ascending: true)], cellModelFactory: observer.createCellModel)
+			observer.postButton.isEnabled = observed.threadModel?.locked == false
+		}?.execute()
     }
     
     override func viewWillAppear(_ animated: Bool) {
     	super.viewWillAppear(animated)
 
-		if let tm = threadModel {
-			postButton.isEnabled = !tm.locked
-			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: 0) { lastIndex in
-				self.highestRefreshedIndex = lastIndex
-			}
-					
+		ForumPostDataManager.shared.loadThreadPosts(for: threadModel, forID: threadModelID, fromOffset: 0) { thread, lastIndex in
+    		self.threadModel = thread
+			self.highestRefreshedIndex = lastIndex
 		}
 	}
 	
@@ -107,7 +110,7 @@ extension ForumThreadViewController: FRCDataSourceLoaderDelegate {
 	func userIsViewingCell(at indexPath: IndexPath) {
 		if let tm = threadModel,  indexPath.row + 10 > highestRefreshedIndex, 
 				highestRefreshedIndex + 1 < tm.postCount, !ForumsDataManager.shared.isPerformingLoad {
-			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex + 1) { lastIndex in
+			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex + 1) { thread, lastIndex in
 				self.highestRefreshedIndex = lastIndex
 			}
 		}
