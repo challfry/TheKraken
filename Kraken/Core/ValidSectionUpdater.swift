@@ -37,7 +37,7 @@ import UIKit
 	}
 
 	override func updateMethod() {
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/admin/sections", query: nil)
+		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/admin/sections", query: nil)
 		NetworkGovernor.shared.queue(request) { networkResponse in
 			if let response = networkResponse.response, response.statusCode < 300,
 					let data = networkResponse.data {

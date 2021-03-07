@@ -23,7 +23,7 @@ class AlertsUpdater: ServerUpdater {
 		if let currentUser = CurrentUser.shared.loggedInUser {
 		
 			// 
-			var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/alerts/last_checked", query: nil)
+			var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/alerts/last_checked", query: nil)
 			NetworkGovernor.addUserCredential(to: &request)
 			let lastCheckTime = currentUser.lastAlertCheckTime
 			let lastCheckedData = TwitarrV2AlertsLastCheckedChangeRequest(last_checked_time: lastCheckTime)
@@ -55,7 +55,7 @@ class AlertsUpdater: ServerUpdater {
 	
 		let queryParams: [URLQueryItem] = []
 //		queryParams.append(URLQueryItem(name:"no_reset", value: "true"))		
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/alerts", query: queryParams)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/alerts", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in

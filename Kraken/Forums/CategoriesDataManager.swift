@@ -39,7 +39,7 @@ import UIKit
 	
 	func loadForumCategories() {
 		isPerformingLoad = true
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v3/forum/categories", query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/forum/categories", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {

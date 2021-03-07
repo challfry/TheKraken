@@ -277,7 +277,7 @@ import UIKit
 		
 		let queryParams: [URLQueryItem] = []
 		let path = "api/v3/forum/\(threadID)"
-		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: queryParams)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {

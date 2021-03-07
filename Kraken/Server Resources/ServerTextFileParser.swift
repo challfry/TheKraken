@@ -41,7 +41,7 @@ class ServerTextFileParser: NSObject {
 	func getServerTextFile(named: String) {
 
 		//
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/text/\(named)", query: nil)
+		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/text/\(named)", query: nil)
 		isFetchingData = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {

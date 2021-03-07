@@ -464,7 +464,7 @@ class EventsDataManager: NSObject {
 		
 	func loadEvents() {
 		let path = Settings.apiV3 ? "/api/v3/events" : "/api/v2/event"
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:path, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:path, query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in

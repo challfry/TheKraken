@@ -147,7 +147,7 @@ import CoreData
 		queryParams.append(URLQueryItem(name:"after", value: "\(currentUser.lastSeamailCheckTime)"))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
 		
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/seamail_threads", query: queryParams)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/seamail_threads", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -172,7 +172,7 @@ import CoreData
 	func loadSeamailThread(thread: SeamailThread, done: @escaping () -> Void) {
 		// TODO: Add Limiter
 		
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/seamail/\(thread.id)", query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/seamail/\(thread.id)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {

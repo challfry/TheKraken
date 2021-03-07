@@ -200,7 +200,7 @@ class AnnouncementsUpdater: ServerUpdater {
 	}
 	
 	override func updateMethod() {
-		let request = NetworkGovernor.buildTwittarV2Request(withPath:"/api/v2/announcements", query: nil)
+		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/announcements", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			var success = false
 			if let error = NetworkGovernor.shared.parseServerError(package) {

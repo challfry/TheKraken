@@ -168,7 +168,7 @@ import CoreData
 			return
 		}
 
-		let request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: path)
+		let request = NetworkGovernor.buildTwittarRequest(withEscapedPath: path)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				ImageLog.error(error.errorString)
@@ -332,7 +332,7 @@ class UserManager : NSObject {
 		// Input sanitizing: URLComponents should percent escape username to make a valid path; 
 		// but the username could still have "/" in it. 
 		let encodedUsername = username.addingPathComponentPercentEncoding() ?? ""
-		var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v3/users/find/\(encodedUsername)", query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/users/find/\(encodedUsername)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -362,7 +362,7 @@ class UserManager : NSObject {
 				return
 			}
 			
-			var request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v3/users/\(user.userID)/profile", query: nil)
+			var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/users/\(user.userID)/profile", query: nil)
 			NetworkGovernor.addUserCredential(to: &request)
 			NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 				if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -638,7 +638,7 @@ class UserManager : NSObject {
 		// but the username could still have "/" in it. 
 		let encodedUsername = partialName.addingPathComponentPercentEncoding() ?? ""
 
-		let request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/user/ac/\(encodedUsername)", query: nil)
+		let request = NetworkGovernor.buildTwittarRequest(withEscapedPath:"/api/v2/user/ac/\(encodedUsername)", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.autocorrectCallInProgress = false
 			if let error = NetworkGovernor.shared.parseServerError(package) {

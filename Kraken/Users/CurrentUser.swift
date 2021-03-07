@@ -375,7 +375,7 @@ import UserNotifications
 		
 		// Call login, and then call whoami
 		let loginAPIPath = Settings.apiV3 ? "/api/v3/auth/login" : "/api/v2/user/auth"
-		var request = NetworkGovernor.buildTwittarV2Request(withPath: loginAPIPath, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: loginAPIPath, query: nil)
 		request.httpMethod = "POST"
 		if Settings.apiV3 {
 			let credentials = "\(name):\(password)".data(using: .utf8)!.base64EncodedString()
@@ -467,7 +467,7 @@ import UserNotifications
 	func loadProfileInfo() {
 		let queryParams = [URLQueryItem]()
 		let profileAPIPath = Settings.apiV3 ? "/api/v3/user/profile" : "/api/v2/user/profile"
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:profileAPIPath, query: queryParams)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:profileAPIPath, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		
 		NetworkGovernor.shared.queue(request) { package in
@@ -531,7 +531,7 @@ import UserNotifications
 			// We send a logout request, but don't care about its result
 			let logoutAPIPath = Settings.apiV3 ? "/api/v3/auth/logout" : "/api/v2/user/logout"
 			let queryParams: [URLQueryItem] = []
-			var request = NetworkGovernor.buildTwittarV2Request(withPath:logoutAPIPath, query: queryParams)
+			var request = NetworkGovernor.buildTwittarRequest(withPath:logoutAPIPath, query: queryParams)
 			NetworkGovernor.addUserCredential(to: &request)
 			request.httpMethod = "POST"
 			NetworkGovernor.shared.queue(request) { package in
@@ -594,7 +594,7 @@ import UserNotifications
 	//	print (String(decoding:authData, as: UTF8.self))
 				
 		// Call the login endpoint
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:authPath, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:authPath, query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -655,7 +655,7 @@ import UserNotifications
 				
 		// Call change_password
 		let path = Settings.apiV3 ? "/api/v3/user/password" : "/api/v2/user/change_password"
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:path, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:path, query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -709,7 +709,7 @@ import UserNotifications
 				
 		// Call reset_password
 		let path = Settings.apiV3 ? "/api/v3/auth/recovery" : "/api/v2/user/reset_password"
-		var request = NetworkGovernor.buildTwittarV2Request(withPath: path, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")

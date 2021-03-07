@@ -457,7 +457,7 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		query.append(URLQueryItem(name: "limit", value: "\(limit)"))
 	//	query.append(URLQueryItem(name: "page", value: String(fromOffset)))
 
-		request = NetworkGovernor.buildTwittarV2Request(withEscapedPath: "/api/v3/twitarr/", query: query)
+		request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/twitarr/", query: query)
 		NetworkGovernor.addUserCredential(to: &request)
 		return request		
 	}
@@ -636,7 +636,7 @@ class TwitarrDataManager: NSObject {
 			}
 		}
 		
-		var request = NetworkGovernor.buildTwittarV2Request(withPath:path, query: queryParams)
+		var request = NetworkGovernor.buildTwittarRequest(withPath:path, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in

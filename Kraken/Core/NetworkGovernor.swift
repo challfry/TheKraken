@@ -187,7 +187,7 @@ struct NetworkResponse {
 		}
 	}
 	
-	class func buildTwittarV2Request(withPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
+	class func buildTwittarRequest(withPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
 	
 		var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
 		components?.path = path
@@ -200,7 +200,7 @@ struct NetworkResponse {
 		return request
 	}
 
-	class func buildTwittarV2Request(withEscapedPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
+	class func buildTwittarRequest(withEscapedPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
 	
 		var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
 		components?.percentEncodedPath = path

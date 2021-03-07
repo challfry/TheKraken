@@ -248,7 +248,7 @@ class ImageCache {
 			}
 			
 			// 3. Ask the server.
-			let request = NetworkGovernor.buildTwittarV2Request(withPath:"\(self.fetchURLPath)\(key)", 
+			let request = NetworkGovernor.buildTwittarRequest(withPath:"\(self.fetchURLPath)\(key)", 
 					query: self.serverQueryParams)
 			NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 				if let error = NetworkGovernor.shared.parseServerError(package) {

@@ -77,7 +77,7 @@ class HashtagDataManager: NSObject {
 		autocompleteCallInProgress = true
 		
 		let encodedPrefix = prefix.addingPathComponentPercentEncoding() ?? ""
-		let request = NetworkGovernor.buildTwittarV2Request(withEscapedPath:"/api/v2/hashtag/ac/\(encodedPrefix)", query: nil)
+		let request = NetworkGovernor.buildTwittarRequest(withEscapedPath:"/api/v2/hashtag/ac/\(encodedPrefix)", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.autocompleteCallInProgress = false
 			if let error = NetworkGovernor.shared.parseServerError(package) {
