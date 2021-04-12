@@ -192,7 +192,7 @@ import UIKit
     func buildRecentsList() -> Set<PossibleKrakenUser> {
     	// Grab the 50 most recent seamail threads, scavenge them for usernames.
     	let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
-    	request.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
+    	request.sortDescriptors = [ NSSortDescriptor(key: "lastModTime", ascending: false)]
     	request.predicate = NSPredicate(value: true)
     	request.fetchLimit = 50
     	let fetchedObjects = try? LocalCoreData.shared.mainThreadContext.fetch(request)

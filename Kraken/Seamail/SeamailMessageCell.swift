@@ -15,9 +15,9 @@ import CoreData
 	}
 
 	override func reuseID(traits: UITraitCollection) -> String {
-		guard let username = CurrentUser.shared.loggedInUser?.username else { return "SeamailMessageCell" }
+		guard let userID = CurrentUser.shared.loggedInUser?.userID else { return "SeamailMessageCell" }
 		
-		if let message = model as? SeamailMessage, message.author.username == username {
+		if let message = model as? SeamailMessage, message.author?.userID == userID {
     		return "SeamailSelfMessageCell"
     	}
     	else if let _ = model as? PostOpSeamailMessage {
@@ -53,9 +53,8 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
     		if let self = self, let message = self.model as? SeamailMessage, !message.isDeleted {
-	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
-	    		let dateString = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
-				self.authorUsernameLabel?.attributedText = self.authorAndTime(author: message.author.username, 
+	    		let dateString = StringUtilities.relativeTimeString(forDate: message.timestamp)
+				self.authorUsernameLabel?.attributedText = self.authorAndTime(author: message.author?.username, 
 						time: dateString)
 				self.postTimeLabel?.attributedText = self.authorAndTime(author: nil, time: dateString)
 			}
@@ -68,22 +67,21 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 	    	//	authorUsernameLabel.text = message.author.username
 				let msgFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
 	    		messageLabel.attributedText = StringUtilities.cleanupText(message.text, font: msgFont)
-	    		let postDate: TimeInterval = TimeInterval(message.timestamp) / 1000.0
-	    		let dateString = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
-				authorUsernameLabel?.attributedText = authorAndTime(author: message.author.username, time: dateString)
+	    		let dateString = StringUtilities.relativeTimeString(forDate: message.timestamp)
+				authorUsernameLabel?.attributedText = authorAndTime(author: message.author?.username, time: dateString)
 				postTimeLabel?.attributedText = authorAndTime(author: nil, time: dateString)
 				contentView.backgroundColor = UIColor(named: "Cell Background")
  
-				message.author.loadUserThumbnail()
-				message.author.tell(self, when:"thumbPhoto") { observer, observed in
+				message.author?.loadUserThumbnail()
+				message.author?.tell(self, when:"thumbPhoto") { observer, observed in
 					observed.loadUserThumbnail()
 					observer.authorImage.image = observed.thumbPhoto
 //					CollectionViewLog.debug("Setting user image for \(observed.username)", ["image" : observed.thumbPhoto])
 				}?.schedule()
 				
 				var authorAccessibility = "You"
-				if authorUsernameLabel?.isHidden == false {
-					authorAccessibility = "\(message.author.username)"
+				if authorUsernameLabel?.isHidden == false, let authorName = message.author?.username {
+					authorAccessibility = "\(authorName)"
 				}
 				accessibilityLabel = "\(authorAccessibility), \(dateString) wrote, \(messageLabel.text ?? "")"
 				isAccessibilityElement = true

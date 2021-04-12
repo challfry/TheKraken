@@ -322,10 +322,10 @@ class UserManager : NSObject {
 	}
 	
 // MARK: Loading user info from server
-	func loadUser(_ username: String, done: @escaping ((KrakenUser?) -> Void)) {
+	func loadUser(_ username: String, inContext: NSManagedObjectContext? = nil, done: @escaping ((KrakenUser?) -> Void)) {
 		// The background context we use to save data parsed from network calls CAN use the object ID but 
 		// CANNOT reference the object
-		if let krakenUser = user(username) {
+		if let krakenUser = user(username, inContext: inContext) {
 			done(krakenUser)
 		}
 		

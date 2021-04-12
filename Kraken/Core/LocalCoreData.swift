@@ -24,6 +24,7 @@ extension TestAndSettable where Self : KrakenManagedObject {
 	}
 }
 
+
 // A base class for our Core Data Managed Objects; contains utility functions
 @objc(KrakenManagedObject) public class KrakenManagedObject: NSManagedObject, TestAndSettable {
 

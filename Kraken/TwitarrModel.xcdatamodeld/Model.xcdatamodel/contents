@@ -136,7 +136,9 @@
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction"/>
         <relationship name="seamailAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="author" inverseEntity="SeamailMessage"/>
+        <relationship name="seamailOwnedThreads" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="owner" inverseEntity="SeamailThread"/>
         <relationship name="seamailParticipant" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="participants" inverseEntity="SeamailThread"/>
+        <relationship name="seamailReadCounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailReadCount" inverseName="user" inverseEntity="SeamailReadCount"/>
         <relationship name="seamailReader" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="readUsers" inverseEntity="SeamailMessage"/>
         <relationship name="starredBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredUsers" inverseEntity="KrakenUser"/>
         <relationship name="starredUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredBy" inverseEntity="KrakenUser"/>
@@ -260,7 +262,7 @@
     <entity name="SeamailMessage" representedClassName="SeamailMessage" syncable="YES">
         <attribute name="id" attributeType="String"/>
         <attribute name="text" attributeType="String"/>
-        <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailAuthor" inverseEntity="KrakenUser"/>
         <relationship name="readUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailReader" inverseEntity="KrakenUser"/>
         <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="messages" inverseEntity="SeamailThread"/>
@@ -270,15 +272,30 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="SeamailReadCount" representedClassName="SeamailReadCount" syncable="YES">
+        <attribute name="postCount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="readCount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="viewedCount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="readCounts" inverseEntity="SeamailThread"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailReadCounts" inverseEntity="KrakenUser"/>
+    </entity>
     <entity name="SeamailThread" representedClassName="SeamailThread" syncable="YES">
-        <attribute name="id" attributeType="String"/>
-        <attribute name="messageCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="endTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="fezType" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="info" optional="YES" attributeType="String"/>
+        <attribute name="lastModTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="startTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="subject" attributeType="String"/>
-        <attribute name="timestamp" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="fullyReadBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="upToDateSeamailThreads" inverseEntity="KrakenUser"/>
+        <relationship name="attendees" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="KrakenUser"/>
+        <relationship name="fullyReadBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="upToDateSeamailThreads" inverseEntity="KrakenUser"/>
         <relationship name="messages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="thread" inverseEntity="SeamailMessage"/>
         <relationship name="opsAddingMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpSeamailMessage" inverseName="thread" inverseEntity="PostOpSeamailMessage"/>
+        <relationship name="owner" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailOwnedThreads" inverseEntity="KrakenUser"/>
         <relationship name="participants" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailParticipant" inverseEntity="KrakenUser"/>
+        <relationship name="readCounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailReadCount" inverseName="thread" inverseEntity="SeamailReadCount"/>
+        <relationship name="waitList" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="KrakenUser"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -344,7 +361,7 @@
         <element name="GameListFavorite" positionX="-1056.041381835938" positionY="192.8661499023438" width="128" height="58"/>
         <element name="Hashtag" positionX="-1057.814025878906" positionY="260.6491088867188" width="128" height="58"/>
         <element name="KaraokeFavoriteSong" positionX="-1056.693969726562" positionY="337.1846923828125" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="734"/>
+        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="764"/>
         <element name="LoggedInKrakenUser" positionX="34.24688720703125" positionY="-391.6840209960938" width="128" height="45"/>
         <element name="PhotoDetails" positionX="-422.6431884765625" positionY="193.2229614257812" width="128" height="179"/>
         <element name="PostOperation" positionX="-418.780029296875" positionY="-659.5100402832031" width="128" height="118"/>
@@ -364,8 +381,9 @@
         <element name="PostOpUserProfileEdit" positionX="-115.105712890625" positionY="-655.0635681152344" width="128" height="133"/>
         <element name="PotentialUser" positionX="34.7012939453125" positionY="-496.3875122070312" width="128" height="90"/>
         <element name="Reaction" positionX="183.7169189453125" positionY="-77.63458251953125" width="128" height="104"/>
-        <element name="SeamailMessage" positionX="57.231201171875" positionY="97.29388427734375" width="128" height="135"/>
-        <element name="SeamailThread" positionX="-90.0880126953125" positionY="98.1715087890625" width="128" height="163"/>
+        <element name="SeamailMessage" positionX="57.231201171875" positionY="97.29388427734375" width="128" height="14"/>
+        <element name="SeamailReadCount" positionX="-864" positionY="-666" width="128" height="104"/>
+        <element name="SeamailThread" positionX="-90.0880126953125" positionY="98.1715087890625" width="128" height="269"/>
         <element name="ServerTextFile" positionX="-1059.060791015625" positionY="425.644287109375" width="128" height="90"/>
         <element name="TwitarrPost" positionX="-137.9462890625" positionY="-494.467041015625" width="128" height="299"/>
         <element name="UserComment" positionX="-602.1513061523438" positionY="82.88018798828125" width="128" height="90"/>

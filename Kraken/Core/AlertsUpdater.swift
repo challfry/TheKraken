@@ -101,7 +101,7 @@ class AlertsUpdater: ServerUpdater {
 		
 		// Unread Seamails
 		if let unreadSeamails = response.unreadSeamail, unreadSeamails.count > 0 {
-			SeamailDataManager.shared.ingestSeamailThreads(from: unreadSeamails)
+//			SeamailDataManager.shared.ingestSeamailThreads(from: unreadSeamails)
 		}
 		
 		// Events? Are we doing events this way?

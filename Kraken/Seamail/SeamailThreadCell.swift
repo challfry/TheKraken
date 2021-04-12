@@ -52,7 +52,7 @@ import CoreData
 	
 }
 
-class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtocol {
+@objc class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtocol {
 	@IBOutlet var subjectLabel: UILabel!
 	@IBOutlet var lastPostTime: UILabel!
 	@IBOutlet var postCountLabel: UILabel!
@@ -68,6 +68,9 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailThreadCell.cellInfo }
 	
 	var isInteractive: Bool = true
+	
+	@objc dynamic var readCounts: SeamailReadCount?
+	@objc dynamic var thread: SeamailThread?
 
     var model: NSFetchRequestResult? {
 		didSet {
@@ -84,27 +87,38 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 
 			userCellSection.allCellModels.removeAllObjects()
 			if let thread = model as? SeamailThread {
-				subjectLabel.text = thread.subject
+				self.thread = thread
+				thread.getReadCounts { readCounts in
+					self.readCounts = readCounts
+				}
+				subjectLabel.text = thread.subject.isEmpty ? "<No Subject>" : thread.subject
 				
-				addObservation(thread.tell(self, when: ["messageCount", "messages.count", "opsAddingMessages.count", "fullyReadBy.count"]) { observer, observed in
-					let postCountText = NSMutableAttributedString(string: "\(observed.messageCount) message\(observed.messageCount == 1 ? "" : "s")", 
-							attributes: observer.postCountTextAttributes())
-					if observed.messages.count < observed.messageCount {
-						postCountText.append(NSAttributedString(string: ", \(observed.messages.count) loaded", 
+				// Sets PostCountLabel: "X Messages, Y loaded, +Z Pending, W New". Rarely would all 4 clauses appear. 
+				addObservation(self.tell(self, when: ["readCounts.postCount", "readCounts.readCount", "readCounts.viewCount",
+						"thread.messages.count"]) { observer, observed in
+					let postCountText = NSMutableAttributedString()
+					if let readCounts = observed.readCounts {
+						postCountText.append(NSMutableAttributedString(string: 
+								"\(readCounts.postCount) message\(readCounts.postCount == 1 ? "" : "s")", 
 								attributes: observer.postCountTextAttributes()))
-					}
-					if let currentUser = CurrentUser.shared.loggedInUser {
-						if let ops = observed.opsAddingMessages {
-							let addCountThisUser = ops.reduce(0) { $0 + ($1.author.username == currentUser.username ? 1 : 0) }
-							if addCountThisUser > 0 {
-								let pendingText = NSAttributedString(string:" (+\(addCountThisUser) pending)", 
-										attributes: observer.pendingPostsAttributes())
-								postCountText.append(pendingText)
+						if thread.messages.count < readCounts.postCount && NetworkGovernor.shared.connectionState != .canConnect {
+							postCountText.append(NSAttributedString(string: ", \(thread.messages.count) loaded", 
+									attributes: observer.postCountTextAttributes()))
+						}				
+						if let currentUser = CurrentUser.shared.loggedInUser {
+							if let ops = observed.thread?.opsAddingMessages {
+								let addCountThisUser = ops.reduce(0) { $0 + ($1.author.username == currentUser.username ? 1 : 0) }
+								if addCountThisUser > 0 {
+									let pendingText = NSAttributedString(string:" (+\(addCountThisUser) pending)", 
+											attributes: observer.pendingPostsAttributes())
+									postCountText.append(pendingText)
+								}
 							}
-						}
-						if !observed.fullyReadBy.contains(currentUser) {
-							let newText = NSAttributedString(string:" New", attributes: observer.newFlagAttributes())
-							postCountText.append(newText)
+							if readCounts.postCount > readCounts.readCount {
+								let numNewMsgs = readCounts.postCount - readCounts.readCount
+								let newText = NSAttributedString(string:"\(numNewMsgs) New", attributes: observer.newFlagAttributes())
+								postCountText.append(newText)
+							}
 						}
 					}
 					observer.postCountLabel.attributedText = postCountText
@@ -114,9 +128,8 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 					observer.participantCountLabel.text = "\(observed.participants.count) participants"
 				}?.execute())
 				
-				addObservation(thread.tell(self, when:"timestamp") { observer, observed in
-	    			let postDate: TimeInterval = TimeInterval(observed.timestamp) / 1000.0
-	    			observer.lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
+				addObservation(thread.tell(self, when:"lastModTime") { observer, observed in
+	    			observer.lastPostTime.text = StringUtilities.relativeTimeString(forDate: observed.lastModTime)
 				}?.execute())
 	    		
 	    		let participantArray = thread.participants.sorted { $0.username < $1.username }
@@ -132,7 +145,6 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 	    				"""
 				groupElem.accessibilityFrameInContainerSpace = subjectLabel.frame.union(postCountLabel.frame)
 				accessibilityElements = [groupElem, usersView!]
-				
 			}
 			else if let postOpThread = model as? PostOpSeamailThread {
 				// A new thread the user created, waiting to be uploaded to the server
@@ -163,7 +175,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 			}
 		}
 	}
-	
+		
 	func postCountTextAttributes() -> [ NSAttributedString.Key : Any ] {
 		let metrics = UIFontMetrics(forTextStyle: .body)
 		let baseFont = UIFont.systemFont(ofSize: 15.0)
@@ -201,8 +213,7 @@ class SeamailThreadCell: BaseCollectionViewCell, SeamailThreadCellBindingProtoco
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
     		if let self = self, let thread = self.model as? SeamailThread, !thread.isDeleted {
-	    		let postDate: TimeInterval = TimeInterval(thread.timestamp) / 1000.0
-	    		self.lastPostTime.text = StringUtilities.relativeTimeString(forDate: Date(timeIntervalSince1970: postDate))
+	    		self.lastPostTime.text = StringUtilities.relativeTimeString(forDate: thread.lastModTime)
 			}
 		}
 

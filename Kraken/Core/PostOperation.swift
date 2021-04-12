@@ -1087,6 +1087,44 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Creating a new Seamail thread."
 	}
 
+	override func postV3(context: NSManagedObjectContext) {
+		confirmPostBeingSent(context: context)
+				
+		if let unknownUser = recipients?.first(where: { $0.actualUser == nil }) {
+			UserManager.shared.loadUser(unknownUser.username, inContext: context) { actualUser in
+				LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+					if let foundUser = actualUser {
+						unknownUser.actualUser = foundUser
+					}
+					else {
+						self.recipients?.remove(unknownUser)
+					}
+					self.postV3(context: context)
+				}
+			}
+			return
+		}
+		
+		// POST /api/v3/fez/create
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/fez/create", query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		request.httpMethod = "POST"
+		let userIDs = recipients?.compactMap { $0.actualUser?.userID } ?? []
+		let newThreadStruct = TwitarrV3FezContentData(fezType: .closed, title: subject, info: "", 
+				startTime: nil, endTime: nil, location: nil, minCapacity: 0, maxCapacity: 0, initialUsers: userIDs)
+		let newThreadData = try! JSONEncoder().encode(newThreadStruct)
+		request.httpBody = newThreadData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		
+		self.queueNetworkPost(request: request, success:  { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving new Seamail thread to Core Data.")
+				let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
+				SeamailDataManager.shared.ingestSeamailThreads(from: [response])
+			}
+		})
+	}
+		
 	override func postV2(context: NSManagedObjectContext) {
 		confirmPostBeingSent(context: context)
 		
@@ -1103,8 +1141,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		self.queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving new Seamail thread to Core Data.")
-				let response = try JSONDecoder().decode(TwitarrV2NewSeamailThreadResponse.self, from: data)
-				SeamailDataManager.shared.ingestSeamailThreads(from: [response.seamail])
+//				let response = try JSONDecoder().decode(TwitarrV2NewSeamailThreadResponse.self, from: data)
+//				SeamailDataManager.shared.ingestSeamailThreads(from: [response.seamail])
 			}
 		})
 	}
@@ -1119,6 +1157,31 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = "Post a new Seamail message."
 	}
 
+	override func postV3(context: NSManagedObjectContext) {
+		guard let seamailThread = thread else { 
+			self.recordServerErrorFailure(ServerError("The Seamail thread has disappeared. Perhaps it was deleted on the server?"))
+			return
+		}
+		confirmPostBeingSent(context: context)
+		
+		// POST /api/v3/fez/ID/post
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/fez/\(seamailThread.id)/post", query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		request.httpMethod = "POST"
+		let newMessageStruct = TwitarrV3PostCreateData(text: text)
+		let newMessageData = try! JSONEncoder().encode(newMessageStruct)
+		request.httpBody = newMessageData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		
+		self.queueNetworkPost(request: request, success:  { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving new Seamail message to Core Data.")
+				let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
+				SeamailDataManager.shared.ingestSeamailThreads(from: [response])
+			}
+		})
+	}
+	
 	override func postV2(context: NSManagedObjectContext) {
 		guard let seamailThread = thread else { 
 			self.recordServerErrorFailure(ServerError("The Seamail thread has disappeared. Perhaps it was deleted on the server?"))
@@ -1138,9 +1201,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		self.queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving new Seamail message to Core Data.")
-				let response = try JSONDecoder().decode(TwitarrV2NewSeamailMessageResponse.self, from: data)
-				SeamailDataManager.shared.addNewSeamailMessage(context: context, 
-						threadID: seamailThread.id, v2Object: response.seamail_message)
+//				let response = try JSONDecoder().decode(TwitarrV2NewSeamailMessageResponse.self, from: data)
+//				SeamailDataManager.shared.addNewSeamailMessage(context: context, 
+//						threadID: seamailThread.id, v2Object: response.seamail_message)
 			}
 		})
 	}
@@ -1626,4 +1689,25 @@ struct TwitarrV3UploadedImageData: Codable {
 struct TwitarrV3NoteCreateData: Codable {
     /// The text of the note.
     var note: String
+}
+
+struct TwitarrV3FezContentData: Codable {
+    /// The `FezType` .label of the fez.
+    var fezType: TwitarrV3FezType
+    /// The title for the FriendlyFez.
+    var title: String
+    /// A description of the fez.
+    var info: String
+    /// The starting time for the fez.
+    var startTime: Date?
+    /// The ending time for the fez.
+    var endTime: Date?
+    /// The location for the fez.
+    var location: String?
+    /// The minimum number of seamonkeys needed for the fez.
+    var minCapacity: Int
+    /// The maximum number of seamonkeys for the fez.
+    var maxCapacity: Int
+    /// Users to add to the fez upon creation. The creator is always added as the first user.
+    var initialUsers: [UUID]
 }

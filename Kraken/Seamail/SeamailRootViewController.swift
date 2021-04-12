@@ -60,14 +60,14 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		noSeamailSegment.append(noSeamailCell)
 		
 		threadDataSource.append(segment: threadSegment)
-		threadSegment.activate(predicate: nil, sort: [ NSSortDescriptor(key: "timestamp", ascending: false)],
+		threadSegment.activate(predicate: NSPredicate(value: false), sort: [ NSSortDescriptor(key: "lastModTime", ascending: false)],
 				cellModelFactory: createCellModel)
        
 		// When a user is logged in we'll set up the FRC to load the threads which that user can 'see'. Remember, CoreData
 		// stores ALL the seamail we ever download, for any user who logs in on this device.
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
-			if let username = observed.loggedInUser?.username {
- 				observer.threadSegment.changePredicate(to: NSPredicate(format: "ANY participants.username == '\(username)'"))
+			if let currentUserID = observed.loggedInUser?.userID {
+				observer.threadSegment.changePredicate(to: NSPredicate(format: "ANY participants.userID == %@", currentUserID as CVarArg))
         		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }

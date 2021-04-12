@@ -123,6 +123,7 @@
 		EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */; };
 		EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
+		EA931D54261E79A00076C3D0 /* KrakenError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA931D53261E79A00076C3D0 /* KrakenError.swift */; };
 		EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */; };
 		EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */; };
 		EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */; };
@@ -359,6 +360,7 @@
 		EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailLargeThreadCell.xib; sourceTree = "<group>"; };
 		EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeDataManager.swift; sourceTree = "<group>"; };
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
+		EA931D53261E79A00076C3D0 /* KrakenError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenError.swift; sourceTree = "<group>"; };
 		EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrapbookViewController.swift; sourceTree = "<group>"; };
 		EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeFavoriteSongCell.xib; sourceTree = "<group>"; };
 		EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsUpdater.swift; sourceTree = "<group>"; };
@@ -591,6 +593,7 @@
 				EAA02845232057D900B2B7F1 /* Notifications.swift */,
 				EAC696EC2290159000EE6EEB /* StringUtilities.swift */,
 				EAA62C7022C55CC00031A999 /* Logging.swift */,
+				EA931D53261E79A00076C3D0 /* KrakenError.swift */,
 				EAA0E91122E942770077D5D0 /* SwiftUtils.swift */,
 				EAC6113323BB31DF007583EC /* ObjCUtils.h */,
 				EAC6113123BB3090007583EC /* ObjCUtils.m */,
@@ -1298,6 +1301,7 @@
 				EA3C630E2293913600077E3B /* ComposeTweetViewController.swift in Sources */,
 				EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */,
 				EA1E3B9F2246CDF700017F07 /* Settings.swift in Sources */,
+				EA931D54261E79A00076C3D0 /* KrakenError.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
 				EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */,
 				EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */,

@@ -63,8 +63,8 @@ class SeamailThreadViewController: BaseCollectionViewController {
    		var messagePredicate: NSPredicate
    		var opPredicate: NSPredicate
  		if let model = threadModel {
-			messagePredicate = NSPredicate(format: "thread.id = '\(model.id)'")
-			opPredicate = NSPredicate(format: "thread.id = '\(model.id)' && operationState < 4")
+			messagePredicate = NSPredicate(format: "thread.id = %@", model.id as CVarArg)
+			opPredicate = NSPredicate(format: "thread.id = %@ && operationState < 4", model.id as CVarArg)
 		}
 		else {
 			messagePredicate = NSPredicate(value: false)
@@ -72,6 +72,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		}
    		messageSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "timestamp", ascending: true) ],
    				cellModelFactory: createMessageCellModel)
+		messageSegment.loaderDelegate = self
    		queuedMsgSegment.activate(predicate: opPredicate, sort: [ NSSortDescriptor(key: "originalPostTime", ascending:true) ],
    				cellModelFactory: createMessageOpCellModel)
 							
@@ -109,7 +110,6 @@ class SeamailThreadViewController: BaseCollectionViewController {
     override func viewDidAppear(_ animated: Bool) {
     	super.viewDidAppear(animated)
 		compositeDataSource.enableAnimations = true
-		threadModel?.markThreadAsRead()
 	}
 
 	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {
@@ -134,4 +134,11 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		
 	}
 	
+}
+
+extension SeamailThreadViewController: FRCDataSourceLoaderDelegate {
+	func userIsViewingCell(at: IndexPath) {
+		threadModel?.markPostAsRead(index: at.row)
+	}
+
 }
