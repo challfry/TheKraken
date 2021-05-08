@@ -61,23 +61,28 @@ import UIKit
 			}
 		}
 		
-		if let newImageFilename = v3Object.image {
-			if (photos.firstObject as? PhotoDetails)?.id != newImageFilename {
-				photos.removeAllObjects()
-				let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
-				if let newPhotoDetails = photoDict[newImageFilename] {
-					photos.insert(newPhotoDetails, at: 0)
+		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
+		if let newImageFilenames = v3Object.images {
+			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+			for (index, image) in newImageFilenames.enumerated() {
+				if photos.count <= index, let photoToAdd = photoDict[image] {
+					photos.add(photoToAdd)
+				} 
+				if (photos[index] as? PhotoDetails)?.id != image, let photoToAdd = photoDict[image] {
+					photos.replaceObject(at:index, with: photoToAdd)
 				}
 			}
-
+			if photos.count > newImageFilenames.count {
+				photos.removeObjects(in: NSRange(location: newImageFilenames.count, length: photos.count - newImageFilenames.count))
+			}
 		} 
 		else {
-			if photos.count > 0{
+			if photos.count > 0 {
 				photos.removeAllObjects()
 			}
 		}
 					
-		// Set the user's reaction to the tweet
+		// Set the user's reaction to the post
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
 			// Find any existing reaction the user has
 			var userCurrentReaction: Reaction?
@@ -351,8 +356,8 @@ import UIKit
 			let post = cdThreads.first ?? ForumPost(context: context)
 			
 			var allPhotoFilenames: [String] = []
-			if let image = v3PostData.image {
-				allPhotoFilenames =  [image]
+			if let images = v3PostData.images {
+				allPhotoFilenames = images
 			}
 			ImageManager.shared.updateV3(imageFilenames: allPhotoFilenames, inContext: context)
 			
@@ -360,7 +365,7 @@ import UIKit
 		}		
 	}
 	
-	func queuePostEditOp(for editPost: ForumPost, newText: String, images: [PhotoUploadPackage]?, 
+	func queuePostEditOp(for editPost: ForumPost, newText: String, images: [PhotoDataType]?, 
 			done: @escaping (PostOpForumPost?) -> Void) {
 		EmojiDataManager.shared.gatherEmoji(from: newText)
 		
@@ -390,7 +395,12 @@ import UIKit
 			editOp.text = newText
 			editOp.editPost = editPostInContext
 			editOp.thread = editPostInContext.thread
-			let photoOpArray: [PostOpForum_Photo]? = images?.map { let op = PostOpForum_Photo(context: context); op.setupFromPackage($0); return op }
+			let photoOpArray: [PostOpPhoto_Attachment]? = images?.map {
+				let op = PostOpPhoto_Attachment(context: context); op.setupFromPhotoData($0); 
+				op.parentForumPostOp = editOp
+				return op 
+			}
+			// In theory we could avoid replacing all the photos if there were no changes, but edits shouldn't happen *that* often.
 			if let photoOpArray = photoOpArray {
 				editOp.photos = NSOrderedSet(array: photoOpArray)
 			}
@@ -408,7 +418,7 @@ import UIKit
 	}
 	
 	// If inThread is nil, this post is a new thread, and titleText must be non-nil.
-	func queuePost(existingDraft: PostOpForumPost?, inThread: ForumThread?, titleText: String?, postText: String, images: [PhotoUploadPackage]?,
+	func queuePost(existingDraft: PostOpForumPost?, inThread: ForumThread?, titleText: String?, postText: String, images: [PhotoDataType]?,
 			done: @escaping (PostOpForumPost?) -> Void) {
 		EmojiDataManager.shared.gatherEmoji(from: postText)	
 
@@ -437,7 +447,12 @@ import UIKit
 			postOp.text = postText
 			postOp.subject = titleText
 			postOp.thread = threadInContext
-			let photoOpArray: [PostOpForum_Photo]? = images?.map { let op = PostOpForum_Photo(context: context); op.setupFromPackage($0); return op }
+			let photoOpArray: [PostOpPhoto_Attachment]? = images?.map {
+				let op = PostOpPhoto_Attachment(context: context)
+				op.setupFromPhotoData($0)
+				op.parentForumPostOp = postOp
+				return op 
+			}
 			if let photoOpArray = photoOpArray {
 				postOp.photos = NSOrderedSet(array: photoOpArray)
 			}
@@ -537,8 +552,8 @@ struct TwitarrV3PostData: Codable {
     var author: TwitarrV3UserHeader
     /// The text of the post.
     var text: String
-    /// The filename of the post's optional image.
-    var image: String?
+    /// The filenames of the post's optional images.
+    var images: [String]?
     /// Whether the current user has bookmarked the post.
     var isBookmarked: Bool
     /// The current user's `LikeType` reaction on the post.

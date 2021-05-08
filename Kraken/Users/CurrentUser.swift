@@ -518,7 +518,7 @@ import UserNotifications
 	// Since this app uses auth keys instead of session cookies to maintain logins, the logout API call
 	// doesn't (currently) do anything for us. In order to logout (and requre auth to log in again) we only
 	// have to discard the keys.
-	func logoutUser(_ passedInUser: LoggedInKrakenUser? = nil) {
+	func logoutUser(_ passedInUser: LoggedInKrakenUser? = nil, sendLogoutMsg: Bool = true) {
 //		DispatchQueue.main.async {
 			// Only allow one login state change action at a time
 			guard !isChangingLoginState else { return }
@@ -528,15 +528,18 @@ import UserNotifications
 			isChangingLoginState = true
 			clearErrors()
 			
-			// We send a logout request, but don't care about its result
-			let logoutAPIPath = Settings.apiV3 ? "/api/v3/auth/logout" : "/api/v2/user/logout"
-			let queryParams: [URLQueryItem] = []
-			var request = NetworkGovernor.buildTwittarRequest(withPath:logoutAPIPath, query: queryParams)
-			NetworkGovernor.addUserCredential(to: &request)
-			request.httpMethod = "POST"
-			NetworkGovernor.shared.queue(request) { package in
-				// The only server errors we can get are variants of "That guy wasn't logged in" or "Your token is wrong"
-				let _ = NetworkGovernor.shared.parseServerError(package)
+			// If the server tells us we're no longer authenticated, don't send back a logout, as we'll infinite-loop.
+			if sendLogoutMsg {
+				// We send a logout request, but don't care about its result
+				let logoutAPIPath = Settings.apiV3 ? "/api/v3/auth/logout" : "/api/v2/user/logout"
+				let queryParams: [URLQueryItem] = []
+				var request = NetworkGovernor.buildTwittarRequest(withPath:logoutAPIPath, query: queryParams)
+				NetworkGovernor.addUserCredential(to: &request)
+				request.httpMethod = "POST"
+				NetworkGovernor.shared.queue(request) { package in
+					// The only server errors we can get are variants of "That guy wasn't logged in" or "Your token is wrong"
+					let _ = NetworkGovernor.shared.parseServerError(package)
+				}
 			}
 			
 			LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in

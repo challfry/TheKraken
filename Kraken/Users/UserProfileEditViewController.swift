@@ -172,12 +172,15 @@ import Photos
 	
 	func prepareImageForUpload(photoContainer: PhotoDataType) {
 		ImageManager.shared.resizeImageForUpload(imageContainer: photoContainer, 
-				progress: imageiCloudDownloadProgress) { jpegData, mimeType, error in 
+				progress: imageiCloudDownloadProgress) { imageContainer, error in 
 			if let err = error {
 				self.avatarUpdateStatusCell.errorText = err.getCompleteError()
 			}
-			else if let data = jpegData, let user = self.modelKrakenUser {
-				user.setUserProfilePhoto(photoData: data, mimeType: mimeType ?? "image/jpeg")
+			else if let container = imageContainer, let user = self.modelKrakenUser {
+				switch container {
+				case .data(let imgData, let mimeType):	user.setUserProfilePhoto(photoData: imgData, mimeType: mimeType)
+				default: break		// Container really has to be of type .data at this point
+				}
 			}
 		}
 	}

@@ -243,12 +243,25 @@ class StringUtilities {
 			return ""
 		}
 	
+		let hour = 60.0 * 60.0
+		let day = hour * 24.0
+		let month = day * 31.0
+		
+		// Fix for a really annoying DateFormatter bug. For successive allowedUnits A, B, and C, if the interval
+		// is > 1B - .5A but < 1B, DateFormatter will return "0 C" instead of "1 B". 
+		var interval = Date().timeIntervalSince(forDate)
+		switch interval {
+		case (hour - 30.0)...hour: interval = hour			// = 1hr for everything above 59.5 minutes
+		case (day - hour / 2)...day: interval = day			// = 1day for everything above 23.5 hours
+		case (month - day / 2)...month: interval = month	// = 1mo for everything above 30.5 days
+		default: break
+		}
+
 		let formatter = DateComponentsFormatter()
 		formatter.unitsStyle = .full
 		formatter.maximumUnitCount = 1
-	//	formatter.allowsFractionalUnits = true
 		formatter.allowedUnits = [.second, .minute, .hour, .day, .month, .year]
-		if let relativeTimeStr = formatter.string(from: forDate, to: Date()) {
+		if let relativeTimeStr = formatter.string(from: interval) {
 			let resultStr = relativeTimeStr + " ago"
 			return resultStr
 		}

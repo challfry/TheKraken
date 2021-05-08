@@ -43,8 +43,8 @@ class ReportContentViewController: UIViewController {
 			subject = "Reporting a Twitarr post by \(tweetToReport.author.username)"
 			message.append("Twitarr post by \(tweetToReport.author.username)\n\n")
 			message.append("Posted at \(tweetToReport.postDate()). Tweet text: \n\n\(tweetToReport.text)")
-			if tweetToReport.photoDetails != nil {
-				message.append("\n\n<Tweet has an attached photo>")
+			if tweetToReport.photoDetails.count > 0 {
+				message.append("\n\n<Tweet has attached photos>")
 			}
 			if let notes = textView.text, !notes.isEmpty {
 				message.append("\n\nReporter comment: \(notes)")

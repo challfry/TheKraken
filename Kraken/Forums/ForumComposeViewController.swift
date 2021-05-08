@@ -260,13 +260,12 @@ import MobileCoreServices
     	    	
 		if photoCell.shouldBeVisible, let selectedPhoto = photoCell.selectedPhoto {
 			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
-					progress: imageiCloudDownloadProgress) { photoData, mimeType, error in
+					progress: imageiCloudDownloadProgress) { photoData, error in
 				if let err = error {
 					self.statusCell.errorText = err.getCompleteError()
 				}
-				else if let data = photoData, let mimeType = mimeType {
-					let package = PhotoUploadPackage(iamgeData: data, mimetype: mimeType)
-					self.postWithPreparedImages([package])
+				else if let container = photoData {
+					self.postWithPreparedImages([container])
 				}
 				else {
 					self.postWithPreparedImages(nil)
@@ -310,7 +309,7 @@ import MobileCoreServices
 
 	}
 	
-    func postWithPreparedImages(_ images: [PhotoUploadPackage]?) {
+    func postWithPreparedImages(_ images: [PhotoDataType]?) {
     	guard let postText = postTextCell.editedText ?? postTextCell.editText else { return }
     	var subjectText: String?
     	if threadTitleEditCell.shouldBeVisible {
@@ -389,6 +388,8 @@ import MobileCoreServices
 			case .camera(let photo): photoCell.cameraPhotos.insert(photo, at: 0)
 			case .image(let image): photoCell.cameraPhotos.insert(image, at: 0)
 			case .library: break
+			case .data: break
+			case .server: break
 			}
 		}
 	}	

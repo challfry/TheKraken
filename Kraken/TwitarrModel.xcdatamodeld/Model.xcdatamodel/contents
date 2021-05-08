@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20D74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20E232" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="isActive" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
@@ -181,17 +181,11 @@
         <attribute name="newState" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Event" inverseName="opsFollowing" inverseEntity="Event"/>
     </entity>
-    <entity name="PostOpForum_Photo" representedClassName="PostOpForum_Photo" syncable="YES">
-        <attribute name="filename" optional="YES" attributeType="String"/>
-        <attribute name="image" optional="YES" attributeType="Binary"/>
-        <attribute name="mimetype" optional="YES" attributeType="String"/>
-        <relationship name="parentOp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpForumPost" inverseName="photos" inverseEntity="PostOpForumPost"/>
-    </entity>
     <entity name="PostOpForumPost" representedClassName="PostOpForumPost" parentEntity="PostOperation" syncable="YES">
         <attribute name="subject" optional="YES" attributeType="String"/>
         <attribute name="text" optional="YES" attributeType="String"/>
         <relationship name="editPost" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="editedBy" inverseEntity="ForumPost"/>
-        <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="PostOpForum_Photo" inverseName="parentOp" inverseEntity="PostOpForum_Photo"/>
+        <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="PostOpPhoto_Attachment" inverseName="parentForumPostOp" inverseEntity="PostOpPhoto_Attachment"/>
         <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="newPostOps" inverseEntity="ForumThread"/>
     </entity>
     <entity name="PostOpForumPostDelete" representedClassName="PostOpForumPostDelete" parentEntity="PostOperation" syncable="YES">
@@ -201,6 +195,13 @@
         <attribute name="isAdd" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="reactionWord" optional="YES" attributeType="String"/>
         <relationship name="sourcePost" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="reactionOps" inverseEntity="ForumPost"/>
+    </entity>
+    <entity name="PostOpPhoto_Attachment" representedClassName="PostOpPhoto_Attachment" syncable="YES">
+        <attribute name="filename" optional="YES" attributeType="String"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
+        <attribute name="mimetype" optional="YES" attributeType="String"/>
+        <relationship name="parentForumPostOp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpForumPost" inverseName="photos" inverseEntity="PostOpForumPost"/>
+        <relationship name="parentTweetPostOp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="photos" inverseEntity="PostOpTweet"/>
     </entity>
     <entity name="PostOpSeamailMessage" representedClassName="PostOpSeamailMessage" parentEntity="PostOperation" syncable="YES">
         <attribute name="text" attributeType="String"/>
@@ -212,11 +213,9 @@
         <relationship name="recipients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inSeamailThread" inverseEntity="PotentialUser"/>
     </entity>
     <entity name="PostOpTweet" representedClassName="PostOpTweet" parentEntity="PostOperation" syncable="YES">
-        <attribute name="deleteExistingImage" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="image" optional="YES" attributeType="Binary"/>
-        <attribute name="imageMimetype" optional="YES" attributeType="String"/>
         <attribute name="text" attributeType="String"/>
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsWithThisParent" inverseEntity="TwitarrPost"/>
+        <relationship name="photos" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="PostOpPhoto_Attachment" inverseName="parentTweetPostOp" inverseEntity="PostOpPhoto_Attachment"/>
         <relationship name="tweetToEdit" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsEditingThisTweet" inverseEntity="TwitarrPost"/>
     </entity>
     <entity name="PostOpTweetDelete" representedClassName="PostOpTweetDelete" parentEntity="PostOperation" syncable="YES">
@@ -311,7 +310,6 @@
         <attribute name="contigWithOlder" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="String"/>
-        <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="locked" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="numReactions" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="parentID" optional="YES" attributeType="String"/>
@@ -323,7 +321,7 @@
         <relationship name="opsEditingThisTweet" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="tweetToEdit" inverseEntity="PostOpTweet"/>
         <relationship name="opsWithThisParent" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="parent" inverseEntity="PostOpTweet"/>
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="children" inverseEntity="TwitarrPost"/>
-        <relationship name="photoDetails" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoDetails" inverseName="postsWithThisPhoto" inverseEntity="PhotoDetails"/>
+        <relationship name="photoDetails" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="PhotoDetails" inverseName="postsWithThisPhoto" inverseEntity="PhotoDetails"/>
         <relationship name="reactionOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpTweetReaction" inverseName="sourcePost" inverseEntity="PostOpTweetReaction"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="sourceTweet" inverseEntity="Reaction"/>
         <uniquenessConstraints>
@@ -366,13 +364,13 @@
         <element name="PhotoDetails" positionX="-422.6431884765625" positionY="193.2229614257812" width="128" height="179"/>
         <element name="PostOperation" positionX="-418.780029296875" positionY="-659.5100402832031" width="128" height="118"/>
         <element name="PostOpEventFollow" positionX="190.5164184570312" positionY="-599.2312164306641" width="128" height="75"/>
-        <element name="PostOpForum_Photo" positionX="-833.66943359375" positionY="-811.6986083984375" width="128" height="89"/>
+        <element name="PostOpPhoto_Attachment" positionX="-833.66943359375" positionY="-811.6986083984375" width="128" height="104"/>
         <element name="PostOpForumPost" positionX="-578.6613159179688" positionY="-826.2532196044922" width="128" height="118"/>
         <element name="PostOpForumPostDelete" positionX="-577.3396606445312" positionY="-599.9921264648438" width="128" height="58"/>
         <element name="PostOpForumPostReaction" positionX="-577.9452514648438" positionY="-702.4114227294922" width="128" height="88"/>
         <element name="PostOpSeamailMessage" positionX="33.2459716796875" positionY="-657.3016967773438" width="128" height="30"/>
         <element name="PostOpSeamailThread" positionX="36.12725830078125" positionY="-616.0679168701172" width="128" height="90"/>
-        <element name="PostOpTweet" positionX="-266.8650512695312" positionY="-818.3788757324219" width="128" height="119"/>
+        <element name="PostOpTweet" positionX="-266.8650512695312" positionY="-818.3788757324219" width="128" height="89"/>
         <element name="PostOpTweetDelete" positionX="-268.885009765625" positionY="-579.7364196777344" width="128" height="60"/>
         <element name="PostOpTweetReaction" positionX="-266.48974609375" positionY="-684.15625" width="128" height="90"/>
         <element name="PostOpUserComment" positionX="-831.2529907226562" positionY="-637.8227081298828" width="128" height="75"/>
@@ -385,7 +383,7 @@
         <element name="SeamailReadCount" positionX="-864" positionY="-666" width="128" height="104"/>
         <element name="SeamailThread" positionX="-90.0880126953125" positionY="98.1715087890625" width="128" height="269"/>
         <element name="ServerTextFile" positionX="-1059.060791015625" positionY="425.644287109375" width="128" height="90"/>
-        <element name="TwitarrPost" positionX="-137.9462890625" positionY="-494.467041015625" width="128" height="299"/>
+        <element name="TwitarrPost" positionX="-137.9462890625" positionY="-494.467041015625" width="128" height="284"/>
         <element name="UserComment" positionX="-602.1513061523438" positionY="82.88018798828125" width="128" height="90"/>
     </elements>
 </model>

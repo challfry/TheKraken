@@ -9,25 +9,49 @@
 import UIKit
 import Photos
 
-// A photo selected by the PhotoSelectionCell. The datatype is dependent on whether the source is the 
-// camera or the library, so: enums to the rescue.
+// A photo selected by the PhotoSelectionCell. This type could be anything the user could attach to a post:
+// 	- A photo from the photo library, 
+//  - A new camera photo,
+//  - An AR photo capture (Pirate hats, which are captured as UIImages, not AVCapturePhotos)
+//  - local GIF files, 
+//  - files already uploaded to the server.
+// The datatype is dependent on whether the source is the camera or the library, so: enums to the rescue.
 enum PhotoDataType {
 	case library(PHAsset)
 	case camera(AVCapturePhoto)
 	case image(UIImage)
+
+	// Cases with mime types
+	case data(Data, String)
+	case server(String, String)
 	
 	func getUIImage(done: @escaping (UIImage?) -> Void) {
 		switch self {
 		case .library(let asset):
 			PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, 
-			contentMode: .aspectFit, options: nil) { image, info in 
+					contentMode: .aspectFit, options: nil) { image, info in 
 				done(image)
 			}
 		case .camera(let cameraPhoto): 
 			if let photoData = cameraPhoto.fileDataRepresentation(), let photoImage = UIImage(data: photoData) {
 				done(photoImage)
 			}
+			else {
+				done(nil)
+			}
 		case .image(let imageValue): done(imageValue)
+
+		case .data(let imageData, _):
+			let resultImage = UIImage(data: imageData)
+			done(resultImage)
+		case .server(let filename, _): ImageManager.shared.image(withSize: .small, forKey: filename, done: done)
+		}
+	}
+	
+	func getRawData() -> Data? {
+		switch self {
+		case .data(let result, _): return result
+		default: return nil
 		}
 	}
 }

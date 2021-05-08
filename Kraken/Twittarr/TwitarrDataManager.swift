@@ -22,12 +22,11 @@ import UIKit
     @NSManaged public var parentID: String?
     @NSManaged public var parent: TwitarrPost?
     @NSManaged public var children: Set<TwitarrPost>?
-    @NSManaged public var image: String?
 	@NSManaged public var createdAt: Date
+    @NSManaged public var photoDetails: NSMutableOrderedSet		// Set of PhotoDetails
     
     	// Only used by V2
     @NSManaged public var contigWithOlder: Bool
-    @NSManaged public var photoDetails: PhotoDetails?
 	@NSManaged public var timestamp: Int64
 
 
@@ -80,17 +79,17 @@ import UIKit
 			CoreDataLog.error("Somehow we have a tweet without an author, or the author changed?")
 		}
 
-		if let v2Photo = v2Object.photo {
-			if photoDetails?.id != v2Photo.id {
-				let photoDict: [String : PhotoDetails ] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
-				photoDetails = photoDict[v2Photo.id] 
-			}
-		}
-		else {
-			if photoDetails != nil {
-				photoDetails = nil	// Can happen if photo was deleted from tweet
-			}
-		}
+//		if let v2Photo = v2Object.photo {
+//			if photoDetails?.id != v2Photo.id {
+//				let photoDict: [String : PhotoDetails ] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+//				photoDetails = photoDict[v2Photo.id] 
+//			}
+//		}
+//		else {
+//			if photoDetails != nil {
+//				photoDetails = nil	// Can happen if photo was deleted from tweet
+//			}
+//		}
 		
 		// Hopefully item 0 in the parent chain is the *direct* parent?
 		if v2Object.parentChain.count > 0 {
@@ -111,7 +110,6 @@ import UIKit
 		changed = TestAndUpdate(\.createdAt, v3Object.createdAt) || changed
 		TestAndUpdate(\.timestamp, Int64(v3Object.createdAt.timeIntervalSince1970 * 1000.0))
 		changed = TestAndUpdate(\.text, v3Object.text) || changed 
-//		changed = TestAndUpdate(\.image, v3Object.image) || changed 
 		changed = TestAndUpdate(\.numReactions, v3Object.likeCount) || changed 
 		if let replyTo = v3Object.replyToID {
 			changed = TestAndUpdate(\.parentID, String(replyTo)) || changed
@@ -120,17 +118,24 @@ import UIKit
 			changed = TestAndUpdate(\.parentID, nil) || changed
 		}
 
-		if let image = v3Object.image {
-			if photoDetails?.id != image {
-				let photoDict: [String : PhotoDetails ] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails]
-				if let newPhotoDetails = photoDict[image] {
-	 				photoDetails = newPhotoDetails
+		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
+		if let newImageFilenames = v3Object.images {
+			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+			for (index, image) in newImageFilenames.enumerated() {
+				if photoDetails.count <= index, let photoToAdd = photoDict[image] {
+					photoDetails.add(photoToAdd)
+				} 
+				if (photoDetails[index] as? PhotoDetails)?.id != image, let photoToAdd = photoDict[image] {
+					photoDetails.replaceObject(at:index, with: photoToAdd)
 				}
 			}
-		}
+			if photoDetails.count > newImageFilenames.count {
+				photoDetails.removeObjects(in: NSRange(location: newImageFilenames.count, length: photoDetails.count - newImageFilenames.count))
+			}
+		} 
 		else {
-			if photoDetails != nil {
-				photoDetails = nil	// Can happen if photo was deleted from tweet
+			if photoDetails.count > 0 {
+				photoDetails.removeAllObjects()
 			}
 		}
 
@@ -771,8 +776,8 @@ class TwitarrDataManager: NSObject {
 			UserManager.shared.update(users: userArray, inContext: context)
 		
 			// Photos, same idea
-			let tweetPhotos = twarrts.compactMap { $0.image }
-			ImageManager.shared.updateV3(imageFilenames: tweetPhotos, inContext: context)
+			let tweetPhotos = twarrts.compactMap { $0.images }.joined()
+			ImageManager.shared.updateV3(imageFilenames: Array(tweetPhotos), inContext: context)
 
 			// IF we have a post in CD in the # range of the incoming twarrts, but 'skipped' by the incoming twarrts,
 			// that means the post is 1) Muted, 2) Blocked, 3) Muteword-muted, or 4) Mod-deleted. We might be able to infer
@@ -847,7 +852,7 @@ class TwitarrDataManager: NSObject {
 
 	// For new mainline posts, new posts that are replies, and edits to existing posts
 	// Creates a PostOperation, saving all the data needed to post a new tweet, and queues it for posting.
-	func queuePost(_ existingDraft: PostOpTweet?, withText: String, image: Data?, mimeType: String?,
+	func queuePost(_ existingDraft: PostOpTweet?, withText: String, images: [PhotoDataType]?, 
 			inReplyTo: TwitarrPost? = nil, editing: TwitarrPost? = nil, done: @escaping (PostOpTweet?) -> Void) {
 		EmojiDataManager.shared.gatherEmoji(from: withText)	
 		
@@ -871,8 +876,19 @@ class TwitarrDataManager: NSObject {
 			postToQueue.tweetToEdit = editPost
 			postToQueue.operationState = .readyToSend
 			postToQueue.author = currentUser
-			postToQueue.image = image as NSData?
-			postToQueue.imageMimetype = mimeType
+			
+			let photoOpArray: [PostOpPhoto_Attachment]? = images?.map {
+				let op = PostOpPhoto_Attachment(context: context); op.setupFromPhotoData($0); 
+				op.parentTweetPostOp = postToQueue
+				return op 
+			}
+			// In theory we could avoid replacing all the photos if there were no changes, but edits shouldn't happen *that* often.
+			if let photoOpArray = photoOpArray {
+				postToQueue.photos = NSOrderedSet(array: photoOpArray)
+			}
+			else {
+				postToQueue.photos = nil
+			}
 			
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
 				DispatchQueue.main.async {
@@ -979,8 +995,8 @@ struct TwitarrV3TwarrtData: Codable {
     var author: TwitarrV3UserHeader
     /// The text of the twarrt.
     var text: String
-    /// The filename of the twarrt's optional image.
-    var image: String?
+    /// The filenames of the twarrt's optional images.
+    var images: [String]?
     /// The ID of the twarrt to which this twarrt is a reply.
     var replyToID: Int64?
     /// Whether the current user has bookmarked the twarrt.

@@ -602,7 +602,7 @@ class CameraViewController: UIViewController {
 				}
 			}
 
-			//
+			// THIS LINE IS WHERE WE SELECT THE COMPRESSED PHOTO FORMAT: currently "jpg". 
 			let settings =  AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecType.jpeg])
 			settings.flashMode = flashButton.isSelected ? .auto : .off
 			photoOutput.capturePhoto(with: settings, delegate: self)

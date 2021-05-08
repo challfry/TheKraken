@@ -20,8 +20,8 @@ import UIKit
 	
 	dynamic var numLikes: Int32 = 0
 	dynamic var postText: String?
-	dynamic var photos: [PhotoDetails]?
-	dynamic var photoImages: [Data]? 
+	dynamic var photoDetails: [PhotoDetails]?
+	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 
 	dynamic var loggedInUserIsAuthor: Bool = false		// False if no logged in user
 
 	// Reply, Edit, Delete, Like
@@ -50,7 +50,8 @@ import UIKit
 				author = nil
 				postTime = nil
 				postText = nil				
-  				photos = nil
+  				photoDetails = nil
+  				photoAttachments = nil
   				isDeleted = true
   				shouldBeVisible = false
 			}
@@ -81,10 +82,10 @@ import UIKit
 		// Photos
 		addObservation(postModel.tell(self, when: "photos") { observer, observed in
 			if observed.photos.count > 0, let photoArray = observed.photos.array as? [PhotoDetails] {
-				observer.photos = photoArray
+				observer.photoDetails = photoArray
 			}
 			else {
-				observer.photos = nil
+				observer.photoDetails = nil
 			}
 		}?.execute())
 		
@@ -245,8 +246,8 @@ import UIKit
 	
 	dynamic var numLikes: Int32 = 0
 	dynamic var postText: String?
-	dynamic var photos: [PhotoDetails]?
-	dynamic var photoImages: [Data]? 
+	dynamic var photoDetails: [PhotoDetails]?
+	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 
 	dynamic var loggedInUserIsAuthor: Bool = false		// False if no logged in user
 
 	// Reply, Edit, Delete, Like
@@ -275,7 +276,8 @@ import UIKit
 				author = nil
 				postTime = nil
 				postText = nil				
-  				photos = nil
+  				photoDetails = nil
+  				photoAttachments = nil
   				isDeleted = true
   				shouldBeVisible = false
 			}
@@ -302,10 +304,10 @@ import UIKit
 		// Photos
 		addObservation(postModel.tell(self, when: "photos") { observer, observed in
 			if let photoArray = observed.photos?.array as? [PhotoDetails], photoArray.count > 0 {
-				observer.photos = photoArray
+				observer.photoDetails = photoArray
 			}
 			else {
-				observer.photos = nil
+				observer.photoDetails = nil
 			}
 		}?.execute())
 		

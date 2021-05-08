@@ -71,11 +71,6 @@ import CoreData
 		- add/remove
 */
 
-struct PhotoUploadPackage {
-	var iamgeData: Data
-	var mimetype: String
-}
-
 @objc public class PostOperationDataManager: NSObject {
 	static let shared = PostOperationDataManager()
 	
@@ -481,20 +476,15 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpTweet) public class PostOpTweet: PostOperation {
 	@NSManaged public var text: String
 	
-		// Photo needs to be uploaded as a separate POST, then the id is sent.
-	@NSManaged @objc dynamic public var image: NSData?
-	@NSManaged @objc dynamic public var imageMimetype: String?
+		// In v2, Photo needs to be uploaded as a separate POST, then the id is sent.
+	@NSManaged public var photos: NSOrderedSet?			// PostOpPhoto_Attachment. Always matches new state.
 	
 		// Parent tweet, if this is a response. Can be nil.
 	@NSManaged public var parent: TwitarrPost?
 	
 		// If non-nil, this op edits the given tweet.
 	@NSManaged public var tweetToEdit: TwitarrPost?
-	
-		// If editing a post, TRUE will delete existing image. FALSE and no image data will keep the existing image unchanged.
-		// False and new image data will replace.
-	@NSManaged public var deleteExistingImage: Bool
-			
+				
 	override public func willSave() {
 		super.willSave()
 		if operationDescription != nil { return }
@@ -509,33 +499,26 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	override func postV3(context: NSManagedObjectContext) {
 		confirmPostBeingSent(context: context)
 		
-		var httpContentData: Data
+		var uploadImages: [TwitarrV3ImageUploadData] = []
+		if let photoSet = photos {
+			for photo in photoSet {
+				if let photoAsThing = photo as? PostOpPhoto_Attachment {
+					uploadImages.append(photoAsThing.makeV3ImageUploadData())
+				}
+			}
+		}
+		let postStruct = TwitarrV3PostContentData(text: text, images: uploadImages)
+		let httpContentData = try! JSONEncoder().encode(postStruct)
+
 		var path: String
 		if let editingPost = self.tweetToEdit {
 			path = "/api/v3/twitarr/\(editingPost.id)/update"
-			var newImageFilename: String? = nil
-			var uploadData: TwitarrV3ImageUploadData? = nil
-			if deleteExistingImage == false {
-				if let imageData = image {
-					uploadData = TwitarrV3ImageUploadData(filename: "1", image: (imageData as Data))
-					newImageFilename = "1"
-				}
-				else {
-					newImageFilename = editingPost.image		// "" also works
-				}				
-			}
-			let editingPostStruct = TwitarrV3PostContentData(text: text, imageFilename: newImageFilename, newImage: uploadData)
-			httpContentData = try! JSONEncoder().encode(editingPostStruct)
+		}
+		else if let replyTo = parent {
+			path = "/api/v3/twitarr/\(replyTo.id)/reply"
 		}
 		else {
-			// POST /api/v3/twitarr/create
 			path = "/api/v3/twitarr/create"
-			if let replyTo = parent {
-				path = "/api/v3/twitarr/\(replyTo.id)/reply"
-			}
-			
-			let newPostStruct = TwitarrV3PostCreateData(text: self.text, imageData: (image as Data?))
-			httpContentData = try! JSONEncoder().encode(newPostStruct)
 		}
 		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)				
 		request.httpBody = httpContentData
@@ -599,8 +582,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 		
 		// If we have a photo to upload, do that first, then chain the tweet post.
-		if let image = image, let mimetype = imageMimetype {
-			uploadPhoto(photoData: image, mimeType: mimetype, isUserPhoto: false) { photoID, error in
+		if let photoSet = photos, photoSet.count > 0, let firstPhoto = photoSet[0] as? PostOpPhoto_Attachment,
+				let image = firstPhoto.imageData {
+			uploadPhoto(photoData: image as NSData, mimeType: firstPhoto.mimetype, isUserPhoto: false) { photoID, error in
 				if let err = error {
 					self.recordServerErrorFailure(err)
 				}
@@ -752,7 +736,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var subject: String?				// Non-nil iff we're making a new thread
 	@NSManaged public var text: String?					// nil to not change text. Can't be "".
 	
-	@NSManaged public var photos: NSOrderedSet?			// PostOpForum_Photo. Always matches new state.
+	@NSManaged public var photos: NSOrderedSet?			// PostOpPhoto_Attachment. Always matches new state.
 	@NSManaged public var thread: ForumThread?			// If nil, this is a new thread (and subject must be non-nil).
 	@NSManaged public var category: ForumCategory?		// Non-nil iff we're making a new thread
 	@NSManaged public var editPost: ForumPost?			// If non-nil, we are editing this post.
@@ -773,17 +757,21 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		var path: String
 		var content: Data
 		var isNewThread = false
+		
+		var uploadImages: [TwitarrV3ImageUploadData] = []
+		if let photoSet = photos {
+			for photo in photoSet {
+				if let photoAsThing = photo as? PostOpPhoto_Attachment {
+					uploadImages.append(photoAsThing.makeV3ImageUploadData())
+				}
+			}
+		}
+
 		if let editPost = editPost {
 			// If it's an edit, takes a TwitarrV3PostContentData, returns a TwitarrV3PostData
 			path = "/api/v3/forum/post/\(editPost.id)/update"
 			let newText = text ?? editPost.text
-			var imageData: TwitarrV3ImageUploadData? = nil
-			var filename = (editPost.photos.firstObject as? PhotoDetails)?.id
-			if let photo = photos?.firstObject as? PostOpForum_Photo {
-				filename = UUID().uuidString
-				imageData = TwitarrV3ImageUploadData(filename: filename!, image: photo.image)
-			}
-			let postData = TwitarrV3PostContentData(text: newText, imageFilename: filename, newImage: imageData)
+			let postData = TwitarrV3PostContentData(text: newText, images: uploadImages)
 			content = try! JSONEncoder().encode(postData)
 		}
 		else if let existingThread = thread {
@@ -791,13 +779,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 				recordServerErrorFailure(ServerError("Forum posts must contain non-empty text."))
 				return
 			}
-			// If it's a new post in an existing thread, takes a TwitarrV3PostCreateData, returns a TwitarrV3PostData
+			// If it's a new post in an existing thread, takes a TwitarrV3PostContentData, returns a TwitarrV3PostData
 			path = "/api/v3/forum/\(existingThread.id)/create"
-			var imageData: Data? = nil
-			if let photo = photos?.firstObject as? PostOpForum_Photo {
-				imageData = photo.image
-			}
-			let postData = TwitarrV3PostCreateData(text: text, imageData: imageData)
+			let postData = TwitarrV3PostContentData(text: text, images: uploadImages)
 			content = try! JSONEncoder().encode(postData)
 		}
 		else if let category = category {
@@ -812,11 +796,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			}
 			isNewThread = true
 			path = "/api/v3/forum/categories/\(category.id)/create"
-			var imageData: Data? = nil
-			if let photo = photos?.firstObject as? PostOpForum_Photo {
-				imageData = photo.image
-			}
-			let postData = TwitarrV3ForumCreateData(title: subject, text: text, image: imageData)
+			let firstPostData = TwitarrV3PostContentData(text: text, images: uploadImages)			
+			let postData = TwitarrV3ForumCreateData(title: subject, firstPost: firstPostData)
 			content = try! JSONEncoder().encode(postData)
 		}
 		else {
@@ -853,59 +834,59 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 	
 	override func postV2(context: NSManagedObjectContext) {
-		guard let postText = text else { return }
-		guard subject != nil || thread != nil else { return }
-		confirmPostBeingSent(context: context)
-
-		// Upload any photos first, then chain the post call.
-		// Declared as a placeholder closure, then redefined immediately as it references itself.
-		var postingBlock: ([String]) -> Void = { _ in return }
-		postingBlock = { (inputPhotoIDs: [String]) in
-			var photoIDs: [String] = inputPhotoIDs
-			if let photoSet = self.photos, photoSet.count > photoIDs.count {
-				let photoUpload = photoSet[photoIDs.count] as! PostOpForum_Photo
-				self.uploadPhoto(photoData: photoUpload.image as NSData, mimeType: photoUpload.mimetype, 
-						isUserPhoto: false) { photoID, error in
-					if let err = error {
-						self.recordServerErrorFailure(err)
-					}
-					else if let id = photoID {
-						photoIDs.append(id)
-						postingBlock(photoIDs)
-					}
-				}
-			
-				// If we're uploading a photo we can't send the forum post yet. The photo completion handler
-				// will chain this block again.
-				return
-			}
-
-			// POST /api/v2/forums							For new thread, or
-			// POST /api/v2/forums/:thread_id				For new post in existing thread, or 
-			// POST /api/v2/vorums/:thread_id/:post_id		To edit existing post.
-			var path = "/api/v2/forums"
-			var isNewThread = true
-			if let editingPost = self.editPost {
-				// Request/Response contents for post edits are almost exactly the same as new posts, except
-				// there's no as_admin or as_mod fields. Luckily, we don't use them.
-				path.append("/\(editingPost.thread.id)/\(editingPost.id)")
-				isNewThread = false
-			}
-			else if let parentThread = self.thread {
-				// If thread is set, this is a post in an existing thread.
-				path.append("/\(parentThread.id)")
-				isNewThread = false
-			}
-			var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
-			NetworkGovernor.addUserCredential(to: &request, forUser: self.author)
-			request.httpMethod = "POST"
-			
-			let postRequestStruct = TwitarrV2ForumNewPostRequest(subject: self.subject, text: postText,
-					photos: photoIDs, as_mod: nil, as_admin: nil)
-			
-			let newThreadData = try! JSONEncoder().encode(postRequestStruct)
-			request.httpBody = newThreadData
-			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+//		guard let postText = text else { return }
+//		guard subject != nil || thread != nil else { return }
+//		confirmPostBeingSent(context: context)
+//
+//		// Upload any photos first, then chain the post call.
+//		// Declared as a placeholder closure, then redefined immediately as it references itself.
+//		var postingBlock: ([String]) -> Void = { _ in return }
+//		postingBlock = { (inputPhotoIDs: [String]) in
+//			var photoIDs: [String] = inputPhotoIDs
+//			if let photoSet = self.photos, photoSet.count > photoIDs.count {
+//				let photoUpload = photoSet[photoIDs.count] as! PostOpPhoto_Attachment
+//				self.uploadPhoto(photoData: photoUpload.imageData! as NSData, mimeType: photoUpload.mimetype, 
+//						isUserPhoto: false) { photoID, error in
+//					if let err = error {
+//						self.recordServerErrorFailure(err)
+//					}
+//					else if let id = photoID {
+//						photoIDs.append(id)
+//						postingBlock(photoIDs)
+//					}
+//				}
+//			
+//				// If we're uploading a photo we can't send the forum post yet. The photo completion handler
+//				// will chain this block again.
+//				return
+//			}
+//
+//			// POST /api/v2/forums							For new thread, or
+//			// POST /api/v2/forums/:thread_id				For new post in existing thread, or 
+//			// POST /api/v2/vorums/:thread_id/:post_id		To edit existing post.
+//			var path = "/api/v2/forums"
+//			var isNewThread = true
+//			if let editingPost = self.editPost {
+//				// Request/Response contents for post edits are almost exactly the same as new posts, except
+//				// there's no as_admin or as_mod fields. Luckily, we don't use them.
+//				path.append("/\(editingPost.thread.id)/\(editingPost.id)")
+//				isNewThread = false
+//			}
+//			else if let parentThread = self.thread {
+//				// If thread is set, this is a post in an existing thread.
+//				path.append("/\(parentThread.id)")
+//				isNewThread = false
+//			}
+//			var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
+//			NetworkGovernor.addUserCredential(to: &request, forUser: self.author)
+//			request.httpMethod = "POST"
+//			
+//			let postRequestStruct = TwitarrV2ForumNewPostRequest(subject: self.subject, text: postText,
+//					photos: photoIDs, as_mod: nil, as_admin: nil)
+//			
+//			let newThreadData = try! JSONEncoder().encode(postRequestStruct)
+//			request.httpBody = newThreadData
+//			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
 // rcf removing until more V3 code is built
 //			self.queueNetworkPost(request: request, success: { data in
@@ -928,25 +909,53 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 //					}
 //				}
 //			})
-		}
+//		}
 		
 		// Call the posting block to start things off. This block uploads photos until they're all uploaded, then
 		// does the forum POST, passing in the ids of any photos uploaded.
-		postingBlock([])
+//		postingBlock([])
 		
 	}
 }
 
-// Photo data attached to a forum post. 
-@objc(PostOpForum_Photo) public class PostOpForum_Photo: KrakenManagedObject {
-	@NSManaged public var image: Data
+// Photo data to be attached to a forum post, tweet, or fez post. Specifies *either* a new photo to upload 
+// or an existing photo already on the server.
+@objc(PostOpPhoto_Attachment) public class PostOpPhoto_Attachment: KrakenManagedObject {
 	@NSManaged public var mimetype: String
-	@NSManaged public var parentOp: PostOpForumPost
+	
+	// Either imageData or filename must be set.
+	@NSManaged public var imageData: Data?
 	@NSManaged public var filename: String?				// Only set if image came from server.
 	
-	func setupFromPackage(_ from: PhotoUploadPackage) {
-		image = from.iamgeData
-		mimetype = from.mimetype
+	// One of these must be set.
+	@NSManaged public var parentForumPostOp: PostOpForumPost?
+	@NSManaged public var parentTweetPostOp: PostOpTweet?
+	
+	func setupFromPhotoData(_ from: PhotoDataType) {
+		switch from {
+		case .data(let data, let mimetype):
+			self.imageData = data
+			self.mimetype = mimetype
+		case .server(let filename, let mimetype):
+			self.filename = filename
+			self.mimetype = mimetype
+		default:
+			CoreDataLog.error("Could not set up PostOpPhoto_Attachment from PhotoDataType. Enum must be .data or .server.")
+		}
+	}
+	
+	func makeV3ImageUploadData() -> TwitarrV3ImageUploadData {
+		var result = TwitarrV3ImageUploadData()
+		if let image = imageData {
+			result.image = image
+		}
+		else if let fn = filename {
+			result.filename = fn
+		}
+		else {
+			CoreDataLog.error("PostOpForum_Photo malformed. Either filename or image must be non=empty.")
+		}
+		return result
 	}
 }
 
@@ -1168,7 +1177,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/fez/\(seamailThread.id)/post", query: nil)
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
-		let newMessageStruct = TwitarrV3PostCreateData(text: text)
+		let newMessageStruct = TwitarrV3PostContentData(text: text, images: [])
 		let newMessageData = try! JSONEncoder().encode(newMessageStruct)
 		request.httpBody = newMessageData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1648,37 +1657,27 @@ struct TwitarrV2UpdateUserPhotoResponse: Codable {
 
 // MARK: - V3 JSON Structs
 
-struct TwitarrV3PostCreateData: Codable {
-    /// The text of the forum post or twarrt.
-    var text: String
-    /// An optional image in Data format.
-    var imageData: Data?
-}
-
 struct TwitarrV3PostContentData: Codable {
     /// The new text of the forum post.
     var text: String
-    /// The filename of an existing image. Ignored if newImage is set. Set to "" to delete image. Be sure to set this field to 
-    /// match the existing image filename if not changing.
-    var imageFilename: String?
-    /// A new image to replace the existing image.
-    var newImage: TwitarrV3ImageUploadData?
+    /// An array of up to 4 images (1 when used in a Fez post). Each image can specify either new image data or an existing image filename. 
+	/// For new posts, images will generally contain all new image data. When editing existing posts, images may contain a mix of new and existing images. 
+	/// Reorder ImageUploadDatas to change presentation order. Set images to [] to remove images attached to post when editing.
+    var images: [TwitarrV3ImageUploadData]
 }
 
 struct TwitarrV3ImageUploadData: Codable {
-    /// The name of the image file.
-    var filename: String
-    /// The image in `Data` format.
-    var image: Data
+    /// The filename of an existing image previously uploaded to the server. Ignored if image is set.
+    var filename: String?
+    /// The image in `Data` format. 
+    var image: Data?
 }
 
 struct TwitarrV3ForumCreateData: Codable {
     /// The forum's title.
     var title: String
-    /// The text content of the forum post.
-    var text: String
-    /// The image content of the forum post.
-    var image: Data?
+    /// The first post in the forum. 
+	var firstPost: TwitarrV3PostContentData
 }
 
 struct TwitarrV3UploadedImageData: Codable {

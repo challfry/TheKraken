@@ -394,7 +394,7 @@ class ImageManager : NSObject {
 // MARK: Image Upload Support
 	// Use this to repackage a photo for upload to Twitarr. It also re-formats images to JPEG, PNG or GIF.
 	func resizeImageForUpload(imageContainer: PhotoDataType, 
-			progress: @escaping PHAssetImageProgressHandler, done: @escaping (Data?, String?, ServerError?) -> ()) {
+			progress: @escaping PHAssetImageProgressHandler, done: @escaping (PhotoDataType?, ServerError?) -> ()) {
 		let maxImageDimension = 2000
 
 		switch imageContainer {
@@ -422,11 +422,17 @@ class ImageManager : NSObject {
 						mimeType = "image/jpeg"
 					}
 					
-					done(imageData, mimeType, nil)
+					if let imageData = imageData {
+						let resultContainer = PhotoDataType.data(imageData, mimeType)
+						done(resultContainer, nil)
+					}
+					else {
+						done(nil, ServerError("Couldn't format photo for upload."))
+					}
 				}
 				else {
 					// Couldn't convert the photo?
-					done(nil, nil, ServerError("Couldn't retrieve photo."))
+					done(nil, ServerError("Couldn't retrieve photo."))
 				}
 			}
 
@@ -434,7 +440,7 @@ class ImageManager : NSObject {
 			// Currently, the CameraViewController is only configured to take JPEG shots. It doesn't look like
 			// AVCapturePhoto has a way to tell you what file type it makes when you call fileDataRepresentation().
 			// So, if we add new capture file types, we'll have to send the chosen type along to here.
-			if let jpegData = capturePhoto.fileDataRepresentation(), let photoImage = UIImage(data: jpegData) {
+			if var jpegData = capturePhoto.fileDataRepresentation(), let photoImage = UIImage(data: jpegData) {
 				let imageWidth = Int(photoImage.size.width * photoImage.scale)
 				let imageHeight = Int(photoImage.size.height * photoImage.scale)
 				
@@ -452,18 +458,15 @@ class ImageManager : NSObject {
 						photoImage.draw(in: CGRect(origin: CGPoint.zero, size: resizeSize))
 					}
 					if let resizedJpegData = newImage.jpegData(compressionQuality: 0.9) {
-						done(resizedJpegData, "image/jpeg", nil)
-						return
+						jpegData = resizedJpegData
 					}
 				}
-				else {
-					// we don't need to resize
-					done(jpegData, "image/jpeg", nil)
-				}
+				let resultContainer = PhotoDataType.data(jpegData, "image/jpeg")
+				done(resultContainer, nil)
 			}
 			else {
 				// Can't resize, as we can't make a UIImage
-				done(nil, nil, ServerError("Couldn't resize photo for upload."))
+				done(nil, ServerError("Couldn't resize photo for upload."))
 			}
 			
 		case .image(let origImage):			
@@ -484,14 +487,26 @@ class ImageManager : NSObject {
 					origImage.draw(in: CGRect(origin: CGPoint.zero, size: resizeSize))
 				}
 				if let resizedJpegData = newImage.jpegData(compressionQuality: 0.9) {
-					done(resizedJpegData, "image/jpeg", nil)
-					return
+					let resultContainer = PhotoDataType.data(resizedJpegData, "image/jpeg")
+					done(resultContainer, nil)
 				}
 			}
 			else {
 				// we don't need to resize
-				done(origImage.jpegData(compressionQuality: 0.9), "image/jpeg", nil)
+				if let imageData = origImage.jpegData(compressionQuality: 0.9) {
+					let resultContainer = PhotoDataType.data(imageData, "image/jpeg")
+					done(resultContainer, nil)
+				}
+				else {
+					done(nil, ServerError("Couldn't resize photo for upload."))
+				}
 			}
+		
+		case .data(_, _):			
+			done(imageContainer, nil)
+			
+		case .server(_, _): 
+			done(imageContainer, nil)
 		}
 	}
 	

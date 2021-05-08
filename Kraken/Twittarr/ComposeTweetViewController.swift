@@ -133,10 +133,10 @@ class ComposeTweetViewController: BaseCollectionViewController {
 	
 	lazy var draftImageCell: DraftImageCellModel = {
         // Only used when editing a draft, where we have a photo that's already pulled from the library and made
-        // into an NSData.
+        // into an NSData, but not yet uploaded to the server.
 		let cellModel = DraftImageCellModel()
-        if let draftImage = draftTweet?.image {
-        	cellModel.imageData = draftImage
+        if let draftImage = draftTweet?.photos?[0] as? PostOpPhoto_Attachment, let imageData = draftImage.imageData {
+        	cellModel.imageData = imageData as NSData
         	photoSelectionCell.shouldBeVisible = false
         }
         else {
@@ -305,35 +305,30 @@ class ComposeTweetViewController: BaseCollectionViewController {
     	
 		if photoSelectionCell.shouldBeVisible == true, let selectedPhoto = photoSelectionCell.selectedPhoto {
 			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
-					progress: imageiCloudDownloadProgress) { photoData, mimeType, error in
+					progress: imageiCloudDownloadProgress) { (photoData, error) in
 				if let err = error {
 					self.postStatusCell.errorText = err.getCompleteError()
 					self.setPostingState(false)
 				}
-				else {
-					self.post(withPhoto: photoData, mimeType: mimeType)
+				else if let photoData = photoData {
+					self.post(withPhotos: [photoData])
 				}
 			}
 		} else {
-			var image: Data?
-			var mimeType: String?
-			
-			// If editing a draft (as yet undelivered to server) post, we already have the photo to attach
-			// saved as an NSData, not a PHImage in the photos library. So, we handle it a bit differently.
-			// (also, delivering a post with an attached image should work even if the user disables photo access
-			// after tapping Post).
-			if !removeDraftImage {
-				image = draftTweet?.image as Data?
-				mimeType = draftTweet?.imageMimetype
+			if removeDraftImage {
+				post(withPhotos: [])
 			}
-			post(withPhoto: image, mimeType: mimeType)
+			else {
+				// This is the case where we're not modifying the photos
+				post(withPhotos: nil)
+			}
 		}
     }
     
     // Queues up the PostOp object for this content.
-    func post(withPhoto image: Data?, mimeType: String?) {
+    func post(withPhotos photos: [PhotoDataType]?) {
     	guard let tweetText = tweetTextCell.editedText ?? tweetTextCell.editText else { return }
-		TwitarrDataManager.shared.queuePost(draftTweet, withText: tweetText, image: image, mimeType: mimeType, 
+		TwitarrDataManager.shared.queuePost(draftTweet, withText: tweetText, images: photos, 
 				inReplyTo: parentTweet, editing: self.editTweet, done: postEnqueued)    	
     }
     
@@ -389,6 +384,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			case .camera(let photo): photoSelectionCell.cameraPhotos.insert(photo, at: 0)
 			case .image(let image): photoSelectionCell.cameraPhotos.insert(image, at: 0)
 			case .library(let asset): photoSelectionCell.cameraPhotos.insert(asset, at: 0)
+			default: break	// Camera can't return .server or .data
 			}
 		}
 	}	

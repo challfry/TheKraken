@@ -24,8 +24,8 @@ import CoreData
 	
 	var numLikes: Int32 { get set }
 	var postText: String? { get set }
-	var photos: [PhotoDetails]? { get set }
-	var photoImages: [Data]? { get set }			// For ops, where there's no PhotoDetails yet.
+	var photoDetails: [PhotoDetails]? { get set }	// Server images; used for posted tweets
+	var photoAttachments: [PostOpPhoto_Attachment]? { get set }	// For ops, where there's no PhotoDetails yet.
 	
 	var loggedInUserIsAuthor: Bool { get set }		// False if no logged in user
 	
@@ -71,8 +71,8 @@ import CoreData
 	
 	dynamic var numLikes: Int32 = 0
 	dynamic var postText: String?
-	dynamic var photos: [PhotoDetails]?
-	dynamic var photoImages: [Data]? 
+	dynamic var photoDetails: [PhotoDetails]?
+	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 
 	dynamic var loggedInUserIsAuthor: Bool = false		// False if no logged in user
 
 	// Reply, Edit, Delete, Like
@@ -101,7 +101,8 @@ import CoreData
 				author = nil
 				postTime = nil
 				postText = nil				
-  				photos = nil
+  				photoDetails = nil
+  				photoAttachments = nil
   				isDeleted = true
   				shouldBeVisible = false
 			}
@@ -125,14 +126,9 @@ import CoreData
 			observer.postText = observed.text
 		}?.execute())
 							
-		// Photo, if one's attached
-		addObservation(tweetModel.tell(self, when: "photoDetails.id") { observer, observed in
-			if let photo = observed.photoDetails {
-				observer.photos = [photo]
-			}
-			else {
-				observer.photos = []
-			}
+		// Photos
+		addObservation(tweetModel.tell(self, when: "photoDetails.count") { observer, observed in
+			observer.photoDetails = observed.photoDetails.array as? [PhotoDetails]
 		}?.execute())
 		
 		let determineBlockState: () -> Bool = { [weak self] in
@@ -304,8 +300,8 @@ import CoreData
 	
 	dynamic var numLikes: Int32 = 0
 	dynamic var postText: String?
-	dynamic var photos: [PhotoDetails]?
-	dynamic var photoImages: [Data]? 
+	dynamic var photoDetails: [PhotoDetails]?					// Server images
+	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 	// Local images from postOp
 	dynamic var loggedInUserIsAuthor: Bool = false		// False if no logged in user
 
 	// Reply, Edit, Delete, Like
@@ -334,7 +330,7 @@ import CoreData
 				author = nil
 				postTime = nil
 				postText = nil				
-  				photos = nil
+  				photoDetails = nil
   				isDeleted = true
   				shouldBeVisible = false
   			}
@@ -356,17 +352,17 @@ import CoreData
 			observer.postText = observed.text
 		}?.execute())
 							
-		// Photo, if one's attached. Tweets can only have 1 photo.
-		addObservation(tweetOpModel.tell(self, when: "image") { observer, observed in
-			if let photoData = observed.image {
-				observer.photoImages = [(photoData as Data)]
+		// Photos from postOp
+		addObservation(tweetOpModel.tell(self, when: "photos.count") { observer, observed in
+			if let photoArray = observed.photos?.array as? [PostOpPhoto_Attachment], photoArray.count > 0 {
+				observer.photoAttachments = photoArray
 			}
 			else {
-				observer.photoImages = []
+				observer.photoAttachments = nil
 			}
 		}?.execute())
 		
-		// Pending Ops cannot have replies, deleteOps, editOps, LikeOps, or reactOps applied to them, so there are all false
+		// Pending Ops cannot have replies, deleteOps, editOps, LikeOps, or reactOps applied to them, so they are all false
 	}
 	
 	func linkTextTapped(link: String) {	}
@@ -482,19 +478,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 	}
 	
-	var photos: [PhotoDetails]? {
-		didSet {
-//			if let p = photos, p.count == 1 {
-//				photos?.append(p[0])
-//				photos?.append(p[0])
-//				photos?.append(p[0])
-//				photos?.append(p[0])
-//				photos?.append(p[0])
-//			}
-			setupPhotos()
-		}
-	}
-	
 	var authorIsBlocked: Bool = false {
 		didSet {
 			setupPhotos()
@@ -540,7 +523,20 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 
 	
-	dynamic var photoImages: [Data]? {
+	var photoDetails: [PhotoDetails]? {
+		didSet {
+//			if let p = photos, p.count == 1 {
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//				photos?.append(p[0])
+//			}
+			setupPhotos()
+		}
+	}
+	
+	dynamic var photoAttachments: [PostOpPhoto_Attachment]? {
 		didSet {
 			setupPhotos()
 		}
@@ -556,7 +552,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 		
 		var numDisplayedPhotos = 0
-		if let photoArray = photos, photoArray.count > 0 {
+		if let photoArray = photoDetails, photoArray.count > 0 {
 			numDisplayedPhotos = photoArray.count
 			if numDisplayedPhotos == 1 {
 				let firstPhoto = photoArray[0]
@@ -567,10 +563,15 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				}
 			}
 		}
-		else if let photoArray = photoImages, photoArray.count > 0 {
+		else if let photoArray = photoAttachments, photoArray.count > 0 {
 			numDisplayedPhotos = photoArray.count
-			if numDisplayedPhotos == 1, let newImage = UIImage(data: photoArray[0]) {
+			if numDisplayedPhotos == 1, let imageData = photoArray[0].imageData, let newImage = UIImage(data: imageData) {
 				postImage.image = newImage
+			}
+			else if let filename = photoArray[0].filename {
+				ImageManager.shared.image(withSize: .full, forKey: filename) { newImage in
+					self.postImage.image = newImage
+				}
 			}
 		}
 		else {
@@ -943,10 +944,10 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 extension TwitarrTweetCell: UICollectionViewDataSource, UICollectionViewDelegate {
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		var photoCount = 0
-		if let photoSource = photos, photoSource.count > 0 {
+		if let photoSource = photoDetails, photoSource.count > 0 {
 			photoCount = photoSource.count
 		}
-		else if let photoSource = photoImages, photoSource.count > 0 {
+		else if let photoSource = photoAttachments, photoSource.count > 0 {
 			photoCount = photoSource.count
 		}
 		
@@ -956,7 +957,7 @@ extension TwitarrTweetCell: UICollectionViewDataSource, UICollectionViewDelegate
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photo", for: indexPath) as! TwitarrPostPhotoCell 
-		if let photoArray = photos {
+		if let photoArray = photoDetails {
 			ImageManager.shared.image(withSize:.medium, forKey: photoArray[indexPath.row].id) { image in
 				cell.photo = image
 			}

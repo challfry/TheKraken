@@ -459,7 +459,7 @@ class UserManager : NSObject {
 	}
 	
 	// Updates a bunch of users at once. The array of UserInfo objects can have duplicates, but is assumed
-	// to be the parsed out of a single network call. Does not save the context.
+	// to be the parsed out of a single network call (i.e. duplicate IDs will have all fields equal). Does not save the context.
 	func update(users origUsers: [TwitarrV3UserHeader], inContext context: NSManagedObjectContext) {
 		do {
 			// Unique all the users

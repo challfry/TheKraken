@@ -90,8 +90,8 @@ import UIKit
 		}
 
 		// Get all the photos attached to all the posts into a Photos set.
-		let allPhotoFilenames = v3ForumData.posts.compactMap { $0.image }
-		ImageManager.shared.updateV3(imageFilenames: allPhotoFilenames, inContext: context)
+		let allPhotoFilenames = v3ForumData.posts.compactMap { $0.images }.joined()
+		ImageManager.shared.updateV3(imageFilenames: Array(allPhotoFilenames), inContext: context)
 
 		// Finally, build all the posts.
 		let cdPostsDict = Dictionary(posts.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })

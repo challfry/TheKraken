@@ -444,12 +444,18 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		}
 		
 		// According to docs, this will always be an HTTPURLResponse (or nil) for our HTTP calls. It's never an URLResponse.
-		let resp = task.response as? HTTPURLResponse
+		if let resp = task.response as? HTTPURLResponse {
 		
-		let responsePacket = NetworkResponse(response: resp, data: responseData, networkError: networkError)
+			// Handle globally applicable status codes here
+			if resp.statusCode == 401 {
+				CurrentUser.shared.logoutUser(nil, sendLogoutMsg: false)
+			}
+			
+			let responsePacket = NetworkResponse(response: resp, data: responseData, networkError: networkError)
 
-		for doneCallback in foundTask.doneCallbacks {
-			doneCallback(responsePacket)
+			for doneCallback in foundTask.doneCallbacks {
+				doneCallback(responsePacket)
+			}
 		}
 //		print (String(decoding:foundTask.responseData, as: UTF8.self))
 	}
