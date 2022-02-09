@@ -15,7 +15,6 @@ import BackgroundTasks
 			ServerTimeUpdater.shared,
 			ValidSectionUpdater.shared,
 			AlertsUpdater.shared,
-			AnnouncementsUpdater.shared
 	]
 	static var numActiveUpdaters: Int = 0
 	static var allUpdatesComplete: (() -> Void)?
@@ -56,7 +55,7 @@ import BackgroundTasks
 	class func runServerUpdates() {
 //		RefreshLog.debug("Starting runServerUpdates().")
 		for updater in updateActions {
-			// The boundary time if 5 secs minus the update interval so a refresher on a minute timer will run every minute,
+			// The boundary time is 5 secs minus the update interval so a refresher on a minute timer will run every minute,
 			// instead of running every 2 mins perhaps half the time.
 			if updater.lastUpdateTime < Date(timeIntervalSinceNow: 5.0 - updater.minimumUpdateInterval) {
 				if !updater.updateRunning {
@@ -103,10 +102,10 @@ class RefreshTimers: NSObject {
 			}
 		}
 		
-		appForegrounded()
+		appForegrounded(isLaunch: true)
 	}
 		
-	class func appForegrounded() {
+	class func appForegrounded(isLaunch: Bool) {
 		// 1. Post notification immediately on fg, to update all time fields before user sees them.
 		NotificationCenter.default.post(Notification(name: RefreshTimers.TenSecUpdateNotification))
 
@@ -135,7 +134,9 @@ class RefreshTimers: NSObject {
 		}
 		
 		// Run these things immediately on foreground.
-		ServerUpdater.runServerUpdates()
+		if !isLaunch {
+			ServerUpdater.runServerUpdates()
+		}
 	}
 	
 	class func appBackgrounded() {

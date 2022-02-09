@@ -86,8 +86,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 //		dailySegment.append(betaCellModel)
 		dailySegment.append(dataDeletionReminderCellModel)
 		
-		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true"),
-				sort: [ NSSortDescriptor(key: "timestamp", ascending: false) ], 
+		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true AND displayUntil > %@", Date() as NSDate),
+				sort: [ NSSortDescriptor(key: "updatedAt", ascending: false) ], 
 				cellModelFactory: self.createAnnouncementCellModel)
 		dataSource.append(segment: announcementSegment)
 		

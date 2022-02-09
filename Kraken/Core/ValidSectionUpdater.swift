@@ -22,6 +22,37 @@ import UIKit
 		case search = "search"
 		case registration = "registration"
 		case userProfile = "user_profile"
+		
+		init?(with v3Feature: TwitarrV3SwiftarrFeature) {
+			switch v3Feature {
+			case .tweets:
+				self = .stream
+			case .forums:
+				self = .forums
+			case .seamail:
+				self = .seamail
+			case .schedule:
+				self = .calendar
+			case .friendlyfez:
+				return nil
+			case .karaoke:
+				self = .karaoke
+			case .gameslist:
+				self = .games
+			case .images:
+				return nil
+			case .users:
+				self = .userProfile
+			case .all:
+				return nil
+			case .unknown:
+				return nil
+			}
+		}
+		
+		static func all() -> Set<Section> {
+			return Set([.forums, .stream, .seamail, .calendar, .games, .karaoke, .search, .registration, .userProfile])
+		}
 	}
 	
 	
@@ -37,39 +68,23 @@ import UIKit
 	}
 
 	override func updateMethod() {
-		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/admin/sections", query: nil)
-		NetworkGovernor.shared.queue(request) { networkResponse in
-			if let response = networkResponse.response, response.statusCode < 300,
-					let data = networkResponse.data {
-//				print (String(decoding:data!, as: UTF8.self))
-				let decoder = JSONDecoder()
-				do {
-					let sectionsResponse = try decoder.decode(TwitarrV2ServerSectionStatusResponse.self, from: data)
-					var newDisabledSections = Set<Section>()
-					for section in sectionsResponse.sections {
-						if section.enabled == false {
-							if let sectionEnum = Section(rawValue: section.name) {
-								newDisabledSections.insert(sectionEnum)
-							}
-							if section.name.hasPrefix("Kraken_") {
-								let nameSuffix = section.name.dropFirst(7)
-								if let sectionEnum = Section(rawValue: String(nameSuffix)) {
-									newDisabledSections.insert(sectionEnum)
-								}
-
-							}
-						}
-					}
-					self.disabledSections = newDisabledSections
-					self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
-										
-				} catch 
-				{
-					NetworkLog.error("Failure parsing server sections response.", ["Error" : error, "URL" : request.url as Any])
-				} 
+		self.updateComplete(success: true)
+	}
+	
+	func updateDisabledFeatures(disabled: [TwitarrV3DisabledFeature]) {
+		var newDisabledSections = Set<Section>()
+		for disabledFeature in disabled {
+			if [.kraken, .all].contains(disabledFeature.appName) {
+				if let sectionEnum = Section(with: disabledFeature.featureName) {
+					newDisabledSections.insert(sectionEnum)
+				}
+				else if disabledFeature.featureName == .all {
+					newDisabledSections.formUnion(Section.all())
+				}
 			}
-			self.updateComplete(success: true)
 		}
+		self.disabledSections = newDisabledSections
+		self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
 	}
 	
 	func tabForSection(_ section: Section) -> RootTabBarViewController.Tab {

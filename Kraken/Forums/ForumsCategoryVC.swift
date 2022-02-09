@@ -16,6 +16,8 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 	@IBOutlet weak var forumsFilterStackView: UIStackView!
 	@IBOutlet weak var forumsFilterHeightConstraint: NSLayoutConstraint!
 	
+	@IBOutlet weak var newForumButton: UIBarButtonItem!
+	
 	// Set during segue
 	var categoryModel: ForumCategory?
 	
@@ -37,6 +39,9 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 		var threadSegment = FRCDataSourceSegment<ForumThread>()
 		var readCountSegment = FRCDataSourceSegment<ForumReadCount>()
  
+	let loginDataSource = KrakenDataSource()
+		let loginSection = LoginDataSourceSegment()
+
     var filterPopupVC: EmojiPopupViewController?
     
     lazy var loadingStatusCellModel: LoadingStatusCellModel = {
@@ -94,7 +99,25 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 		readCountSegment.activate(predicate: NSPredicate(value: false), 
 				sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], cellModelFactory: createReadCountCellModel)
 
-		threadDataSource.register(with: collectionView, viewController: self)
+        loginDataSource.append(segment: loginSection)
+		loginSection.headerCellText = "In order to see the Forums, you will need to log in first."
+
+		// When a user is logged in we'll set up the FRC to load the threads which that user can 'see'. Remember, CoreData
+		// stores ALL the seamail we ever download, for any user who logs in on this device.
+        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
+			if let _ = observed.loggedInUser?.userID {
+        		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
+				observer.newForumButton.isEnabled = true
+				observer.navigationItem.titleView = observer.forumsNavTitleButton
+			}
+       		else {
+       			// If nobody's logged in, pop to root, show the login cells.
+				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
+				observer.newForumButton.isEnabled = false
+				observer.navigationController?.popToViewController(self, animated: false)
+				observer.navigationItem.titleView = nil
+       		}
+        }?.execute()        
 
 		knownSegues = Set([.showForumThread, .modalLogin])
 	}

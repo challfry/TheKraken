@@ -624,7 +624,7 @@ class BaseCollectionViewController: UIViewController {
 
 		case .reportContent:
 			if let destVC = segue.destination as? ReportContentViewController, let post = sender as? KrakenManagedObject {
-				destVC.postToReport = post
+				destVC.contentToReport = post
 			}
 			
 // Settings

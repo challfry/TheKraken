@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 
 @objc(SeamailMessage) public class SeamailMessage: KrakenManagedObject {
-    @NSManaged public var id: String
+    @NSManaged public var id: Int64
     @NSManaged public var author: KrakenUser?
     @NSManaged public var text: String
     @NSManaged public var timestamp: Date	
@@ -21,41 +21,17 @@ import CoreData
 		super.awakeFromInsert()
 		timestamp = Date()
 	}
-
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2SeamailMessage, newThread: SeamailThread) {
-		TestAndUpdate(\.id, v2Object.id)
-		TestAndUpdate(\.text, v2Object.text)
-		let ts = Date(timeIntervalSince1970: Double(v2Object.timestamp) / 1000.0)
-		TestAndUpdate(\.timestamp, ts)
-		if newThread.id != thread?.id {
-			thread = newThread
-		}
-		if author?.username != v2Object.author.username {
-			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-			if let cdAuthor = userPool[v2Object.author.username] {
-				author = cdAuthor
-			}
-		}
-		
-		let cdReadUsers = Set(readUsers.map { $0.username })
-		let v2ReadUsers = Set(v2Object.readUsers.map { $0.username })
-		if v2ReadUsers != cdReadUsers {
-			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-			let newReadUsers = Set(v2ReadUsers.compactMap { userPool[$0] })
-			readUsers = newReadUsers
-		}
-	}
 	
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3FezPostData, newThread: SeamailThread) {
-		TestAndUpdate(\.id, String(v3Object.postID))
+		TestAndUpdate(\.id, Int64(v3Object.postID))
 		TestAndUpdate(\.text, v3Object.text)
 		TestAndUpdate(\.timestamp, v3Object.timestamp)
 		if newThread.id != thread?.id {
 			thread = newThread
 		}
-		if author?.userID != v3Object.authorID {
+		if author?.userID != v3Object.author.userID {
 			let userPool: [UUID : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser] 
-			if let cdAuthor = userPool[v3Object.authorID] {
+			if let cdAuthor = userPool[v3Object.author.userID] {
 				author = cdAuthor
 			}
 		}
@@ -120,119 +96,62 @@ import CoreData
 		
 		// Users: Owner, participants, and waitlisters
 		let userPool: [UUID : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser]
-		if let threadOwner = userPool[v3Object.ownerID], self.owner != threadOwner {
+		if let threadOwner = userPool[v3Object.owner.userID], self.owner != threadOwner {
 			self.owner = threadOwner
 		}
-		var newParticipantList: Set<KrakenUser> = []
-		let newAttendeeList = NSMutableOrderedSet()
-		let newWaitlist = NSMutableOrderedSet()
-		for participant in v3Object.participants {
-			if let cdUser = userPool[participant.userID] {
-				newParticipantList.insert(cdUser)
-				newAttendeeList.add(cdUser)
+		// Members should be nonnil for seamails--otherwise how did we get here?
+		if let members = v3Object.members {
+			var newParticipantList: Set<KrakenUser> = []
+			let newAttendeeList = NSMutableOrderedSet()
+			let newWaitlist = NSMutableOrderedSet()
+			for participant in members.participants {
+				if let cdUser = userPool[participant.userID] {
+					newParticipantList.insert(cdUser)
+					newAttendeeList.add(cdUser)
+				}
 			}
-		}
-		for waitlister in v3Object.waitingList {
-			if let cdUser = userPool[waitlister.userID] {
-				newParticipantList.insert(cdUser)
-				newWaitlist.add(cdUser)
+			for waitlister in members.waitingList {
+				if let cdUser = userPool[waitlister.userID] {
+					newParticipantList.insert(cdUser)
+					newWaitlist.add(cdUser)
+				}
 			}
-		}
-		if newParticipantList != participants {
-			participants = newParticipantList
-		}
-		if newAttendeeList != attendees {
-			attendees = newAttendeeList
-		}
-		if newWaitlist != waitList {
-			waitList = newWaitlist
-		}
+			if newParticipantList != participants {
+				participants = newParticipantList
+			}
+			if newAttendeeList != attendees {
+				attendees = newAttendeeList
+			}
+			if newWaitlist != waitList {
+				waitList = newWaitlist
+			}
 		
-		// Posts
-		if let posts = v3Object.posts {
-			let postIDs = posts.map { $0.postID }
-			let request = NSFetchRequest<SeamailMessage>(entityName: "SeamailMessage")
-			request.predicate = NSPredicate(format: "id IN %@", postIDs)
-			let cdResults = try context.fetch(request)
-			let cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
-			for post in posts {
-				let postID = String(post.postID)
-				let cdPost = cdPostsDict[postID] ?? SeamailMessage(context: context) 
-				cdPost.buildFromV3(context: context, v3Object: post, newThread: self)
+			// Posts
+			if let posts = members.posts {
+				let postIDs = posts.map { $0.postID }
+				let request = NSFetchRequest<SeamailMessage>(entityName: "SeamailMessage")
+				request.predicate = NSPredicate(format: "id IN %@", postIDs)
+				let cdResults = try context.fetch(request)
+				let cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+				for post in posts {
+					let postID = Int64(post.postID)
+					let cdPost = cdPostsDict[postID] ?? SeamailMessage(context: context) 
+					cdPost.buildFromV3(context: context, v3Object: post, newThread: self)
+				}
 			}
-		}
-		
-		// Read Counts
-		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			let userParticipant = try getReadCountsInternal(context: context, user: currentUser)
-			if userParticipant.postCount != v3Object.postCount {
-				userParticipant.postCount = Int32(v3Object.postCount)
-			}
-			if userParticipant.readCount != v3Object.readCount {
-				userParticipant.readCount = Int32(v3Object.readCount)
+			
+			// Read Counts
+			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+				let userParticipant = try getReadCountsInternal(context: context, user: currentUser)
+				if userParticipant.postCount != members.postCount {
+					userParticipant.postCount = Int32(members.postCount)
+				}
+				if userParticipant.readCount != members.readCount {
+					userParticipant.readCount = Int32(members.readCount)
+				}
 			}
 		}
     }
-
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2SeamailThread) {
-//		var newMessagesAdded = false
-//		
-//		TestAndUpdate(\.id, v2Object.id)
-//		TestAndUpdate(\.subject, v2Object.subject)
-//		TestAndUpdate(\.timestamp, v2Object.timestamp)
-////		hasUnreadMessages = v2Object.hasUnreadMessages
-//		if v2Object.countIsUnread {
-//			// V2 Message Count in this case is the # of unread messages, not total messages.
-//			// Since we don't know how many of the messaages we *have* are unread, the unread count can't be used to 
-//			// infer the total message count. However, if there's 3 new messages, we can infer there must be at least 3 total.
-//			if v2Object.messageCount > messageCount {
-//				TestAndUpdate(\.messageCount, Int64(v2Object.messageCount))
-//			}
-//			if v2Object.messageCount > 0 {
-//				newMessagesAdded = true
-//			}
-//		}
-//		else {
-//			if v2Object.messageCount > messageCount {
-//				newMessagesAdded = true
-//			}
-//			TestAndUpdate(\.messageCount, Int64(v2Object.messageCount))
-//		}
-//		
-//		// Set the participants in the thread
-//		let cdParticipants = Set(participants.map { $0.username })
-//		let v2Participants = Set(v2Object.participants.map { $0.username })
-//		if v2Participants != cdParticipants {
-//			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-//			let newParticipants = Set(v2Participants.compactMap { userPool[$0] })
-//			participants = newParticipants
-//		}
-//		
-//		// Add all the messages
-//		if let msgs = v2Object.messages {
-//			for message in msgs {
-//				let cdMessage = messages.first { $0.id == message.id } ?? SeamailMessage(context: context)
-//				cdMessage.buildFromV2(context: context, v2Object: message, newThread: self)
-//				messages.insert(cdMessage)
-//			}
-//		}
-//		
-//		// If at this point there's more messages in the thread than the ones we have 'seen' the server has more messages
-//		// it hasn't given us yet.
-//		if messages.count < messageCount {
-//			newMessagesAdded = true
-//		}
-//		
-//		if newMessagesAdded, messages.count == messageCount, let lastMessage = messages.max(by: { $0.timestamp < $1.timestamp }) {
-//			// If we have all the messages in the thread, we know the last person to post.
-//			// The last person to post *has* read all the messages.
-//			fullyReadBy.removeAll()
-//			fullyReadBy.insert(lastMessage.author)
-//		}
-//		else if newMessagesAdded || v2Object.hasUnreadMessages {
-//			fullyReadBy.removeAll()
-//		}
-	}
 	
 	func getReadCounts(done: @escaping (SeamailReadCount) -> Void) {
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
@@ -289,13 +208,14 @@ import CoreData
 	func loadSeamails(done: (() -> Void)? = nil) {
 		// TODO: Add Limiter
 
-		guard !isLoading, let currentUser = CurrentUser.shared.loggedInUser else {
+		guard !isLoading, let _ = CurrentUser.shared.loggedInUser else {
 			done?()
 			return
 		}
 		isLoading = true
 		
-		let queryParams: [URLQueryItem] = []
+		var queryParams: [URLQueryItem] = []
+		queryParams.append(URLQueryItem(name: "type", value: "closed"))
 //		queryParams.append(URLQueryItem(name:"after", value: "\(currentUser.lastSeamailCheckTime)"))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
 		
@@ -307,8 +227,8 @@ import CoreData
 			}
 			else if let data = package.data {
 				do {
-					let newSeamails = try Settings.v3Decoder.decode([TwitarrV3FezData].self, from: data)
-					self.ingestSeamailThreads(from: newSeamails)
+					let newSeamails = try Settings.v3Decoder.decode(TwitarrV3FezListData.self, from: data)
+					self.ingestSeamailThreads(from: newSeamails.fezzes)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])
@@ -348,7 +268,7 @@ import CoreData
 			context.pushOpErrorExplanation("Failed to add new Seamails.")
 			
 			// Update all the users in all the theads.
-			let allParticipants = threads.flatMap { $0.participants }
+			let allParticipants = threads.compactMap { $0.members?.participants }.flatMap { $0 }
 			UserManager.shared.update(users: allParticipants, inContext: context)
 
 			// Fetch all the threads from CD
@@ -373,6 +293,36 @@ import CoreData
 				self.updateNotifications(context: context)
 			}
 		}
+	}
+	
+	func ingestSeamailThread(from thread: TwitarrV3FezData, inContext context: NSManagedObjectContext) throws -> SeamailThread {
+		// Update all the users in all the theads.
+		let allParticipants = thread.members?.participants ?? []
+		UserManager.shared.update(users: allParticipants, inContext: context)
+
+		// Fetch all the threads from CD
+		let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
+		request.predicate = NSPredicate(format: "id == %@", thread.fezID as CVarArg)
+		request.fetchLimit = 1
+		let cdThreads = try request.execute()
+		let cdThread = cdThreads.first ?? SeamailThread(context: context)
+		try cdThread.buildFromV3(context: context, v3Object: thread)
+
+		LocalCoreData.shared.setAfterSaveBlock(for: context) { success in 
+			self.updateNotifications(context: context)
+		}
+		return cdThread
+	}
+	
+	func ingestSeamailPost(from post: TwitarrV3FezPostData, toThread: SeamailThread, inContext context: NSManagedObjectContext) throws {
+		UserManager.shared.update(users: [post.author], inContext: context)
+
+		let request = NSFetchRequest<SeamailMessage>(entityName: "SeamailMessage")
+		request.predicate = NSPredicate(format: "id == %d", post.postID)
+		request.fetchLimit = 1
+		let cdPosts = try request.execute()
+		let cdPost = cdPosts.first ?? SeamailMessage(context: context)
+		cdPost.buildFromV3(context: context, v3Object: post, newThread: toThread)
 	}
 	
 	// NOTE: At the time updateNotifications is called on a background thread, ingestSeamailThreads will have been called
@@ -630,18 +580,11 @@ enum TwitarrV3FezType: String, CaseIterable, Codable {
     }
 }
 
-//struct TwitarrV3SeaMonkey: Codable {
-//    /// The user's ID.
-//    var userID: UUID
-//    /// The user's username.
-//    var username: String
-//}
-
 struct TwitarrV3FezPostData: Codable {
     /// The ID of the fez post.
     var postID: Int
-    /// The ID of the fez post's author.
-    var authorID: UUID
+    /// The fez post's author.
+    var author: TwitarrV3UserHeader
     /// The text content of the fez post.
     var text: String
     /// The time the post was submitted.
@@ -653,8 +596,8 @@ struct TwitarrV3FezPostData: Codable {
 struct TwitarrV3FezData: Codable {
     /// The ID of the fez.
     var fezID: UUID
-    /// The ID of the fez's owner.
-    var ownerID: UUID
+    /// The fez's owner.
+    var owner: TwitarrV3UserHeader
     /// The `FezType` .label of the fez.
     var fezType: TwitarrV3FezType
     /// The title of the fez.
@@ -667,19 +610,40 @@ struct TwitarrV3FezData: Codable {
     var endTime: Date?
     /// The location for the fez.
     var location: String?
-    /// The users participating in the fez.
-    var participants: [TwitarrV3UserHeader]
-    /// The users on a waiting list for the fez.
-    var waitingList: [TwitarrV3UserHeader]
-    /// How many posts the user can see in the fez. The count is returned even for calls that don't return the actual posts, but is not returned for 
-    /// fezzes where the user is not a member. PostCount does not include posts from blocked/muted users.
-	var postCount: Int
-    /// How many posts the user has read. If postCount > readCount, there's posts to be read. UI can also use readCount to set the initial view 
-    /// to the first unread message.ReadCount does not include posts from blocked/muted users.
-	var readCount: Int
+    /// How many users are currently members of the fez. Can be larger than maxParticipants; which indicates a waitlist.
+	var participantCount: Int
+    /// The min number of people for the activity. Set by the host. Fezzes may?? auto-cancel if the minimum participant count isn't met when the fez is scheduled to start.
+	var minParticipants: Int
+    /// The max number of people for the activity. Set by the host.
+	var maxParticipants: Int
+	/// TRUE if the fez has been cancelled by the owner. Cancelled fezzes should display CANCELLED so users know not to show up, but cancelled fezzes are not deleted.
+	var cancelled: Bool
 	/// The most recent of: Creation time for the fez, time of the last post (may not exactly match post time), user add/remove, or update to fezzes' fields. 
 	var lastModificationTime: Date
-    /// The FezPosts in the fez discussion.
-    var posts: [TwitarrV3FezPostData]?
+	
+    /// FezData.MembersOnlyData returns data only available to participants in a Fez. 
+    public struct MembersOnlyData: Codable {
+		/// The users participating in the fez.
+		var participants: [TwitarrV3UserHeader]
+		/// The users on a waiting list for the fez.
+		var waitingList: [TwitarrV3UserHeader]
+		/// How many posts the user can see in the fez. The count is returned even for calls that don't return the actual posts, but is not returned for 
+		/// fezzes where the user is not a member. PostCount does not include posts from blocked/muted users.
+		var postCount: Int
+		/// How many posts the user has read. If postCount > readCount, there's posts to be read. UI can also use readCount to set the initial view 
+		/// to the first unread message.ReadCount does not include posts from blocked/muted users.
+		var readCount: Int
+		/// Paginates the array in posts--gives the start and limit of the returned posts array relative to all the posts in the thread.
+		var paginator: TwitarrV3Paginator?
+		/// The FezPosts in the fez discussion. Methods that return arrays of Fezzes, or that add or remove users, do not populate this field (it will be nil).
+		var posts: [TwitarrV3FezPostData]?
+	}
+	var members: MembersOnlyData?
 }
 
+public struct TwitarrV3FezListData: Codable {
+	/// Pagination into the results set..
+	var paginator: TwitarrV3Paginator
+    ///The fezzes in the result set.
+	var fezzes: [TwitarrV3FezData]
+}

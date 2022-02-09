@@ -21,6 +21,7 @@ struct JsonGamesListGame: Codable {
 
 	var minPlayers: Int?
 	var maxPlayers: Int?
+	var suggestedPlayers: Int?
 
 	var minPlayingTime: Int?
 	var maxPlayingTime: Int?

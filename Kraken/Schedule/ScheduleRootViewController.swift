@@ -391,7 +391,7 @@ import EventKitUI
 		// Force the view to load
 		let _ = self.view
 		
-		if let eventID = packet.arguments["eventID"] as? String {
+		if let eventIDString = packet.arguments["eventID"] as? String, let eventID = UUID(uuidString: eventIDString) {
 			resetFilters()
 			if let results = eventsSegment?.frc?.fetchedObjects, let event = results.first(where: { $0.id == eventID } ),
 					var indexPath = eventsSegment?.frc?.indexPath(forObject: event) {

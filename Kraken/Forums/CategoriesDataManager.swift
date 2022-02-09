@@ -11,7 +11,9 @@ import UIKit
 @objc(ForumCategory) public class ForumCategory: KrakenManagedObject {
 	@NSManaged public var id: UUID
 	@NSManaged public var title: String
+	@NSManaged public var purpose: String
 	@NSManaged public var isAdmin: Bool
+	@NSManaged public var numThreads: Int32
 	@NSManaged public var forums: [ForumThread]?
 	
 	override public func awakeFromInsert() {
@@ -21,7 +23,9 @@ import UIKit
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3CategoryData) {
 		TestAndUpdate(\.id, v3Object.categoryID)
 		TestAndUpdate(\.title, v3Object.title)
+		TestAndUpdate(\.purpose, v3Object.purpose)
 		TestAndUpdate(\.isAdmin, v3Object.isRestricted)
+		TestAndUpdate(\.numThreads, v3Object.numThreads)
 	}
 }
 
@@ -87,6 +91,12 @@ struct TwitarrV3CategoryData: Codable {
     var categoryID: UUID
     /// The title of the category.
     var title: String
-    /// If TRUE, only mods can create/modify threads in this forum. Should be sorted to top of category list.
+    /// The purpose string for the category.
+    var purpose: String
+    /// If TRUE, the user cannot create/modify threads in this forum. Should be sorted to top of category list.
     var isRestricted: Bool
+    /// The number of threads in this category
+    var numThreads: Int32
+    ///The threads in the category. Only populated for /categories/ID.
+    var forumThreads: [TwitarrV3ForumListData]?
 }

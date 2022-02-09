@@ -134,7 +134,44 @@ class StringUtilities {
 	   		outputString.deleteCharacters(in: NSMakeRange(outputString.length - 1, 1))
 	   	}
     	
-    	return outputString
+	   	//
+		let stringWithJocomoji = StringUtilities.addInlineImages(str: outputString)
+    	return stringWithJocomoji
+    }
+    
+    // For strings that aren't HTML fragments, Jocomoji appear as ":fez:". This converts those tokens, inserting 
+    // inline images sized to match the font size at that point in the string.
+	static let jocomoji = [ "buffet", "die-ship", "die", "fez", "hottub", "joco", "pirate", "ship-front",
+			"ship", "towel-monkey", "tropical-drink", "zombie" ]
+    class func addInlineImages(str: NSMutableAttributedString) -> NSMutableAttributedString {
+    	let resultString = str
+		for emojiTag in jocomoji {
+			var searchRange = resultString.string.startIndex..<resultString.string.endIndex
+			while let rng = resultString.string.range(of: ":\(emojiTag):", range: searchRange) {
+				let convertedRange = NSRange(rng, in: resultString.string)
+				var fontSize: CGFloat = 17.0
+				if let currentFont = resultString.attribute(.font, at: convertedRange.location, effectiveRange: nil) as? UIFont {
+					fontSize = currentFont.pointSize
+				}
+
+				if let sourceImage = UIImage(named: emojiTag) {
+					let outputImageSize = CGSize(width: fontSize, height: fontSize)
+					UIGraphicsBeginImageContext(outputImageSize)
+					sourceImage.draw(in: CGRect(origin: CGPoint.zero, size: outputImageSize))
+					let outputImage = UIGraphicsGetImageFromCurrentImageContext()
+					UIGraphicsEndImageContext()
+					let attachment = NSTextAttachment()
+					attachment.image = outputImage
+					resultString.replaceCharacters(in: convertedRange, with: NSAttributedString(attachment: attachment))
+					searchRange = rng.lowerBound..<resultString.string.endIndex
+				}
+				else {
+					// Leave emoji if we can't replace with image; skip past it in search range
+					searchRange = rng.upperBound..<resultString.string.endIndex
+				}
+			}
+		}
+		return resultString
     }
     
     class func getInlineImage(from: String, size: CGFloat) -> UIImage? {

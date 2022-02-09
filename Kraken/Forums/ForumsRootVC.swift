@@ -86,12 +86,14 @@ extension ForumsRootViewController: FRCDataSourceLoaderDelegate {
 	}
 }
 
-@objc class ForumCategoryCellMdoel: DisclosureCellModel {
+@objc class ForumCategoryCellMdoel: CategoryCellModel {
 	var category: ForumCategory
 	
 	init(category: ForumCategory) {
 		self.category = category
 		super.init()
 		self.title = category.title
+		self.purpose = category.purpose
+		self.numThreads = category.numThreads
 	}
 }

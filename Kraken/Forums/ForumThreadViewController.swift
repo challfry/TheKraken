@@ -64,7 +64,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 				threadPredicate = NSPredicate(value: false)
 			}
 			observer.threadSegment.activate(predicate: threadPredicate, 
-					sort: [ NSSortDescriptor(key: "createTime", ascending: true)], cellModelFactory: observer.createCellModel)
+					sort: [ NSSortDescriptor(key: "id", ascending: true)], cellModelFactory: observer.createCellModel)
 			observer.postButton.isEnabled = observed.threadModel?.locked == false
 		}?.execute()
     }

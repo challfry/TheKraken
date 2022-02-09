@@ -13,15 +13,15 @@ import UIKit
 // Our model object for tweets. Why not just use the V2API tweet object? V3 is coming, and this way we 
 // have a model object that doesn't have to exactly match a service response.
 @objc(TwitarrPost) public class TwitarrPost: KrakenManagedObject {
-    @NSManaged public var id: String
+    @NSManaged public var id: Int64
     @NSManaged public var locked: Bool
     @NSManaged public var reactions: Set<Reaction>
     @NSManaged public var numReactions: Int64			// V3 returns this rollup, separate from individual reactions.
     @NSManaged public var text: String
     @NSManaged public var author: KrakenUser
-    @NSManaged public var parentID: String?
-    @NSManaged public var parent: TwitarrPost?
-    @NSManaged public var children: Set<TwitarrPost>?
+    @NSManaged public var replyGroup: Int64				// -1 if no replyGroup
+//    @NSManaged public var parent: TwitarrPost?
+//    @NSManaged public var children: Set<TwitarrPost>?
 	@NSManaged public var createdAt: Date
     @NSManaged public var photoDetails: NSMutableOrderedSet		// Set of PhotoDetails
     
@@ -62,61 +62,15 @@ import UIKit
 		reactionDict = dict
 		likeReaction = newLikeReaction
 	}
-    
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Post) {
-		var changed = TestAndUpdate(\.id, v2Object.id)
-		changed = TestAndUpdate(\.locked, v2Object.locked) || changed
-		changed = TestAndUpdate(\.text, v2Object.text) || changed 
-		changed = TestAndUpdate(\.timestamp, v2Object.timestamp) || changed
-		
-		let userDict: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-		if let krakenUser = userDict[v2Object.author.username] {
-			if krakenUser.username != author.username {
-				author = krakenUser
-			}
-		}
-		else {
-			CoreDataLog.error("Somehow we have a tweet without an author, or the author changed?")
-		}
-
-//		if let v2Photo = v2Object.photo {
-//			if photoDetails?.id != v2Photo.id {
-//				let photoDict: [String : PhotoDetails ] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
-//				photoDetails = photoDict[v2Photo.id] 
-//			}
-//		}
-//		else {
-//			if photoDetails != nil {
-//				photoDetails = nil	// Can happen if photo was deleted from tweet
-//			}
-//		}
-		
-		// Hopefully item 0 in the parent chain is the *direct* parent?
-		if v2Object.parentChain.count > 0 {
-			let parentIDStr = v2Object.parentChain[0]
-			TestAndUpdate(\TwitarrPost.parentID, parentIDStr.value)
-			
-			// Not hooking up the parent relationship yet. Not sure if we can, as the parent may not be cached at this point?
-		}
-		
-		buildReactionsFromV2(context: context, v2Object: v2Object.reactions)
-		
-		let hashtags = StringUtilities.extractHashtags(v2Object.text)
-		HashtagDataManager.shared.addHashtags(hashtags)
-	}
-	
+    	
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3TwarrtData) {
-		var changed = TestAndUpdate(\.id, String(v3Object.twarrtID))
+		var changed = TestAndUpdate(\.id, v3Object.twarrtID)
 		changed = TestAndUpdate(\.createdAt, v3Object.createdAt) || changed
 		TestAndUpdate(\.timestamp, Int64(v3Object.createdAt.timeIntervalSince1970 * 1000.0))
 		changed = TestAndUpdate(\.text, v3Object.text) || changed 
 		changed = TestAndUpdate(\.numReactions, v3Object.likeCount) || changed 
-		if let replyTo = v3Object.replyToID {
-			changed = TestAndUpdate(\.parentID, String(replyTo)) || changed
-		}
-		else {
-			changed = TestAndUpdate(\.parentID, nil) || changed
-		}
+		let replyGroup = v3Object.replyGroupID ?? -1
+		changed = TestAndUpdate(\.replyGroup, replyGroup) || changed
 
 		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
 		if let newImageFilenames = v3Object.images {
@@ -437,7 +391,7 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		// Get the tweet at the FRC index
 		if let index = anchorFRCIndex, frc?.fetchedObjects?.count ?? -1 > index, let tweet = frc?.fetchedObjects?[index] {
 			if Settings.apiV3 {
-				query.append(URLQueryItem(name: newer ? "after" : "before", value: tweet.id))
+				query.append(URLQueryItem(name: newer ? "after" : "before", value: String(tweet.id)))
 			}
 			else {
 			}
@@ -603,17 +557,24 @@ class TwitarrDataManager: NSObject {
 	
 	// Maps parent post IDs to draft reply text. The most recent 'mainline' post draft is in the "" entry.
 	// Probably don't need to save this between launches? Probably should move this to a "ComposeDataManager"?
-	var recentTwitarrPostDrafts: [ String : String ] = [:]
-	func getDraftPostText(replyingTo: String?) -> String? {
-		return recentTwitarrPostDrafts[replyingTo ?? ""]
+	var recentTwitarrPostDrafts: [ Int64 : String ] = [:]
+	func getDraftPostText(replyingTo: Int64?) -> String? {
+		return recentTwitarrPostDrafts[replyingTo ?? -1]
 	}
-	func saveDraftPost(text: String?, replyingTo: String?) {
+	func saveDraftPost(text: String?, replyingTo: Int64?) {
 		if let text = text {
-			recentTwitarrPostDrafts[replyingTo ?? ""] = text
+			recentTwitarrPostDrafts[replyingTo ?? -1] = text
 		}
 		else {
-			recentTwitarrPostDrafts.removeValue(forKey: replyingTo ?? "")
+			recentTwitarrPostDrafts.removeValue(forKey: replyingTo ?? -1)
 		}
+	}
+	
+	func getTweetWithID(_ tweetID: Int64) throws -> TwitarrPost? {
+		let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+		request.predicate = NSPredicate(format: "id == %@", tweetID)
+		request.fetchLimit = 1
+		return try coreData.mainThreadContext.fetch(request).first
 	}
 		
 	// This call loads a contiguous series of tweets from the stream. When processing the response, we infer 
@@ -626,8 +587,8 @@ class TwitarrDataManager: NSObject {
 		if Settings.apiV3 {
 			path = "/api/v3/twitarr"
 			queryParams.append(URLQueryItem(name: "limit", value: "50"))
-			if let anchorIDStr = anchorTweet?.id {
-				queryParams.append(URLQueryItem(name: newer ? "after" : "before", value: anchorIDStr))
+			if let anchorID = anchorTweet?.id {
+				queryParams.append(URLQueryItem(name: newer ? "after" : "before", value: String(anchorID)))
 			}
 		}
 		else {
@@ -652,16 +613,8 @@ class TwitarrDataManager: NSObject {
 			else if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				do {
-					if Settings.apiV3 {
-						let twarrts = try Settings.v3Decoder.decode([TwitarrV3TwarrtData].self, from: data)
-						self.ingestV3StreamPosts(twarrts: twarrts)						
-					}
-					else {
-						let tweetStream = try JSONDecoder().decode(TwitarrV2TweetStreamResponse.self, from: data)
-						let morePostsExist = tweetStream.hasNextPage
-						self.ingestStreamPosts(posts: tweetStream.streamPosts, anchorTime: anchorTime,
-								extendsNewer: newer, morePostsExist: morePostsExist)
-					}
+					let twarrts = try Settings.v3Decoder.decode([TwitarrV3TwarrtData].self, from: data)
+					self.ingestV3StreamPosts(twarrts: twarrts)						
 				} catch 
 				{
 					NetworkLog.error("Failure parsing stream tweets.", ["Error" : error, "URL" : request.url as Any])
@@ -698,71 +651,71 @@ class TwitarrDataManager: NSObject {
 	// extendsNewer is true, the oldest tweet in posts is the tweet chronologically after anchor. If anchor is nil, 
 	// we can only assume posts can replace the tweets between startTime and endTime.
 	// ONLY USE THIS FOR STREAM-CONTIGUOUS POSTS. Not for searches/filters.
-	fileprivate func ingestStreamPosts(posts: [TwitarrV2Post], anchorTime: Int64, extendsNewer: Bool, morePostsExist: Bool) {
-		LocalCoreData.shared.performNetworkParsing { context in
-			context.pushOpErrorExplanation("Failure adding stream tweets to Core Data.")
-			
-			// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
-			// relationship links to the already-established sub-objects. 
-		
-			// Make a uniqued list of users from the posts, and get them inserted/updated.
-			let userArray = posts.map { $0.author }
-			UserManager.shared.update(users: userArray, inContext: context)
-			
-			// Photos, same idea
-			let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },
-					uniquingKeysWith: { first,_ in first })
-			ImageManager.shared.update(photoDetails: tweetPhotos, inContext: context)
-						
-			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
-			// That is, we asked for "The next 50 posts before/after this timestamp." Get the time range from anchor post time
-			// to the post farthest from the anchor; any posts in Core Data in that same time range that aren't in the call results
-			// must be posts deleted serverside.
-			let newPostIDs = posts.map { $0.id }
-			let postDates = posts.map { $0.timestamp }
-			let earliestDate = postDates.min()
-			let latestDate = postDates.max()
-
-			if var startDate = earliestDate, var endDate = latestDate {
-				startDate = min(startDate, anchorTime)
-				endDate = max(endDate, anchorTime)
-				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsToDelete", 
-						substitutionVariables: [ "startDate" : startDate, "endDate" : endDate, "ids" : newPostIDs]) as! NSFetchRequest<TwitarrPost>
-				request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
-				do {
-					let postsToDelete = try request.execute()
-					postsToDelete.forEach { context.delete($0) }
-				}
-				catch {
-					CoreDataLog.error("Could not delete Twitarr posts that appear to be have been deleted on server.")
-				}
-			}
-			
-			// Get all the existing posts in CD that match posts in the call
-			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsWithIDs", 
-					substitutionVariables: [ "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
-			request.fetchLimit = posts.count + 10 
-			let cdResults = try request.execute()
-
-			// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
-			// completed in order, or that we haven't made the same call twice somehow.
-			var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
-			for post in posts {
-				let removedValue = cdPostsDict.removeValue(forKey: post.id)
-				let cdPost = removedValue ?? TwitarrPost(context: context)
-				cdPost.buildFromV2(context: context, v2Object: post)
-				
-				if post.id == posts.last?.id {					
-					if !extendsNewer && morePostsExist && cdPost.isInserted {
-						cdPost.contigWithOlder = false
-					}
-				} else {
-					// Note: This weird construction is necessary to keep CoreData from over-saving the store.
-					cdPost.contigWithOlder == false ? cdPost.contigWithOlder = true : nil
-				}
-			}
-		}
-	}
+//	fileprivate func ingestStreamPosts(posts: [TwitarrV2Post], anchorTime: Int64, extendsNewer: Bool, morePostsExist: Bool) {
+//		LocalCoreData.shared.performNetworkParsing { context in
+//			context.pushOpErrorExplanation("Failure adding stream tweets to Core Data.")
+//			
+//			// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
+//			// relationship links to the already-established sub-objects. 
+//		
+//			// Make a uniqued list of users from the posts, and get them inserted/updated.
+//			let userArray = posts.map { $0.author }
+//			UserManager.shared.update(users: userArray, inContext: context)
+//			
+//			// Photos, same idea
+//			let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },
+//					uniquingKeysWith: { first,_ in first })
+//			ImageManager.shared.update(photoDetails: tweetPhotos, inContext: context)
+//						
+//			// Delete any posts in CD that are in the date range but aren't in the post stream we got from the server.
+//			// That is, we asked for "The next 50 posts before/after this timestamp." Get the time range from anchor post time
+//			// to the post farthest from the anchor; any posts in Core Data in that same time range that aren't in the call results
+//			// must be posts deleted serverside.
+//			let newPostIDs = posts.map { $0.id }
+//			let postDates = posts.map { $0.timestamp }
+//			let earliestDate = postDates.min()
+//			let latestDate = postDates.max()
+//
+//			if var startDate = earliestDate, var endDate = latestDate {
+//				startDate = min(startDate, anchorTime)
+//				endDate = max(endDate, anchorTime)
+//				let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsToDelete", 
+//						substitutionVariables: [ "startDate" : startDate, "endDate" : endDate, "ids" : newPostIDs]) as! NSFetchRequest<TwitarrPost>
+//				request.fetchLimit = posts.count * 3 // Hopefully there will never be a case where 100 out of 150 posts get mod deleted.
+//				do {
+//					let postsToDelete = try request.execute()
+//					postsToDelete.forEach { context.delete($0) }
+//				}
+//				catch {
+//					CoreDataLog.error("Could not delete Twitarr posts that appear to be have been deleted on server.")
+//				}
+//			}
+//			
+//			// Get all the existing posts in CD that match posts in the call
+//			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsWithIDs", 
+//					substitutionVariables: [ "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
+//			request.fetchLimit = posts.count + 10 
+//			let cdResults = try request.execute()
+//
+//			// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
+//			// completed in order, or that we haven't made the same call twice somehow.
+//			var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+//			for post in posts {
+//				let removedValue = cdPostsDict.removeValue(forKey: post.id)
+//				let cdPost = removedValue ?? TwitarrPost(context: context)
+//				cdPost.buildFromV2(context: context, v2Object: post)
+//				
+//				if post.id == posts.last?.id {					
+//					if !extendsNewer && morePostsExist && cdPost.isInserted {
+//						cdPost.contigWithOlder = false
+//					}
+//				} else {
+//					// Note: This weird construction is necessary to keep CoreData from over-saving the store.
+//					cdPost.contigWithOlder == false ? cdPost.contigWithOlder = true : nil
+//				}
+//			}
+//		}
+//	}
 	
 	fileprivate func ingestV3StreamPosts(twarrts: [TwitarrV3TwarrtData]) {
 		LocalCoreData.shared.performNetworkParsing { context in
@@ -792,7 +745,7 @@ class TwitarrDataManager: NSObject {
 			var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
 
 			for twarrt in twarrts {
-				let removedValue = cdPostsDict.removeValue(forKey: String(twarrt.twarrtID))
+				let removedValue = cdPostsDict.removeValue(forKey: twarrt.twarrtID)
 				let cdPost = removedValue ?? TwitarrPost(context: context)
 				cdPost.buildFromV3(context: context, v3Object: twarrt)
 			}
@@ -803,53 +756,7 @@ class TwitarrDataManager: NSObject {
 	func ingestNewUserPost(post: TwitarrV3TwarrtData) {
 		TwitarrDataManager.shared.ingestV3StreamPosts(twarrts: [post])
 	}
-	
-	// This is for posts created by the user; the responses from create methods return the post that got made.
-	func ingestNewUserPost(post: TwitarrV2Post) {
-		TwitarrDataManager.shared.ingestFilterPosts(posts: [post])
-	}
 		
-	// Saves posts in Core Data. Merges with existing Core Data posts. This fn is for result arrays that contain 
-	// posts that aren't contiguous in the tweet stream, such as search results.
-	func ingestFilterPosts(posts: [TwitarrV2Post]) {
-		LocalCoreData.shared.performNetworkParsing { context in
-			context.pushOpErrorExplanation("Failure adding stream tweets to Core Data.")
-			
-			// Algorithm here is to do a bottom-up insert/update of sub-objects first, and higher-level objects then set their
-			// relationship links to the already-established sub-objects. 
-		
-			// Make a uniqued list of users from the posts, and get them inserted/updated.
-			let userArray = posts.map { $0.author }
-			UserManager.shared.update(users: userArray, inContext: context)
-			
-			// Photos, same idea
-			let tweetPhotos = Dictionary(posts.compactMap { $0.photo == nil ? nil : ($0.photo!.id, $0.photo!) },
-					uniquingKeysWith: { first,_ in first })
-			ImageManager.shared.update(photoDetails: tweetPhotos, inContext: context)
-			
-			// Reactions
-			
-			// Get all the existing posts in CD that match posts in the call
-			let newPostIDs = posts.map { $0.id }
-			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "TwitarrPostsWithIDs", 
-					substitutionVariables: [ "ids" : newPostIDs ]) as! NSFetchRequest<TwitarrPost>
-			request.fetchLimit = posts.count + 10 
-			let cdResults = try request.execute()
-
-			// Remember: While the TweetStream changes get serialized here, that doesn't mean that network calls get 
-			// completed in order, or that we haven't made the same call twice somehow.
-			var cdPostsDict = Dictionary(cdResults.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
-			for post in posts {
-				let removedValue = cdPostsDict.removeValue(forKey: post.id)
-				let cdPost = removedValue ?? TwitarrPost(context: context)
-				cdPost.buildFromV2(context: context, v2Object: post)
-				
-				// Don't modify contigWithOlder, we don't know whether it is or not, and an existing post may
-				// have this info already set.
-			}
-		}
-	}
-
 	// For new mainline posts, new posts that are replies, and edits to existing posts
 	// Creates a PostOperation, saving all the data needed to post a new tweet, and queues it for posting.
 	func queuePost(_ existingDraft: PostOpTweet?, withText: String, images: [PhotoDataType]?, 
@@ -998,7 +905,7 @@ struct TwitarrV3TwarrtData: Codable {
     /// The filenames of the twarrt's optional images.
     var images: [String]?
     /// The ID of the twarrt to which this twarrt is a reply.
-    var replyToID: Int64?
+    var replyGroupID: Int64?
     /// Whether the current user has bookmarked the twarrt.
     var isBookmarked: Bool
     /// The current user's `LikeType` reaction on the twarrt.
@@ -1007,3 +914,38 @@ struct TwitarrV3TwarrtData: Codable {
     var likeCount: Int64
 }
 
+public struct TwitarrV3TwarrtDetailData: Codable {
+    /// The ID of the post/twarrt.
+    var postID: Int
+    /// The timestamp of the post/twarrt.
+    var createdAt: Date
+    /// The twarrt's author.
+    var author: TwitarrV3UserHeader
+    /// The text of the forum post or twarrt.
+    var text: String
+    /// The filenames of the post/twarrt's optional images.
+    var images: [String]?
+    /// The ID of the twarrt to which this twarrt is a reply.
+    var replyGroupID: Int?
+    /// Whether the current user has bookmarked the post.
+    var isBookmarked: Bool
+    /// The current user's `LikeType` reaction on the twarrt.
+    var userLike: TwitarrV3LikeType?
+    /// The users with "laugh" reactions on the post/twarrt.
+    var laughs: [TwitarrV3UserHeader]
+    /// The users with "like" reactions on the post/twarrt.
+    var likes: [TwitarrV3UserHeader]
+    /// The users with "love" reactions on the post/twarrt.
+    var loves: [TwitarrV3UserHeader]
+}
+
+
+// Paginator is a component of a bunch of structs
+public struct TwitarrV3Paginator: Codable {
+    /// The total number of items returnable by the request.
+    var total: Int
+	/// The index number of the first item in the collection array, relative to the overall returnable results.
+	var start: Int
+	/// The number of results requested. The collection array could be smaller than this number.
+	var limit: Int
+}

@@ -109,7 +109,7 @@ import UIKit
 		
 		currentLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation)
 		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)
-		mentionsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self)
+//		mentionsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self)
 		sendSeamailCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self)		
 		editProfileCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.editOwnProfile, vc: self)		
 		profileCommentCell = ProfileCommentCellModel(user: modelKrakenUser)
@@ -187,7 +187,7 @@ import UIKit
 		}
     }
     
-    func pushUserMentionsView() {
+    func pushForumMentionsView() {
     	if let username = modelUserName {
     		self.performKrakenSegue(.showUserMentions, sender: "@\(username)")
 		}
@@ -398,7 +398,7 @@ import UIKit
 
 	enum DisplayMode {
 		case authoredTweets
-		case mentions		
+//		case mentions		
 		case sendSeamail
 		case editOwnProfile	
 	}
@@ -412,7 +412,7 @@ import UIKit
 
 		switch displayMode {
 		case .authoredTweets:
-			self.tell(self, when: ["userModel.numberOfTweets", "userModel.tweets.count"]) { observer, observed in
+			self.tell(self, when: ["userModel.tweetMentions"]) { observer, observed in
 				switch observed.userModel?.getAuthoredTweetCount() {
 				case 0: observer.title = "No Tweets"
 				case 1: observer.title = "1 Tweet"
@@ -426,21 +426,21 @@ import UIKit
 				}
 			}?.schedule()
 			shouldBeVisible = true
-		case .mentions:
-			self.tell(self, when: "userModel.numberOfMentions") { observer, observed in
-				switch observed.userModel?.numberOfMentions {
-				case 0: observer.title = "No Mentions"
-				case 1: observer.title = "1 Mention"
-				default: 
-					if let num = observed.userModel?.numberOfMentions {
-						observer.title = "\(num) Mentions"
-					}
-					else {
-						observer.title = "See Mentions"
-					} 
-				}
-			}?.schedule()
-			shouldBeVisible = true
+//		case .mentions:
+//			self.tell(self, when: "userModel.forumMentions") { observer, observed in
+//				switch observed.userModel?.forumMentions {
+//				case 0: observer.title = "No Mentions"
+//				case 1: observer.title = "1 Mention"
+//				default: 
+//					if let num = observed.userModel?.forumMentions {
+//						observer.title = "\(num) Mentions"
+//					}
+//					else {
+//						observer.title = "See Mentions"
+//					} 
+//				}
+//			}?.schedule()
+//			shouldBeVisible = true
 		case .sendSeamail:
 			self.tell(self, when: "userModel.username") { observer, observed in
 				observer.title = "Send Seamail to \(observed.userModel?.username ?? "user")"
@@ -476,7 +476,7 @@ import UIKit
 		// Trying it this way, but I think it's better if the cell launches segues itself (besides how I feel about segues).
 		switch displayMode {
 		case .authoredTweets: viewController?.pushUserTweetsView()
-		case .mentions: viewController?.pushUserMentionsView()
+//		case .mentions: viewController?.pushForumMentionsView()
 		case .sendSeamail: viewController?.pushSendSeamailView()
 		case .editOwnProfile: viewController?.pushEditProfileView()
 		}

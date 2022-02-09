@@ -25,9 +25,6 @@ import CoreData
 	@NSManaged public var aboutMessage: String?
 	@NSManaged public var profileMessage: String?
 	
-	@NSManaged public var numberOfTweets: Int32
-	@NSManaged public var numberOfMentions: Int32
-	
 	@NSManaged public var lastPhotoUpdated: Int64
 	@NSManaged public var userImageName: String?
 	@NSManaged public var thumbPhotoData: Data?
@@ -85,20 +82,7 @@ import CoreData
 
 		// Not handled: Note
 	}
-	
-	func buildFromV3SelfProfile(context: NSManagedObjectContext, v3Object: TwitarrV3UserProfileData) {
-		TestAndUpdate(\.username, v3Object.username)
-		TestAndUpdate(\.displayName, v3Object.displayName ?? "")
-		TestAndUpdate(\.aboutMessage, v3Object.about)
-		TestAndUpdate(\.profileMessage, v3Object.message)
-		TestAndUpdate(\.emailAddress, v3Object.email)
-		TestAndUpdate(\.homeLocation, v3Object.homeLocation)
-		TestAndUpdate(\.pronouns, v3Object.preferredPronoun)
-		TestAndUpdate(\.realName, v3Object.realName)
-		TestAndUpdate(\.roomNumber, v3Object.roomNumber)
-		TestAndUpdate(\.limitProfileAccess, v3Object.limitAccess)
-	}
-	
+		
 	func buildFromV3ImageInfo(context: NSManagedObjectContext, newFilename: String?) {
 		if newFilename != userImageName {
 			invalidateUserPhoto(context)
@@ -130,8 +114,8 @@ import CoreData
 			invalidateUserPhoto(context)
 		}
 		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
-		TestAndUpdate(\.numberOfTweets, v2Object.numberOfTweets)
-		TestAndUpdate(\.numberOfMentions, v2Object.numberOfMentions)
+//		TestAndUpdate(\.numberOfTweets, v2Object.numberOfTweets)
+//		TestAndUpdate(\.numberOfMentions, v2Object.numberOfMentions)
 		
 		// If we're logged in, have the logged in user process the comments and stars 
 		if let loggedInUser = CurrentUser.shared.getLoggedInUser(in: context) {
@@ -255,12 +239,7 @@ import CoreData
 	// V2 has a field for # of authored tweets in its profile data struct; V3 doesn't. Our local cache DB is not 
 	// authoritative, but better than nothing.
 	func getAuthoredTweetCount() -> Int {
-		if Settings.apiV3 {
-			return tweets.count
-		}
-		else {
-			return Int(numberOfTweets)
-		}
+		return tweets.count
 	}
 }
 
@@ -437,28 +416,8 @@ class UserManager : NSObject {
 			}
 		}
 	}
-	
-	// This is for updating a user's own profile via the profile editor
-	func updateV3Profile(for user: KrakenUser, from profile: TwitarrV3UserProfileData) {
-		LocalCoreData.shared.performNetworkParsing { context in
-			context.pushOpErrorExplanation("Failure saving user profile data.")
-			
-			if let userInContext = try context.existingObject(with: user.objectID) as? KrakenUser {	
-				userInContext.buildFromV3SelfProfile(context: context, v3Object: profile)
-			}
-		}
-	}
-	
-	func updateLoggedInUserInfo(from userProfile: TwitarrV3UserProfileData) {			
-		LocalCoreData.shared.performNetworkParsing { context in
-			context.pushOpErrorExplanation("Failure updating user info.")
-			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == userProfile.username {
-				currentUser.buildFromV3UserProfile(context: context, v3Object: userProfile)
-			}
-		}
-	}
-	
-	// Updates a bunch of users at once. The array of UserInfo objects can have duplicates, but is assumed
+		
+	// Updates a bunch of users at once. The array of TwitarrV3UserHeader objects can have duplicates, but is assumed
 	// to be the parsed out of a single network call (i.e. duplicate IDs will have all fields equal). Does not save the context.
 	func update(users origUsers: [TwitarrV3UserHeader], inContext context: NSManagedObjectContext) {
 		do {
@@ -540,11 +499,11 @@ class UserManager : NSObject {
 	}
 	
 	// Only used to update info for logged in user.
-	func updateLoggedInUserInfo(from userAccount: TwitarrV2UserAccount) {			
+	func updateLoggedInUserInfo(from profile: TwitarrV3ProfilePublicData) {			
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure updating user info.")
-			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == userAccount.username {
-				currentUser.buildFromV2UserAccount(context: context, v2Object: userAccount)
+			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context), currentUser.username == profile.header.username {
+				currentUser.buildFromV3Profile(context: context, v3Object: profile)
 			}
 		}
 	}
@@ -792,7 +751,7 @@ struct TwitarrV3UserHeader: Codable {
 /// Returned by: `GET /api/v3/users/ID/profile`
 ///
 struct TwitarrV3ProfilePublicData: Codable {
-    /// Basic info abou thte user--their ID, username, displayname, and avatar image.
+    /// Basic info about the user--their ID, username, displayname, and avatar image.
     var header: TwitarrV3UserHeader
 
     /// An optional blurb about the user.

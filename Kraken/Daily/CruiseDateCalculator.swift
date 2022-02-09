@@ -18,10 +18,10 @@ func cruiseCurrentDate() -> Date {
 	return Date()
 }
 
-// For 2020, this date is 12:00 Midnight, Saturday March 7, EST
+// For 2022, this date is 12:00 Midnight, Saturday March 5, EST
 func cruiseStartDate() -> Date? {
 	let startDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(secondsFromGMT: 0 - 3600 * 5), 
-			year: 2020, month: 3, day: 7)
+			year: 2022, month: 3, day: 5)
 	let startDate = Calendar.current.date(from: startDayComponents)		
 	return startDate
 }
@@ -72,10 +72,10 @@ func cruiseStartRelativeDays() -> Int {
 }
 	
 	
-// For 2019, this date is 12:00 Midnight, Saturday March 16, EDT
+// For 2020, this date is 12:00 Midnight, Saturday March 14, EDT
 func lastCruiseEndDate() -> Date? {
 	let endDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(secondsFromGMT: 0 - 3600 * 4), 
-			year: 2019, month: 3, day: 16)
+			year: 2020, month: 3, day: 14)
 	let endDate = Calendar.current.date(from: endDayComponents)		
 	return endDate
 }

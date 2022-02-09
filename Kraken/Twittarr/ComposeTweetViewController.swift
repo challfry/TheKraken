@@ -153,10 +153,15 @@ class ComposeTweetViewController: BaseCollectionViewController {
         super.viewDidLoad()
 		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
         
-        // If we have a tweet to edit, but no parent set, and the tweet we're editing is a response (that is, has a parent)
+        // If we have a tweet (or draft) to edit, but no parent set, and the tweet we're editing is a response (that is, has a parent)
         // set that tweet as the parent.
-        if parentTweet == nil, let newParent = editTweet?.parent ?? draftTweet?.parent {
-        	parentTweet = newParent
+        if parentTweet == nil {
+			if let editing = editTweet, editing.id != editing.replyGroup {
+				parentTweet = try? TwitarrDataManager.shared.getTweetWithID(editing.replyGroup)
+			}
+			else if let draft = draftTweet {
+				parentTweet = draft.parent
+			}
         }
 
 		loginDataSource.viewController = self

@@ -33,8 +33,8 @@ import Foundation
 	
 	// Each Settings property should get a copy of these 4 lines, modified appropriately
 	@objc dynamic public var settingsBaseURL: URL {
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://localhost:8081")!) }
-	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.1.20:3000")!) }
+	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://localhost:8081")!) }
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.0.19:8081")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://208.113.200.254")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.wookieefive.net")!) }
 //		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://joco.hollandamerica.com")!) }
@@ -66,7 +66,7 @@ import Foundation
 		set { setSetting(name: "useFullscreenCameraViewfinder", newValue: newValue) }
 	}
 	
-	// For interacting with the Calendar database via EKEventStore, we make a custom calendar named "JoCo Cruise 2020"
+	// For interacting with the Calendar database via EKEventStore, we make a custom calendar named "JoCo Cruise 2022"
 	// This saves the ID of that calendar.
 	public var customCalendarForEvents: String? {
 		get { return getSetting(name: "customCalendarForEvents", defaultValue: nil) }

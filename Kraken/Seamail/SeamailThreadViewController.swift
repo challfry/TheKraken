@@ -55,7 +55,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
         		title = "@\(sorted[0]), @\(sorted[1])"
         	}
         	else {
-        		title = "\(participants.count) Seamonkey Chat "
+        		title = "\(participants.count) Member Chat "
         	}
         }
                 
@@ -70,7 +70,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 			messagePredicate = NSPredicate(value: false)
 			opPredicate = messagePredicate
 		}
-   		messageSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "timestamp", ascending: true) ],
+   		messageSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "id", ascending: true) ],
    				cellModelFactory: createMessageCellModel)
 		messageSegment.loaderDelegate = self
    		queuedMsgSegment.activate(predicate: opPredicate, sort: [ NSSortDescriptor(key: "originalPostTime", ascending:true) ],

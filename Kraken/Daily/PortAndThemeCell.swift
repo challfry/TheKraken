@@ -108,7 +108,7 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 			arriveDepartLabel.isHidden = true
 			
 			themeLabel.isHidden = false
-			let themeText = NSMutableAttributedString(string: "Seamonkey extended shore leave: ", attributes: contentTextAttributes())
+			let themeText = NSMutableAttributedString(string: "Extended shore leave: ", attributes: contentTextAttributes())
 			themeText.append(NSAttributedString(string: "day \(ashoreDays)", attributes: labelTextAttributes()))
 			themeLabel.attributedText = themeText
 		}
@@ -120,7 +120,7 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 			arriveDepartLabel.isHidden = true
 			
 			themeLabel.isHidden = false
-			let themeText = NSMutableAttributedString(string: "Seamonkey extended shore leave: ", attributes: contentTextAttributes())
+			let themeText = NSMutableAttributedString(string: "Extended shore leave: ", attributes: contentTextAttributes())
 			themeText.append(NSAttributedString(string: "day \(ashoreDays)", attributes: labelTextAttributes()))
 			themeLabel.attributedText = themeText
 		}

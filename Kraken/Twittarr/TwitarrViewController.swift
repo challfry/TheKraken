@@ -20,6 +20,9 @@ class TwitarrViewController: BaseCollectionViewController {
 		var loadingSegment = FilteringDataSourceSegment() 
 		var tweetSegment = FRCDataSourceSegment<TwitarrPost>()
 
+	let loginDataSource = KrakenDataSource()
+	let loginSection = LoginDataSourceSegment()
+
 	lazy var statusCell: LoadingStatusCellModel = {
  		let cell = LoadingStatusCellModel()
  		cell.statusText = "Loading Twitarr Posts"
@@ -34,10 +37,6 @@ class TwitarrViewController: BaseCollectionViewController {
 	override func viewDidLoad() {
         super.viewDidLoad()
         
-		collectionView.refreshControl = UIRefreshControl()
-		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
- 
- 		tweetDataSource.register(with: collectionView, viewController: self)
  		tweetDataSource.append(segment: loadingSegment)
 		loadingSegment.append(statusCell)
  		
@@ -46,6 +45,27 @@ class TwitarrViewController: BaseCollectionViewController {
 		tweetSegment.activate(predicate: filterPack.predicate, sort: filterPack.sortDescriptors, cellModelFactory: createCellModel)
 		filterPack.frc = tweetSegment.frc
 		
+        loginDataSource.append(segment: loginSection)
+		loginSection.headerCellText = "In order to see the Twitarr stream, you will need to log in first."
+
+		// When a user is logged in we'll set up the FRC to load the threads which that user can 'see'. Remember, CoreData
+		// stores ALL the seamail we ever download, for any user who logs in on this device.
+        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
+			if let _ = observed.loggedInUser?.userID {
+        		observer.tweetDataSource.register(with: observer.collectionView, viewController: observer)
+				observer.postButton.isEnabled = true
+				observer.collectionView.refreshControl = UIRefreshControl()
+				observer.collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
+			}
+       		else {
+       			// If nobody's logged in, pop to root, show the login cells.
+				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
+				observer.postButton.isEnabled = false
+				observer.navigationController?.popToRootViewController(animated: false)
+				observer.collectionView.refreshControl = nil
+       		}
+        }?.execute()        
+
 		knownSegues = Set([.tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
 				.composeTweet, .reportContent])
 	}

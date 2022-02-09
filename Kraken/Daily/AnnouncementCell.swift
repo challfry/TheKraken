@@ -75,8 +75,8 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 					observer.authorLabel.text = "From: \(observed.author?.displayName ?? observed.author?.username ?? "unknown")"
 				}?.execute())
 				
-				addObservation(announcementModel.tell(self, when: "timestamp") { observer, observed in
-					observer.relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: announcementModel.creationDate())
+				addObservation(announcementModel.tell(self, when: "updatedAt") { observer, observed in
+					observer.relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: announcementModel.updatedAt)
 				}?.execute())
 			}
 			else {
@@ -123,7 +123,7 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
     		if let self = self, let announcementModel = self.model as? Announcement, announcementModel.isActive {
-				self.relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: announcementModel.creationDate())
+				self.relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: announcementModel.updatedAt)
 			}
 		}
 	}

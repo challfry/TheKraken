@@ -126,7 +126,7 @@ struct PrototypeCellInfo {
 			if let nibContents = nib?.instantiate(withOwner: nil, options: nil) {
 				prototypeCell = (nibContents[0] as! BaseCollectionViewCell)
 				prototypeCell?.isPrototypeCell = true
-				prototypeCell?.translatesAutoresizingMaskIntoConstraints = false
+//				prototypeCell?.translatesAutoresizingMaskIntoConstraints = false
 			}
 		}
 	}
@@ -167,19 +167,19 @@ struct PrototypeCellInfo {
 	required override init(frame: CGRect) {
 		super.init(frame: frame)
 //		self.translatesAutoresizingMaskIntoConstraints = false
-		contentView.translatesAutoresizingMaskIntoConstraints = false
+//		contentView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 //		self.translatesAutoresizingMaskIntoConstraints = false
-		contentView.translatesAutoresizingMaskIntoConstraints = false
+//		contentView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
 //		self.translatesAutoresizingMaskIntoConstraints = false
-		contentView.translatesAutoresizingMaskIntoConstraints = false
+//		contentView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -319,12 +319,14 @@ struct PrototypeCellInfo {
 //		setNeedsLayout()
 //		layoutIfNeeded()
 
-//		if let cvSize = dataSource?.collectionView?.bounds.size {
-//			let size = contentView.systemLayoutSizeFitting(cvSize, 
-//					withHorizontalFittingPriority: .required, 
-//					verticalFittingPriority: .fittingSizeLevel)
-//			return size
-//		}
+		if let cvSize = dataSource?.collectionView?.bounds.size, fullWidth {
+			let idealSize = CGSize(width: cvSize.width, height: 0)
+			let size = contentView.systemLayoutSizeFitting(idealSize, 
+					withHorizontalFittingPriority: .required, 
+					verticalFittingPriority: .fittingSizeLevel)
+			calculatedSize = size
+			return size
+		}
 		let size = contentView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
 		calculatedSize = size
 		return size

@@ -11,7 +11,7 @@ import EventKit
 import UserNotifications
 
 @objc(Event) public class Event: KrakenManagedObject {
-    @NSManaged public var id: String
+    @NSManaged public var id: UUID
     @NSManaged public var title: String
 	@NSManaged public var eventDescription: String?
 	@NSManaged public var location: String?
@@ -34,6 +34,11 @@ import UserNotifications
     @objc dynamic public var followCount: Int = 0
     @objc dynamic public var opsFollowingCount: Int = 0
     
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
+		id = UUID()
+	}
+
 	public override func awakeFromFetch() {
 		super.awakeFromFetch()
 
@@ -79,24 +84,24 @@ import UserNotifications
 		return false
 	}
 
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Event) {
-		TestAndUpdate(\.id, v2Object.id)
-		TestAndUpdate(\.title, v2Object.title)
-		TestAndUpdate(\.eventDescription, v2Object.eventDescription?.decodeHTMLEntities())
-		TestAndUpdate(\.location, v2Object.location)
-		TestAndUpdate(\.eventType, v2Object.official == true ? "Official" : "Shadow Event")
-		TestAndUpdate(\.startTime, Date(timeIntervalSince1970: Double(v2Object.startTime) / 1000.0 ))
-		TestAndUpdate(\.endTime, Date(timeIntervalSince1970: Double(v2Object.endTime) / 1000.0 ))
-				
-		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			setFavoriteState(context: context, user: currentUser, to: v2Object.following)
-		}
-	}
+//	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Event) {
+//		TestAndUpdate(\.id, v2Object.id)
+//		TestAndUpdate(\.title, v2Object.title)
+//		TestAndUpdate(\.eventDescription, v2Object.eventDescription?.decodeHTMLEntities())
+//		TestAndUpdate(\.location, v2Object.location)
+//		TestAndUpdate(\.eventType, v2Object.official == true ? "Official" : "Shadow Event")
+//		TestAndUpdate(\.startTime, Date(timeIntervalSince1970: Double(v2Object.startTime) / 1000.0 ))
+//		TestAndUpdate(\.endTime, Date(timeIntervalSince1970: Double(v2Object.endTime) / 1000.0 ))
+//				
+//		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+//			setFavoriteState(context: context, user: currentUser, to: v2Object.following)
+//		}
+//	}
 	
-	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3Event) throws {
-		TestAndUpdate(\.id, v3Object.id)
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3EventData) throws {
+		TestAndUpdate(\.id, v3Object.eventID)
 		TestAndUpdate(\.title, v3Object.title)
-		TestAndUpdate(\.eventDescription, v3Object.eventDescription?.decodeHTMLEntities())
+		TestAndUpdate(\.eventDescription, v3Object.description.decodeHTMLEntities())
 		TestAndUpdate(\.location, v3Object.location)
 		TestAndUpdate(\.eventType, v3Object.eventType)
 		TestAndUpdate(\.startTime, v3Object.startTime)
@@ -104,7 +109,7 @@ import UserNotifications
 		TestAndUpdate(\.forumThreadID, v3Object.forum)
 
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			setFavoriteState(context: context, user: currentUser, to: v3Object.following)
+			setFavoriteState(context: context, user: currentUser, to: v3Object.isFavorite)
 		}
 
 		// Try to associate the event to its thread
@@ -198,7 +203,7 @@ import UserNotifications
 			}
 			if calendar == nil {
 				let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
- 				newCalendar.title = "JoCo Cruise 2020"
+ 				newCalendar.title = "JoCo Cruise 2022"
 				if eventStore.sources.count == 0 {
 					newCalendar.source = EKSource()
 				}
@@ -418,7 +423,7 @@ class EventsDataManager: NSObject {
 	private let coreData = LocalCoreData.shared
 	fileprivate let ekEventStore = EKEventStore()
 		
-	// This is how much time to add to the current time to use the 2019 cruise schedule.
+	// This is how much time to add to the current time to use the 2020 cruise schedule.
 	var debugEventsTimeOffset: TimeInterval = 0.0
 	
 	// TRUE when we've got a network call running to update the stream, or the current filter.
@@ -431,8 +436,8 @@ class EventsDataManager: NSObject {
 		// Just once, calc our debug date offset
 		let currentTime = Date()
 		let tz = TimeZone(abbreviation: "EDT")
-		let components = DateComponents(calendar: Calendar.current, timeZone: tz, year: 2020, month: 1, 
-				day: 16, hour: 9, minute: 0, second: 0, nanosecond: 0)
+		let components = DateComponents(calendar: Calendar.current, timeZone: tz, year: 2022, month: 3, 
+				day: 14, hour: 9, minute: 0, second: 0, nanosecond: 0)
 		if let cruiseEndDate = components.date {
 			var debugTime = currentTime
 			while cruiseEndDate.compare(debugTime) == .orderedAscending {
@@ -482,8 +487,8 @@ class EventsDataManager: NSObject {
 						self.parseV3Events(eventResponse, isFullList: true)
 					}
 					else {
-						let eventResponse = try decoder.decode(TwitarrV2EventResponse.self, from: data)
-						self.parseV2Events(eventResponse.events, isFullList: true)
+			//			let eventResponse = try decoder.decode(TwitarrV2EventResponse.self, from: data)
+			//			self.parseV2Events(eventResponse.events, isFullList: true)
 					}
 					Settings.shared.lastEventsUpdateTime = Date()
 				} catch 
@@ -500,35 +505,35 @@ class EventsDataManager: NSObject {
 	
 	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
 	// not in the new list. Otherwise it only adds/updates events.
-	func  parseV2Events(_ events: [TwitarrV2Event], isFullList: Bool) {
-		LocalCoreData.shared.performNetworkParsing { context in
-			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
-			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
-			let cdEvents = try? context.fetch(fetchRequest)
-
-			if isFullList {
-				// Delete events not in the new event list
-				let newEventIds = Set(events.map( { $0.id } ))
-				cdEvents?.forEach { cdEvent in
-					if !newEventIds.contains(cdEvent.id) {
-						context.delete(cdEvent)
-					}
-				}
-			}
-		
-			// Add/update
-			for v2Event in events {
-				let eventInContext = cdEvents?.first(where: { $0.id == v2Event.id }) ?? Event(context: context)
-				eventInContext.buildFromV2(context: context, v2Object: v2Event)
-			}
-				
-			self.getAllLocations()
-		}
-	}
+//	func  parseV2Events(_ events: [TwitarrV2Event], isFullList: Bool) {
+//		LocalCoreData.shared.performNetworkParsing { context in
+//			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
+//			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
+//			let cdEvents = try? context.fetch(fetchRequest)
+//
+//			if isFullList {
+//				// Delete events not in the new event list
+//				let newEventIds = Set(events.map( { $0.id } ))
+//				cdEvents?.forEach { cdEvent in
+//					if !newEventIds.contains(cdEvent.id) {
+//						context.delete(cdEvent)
+//					}
+//				}
+//			}
+//		
+//			// Add/update
+//			for v2Event in events {
+//				let eventInContext = cdEvents?.first(where: { $0.id == v2Event.id }) ?? Event(context: context)
+//				eventInContext.buildFromV2(context: context, v2Object: v2Event)
+//			}
+//				
+//			self.getAllLocations()
+//		}
+//	}
 	
 	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
 	// not in the new list. Otherwise it only adds/updates events.
-	func parseV3Events(_ events: [TwitarrV3Event], isFullList: Bool) {
+	func parseV3Events(_ events: [TwitarrV3EventData], isFullList: Bool) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
 			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
@@ -536,7 +541,7 @@ class EventsDataManager: NSObject {
 
 			if isFullList {
 				// Delete events not in the new event list
-				let newEventIds = Set(events.map( { $0.id } ))
+				let newEventIds = Set(events.map( { $0.eventID } ))
 				cdEvents?.forEach { cdEvent in
 					if !newEventIds.contains(cdEvent.id) {
 						context.delete(cdEvent)
@@ -546,7 +551,7 @@ class EventsDataManager: NSObject {
 		
 			// Add/update
 			for v3Event in events {
-				let eventInContext = cdEvents?.first(where: { $0.id == v3Event.id }) ?? Event(context: context)
+				let eventInContext = cdEvents?.first(where: { $0.id == v3Event.eventID }) ?? Event(context: context)
 				try eventInContext.buildFromV3(context: context, v3Object: v3Event)
 			}
 				
@@ -590,7 +595,7 @@ class EventsDataManager: NSObject {
 			context.pushOpErrorExplanation("Failure saving change to a Scheduled Ship Event Notification. (the network call succeeded, but we couldn't save the change).")
 			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
 			let cdEvents = try? context.fetch(fetchRequest)
-			if let event = cdEvents?.first(where: { $0.id == eventID }) {
+			if let event = cdEvents?.first(where: { $0.id == UUID(uuidString: eventID) }) {
 				event.localNotificationID = nil
 			}
 		}
@@ -632,34 +637,28 @@ struct TwitarrV2EventResponse : Codable {
 }
 
 // MARK: - API V3 Parsing
-struct TwitarrV3Event: Codable {
-	let id: String
-	let title: String
-	let eventDescription: String?
-	let location: String?
-	let eventType: String
-
-	let startTime: Date
-	let endTime: Date
-	
-	let following: Bool
-	let forum: UUID?
-
-	enum CodingKeys: String, CodingKey {
-		case id = "eventID"
-		case title
-		case eventDescription = "description"
-		case location
-		case eventType
-		case startTime
-		case endTime
-		case following = "isFavorite"
-		case forum
-	}
+struct TwitarrV3EventData: Codable {
+    /// The event's ID. This is the Swiftarr database record for this event.
+    var eventID: UUID
+    /// The event's UID. This is the VCALENDAR/ICS File/sched.com identifier for this event--what calendar software uses to correllate whether 2 events are the same event.
+    var uid: String
+    /// The event's title.
+    var title: String
+    /// A description of the event.
+    var description: String
+    /// Starting time of the event
+    var startTime: Date
+    /// Ending time of the event.
+    var endTime: Date
+    /// The location of the event.
+    var location: String
+    /// The event category.
+    var eventType: String
+    /// The event's associated `Forum`.
+    var forum: UUID?
+    /// Whether user has favorited event.
+    var isFavorite: Bool
 }
 
 // GET /api/v3/events
-typealias TwitarrV3EventResponse = [TwitarrV3Event]
-
-
-
+typealias TwitarrV3EventResponse = [TwitarrV3EventData]

@@ -9,47 +9,56 @@
 import UIKit
 
 @objc(Announcement) public class Announcement: KrakenManagedObject {
-    @NSManaged public var id: String?
+    @NSManaged public var id: Int64
     @NSManaged public var text: String?
-    @NSManaged public var timestamp: Int64					// Time the announcement was created.
+    @NSManaged public var updatedAt: Date					// Time the announcement was created/updated
+    @NSManaged public var displayUntil: Date				
     @NSManaged public var author: KrakenUser?
     @NSManaged public var isActive: Bool					// TRUE if the announcement isn't expired. Defaults to true.
     
     @NSManaged public var viewedBy: Set<KrakenUser>
     
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Announcement) {
-		TestAndUpdate(\.id, v2Object.id)
-		TestAndUpdate(\.text, v2Object.text)
-		TestAndUpdate(\.timestamp, v2Object.timestamp)	
+	override public func awakeFromInsert() {
+		setPrimitiveValue(Date(), forKey: "updatedAt")
+		setPrimitiveValue(Date(), forKey: "displayUntil")
+	}
+
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3AnnouncementData) {
+		TestAndUpdate(\.id, Int64(v3Object.id))
+		TestAndUpdate(\.text, v3Object.text)
+		if updatedAt != v3Object.updatedAt {
+			self.updatedAt = v3Object.updatedAt
+		}
+		if displayUntil != v3Object.displayUntil {
+			self.displayUntil = v3Object.displayUntil
+		}
+		isActive = true
 		
 		// Set the author
-		if author?.username != v2Object.author.username {
-			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-			if let cdAuthor = userPool[v2Object.author.username] {
+		if author?.userID != v3Object.author.userID {
+			let userPool: [UUID : KrakenUser] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser] 
+			if let cdAuthor = userPool[v3Object.author.userID] {
 				author = cdAuthor
 			}
 		}
 	}
-
-	func creationDate() -> Date {
-		return Date(timeIntervalSince1970: Double(timestamp) / 1000.0)
-	}
-	
 }
 
 @objc class AnnouncementDataManager: NSObject {
 	static let shared = AnnouncementDataManager()
+	var lastError: Error?
 	
 	var currentAnnouncements: [Announcement] = []
+	
 	@objc dynamic var dailyTabBadgeCount: Int = 0
 	
 	private var fetchedData: NSFetchedResultsController<Announcement>
-	private var rawCurrentAnnouncements: [Announcement] = []
-
+	private var serverActiveIds: [Int64] = []
+	
 	override init() {
 		let fetchRequest = NSFetchRequest<Announcement>(entityName: "Announcement")
-		fetchRequest.predicate = NSPredicate(format: "isActive == true")
-		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "timestamp", ascending: false)]
+		fetchRequest.predicate = NSPredicate(format: "isActive == true AND displayUntil > %@", Date() as NSDate)
+		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "updatedAt", ascending: false)]
 		fetchRequest.fetchBatchSize = 50
 		self.fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: LocalCoreData.shared.mainThreadContext, 
 				sectionNameKeyPath: nil, cacheName: nil)
@@ -97,10 +106,39 @@ import UIKit
 			}
 		}
 	}
+	
+	func updateAnnouncementCounts(activeIDs: [Int64], unseenCount: Int64) {
+		// Don't use unseenCount to decide whether to grab announcements. Even if the user has 'seen' the announcement
+		// on another device we still need to load it.
+		let localActiveIDs = Set(currentAnnouncements.map { $0.id })
+		serverActiveIds = activeIDs
+		if !localActiveIDs.isSuperset(of: activeIDs) {
+			updateAnnouncements()
+		}
+	}
+
+	func updateAnnouncements() {
+		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/notification/announcements", query: nil)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				self.lastError = error
+			}
+			else if let data = package.data {
+				do {
+					self.lastError = nil
+					let response = try Settings.v3Decoder.decode([TwitarrV3AnnouncementData].self, from: data)
+					self.ingestAnnouncements(from: response, isComprehensive: true)
+				}
+				catch {
+					NetworkLog.error("Failure parsing Announcements response.", ["Error" : error, "url" : request.url as Any])
+				}
+			}
+		}
+	}
 
 	// Only call this with isComprehensive = true if announcements contains all currently active announcements. If true,
 	// we use this to mark any announcements not in the list as expired.
-	func ingestAnnouncements(from announcements: [TwitarrV2Announcement], isComprehensive: Bool = false) {
+	func ingestAnnouncements(from announcements: [TwitarrV3AnnouncementData], isComprehensive: Bool = false) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure adding announcements to Core Data.")
 			
@@ -109,7 +147,7 @@ import UIKit
 			UserManager.shared.update(users: authors, inContext: context)
 
 			// Get all the Announcement objects already in Core Data whose IDs match those of the announcements we're merging in.
-			let newAnnouncementIDs = announcements.map { $0.id }
+			let newAnnouncementIDs = announcements.map { Int64($0.id) }
 			let request = LocalCoreData.shared.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "AnnouncementsWithIDs", 
 					substitutionVariables: [ "ids" : newAnnouncementIDs ]) as! NSFetchRequest<Announcement>
 			let cdAnnouncements = try request.execute()
@@ -117,18 +155,20 @@ import UIKit
 
 			var hasNewAnnouncement = false
 			for ann in announcements {
-				if cdAnnouncementsDict[ann.id] == nil {
+				if cdAnnouncementsDict[Int64(ann.id)] == nil {
 					hasNewAnnouncement = true
 				}
-				let cdAnnouncement = cdAnnouncementsDict[ann.id] ?? Announcement(context: context)
-				cdAnnouncement.buildFromV2(context: context, v2Object: ann)
+				let cdAnnouncement = cdAnnouncementsDict[Int64(ann.id)] ?? Announcement(context: context)
+				cdAnnouncement.buildFromV3(context: context, v3Object: ann)
 			}
 			
 			if isComprehensive {
-				self.currentAnnouncements.forEach { ann in
-					if let currentID = ann.id, !newAnnouncementIDs.contains(currentID) {
+				self.currentAnnouncements = self.currentAnnouncements.filter { ann in
+					if !newAnnouncementIDs.contains(ann.id) {
 						ann.isActive = false
+						return false
 					}
+					return true
 				}
 			}
 			
@@ -165,6 +205,7 @@ import UIKit
 			}
 		}
 	}
+	
 }
 
 extension AnnouncementDataManager: NSFetchedResultsControllerDelegate {
@@ -188,41 +229,6 @@ extension AnnouncementDataManager: NSFetchedResultsControllerDelegate {
 	}
 }
 
-class AnnouncementsUpdater: ServerUpdater {
-	static let shared = AnnouncementsUpdater()
-	var lastError: ServerError?
-
-	init() {
-		// Update every 3 minutes. AlertsUpdater, which fires every minute, will also tell us about new announcements.
-		// However, only this call will clean up old announcements.
-		super.init(60 * 3 )
-		refreshOnLogin = false
-	}
-	
-	override func updateMethod() {
-		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/announcements", query: nil)
-		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			var success = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				self.lastError = error
-			}
-			else if let data = package.data {
-				do {
-					self.lastError = nil
-					let response = try JSONDecoder().decode(TwitarrV2AnnouncementsResponse.self, from: data)
-					AnnouncementDataManager.shared.ingestAnnouncements(from: response.announcements, isComprehensive: true)
-					success = true
-				}
-				catch {
-					NetworkLog.error("Failure parsing Announcements response.", ["Error" : error, "url" : request.url as Any])
-				}
-			}
-			
-			self.updateComplete(success: success)
-		}
-	}
-}
-
 
 // MARK: - V2 API Decoding 
 
@@ -239,3 +245,21 @@ struct TwitarrV2AnnouncementsResponse: Codable {
 	let announcements: [TwitarrV2Announcement]
 }
 
+// MARK: V3 API Decoding
+
+public struct TwitarrV3AnnouncementData: Codable {
+	/// Only THO and admins need to send Announcement IDs back to the API (to modify or delete announcements, for example), but caching clients can still use the ID
+	/// to correlate announcements returned by the API with cached ones.
+	var id: Int
+	/// The author of the announcement.
+	var author: TwitarrV3UserHeader
+	/// The contents of the announcement.
+	var text: String
+	/// When the announcement was last modified.
+	var updatedAt: Date
+	/// Announcements are considered 'active' until this time. After this time, `GET /api/v3/notification/announcements` will no longer return the announcement,
+	/// and caching clients should stop showing it to users.
+	var displayUntil: Date
+	/// TRUE if the announcement has been deleted. Only THO/admins can fetch deleted announcements; will always be FALSE for other users.
+	var isDeleted: Bool
+}

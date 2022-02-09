@@ -52,10 +52,16 @@ import UserNotifications
 	
 	@NSManaged public var blockedUsers: Set<KrakenUser>
 
+	// new tweet mentions and new forum mentions. We may not actually have the underlying data loaded.
+	@NSManaged public var tweetMentions: Int32
+	@NSManaged public var forumMentions: Int32
+	@NSManaged public var seamailMessages: Int32		// # of msg threads with new seamail messages.
+	
+
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
 	@NSManaged public var starredUsers: Set<KrakenUser>?			// Set of users the logged in user has starred.
 	@NSManaged public var lastLogin: Int64
-	@NSManaged public var lastAlertCheckTime: Int64
+	@NSManaged public var lastAlertCheckTime: Date
 	@NSManaged public var lastSeamailCheckTime: Int64
 	
 	// Either a Twitarr V2 key as returned by /api/v2/user/auth, or a V3 token as returned by /api/v3/auth/login 
@@ -63,36 +69,17 @@ import UserNotifications
 	@NSManaged public var authKey: String?
 	
 	// Alerts
-	@NSManaged public var badgeTweets: Int32
 	@NSManaged public var upToDateSeamailThreads: Set<SeamailThread>
 
 	// Info about the current user that should not be in KrakenUser nor cached to disk.
 	@objc dynamic var userRole: UserRole = .loggedOut
 	
 // MARK: Model Builders
-	func buildFromV3UserProfile(context: NSManagedObjectContext, v3Object: TwitarrV3UserProfileData) {
-		TestAndUpdate(\.username, v3Object.username)
-		TestAndUpdate(\.displayName, v3Object.displayName ?? "")
-		TestAndUpdate(\.realName, v3Object.realName)
-		TestAndUpdate(\.pronouns, v3Object.preferredPronoun)
-
-		TestAndUpdate(\.emailAddress, v3Object.email)
-		TestAndUpdate(\.homeLocation, v3Object.homeLocation)
-		TestAndUpdate(\.roomNumber, v3Object.roomNumber)
-
-		// Need to add		
-//		about
-//		message
-//		limitAccess
-
-		// V2 has these; V3 doesn't
-//		TestAndUpdate(\.currentLocation, v2Object.currentLocation)
-//		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
-//		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
-//		userRole = UserRole.roleForString(str: v2Object.role) ?? .user
+	func buildFromV3NotificationInfo(context: NSManagedObjectContext, notification: TwitarrV3UserNotificationData) {
+		TestAndUpdate(\.tweetMentions, Int32(notification.newTwarrtMentionCount))
+		TestAndUpdate(\.forumMentions, Int32(notification.newForumMentionCount))
+		TestAndUpdate(\.seamailMessages, Int32(notification.newSeamailMessageCount))
 	}
-	
-	
 	
 	func getPendingUserCommentOp(commentingOn: KrakenUser, inContext: NSManagedObjectContext) -> PostOpUserComment? {
 		if let ops = postOps {
@@ -466,7 +453,7 @@ import UserNotifications
 	
 	func loadProfileInfo() {
 		let queryParams = [URLQueryItem]()
-		let profileAPIPath = Settings.apiV3 ? "/api/v3/user/profile" : "/api/v2/user/profile"
+		let profileAPIPath = "/api/v3/user/profile"
 		var request = NetworkGovernor.buildTwittarRequest(withPath:profileAPIPath, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		
@@ -485,11 +472,7 @@ import UserNotifications
 			else {
 				let decoder = JSONDecoder()
 				if let data = package.data {
-					if let profileResponse = try? decoder.decode(TwitarrV2CurrentUserProfileResponse.self, from: data) {
-						// Adds the user to the cache if it doesn't exist.
-						let _ = UserManager.shared.updateLoggedInUserInfo(from: profileResponse.userAccount)
-					} else if let profileResponse = 
-							try? decoder.decode (TwitarrV3UserProfileData.self, from: data) {
+					if let profileResponse = try? decoder.decode (TwitarrV3ProfilePublicData.self, from: data) {
 						let _ = UserManager.shared.updateLoggedInUserInfo(from: profileResponse)
 					}
 				}
@@ -702,7 +685,7 @@ import UserNotifications
 		let authData: Data
 		let encoder = JSONEncoder()
 		if Settings.apiV3 {
-			let resetPasswordStruct = TwitarrV3RecoverPasswordRequest(username: name, recoveryKey: regCode)
+			let resetPasswordStruct = TwitarrV3RecoverPasswordRequest(username: name, recoveryKey: regCode, newPassword: newPassword)
 			authData = try! encoder.encode(resetPasswordStruct)
 		}
 		else {
@@ -966,35 +949,18 @@ struct TwitarrV3ChangePasswordRequest: Codable {
 
 // POST /api/v3/auth/recovery - UserRecoveryData
 struct TwitarrV3RecoverPasswordRequest: Codable {
-	let username: String
-	let recoveryKey: String						// Password OR registration key OR recovery key
+    /// The user's username.
+    var username: String
+    /// The string to use – any one of: password / registration key / recovery key.
+    var recoveryKey: String
+    /// The new password to set for the account.
+    var newPassword: String
 }
 
 // POST /api/v3/auth/recovery - TokenStringData
 struct TwitarrV3RecoverPasswordResponse: Codable {
-	let token: String
-}
-
-// GET /api/v3/user/profile
-struct TwitarrV3UserProfileData: Codable {
-    /// The user's username. [not editable here]
-    let username: String
-    /// An optional blurb about the user.
-    var about: String?
-    /// An optional name for display alongside the username.
-    var displayName: String?
-    /// An optional email address.
-    var email: String?
-    /// An optional home location (e.g. city).
-    var homeLocation: String?
-    /// An optional greeting/message to visitors of the profile.
-    var message: String?
-    /// An optional preferred form of address.
-    var preferredPronoun: String?
-    /// An optional real name of the user.
-    var realName: String?
-    /// An optional ship cabin number.
-    var roomNumber: String?
-    /// Whether display of the optional fields' data should be limited to logged in users.
-    var limitAccess: Bool
+    /// The user ID of the newly logged in user.
+    var userID: UUID
+    /// The token string.
+    let token: String
 }

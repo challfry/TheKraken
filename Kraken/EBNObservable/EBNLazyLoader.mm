@@ -214,14 +214,15 @@ template<typename T> void overrideGetterMethod(LazyLoaderConstructionInfo *const
 			copyFromProperty:copyFromProperty];
 	if (!classInfo)
 		return;
-
+		
 	// Set up our observation that'll invalidate the public property when the private property mutates
-	EBNObservation *blockInfo = NewObservationBlockImmed(self,
-	{
-		[blockSelf invalidatePropertyValue:propertyName];
-	});
+	EBNObservation *blockInfo = [[EBNObservation alloc] initForObserved:nil observer:nil
+			immedBlock:^(id blockSelf, id observed)
+			{
+				[blockSelf invalidatePropertyValue:propertyName];
+			}];
 	blockInfo.isForLazyLoader = YES;
-	
+
 #if defined(DEBUG) && DEBUG
 	[blockInfo setDebugString:[NSString stringWithFormat:
 			@"%p: Global synthetic property invalidation observation for \"%@\" of class <%@>",

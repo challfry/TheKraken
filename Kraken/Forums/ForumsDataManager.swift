@@ -378,9 +378,11 @@ import UIKit
 				self.lastError = nil
 			//	print (String(data: data, encoding: .utf8))
 				do {
-					let response = try Settings.v3Decoder.decode([TwitarrV3ForumListData].self, from: data)
-					self.ingestForumThreads(for: filterPack.category, from: response)
-					filterPack.updateLoadIndex(requestIndex: loadStartPoint, numThreadsInResponse: response.count) 
+					let response = try Settings.v3Decoder.decode(TwitarrV3CategoryData.self, from: data)
+					if let threads = response.forumThreads {
+						self.ingestForumThreads(for: filterPack.category, from: threads)
+						filterPack.updateLoadIndex(requestIndex: loadStartPoint, numThreadsInResponse: threads.count) 
+					}
 				}
 				catch {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
@@ -495,8 +497,13 @@ struct TwitarrV3ForumListData: Codable {
     var title: String
     /// The number of posts in the forum.
     var postCount: Int64
+    /// The number of posts the user has read.  Specifically, this will be the number of posts the forum contained the last time the user called a fn that returned a `ForumData`.
+    /// Blocked and muted posts are included in this number, but not returned in the array of posts.
+    var readCount: Int
     /// Time forum was created.
     var createdAt: Date
+    /// The last user to post to the forum. Nil if there are no posts in the forum.
+	var lastPoster: TwitarrV3UserHeader?
     /// Timestamp of most recent post. Needs to be optional because admin forums may be empty.
     var lastPostAt: Date?
     /// Whether the forum is in read-only state.
@@ -504,3 +511,5 @@ struct TwitarrV3ForumListData: Codable {
     /// Whether user has favorited forum.
     var isFavorite: Bool
 }
+
+

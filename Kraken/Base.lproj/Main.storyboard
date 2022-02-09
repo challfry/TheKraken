@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5Ka-4x-J1E">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5Ka-4x-J1E">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -68,7 +68,7 @@
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="m1y-8I-aF2">
                                 <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                                 <items>
-                                    <navigationItem title="Title" id="EKb-KH-u5s"/>
+                                    <navigationItem id="EKb-KH-u5s"/>
                                 </items>
                             </navigationBar>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1A7-J6-kmJ">
@@ -558,9 +558,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="88" width="200" height="200.5"/>
+                                <rect key="frame" x="214" y="88" width="200" height="201"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -585,7 +585,7 @@
                                             </constraints>
                                             <prototypes>
                                                 <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SearchButtonCell" id="mAo-R7-Hw9" customClass="SearchButtonCell" customModule="Kraken" customModuleProvider="target">
-                                                    <rect key="frame" x="0.0" y="28" width="184" height="30"/>
+                                                    <rect key="frame" x="0.0" y="44.5" width="184" height="30"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="mAo-R7-Hw9" id="Vmw-dl-bS6">
                                                         <rect key="frame" x="0.0" y="0.0" width="184" height="30"/>
@@ -1102,6 +1102,11 @@
                                     <constraint firstAttribute="trailing" secondItem="fXd-s7-uMC" secondAttribute="trailing" id="pIC-gP-Wg6"/>
                                     <constraint firstItem="Ihh-Z2-4fO" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="oB1-20-J89" secondAttribute="leading" constant="10" id="prF-ht-mxK"/>
                                 </constraints>
+                                <variation key="heightClass=regular-userInterfaceIdiom=mac-widthClass=compact">
+                                    <mask key="subviews">
+                                        <exclude reference="fXd-s7-uMC"/>
+                                    </mask>
+                                </variation>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="hUv-2L-CtT"/>
@@ -1396,7 +1401,7 @@
                             <constraint firstItem="n4s-4n-evs" firstAttribute="bottom" secondItem="g60-2P-8DA" secondAttribute="bottom" id="tS8-GK-c9x"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Forum" id="155-a7-n9p">
+                    <navigationItem key="navigationItem" title="Forums" id="155-a7-n9p">
                         <barButtonItem key="rightBarButtonItem" title="New" id="MLM-Fn-mq8">
                             <connections>
                                 <segue destination="H8G-Ue-1rY" kind="show" identifier="ComposeForumThread" id="J5Z-VR-bxK"/>
@@ -1410,6 +1415,7 @@
                         <outlet property="forumsFilterStackView" destination="EVv-J2-BL5" id="80R-d3-0uS"/>
                         <outlet property="forumsFilterView" destination="Q04-gy-jHS" id="exv-cg-YIS"/>
                         <outlet property="forumsFilterViewTop" destination="abc-80-db8" id="634-l5-vKg"/>
+                        <outlet property="newForumButton" destination="MLM-Fn-mq8" id="qgU-It-6Hi"/>
                         <segue destination="ppy-9j-Eyt" kind="show" identifier="ShowForumThread" id="Cz0-pb-xEd"/>
                         <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="2Jt-Ly-W1j"/>
                     </connections>
@@ -2513,9 +2519,9 @@ Additional info:</string>
         <segue reference="NT7-WF-Ano"/>
         <segue reference="J5Z-VR-bxK"/>
         <segue reference="toq-gL-f1f"/>
-        <segue reference="N8d-TY-d67"/>
+        <segue reference="qdg-UW-bUS"/>
         <segue reference="1ve-Md-YVN"/>
-        <segue reference="d2l-zp-S48"/>
+        <segue reference="wTp-nv-sgn"/>
         <segue reference="RHM-8H-1Ru"/>
         <segue reference="Ieo-oe-rtR"/>
         <segue reference="gdr-Cd-yXW"/>

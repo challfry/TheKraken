@@ -538,65 +538,6 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			}
 		}
 	}
-
-	override func postV2(context: NSManagedObjectContext) {
-		confirmPostBeingSent(context: context)
-		
-		let twittarrPostBlock = { (photoID: String?) in
-			
-			// Build the request and the body JSON
-			var request: URLRequest
-			if let editingPost = self.tweetToEdit {
-				// POST /api/v2/tweet/:id
-				request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v2/tweet/\(editingPost.id)", query: nil)
-				let editPostStruct = TwitarrV2EditTweetRequest(text: self.text, photo: photoID)
-				let editPostData = try! JSONEncoder().encode(editPostStruct)
-				request.httpBody = editPostData
-			}
-			else {
-				// POST /api/v2/stream
-				request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v2/stream", query: nil)				
-				let newPostStruct = TwitarrV2NewTweetRequest(text: self.text, photo: photoID, parent: self.parent?.id, 
-						as_mod: nil, as_admin: nil)
-				let newPostData = try! JSONEncoder().encode(newPostStruct)
-				request.httpBody = newPostData
-			}
-			
-			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-			NetworkGovernor.addUserCredential(to: &request, forUser: self.author)
-			request.httpMethod = "POST"
-			
-			self.queueNetworkPost(request: request, success: { data in
-				let decoder = JSONDecoder()
-				do {
-					let response = try decoder.decode(TwitarrV2NewTweetResponse.self, from: data)
-					TwitarrDataManager.shared.ingestNewUserPost(post: response.stream_post)
-				} catch 
-				{
-					self.recordServerErrorFailure(ServerError("Failure parsing response to new Twitarr post request."))
-					NetworkLog.error("Failure parsing response to new Twitarr post request.", 
-							["Error" : error, "URL" : request.url as Any])
-				} 
-			})
-
-		}
-		
-		// If we have a photo to upload, do that first, then chain the tweet post.
-		if let photoSet = photos, photoSet.count > 0, let firstPhoto = photoSet[0] as? PostOpPhoto_Attachment,
-				let image = firstPhoto.imageData {
-			uploadPhoto(photoData: image as NSData, mimeType: firstPhoto.mimetype, isUserPhoto: false) { photoID, error in
-				if let err = error {
-					self.recordServerErrorFailure(err)
-				}
-				else {
-					twittarrPostBlock(photoID)
-				}
-			}
-		}
-		else {
-			twittarrPostBlock(nil)
-		}
-	}
 }
 
 @objc(PostOpTweetReaction) public class PostOpTweetReaction: PostOperation {
@@ -1125,11 +1066,13 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.httpBody = newThreadData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
-		self.queueNetworkPost(request: request, success:  { data in
+		self.queueNetworkPost(request: request, success: { data in
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving new Seamail thread to Core Data.")
 				let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
-				SeamailDataManager.shared.ingestSeamailThreads(from: [response])
+				let thread = try SeamailDataManager.shared.ingestSeamailThread(from: response, inContext: context)
+				SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: self.text, 
+						thread: thread, done: { msg in return})
 			}
 		})
 	}
@@ -1185,8 +1128,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		self.queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving new Seamail message to Core Data.")
-				let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
-				SeamailDataManager.shared.ingestSeamailThreads(from: [response])
+				let response = try Settings.v3Decoder.decode(TwitarrV3FezPostData.self, from: data)
+				let threadInContext = context.object(with: seamailThread.objectID) as! SeamailThread
+				try SeamailDataManager.shared.ingestSeamailPost(from: response, toThread: threadInContext, inContext: context)
 			}
 		})
 	}
@@ -1260,8 +1204,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
 				context.pushOpErrorExplanation("Failure saving new Schedule Event to Core Data. Was setting follow state on event.")
-				let response = try JSONDecoder().decode(TwitarrV2EventFavoriteResponse.self, from: data)
-				EventsDataManager.shared.parseV2Events([response.event], isFullList: false)
+//				let response = try JSONDecoder().decode(TwitarrV2EventFavoriteResponse.self, from: data)
+//				EventsDataManager.shared.parseV2Events([response.event], isFullList: false)
 			}
 		})
 	}
@@ -1383,9 +1327,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	override func postV3(context: NSManagedObjectContext) {
 		confirmPostBeingSent(context: context)
 		
-		let postContent = TwitarrV3UserProfileData(username: author.username, about: "", displayName: displayName, 
-				email: email, homeLocation: homeLocation, message: "", preferredPronoun: pronouns, 
-				realName: realName, roomNumber: roomNumber, limitAccess: false)
+		let postContent = UserProfileUploadData(header: nil, displayName: displayName, realName: realName, 
+				preferredPronoun: pronouns, homeLocation: homeLocation, roomNumber: roomNumber, email: email, message: "", about: "")
 		let postData = try! JSONEncoder().encode(postContent)
 		
 		// POST /api/v3/user/profile`
@@ -1396,44 +1339,44 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
 		queueNetworkPost(request: request, success:  { data in
-			if let response = try? Settings.v3Decoder.decode(TwitarrV3UserProfileData.self, from: data) {
+			if let response = try? Settings.v3Decoder.decode(TwitarrV3ProfilePublicData.self, from: data) {
 				UserManager.shared.updateV3Profile(for: self.author, from: response)
 			}
 		})
 	}
 
 	override func postV2(context: NSManagedObjectContext) {
-		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), 
-				currentUser.username == author.username else { return }
-		confirmPostBeingSent(context: context)
-		
-		let profileUpdateStruct = TwitarrV2UpdateProfileRequest(displayName: displayName, email: email, 
-				homeLocation: homeLocation, pronouns: pronouns, realName: realName, roomNumber: roomNumber)
-		let encoder = JSONEncoder()
-		let requestData = try! encoder.encode(profileUpdateStruct)
-
-		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/user/profile", query: nil)
-		NetworkGovernor.addUserCredential(to: &request, forUser: author)
-		request.httpMethod = "POST"
-		request.httpBody = requestData
-		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-		queueNetworkPost(request: request, success: { data in
-			do {
-				let decoder = JSONDecoder()
-				let response = try decoder.decode(TwitarrV2UpdateProfileResponse.self, from: data)
-				
-				if response.status == "ok" {
-					UserManager.shared.updateLoggedInUserInfo(from: response.user)
-				}
-				CurrentUser.shared.lastError = nil
-			}
-			catch {
-				CoreDataLog.error("Failure parsing User Profile Edit response. (the network call succeeded, but we couldn't save the change locally).", 
-						["Error" : error])
-			}
-		}, failure: { error in
-			CurrentUser.shared.lastError = error
-		})
+//		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context), 
+//				currentUser.username == author.username else { return }
+//		confirmPostBeingSent(context: context)
+//		
+//		let profileUpdateStruct = TwitarrV2UpdateProfileRequest(displayName: displayName, email: email, 
+//				homeLocation: homeLocation, pronouns: pronouns, realName: realName, roomNumber: roomNumber)
+//		let encoder = JSONEncoder()
+//		let requestData = try! encoder.encode(profileUpdateStruct)
+//
+//		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/user/profile", query: nil)
+//		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+//		request.httpMethod = "POST"
+//		request.httpBody = requestData
+//		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+//		queueNetworkPost(request: request, success: { data in
+//			do {
+//				let decoder = JSONDecoder()
+//				let response = try decoder.decode(TwitarrV2UpdateProfileResponse.self, from: data)
+//				
+//				if response.status == "ok" {
+//					UserManager.shared.updateLoggedInUserInfo(from: response.user)
+//				}
+//				CurrentUser.shared.lastError = nil
+//			}
+//			catch {
+//				CoreDataLog.error("Failure parsing User Profile Edit response. (the network call succeeded, but we couldn't save the change locally).", 
+//						["Error" : error])
+//			}
+//		}, failure: { error in
+//			CurrentUser.shared.lastError = error
+//		})
 	}
 }
 
@@ -1658,12 +1601,18 @@ struct TwitarrV2UpdateUserPhotoResponse: Codable {
 // MARK: - V3 JSON Structs
 
 struct TwitarrV3PostContentData: Codable {
-    /// The new text of the forum post.
+    /// The new text of the post.
     var text: String
     /// An array of up to 4 images (1 when used in a Fez post). Each image can specify either new image data or an existing image filename. 
 	/// For new posts, images will generally contain all new image data. When editing existing posts, images may contain a mix of new and existing images. 
 	/// Reorder ImageUploadDatas to change presentation order. Set images to [] to remove images attached to post when editing.
     var images: [TwitarrV3ImageUploadData]
+    /// If the poster has moderator privileges and this field is TRUE, this post will be authored by 'moderator' instead of the author.
+	/// Set this to FALSE unless the user is a moderator who specifically chooses this option.
+	var postAsModerator: Bool = false
+    /// If the poster has moderator privileges and this field is TRUE, this post will be authored by 'TwitarrTeam' instead of the author.
+	/// Set this to FALSE unless the user is a moderator who specifically chooses this option.
+	var postAsTwitarrTeam: Bool = false
 }
 
 struct TwitarrV3ImageUploadData: Codable {
@@ -1709,4 +1658,25 @@ struct TwitarrV3FezContentData: Codable {
     var maxCapacity: Int
     /// Users to add to the fez upon creation. The creator is always added as the first user.
     var initialUsers: [UUID]
+}
+
+public struct UserProfileUploadData: Codable {
+    /// Basic info about the user--their ID, username, displayname, and avatar image. May be nil on POST.
+    var header: TwitarrV3UserHeader?
+    /// The displayName, again. Will be equal to header.displayName in results. When POSTing, set this field to update displayName.
+    var displayName: String?
+    /// An optional real name of the user.
+    var realName: String?
+    /// An optional preferred form of address.
+    var preferredPronoun: String?
+    /// An optional home location (e.g. city).
+    var homeLocation: String?
+    /// An optional ship cabin number.
+    var roomNumber: String?
+    /// An optional email address.
+    var email: String?
+     /// An optional short greeting/message to visitors of the profile.
+    var message: String?
+   /// An optional blurb about the user.
+    var about: String?
 }

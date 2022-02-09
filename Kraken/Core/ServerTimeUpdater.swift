@@ -42,34 +42,17 @@ import UIKit
 	}
 
 	override func updateMethod() {
-		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/time", query: nil)
-		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				// Should only be called on app foreground and every 15 mins thereafter. If the call fails,
-				// nothing to do.
-				NetworkLog.error(error.localizedDescription)
-			}
-			else if let data = package.data {
-//				print (String(decoding:data!, as: UTF8.self))
-				let decoder = JSONDecoder()
-				do {
-					let timeResponse = try decoder.decode(TwitarrV2ServerTimeResponse.self, from: data)
-					
-					// Time Zones
-					self.serverTimezoneOffset = timeResponse.offset
-					if let tzName = timeResponse.time.split(separator: " ").last {
-						self.serverTimezone	= TimeZone(abbreviation: String(tzName))
-					}
-					
-					self.deviceTimeOffset = Date().timeIntervalSince(Date(timeIntervalSince1970: Double(timeResponse.epoch) / 1000.0 ))
-					self.calculateTimes()
-				} catch 
-				{
-					NetworkLog.error("Failure parsing server time response.", ["Error" : error, "URL" : request.url as Any])
-				} 
-			}
-			self.updateComplete(success: true)
-		}
+		self.updateComplete(success: true)
+	}
+	
+	func updateServerTime(_ response: TwitarrV3UserNotificationData)
+	{
+		self.serverTimezoneOffset = response.serverTimeOffset
+		self.serverTimezone	= TimeZone(abbreviation: response.serverTimeZone)
+		let serverTime = StringUtilities.isoDateWithFraction.date(from: response.serverTime) ??
+				StringUtilities.isoDateNoFraction.date(from: response.serverTime) ?? Date()
+		self.deviceTimeOffset = Date().timeIntervalSince(serverTime)
+		self.calculateTimes()
 	}
 	
 	@objc func deviceTimeZoneChanged(_ notification: Notification) {

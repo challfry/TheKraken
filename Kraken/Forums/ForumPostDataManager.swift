@@ -531,6 +531,8 @@ struct TwitarrV2GetForumPostsResponse: Codable {
 struct TwitarrV3ForumData: Codable {
     /// The forum's ID.
     var forumID: UUID
+    /// The ID of the forum's containing Category..
+    var categoryID: UUID
     /// The forum's title
     var title: String
     /// The forum's creator.
@@ -539,6 +541,8 @@ struct TwitarrV3ForumData: Codable {
     var isLocked: Bool
     /// Whether the user has favorited forum.
     var isFavorite: Bool
+    /// The paginator contains the total number of posts in the forum, and the start and limit of the requested subset in `posts`.
+	var paginator: TwitarrV3Paginator
     /// The posts in the forum.
     var posts: [TwitarrV3PostData]
 }
