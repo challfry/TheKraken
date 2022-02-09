@@ -138,6 +138,10 @@ class BoardGameParserDelegate: NSObject, XMLParserDelegate {
 
 	var isParsingRatings = false
 	var isParsingPrimaryName = false
+	var isParsingSuggestedPlayers = false
+	var currentSuggestedPlayers = 0
+	var suggestedPlayersBestNumVotes = 0
+	var bestSuggestedPlayers = 0
 	func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String]) {
 		if elementName == "ratings" { isParsingRatings = true }
 		if elementName == "name" {
@@ -147,6 +151,23 @@ class BoardGameParserDelegate: NSObject, XMLParserDelegate {
 		}
 		if ["name", "description", "yearpublished"].contains(elementName) {
 			tempChars = ""
+		}
+		if elementName == "poll" && attributeDict["name"] == "suggested_numplayers" {
+			isParsingSuggestedPlayers = true
+		}
+		if isParsingSuggestedPlayers {
+			switch elementName {
+			case "results":	
+				let numPlayersStr = attributeDict["numplayers"] ?? "0"
+				let numPlayers = numPlayersStr == "6+" ? 6 : Int(numPlayersStr) ?? 0
+				currentSuggestedPlayers = numPlayers
+			case "result" where attributeDict["value"] == "Best":
+				if let numVotes = Int(attributeDict["numvotes"] ?? "0"), numVotes > suggestedPlayersBestNumVotes {
+					suggestedPlayersBestNumVotes = numVotes
+					bestSuggestedPlayers = currentSuggestedPlayers
+				}
+			default: break 
+			}
 		}
 	}
 	
@@ -172,6 +193,9 @@ class BoardGameParserDelegate: NSObject, XMLParserDelegate {
 			default: break
 			}
 		}
+		else if isParsingSuggestedPlayers && elementName == "poll", bestSuggestedPlayers != 0 {
+			gameObj.suggestedPlayers = bestSuggestedPlayers
+		}
 		else {
 			switch elementName {
 			case "yearpublished": gameObj.yearPublished	= tempChars
@@ -188,13 +212,15 @@ class BoardGameParserDelegate: NSObject, XMLParserDelegate {
 		
 		if elementName == "ratings" { isParsingRatings = false }
 		if elementName == "name" { isParsingPrimaryName = false }
+		if elementName == "poll" { isParsingSuggestedPlayers = false }
 		
 	}
 }
 
 guard CommandLine.argc >= 2 else { exit(0) }
 let fileUrl = URL(fileURLWithPath: CommandLine.arguments[1])
-guard var fileContents = try? String(contentsOf: fileUrl) else { 
+var fileContents = try? String(contentsOf: fileUrl)
+if fileContents == nil {
 	print ("Couldn't load file.")
 	exit(0)
 }
@@ -202,33 +228,50 @@ guard var fileContents = try? String(contentsOf: fileUrl) else {
 // Shortened contents for testing
 if false {
 	fileContents = """
-	Elder Sign	2				
-	Eldritch Horror	2				
-	Epic Spell Wars	1				
-	Evolution	1				
-	Evolution: Climate	1				
-	Exoplanets	2				
-	Exploding Kittens	3				
-	Exploding Kittens NSFW	3				
-	Fake News	1				
+	Elder Sign
+	Eldritch Horror
+	Epic Spell Wars
+	Evolution
+	Evolution: Climate
+	Exoplanets
+	Exploding Kittens
+	Exploding Kittens NSFW
+	Fake News
 	"""
 }
 
 // Get the XML for each record, convert to JSON, store in gamesList array
-let scanner = Scanner(string: fileContents)
-while !scanner.isAtEnd, let nextLine = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
-	let tabFields = nextLine.split(separator: "\t", maxSplits: 8, omittingEmptySubsequences: false)
-	var gameObj = getGame(named: String(tabFields[0]))
+var lastGame: String = ""
+var numCopies: Int = 0
+let scanner = Scanner(string: fileContents!)
+while !scanner.isAtEnd, let thisGame = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
+	if lastGame == thisGame {
+		numCopies += 1
+		continue
+	}
+	if lastGame == "" {
+		numCopies = 1
+		lastGame = thisGame
+		continue
+	}
+		
+//	let tabFields = nextLine.split(separator: "\t", maxSplits: 8, omittingEmptySubsequences: false)
+	var gameObj = getGame(named: lastGame)
 //	var gameObj = getGameInfo(from: "230305", gameName: String(tabFields[0]))
 	
-	gameObj.numCopies = Int(String(tabFields[1])) ?? 1
-	gameObj.donatedBy = tabFields[2].isEmpty ? nil : String(tabFields[2])
-	gameObj.notes = tabFields[3].isEmpty ? nil : String(tabFields[3])
-	gameObj.expands = tabFields[4].isEmpty ? nil : String(tabFields[4])
+	gameObj.numCopies = numCopies
+//	gameObj.donatedBy = tabFields[2].isEmpty ? nil : String(tabFields[2])
+//	gameObj.notes = tabFields[3].isEmpty ? nil : String(tabFields[3])
+//	gameObj.expands = tabFields[4].isEmpty ? nil : String(tabFields[4])
 	
 	gamesList.append(gameObj)
 	Thread.sleep(forTimeInterval: 2.0)
+	
+	numCopies = 1
+	lastGame = thisGame
 }
+var gameObj = getGame(named: lastGame)
+gameObj.numCopies = numCopies
 
 //let outputFileData = try JSONEncoder().encode(gamesList)
 //print(String(data: outputFileData, encoding: .utf8)!)
