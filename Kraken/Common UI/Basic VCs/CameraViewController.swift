@@ -206,7 +206,7 @@ class CameraViewController: UIViewController {
 		// camera aspect.
 		if let constraint = cameraAspectConstraint {
 			cameraView.removeConstraint(constraint)
-			if UIApplication.shared.statusBarOrientation.isLandscape {
+			if cameraView.window?.windowScene?.interfaceOrientation.isLandscape == true {
 				cameraAspectConstraint = NSLayoutConstraint(item: cameraView as Any, attribute: .width, relatedBy: .equal, 
 						toItem: cameraView, attribute: .height, multiplier: 4.0 / 3.0, constant: 0)
 			}
@@ -219,7 +219,7 @@ class CameraViewController: UIViewController {
 		}
 		
 		var newOrientation: AVCaptureVideoOrientation
-		switch UIApplication.shared.statusBarOrientation {
+		switch cameraView.window?.windowScene?.interfaceOrientation {
 		case .portrait: newOrientation = .portrait
 		case .landscapeLeft: newOrientation = .landscapeLeft
 		case .landscapeRight: newOrientation = .landscapeRight

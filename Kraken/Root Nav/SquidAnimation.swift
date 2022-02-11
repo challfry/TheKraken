@@ -56,7 +56,7 @@ class SquidAnimationView: MTKView, DeepSeaView, MTKViewDelegate {
 				// Only iPad should switch status bar orientation, unless we change iPhone settings.
 				// statusBarOrientation is deprecated, but there is no other good way to know the device-relative
 				// UI orientation, and we need this info to align the animation with the UIDevice attitude data.
-				switch UIApplication.shared.statusBarOrientation {
+				switch self.window?.windowScene?.interfaceOrientation {
 				case .portrait: break
 				case .portraitUpsideDown: 
 					xOffset = 0 - xOffset

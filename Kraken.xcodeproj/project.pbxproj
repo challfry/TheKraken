@@ -133,6 +133,10 @@
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
 		EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* DailyViewController.swift */; };
 		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
+		EAA12B6627B4A55B002F9C47 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAA12B6527B4A55B002F9C47 /* NetworkExtension.framework */; };
+		EAA12B6927B4A55B002F9C47 /* KrakenPushProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA12B6827B4A55B002F9C47 /* KrakenPushProvider.swift */; };
+		EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EAA12B7427B4AB92002F9C47 /* LocalPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA12B7327B4AB92002F9C47 /* LocalPush.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4C12242D300009F287F /* ForumsCategoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* ForumsCategoryVC.swift */; };
 		EAA2E4C42242D300009F287F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAA2E4C22242D300009F287F /* Main.storyboard */; };
@@ -202,6 +206,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		EAA12B6C27B4A55C002F9C47 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EAA2E4B12242D300009F287F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EAA12B6327B4A55B002F9C47;
+			remoteInfo = KrakenLocalPushExtension;
+		};
 		EAA2E4D02242D301009F287F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EAA2E4B12242D300009F287F /* Project object */;
@@ -227,6 +238,17 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		EAA12B7227B4A55C002F9C47 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -376,6 +398,12 @@
 		EAA028492321CF7100B2B7F1 /* Questions for Server Team.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Questions for Server Team.md"; sourceTree = "<group>"; };
 		EAA0284B2321ED7300B2B7F1 /* DailyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyViewController.swift; sourceTree = "<group>"; };
 		EAA0E91122E942770077D5D0 /* SwiftUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUtils.swift; sourceTree = "<group>"; };
+		EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KrakenLocalPushExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAA12B6527B4A55B002F9C47 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
+		EAA12B6827B4A55B002F9C47 /* KrakenPushProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenPushProvider.swift; sourceTree = "<group>"; };
+		EAA12B6A27B4A55B002F9C47 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAA12B6B27B4A55B002F9C47 /* KrakenLocalPushExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KrakenLocalPushExtension.entitlements; sourceTree = "<group>"; };
+		EAA12B7327B4AB92002F9C47 /* LocalPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPush.swift; sourceTree = "<group>"; };
 		EAA2E4B92242D300009F287F /* Kraken.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kraken.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAA2E4BC2242D300009F287F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EAA2E4C02242D300009F287F /* ForumsCategoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsCategoryVC.swift; sourceTree = "<group>"; };
@@ -458,6 +486,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAA12B6127B4A55B002F9C47 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAA12B6627B4A55B002F9C47 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -795,10 +831,21 @@
 			path = Daily;
 			sourceTree = "<group>";
 		};
+		EAA12B6727B4A55B002F9C47 /* KrakenLocalPushExtension */ = {
+			isa = PBXGroup;
+			children = (
+				EAA12B6827B4A55B002F9C47 /* KrakenPushProvider.swift */,
+				EAA12B6A27B4A55B002F9C47 /* Info.plist */,
+				EAA12B6B27B4A55B002F9C47 /* KrakenLocalPushExtension.entitlements */,
+			);
+			path = KrakenLocalPushExtension;
+			sourceTree = "<group>";
+		};
 		EAA2E4B02242D300009F287F = {
 			isa = PBXGroup;
 			children = (
 				EAA2E4BB2242D300009F287F /* Kraken */,
+				EAA12B6727B4A55B002F9C47 /* KrakenLocalPushExtension */,
 				EA6A8A79231B4F150071BFEA /* Third Party */,
 				EA86ADD22272855000363CBF /* Resources */,
 				EA1E3B8A2242F00200017F07 /* Docs */,
@@ -817,6 +864,7 @@
 				EAA2E4CF2242D301009F287F /* KrakenTests.xctest */,
 				EAA2E4DA2242D301009F287F /* KrakenUITests.xctest */,
 				EA2286E523E3B61C0036C20E /* GameFetcher */,
+				EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -827,6 +875,7 @@
 				EA9E693522980CC500B4DC6D /* Kraken.entitlements */,
 				EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */,
 				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
+				EAA12B7327B4AB92002F9C47 /* LocalPush.swift */,
 				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
 				EAA2E4C22242D300009F287F /* Main.storyboard */,
 				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
@@ -990,6 +1039,7 @@
 			isa = PBXGroup;
 			children = (
 				EAE59151229EA345002B5DEF /* Photos.framework */,
+				EAA12B6527B4A55B002F9C47 /* NetworkExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1014,6 +1064,23 @@
 			productReference = EA2286E523E3B61C0036C20E /* GameFetcher */;
 			productType = "com.apple.product-type.tool";
 		};
+		EAA12B6327B4A55B002F9C47 /* KrakenLocalPushExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAA12B6F27B4A55C002F9C47 /* Build configuration list for PBXNativeTarget "KrakenLocalPushExtension" */;
+			buildPhases = (
+				EAA12B6027B4A55B002F9C47 /* Sources */,
+				EAA12B6127B4A55B002F9C47 /* Frameworks */,
+				EAA12B6227B4A55B002F9C47 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KrakenLocalPushExtension;
+			productName = KrakenLocalPushExtension;
+			productReference = EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		EAA2E4B82242D300009F287F /* Kraken */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EAA2E4E32242D301009F287F /* Build configuration list for PBXNativeTarget "Kraken" */;
@@ -1021,10 +1088,12 @@
 				EAA2E4B52242D300009F287F /* Sources */,
 				EAA2E4B62242D300009F287F /* Frameworks */,
 				EAA2E4B72242D300009F287F /* Resources */,
+				EAA12B7227B4A55C002F9C47 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				EAA12B6D27B4A55C002F9C47 /* PBXTargetDependency */,
 			);
 			name = Kraken;
 			productName = Kraken;
@@ -1073,12 +1142,15 @@
 		EAA2E4B12242D300009F287F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1130;
+				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "Chall Fry";
 				TargetAttributes = {
 					EA2286E423E3B61C0036C20E = {
 						CreatedOnToolsVersion = 11.3.1;
+					};
+					EAA12B6327B4A55B002F9C47 = {
+						CreatedOnToolsVersion = 13.2.1;
 					};
 					EAA2E4B82242D300009F287F = {
 						CreatedOnToolsVersion = 10.1;
@@ -1115,6 +1187,7 @@
 			projectRoot = "";
 			targets = (
 				EAA2E4B82242D300009F287F /* Kraken */,
+				EAA12B6327B4A55B002F9C47 /* KrakenLocalPushExtension */,
 				EAA2E4CE2242D301009F287F /* KrakenTests */,
 				EAA2E4D92242D301009F287F /* KrakenUITests */,
 				EA2286E423E3B61C0036C20E /* GameFetcher */,
@@ -1123,6 +1196,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		EAA12B6227B4A55B002F9C47 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAA2E4B72242D300009F287F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1218,6 +1298,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EAA12B6027B4A55B002F9C47 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAA12B6927B4A55B002F9C47 /* KrakenPushProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAA2E4B52242D300009F287F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1281,6 +1369,7 @@
 				EA534E31230299AE00FE4787 /* EventCell.swift in Sources */,
 				EA4A1D1822540801008501A3 /* EBNProtocolBinder.mm in Sources */,
 				EA4A1D1D22540801008501A3 /* EBNObservation.m in Sources */,
+				EAA12B7427B4AB92002F9C47 /* LocalPush.swift in Sources */,
 				EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */,
 				EAA62C7122C55CC00031A999 /* Logging.swift in Sources */,
 				EA8694AC23D3091A00ABE391 /* DailyActivityCell.swift in Sources */,
@@ -1369,6 +1458,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		EAA12B6D27B4A55C002F9C47 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EAA12B6327B4A55B002F9C47 /* KrakenLocalPushExtension */;
+			targetProxy = EAA12B6C27B4A55C002F9C47 /* PBXContainerItemProxy */;
+		};
 		EAA2E4D12242D301009F287F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EAA2E4B82242D300009F287F /* Kraken */;
@@ -1426,6 +1520,64 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		EAA12B7027B4A55C002F9C47 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 14;
+				DEVELOPMENT_TEAM = FQD36VNG36;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KrakenLocalPushExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = KrakenLocalPushExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Chall Fry. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EAA12B7127B4A55C002F9C47 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 14;
+				DEVELOPMENT_TEAM = FQD36VNG36;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KrakenLocalPushExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = KrakenLocalPushExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Chall Fry. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1550,6 +1702,7 @@
 		EAA2E4E42242D301009F287F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -1558,8 +1711,6 @@
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 14.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1577,6 +1728,7 @@
 		EAA2E4E52242D301009F287F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -1585,8 +1737,6 @@
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 14.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1691,6 +1841,15 @@
 			buildConfigurations = (
 				EA2286EA23E3B61C0036C20E /* Debug */,
 				EA2286EB23E3B61C0036C20E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EAA12B6F27B4A55C002F9C47 /* Build configuration list for PBXNativeTarget "KrakenLocalPushExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EAA12B7027B4A55C002F9C47 /* Debug */,
+				EAA12B7127B4A55C002F9C47 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
