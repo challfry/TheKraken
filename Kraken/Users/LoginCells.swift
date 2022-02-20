@@ -278,8 +278,11 @@ class EditUsernameCellModel: TextFieldCellModel {
 }
 
 class EditPasswordCellModel: TextFieldCellModel {
-	init() {
+	init(returnButtonHitAction: @escaping (() -> Void)) {
 		super.init("Password:", purpose: .password)
+		returnButtonHit = { str in
+			returnButtonHitAction()
+		}
 		
 		CurrentUser.shared.tell(self, when: ["lastError.fieldErrors.new_password", 
 				"lastError.fieldErrors.current_password", "lastError.fieldErrors.password"]) { observer, observed in 
@@ -340,7 +343,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	var headerCellModel = LoginHeaderCellModel()
 	@objc dynamic lazy var usernameCellModel = EditUsernameCellModel("Username:")
 	@objc dynamic lazy var displayNameCellModel = EditDisplayNameCellModel(segment: self)
-	@objc dynamic lazy var passwordCellModel = EditPasswordCellModel()
+	@objc dynamic lazy var passwordCellModel = EditPasswordCellModel(returnButtonHitAction: weakify(self, LoginDataSourceSegment.startLoggingIn))
 	@objc dynamic lazy var confirmPasswordCellModel = ConfirmPasswordCellModel(segment: self)
 	@objc dynamic lazy var registrationCodeCellModel = RegistrationCodeCellModel(segment: self)
 			
@@ -369,7 +372,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	}
 	
 	func startLoggingIn() {
-    	if let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText {
+    	if mode == .login, let userName = usernameCellModel.editedText, let password = passwordCellModel.editedText {
 			CurrentUser.shared.clearErrors() 
 	    	CurrentUser.shared.loginUser(name: userName, password: password)
 			clearAllSensitiveFields()
@@ -408,8 +411,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	func readCodeOfConductAction() {
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
-			textFileVC.fileToLoad = "codeofconduct"
-			textFileVC.titleText = "Code Of Conduct"
+			textFileVC.package = ServerTextFileSeguePackage(titleText: "Code of Conduct", fileToLoad: "codeofconduct.json")
 			dataSource?.viewController?.present(textFileVC, animated: true, completion: nil)
 		}
 	}

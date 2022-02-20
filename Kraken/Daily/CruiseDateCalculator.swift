@@ -26,7 +26,7 @@ func cruiseStartDate() -> Date? {
 	return startDate
 }
 
-// A 1-based counter showing days before March 7, or nil if it's March 7 or later.
+// A 1-based counter showing days before March 5, or nil if it's March 7 or later.
 func daysBeforeCruiseStart() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() < startDate {
 		let components = Calendar.current.dateComponents([.day], from: cruiseCurrentDate(), to: startDate)
@@ -37,7 +37,7 @@ func daysBeforeCruiseStart() -> Int? {
 	return nil
 }
 
-// A 1-based counter; returns 1 on March 7, and 8 on March 14. Nil on all other days.
+// A 1-based counter; returns 1 on March 5, and 8 on March 12. Nil on all other days.
 func dayOfCruise() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() > startDate {
 		let components = Calendar.current.dateComponents([.day], from: startDate, to: cruiseCurrentDate())
@@ -48,7 +48,7 @@ func dayOfCruise() -> Int? {
 	return nil
 }
 
-// A 1-based counter; returns 1 on March 15. Nil if date is earlier.
+// A 1-based counter; returns 1 on March 13. Nil if date is earlier.
 func dayAfterCruise() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() > startDate {
 		let components = Calendar.current.dateComponents([.day], from: startDate, to: cruiseCurrentDate())

@@ -227,8 +227,8 @@ class DeckDataManager: NSObject {
 		// Parse out the deck the room is on. Only works if the string is of the form "<Room Name>, Deck <#>"
 		if phrases.count > 1 {
 			let deckScanner = Scanner(string: String(phrases[1]))
-			deckScanner.KscanString("Deck")
-			expectedDeck = deckScanner.KscanInt()
+			_ = deckScanner.scanString("Deck")
+			expectedDeck = deckScanner.scanInt()
 		}
 			
 		
@@ -260,8 +260,8 @@ class DeckDataManager: NSObject {
 		// If we're matching a room number, that number must be the entire number for the room. But, some valid room
 		// numbers contain other valid room numbers as substrings.
 		let scanner = Scanner(string: firstPhrase)
-		scanner.KscanUpToCharactersFrom(CharacterSet.decimalDigits)
-		if let numberString = scanner.KscanCharactersFrom(CharacterSet.decimalDigits) {
+		_ = scanner.scanUpToCharacters(from: CharacterSet.decimalDigits)
+		if let numberString = scanner.scanCharacters(from: CharacterSet.decimalDigits) {
 			if numberString.count == 4 || (numberString.count == 5 && numberString.starts(with: "1")) {
 				let selections = pdfDoc.findString(String(numberString), withOptions: .caseInsensitive)
 				if let sel = selections.first, let firstPage = sel.pages.first {

@@ -8,6 +8,11 @@
 
 import UIKit
 
+struct ServerTextFileSeguePackage {
+	var titleText: String?
+	var fileToLoad: String?
+}
+
 class ServerTextFileViewController: UIViewController {
 
 	@IBOutlet var textView: UITextView!
@@ -16,25 +21,24 @@ class ServerTextFileViewController: UIViewController {
 	@IBOutlet var errorLabel: UILabel!
 	
 	@objc dynamic var parser: ServerTextFileParser?
-	var titleText: String?
-	var fileToLoad: String?
+	var package: ServerTextFileSeguePackage?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let title = titleText {
+        if let title = package?.titleText {
 	        navItem.title = title
 		}
 		else {
-			if fileToLoad == "helptext.json" {
+			if package?.fileToLoad?.hasPrefix("twitarrhelptext") == true {
 				navItem.title = "Twitarr Help"
 			}
-			else if fileToLoad == "codeofconduct.json" {
+			else if package?.fileToLoad?.hasPrefix("codeofconduct") == true {
 				navItem.title = "Code of Conduct"
 			}
 		}
         
-        if let fileName = fileToLoad {
+        if let fileName = package?.fileToLoad {
         	parser = ServerTextFileParser(forFile: fileName)
         }
 
@@ -48,7 +52,7 @@ class ServerTextFileViewController: UIViewController {
         
         self.tell(self, when: "parser.lastError") { observer, observed in 
         	observer.errorLabel.isHidden = observed.parser?.lastError == nil
-        	observer.errorLabel.text = "Could not load file \"\(observer.fileToLoad ?? "")\" from server. \(observed.parser?.lastError?.errorString ?? "")"
+        	observer.errorLabel.text = "Could not load file \"\(observer.package?.fileToLoad ?? "")\" from server. \(observed.parser?.lastError?.errorString ?? "")"
         }?.execute()
     }
     

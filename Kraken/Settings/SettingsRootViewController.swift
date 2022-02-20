@@ -299,17 +299,18 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	init() {
 		super.init("")
 		
-		CurrentUser.shared.tell(self, when:"loggedInUser.userRole") { observer, observed in
+		CurrentUser.shared.tell(self, when:"loggedInUser.accessLevel") { observer, observed in
 			var infoString: String
 			var showCell = true
-			switch observed.loggedInUser?.userRole {
+			switch observed.loggedInUser?.accessLevel {
 				case .admin: infoString = "This is an admin account, although Kraken doesn't support many admin features."
 				case .tho: infoString = "This is The Home Office special account"
 				case .moderator: infoString = "This is a moderator account, although Kraken doesn't support many moderator features."
-				case .user: infoString = ""; showCell = false
-				case .muted: infoString = "This account has been temporarily muted"
+				case .client: infoString = "Clients shouldn't log in directly."
+				case .verified: infoString = ""; showCell = false
+				case .quarantined: infoString = "This account has been quarantined"
 				case .banned: infoString = "This account has been banned"
-				case .loggedOut, .none: infoString = ""; showCell = false
+				case .unverified, .none: infoString = "This account is not yet verified"
 			}
 
 			// For Testing

@@ -74,25 +74,25 @@ class DisabledContentViewController: UIViewController {
 			featurePath = ""
 		case .twitarr:
 			featureName = "the Twittar posting stream"
-			featurePath = "/#/stream"
+			featurePath = "/tweets"
 		case .forums:
 			featureName = "the Forums"
-			featurePath = "/#/forums"
+			featurePath = "/forums"
 		case .seamail:
 			featureName = "Seamail"
-			featurePath = "/#/seamail"
+			featurePath = "/seamail"
 		case .events:
 			featureName = "the Events Schedule"
-			featurePath = "/#/events"
+			featurePath = "/events"
 		case .settings:
 			featureName = "the Settings Panel"
 			featurePath = ""
 		case .karaoke:
 			featureName = "the Karaoke Song Finder"
-			featurePath = ""
+			featurePath = "/karaoke"
 		case .games:
 			featureName = "the Board Games List"
-			featurePath = ""
+			featurePath = "/boardgames"
 		case .deckPlans:
 			featureName = "Deck Maps"
 			featurePath = ""

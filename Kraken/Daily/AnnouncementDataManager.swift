@@ -164,7 +164,7 @@ import UIKit
 			
 			if isComprehensive {
 				self.currentAnnouncements = self.currentAnnouncements.filter { ann in
-					if !newAnnouncementIDs.contains(ann.id) {
+					if !newAnnouncementIDs.contains(ann.id) || ann.displayUntil < Date() {
 						ann.isActive = false
 						return false
 					}

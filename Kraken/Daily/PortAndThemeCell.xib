@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -11,14 +11,14 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="PortAndThemeCell" id="gTV-IL-0wX" customClass="PortAndThemeCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="414" height="113"/>
+            <rect key="frame" x="0.0" y="0.0" width="414" height="388"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="414" height="113"/>
+                <rect key="frame" x="0.0" y="0.0" width="414" height="388"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="100" verticalCompressionResistancePriority="800" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" axis="vertical" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="6tX-gt-Y9J">
-                        <rect key="frame" x="20" y="4" width="374" height="101"/>
+                    <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="100" verticalCompressionResistancePriority="800" insetsLayoutMarginsFromSafeArea="NO" axis="vertical" spacing="1" translatesAutoresizingMaskIntoConstraints="NO" id="6tX-gt-Y9J">
+                        <rect key="frame" x="20" y="4" width="374" height="378"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="wc5-ue-gck">
                                 <rect key="frame" x="0.0" y="0.0" width="374" height="32.5"/>
@@ -38,12 +38,18 @@
                                 <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="200" verticalCompressionResistancePriority="700" ambiguous="YES" text="Todays Theme: Cosplay Day!" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NyS-lK-O6Q">
-                                <rect key="frame" x="0.0" y="76" width="374" height="25"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="200" verticalCompressionResistancePriority="700" text="Todays Theme: Cosplay Day!" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NyS-lK-O6Q">
+                                <rect key="frame" x="0.0" y="76" width="374" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Label Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="S31-kK-NU7">
+                                <rect key="frame" x="0.0" y="97.5" width="374" height="280.5"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="S31-kK-NU7" secondAttribute="height" multiplier="4:3" id="5rV-WO-Rxx"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                     </stackView>
                 </subviews>
@@ -55,14 +61,15 @@
                 <constraint firstItem="6tX-gt-Y9J" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="4" id="rVs-ge-w6U"/>
                 <constraint firstAttribute="bottom" secondItem="6tX-gt-Y9J" secondAttribute="bottom" priority="200" constant="8" id="rna-ss-YFy"/>
             </constraints>
-            <size key="customSize" width="414" height="113"/>
+            <size key="customSize" width="414" height="388"/>
             <connections>
                 <outlet property="arriveDepartLabel" destination="am8-fX-bPF" id="W3w-F8-gDw"/>
+                <outlet property="imageView" destination="S31-kK-NU7" id="9P9-tS-pu3"/>
                 <outlet property="portLabel" destination="oOO-wO-IDP" id="thN-D8-yde"/>
                 <outlet property="themeLabel" destination="NyS-lK-O6Q" id="Ist-Am-ULK"/>
                 <outlet property="titleLabel" destination="wc5-ue-gck" id="JhL-B6-QVC"/>
             </connections>
-            <point key="canvasLocation" x="59.420289855072468" y="58.59375"/>
+            <point key="canvasLocation" x="59.420289855072468" y="150.66964285714286"/>
         </collectionViewCell>
     </objects>
     <resources>

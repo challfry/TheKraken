@@ -19,6 +19,8 @@ import UIKit
 	dynamic var postTime: Date?
 	
 	dynamic var numLikes: Int32 = 0
+	dynamic var numLoves: Int32 = 0
+	dynamic var numLaughs: Int32 = 0
 	dynamic var postText: String?
 	dynamic var photoDetails: [PhotoDetails]?
 	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 
@@ -30,7 +32,7 @@ import UIKit
 	dynamic var currentUserHasEditOp: Bool = false
 	dynamic var currentUserReactOpCount: Int32 = 0
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
-	dynamic var currentUserLikesThis: Bool = false
+	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
@@ -68,10 +70,14 @@ import UIKit
 					
 		// We can't show the current number of likes this post has, as the API support is kinda lacking.
 		// (There's a separate call to get the likes for a post, but it's per-post).
-		addObservation(postModel.tell(self, when: "reactionDict.like.count") { observer, observed in
-			if let likeReaction = observed.reactionDict?["like"] as? Reaction {
-				observer.numLikes = likeReaction.count
-			}
+		addObservation(postModel.tell(self, when: "likeCount") { observer, observed in
+			observer.numLikes = observed.likeCount
+		}?.execute())
+		addObservation(postModel.tell(self, when: "loveCount") { observer, observed in
+			observer.numLoves = observed.loveCount
+		}?.execute())
+		addObservation(postModel.tell(self, when: "laughCount") { observer, observed in
+			observer.numLaughs = observed.laughCount
 		}?.execute())
 		
 		// Post text
@@ -107,51 +113,40 @@ import UIKit
 			observer.canEdit = observer.loggedInUserIsAuthor
 			observer.canDelete = observer.loggedInUserIsAuthor
 			observer.canReport = !currentUsername.isEmpty && !observer.loggedInUserIsAuthor
-			
-			// When the current user changes, need to re-evaluate: DeleteOps, EditOps, Likes, LikeOps
-//			observer.currentUserHasDeleteOp = postModel.opsDeletingThisTweet?.contains { 
-//				$0.author.username == currentUsername 
-//			} ?? false
-//			observer.currentUserHasEditOp = tweetModel.opsEditingThisTweet?.author.username == currentUsername
-//			observer.currentUserLikesThis = tweetModel.likeReaction?.users.contains { $0.username == currentUsername } ?? false
-//			if let likeOp = tweetModel.getPendingUserReaction("like") {
-//				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
-//			}
-//			else {
-//				observer.currentUserHasLikeOp = .none
-//			}
-			
+						
 		}?.execute())
 		
 		// Reply ops for replies that are children of this post
 		currentUserReplyOpCount = 0
 		
 		// Ops deleting this post
-//		addObservation(tweetModel.tell(self, when: "opsDeletingThisTweet") { observer, observed in
-//			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-//			observer.currentUserHasDeleteOp = observed.opsDeletingThisTweet?.contains { 
-//				$0.author.username == currentUsername 
-//			} ?? false
-//		}?.execute())
-//		
-//		// Ops editing this post
-//		addObservation(tweetModel.tell(self, when: "opsEditingThisTweet") { observer, observed in
-//			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-//			observer.currentUserHasEditOp = observed.opsEditingThisTweet?.author.username == currentUsername
-//		}?.execute())
-//		
-		// Likes by current user
-		addObservation(postModel.tell(self, when: "reactionDict.like.users.count") { observer, observed in
+		addObservation(postModel.tell(self, when: "opDeleting") { observer, observed in
 			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-			if let likeReaction = observed.reactionDict?["like"] as? Reaction {
-				observer.currentUserLikesThis = likeReaction.users.contains  { $0.username == currentUsername }
+			observer.currentUserHasDeleteOp = observed.opDeleting?.author.username == currentUsername 
+		}?.execute())
+		
+		// Ops editing this post
+		addObservation(postModel.tell(self, when: "opEditing") { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.currentUserHasEditOp = observed.opEditing?.author.username == currentUsername
+		}?.execute())
+		
+		// Likes by current user
+		addObservation(postModel.tell(self, when: ["likeCount", "laughCount", "loveCount"]) { observer, observed in
+			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
+			observer.currentUserLikesThis = .none
+			for reaction in observed.reactions {
+				if reaction.users.contains(where: { $0.username == currentUsername}) {
+					observer.currentUserLikesThis = reaction.getLikeOpKind()
+					break
+				}
 			}
 		}?.execute())
 							
 		// Like/Unlike ops
 		addObservation(postModel.tell(self, when: "reactionOps.count") { observer, observed in
-			if let likeOp = observed.getPendingUserReaction("like") {
-				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
+			if let likeOp = observed.getPendingUserReaction() {
+				observer.currentUserHasLikeOp = LikeOpKind.fromString(likeOp.reactionWord)
 			}
 			else {
 				observer.currentUserHasLikeOp = .none
@@ -175,22 +170,11 @@ import UIKit
 		}
 	}
 	
-	func likeButtonTapped() {
+	func likeButtonTapped(sender: UIButton) {
  		guard isInteractive else { return }
    		guard let postModel = model as? ForumPost else { return } 
-
-		// FIXME: Still not sure what to do in the case where the user, once logged in, already likes the post.
-		// When nobody is logged in we still enable and show the Like button. Tapping it opens the login panel, 
-		// with a successAction that performs the like action.
-		if !CurrentUser.shared.isLoggedIn() {
- 			let seguePackage = LoginSegueWithAction(promptText: "In order to like this Forum post, you'll need to log in first.",
-					loginSuccessAction: { postModel.setReaction("like", to: !self.currentUserLikesThis) }, 
-					loginFailureAction: nil)
-  			viewController?.performKrakenSegue(.modalLogin, sender: seguePackage)
-   		}
-   		else {
-			postModel.setReaction("like", to: !currentUserLikesThis)
-   		}
+		let senderPackage = LikeTypePopupSegue(post: postModel, button: sender)
+		viewController?.performKrakenSegue(.showLikeOptions, sender: senderPackage)
 	}
 	
 	func replyButtonTapped() {
@@ -225,12 +209,19 @@ import UIKit
 	
 	func cancelReactionOpButtonTapped() {
    		guard let postModel = model as? ForumPost else { return } 
-		postModel.cancelReactionOp("like")   		
+		postModel.cancelReactionOp()   		
 	}
 
 	func reportContentButtonTapped() {
    		guard let postModel = model as? ForumPost else { return } 
 		viewController?.performKrakenSegue(.reportContent, sender: postModel)
+	}
+	
+// MARK: fns
+	func getLikesData() { 
+		if let postModel = model as? ForumPost {
+			ForumPostDataManager.shared.loadForumPostDetail(post: postModel)
+		}
 	}
 }
 
@@ -245,6 +236,8 @@ import UIKit
 	dynamic var postTime: Date?
 	
 	dynamic var numLikes: Int32 = 0
+	dynamic var numLoves: Int32 = 0
+	dynamic var numLaughs: Int32 = 0
 	dynamic var postText: String?
 	dynamic var photoDetails: [PhotoDetails]?
 	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 
@@ -256,7 +249,7 @@ import UIKit
 	dynamic var currentUserHasEditOp: Bool = false
 	dynamic var currentUserReactOpCount: Int32 = 0
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
-	dynamic var currentUserLikesThis: Bool = false
+	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
@@ -334,7 +327,7 @@ import UIKit
 	func authorIconTapped() {
 	}
 	
-	func likeButtonTapped() {
+	func likeButtonTapped(sender: UIButton) {
 	}
 	
 	func replyButtonTapped() {
@@ -358,4 +351,7 @@ import UIKit
 	func cancelReactionOpButtonTapped() {
 	}
 	func reportContentButtonTapped() { }
+	
+	func getLikesData() { }
+
 }

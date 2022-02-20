@@ -147,6 +147,19 @@ public class SwiftyLineProcessor {
                 }
                 continue
             }
+            
+            // rcf Markdown considers two non-empty Body lines to be part of the same paragraph, unless the first
+            // line has two spaces at the end or a <br> tag. Not handling the exception cases here, just making
+            // paragraph lines coalesce.
+            if !input.line.isEmpty, let last = foundAttributes.last, !last.line.isEmpty, 
+            		let lastStyle = last.lineStyle as? MarkdownLineStyle,
+            		let thisStyle = input.lineStyle as? MarkdownLineStyle, 
+            		[.body, .unorderedList].contains(lastStyle), thisStyle == .body {
+				foundAttributes.removeLast()
+				foundAttributes.append(SwiftyLine(line: ("\(last.line) \(input.line)"), lineStyle: last.lineStyle))
+				continue
+			}
+            
             foundAttributes.append(input)
         }
         return foundAttributes

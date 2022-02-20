@@ -8,6 +8,8 @@
 
 import UIKit
 
+
+
 class StringUtilities {
 
 	struct HTMLTag {
@@ -22,13 +24,137 @@ class StringUtilities {
 				.withTimeZone, .withFractionalSeconds]
 		return formatter
 	}
+	
+	static var validUsernameChars: CharacterSet {
+        var usernameChars: CharacterSet = .init()
+        usernameChars.insert(charactersIn: "-.+_")
+    	usernameChars.formUnion(.alphanumerics)
+        return usernameChars
+    }
+
+    // Defines a character set containing characters other than alphanumerics that are allowed
+    // in a username. However, these characters cannot be at the start or end of a username.
+    static var usernameSeparators: CharacterSet {
+        var separatorChars: CharacterSet = .init()
+        separatorChars.insert(charactersIn: "-.+_")
+        return separatorChars
+    }
+    
+	static var urlRegex: NSRegularExpression?
+	
+    class func cleanupText(_ string: String, addLinks: Bool = true, font: UIFont? = nil) -> NSMutableAttributedString {
+		if StringUtilities.urlRegex == nil, let regexHostname = Settings.shared.baseURL.host?.replacingOccurrences(of: ".", with: "\\.") {
+			let regexStr = "(?:https?://)?\(regexHostname)(?::[0-9]+)?([-A-Z0-9+&@#/%?=~_|!:,.;]*[A-Z0-9+&@#/%=~_|])"
+			urlRegex = try? NSRegularExpression(pattern: regexStr, options: .caseInsensitive)
+		}
+
+		let unscaledBaseFont = font ?? UIFont.systemFont(ofSize: 17)
+		let baseFont = UIFontMetrics(forTextStyle: .body).scaledFont(for: unscaledBaseFont)
+		let defaultAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont, .foregroundColor : UIColor(named: "Kraken Label Text") as Any]
+		var linkAttrs: [NSAttributedString.Key : Any] = [ .foregroundColor : UIColor.blue as Any, .font : baseFont ]
 		
+		var inputString = string.decodeHTMLEntities()
+	   	// Trim trailing newlines
+	   	while inputString.hasSuffix("\n") {
+	   		inputString.removeLast()
+	   	}
+
+		let words = inputString.split(separator: " ", omittingEmptySubsequences: false)
+		let attrString = words.reduce(NSMutableAttributedString()) { attrString, word in
+			if word.hasPrefix("@") && word.count <= 50 && word.count >= 3 {
+				let scalars = word.unicodeScalars
+				let firstValidUsernameIndex = scalars.index(scalars.startIndex, offsetBy: 1)
+				var firstNonUsernameIndex = firstValidUsernameIndex
+				// Move forward to the last char that's valid in a username
+				while firstNonUsernameIndex < scalars.endIndex, validUsernameChars.contains(scalars[firstNonUsernameIndex]) {
+					scalars.formIndex(after: &firstNonUsernameIndex)		
+				}
+				// Separator chars can't be at the end. Move backward until we get a non-separator. This check fixes posts with 
+				// constructions like "Hello, @admin." where the period ends a sentence. 
+				while firstNonUsernameIndex > firstValidUsernameIndex, 
+						usernameSeparators.contains(scalars[scalars.index(before: firstNonUsernameIndex)]) {
+					scalars.formIndex(before: &firstNonUsernameIndex)		
+				}
+				// After trimming, username must be >=2 chars, plus the @ sign makes 3.
+				if scalars.distance(from: scalars.startIndex, to: firstNonUsernameIndex) >= 3,
+						let name = String(scalars[firstValidUsernameIndex..<firstNonUsernameIndex])
+						.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
+					attrString.append(NSAttributedString(string: " ", attributes: defaultAttrs))
+					linkAttrs.updateValue(name, forKey: .link)
+					let attrName = NSAttributedString(string: "@\(name)", attributes: addLinks ? linkAttrs : defaultAttrs)
+					
+					attrString.append(attrName)
+					let restOfString = String(scalars[firstNonUsernameIndex...])
+					attrString.append(NSAttributedString(string: (restOfString), attributes: defaultAttrs))
+				}
+				else {
+					attrString.append(NSAttributedString(string: " \(word)", attributes: defaultAttrs))
+				}
+			}
+			else if word.hasPrefix("#") && word.count <= 50 && word.count >= 3 {
+				let scalars = word.unicodeScalars
+				let firstValidHashtagIndex = scalars.index(scalars.startIndex, offsetBy: 1)
+				var firstNonHashtagIndex = firstValidHashtagIndex
+				// Move forward to the last char that's valid in a hashtag
+				while firstNonHashtagIndex < scalars.endIndex, CharacterSet.alphanumerics.contains(scalars[firstNonHashtagIndex]) {
+					scalars.formIndex(after: &firstNonHashtagIndex)		
+				}
+				// After trimming, hashtag must be >=2 chars, plus the # sign makes 3.
+				if scalars.distance(from: scalars.startIndex, to: firstNonHashtagIndex) >= 3,
+						let hashtag = String(scalars[firstValidHashtagIndex..<firstNonHashtagIndex])
+						.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+					attrString.append(NSAttributedString(string: " ", attributes: defaultAttrs))
+					linkAttrs.updateValue(hashtag, forKey: .link)
+					let attrName = NSAttributedString(string: "#\(hashtag)", attributes: addLinks ? linkAttrs : defaultAttrs)
+					attrString.append(attrName)
+					let restOfString = String(scalars[firstNonHashtagIndex...])
+					attrString.append(NSAttributedString(string: (restOfString), attributes: defaultAttrs))
+				}
+				else {
+					attrString.append(NSAttributedString(string: " \(word)", attributes: defaultAttrs))
+				}
+			}
+			else {
+				attrString.append(NSAttributedString(string: " \(word)", attributes: defaultAttrs))
+			}
+			return attrString
+		}
+		if attrString.length > 0 {
+			attrString.deleteCharacters(in: NSRange(location: 0, length: 1))
+		}
+		
+		// This uses a regex to find URL links that point to our server, and (somewhat) shorten them. 
+		// It attempts to use Vapor's configured hostname to match against.
+		// This would be cooler if we could parse the link path and make the link text into a description of
+		// where the link goes. e.g. "http://192.168.0.19:8081/fez/ADDBA5D9-1154-4033-88AE-07B12F3AE162"
+		// could have linktext "[An LFG Link]" or somesuch.
+//		if let matches = urlRegex?.matches(in: attrString.string, range: NSRange(0..<attrString.string.count)) {
+//			for match in matches.reversed() {
+//				attrString.replaceCharacters(in: match.range(at: 0), with: )
+//				if let stringRange = Range(match.range(at: 0), in: attrString.string) {
+//					var urlStr = String(string[stringRange])
+//					// iOS Safari doesn't put "http(s)://" at the start links copied from the linkbar.
+//					if !urlStr.hasPrefix("http") {
+//						urlStr = "http://" + urlStr
+//					}
+//					var shortenedLinkText = urlStr
+//					if match.numberOfRanges > 1, let range2 = Range(match.range(at: 1), in: string) {
+//						shortenedLinkText = String(string[range2])
+//					}
+//					string.replaceSubrange(stringRange, with: "<a href=\"\(urlStr)\">\(shortenedLinkText)</a>")
+//				}
+//			}
+//		}
+
+		let stringWithJocomoji = StringUtilities.addInlineImages(str: attrString)
+    	return stringWithJocomoji
+	}
  
  	// Takes text that may contain HTML fragment tags and removes the tags. This fn can also perform SOME TYPES of transforms,
  	// parsing the HTML tags and applying their attributes to the text, converting HTML to Attributed String attributes.
  	// 
  	// Thanks to the way AttributedStrings work, you can get a 'clean' String for an edit text field using cleanupText().string
-    class func cleanupText(_ text:String, addLinks: Bool = true, font: UIFont? = nil) -> NSMutableAttributedString {
+    class func cleanupTextold(_ text:String, addLinks: Bool = true, font: UIFont? = nil) -> NSMutableAttributedString {
     	let outputString = NSMutableAttributedString()
     	let openTag = CharacterSet(charactersIn: "<")
     	let closeTag = CharacterSet(charactersIn: ">")
@@ -45,15 +171,14 @@ class StringUtilities {
 		while !scanner.isAtEnd {
 			// Scan to the start of the next tag. If tagStack is empty, it's text 'outside' of all tags. 
 			// Else, it's text that's 'inside' all the tags in the stack.
-			if let tempString = scanner.KscanUpToCharactersFrom(openTag) {
+			if let tempString = scanner.scanUpToCharacters(from: openTag) {
 				let cleanedTempString = tempString.decodeHTMLEntities()
 				let attrString = NSAttributedString(string: cleanedTempString, attributes: baseTextAttrs)
 				outputString.append(attrString)
 			}
 			
 			// Now scan the tag and whatever junk is in it, from '<' to '>'
-			scanner.scanString("<", into: nil)
-	   		if let tagContents = scanner.KscanUpToCharactersFrom(closeTag) {
+	   		if scanner.scanString("<") != nil,  let tagContents = scanner.scanUpToCharacters(from: closeTag) {
 	   			let firstSpace = tagContents.firstIndex(of: " ") ?? tagContents.endIndex
 				let tagName = String(tagContents[..<firstSpace])
 				if tagName.hasPrefix("/"){
@@ -126,7 +251,7 @@ class StringUtilities {
 					tagStack.append(HTMLTag(tagName: tagName, position: outputString.length))
 				}
 			}
-		   	scanner.scanString(">", into: nil)
+			_ = scanner.scanString(">")
 	   	}
 	   	
 	   	// Trim trailing newlines
@@ -177,9 +302,9 @@ class StringUtilities {
     class func getInlineImage(from: String, size: CGFloat) -> UIImage? {
      	let scanner = Scanner(string: from)
      	scanner.charactersToBeSkipped = CharacterSet(charactersIn: "")
-		scanner.KscanUpTo("src=\"")
-		scanner.KscanString("src=\"")
-		if let imagePath = scanner.KscanUpTo("\""), imagePath.hasPrefix("/img/emoji/small/"),
+		_ = scanner.scanUpToString("src=\"")
+		_ = scanner.scanString("src=\"")
+		if let imagePath = scanner.scanUpToString("\""), imagePath.hasPrefix("/img/emoji/small/"),
 				let imageName = imagePath.split(separator: "/").last, imageName.count < 40 {
 			let sourceImage = UIImage(named: String(imageName))
 			let outputImageSize = CGSize(width: size, height: size)
@@ -207,13 +332,13 @@ class StringUtilities {
 		while !scanner.isAtEnd {
 			// Scan to the start of the next tag. If tagStack is empty, it's text 'outside' of all tags. 
 			// Else, it's text that's 'inside' all the tags in the stack.
-			if let tempString = scanner.KscanUpToCharactersFrom(openTag) {
+			if let tempString = scanner.scanUpToCharacters(from: openTag) {
 				outputString.append(tempString)
 			}
 			
 			// Now scan the tag and whatever junk is in it, from '<' to '>'
-			scanner.scanString("<", into: nil)
-	   		if let tagContents = scanner.KscanUpToCharactersFrom(closeTag) {
+			
+	   		if scanner.scanString("<") != nil, let tagContents = scanner.scanUpToCharacters(from: closeTag) {
 	   			let firstSpace = tagContents.firstIndex(of: " ") ?? tagContents.endIndex
 				let tagName = String(tagContents[..<firstSpace])
 				if tagName.hasPrefix("/") {
@@ -240,7 +365,7 @@ class StringUtilities {
 					tagStack.append(HTMLTag(tagName: tagName, position: outputString.count))
 				}
 			}
-		   	scanner.scanString(">", into: nil)
+			_ = scanner.scanString(">")
 	   	}
 	   	
     	return hashtags
@@ -321,43 +446,6 @@ class StringUtilities {
 	}
 }
 
-// I think they finally fixed the junky API for Scanner in iOS 13, but I can't use it yet.
-// The fns in this extension are API glue to make Scanner fns return optionals.
-// The "K" prefixes are so that, years from now, someone can USE THE REFACTOR TOOL to get rid of this code
-// and call the too-new iOS APIs directly (it makes it obvious which fns are local, and keeps us from
-// interfering with the framework methods).
-extension Scanner {
-  
-	@discardableResult func KscanUpToCharactersFrom(_ set: CharacterSet) -> String? {
-		var result: NSString?                                                           
-		return scanUpToCharacters(from: set, into: &result) ? (result as String?) : nil 
-	}
-
-	@discardableResult func KscanCharactersFrom(_ set: CharacterSet) -> String? {
-		var result: NSString?                                                           
-		return scanCharacters(from: set, into: &result) ? (result as String?) : nil 
-	}
-
-	@discardableResult func KscanUpTo(_ string: String) -> String? {
-		var result: NSString?
-		return self.scanUpTo(string, into: &result) ? (result as String?) : nil
-	}
-
-	@discardableResult func KscanString(_ string: String) -> String? {
-		var result: NSString?
-		return self.scanString(string, into: &result) ? (result as String?) : nil
-	}
-
-	@discardableResult func KscanDouble() -> Double? {
-		var double: Double = 0
-		return scanDouble(&double) ? double : nil
-	}
-	
-	@discardableResult func KscanInt() -> Int? {
-		var intVal: Int = 0
-		return scanInt(&intVal) ? intVal : nil
-	}
-}
 
 // rcf copied from https://gist.github.com/mwaterfall/25b4a6a06dc3309d9555
 // Very slightly adapted from http://stackoverflow.com/a/30141700/106244
@@ -447,11 +535,11 @@ extension String {
     	let scanner = Scanner(string: self)
     	scanner.charactersToBeSkipped = CharacterSet(charactersIn: "")
     	while !scanner.isAtEnd {
-			let foundAmpersand = scanner.scanString("&", into: nil)
-    		let entityString = scanner.KscanUpToCharactersFrom(CharacterSet(charactersIn: "&;"))
-    		let foundSemicolon = scanner.scanString(";", into: nil)
+			let foundAmpersand = scanner.scanString("&")
+    		let entityString = scanner.scanUpToCharacters(from: CharacterSet(charactersIn: "&;"))
+    		let foundSemicolon = scanner.scanString(";")
     		
-    		if foundAmpersand, foundSemicolon, let entityString = entityString {
+    		if foundAmpersand != nil, foundSemicolon != nil, let entityString = entityString {
 				if entityString.hasPrefix("#x") || entityString.hasPrefix("#X"), 
 						let codePoint = UInt32(entityString["#x".endIndex...], radix: 16),
 						let scalar = Unicode.Scalar(codePoint) {
@@ -471,7 +559,7 @@ extension String {
 			}
 			else {
 				// Some of the elements of an entity ref were missing. Output what we scanned without conversion.
-				outputString.append("\(foundAmpersand ? "&" : "")\(entityString ?? "")\(foundSemicolon ? ";" : "")")
+				outputString.append("\(foundAmpersand ?? "")\(entityString ?? "")\(foundSemicolon ?? "")")
 			}
 		}
 		return outputString

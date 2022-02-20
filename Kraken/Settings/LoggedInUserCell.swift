@@ -11,7 +11,7 @@ import UIKit
 @objc protocol LoggedInUserCellProtocol {
 	dynamic var title: String? { get set }
 	dynamic var isActive: Bool { get set }
-	dynamic var role: LoggedInKrakenUser.UserRole { get set }
+	dynamic var role: LoggedInKrakenUser.AccessLevel { get set }
 	dynamic var modelKrakenUser: LoggedInKrakenUser? { get set }
 }
 
@@ -22,7 +22,7 @@ import UIKit
 
 	dynamic var title: String?
 	dynamic var isActive: Bool = false
-	dynamic var role: LoggedInKrakenUser.UserRole = .user
+	dynamic var role: LoggedInKrakenUser.AccessLevel = .unverified
 	var showUserProfileAction: (() -> Void)?
 
 	var modelKrakenUser: LoggedInKrakenUser? {
@@ -30,10 +30,10 @@ import UIKit
 			if let user = modelKrakenUser {
 				title = user.username
 				isActive = user.username == CurrentUser.shared.loggedInUser?.username
-				role = user.userRole
+				role = user.accessLevel
 			}
 			else {
-				role = .user
+				role = .unverified
 				isActive = false
 				title = ""
 			}
@@ -45,7 +45,7 @@ import UIKit
 		super.init(bindingWith: LoggedInUserCellProtocol.self)
 		title = user.username
 		isActive = user.username == CurrentUser.shared.loggedInUser?.username
-		role = user.userRole
+		role = user.accessLevel
 	}
 }
 
@@ -75,16 +75,17 @@ class LoggedInUserCell: BaseCollectionViewCell, LoggedInUserCellProtocol {
 		}
 	}
 	
-	var role: LoggedInKrakenUser.UserRole = .user {
+	var role: LoggedInKrakenUser.AccessLevel = .unverified {
 		didSet {
 			switch role {
 				case .admin: adminModLabel.text = "Admin"
 				case .tho: adminModLabel.text = "THO Acct"
 				case .moderator: adminModLabel.text = "Mod"
-				case .user: adminModLabel.text = ""
-				case .muted: adminModLabel.text = "Muted"
+				case .client: adminModLabel.text = "Client"
+				case .verified: adminModLabel.text = ""
+				case .quarantined: adminModLabel.text = "Quarantined"
 				case .banned: adminModLabel.text = "Banned"
-				case .loggedOut: adminModLabel.text = ""
+				case .unverified: adminModLabel.text = ""
 			}
 		}
 	}

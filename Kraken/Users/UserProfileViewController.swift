@@ -70,7 +70,7 @@ import UIKit
     var mapRoomCell: ButtonCellModel?
     var currentLocationCell: UserProfileSingleValueCellModel?
     var authoredTweetsCell: ProfileDisclosureCellModel?
-    var mentionsCell: ProfileDisclosureCellModel?
+//    var mentionsCell: ProfileDisclosureCellModel?
     var sendSeamailCell: ProfileDisclosureCellModel?
     var editProfileCell: ProfileDisclosureCellModel?
     var profileCommentCell: ProfileCommentCellModel?
@@ -109,7 +109,6 @@ import UIKit
 		
 		currentLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation)
 		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)
-//		mentionsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.mentions, vc: self)
 		sendSeamailCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self)		
 		editProfileCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.editOwnProfile, vc: self)		
 		profileCommentCell = ProfileCommentCellModel(user: modelKrakenUser)
@@ -129,7 +128,6 @@ import UIKit
 		section.append(mapRoomCell!)
 		section.append(currentLocationCell!)
 		section.append(authoredTweetsCell!)
-		section.append(mentionsCell!)
 		section.append(sendSeamailCell!)		
 		section.append(editProfileCell!)		
 		section.append(profileCommentCell!)
@@ -144,7 +142,6 @@ import UIKit
 		roomNumberCell?.userModel = newUser
 		currentLocationCell?.userModel = newUser
 		authoredTweetsCell?.userModel = newUser
-		mentionsCell?.userModel = newUser
 		sendSeamailCell?.userModel = newUser
 		editProfileCell?.userModel = newUser
 		profileCommentCell?.userModel = newUser

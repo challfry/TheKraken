@@ -87,6 +87,12 @@ import Foundation
 		get { return getSetting(name: "seamailNotificationBadgeCount", defaultValue: 0) }
 		set { setSetting(name: "seamailNotificationBadgeCount", newValue: newValue) }
 	}
+	
+	// The SSID of the onboard WIFI network. Received from the server.
+	@objc dynamic public var onboardWifiNetowrkName: String {
+		get { return getSetting(name: "onboardWifiNetowrkName", defaultValue: "") }
+		set { setSetting(name: "onboardWifiNetowrkName", newValue: newValue) }
+	}
 
 // MARK: Debug Settings
 	

@@ -9,10 +9,33 @@
 import UIKit
 import CoreData
 
+// Needs to be objc for CoreData, needs to be Int because it's objC, yadda yadda.
 @objc enum LikeOpKind: Int {
-	case none
+	case none		// No op pending
+	case unlike		// User currently likes/loves/laughs, is submitting op to remove
 	case like
-	case unlike
+	case love
+	case laugh
+	
+	func string() -> String {
+		switch self {
+		case .none: return "none"
+		case .unlike: return "unlike"
+		case .like: return "like"
+		case .love: return "love"
+		case .laugh: return "laugh"
+		}
+	}
+	
+	static func fromString(_ str: String) -> LikeOpKind {
+		switch str {
+		case "unlike": return .unlike
+		case "like": return .like
+		case "love": return .love
+		case "laugh": return .laugh
+		default: return .none
+		}
+	}
 }
 
 @objc protocol TwitarrTweetCellBindingProtocol: FetchedResultsBindingProtocol {
@@ -23,6 +46,8 @@ import CoreData
 	var postTime: Date? { get set }
 	
 	var numLikes: Int32 { get set }
+	var numLoves: Int32 { get set }
+	var numLaughs: Int32 { get set }
 	var postText: String? { get set }
 	var photoDetails: [PhotoDetails]? { get set }	// Server images; used for posted tweets
 	var photoAttachments: [PostOpPhoto_Attachment]? { get set }	// For ops, where there's no PhotoDetails yet.
@@ -35,7 +60,7 @@ import CoreData
 	var currentUserHasEditOp: Bool { get set }
 	var currentUserReactOpCount: Int32 { get set }
 	var currentUserHasLikeOp: LikeOpKind { get set }
-	var currentUserLikesThis: Bool { get set }
+	var currentUserLikesThis: LikeOpKind { get set }
 	var canReply: Bool { get set }
 	var canEdit: Bool { get set }
 	var canDelete: Bool { get set }
@@ -48,7 +73,7 @@ import CoreData
 	// 
 	func linkTextTapped(link: String)
 	func authorIconTapped()
-	func likeButtonTapped()
+	func likeButtonTapped(sender: UIButton)
 	func replyButtonTapped()
 	func editButtonTapped()
 	func deleteButtonTapped()
@@ -57,6 +82,8 @@ import CoreData
 	func viewPendingRepliesButtonTapped()
 	func cancelReactionOpButtonTapped()
 	func reportContentButtonTapped()
+	
+	func getLikesData()
 }
 
 @objc class TwitarrTweetCellModel: FetchedResultsCellModel, TwitarrTweetCellBindingProtocol {	
@@ -70,6 +97,8 @@ import CoreData
 	dynamic var postTime: Date?
 	
 	dynamic var numLikes: Int32 = 0
+	dynamic var numLoves: Int32 = 0
+	dynamic var numLaughs: Int32 = 0
 	dynamic var postText: String?
 	dynamic var photoDetails: [PhotoDetails]?
 	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 
@@ -81,7 +110,7 @@ import CoreData
 	dynamic var currentUserHasEditOp: Bool = false
 	dynamic var currentUserReactOpCount: Int32 = 0
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
-	dynamic var currentUserLikesThis: Bool = false
+	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = true
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
@@ -114,11 +143,17 @@ import CoreData
 	func setup(from tweetModel: TwitarrPost) {
 	
 		author = tweetModel.author
-		postTime = tweetModel.postDate()
+		postTime = tweetModel.createdAt
 					
 		// Show the current number of likes this tweet has.
-		addObservation(tweetModel.tell(self, when: "likeReaction.count") { observer, observed in
-			observer.numLikes = observed.likeReaction?.count ?? 0
+		addObservation(tweetModel.tell(self, when: "likeCount") { observer, observed in
+			observer.numLikes = observed.likeCount
+		}?.execute())
+		addObservation(tweetModel.tell(self, when: "loveCount") { observer, observed in
+			observer.numLoves = observed.loveCount
+		}?.execute())
+		addObservation(tweetModel.tell(self, when: "laughCount") { observer, observed in
+			observer.numLaughs = observed.laughCount
 		}?.execute())
 		
 		// Tweet text
@@ -162,9 +197,23 @@ import CoreData
 				$0.author.username == currentUsername 
 			} ?? false
 			observer.currentUserHasEditOp = tweetModel.opsEditingThisTweet?.author.username == currentUsername
-			observer.currentUserLikesThis = tweetModel.likeReaction?.users.contains { $0.username == currentUsername } ?? false
-			if let likeOp = tweetModel.getPendingUserReaction("like") {
-				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
+			if let likeReaction = tweetModel.reactionDict?["like"] as? Reaction, 
+					likeReaction.users.contains(where: { $0.username == currentUsername }) {
+				observer.currentUserLikesThis = .like
+			}
+			else if let laughReaction = tweetModel.reactionDict?["laugh"] as? Reaction, 
+					laughReaction.users.contains(where: { $0.username == currentUsername }) {
+				observer.currentUserLikesThis = .laugh
+			}
+			if let loveReaction = tweetModel.reactionDict?["love"] as? Reaction, 
+					loveReaction.users.contains(where: { $0.username == currentUsername }) {
+				observer.currentUserLikesThis = .love
+			}
+			else {
+				observer.currentUserLikesThis = .none
+			}
+			if let likeOp = tweetModel.getPendingUserReaction() {
+				observer.currentUserHasLikeOp = LikeOpKind.fromString(likeOp.reactionWord)
 			}
 			else {
 				observer.currentUserHasLikeOp = .none
@@ -194,17 +243,22 @@ import CoreData
 			observer.currentUserHasEditOp = observed.opsEditingThisTweet?.author.username == currentUsername
 		}?.execute())
 		
-		// Likes
-		addObservation(tweetModel.tell(self, when: "reactionDict.like.users.count") { observer, observed in
+		// User Like Type
+		addObservation(tweetModel.tell(self, when: ["likeCount", "laughCount", "loveCount"]) { observer, observed in
 			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-			observer.currentUserLikesThis = observed.likeReaction?.users.contains 
-					{ $0.username == currentUsername } ?? false
+			observer.currentUserLikesThis = .none
+			for reaction in observed.reactions {
+				if reaction.users.contains(where: { $0.username == currentUsername}) {
+					observer.currentUserLikesThis = reaction.getLikeOpKind()
+					break
+				}
+			}
 		}?.execute())
 							
 		// Like/Unlike ops
 		addObservation(tweetModel.tell(self, when: "reactionOps.count") { observer, observed in
-			if let likeOp = tweetModel.getPendingUserReaction("like") {
-				observer.currentUserHasLikeOp = likeOp.isAdd ? .like : .unlike
+			if let likeOp = tweetModel.getPendingUserReaction() {
+				observer.currentUserHasLikeOp = LikeOpKind.fromString(likeOp.reactionWord)
 			}
 			else {
 				observer.currentUserHasLikeOp = .none
@@ -228,22 +282,11 @@ import CoreData
 		}
 	}
 	
-	func likeButtonTapped() {
+	func likeButtonTapped(sender: UIButton) {
  		guard isInteractive else { return }
-   		guard let tweetModel = model as? TwitarrPost else { return } 
-
-		// FIXME: Still not sure what to do in the case where the user, once logged in, already likes the post.
-		// When nobody is logged in we still enable and show the Like button. Tapping it opens the login panel, 
-		// with a successAction that performs the like action.
-		if !CurrentUser.shared.isLoggedIn() {
- 			let seguePackage = LoginSegueWithAction(promptText: "In order to like this post, you'll need to log in first.",
-					loginSuccessAction: { tweetModel.setReaction("like", to: !self.currentUserLikesThis) }, 
-					loginFailureAction: nil)
-  			viewController?.performKrakenSegue(.modalLogin, sender: seguePackage)
-   		}
-   		else {
-			tweetModel.setReaction("like", to: !currentUserLikesThis)
-   		}
+   		guard let tweetModel = model as? TwitarrPost else { return }
+		let senderPackage = LikeTypePopupSegue(post: tweetModel, button: sender)
+		viewController?.performKrakenSegue(.showLikeOptions, sender: senderPackage)
 	}
 	
 	func replyButtonTapped() {
@@ -285,6 +328,13 @@ import CoreData
 		guard let tweetModel = model as? TwitarrPost else { return } 
 		viewController?.performKrakenSegue(.reportContent, sender: tweetModel)
 	}
+	
+// MARK: fns
+	func getLikesData() { 
+		if let tweetModel = model as? TwitarrPost {
+			TwitarrDataManager.shared.loadV3TweetDetail(tweet: tweetModel)
+		}
+	}
 
 }
 
@@ -299,6 +349,8 @@ import CoreData
 	dynamic var postTime: Date?
 	
 	dynamic var numLikes: Int32 = 0
+	dynamic var numLoves: Int32 = 0
+	dynamic var numLaughs: Int32 = 0
 	dynamic var postText: String?
 	dynamic var photoDetails: [PhotoDetails]?					// Server images
 	dynamic var photoAttachments: [PostOpPhoto_Attachment]? 	// Local images from postOp
@@ -310,7 +362,7 @@ import CoreData
 	dynamic var currentUserHasEditOp: Bool = false
 	dynamic var currentUserReactOpCount: Int32 = 0
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
-	dynamic var currentUserLikesThis: Bool = false
+	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
@@ -367,7 +419,7 @@ import CoreData
 	
 	func linkTextTapped(link: String) {	}
 	func authorIconTapped() { }
-	func likeButtonTapped() { }
+	func likeButtonTapped(sender: UIButton) { }
 	func replyButtonTapped() { }
 	func editButtonTapped() { }
 	func deleteButtonTapped() {
@@ -381,6 +433,7 @@ import CoreData
 	func viewPendingRepliesButtonTapped() { }
 	func cancelReactionOpButtonTapped() { }
 	func reportContentButtonTapped() { }
+	func getLikesData() { }
 }
 
 // MARK: -
@@ -442,11 +495,12 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			if let author = author {
 				author.loadUserThumbnail()
 				authorIconObservation?.stopObservations()
-				authorIconObservation = author.tell(self, when:"thumbPhoto") { observer, observed in
+				authorIconObservation = author.tell(self, when: ["thumbPhotoData", "thumbPhoto"]) { observer, observed in
 					if observer.authorIsBlocked {
 						observer.userButton.setBackgroundImage(nil, for: .normal)
 					}
 					else {
+						observed.loadUserThumbnail()
 						observer.userButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
 					}
 				}?.execute()
@@ -462,13 +516,17 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	var numLikes: Int32 = 0 {
 		didSet {
-			if numLikes > 0 {
-				likesLabel.isHidden = false
-				likesLabel.text = "\(numLikes) 💛"
-			}
-			else {
-				likesLabel.isHidden = true
-			}
+			setupLikesLabel()
+		}
+	}
+	var numLoves: Int32 = 0 {
+		didSet {
+			setupLikesLabel()
+		}
+	}
+	var numLaughs: Int32 = 0 {
+		didSet {
+			setupLikesLabel()
 		}
 	}
 	
@@ -485,6 +543,17 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			if let auth = author {
 				author = auth
 			}
+		}
+	}
+	
+	func setupLikesLabel() {
+		if numLikes == 0 && numLoves == 0 && numLaughs == 0 {
+			likesLabel.isHidden = true
+		}
+		else {
+			likesLabel.isHidden = false
+			likesLabel.text = (numLikes > 0 ? "\(numLikes) 👍" : "") + (numLoves > 0 ? " \(numLoves) ❤️" : "") +
+					(numLaughs > 0 ? " \(numLaughs) 😀" : "")
 		}
 	}
 	
@@ -628,15 +697,31 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	var currentUserHasLikeOp: LikeOpKind = .none {
 		didSet {
 			setViewVisibility(view: reactionQueuedView, showIf: currentUserHasLikeOp != .none)
-			reactionQueuedLabel.text = currentUserHasLikeOp == .like ? "\"Like\" pending" : "\"Unlike\" pending"
+			reactionQueuedLabel.text = currentUserHasLikeOp == .unlike ? "\"Unlike\" pending" : "\"\(currentUserHasLikeOp.string())\" pending"
 			likeButton.isEnabled = currentUserHasLikeOp == .none
 		}
 	}
 	
-	var currentUserLikesThis: Bool = false {
+	var currentUserLikesThis: LikeOpKind = .none {
 		didSet {
-			let newText = currentUserLikesThis ? "Unlike" : "Like"
-			likeButton.setTitle(newText, for: .normal)
+			switch currentUserLikesThis {
+			case .none:
+				likeButton.setTitle("Like", for: .normal)
+			case .unlike:
+				likeButton.setTitle("Like", for: .normal)
+			case .like:
+				likeButton.setTitle("Like", for: .normal)
+			case .love:
+				likeButton.setTitle("Love", for: .normal)
+			case .laugh:
+				likeButton.setTitle("Laugh", for: .normal)
+			}
+			if [.none, .unlike].contains(currentUserLikesThis) {
+	//			likeButton.backgroundColor = UIColor.clear
+			}
+			else {
+	//			likeButton.backgroundColor = UIColor.blue
+			}
 		}
 	}
 	
@@ -794,6 +879,9 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 				self.layoutIfNeeded()
 			}
 			else {
+				if self.privateSelected, let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
+					bindingModel.getLikesData()
+				}
 				UIView.animate(withDuration: 0.3) {
 					self.pendingOpsStackView.isHidden = !self.privateSelected
 					self.layoutIfNeeded()
@@ -856,13 +944,17 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
    	}
    	
 // MARK: Buttons in toolbar
+
+	func likeButtonTapped(sender: UIButton) {}
    	
    	@IBAction func likeButtonTapped() {
  		guard isInteractive else { return }
  		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
-			bindingModel.likeButtonTapped()
+			bindingModel.likeButtonTapped(sender: likeButton)
 		}
    	}
+   	
+   	func getLikesData() { }
    	
 	@IBAction func replyButtonTapped() {
  		guard isInteractive else { return }
@@ -1052,3 +1144,73 @@ class TwitarrCellHorizScrollLayout: UICollectionViewLayout {
 }
 
 // "<a class=\"tweet-url username\" href=\"#/user/profile/kvort\">@kvort</a> Okay. This is a reply."
+
+class PostCellLikeVC: UIViewController {
+	@IBOutlet weak var likesSegment: UISegmentedControl!
+	
+	var segueData: LikeTypePopupSegue?
+	
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		let attrs: [NSAttributedString.Key : Any] = [.font : UIFont.systemFont(ofSize: 25)]
+		likesSegment.setTitleTextAttributes(attrs, for: .normal)
+		
+		var likeKind: LikeOpKind?
+		if let twarrt = segueData?.post as? TwitarrPost, let user = CurrentUser.shared.loggedInUser,
+				let reaction = twarrt.reactions.first(where: { $0.users.contains(user) }) {
+			likeKind = LikeOpKind.fromString(reaction.word)
+		}
+		else if let post = segueData?.post as? ForumPost, let user = CurrentUser.shared.loggedInUser,
+				let reaction = post.reactions.first(where: { $0.users.contains(user) }) {
+			likeKind = LikeOpKind.fromString(reaction.word)		
+		}
+		switch likeKind {
+			case .laugh: likesSegment.selectedSegmentIndex = 0
+			case .like: likesSegment.selectedSegmentIndex = 1
+			case .love: likesSegment.selectedSegmentIndex = 2
+			default: likesSegment.selectedSegmentIndex = UISegmentedControl.noSegment
+		}
+	}
+	
+	@IBAction func segmentTapped(_ sender: Any) {
+		if let twarrt = segueData?.post as? TwitarrPost {
+			switch likesSegment.selectedSegmentIndex {
+			case 0: twarrt.setReaction(.laugh)
+			case 1: twarrt.setReaction(.like)
+			case 2: twarrt.setReaction(.love)
+			default: twarrt.setReaction(.unlike)
+			}
+		}
+		else if let post = segueData?.post as? ForumPost {
+			switch likesSegment.selectedSegmentIndex {
+			case 0: post.setReaction(.laugh)
+			case 1: post.setReaction(.like)
+			case 2: post.setReaction(.love)
+			default: post.setReaction(.unlike)
+			}
+		}
+		presentingViewController?.dismiss(animated: true, completion: nil)
+	}
+}
+
+struct LikeTypePopupSegue {
+	var post: NSFetchRequestResult
+	var button: UIButton
+}
+
+class DeselectableSegmentedControl: UISegmentedControl {
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let previousSelectedSegmentIndex = selectedSegmentIndex
+
+        super.touchesEnded(touches, with: event)
+
+        if previousSelectedSegmentIndex == selectedSegmentIndex {
+            let touch = touches.first!
+            let touchLocation = touch.location(in: self)
+            if bounds.contains(touchLocation) {
+                selectedSegmentIndex = UISegmentedControl.noSegment
+                sendActions(for: .valueChanged)
+            }
+        }
+    }
+}

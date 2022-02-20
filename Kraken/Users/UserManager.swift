@@ -117,10 +117,6 @@ import CoreData
 //		TestAndUpdate(\.numberOfTweets, v2Object.numberOfTweets)
 //		TestAndUpdate(\.numberOfMentions, v2Object.numberOfMentions)
 		
-		// If we're logged in, have the logged in user process the comments and stars 
-		if let loggedInUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			loggedInUser.parseV2UserProfileCommentsAndStars(context: context, v2Object: v2Object, targetUser: self)
-		}
 	}
 	
 	// Note that this method gets called A LOT for user thumbnails that are already built.
@@ -140,7 +136,7 @@ import CoreData
 		// Input sanitizing: URLComponents should percent escape username to make a valid path; 
 		// but the username could still have "/" in it. 
 		var path: String
-		if Settings.apiV3, let imageFilename = userImageName {
+		if Settings.apiV3, let imageFilename = userImageName, !imageFilename.isEmpty {
 			path = "api/v3/image/thumb/\(imageFilename)"
 		}
 		else if !Settings.apiV3, let encodedUsername = username.addingPathComponentPercentEncoding() {
@@ -162,29 +158,30 @@ import CoreData
 					context.pushOpErrorExplanation("Couldn't save context while saving User avatar.")
 					let userInNetworkContext = context.object(with: self.objectID) as! KrakenUser
 					userInNetworkContext.thumbPhotoData = data
+//					userInNetworkContext.builtPhotoUpdateTime = self.lastPhotoUpdated
 				}
 			} else 
 			{
 				// Load failed for some reason
 				ImageLog.error("/api/v2/user/photo returned no error, but also no image data.")
 			}
-			
-			// Now load the main context and set the thumbnail photo
-			let mainContext = LocalCoreData.shared.mainThreadContext
-			mainContext.perform {
-				let userInMainContext = mainContext.object(with: self.objectID) as! KrakenUser
-				if let photoData = userInMainContext.thumbPhotoData {
-					// rcf Not sure thumbPhotoData will be actually be updated here. May need to call context.refresh(user).
-					userInMainContext.thumbPhoto = UIImage(data: photoData)
-				}
-				else {
-					// If we have a photo but no photo data, the blank avatar will continue until the user
-					// changes their pic, which forces a reload. Will also re-ask the server on app restart.
-					userInMainContext.thumbPhoto = UIImage(named: "NoAvatarUser")
-				}
-				userInMainContext.builtPhotoUpdateTime = self.lastPhotoUpdated
-			}
 		}
+			
+//		// Now load the main context and set the thumbnail photo
+//		let mainContext = LocalCoreData.shared.mainThreadContext
+//		mainContext.perform {
+//			let userInMainContext = mainContext.object(with: self.objectID) as! KrakenUser
+//			if let photoData = userInMainContext.thumbPhotoData {
+//				// rcf Not sure thumbPhotoData will be actually be updated here. May need to call context.refresh(user).
+//				userInMainContext.thumbPhoto = UIImage(data: photoData)
+//			}
+//			else {
+//				// If we have a photo but no photo data, the blank avatar will continue until the user
+//				// changes their pic, which forces a reload. Will also re-ask the server on app restart.
+//				userInMainContext.thumbPhoto = UIImage(named: "NoAvatarUser")
+//			}
+//			userInMainContext.builtPhotoUpdateTime = self.lastPhotoUpdated
+//		}
 	}
 	
 	// Observe fullPhoto to get updated.

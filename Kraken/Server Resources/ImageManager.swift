@@ -405,7 +405,7 @@ class ImageManager : NSObject {
 			
 			// We're using requestImageData instead of requestImage due to the likely over-optimistic possibility
 			// that we may not need to decompress/recompress the image.
-			let _ = PHImageManager.default().requestImageData(for: asset, 
+			let _ = PHImageManager.default().requestImageDataAndOrientation(for: asset, 
 					options: options) { imageDataParam, dataUTI, orientation, info in
 				var imageData = imageDataParam
 				if let origImageData = imageData, let uti = dataUTI, var mimeType =
@@ -592,7 +592,7 @@ struct TwitarrV2PhotoDetails: Codable {
 		
 		var scanSuccess = scan.scanInt(&rawValue)
 		result.width = CGFloat(rawValue)
-		scanSuccess = scanSuccess && scan.scanString("x", into:nil)
+		scanSuccess = scanSuccess && scan.scanString("x") != nil
 		scanSuccess = scanSuccess && scan.scanInt(&rawValue)
 		result.height = CGFloat(rawValue)
 		

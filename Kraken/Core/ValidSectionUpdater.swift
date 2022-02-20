@@ -85,6 +85,7 @@ import UIKit
 		}
 		self.disabledSections = newDisabledSections
 		self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
+		self.lastUpdateTime = Date()
 	}
 	
 	func tabForSection(_ section: Section) -> RootTabBarViewController.Tab {

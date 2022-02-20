@@ -167,6 +167,12 @@ struct NetworkResponse {
 					retain: nil, release: nil, copyDescription: nil)
 			SCNetworkReachabilitySetCallback(reachability, callbackFn, &context)
 			SCNetworkReachabilitySetDispatchQueue(reachability, DispatchQueue.main)
+			
+			// Also call up front to get initial state
+			var flags: SCNetworkReachabilityFlags = []
+			if SCNetworkReachabilityGetFlags(reachability, &flags) {
+				newConnectionState(flags.contains(.reachable) ? .canConnect : .noConnection, isWifi: !flags.contains(.isWWAN))
+			}
 		}
 		
 		Settings.shared.tell(self, when: "blockNetworkTraffic") { observer, observed in

@@ -105,7 +105,7 @@ class KaraokeDataManager: NSObject {
 			var threadArtists: [String : KaraokeArtist] = [:]
 			var threadArtistArray: [String] = []
 			let scanner = Scanner(string: fileStr)
-			while !scanner.isAtEnd, let nextLine = scanner.KscanUpToCharactersFrom(CharacterSet.newlines) {
+			while !scanner.isAtEnd, let nextLine = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
 				let parts = nextLine.split(separator: "\t")
 				if parts.count >= 2 {
 					let artistName = String(parts[0])

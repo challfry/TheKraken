@@ -102,8 +102,9 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(from: self, tab: .scrapbook))
 		lighterModeCell = SocialCellModel("Lighter Mode", imageNamed: "Flame", nav: GlobalNavPacket(from: self, tab: .lighter))
 		settingsCell = SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(from: self, tab: .settings))
-		helpCell = SocialCellModel("Help", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .twitarrHelp, arguments: ["filename" : "helptext.json"]))
-		aboutCell = SocialCellModel("About", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .about))
+		helpCell = SocialCellModel("About Twitarr", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .twitarrHelp, 
+				arguments: ["filename" : "twitarrhelptext.md", "title" : "Twitarr Help"]))
+		aboutCell = SocialCellModel("About The Kraken", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .about))
 
 		dataSource.append(segment: appFeaturesSegment)
 		appFeaturesSegment.append(twitarrCell!)
@@ -113,7 +114,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		appFeaturesSegment.append(deckMapCell!)
 		appFeaturesSegment.append(karaokeCell!)
 		appFeaturesSegment.append(gamesCell!)
-		appFeaturesSegment.append(scrapbookCell!)
+//		appFeaturesSegment.append(scrapbookCell!)
 		appFeaturesSegment.append(lighterModeCell!)
 		appFeaturesSegment.append(settingsCell!)
 		appFeaturesSegment.append(helpCell!)
@@ -184,7 +185,9 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .scrapbook: performKrakenSegue(.scrapbookRoot, sender: packet)
 			case .settings: performKrakenSegue(.settingsRoot, sender: packet)
 			case .lighter: performKrakenSegue(.lighterMode, sender: packet)
-			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: packet.arguments["filename"])
+			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: 
+					ServerTextFileSeguePackage(titleText: packet.arguments["title"] as? String, fileToLoad: 
+					packet.arguments["filename"] as? String))
 			case .about: performKrakenSegue(.about, sender: packet)			
 			default: break
 		}

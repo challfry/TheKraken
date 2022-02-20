@@ -18,6 +18,7 @@ enum GlobalKnownSegue: String {
 
 	case twitarrRoot = 				"TwitarrRoot"
 	case tweetFilter = 				"TweetFilter"
+	case showLikeOptions = 			"LikesPopover"
 	case pendingReplies = 			"PendingReplies"
 	case composeReplyTweet = 		"ComposeReplyTweet"
 	case editTweet = 				"EditTweet"
@@ -69,6 +70,7 @@ enum GlobalKnownSegue: String {
 
 		case .twitarrRoot: return Void.self
 		case .tweetFilter: return String.self
+		case .showLikeOptions: return LikeTypePopupSegue.self
 		case .pendingReplies: return TwitarrPost.self
 		case .composeReplyTweet: return TwitarrPost.self
 		case .editTweet: return TwitarrPost.self
@@ -80,7 +82,7 @@ enum GlobalKnownSegue: String {
 		case .forumsRoot: return Void.self
 		case .showForumCategory: return ForumCategory.self
 		case .showForumThread: return Any.self					// ForumThread or UUID of a thread
-		case .composeForumThread: return Void.self 
+		case .composeForumThread: return ForumCategory.self 
 		case .composeForumPost: return ForumThread.self 
 		case .editForumPost: return ForumPost.self 
 		case .editForumPostDraft: return PostOpForumPost.self 
@@ -102,7 +104,7 @@ enum GlobalKnownSegue: String {
 		case .settingsRoot: return Void.self
 		case .postOperations: return Any.self
 		case .about: return Void.self
-		case .twitarrHelp: return String.self
+		case .twitarrHelp: return ServerTextFileSeguePackage.self
 
 		case .userProfile: return String.self
 		case .editUserProfile: return PostOpUserProfileEdit.self
@@ -517,6 +519,17 @@ class BaseCollectionViewController: UIViewController {
 				destVC.parentTweet = parent
 			}
 			
+		case .showLikeOptions:
+			if let destVC = segue.destination as? PostCellLikeVC, let package = sender as? LikeTypePopupSegue {
+				destVC.segueData = package
+				segue.destination.preferredContentSize = CGSize(width: 150, height: 44)
+				if let presentationController = segue.destination.popoverPresentationController {
+					presentationController.barButtonItem = nil
+					presentationController.sourceView = package.button
+					presentationController.delegate = self
+				}
+			}
+			
 		case .showUserMentions:
 			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
 				destVC.filterPack = TwitarrFilterPack(author: nil, text: filterString)
@@ -561,6 +574,9 @@ class BaseCollectionViewController: UIViewController {
 		case .composeForumThread:
 			if let destVC = segue.destination as? ForumComposeViewController, let threadModel = sender as? ForumThread {
 				destVC.thread = threadModel
+			}
+			else if let destVC = segue.destination as? ForumComposeViewController, let catModel = sender as? ForumCategory {
+				destVC.category = catModel
 			}
 			
 		case .composeForumPost:
@@ -634,8 +650,8 @@ class BaseCollectionViewController: UIViewController {
 			break
 			
 		case .twitarrHelp:
-			if let destVC = segue.destination as? ServerTextFileViewController, let fileToLoad = sender as? String {
-				destVC.fileToLoad = fileToLoad
+			if let destVC = segue.destination as? ServerTextFileViewController, let package = sender as? ServerTextFileSeguePackage {
+				destVC.package = package
 			}
 				break
 			
@@ -658,6 +674,13 @@ class BaseCollectionViewController: UIViewController {
 			}
 		}
 	}	
+}
+
+// MARK: UIPopoverPresentationControllerDelegate
+extension BaseCollectionViewController: UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return .none
+    }
 }
 
 // MARK: UIScrollViewDelegate

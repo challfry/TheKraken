@@ -545,10 +545,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		// Parent tweet, if this is a response. Can be nil.
 	@NSManaged public var sourcePost: TwitarrPost?
-	
-		// True to add this reaction to this post, false to delete it.
-	@NSManaged public var isAdd: Bool
-	
+		
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
 		operationDescription = "Posting a reaction to a Twitarr tweet."
@@ -561,14 +558,20 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 		confirmPostBeingSent(context: context)
 		
-		// POST/DELETE /api/v3/twitarr/ID/<like|laugh|love>
-		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? "like"
+		// POST /api/v3/twitarr/ID/<like|laugh|love|unreact>
+		var encodedReactionWord: String
+		if ["laugh", "like", "love"].contains(reactionWord) {
+			encodedReactionWord = reactionWord
+		}
+		else {
+			encodedReactionWord = "unreact"
+		}
 		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: 
-				"/api/v3/twitarr/\(post.id)/\(encodedReationWord)", query: nil)
+				"/api/v3/twitarr/\(post.id)/\(encodedReactionWord)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
-		request.httpMethod = isAdd ? "POST" : "DELETE"
+		request.httpMethod = "POST"
 		
-		self.queueNetworkPost(request: request, success:  { data in
+		self.queueNetworkPost(request: request, success: { data in
 			if let response = try? Settings.v3Decoder.decode(TwitarrV3TwarrtData.self, from: data) {
 				TwitarrDataManager.shared.ingestNewUserPost(post: response)
 			}
@@ -576,28 +579,6 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 
 	override func postV2(context: NSManagedObjectContext) {
-		guard let post = sourcePost else { 
-			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
-			return
-		}
-		confirmPostBeingSent(context: context)
-		
-		// POST/DELETE /api/v2/tweet/:id/react/:type
-		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
-		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: 
-				"/api/v2/tweet/\(post.id)/react/\(encodedReationWord)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request, forUser: author)
-		request.httpMethod = isAdd ? "POST" : "DELETE"
-		
-		self.queueNetworkPost(request: request, success:  { data in
-			LocalCoreData.shared.performNetworkParsing { context in
-				context.pushOpErrorExplanation("Failure saving change to tweet reaction.")
-				
-				let response = try JSONDecoder().decode(TwitarrV2TweetReactionResponse.self, from: data)
-				let postInContext = try context.existingObject(with: post.objectID) as! TwitarrPost
-				postInContext.buildReactionsFromV2(context: context, v2Object: response.reactions)
-			}
-		})
 	}
 }
 
@@ -775,87 +756,6 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 	
 	override func postV2(context: NSManagedObjectContext) {
-//		guard let postText = text else { return }
-//		guard subject != nil || thread != nil else { return }
-//		confirmPostBeingSent(context: context)
-//
-//		// Upload any photos first, then chain the post call.
-//		// Declared as a placeholder closure, then redefined immediately as it references itself.
-//		var postingBlock: ([String]) -> Void = { _ in return }
-//		postingBlock = { (inputPhotoIDs: [String]) in
-//			var photoIDs: [String] = inputPhotoIDs
-//			if let photoSet = self.photos, photoSet.count > photoIDs.count {
-//				let photoUpload = photoSet[photoIDs.count] as! PostOpPhoto_Attachment
-//				self.uploadPhoto(photoData: photoUpload.imageData! as NSData, mimeType: photoUpload.mimetype, 
-//						isUserPhoto: false) { photoID, error in
-//					if let err = error {
-//						self.recordServerErrorFailure(err)
-//					}
-//					else if let id = photoID {
-//						photoIDs.append(id)
-//						postingBlock(photoIDs)
-//					}
-//				}
-//			
-//				// If we're uploading a photo we can't send the forum post yet. The photo completion handler
-//				// will chain this block again.
-//				return
-//			}
-//
-//			// POST /api/v2/forums							For new thread, or
-//			// POST /api/v2/forums/:thread_id				For new post in existing thread, or 
-//			// POST /api/v2/vorums/:thread_id/:post_id		To edit existing post.
-//			var path = "/api/v2/forums"
-//			var isNewThread = true
-//			if let editingPost = self.editPost {
-//				// Request/Response contents for post edits are almost exactly the same as new posts, except
-//				// there's no as_admin or as_mod fields. Luckily, we don't use them.
-//				path.append("/\(editingPost.thread.id)/\(editingPost.id)")
-//				isNewThread = false
-//			}
-//			else if let parentThread = self.thread {
-//				// If thread is set, this is a post in an existing thread.
-//				path.append("/\(parentThread.id)")
-//				isNewThread = false
-//			}
-//			var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
-//			NetworkGovernor.addUserCredential(to: &request, forUser: self.author)
-//			request.httpMethod = "POST"
-//			
-//			let postRequestStruct = TwitarrV2ForumNewPostRequest(subject: self.subject, text: postText,
-//					photos: photoIDs, as_mod: nil, as_admin: nil)
-//			
-//			let newThreadData = try! JSONEncoder().encode(postRequestStruct)
-//			request.httpBody = newThreadData
-//			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-// rcf removing until more V3 code is built
-//			self.queueNetworkPost(request: request, success: { data in
-//				LocalCoreData.shared.performNetworkParsing { context in 
-//					if isNewThread {
-//						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Thread.")
-//						let response = try JSONDecoder().decode(TwitarrV2ForumNewThreadResponse.self, from: data)
-//						try ForumPostDataManager.shared.internalParseNewThreadPosts(context: context, from: response.forum_thread)
-//					}
-//					else {
-//						context.pushOpErrorExplanation("Failure saving result of call creating a new Forum Post.")
-//						let response = try JSONDecoder().decode(TwitarrV2ForumNewPostResponse.self, from: data)
-//						
-//						// Only build CD objects out of the response if this is an edit. For new posts, we don't know
-//						// whether there were intervening posts betwen the last post we know about and this new post.
-//						// Therefore, don't show the new post until we do a normal load on the thread.
-//						if let editingPost = self.editPost, editingPost.id == response.forum_post.id {
-//							editingPost.buildFromV2(context: context, v2Object: response.forum_post, thread: editingPost.thread)
-//						}
-//					}
-//				}
-//			})
-//		}
-		
-		// Call the posting block to start things off. This block uploads photos until they're all uploaded, then
-		// does the forum POST, passing in the ids of any photos uploaded.
-//		postingBlock([])
-		
 	}
 }
 
@@ -969,9 +869,6 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// The post to apply the reaction to.
 	@NSManaged public var sourcePost: ForumPost?
 	
-		// True to add this reaction to this post, false to delete it.
-	@NSManaged public var isAdd: Bool
-	
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
 		operationDescription = "Posting a reaction to a Forums post."
@@ -984,11 +881,15 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 		confirmPostBeingSent(context: context)
 		
-		// POST/DELETE /api/v3/forum/post/ID/laugh
+		// POST /api/v3/forum/post/ID/laugh
+		var encodedReactionWord: String = "unreact"
+		if ["laugh", "like", "love"].contains(reactionWord) {
+			encodedReactionWord = reactionWord
+		}
 		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: 
-				"/api/v3/forum/post/\(post.id)/\(reactionWord)", query: nil)
+				"/api/v3/forum/post/\(post.id)/\(encodedReactionWord)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
-		request.httpMethod = isAdd ? "POST" : "DELETE"
+		request.httpMethod = "POST"
 		
 		self.queueNetworkPost(request: request, success:  { data in
 			LocalCoreData.shared.performNetworkParsing { context in
@@ -1001,28 +902,6 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 	
 	override func postV2(context: NSManagedObjectContext) {
-		guard let post = sourcePost else { 
-			self.recordServerErrorFailure(ServerError("The post has disappeared. Perhaps it was deleted serverside?"))
-			return
-		}
-		confirmPostBeingSent(context: context)
-		
-		// POST/DELETE /api/v2/forums/:id/:post_id/react/:type
-		let encodedReationWord = reactionWord.addingPathComponentPercentEncoding() ?? ""
-		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: 
-				"/api/v2/forums/\(post.thread.id)/\(post.id)/react/\(encodedReationWord)", query: nil)
-		NetworkGovernor.addUserCredential(to: &request, forUser: author)
-		request.httpMethod = isAdd ? "POST" : "DELETE"
-		
-		self.queueNetworkPost(request: request, success:  { data in
-			LocalCoreData.shared.performNetworkParsing { context in
-				context.pushOpErrorExplanation("Failure saving change to Forum Post reaction.")
-				
-				let response = try JSONDecoder().decode(TwitarrV2ForumPostReactionResponse.self, from: data)
-				let postInContext = try context.existingObject(with: post.objectID) as! ForumPost
-				postInContext.buildReactionsFromV2(context: context, v2Object: response.reactions)
-			}
-		})
 	}
 }
 

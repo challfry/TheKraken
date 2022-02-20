@@ -56,18 +56,19 @@ class TwitarrViewController: BaseCollectionViewController {
 				observer.postButton.isEnabled = true
 				observer.collectionView.refreshControl = UIRefreshControl()
 				observer.collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
+				observer.startRefresh()
 			}
        		else {
        			// If nobody's logged in, pop to root, show the login cells.
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
 				observer.postButton.isEnabled = false
-				observer.navigationController?.popToRootViewController(animated: false)
+				observer.navigationController?.popToViewController(observer, animated: false)
 				observer.collectionView.refreshControl = nil
        		}
         }?.execute()        
 
 		knownSegues = Set([.tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
-				.composeTweet, .reportContent])
+				.composeTweet, .reportContent, .showLikeOptions])
 	}
     
     override func viewWillAppear(_ animated: Bool) {

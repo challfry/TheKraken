@@ -25,11 +25,6 @@ import UIKit
 	@NSManaged public var createdAt: Date
     @NSManaged public var photoDetails: NSMutableOrderedSet		// Set of PhotoDetails
     
-    	// Only used by V2
-    @NSManaged public var contigWithOlder: Bool
-	@NSManaged public var timestamp: Int64
-
-
     	// Kraken Operation relationships to other data
     @NSManaged public var opsWithThisParent: Set<PostOpTweet>?
     @NSManaged public var opsDeletingThisTweet: Set<PostOpTweetDelete>?	// Still needs to be to-many. Sigh.
@@ -38,7 +33,9 @@ import UIKit
 
 		// Properties built from reactions
 	@objc dynamic public var reactionDict: NSMutableDictionary?			// the reactions set, keyed by reaction.word
-	@objc dynamic public var likeReaction: Reaction?
+	@objc dynamic public var likeCount: Int32 = 0
+	@objc dynamic public var loveCount: Int32 = 0
+	@objc dynamic public var laughCount: Int32 = 0
   
 // MARK: Methods
 
@@ -52,21 +49,21 @@ import UIKit
 
 		// Update derived properties
     	let dict = NSMutableDictionary()
-    	var newLikeReaction: Reaction?
 		for reaction in reactions {
 			dict.setValue(reaction, forKey: reaction.word)
-			if reaction.word == "like" {
-				newLikeReaction = reaction
+			switch reaction.word {
+				case "like": likeCount = reaction.count
+				case "love": loveCount = reaction.count
+				case "laugh": laughCount = reaction.count
+				default: break
 			}
 		}
 		reactionDict = dict
-		likeReaction = newLikeReaction
 	}
     	
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3TwarrtData) {
 		var changed = TestAndUpdate(\.id, v3Object.twarrtID)
 		changed = TestAndUpdate(\.createdAt, v3Object.createdAt) || changed
-		TestAndUpdate(\.timestamp, Int64(v3Object.createdAt.timeIntervalSince1970 * 1000.0))
 		changed = TestAndUpdate(\.text, v3Object.text) || changed 
 		changed = TestAndUpdate(\.numReactions, v3Object.likeCount) || changed 
 		let replyGroup = v3Object.replyGroupID ?? -1
@@ -100,6 +97,64 @@ import UIKit
 			}
 		}
 		
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
+		
+		// Not handled: isBookmarked,
+	}
+	
+	func buildFromV3DetailData(context: NSManagedObjectContext, v3Object: TwitarrV3TwarrtDetailData) {
+		TestAndUpdate(\.id, Int64(v3Object.postID))
+		TestAndUpdate(\.createdAt, v3Object.createdAt)
+		TestAndUpdate(\.text, v3Object.text)
+		TestAndUpdate(\.replyGroup, Int64(v3Object.replyGroupID ?? -1))
+
+		let userDict: [UUID : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser] 
+		if let krakenUser = userDict[v3Object.author.userID] {
+			if value(forKey: "author") == nil || krakenUser.userID != author.userID {
+				author = krakenUser
+			}
+		}
+		
+		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
+		if let newImageFilenames = v3Object.images {
+			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+			for (index, image) in newImageFilenames.enumerated() {
+				if photoDetails.count <= index, let photoToAdd = photoDict[image] {
+					photoDetails.add(photoToAdd)
+				} 
+				if (photoDetails[index] as? PhotoDetails)?.id != image, let photoToAdd = photoDict[image] {
+					photoDetails.replaceObject(at:index, with: photoToAdd)
+				}
+			}
+			if photoDetails.count > newImageFilenames.count {
+				photoDetails.removeObjects(in: NSRange(location: newImageFilenames.count, length: photoDetails.count - newImageFilenames.count))
+			}
+		} 
+		else {
+			if photoDetails.count > 0 {
+				photoDetails.removeAllObjects()
+			}
+		}
+		
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
+		
+		func setReactionCounts(word: String, users: [TwitarrV3UserHeader]) {
+			if let reactionObj = reactionDict?[word] as? Reaction {
+				reactionObj.count = Int32(users.count)
+			}
+			else if users.count > 0 {
+				let newReaction = Reaction(context: context)
+				newReaction.word = word
+				newReaction.count = Int32(users.count)
+				newReaction.sourceTweet	= self
+			}
+		}
+		setReactionCounts(word: "like", users: v3Object.likes)
+		setReactionCounts(word: "love", users: v3Object.loves)
+		setReactionCounts(word: "laugh", users: v3Object.laughs)
+	}
+	
+	func buildUserReactionFromV3(context: NSManagedObjectContext, userLike: TwitarrV3LikeType?) {
 		// Set the user's reaction to the tweet
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
 			// Find any existing reaction the user has
@@ -119,7 +174,7 @@ import UIKit
 				
 				// If the new reaction is different or deleted, remove existing reaction from CD.
 				userCurrentReaction = userCurrentReactions.first
-				if let ucr = userCurrentReaction, v3Object.userLike?.rawValue != ucr.word {
+				if let ucr = userCurrentReaction, userLike?.rawValue != ucr.word {
 					if let _ = ucr.users.remove(currentUser) {
 						ucr.count -= 1
 					}
@@ -127,7 +182,7 @@ import UIKit
 			}
 				
 			// Add new reaction, if any
-			if let newReactionWord = v3Object.userLike?.rawValue, userCurrentReaction?.word != newReactionWord {
+			if let newReactionWord = userLike?.rawValue, userCurrentReaction?.word != newReactionWord {
 				if let reaction = reactions.first(where: { $0.word == newReactionWord } ) {
 					let (didInsert, _) = reaction.users.insert(currentUser)
 					if didInsert {
@@ -143,8 +198,6 @@ import UIKit
 				}
 			}
 		}
-		
-		// Not handled: isBookmarked,
 	}
 	
 	func buildReactionsFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ReactionsSummary) {
@@ -169,46 +222,36 @@ import UIKit
 		
 		// Update derived properties
     	let dict = NSMutableDictionary()
-    	var newLikeReaction: Reaction?
 		for reaction in reactions {
 			dict.setValue(reaction, forKey: reaction.word)
-			if reaction.word == "like" {
-				newLikeReaction = reaction
-			}
 		}
 		reactionDict = dict		
-		likeReaction = newLikeReaction
 	}
-	
-	func postDate() -> Date {
-		return Date(timeIntervalSince1970: Double(timestamp) / 1000.0)
-	}
-	
+		
 	// Always returns nil if nobody's logged in.
-	func getPendingUserReaction(_ named: String) -> PostOpTweetReaction? {
+	func getPendingUserReaction() -> PostOpTweetReaction? {
 		if let username = CurrentUser.shared.loggedInUser?.username, let reaction = reactionOps?.first(where: { reaction in
 				guard let r = reaction as? PostOpTweetReaction else { return false }
-				return r.author.username == username && r.reactionWord == named }) {
+				return r.author.username == username }) {
 			return reaction as? PostOpTweetReaction
 		}
 		return nil
 	}
 	
-	func setReaction(_ reactionWord: String, to newState: Bool) {
+	func setReaction(_ reactionWord: LikeOpKind) {
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			guard let thisPost = context.object(with: self.objectID) as? TwitarrPost else { return }
 
-			// Check for existing op for this user, with this word
-			let op = thisPost.getPendingUserReaction(reactionWord) ?? PostOpTweetReaction(context: context)
-			op.isAdd = newState
+			// Check for existing op for this user
+			let op = thisPost.getPendingUserReaction() ?? PostOpTweetReaction(context: context)
 			op.operationState = .readyToSend
-			op.reactionWord = reactionWord
+			op.reactionWord = reactionWord.string()
 			op.sourcePost = thisPost
 		}
 	}
 	
 	func cancelReactionOp(_ reactionWord: String) {
-		guard let existingOp = getPendingUserReaction(reactionWord) else { return }
+		guard let existingOp = getPendingUserReaction() else { return }
 		PostOperationDataManager.shared.remove(op: existingOp)
 	}
 	
@@ -305,7 +348,7 @@ fileprivate class TwitarrRecentNetworkCall: NSObject {
 	override var description: String {
 		var returnString = ""
 		if let anchor = anchor {
-			returnString.append("Anchor at: \(anchor.id) timestamp: \(anchor.timestamp). ")
+			returnString.append("Anchor at: \(anchor.id) timestamp: \(anchor.createdAt). ")
 		} 
 		returnString.append("\(numPosts) posts. isNewer: \(isNewer). Range: \(indexRange)")
 		return returnString
@@ -347,7 +390,7 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 	
 	// MARK: Methods
 	init(author: String?, text: String?) {
-		sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+		sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
 		
 		if let searchText = text {
 			if searchText.hasPrefix("#") {
@@ -572,7 +615,7 @@ class TwitarrDataManager: NSObject {
 	
 	func getTweetWithID(_ tweetID: Int64) throws -> TwitarrPost? {
 		let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
-		request.predicate = NSPredicate(format: "id == %@", tweetID)
+		request.predicate = NSPredicate(format: "id == %d", tweetID)
 		request.fetchLimit = 1
 		return try coreData.mainThreadContext.fetch(request).first
 	}
@@ -582,27 +625,12 @@ class TwitarrDataManager: NSObject {
 	// in the repsonse.
 	func loadStreamTweets(anchorTweet: TwitarrPost?, newer: Bool = false, done: (() -> Void)? = nil) {
 		var queryParams = [URLQueryItem]()
-		var anchorTime: Int64 = 0
-		let path: String
-		if Settings.apiV3 {
-			path = "/api/v3/twitarr"
-			queryParams.append(URLQueryItem(name: "limit", value: "50"))
-			if let anchorID = anchorTweet?.id {
-				queryParams.append(URLQueryItem(name: newer ? "after" : "before", value: String(anchorID)))
-			}
-		}
-		else {
-			path = "/api/v2/stream"
-			queryParams.append(URLQueryItem(name:"newer_posts", value:newer ? "true" : "false"))
-			queryParams.append(URLQueryItem(name:"limit", value:"50"))
-//			queryParams.append(URLQueryItem(name:"app", value:"plain"))
-			if let anchorTweet = anchorTweet {
-				anchorTime = newer ? anchorTweet.timestamp + 1 : anchorTweet.timestamp - 1
-				queryParams.append(URLQueryItem(name: "start", value: String(anchorTime)))
-			}
+		queryParams.append(URLQueryItem(name: "limit", value: "50"))
+		if let anchorID = anchorTweet?.id {
+			queryParams.append(URLQueryItem(name: newer ? "after" : "before", value: String(anchorID)))
 		}
 		
-		var request = NetworkGovernor.buildTwittarRequest(withPath:path, query: queryParams)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/twitarr", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
@@ -633,7 +661,7 @@ class TwitarrDataManager: NSObject {
 				NetworkLog.error(error.localizedDescription)
 			}
 			else if let data = package.data {
-				print (String(decoding:data, as: UTF8.self))
+//				print (String(decoding:data, as: UTF8.self))
 				do {
 					let twarrts = try Settings.v3Decoder.decode([TwitarrV3TwarrtData].self, from: data)
 					self.ingestV3StreamPosts(twarrts: twarrts)						
@@ -751,6 +779,47 @@ class TwitarrDataManager: NSObject {
 			}
 		}
 	}
+	
+	func loadV3TweetDetail(tweet: TwitarrPost) {
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/twitarr/\(tweet.id)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		networkUpdateActive = true
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			self.networkUpdateActive = false
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				NetworkLog.error(error.localizedDescription)
+			}
+			else if let data = package.data {
+//				print (String(decoding:data, as: UTF8.self))
+				do {
+					let twarrt = try Settings.v3Decoder.decode(TwitarrV3TwarrtDetailData.self, from: data)
+					LocalCoreData.shared.performNetworkParsing { context in
+						context.pushOpErrorExplanation("Failure adding tweet detail to Core Data.")
+											
+						// Make a uniqued list of users from the posts, and get them inserted/updated.
+						UserManager.shared.update(users: [twarrt.author], inContext: context)
+					
+						// Photos, same idea
+						if let images = twarrt.images {
+							ImageManager.shared.updateV3(imageFilenames: images, inContext: context)
+						}
+
+						// Get the existing post in CD 
+						let request = NSFetchRequest<TwitarrPost>(entityName: "TwitarrPost")
+						request.predicate = NSPredicate(format: "id == %d", twarrt.postID)
+						request.fetchLimit = 1
+						let cdResults = try context.fetch(request)
+						let cdPost = cdResults.first ?? TwitarrPost(context: context)
+						cdPost.buildFromV3DetailData(context: context, v3Object: twarrt)
+					}
+				} catch 
+				{
+					NetworkLog.error("Failure parsing tweet detail.", ["Error" : error, "URL" : request.url as Any])
+				} 
+			}
+		}
+	}
+
 	
 	// This is for posts created by the user; the responses from create methods return the post that got made.
 	func ingestNewUserPost(post: TwitarrV3TwarrtData) {

@@ -12,37 +12,40 @@ import UserNotifications
 
 @objc(LoggedInKrakenUser) public class LoggedInKrakenUser: KrakenUser {
 
-	@objc enum UserRole: Int {
-		case admin
-		case tho
-		case moderator
-		case user
-		case muted
+	@objc enum AccessLevel: Int32 {
+		case unverified
 		case banned
-		case loggedOut
+		case quarantined
+		case verified
+		case client
+		case moderator
+		case tho
+		case admin
 		
 		// Done this dumb way because we need to be @objc, therefore Int-backed, not string-backed.
-		static func roleForString(str: String) -> UserRole? {
+		static func roleForString(str: String) -> AccessLevel? {
 			switch str {
 			case "admin": return .admin
 			case "tho": return .tho
 			case "moderator": return .moderator
-			case "user": return .user
-			case "muted": return .muted
+			case "client": return .client
+			case "verified": return .verified
+			case "quarantined": return .quarantined
 			case "banned": return .banned
-			case "loggedOut": return .loggedOut
+			case "unverified": return .unverified
 			default: return nil
 			}
 		}
-		static func stringForRole(role: UserRole) -> String {
+		static func stringForRole(role: AccessLevel) -> String {
 			switch role {
 			case .admin: return "admin"
 			case .tho: return "tho"
 			case .moderator: return "moderator"
-			case .user: return "user"
-			case .muted: return "muted"
+			case .client: return "client"
+			case .verified: return "verified"
+			case .quarantined: return "quarantined"
 			case .banned: return "banned"
-			case .loggedOut: return "loggedOut"
+			case .unverified: return "unverified"
 			}
 		}
 	}
@@ -71,10 +74,17 @@ import UserNotifications
 	// Alerts
 	@NSManaged public var upToDateSeamailThreads: Set<SeamailThread>
 
-	// Info about the current user that should not be in KrakenUser nor cached to disk.
-	@objc dynamic var userRole: UserRole = .loggedOut
+	// Info about the current user that should not be in KrakenUser.
+	@NSManaged var accessLevel: AccessLevel
 	
 // MARK: Model Builders
+	func buildFromV3TokenStringInfo(context: NSManagedObjectContext, v3Object: TwitarrV3TokenStringData, username: String) {
+		TestAndUpdate(\.username, username)
+		TestAndUpdate(\.userID, v3Object.userID)
+		TestAndUpdate(\.authKey, v3Object.token)
+		TestAndUpdate(\.accessLevel, AccessLevel.roleForString(str: v3Object.accessLevel.rawValue) ?? .unverified)
+	}
+	
 	func buildFromV3NotificationInfo(context: NSManagedObjectContext, notification: TwitarrV3UserNotificationData) {
 		TestAndUpdate(\.tweetMentions, Int32(notification.newTwarrtMentionCount))
 		TestAndUpdate(\.forumMentions, Int32(notification.newForumMentionCount))
@@ -134,46 +144,6 @@ import UserNotifications
 	}
 
 // MARK: V2	
-	func buildFromV2UserAccount(context: NSManagedObjectContext, v2Object: TwitarrV2UserAccount) {
-		TestAndUpdate(\.username, v2Object.username)
-		TestAndUpdate(\.displayName, v2Object.displayName)
-		TestAndUpdate(\.realName, v2Object.realName)
-		TestAndUpdate(\.pronouns, v2Object.pronouns)
-
-		TestAndUpdate(\.emailAddress, v2Object.emailAddress)
-		TestAndUpdate(\.homeLocation, v2Object.homeLocation)
-		TestAndUpdate(\.currentLocation, v2Object.currentLocation)
-		TestAndUpdate(\.roomNumber, v2Object.roomNumber)
-
-		TestAndUpdate(\.lastPhotoUpdated, v2Object.lastPhotoUpdated)
-		TestAndUpdate(\.lastLogin, v2Object.lastLogin)
-		userRole = UserRole.roleForString(str: v2Object.role) ?? .user
-//		TestAndUpdate(\.emptyPassword, v2Object.emptyPassword)
-	}
-	
-	// The v2Object in this instance is NOT (generally) the logged-in user. It's another userProfile where
-	// it contains data specific to the logged-in user's POV--user comments and stars.
-	func parseV2UserProfileCommentsAndStars(context: NSManagedObjectContext, v2Object: TwitarrV2UserProfile,
-			targetUser: KrakenUser) {
-		guard self == CurrentUser.shared.getLoggedInUser(in: context) else {
-			CoreDataLog.debug("parseV2UserProfileCommentsAndStars can only be called on the current logged in user.")
-			return
-		}
-		
-		var commentToUpdate = userComments?.first(where: { $0.commentedOnUser.username == v2Object.username } )
-		
-		// Only create a comment object if there's some content to put in it
-		if commentToUpdate == nil && v2Object.comment != nil {
-			commentToUpdate = UserComment(context: context)
-		}
-		
-		// We won't ever delete the comment object once one has been created; that's okay--the comment 
-		// itself should become "".
-		commentToUpdate?.build(context: context, userCommentedOn: targetUser, loggedInUser: self, 
-				comment: v2Object.comment)
-	
-		updateUserStar(context: context, targetUser: targetUser, newState: v2Object.starred)			
-	}
 	
 	func updateUserStar(context: NSManagedObjectContext, targetUser: KrakenUser, newState: Bool?) {
 		//
@@ -361,19 +331,11 @@ import UserNotifications
 //		let authQuery = "username=\(name)&password=\(password)".data(using: .utf8)!
 		
 		// Call login, and then call whoami
-		let loginAPIPath = Settings.apiV3 ? "/api/v3/auth/login" : "/api/v2/user/auth"
+		let loginAPIPath = "/api/v3/auth/login"
 		var request = NetworkGovernor.buildTwittarRequest(withPath: loginAPIPath, query: nil)
 		request.httpMethod = "POST"
-		if Settings.apiV3 {
-			let credentials = "\(name):\(password)".data(using: .utf8)!.base64EncodedString()
-			request.addValue("Basic \(credentials)", forHTTPHeaderField: "Authorization")
-		}
-		else {
-			let authStruct = TwitarrV2AuthRequestBody(username: name, password: password)
-			let authData = try! JSONEncoder().encode(authStruct)
-			request.httpBody = authData
-			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-		}
+		let credentials = "\(name):\(password)".data(using: .utf8)!.base64EncodedString()
+		request.addValue("Basic \(credentials)", forHTTPHeaderField: "Authorization")
 		
 		NetworkGovernor.shared.queue(request) { package in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -382,11 +344,8 @@ import UserNotifications
 			}
 			else if let data = package.data {
 				let decoder = JSONDecoder()
-				if let authResponse = try? decoder.decode(TwitarrV2AuthResponse.self, from: data), authResponse.status == "ok" {
-					self.loginSuccess(username: authResponse.username, authKey: authResponse.key)
-				} 
-				else if let loginResponse = try? decoder.decode(TwitarrV3LoginResponse.self, from: data) {
-					self.loginSuccess(username: name, authKey: loginResponse.token, userID: loginResponse.userID)
+				if let loginResponse = try? decoder.decode(TwitarrV3TokenStringData.self, from: data) {
+					self.loginSuccess(username: name, tokenResponse: loginResponse)
 				}
 				else {
 					self.lastError = ServerError("Unknown error")
@@ -405,35 +364,16 @@ import UserNotifications
 	// Or, when the auth token changes, such as password reset or recovery.
 	// Call setActiveUser() to switch between users that have already authed.
 	// On exit from this fn, the user is fully logged in
-	func loginSuccess(username: String, authKey: String, userID: UUID? = nil) {
-		let context = LocalCoreData.shared.networkOperationContext
-		var krakenUser: LoggedInKrakenUser?
-		context.performAndWait {
-			do {
-				krakenUser = UserManager.shared.user(username, inContext: context) as? LoggedInKrakenUser
-
-				// Adds the user to the cache if it doesn't exist.
-				if krakenUser == nil {
-					krakenUser = LoggedInKrakenUser(context: context)
-					krakenUser?.username = username
-					if let userID = userID {
-						krakenUser?.userID = userID
-					}
-				}
-				
-				if let user = krakenUser {
-					user.authKey = authKey
-					try context.save()
-				}
-			} 
-			catch {
-				CoreDataLog.error("Failure saving CoreData context.", ["Error" : error])
-			}
-		}
+	func loginSuccess(username: String, tokenResponse: TwitarrV3TokenStringData) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure adding logged in user to Core Data.")
+			let krakenUser: LoggedInKrakenUser = (UserManager.shared.user(username, inContext: context) as? LoggedInKrakenUser) ??
+					LoggedInKrakenUser(context: context)
+			krakenUser.buildFromV3TokenStringInfo(context: context, v3Object: tokenResponse, username: username)
+			try context.save()
 			
-		if let networkThreadUser = krakenUser {
 			DispatchQueue.main.sync {
-				if let user = try? LocalCoreData.shared.mainThreadContext.existingObject(with: networkThreadUser.objectID)
+				if let user = try? LocalCoreData.shared.mainThreadContext.existingObject(with: krakenUser.objectID)
 						as? LoggedInKrakenUser {
 						
 					// Make sure the main thread context has the updated user with the authKey
@@ -590,7 +530,7 @@ import UserNotifications
 				self.lastError = error
 				self.isChangingLoginState = false
 			}
-			else if Settings.apiV3 {
+			else {
 				let decoder = JSONDecoder()
 				if let data = package.data, let createAcctResponse = try? decoder.decode(TwitarrV3CreateAccountResponse.self, 
 						from: data) {
@@ -604,26 +544,13 @@ import UserNotifications
 					self.lastError = ServerError("Unknown error")
 					self.isChangingLoginState = false
 				}
-			} else {
-				let decoder = JSONDecoder()
-				if let data = package.data, let authResponse = try? decoder.decode(TwitarrV2CreateAccountResponse.self, 
-						from: data), authResponse.status == "ok" {
-						
-					// In V2, /user/new both creates an account and logs it in. The result packet has the auth key.
-					self.loginSuccess(username: authResponse.user.username, authKey: authResponse.key)
-				}
-				else
-				{
-					self.lastError = ServerError("Unknown error")
-					self.isChangingLoginState = false
-				}
-			} 
+			}
 		}
 	}
 	
 	// Must be logged in to change password; resetPassword works while logged out but requires reg code.
 	func changeUserPassword(currentPassword: String, newPassword: String, done: @escaping () -> Void) {
-		guard !isChangingLoginState, let savedCurrentUserName = self.loggedInUser?.username else {
+		guard !isChangingLoginState else {
 			return
 		}
 		clearErrors()
@@ -654,18 +581,6 @@ import UserNotifications
 				// Success. Resetting a V3 password doesn't change the auth token.
 				done()
 			}
-			else if let data = package.data {
-				let decoder = JSONDecoder()
-				if let response = try? decoder.decode(TwitarrV2ChangePasswordResponse.self, from: data),
-						response.status == "ok" && savedCurrentUserName == self.loggedInUser?.username {
-					self.loginSuccess(username: savedCurrentUserName, authKey: response.key)
-					done()
-				}
-				else
-				{
-					self.lastError = ServerError("Unknown error")
-				}
-			} 
 			else {
 				self.lastError = ServerError("Unknown error")
 			}
@@ -694,7 +609,7 @@ import UserNotifications
 		}
 				
 		// Call reset_password
-		let path = Settings.apiV3 ? "/api/v3/auth/recovery" : "/api/v2/user/reset_password"
+		let path = "/api/v3/auth/recovery"
 		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
@@ -705,19 +620,10 @@ import UserNotifications
 			}
 			else if let data = package.data {
 				let decoder = JSONDecoder()
-				if let response = try? decoder.decode(TwitarrV2ResetPasswordResponse.self, from: data) {
-					if response.status == "ok" {
-						done()
-					}
-					else
-					{
-						self.lastError = ServerError("Unknown error")
-					}
-				}
-				else if let response = try? decoder.decode(TwitarrV3RecoverPasswordResponse.self, from: data) {
+				if let response = try? decoder.decode(TwitarrV3TokenStringData.self, from: data) {
 					// V3 reset returns a login token. Log ourselves in with it and immediately initiate a password change
 					// to the user's new password.
-					self.loginSuccess(username: name, authKey: response.token)
+					self.loginSuccess(username: name, tokenResponse: response)
 					self.changeUserPassword(currentPassword: "", newPassword: newPassword, done: done)
 				}
 				else {
@@ -937,9 +843,14 @@ struct TwitarrV3CreateAccountResponse: Codable {
 	let recoveryKey: String
 }
 
-struct TwitarrV3LoginResponse: Codable {
-	let userID: UUID
-	let token: String
+struct TwitarrV3TokenStringData: Codable {
+    /// The user ID of the newly logged in user. 
+    var userID: UUID
+    /// The user's access level.
+	var accessLevel: TwitarrV3UserAccessLevel
+    /// The token string.
+    let token: String
+
 }
 
 // POST /api/v3/user/password - UserPasswordData
@@ -957,10 +868,24 @@ struct TwitarrV3RecoverPasswordRequest: Codable {
     var newPassword: String
 }
 
-// POST /api/v3/auth/recovery - TokenStringData
-struct TwitarrV3RecoverPasswordResponse: Codable {
-    /// The user ID of the newly logged in user.
-    var userID: UUID
-    /// The token string.
-    let token: String
+public enum TwitarrV3UserAccessLevel: String, Codable {
+    /// A user account that has not yet been activated. [read-only, limited]
+    case unverified
+    /// A user account that has been banned. [cannot log in]
+    case banned
+    /// A `.verified` user account that has triggered Moderator review. [read-only]
+    case quarantined
+    /// A user account that has been activated for full read-write access.
+    case verified
+    /// A special class of account for registered API clients. [see `ClientController`]
+    case client
+    /// An account whose owner is part of the Moderator Team.
+    case moderator
+    /// Twitarr devs should have their accounts elevated to this level to help handle seamail to 'twitarrteam'
+	case twitarrteam
+    /// An account officially associated with Management, has access to all `.moderator`
+    /// and a subset of `.admin` functions (the non-destructive ones). Can ban users.
+    case tho
+    /// An Administrator account, unrestricted access.
+    case admin
 }

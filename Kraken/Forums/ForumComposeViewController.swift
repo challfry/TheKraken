@@ -31,7 +31,8 @@ import MobileCoreServices
 @objc class ForumComposeViewController: BaseCollectionViewController {
 
 	// Set by caller during segue
-	var thread: ForumThread?			
+	var thread: ForumThread?				// If it's a post in an existing thread
+	var category: ForumCategory?			// If it's a new thread in this category
 	var editPost: ForumPost?				// If we're editing a post, the original
 	var draftPost: PostOpForumPost?			// If we're editing a draft, the draft
 	var inProgressOp: PostOpForumPost?		// Post in progress
@@ -322,7 +323,7 @@ import MobileCoreServices
     	}
 		else {
 			// This is a new post in an existing thread, or a new thread, or an update to a draft of a post.
-			ForumPostDataManager.shared.queuePost(existingDraft: draftPost, inThread: thread, titleText: subjectText,
+			ForumPostDataManager.shared.queuePost(existingDraft: draftPost, inThread: thread, inCategory: category, titleText: subjectText,
 					postText: postText, images: images, done: postEnqueued)
 		}
     }

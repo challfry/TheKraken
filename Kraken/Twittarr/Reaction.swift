@@ -37,4 +37,13 @@ import CoreData
 			}
 		}
 	}
+	
+	func getLikeOpKind() -> LikeOpKind {
+		switch word {
+		case "like": return .like
+		case "love": return .love
+		case "laugh": return .laugh
+		default: return .none
+		}
+	}
 }

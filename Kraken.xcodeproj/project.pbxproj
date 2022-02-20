@@ -85,6 +85,7 @@
 		EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A81231E212A0071BFEA /* Alerts.swift */; };
 		EA6CD9B823EF873500B9BC3C /* SquidAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
+		EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
 		EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6A2366332E0042C0DC /* SegmentCell.swift */; };
@@ -160,6 +161,7 @@
 		EAAF9BDC25C78B1C0078C794 /* ForumsRootVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF9BDB25C78B1C0078C794 /* ForumsRootVC.swift */; };
 		EAAF9BE625C7B7030078C794 /* CategoriesDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF9BE525C7B7030078C794 /* CategoriesDataManager.swift */; };
 		EAAF9BF025CBDECE0078C794 /* ForumPostDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF9BEF25CBDECE0078C794 /* ForumPostDataManager.swift */; };
+		EAAFB04127BAD40C005508D4 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAA12B6527B4A55B002F9C47 /* NetworkExtension.framework */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
 		EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536C22D1F75600CD1671 /* ButtonCell.swift */; };
@@ -346,6 +348,7 @@
 		EA6A8A81231E212A0071BFEA /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquidAnimation.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
+		EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyThemeUpdater.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
 		EA83FC6A2366332E0042C0DC /* SegmentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentCell.swift; sourceTree = "<group>"; };
@@ -501,6 +504,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAAFB04127BAD40C005508D4 /* NetworkExtension.framework in Frameworks */,
 				EAE59152229EA345002B5DEF /* Photos.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -632,6 +636,7 @@
 				EA4E84EF232A2D330059E5EB /* ValidSectionUpdater.swift */,
 				EA4E84ED232A2CE70059E5EB /* ServerTimeUpdater.swift */,
 				EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */,
+				EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */,
 				EAA02845232057D900B2B7F1 /* Notifications.swift */,
 				EAC696EC2290159000EE6EEB /* StringUtilities.swift */,
 				EAA62C7022C55CC00031A999 /* Logging.swift */,
@@ -1424,6 +1429,7 @@
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
 				EA2286F323E40D810036C20E /* GamesListViewController.swift in Sources */,
 				EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */,
+				EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */,
 				EA4E84F2232C74D00059E5EB /* DisabledContentViewController.swift in Sources */,
 				EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
@@ -1528,7 +1534,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1544,6 +1551,7 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Kraken Local Push Dev";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1557,7 +1565,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1573,6 +1582,7 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Kraken Local Push Extension Dist";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1705,9 +1715,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 14;
-				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
@@ -1718,10 +1728,12 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = YES;
+				PROVISIONING_PROFILE_SPECIFIER = "Kraken Dev";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Kraken Ad Hoc";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kraken/Core/Kraken-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,6";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1731,9 +1743,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 14;
-				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
@@ -1744,10 +1756,12 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = YES;
+				PROVISIONING_PROFILE_SPECIFIER = "Kraken App Distribution";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Kraken Ad Hoc";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kraken/Core/Kraken-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,6";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

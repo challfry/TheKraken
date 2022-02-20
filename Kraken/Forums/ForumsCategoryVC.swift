@@ -107,19 +107,26 @@ class ForumsCategoryViewController: BaseCollectionViewController {
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
 			if let _ = observed.loggedInUser?.userID {
         		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
-				observer.newForumButton.isEnabled = true
 				observer.navigationItem.titleView = observer.forumsNavTitleButton
 			}
        		else {
        			// If nobody's logged in, pop to root, show the login cells.
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
-				observer.newForumButton.isEnabled = false
-				observer.navigationController?.popToViewController(self, animated: false)
+				observer.navigationController?.popToViewController(observer, animated: false)
 				observer.navigationItem.titleView = nil
        		}
-        }?.execute()        
+        }?.execute()   
 
-		knownSegues = Set([.showForumThread, .modalLogin])
+        CurrentUser.shared.tell(self, when: "loggedInUser.accessLevel") { observer, observed in        		
+			if let cm = observer.categoryModel {
+				observer.newForumButton.isEnabled = !cm.isAdmin
+			}
+			else if let accessLevel = observed.loggedInUser?.accessLevel.rawValue {
+				observer.newForumButton.isEnabled = accessLevel >= LoggedInKrakenUser.AccessLevel.moderator.rawValue
+			}
+        }?.execute()   
+
+		knownSegues = Set([.showForumThread, .composeForumThread, .modalLogin])
 	}
 		
     override func viewWillAppear(_ animated: Bool) {
@@ -246,6 +253,12 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 	}
     
 // MARK: Actions
+
+	@IBAction func newForumButtonTapped(_ sender: Any) {
+		if let catModel = categoryModel {
+			performKrakenSegue(.composeForumThread, sender: catModel)
+		}
+	}
     
     // This is the button in the title area of the navbar.
 	@objc func filterButtonTapped() {

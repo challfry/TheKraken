@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 struct PortAndTheme {
 	let cruiseDay: Int		// Day 1 is Saturday March 7, 2020
@@ -18,14 +19,38 @@ struct PortAndTheme {
 }
 
 @objc protocol PortAndThemeBindingProtocol {
+	var dailyTheme: DailyTheme? { get set }
 }
 
-class PortAndThemeCellModel: BaseCellModel, PortAndThemeBindingProtocol {
+@objc class PortAndThemeCellModel: BaseCellModel, PortAndThemeBindingProtocol {
 	private static let validReuseIDs = [ "PortAndThemeCell" : PortAndThemeCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
+	dynamic var dailyTheme: DailyTheme?
+
 	init() {
 		super.init(bindingWith: PortAndThemeBindingProtocol.self)
+		
+		NotificationCenter.default.addObserver(forName: RefreshTimers.MinuteUpdateNotification, object: nil,
+				queue: nil) { [weak self] notification in
+			if let self = self {
+				self.updateModelValues()
+			}
+		}
+		updateModelValues()
+	}
+	
+	func updateModelValues() {
+		let dayRelativeToCruiseStart = cruiseStartRelativeDays()
+		let request = NSFetchRequest<DailyTheme>(entityName: "DailyTheme")
+		request.predicate = NSPredicate(format: "cruiseDay == %d", dayRelativeToCruiseStart)
+		request.fetchLimit = 1
+		if let todaysDailyTheme = try? LocalCoreData.shared.mainThreadContext.fetch(request).first {
+			dailyTheme = todaysDailyTheme
+		}
+		else {
+			dailyTheme = nil
+		}
 	}
 }
 
@@ -37,15 +62,16 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 	@IBOutlet var portLabel: UILabel!
 	@IBOutlet var arriveDepartLabel: UILabel!
 	@IBOutlet var themeLabel: UILabel!
+	@IBOutlet var imageView: UIImageView!
 	
 	static let itinerary: [PortAndTheme] = [
-	PortAndTheme(cruiseDay: 1, theme: "Welcome, New Monkeys!", port: "Fort Lauderdale, Florida", arrival: nil, departure: "5:00 PM"),
-	PortAndTheme(cruiseDay: 2, theme: "Heroes Day", port: "Half Moon Cay, Bahamas", arrival: "8:00 AM", departure: "5:00 PM"),
+	PortAndTheme(cruiseDay: 1, theme: "Welcome, New Cruisers!", port: "Fort Lauderdale, Florida", arrival: nil, departure: "5:00 PM"),
+	PortAndTheme(cruiseDay: 2, theme: nil, port: "Nassau, Bahamas", arrival: "8:00 AM", departure: "2:30 PM"),
 	PortAndTheme(cruiseDay: 3, theme: "Cosplay Day", port: "At Sea", arrival: nil, departure: nil),
-	PortAndTheme(cruiseDay: 4, theme: nil, port: "Santo Domingo, Domician Republic", arrival: "10:00 AM", departure: "1:00 AM"),
+	PortAndTheme(cruiseDay: 4, theme: nil, port: "Frederiksted, St. Croix, U.S. Virgin Islands", arrival: "1:00 PM", departure: "8:00 PM"),
 	PortAndTheme(cruiseDay: 5, theme: "Formal Night", port: "At Sea", arrival: nil, departure: nil),
-	PortAndTheme(cruiseDay: 6, theme: nil, port: "GrandTurk, Turks And Caicos", arrival: "8:00 AM", departure: "5:00 PM"),
-	PortAndTheme(cruiseDay: 7, theme: "Jammies Day", port: "At Sea", arrival: nil, departure: nil),
+	PortAndTheme(cruiseDay: 6, theme: "Birthday Day", port: "At Sea", arrival: nil, departure: nil),
+	PortAndTheme(cruiseDay: 7, theme: "Jammies Day", port: "Half Moon Cay, Bahamas", arrival: "8:00 AM", departure: "3:00 PM"),
 	PortAndTheme(cruiseDay: 8, theme: "Goodbye, everyone!", port: "Fort Lauderdale, Florida", arrival: "7:00 AM", departure: nil)
 	]
 	
@@ -56,8 +82,12 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 		portLabel.styleFor(.body)
 		arriveDepartLabel.styleFor(.body)
 		themeLabel.styleFor(.body)
-
-		setupCellForToday()
+    }
+    
+    var dailyTheme: DailyTheme? {
+		didSet {
+			setupCellForToday()
+		}
     }
     
     func setupCellForToday() {
@@ -66,8 +96,32 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 		dateFormatter.setLocalizedDateFormatFromTemplate("MMMMd")
 		let shortDate = dateFormatter.string(from: cruiseCurrentDate())
 		titleLabel.text = "Planned Itinerary for \(shortDate)"
+		
+		if let todaysTheme = dailyTheme {
+    	
+			let todaysTitle = NSMutableAttributedString(string: todaysTheme.title, attributes: labelTextAttributes())
+			portLabel.attributedText = todaysTitle
 
-		if let cruiseDay = dayOfCruise(), (1...8).contains(cruiseDay) {
+			let themeText = StringUtilities.cleanupText(todaysTheme.info, addLinks: false, 
+					font: UIFont(name:"Helvetica-Regular", size: 17) ?? UIFont.preferredFont(forTextStyle: .body))
+//			let themeText = NSMutableAttributedString(string: todaysTheme.info, attributes: contentTextAttributes())
+			themeLabel.attributedText = themeText
+			themeLabel.isHidden = false
+
+			arriveDepartLabel.isHidden = true
+			
+			if let imageName = todaysTheme.image {
+				ImageManager.shared.image(withSize:.medium, forKey: imageName) { image in
+					self.imageView.image = image
+					self.imageView.isHidden = false
+				}
+			}
+			else {
+				imageView.isHidden = true
+			}
+
+		}
+		else if let cruiseDay = dayOfCruise(), (1...8).contains(cruiseDay) {
 	    	let pnt = PortAndThemeCell.itinerary[cruiseDay - 1]
     	
 			let portText = NSMutableAttributedString(string: "Port: ", attributes: labelTextAttributes())
@@ -97,6 +151,7 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 			else {
 				themeLabel.isHidden = true
 			}
+			imageView.isHidden = true
 		}
 		else if let startDate = cruiseStartDate(), cruiseCurrentDate() < startDate {
 			let ashoreDays = lastCruiseEndRelativeDays()
@@ -111,6 +166,7 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 			let themeText = NSMutableAttributedString(string: "Extended shore leave: ", attributes: contentTextAttributes())
 			themeText.append(NSAttributedString(string: "day \(ashoreDays)", attributes: labelTextAttributes()))
 			themeLabel.attributedText = themeText
+			imageView.isHidden = true
 		}
 		else if let ashoreDays = dayAfterCruise() {
 			let portText = NSMutableAttributedString(string: "Stranded Ashore: ", attributes: labelTextAttributes())
@@ -123,6 +179,7 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 			let themeText = NSMutableAttributedString(string: "Extended shore leave: ", attributes: contentTextAttributes())
 			themeText.append(NSAttributedString(string: "day \(ashoreDays)", attributes: labelTextAttributes()))
 			themeLabel.attributedText = themeText
+			imageView.isHidden = true
 		}
 		else {
 			self.cellModel?.shouldBeVisible = false

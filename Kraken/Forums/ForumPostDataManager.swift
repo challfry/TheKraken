@@ -26,6 +26,9 @@ import UIKit
   
 	// Properties built from reactions
 	@objc dynamic public var reactionDict: NSMutableDictionary?			// the reactions set, keyed by reaction.word
+	@objc dynamic public var likeCount: Int32 = 0
+	@objc dynamic public var loveCount: Int32 = 0
+	@objc dynamic public var laughCount: Int32 = 0
 
 // MARK: Methods
 
@@ -41,6 +44,12 @@ import UIKit
     	let dict = NSMutableDictionary()
 		for reaction in reactions {
 			dict.setValue(reaction, forKey: reaction.word)
+			switch reaction.word {
+				case "like": likeCount = reaction.count
+				case "love": loveCount = reaction.count
+				case "laugh": laughCount = reaction.count
+				default: break
+			}
 		}
 		reactionDict = dict
 	}
@@ -81,7 +90,71 @@ import UIKit
 				photos.removeAllObjects()
 			}
 		}
+		
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
 					
+		// TODO: Not handled: isBookmarked, userLike
+
+		let hashtags = StringUtilities.extractHashtags(v3Object.text)
+		HashtagDataManager.shared.addHashtags(hashtags)
+	}
+
+	func buildFromV3DetailData(context: NSManagedObjectContext, v3Object: TwitarrV3PostDetailData) {
+		TestAndUpdate(\.id, Int64(v3Object.postID))
+		TestAndUpdate(\.text, v3Object.text)
+		TestAndUpdate(\.createTime, v3Object.createdAt)
+//		TestAndUpdate(\.thread, thread)
+
+		// Set the author
+		if author.username != v3Object.author.username {
+			let userPool: [UUID : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser] 
+			if let cdAuthor = userPool[v3Object.author.userID] {
+				author = cdAuthor
+			}
+		}
+		
+		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
+		if let newImageFilenames = v3Object.images {
+			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+			for (index, image) in newImageFilenames.enumerated() {
+				if photos.count <= index, let photoToAdd = photoDict[image] {
+					photos.add(photoToAdd)
+				} 
+				if (photos[index] as? PhotoDetails)?.id != image, let photoToAdd = photoDict[image] {
+					photos.replaceObject(at:index, with: photoToAdd)
+				}
+			}
+			if photos.count > newImageFilenames.count {
+				photos.removeObjects(in: NSRange(location: newImageFilenames.count, length: photos.count - newImageFilenames.count))
+			}
+		} 
+		else {
+			if photos.count > 0 {
+				photos.removeAllObjects()
+			}
+		}
+					
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
+
+		func setReactionCounts(word: String, users: [TwitarrV3UserHeader]) {
+			if let reactionObj = reactionDict?[word] as? Reaction {
+				reactionObj.count = Int32(users.count)
+			}
+			else if users.count > 0 {
+				let newReaction = Reaction(context: context)
+				newReaction.word = word
+				newReaction.count = Int32(users.count)
+				newReaction.sourceForumPost	= self
+			}
+		}
+		setReactionCounts(word: "like", users: v3Object.likes)
+		setReactionCounts(word: "love", users: v3Object.loves)
+		setReactionCounts(word: "laugh", users: v3Object.laughs)
+		
+		// TODO: not handled: isBookmarked
+	}
+	
+	func buildUserReactionFromV3(context: NSManagedObjectContext, userLike: TwitarrV3LikeType?) {
 		// Set the user's reaction to the post
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
 			// Find any existing reaction the user has
@@ -101,7 +174,7 @@ import UIKit
 				
 				// If the new reaction is different or deleted, remove existing reaction from CD.
 				userCurrentReaction = userCurrentReactions.first
-				if let ucr = userCurrentReaction, v3Object.userLike?.rawValue != ucr.word {
+				if let ucr = userCurrentReaction, userLike?.rawValue != ucr.word {
 					if let _ = ucr.users.remove(currentUser) {
 						ucr.count -= 1
 					}
@@ -109,7 +182,7 @@ import UIKit
 			}
 				
 			// Add new reaction, if any
-			if let newReactionWord = v3Object.userLike?.rawValue, userCurrentReaction?.word != newReactionWord {
+			if let newReactionWord = userLike?.rawValue, userCurrentReaction?.word != newReactionWord {
 				if let reaction = reactions.first(where: { $0.word == newReactionWord } ) {
 					let (didInsert, _) = reaction.users.insert(currentUser)
 					if didInsert {
@@ -125,105 +198,32 @@ import UIKit
 				}
 			}
 		}
-		// TODO: Not handled: isBookmarked, userLike
-
-		let hashtags = StringUtilities.extractHashtags(v3Object.text)
-		HashtagDataManager.shared.addHashtags(hashtags)
 	}
 
-//	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ForumPost, thread: ForumThread) {
-//		TestAndUpdate(\.id, v2Object.id)
-//		TestAndUpdate(\.text, v2Object.text)
-//		TestAndUpdate(\.timestamp, v2Object.timestamp)
-//		TestAndUpdate(\.thread, thread)
-//		
-//		// Set the author
-//		if author.username != v2Object.author.username {
-//			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-//			if let cdAuthor = userPool[v2Object.author.username] {
-//				author = cdAuthor
-//			}
-//		}
-//		
-//		// If the author of this post is the current user, mark that they've posted in the thread
-//		if author.username == CurrentUser.shared.getLoggedInUser(in: context)?.username {
-//			if let rco = thread.getReadCountObject(context: context), rco.userPosted != true {
-//				rco.userPosted = true
-//			}
-//		}
-//		
-//		// Are all the photoDetails in our photos ordered set the same as what's in the network response?
-//		var photosUnchanged = photos.count == v2Object.photos.count
-//		if photosUnchanged {
-//			for (index, photoAsAny) in photos.enumerated() {
-//				if let photo = photoAsAny as? PhotoDetails, v2Object.photos[index].id != photo.id {
-//					photosUnchanged = false
-//					break
-//				}
-//			}
-//		}
-//		
-//		// If the photos have changed in any way, just delete all of them and rebuild. 
-//		if !photosUnchanged {
-//			photos.removeAllObjects()
-//			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
-//			for v2Photo in v2Object.photos {
-//				let newPhoto = photoDict[v2Photo.id] ?? PhotoDetails(context: context)
-//				newPhoto.buildFromV2(context: context, v2Object: v2Photo)
-//				photos.add(newPhoto)
-//			}
-//		}
-//		
-//		let hashtags = StringUtilities.extractHashtags(v2Object.text)
-//		HashtagDataManager.shared.addHashtags(hashtags)
-//	}
-
-	// Note that for forum posts, we're not putting in the effort to model reactions fully, as the server API
-	// isn't set up such that we can really use reactions fully. Mostly, the only way to get the full set of reactions
-	// to a post is to make a special API call, one that must be made for EACH post.
-	func buildReactionsFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ReactionsSummary) {
-
-//		// Find the 'like' reaction, set count, add/remove current user from set of likers.
-//		if let likeReaction = v2Object["like"] {
-//			reactionCount = Int64(likeReaction.count)
-//			if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-//				if likeReaction.me && !likedByUsers.contains(currentUser) {
-//					likedByUsers.insert(currentUser)
-//				}
-//				else if !likeReaction.me && likedByUsers.contains(currentUser) {
-//					likedByUsers.remove(currentUser)
-//				}
-//			}
-//		}
-	}
-	
 	// Always returns nil if nobody's logged in.
-	func getPendingUserReaction(_ named: String) -> PostOpForumPostReaction? {
+	func getPendingUserReaction() -> PostOpForumPostReaction? {
 		if let username = CurrentUser.shared.loggedInUser?.username, let reaction = reactionOps?.first(where: { reaction in
 				guard let r = reaction as? PostOpForumPostReaction else { return false }
-				return r.author.username == username && r.reactionWord == named }) {
+				return r.author.username == username }) {
 			return reaction as? PostOpForumPostReaction
 		}
 		return nil
 	}
 	
-	// This func lets you set any reaction you like, however our data model only stores 'like' reactions for 
-	// Forum posts. This is okay. The server keeps track of other reactions, even if we don't.
-	func setReaction(_ reactionWord: String, to newState: Bool) {
+	func setReaction(_ reactionWord: LikeOpKind) {
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			guard let thisPost = context.object(with: self.objectID) as? ForumPost else { return }
 			
 			// Check for existing op for this user, with this word
-			let op = thisPost.getPendingUserReaction(reactionWord) ?? PostOpForumPostReaction(context: context)
-			op.isAdd = newState
+			let op = thisPost.getPendingUserReaction() ?? PostOpForumPostReaction(context: context)
 			op.operationState = .readyToSend
-			op.reactionWord = reactionWord
+			op.reactionWord = reactionWord.string()
 			op.sourcePost = thisPost
 		}
 	}
 
-	func cancelReactionOp(_ reactionWord: String) {
-		guard let existingOp = getPendingUserReaction(reactionWord) else { return }
+	func cancelReactionOp() {
+		guard let existingOp = getPendingUserReaction() else { return }
 		PostOperationDataManager.shared.remove(op: existingOp)
 	}
 	
@@ -345,6 +345,46 @@ import UIKit
 		}
 	}
 	
+	func loadForumPostDetail(post: ForumPost) {
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/forum/post/\(post.id)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		isPerformingLoad = true
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			self.isPerformingLoad = false
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				NetworkLog.error(error.localizedDescription)
+			}
+			else if let data = package.data {
+//				print (String(decoding:data, as: UTF8.self))
+				do {
+					let post = try Settings.v3Decoder.decode(TwitarrV3PostDetailData.self, from: data)
+					LocalCoreData.shared.performNetworkParsing { context in
+						context.pushOpErrorExplanation("Failure adding post detail to Core Data.")
+											
+						// Make a uniqued list of users from the posts, and get them inserted/updated.
+						UserManager.shared.update(users: [post.author], inContext: context)
+					
+						// Photos, same idea
+						if let images = post.images {
+							ImageManager.shared.updateV3(imageFilenames: images, inContext: context)
+						}
+
+						// Get the existing post in CD 
+						let request = NSFetchRequest<ForumPost>(entityName: "ForumPost")
+						request.predicate = NSPredicate(format: "id == %d", post.postID)
+						request.fetchLimit = 1
+						let cdResults = try context.fetch(request)
+						let cdPost = cdResults.first ?? ForumPost(context: context)
+						cdPost.buildFromV3DetailData(context: context, v3Object: post)
+					}
+				} catch 
+				{
+					NetworkLog.error("Failure parsing forum post detail.", ["Error" : error, "URL" : request.url as Any])
+				} 
+			}
+		}
+	}
+
 	func parsePostData(inThread thread: ForumThread, from v3PostData: TwitarrV3PostData) {
 		LocalCoreData.shared.performNetworkParsing { context in 
 			context.pushOpErrorExplanation("Failed to parse Forum thread and add its posts to Core Data.")
@@ -418,8 +458,8 @@ import UIKit
 	}
 	
 	// If inThread is nil, this post is a new thread, and titleText must be non-nil.
-	func queuePost(existingDraft: PostOpForumPost?, inThread: ForumThread?, titleText: String?, postText: String, images: [PhotoDataType]?,
-			done: @escaping (PostOpForumPost?) -> Void) {
+	func queuePost(existingDraft: PostOpForumPost?, inThread: ForumThread?, inCategory: ForumCategory?, 
+			titleText: String?, postText: String, images: [PhotoDataType]?, done: @escaping (PostOpForumPost?) -> Void) {
 		EmojiDataManager.shared.gatherEmoji(from: postText)	
 
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
@@ -438,15 +478,15 @@ import UIKit
 			else {
 				postOp = PostOpForumPost(context: context)
 			}
-			var threadInContext: ForumThread?
 			if let thread = inThread, let existingThreaad = context.object(with: thread.objectID) as? ForumThread {
-				threadInContext = existingThreaad
+				postOp.thread = existingThreaad
+			}
+			if let cat = inCategory, let catInContext = context.object(with: cat.objectID) as? ForumCategory {
+				postOp.category = catInContext
 			}
 			
-				
 			postOp.text = postText
 			postOp.subject = titleText
-			postOp.thread = threadInContext
 			let photoOpArray: [PostOpPhoto_Attachment]? = images?.map {
 				let op = PostOpPhoto_Attachment(context: context)
 				op.setupFromPhotoData($0)
@@ -565,6 +605,32 @@ struct TwitarrV3PostData: Codable {
     /// The total number of `LikeType` reactions on the post.
     var likeCount: Int64
 }
+
+public struct TwitarrV3PostDetailData: Codable {
+    /// The ID of the post.
+    var postID: Int
+    /// The ID of the Forum containing the post.
+    var forumID: UUID
+    /// The timestamp of the post.
+    var createdAt: Date
+    /// The post's author.
+    var author: TwitarrV3UserHeader
+    /// The text of the forum post.
+    var text: String
+    /// The filenames of the post's optional images.
+    var images: [String]?
+    /// Whether the current user has bookmarked the post.
+    var isBookmarked: Bool
+    /// The current user's `LikeType` reaction on the post.
+    var userLike: TwitarrV3LikeType?
+    /// The seamonkeys with "laugh" reactions on the post.
+    var laughs: [TwitarrV3UserHeader]
+    /// The seamonkeys with "like" reactions on the post.
+    var likes: [TwitarrV3UserHeader]
+    /// The seamonkeys with "love" reactions on the post.
+    var loves: [TwitarrV3UserHeader]
+}
+
 
 enum TwitarrV3LikeType: String, Codable {
     /// A 😆.

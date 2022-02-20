@@ -57,16 +57,21 @@ Media credits for Kraken assets:
 
 
 Twit-arr is a labor of love, and a large group of contributers are responsible:
- - Grimoire developed the initial Status.net site that was on JCC2 and JCC3.
- - Origamislayer did much work for the Status.net implementation as well.
- - Glenn Basden (gbasden) graciously brings the laptop server and provides technical support.
- - Nathan Walker (kvort) decided that he hated Status.net enough to rebuild the codebase for JCC4. For JCC5 he was joined in his quest by Emily Ozols (wingar) and James Stapleton (tasermonkey).
- - RangerRick builds CruiseMonkey and integrates with the Twit-arr APIs.
- - grundoon attempts to step up when needed, and did a bunch of work to prepare for JCC8.
- - Dustin Hendrickson (hendusoone) fixed bugs, added features, and updated APIs for JCC9.
- - Hixie wrote Rainbow Monkey, Rachel Kammerer (ralykam) worked on the user experience, and ChrisR sent in many helpful patches.
- - Drew and others at THO give tons of support and advice that allows us to continue to provide this service.
- - None of this would be here without the invaluable aid of the beta testers, who try out our software on the many, MANY mobile devices that are out there.
+- Grimoire developed the initial Status.net site that was on JCC2 and JCC3.
+- Origamislayer did much work for the Status.net implementation as well.
+- Glenn Basden (gbasden) graciously brings the laptop server and provides technical support.
+- Nathan Walker (kvort) decided that he hated Status.net enough to rebuild the codebase for JCC4. For JCC5 he was joined in his quest 
+by Emily Ozols (wingar) and James Stapleton (tasermonkey).
+- RangerRick builds CruiseMonkey and integrates with the Twit-arr APIs.
+- grundoon attempts to step up when needed, and did a bunch of work to prepare for JCC8.
+- Dustin Hendrickson (hendusoone) fixed bugs, added features, and updated APIs for JCC9.
+- Hixie wrote Rainbow Monkey, Rachel Kammerer (ralykam) worked on the user experience, and ChrisR sent in many helpful patches.
+- Chall Fry (challf) wrote an iOS client called The Kraken for JCC 2020.
+- grundoon, Chall Fry (challf), and Grant Cohoe (Grant) wrote Twitarr V3 for JCC 2022, with lots of help from Glenn Basden (gbasden), 
+Rachel Kammerer (ralykam), RangerRick, Dustin Hendrickson (hendusoone), and Hixie.
+- Drew and others at THO give tons of support and advice that allows us to continue to provide this service.
+- None of this would be here without the invaluable aid of the beta testers, who try out our software on the many, MANY mobile devices 
+that are out there.
 
 A big thank you goes out to the Moderation Team for all the work they do, and to the ship's IT staff who generously host the server and allow us to run this on their network!
 

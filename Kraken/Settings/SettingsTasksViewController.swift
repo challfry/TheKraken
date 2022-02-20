@@ -73,11 +73,11 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 		switch task {
 // Twittar
 		case let reactionTask as PostOpTweetReaction:
-			if reactionTask.isAdd {
-				taskSection.append(SettingsInfoCellModel("Add a \"Like\" reaction to this tweet:", taskIndex: sectionIndex))
+			if reactionTask.reactionWord == "unlike" {
+				taskSection.append(SettingsInfoCellModel("Cancel the \"Like\" on this tweet:", taskIndex: sectionIndex))
 			}
 			else {
-				taskSection.append(SettingsInfoCellModel("Cancel the \"Like\" on this tweet:", taskIndex: sectionIndex))
+				taskSection.append(SettingsInfoCellModel("Add a \"Like\" reaction to this tweet:", taskIndex: sectionIndex))
 			}
 			
 			let model = TwitarrTweetCellModel(withModel:reactionTask.sourcePost)
@@ -129,11 +129,11 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			taskSection.append(cellModel)
 
 		case let reactionTask as PostOpForumPostReaction:
-			if reactionTask.isAdd {
-				taskSection.append(SettingsInfoCellModel("Add a \"Like\" reaction to this Forum Post:", taskIndex: sectionIndex))
+			if reactionTask.reactionWord == "unlike" {
+				taskSection.append(SettingsInfoCellModel("Cancel the \"Like\" on this Forum Post:", taskIndex: sectionIndex))
 			}
 			else {
-				taskSection.append(SettingsInfoCellModel("Cancel the \"Like\" on this Forum Post:", taskIndex: sectionIndex))
+				taskSection.append(SettingsInfoCellModel("Add a \"Like\" reaction to this Forum Post:", taskIndex: sectionIndex))
 			}
 			
 			let model = ForumPostCellModel(withModel: reactionTask.sourcePost)

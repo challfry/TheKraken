@@ -57,6 +57,9 @@ class AlertsUpdater: ServerUpdater {
 		
 		// Disabled Features
 		ValidSectionUpdater.shared.updateDisabledFeatures(disabled: response.disabledFeatures)
+		
+		// Wifi network
+		Settings.shared.onboardWifiNetowrkName = response.shipWifiSSID ?? ""
 	
 		// Announcements
 		let actives = response.activeAnnouncementIDs.map { Int64($0) }
@@ -151,6 +154,8 @@ public struct TwitarrV3UserNotificationData: Codable {
 	/// For all other appName values, the disable is just a notification that the client should not show the feature to users.
 	/// If the list is empty, no features have been deisabled. 
 	var disabledFeatures: [TwitarrV3DisabledFeature]
+	/// The name of the shipboard Wifi network
+	var shipWifiSSID: String?
 
 	/// IDs of all active announcements 
 	var activeAnnouncementIDs: [Int]

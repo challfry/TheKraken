@@ -13,19 +13,28 @@ import UIKit
 	@NSManaged public var title: String
 	@NSManaged public var purpose: String
 	@NSManaged public var isAdmin: Bool
+	@NSManaged public var sortIndex: Int32
+	@NSManaged public var minAccessToView: Int32
 	@NSManaged public var numThreads: Int32
 	@NSManaged public var forums: [ForumThread]?
 	
 	override public func awakeFromInsert() {
 		setPrimitiveValue(UUID(), forKey: "id")
+		setPrimitiveValue(LoggedInKrakenUser.AccessLevel.verified.rawValue, forKey: "minAccessToView")
 	}
 
-	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3CategoryData) {
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3CategoryData, index: Int32) {
 		TestAndUpdate(\.id, v3Object.categoryID)
 		TestAndUpdate(\.title, v3Object.title)
 		TestAndUpdate(\.purpose, v3Object.purpose)
-		TestAndUpdate(\.isAdmin, v3Object.isRestricted)
+		TestAndUpdate(\.sortIndex, index)
 		TestAndUpdate(\.numThreads, v3Object.numThreads)
+		
+		// isRestricted is user-specific, and indicates whether THIS USER can create threads. So, we only set this for 
+		// Verified level users, and the value means "whether a Verified (non-mod, non-admin) user can create threads".
+		if let user = CurrentUser.shared.getLoggedInUser(in: context), user.accessLevel == .verified {
+			TestAndUpdate(\.isAdmin, v3Object.isRestricted)		
+		}
 	}
 }
 
@@ -68,16 +77,26 @@ import UIKit
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failed to parse Forum categories and add to Core Data.")
 			
-			// Fetch categories from CD that match the ids in the given categories
-			let serverCats = v3Categories.map { $0.categoryID }
+			// Fetch categories from CD 
 			let request = NSFetchRequest<ForumCategory>(entityName: "ForumCategory")
-			request.predicate = NSPredicate(format: "id IN %@", serverCats)
+			request.predicate = NSPredicate(value: true)
 			let cdCats = try request.execute()
-			let cdCatsDict = Dictionary(cdCats.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+			var cdCatsDict = Dictionary(cdCats.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
 
+			var index: Int32 = 0
 			for category in v3Categories {
 				let cdCat = cdCatsDict[category.categoryID] ?? ForumCategory(context: context)
-				cdCat.buildFromV3(context: context, v3Object: category)
+				cdCatsDict.removeValue(forKey: category.categoryID)
+				cdCat.buildFromV3(context: context, v3Object: category, index: index)
+				index += 1
+			}
+			// The categories left over aren't viewable to this user.
+			for category in cdCatsDict.values {
+				if let currentAccess = CurrentUser.shared.loggedInUser?.accessLevel.rawValue {
+					if category.minAccessToView <= currentAccess {
+						category.minAccessToView = currentAccess + 1
+					}
+				}
 			}
 		}
 	}

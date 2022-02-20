@@ -47,7 +47,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 		
 		categoryDataSource.append(segment: categorySegment)
 		categorySegment.loaderDelegate = self
-		categorySegment.activate(predicate: NSPredicate(value: true), 
+		categorySegment.activate(predicate: NSPredicate(format: "minAccessToView <= %d", CurrentUser.shared.loggedInUser?.accessLevel.rawValue ?? 0), 
 				sort: [NSSortDescriptor(key: "isAdmin", ascending: false),
 				NSSortDescriptor(key: "title", ascending: true)], cellModelFactory: createCellModel)
 

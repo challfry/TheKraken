@@ -41,7 +41,7 @@ class ServerTextFileParser: NSObject {
 	func getServerTextFile(named: String) {
 
 		//
-		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v2/text/\(named)", query: nil)
+		let request = NetworkGovernor.buildTwittarRequest(withPath:"/public/\(named)", query: nil)
 		isFetchingData = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -50,10 +50,17 @@ class ServerTextFileParser: NSObject {
 			}
 			else if let data = package.data {
 				do {
-					let decoder = JSONDecoder()
-					let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: data)
-					if self.parseJSONToString(from: response, cachedAtDate: nil) {
-						self.saveResponseFile(named: named, withData: data)
+					if named.hasSuffix("md"), let markdownText = String(data: data, encoding: .utf8) {
+						let markdown = SwiftyMarkdown(string: markdownText)
+						markdown.body.fontName = "Georgia"
+						self.fileContents = markdown.attributedString()
+					}
+					else if named.hasSuffix("json") {
+						let decoder = JSONDecoder()
+						let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: data)
+						if self.parseJSONToString(from: response, cachedAtDate: nil) {
+							self.saveResponseFile(named: named, withData: data)
+						}
 					}
 				}
 				catch {

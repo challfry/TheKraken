@@ -20,6 +20,14 @@ import UIKit
 	
 	init() {
 		super.init(bindingWith: AnnouncementCellBindingProtocol.self)
+		
+		// Every 10 seconds, update the post time (the relative time since now that the post happened).
+		NotificationCenter.default.addObserver(forName: RefreshTimers.MinuteUpdateNotification, object: nil,
+				queue: nil) { [weak self] notification in
+			if let self = self, let announcementModel = self.model as? Announcement {
+				self.shouldBeVisible = announcementModel.displayUntil > Date() && announcementModel.isActive
+			}
+		}
 	}
 }
 

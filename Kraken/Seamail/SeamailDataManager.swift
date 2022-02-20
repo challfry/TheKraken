@@ -145,6 +145,10 @@ import CoreData
 				let userParticipant = try getReadCountsInternal(context: context, user: currentUser)
 				if userParticipant.postCount != members.postCount {
 					userParticipant.postCount = Int32(members.postCount)
+					fullyReadBy.removeAll()
+					if members.readCount == members.postCount {
+						fullyReadBy.insert(currentUser)
+					}
 				}
 				if userParticipant.readCount != members.readCount {
 					userParticipant.readCount = Int32(members.readCount)
@@ -183,7 +187,7 @@ import CoreData
 		readCounts.insert(userParticipant)
 		return userParticipant
 	}
-	
+		
 	func markPostAsRead(index: Int) {
 		LocalCoreData.shared.performLocalCoreDataChange() { context, currentUser in
 			context.pushOpErrorExplanation("Failed to mark Seamail Thread as read.")
@@ -192,8 +196,16 @@ import CoreData
 				if readCounts.viewedCount < index + 1 {
 					readCounts.viewedCount = Int32(index) + 1
 				}
+				if readCounts.viewedCount >= readCounts.postCount, let currentUser = CurrentUser.shared.getLoggedInUser(in: context), 
+						 !selfInContext.fullyReadBy.contains(currentUser) {
+					selfInContext.fullyReadBy.insert(currentUser) 
+				}
+				// If there are posts to be loaded, and we're near the end of loaded msgs
+				if selfInContext.messages.count < readCounts.postCount && selfInContext.messages.count > index + 15 {
+					SeamailDataManager.shared.loadSeamailThread(thread: selfInContext, start: selfInContext.messages.count) {}
+				}
 			}
-		}			
+		}
 	}
 }
 
@@ -203,6 +215,8 @@ import CoreData
 	private let coreData = LocalCoreData.shared
 	var lastError : ServerError?
 	@objc dynamic var isLoading = false
+	
+	var recentLoads: [UUID : Date] = [:]
 	
 // MARK: Methods
 	func loadSeamails(done: (() -> Void)? = nil) {
@@ -240,10 +254,31 @@ import CoreData
 		}
 	}
 	
-	func loadSeamailThread(thread: SeamailThread, done: @escaping () -> Void) {
-		// TODO: Add Limiter
-		
-		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)", query: nil)
+	func updateSeamailThreadID(threadID: UUID) {
+		do {
+			let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
+			request.predicate = NSPredicate(format: "id == %@", threadID as CVarArg)
+			request.fetchLimit = 1
+			let cdThreads = try LocalCoreData.shared.mainThreadContext.fetch(request)
+			if let cdThread = cdThreads.first {
+				loadSeamailThread(thread: cdThread, done: {})
+			}
+		}
+		catch {
+			print(error)
+		}
+	}
+	
+	func loadSeamailThread(thread: SeamailThread, start: Int = -1, done: @escaping () -> Void) {
+		if let lastLoadDate = recentLoads[thread.id], lastLoadDate.timeIntervalSinceNow > -10.0 {
+			return
+		}
+		recentLoads[thread.id] = Date()
+
+		var queryParams: [URLQueryItem] = []
+		let startParam = start != -1 ? start : thread.messages.count
+		queryParams.append(URLQueryItem(name:"start", value: "\(startParam)"))
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -253,6 +288,7 @@ import CoreData
 				do {
 					let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
 					self.ingestSeamailThreads(from: [response])
+					self.recentLoads.removeValue(forKey: thread.id)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])

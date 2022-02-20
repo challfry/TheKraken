@@ -15,6 +15,7 @@ import BackgroundTasks
 			ServerTimeUpdater.shared,
 			ValidSectionUpdater.shared,
 			AlertsUpdater.shared,
+			DailyThemeUpdater.shared,
 	]
 	static var numActiveUpdaters: Int = 0
 	static var allUpdatesComplete: (() -> Void)?
@@ -119,12 +120,14 @@ class RefreshTimers: NSObject {
 		// 2. Start update timer, which refreshes all the time fields every 10 seconds.
 		timeDisplayRefresher = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { timer in
 			NotificationCenter.default.post(Notification(name: RefreshTimers.TenSecUpdateNotification))
+//			print("10 second timer.")
 			
 			// If the minute changed, send the minute notification as well
 			let minute = Calendar.current.component(.minute, from: Date())
 			if minute != lastMinuteUpdate {
 				lastMinuteUpdate = minute
 				NotificationCenter.default.post(Notification(name: RefreshTimers.MinuteUpdateNotification))
+//				print("minute timer.")
 				
 				// One of the things I really hate about NSNotifications is that you can't inspect them to see who's signed
 				// up to receive the notification. So, for 'global' clients that can be put here directly instead of 

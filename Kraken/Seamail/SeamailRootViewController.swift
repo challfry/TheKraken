@@ -28,6 +28,9 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		
 		return cell
 	}()
+	
+	// Used to store incoming global nav until our view is loaded. 
+	var globalNav: GlobalNavPacket?
 
 // MARK: Methods	
 	override func awakeFromNib() {
@@ -87,6 +90,10 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		title = "Seamail"
 		knownSegues = Set([.userProfile, .showSeamailThread])
 		
+		if let packet = globalNav {
+			_ = globalNavigateTo(packet: packet)
+		}
+		
 //		threadSegment.log.instanceEnabled = true
     }
     
@@ -121,7 +128,15 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
     
     // MARK: Navigation
     
-	func globalNavigateTo(packet: GlobalNavPacket) -> Bool{
+	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+		// If we haven't loaded the FRC yet, cache the packet and return
+		if threadSegment.frc == nil {
+			globalNav = packet
+			return true
+		}
+		globalNav = nil
+		
+		// Nav to a thread with the given users
 		if let userNames = packet.arguments["seamailThreadParticipants"] as? Set<String> {
 			let _ = self.view		// Force the view to load
 			if let nav = self.navigationController, let threads = threadSegment.frc?.fetchedObjects {
@@ -144,6 +159,23 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 				nav.viewControllers = [nav.viewControllers[0], newVC]
 				if let globalNav = newVC as? GlobalNavEnabled {
 					globalNav.globalNavigateTo(packet: packet)
+				}
+			}
+		}
+		// Nav to the given thread ID
+		else if let threadIDStr = packet.arguments["thread"] as? String, let threadID = UUID(uuidString: threadIDStr) {
+			if let nav = self.navigationController, let threads = threadSegment.frc?.fetchedObjects {
+				for thread in threads {
+					if thread.id == threadID {
+						let storyboard = UIStoryboard(name: "Main", bundle: nil)
+						let existingThreadVC = storyboard.instantiateViewController(withIdentifier: "SeamailThread") as! SeamailThreadViewController
+						existingThreadVC.threadModel = thread
+						nav.viewControllers = [nav.viewControllers[0], existingThreadVC]
+						if let globalNav = existingThreadVC as? GlobalNavEnabled {
+							globalNav.globalNavigateTo(packet: packet)
+						}
+						return true
+					}
 				}
 			}
 		}
