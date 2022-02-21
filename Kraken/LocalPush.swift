@@ -10,16 +10,12 @@ import Foundation
 import NetworkExtension
 import os
 
-class LocalPush: NSObject {
+@objc class LocalPush: NSObject {
 	static let shared = LocalPush()
 	
-	private var pushManager: NEAppPushManager?
+	@objc dynamic var pushManager: NEAppPushManager?
 	private let logger = Logger()
-	
-	override init() {
 		
-	}
-	
 	func appStarted() {
 		NEAppPushManager.loadAllFromPreferences { managers, error in 
 			if let error = error {
@@ -40,7 +36,7 @@ class LocalPush: NSObject {
 	func saveSettings(for manager: NEAppPushManager?) {
 		let onboardSSID = Settings.shared.onboardWifiNetowrkName
 		if !onboardSSID.isEmpty {
-			let mgr = manager ??  NEAppPushManager()
+			let mgr = manager ?? NEAppPushManager()
 			var websocketURLComponents = URLComponents()
 			websocketURLComponents.scheme = "ws"
 			websocketURLComponents.host = Settings.shared.baseURL.host
@@ -52,10 +48,10 @@ class LocalPush: NSObject {
 			
 			if websocketURLString != mgr.providerConfiguration["twitarrURL"] as? String ||
 					token != mgr.providerConfiguration["token"] as? String ||
-					mgr.matchSSIDs != [onboardSSID] {
+					mgr.matchSSIDs != [onboardSSID] || mgr.isEnabled == false {
 				mgr.localizedDescription = "App Extension for Background Server Communication"
 				mgr.providerBundleIdentifier = "com.challfry-FQD.Kraken.KrakenLocalPushExtension"
-				mgr.delegate = self
+//				mgr.delegate = self
 				mgr.isEnabled = true
 				mgr.providerConfiguration = [
 					"twitarrURL": websocketURLString,
@@ -74,7 +70,7 @@ class LocalPush: NSObject {
 					}
 				}
 			}
-			pushManager = manager
+			pushManager = mgr
 		}
 		else if let mgr = manager {
 			mgr.removeFromPreferences { error in
@@ -82,12 +78,13 @@ class LocalPush: NSObject {
 					AppLog.error("Couldn't save push manager prefs: \(error)")
 				}
 			}
+			pushManager = nil
 		}
 	}
 }
 
-extension LocalPush: NEAppPushDelegate {
-    func appPushManager(_ manager: NEAppPushManager, didReceiveIncomingCallWithUserInfo userInfo: [AnyHashable: Any] = [:]) {
-        logger.log("LocalPush received an incoming call?? This should not happen.")
-	}
-}
+//extension LocalPush: NEAppPushDelegate {
+//    func appPushManager(_ manager: NEAppPushManager, didReceiveIncomingCallWithUserInfo userInfo: [AnyHashable: Any] = [:]) {
+//        logger.log("LocalPush received an incoming call?? This should not happen.")
+//	}
+//}

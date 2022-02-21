@@ -50,6 +50,9 @@ class SettingsRootViewController: BaseCollectionViewController {
 		NetworkGovernor.shared.tell(self, when: ["connectionState", "connectedViaWIFI"]) { observer, observed in
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
 		}?.schedule()
+		LocalPush.shared.tell(self, when: "pushManager.isActive") { observer, observed in
+			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
+		}?.schedule()
 		networkInfoSection.append(ServerAddressEditCellModel("Server URL"))
 		let buttonCell = ButtonCellModel(alignment: .center)
 		buttonCell.setupButton(1, title: "Reset Server URL to Default", action: resetServerButtonHit)
@@ -137,11 +140,18 @@ class SettingsRootViewController: BaseCollectionViewController {
 	func getCurrentWifiDescriptionString() -> NSMutableAttributedString {
 		let resultString = NSMutableAttributedString()
 		if NetworkGovernor.shared.connectedViaWIFI {
-			resultString.append(string:"Connected to wifi", attrs: nil)
+			resultString.append(string:"Connected to wifi.", attrs: nil)
 //			resultString.append(string:wifiName, attrs: nil)
 		}
 		else {
-			resultString.append(string:"Not connected to wifi", attrs: nil)
+			resultString.append(string:"Not connected to wifi.", attrs: nil)
+		}
+		
+		if LocalPush.shared.pushManager?.isActive == true {
+			resultString.append(string: " Local Push Connectivity is active.")
+		}
+		else {
+			resultString.append(string: " No Local Push Connectivity.")
 		}
 		
 		if NetworkGovernor.shared.connectionState == .canConnect {

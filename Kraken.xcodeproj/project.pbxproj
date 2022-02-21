@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -136,7 +136,7 @@
 		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
 		EAA12B6627B4A55B002F9C47 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAA12B6527B4A55B002F9C47 /* NetworkExtension.framework */; };
 		EAA12B6927B4A55B002F9C47 /* KrakenPushProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA12B6827B4A55B002F9C47 /* KrakenPushProvider.swift */; };
-		EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EAA12B7427B4AB92002F9C47 /* LocalPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA12B7327B4AB92002F9C47 /* LocalPush.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4C12242D300009F287F /* ForumsCategoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* ForumsCategoryVC.swift */; };
@@ -1466,6 +1466,7 @@
 /* Begin PBXTargetDependency section */
 		EAA12B6D27B4A55C002F9C47 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = EAA12B6327B4A55B002F9C47 /* KrakenLocalPushExtension */;
 			targetProxy = EAA12B6C27B4A55C002F9C47 /* PBXContainerItemProxy */;
 		};
@@ -1536,7 +1537,7 @@
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KrakenLocalPushExtension/Info.plist;
@@ -1548,7 +1549,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Kraken Local Push Dev";
@@ -1567,7 +1568,7 @@
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KrakenLocalPushExtension/Info.plist;
@@ -1579,7 +1580,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Kraken Local Push Extension Dist";
@@ -1716,8 +1717,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
@@ -1725,11 +1727,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = "maccatalyst.com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Kraken Dev";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Kraken Ad Hoc";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Kraken Mac Catalyst Dev";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Kraken/Core/Kraken-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1745,7 +1748,7 @@
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
@@ -1753,7 +1756,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Kraken App Distribution";
