@@ -545,7 +545,9 @@ class UserManager : NSObject {
 	
 // MARK: Username Autocomplete Searches
 	// Autocomplete variables for minimizing calls to /api/v2/user/ac.
-	fileprivate var recentAutocorrectSearches = [String]()
+	fileprivate var recentAutocorrectSearches = Set<String>()
+	// Autocomplete searches that returned fewer than 10 results--meaning strings with these prefixes can't give us anything new
+	fileprivate var recentFullResultSearches = Set<String>()
 	var autocorrectCallDelayTimer: Timer?
 	var autocorrectCallInProgress: Bool = false
 	var delayedAutocorrectSearchString: String?
@@ -553,6 +555,7 @@ class UserManager : NSObject {
 
 	func clearRecentAutocorrectSearches() {
 		recentAutocorrectSearches.removeAll()
+		recentFullResultSearches.removeAll()
 	}
 	
 	// UI level code can call this repeatedly, for every character the user types. This method waits .5 seconds
@@ -561,24 +564,23 @@ class UserManager : NSObject {
 	// at a time.
 	// Only calls completion routine if we talked to server and (maybe) got new usernames
 	func autocorrectUserLookup(for partialName: String, done: @escaping (String?) -> Void) {
-		guard partialName.count >= 1 else { done(nil); return }
-
-		// 1. Kill any timer that's going
+		// 1. Don't call the server with 1 char strings, with the same string twice, or with a string containing a substring
+		// we already tried IF that substring returned fewer than 10 matches (that is, we got a 'complete' result on the substring).
+		let matchesRecentSearch = recentFullResultSearches.contains { partialName.contains($0) }
+		guard partialName.count > 1, !recentAutocorrectSearches.contains(partialName), !matchesRecentSearch else { done(nil); return }
+		
+		// 2. Kill any timer that's going
 		autocorrectCallDelayTimer?.invalidate()
-		
-		// 2. Don't call the server with the same string twice (in a short period of time)
-		if !recentAutocorrectSearches.contains(partialName) {
-		
-			// 3. Only have one call in flight--and one call on deck Newer on-deck calls just replace older ones.
-			if autocorrectCallInProgress {
-				delayedAutocorrectSearchString = partialName
-				delayedAutocorrectCompletion = done
-			}
-			else {
-				// 4. Wait half a second, see if the user types more. If not, talk to the server.
-				autocorrectCallDelayTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
-					self.internalAutocorrectUserLookup(for: partialName, done: done)
-				}
+				
+		// 3. Only have one call in flight--and one call on deck Newer on-deck calls just replace older ones.
+		if autocorrectCallInProgress {
+			delayedAutocorrectSearchString = partialName
+			delayedAutocorrectCompletion = done
+		}
+		else {
+			// 4. Wait half a second, see if the user types more. If not, talk to the server.
+			autocorrectCallDelayTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { timer in
+				self.internalAutocorrectUserLookup(for: partialName, done: done)
 			}
 		}
 	}
@@ -586,15 +588,16 @@ class UserManager : NSObject {
 	// Updates CD with new users who have the given substring in their names by asking the server.
 	// Calls done closure when complete. Parameter to the done closure is non-nil if the server response
 	// was comprehensive for that substring.
-	func internalAutocorrectUserLookup(for partialName: String, done: @escaping (String?) -> Void) {
-		guard partialName.count >= 1 else { done(nil); return }
+	private func internalAutocorrectUserLookup(for partialName: String, done: @escaping (String?) -> Void) {
+		guard partialName.count > 1 else { done(nil); return }
 		autocorrectCallInProgress = true
 		
 		// Input sanitizing: URLComponents should percent escape partialName to make a valid path; 
 		// but the username could still have "/" in it. 
 		let encodedUsername = partialName.addingPathComponentPercentEncoding() ?? ""
 
-		let request = NetworkGovernor.buildTwittarRequest(withEscapedPath:"/api/v2/user/ac/\(encodedUsername)", query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath:"/api/v3/users/match/allnames/\(encodedUsername)", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.autocorrectCallInProgress = false
 			if let error = NetworkGovernor.shared.parseServerError(package) {
@@ -603,14 +606,17 @@ class UserManager : NSObject {
 			else if let data = package.data {
 				LocalCoreData.shared.performNetworkParsing { context in
 					context.pushOpErrorExplanation("Failure parsing UserInfo from Autocomplete response.")
-					let result = try JSONDecoder().decode(TwitarrV2UserAutocompleteResponse.self, from: data)
-					UserManager.shared.update(users: result.users, inContext: context)
+					let result = try JSONDecoder().decode([TwitarrV3UserHeader].self, from: data)
+					UserManager.shared.update(users: result, inContext: context)
 					
 					LocalCoreData.shared.setAfterSaveBlock(for: context) { success in
 						if success {
-							let doneString = result.users.count < 10 ? partialName : nil
+							let doneString = result.count < 10 ? partialName : nil
 							DispatchQueue.main.async { 
-								self.recentAutocorrectSearches.append(partialName)
+								self.recentAutocorrectSearches.insert(partialName)
+								if result.count < 10 {
+									self.recentFullResultSearches.insert(partialName)
+								}
 								done(doneString) 
 							}
 						}
