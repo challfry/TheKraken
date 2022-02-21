@@ -47,7 +47,7 @@ import CoreData
 	// Cells showing announcements should call this on a timer to force expiration, because FetchedResultsControllers can't.
 	// Well, they can handle the initial check, but once the FRC is open, an expired announcement can't be dismissed.
 	func updateIsActive() {
-		if isActive, displayUntil > Date() {
+		if isActive, displayUntil < Date() {
 			LocalCoreData.shared.performLocalCoreDataChange() { context, currentUser in
 				if let announcementInContext = try? context.existingObject(with: self.objectID) as? Announcement {
 					announcementInContext.isActive = false
@@ -70,7 +70,8 @@ import CoreData
 	
 	override init() {
 		let fetchRequest = NSFetchRequest<Announcement>(entityName: "Announcement")
-		fetchRequest.predicate = NSPredicate(format: "isActive == true AND displayUntil > %@", Date() as NSDate)
+//		fetchRequest.predicate = NSPredicate(format: "isActive == true AND displayUntil > %@", Date() as NSDate)
+		fetchRequest.predicate = NSPredicate(format: "isActive == true")
 		fetchRequest.sortDescriptors = [ NSSortDescriptor(key: "updatedAt", ascending: false)]
 		fetchRequest.fetchBatchSize = 50
 		self.fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: LocalCoreData.shared.mainThreadContext, 
@@ -87,7 +88,7 @@ import CoreData
 				}
 			}
 			catch {
-				CoreDataLog.error("Couldn't fetch Twitarr posts.", [ "error" : error ])
+				CoreDataLog.error("Couldn't fetch Announcements.", [ "error" : error ])
 			}
 			
 			// Update our badge count if user state changes
@@ -123,6 +124,7 @@ import CoreData
 	func updateAnnouncementCounts(activeIDs: [Int64], unseenCount: Int64) {
 		// Don't use unseenCount to decide whether to grab announcements. Even if the user has 'seen' the announcement
 		// on another device we still need to load it.
+		currentAnnouncements.forEach { $0.updateIsActive() }
 		let localActiveIDs = Set(currentAnnouncements.map { $0.id })
 		serverActiveIds = activeIDs
 		if !localActiveIDs.isSuperset(of: activeIDs) {
@@ -199,6 +201,8 @@ import CoreData
 	// For now, the notification just tells the user to open the app and read the announcement--it doesn't put the
 	// contents of the announcement in the notification.
 	func postNewAnnouncementNotification() {
+		// If the pushProvider is running, it'll post this for us
+		guard LocalPush.shared.pushManager?.isActive != true else { return }
 		let content = UNMutableNotificationContent()
 		content.title = "New Twitarr Announcement"
 		content.body = "Tap to view this announcement in The Kraken."
