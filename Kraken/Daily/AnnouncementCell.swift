@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @objc protocol AnnouncementCellBindingProtocol: FetchedResultsBindingProtocol {
 }
@@ -25,7 +26,7 @@ import UIKit
 		NotificationCenter.default.addObserver(forName: RefreshTimers.MinuteUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
 			if let self = self, let announcementModel = self.model as? Announcement {
-				self.shouldBeVisible = announcementModel.displayUntil > Date() && announcementModel.isActive
+				announcementModel.updateIsActive()
 			}
 		}
 	}

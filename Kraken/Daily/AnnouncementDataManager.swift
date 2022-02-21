@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @objc(Announcement) public class Announcement: KrakenManagedObject {
     @NSManaged public var id: Int64
@@ -39,6 +40,18 @@ import UIKit
 			let userPool: [UUID : KrakenUser] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser] 
 			if let cdAuthor = userPool[v3Object.author.userID] {
 				author = cdAuthor
+			}
+		}
+	}
+	
+	// Cells showing announcements should call this on a timer to force expiration, because FetchedResultsControllers can't.
+	// Well, they can handle the initial check, but once the FRC is open, an expired announcement can't be dismissed.
+	func updateIsActive() {
+		if isActive, displayUntil > Date() {
+			LocalCoreData.shared.performLocalCoreDataChange() { context, currentUser in
+				if let announcementInContext = try? context.existingObject(with: self.objectID) as? Announcement {
+					announcementInContext.isActive = false
+				}
 			}
 		}
 	}
