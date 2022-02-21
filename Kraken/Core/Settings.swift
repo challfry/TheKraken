@@ -32,14 +32,20 @@ import Foundation
 	@objc dynamic public lazy var apiVersion = 3
 	
 	// Each Settings property should get a copy of these 4 lines, modified appropriately
+#if DEBUG
 	@objc dynamic public var settingsBaseURL: URL {
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://localhost:8081")!) }
 		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.0.19:8081")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://208.113.200.254")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.wookieefive.net")!) }
-//		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://joco.hollandamerica.com")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
+#else
+	@objc dynamic public var settingsBaseURL: URL {
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://joco.hollandamerica.com")!) }
+		set { setSetting(name: "baseURL", newValue: newValue) }
+	}
+#endif
 
 	// Saves the last user to be 'active'. Unless they're logged in with multiple accounts, this will just 
 	// be the user.

@@ -9,6 +9,7 @@
 import UIKit
 import EventKit
 import UserNotifications
+import CoreData
 
 @objc(Event) public class Event: KrakenManagedObject {
     @NSManaged public var id: UUID
@@ -83,20 +84,6 @@ import UserNotifications
 		
 		return false
 	}
-
-//	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2Event) {
-//		TestAndUpdate(\.id, v2Object.id)
-//		TestAndUpdate(\.title, v2Object.title)
-//		TestAndUpdate(\.eventDescription, v2Object.eventDescription?.decodeHTMLEntities())
-//		TestAndUpdate(\.location, v2Object.location)
-//		TestAndUpdate(\.eventType, v2Object.official == true ? "Official" : "Shadow Event")
-//		TestAndUpdate(\.startTime, Date(timeIntervalSince1970: Double(v2Object.startTime) / 1000.0 ))
-//		TestAndUpdate(\.endTime, Date(timeIntervalSince1970: Double(v2Object.endTime) / 1000.0 ))
-//				
-//		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-//			setFavoriteState(context: context, user: currentUser, to: v2Object.following)
-//		}
-//	}
 	
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3EventData) throws {
 		TestAndUpdate(\.id, v3Object.eventID)
@@ -468,7 +455,7 @@ class EventsDataManager: NSObject {
 	}
 		
 	func loadEvents() {
-		let path = Settings.apiV3 ? "/api/v3/events" : "/api/v2/event"
+		let path = "/api/v3/events"
 		var request = NetworkGovernor.buildTwittarRequest(withPath:path, query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		networkUpdateActive = true
@@ -481,15 +468,9 @@ class EventsDataManager: NSObject {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {
-					if Settings.apiV3 {
-						decoder.dateDecodingStrategy = .custom(StringUtilities.parseISO8601DateString)
-						let eventResponse = try decoder.decode(TwitarrV3EventResponse.self, from: data)
-						self.parseV3Events(eventResponse, isFullList: true)
-					}
-					else {
-			//			let eventResponse = try decoder.decode(TwitarrV2EventResponse.self, from: data)
-			//			self.parseV2Events(eventResponse.events, isFullList: true)
-					}
+					decoder.dateDecodingStrategy = .custom(StringUtilities.parseISO8601DateString)
+					let eventResponse = try decoder.decode(TwitarrV3EventResponse.self, from: data)
+					self.parseV3Events(eventResponse, isFullList: true)
 					Settings.shared.lastEventsUpdateTime = Date()
 				} catch 
 				{
@@ -502,35 +483,7 @@ class EventsDataManager: NSObject {
 			// events data yet or we do have data but it's out of date.
 		}
 	}
-	
-	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
-	// not in the new list. Otherwise it only adds/updates events.
-//	func  parseV2Events(_ events: [TwitarrV2Event], isFullList: Bool) {
-//		LocalCoreData.shared.performNetworkParsing { context in
-//			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
-//			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
-//			let cdEvents = try? context.fetch(fetchRequest)
-//
-//			if isFullList {
-//				// Delete events not in the new event list
-//				let newEventIds = Set(events.map( { $0.id } ))
-//				cdEvents?.forEach { cdEvent in
-//					if !newEventIds.contains(cdEvent.id) {
-//						context.delete(cdEvent)
-//					}
-//				}
-//			}
-//		
-//			// Add/update
-//			for v2Event in events {
-//				let eventInContext = cdEvents?.first(where: { $0.id == v2Event.id }) ?? Event(context: context)
-//				eventInContext.buildFromV2(context: context, v2Object: v2Event)
-//			}
-//				
-//			self.getAllLocations()
-//		}
-//	}
-	
+		
 	// pass TRUE for isFullList if events is a comprehensive list of all events; this causes deletion of existing events
 	// not in the new list. Otherwise it only adds/updates events.
 	func parseV3Events(_ events: [TwitarrV3EventData], isFullList: Bool) {
