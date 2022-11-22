@@ -48,7 +48,8 @@ class CategoryCell: BaseCollectionViewCell, CategoryCellProtocol {
 	}
 	var purpose: String? {
 		didSet { 
-			purposeLabel.text = purpose
+			let attrString = NSMutableAttributedString(string: purpose ?? "", attributes: purposeLabel.getAttrs())
+			purposeLabel.attributedText = StringUtilities.addInlineImages(str: attrString)
 			cellSizeChanged()
 		}
 	}

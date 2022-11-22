@@ -22,6 +22,10 @@ extension UILabel {
 		font = scaledFont
 		adjustsFontForContentSizeCategory = true
 	}
+	
+	func getAttrs() -> [ NSAttributedString.Key : Any ] {
+		return [ .font : self.font as Any, .foregroundColor : self.textColor as Any ]
+	}
 }
 
 extension UITextField {

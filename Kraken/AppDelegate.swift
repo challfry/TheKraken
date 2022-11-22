@@ -124,10 +124,10 @@ extension AppDelegate {
 		if #available(iOS 13.0, *) {
 			Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
 				switch observed.uiDisplayStyle {
-				case .systemDefault: observer.window?.overrideUserInterfaceStyle = .unspecified
-				case .normalMode: observer.window?.overrideUserInterfaceStyle = .light
-				case .darkMode: observer.window?.overrideUserInterfaceStyle = .dark
-				case .deepSeaMode: observer.window?.overrideUserInterfaceStyle = .dark
+				case .systemDefault: observer.window?.overrideUserInterfaceStyle = UIUserInterfaceStyle.unspecified
+				case .normalMode: observer.window?.overrideUserInterfaceStyle = UIUserInterfaceStyle.light
+				case .darkMode: observer.window?.overrideUserInterfaceStyle = UIUserInterfaceStyle.dark
+				case .deepSeaMode: observer.window?.overrideUserInterfaceStyle = UIUserInterfaceStyle.dark
 				default: break					
 				}
 			}?.execute()
