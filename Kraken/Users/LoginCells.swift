@@ -385,7 +385,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 			// TODO: show error state
 			return		
 		}
-//		if !Settings.apiV3, registrationCodeCellModel.hasText()
+//		if registrationCodeCellModel.hasText()
 //		guard passwordCellModel.editedText == confirmPasswordCellModel.editedText else {
 //			// TODO: show error state
 //			return		

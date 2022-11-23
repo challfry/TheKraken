@@ -231,23 +231,7 @@ struct NetworkResponse {
 			return
 		}
 	
-		if Settings.apiV3 {
-			request.addValue("Bearer \(authKey)", forHTTPHeaderField: "Authorization")
-		}
-		else {
-			if let url = request.url, var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-				var query = components.queryItems ?? [URLQueryItem]()
-				for index in 0..<query.count {
-					if query[index].name == "key" {
-						query.remove(at: index)
-						break
-					}
-				}
-				query.append(URLQueryItem(name: "key", value: authKey))
-				components.queryItems = query
-				request.url = components.url
-			}
-		}
+		request.addValue("Bearer \(authKey)", forHTTPHeaderField: "Authorization")
 	}
 	
 	// All network calls should funnel through here.
@@ -295,42 +279,9 @@ struct NetworkResponse {
 //					print (String(decoding:data, as: UTF8.self))
 					let decoder = JSONDecoder()
 					
-					if Settings.apiV3 {
-						if let errorInfo = try? decoder.decode(TwitarrV3ErrorResponse.self, from: data) {
-							resultError.errorString = errorInfo.reason
-							resultError.fieldErrors = errorInfo.fieldErrors
-						}
-					}
-					else {
-						// There's 3 types of error JSON that could happen. Single, Multi, and FieldTagged.
-		
-						// Single "error" = "message" in error response
-						if let errorInfo = try? decoder.decode(TwitarrV2ErrorResponse.self, from: data) {
-							resultError.errorString = errorInfo.error
-						}
-						
-						// Multi Errors, an array of error strings.
-						else if let errorInfo = try? decoder.decode(TwitarrV2ErrorsResponse.self, from: data) {
-							var errorString = ""
-							for multiError in errorInfo.errors {
-								errorString.append(multiError + "\n")
-							}
-							resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
-						}
-						
-						// Dictionary Errors. A dict of tagged errors. Tags *usually* refer to form fields.
-						else if let errorInfo = try? decoder.decode(TwitarrV2ErrorDictionaryResponse.self, from: data) {
-						
-							// Server returns an array of errors for each field. We map those into a single string per field.
-							let errors = errorInfo.errors.mapValues { $0.joined(separator: ", ") }
-							resultError.fieldErrors = errors
-							
-							// Any errors in the "general" category get set in errorString
-							if let generalErrors = errorInfo.errors["general"] {
-								let errorString = generalErrors.reduce("") { $0 + $1 + "\n" }
-								resultError.errorString = errorString.isEmpty ? "Unknown error" : errorString
-							}
-						}
+					if let errorInfo = try? decoder.decode(TwitarrV3ErrorResponse.self, from: data) {
+						resultError.errorString = errorInfo.reason
+						resultError.fieldErrors = errorInfo.fieldErrors
 					}
 				}
 				

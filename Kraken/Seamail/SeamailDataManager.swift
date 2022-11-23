@@ -526,61 +526,6 @@ import CoreData
 	}
 }
 
-
-// MARK: - V2 API Decoding
-
-struct TwitarrV2SeamailMessage: Codable {
-	let id: String
-	let author: TwitarrV2UserInfo
-	let text: String
-	let timestamp: Int64
-	let readUsers: [ TwitarrV2UserInfo ]
-	
-	enum CodingKeys: String, CodingKey {
-		case id, author, text, timestamp
-		case readUsers = "read_users"
-	}
-}
-
-struct TwitarrV2SeamailThread: Codable {
-	let id: String
-	let participants: [ TwitarrV2UserInfo ]
-	let subject: String
-	let messages: [ TwitarrV2SeamailMessage ]?
-	let messageCount: Int
-	let timestamp: Int64
-	let countIsUnread: Bool
-	let hasUnreadMessages: Bool
-
-	enum CodingKeys: String, CodingKey {
-		case id, subject, messages, timestamp
-		case participants = "users"
-		case messageCount = "message_count"
-		case countIsUnread = "count_is_unread"
-		case hasUnreadMessages = "is_unread"
-	}
-	
-}
-
-// GET /api/v2/seamail_threads
-struct TwitarrV2GetSeamailResponse: Codable {
-	let status: String
-	let seamailThreads: [TwitarrV2SeamailThread]
-	let lastChecked: Int64
-
-	enum CodingKeys: String, CodingKey {
-		case status
-		case seamailThreads = "seamail_threads"
-		case lastChecked = "last_checked"
-	}
-}
-
-// GET /api/v2/seamail/:id_string
-struct TwitarrV2GetSeamailThreadResponse: Codable {
-	let status: String
-	let seamail: TwitarrV2SeamailThread
-}
-
 // MARK: - V3 Structs
 
 enum TwitarrV3FezType: String, CaseIterable, Codable {

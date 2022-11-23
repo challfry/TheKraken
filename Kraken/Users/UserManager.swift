@@ -136,11 +136,8 @@ import CoreData
 		// Input sanitizing: URLComponents should percent escape username to make a valid path; 
 		// but the username could still have "/" in it. 
 		var path: String
-		if Settings.apiV3, let imageFilename = userImageName, !imageFilename.isEmpty {
+		if let imageFilename = userImageName, !imageFilename.isEmpty {
 			path = "api/v3/image/thumb/\(imageFilename)"
-		}
-		else if !Settings.apiV3, let encodedUsername = username.addingPathComponentPercentEncoding() {
-			path = "/api/v2/user/photo/\(encodedUsername)"
 		}
 		else {
 			thumbPhoto = UIImage(named: "NoAvatarUser")

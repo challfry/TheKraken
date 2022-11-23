@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @objc(ForumPost) public class ForumPost: KrakenManagedObject {
     @NSManaged public var id: Int64
@@ -512,61 +513,6 @@ import UIKit
 	}
 }
 	
-// MARK: - V2 API Decoding
-
-// Contains info on individual posts in a thread
-struct TwitarrV2ForumThread: Codable {
-	let id: String
-	let subject: String
-	let sticky: Bool
-	let locked: Bool
-	let postCount: Int64
-	let latestRead: Int64?
-	let posts: [TwitarrV2ForumPost]
-	
-	let nextPage: Int64?
-	let prevPage: Int64?
-	let pageCount: Int64?
-	let page: Int64?
-	
-	enum CodingKeys: String, CodingKey {
-		case id, subject, sticky, locked, page, posts
-		case nextPage = "next_page"
-		case prevPage = "prev_page"
-		case pageCount = "page_count"
-		case postCount = "post_count"
-		case latestRead = "latest_read"
-	}
-}
-
-struct TwitarrV2ForumPost: Codable {
-	let id: String
-	let forumId: String
-	let author: TwitarrV2UserInfo
-	let threadLocked: Bool
-	let text: String
-	let timestamp: Int64
-	let photos: [TwitarrV2PhotoDetails]
-	let new: Bool?
-	
-	enum CodingKeys: String, CodingKey {
-		case id, author, text, timestamp, photos, new
-		case forumId = "forum_id"
-		case threadLocked = "thread_locked"
-	}
-}
-
-// GET /api/v2/forums/:id
-struct TwitarrV2GetForumPostsResponse: Codable {
-	let status: String
-	let forumThread: TwitarrV2ForumThread
-	
-	enum CodingKeys: String, CodingKey {
-		case status
-		case forumThread = "forum_thread"
-	}
-}
-
 // MARK: - V3 API Decoding
 struct TwitarrV3ForumData: Codable {
     /// The forum's ID.

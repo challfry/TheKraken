@@ -67,8 +67,7 @@ import UserNotifications
 	@NSManaged public var lastAlertCheckTime: Date
 	@NSManaged public var lastSeamailCheckTime: Int64
 	
-	// Either a Twitarr V2 key as returned by /api/v2/user/auth, or a V3 token as returned by /api/v3/auth/login 
-	// Shouldn't have collisions because one server URL can only be one or the other.
+	// V3 token as returned by /api/v3/auth/login 
 	@NSManaged public var authKey: String?
 	
 	// Alerts
@@ -454,9 +453,8 @@ import UserNotifications
 			// If the server tells us we're no longer authenticated, don't send back a logout, as we'll infinite-loop.
 			if sendLogoutMsg {
 				// We send a logout request, but don't care about its result
-				let logoutAPIPath = Settings.apiV3 ? "/api/v3/auth/logout" : "/api/v2/user/logout"
 				let queryParams: [URLQueryItem] = []
-				var request = NetworkGovernor.buildTwittarRequest(withPath:logoutAPIPath, query: queryParams)
+				var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/auth/logout", query: queryParams)
 				NetworkGovernor.addUserCredential(to: &request)
 				request.httpMethod = "POST"
 				NetworkGovernor.shared.queue(request) { package in
@@ -503,24 +501,12 @@ import UserNotifications
 		isChangingLoginState = true
 		clearErrors()
 		
-		let encoder = JSONEncoder()
-		var authData: Data
-		var authPath: String
-		if Settings.apiV3 {
-			authPath = "/api/v3/user/create"
-			let authStruct = TwitarrV3CreateAccountRequest(username: name, password: password, verification: regCode)
-			authData = try! encoder.encode(authStruct)
-		} else {
-			authPath = "/api/v2/user/new"
-			guard let regCode = regCode else { return }
-			let authStruct = TwitarrV2CreateAccountRequest(username: name, password: password, 
-					displayName: displayName, regCode: regCode)
-			authData = try! encoder.encode(authStruct)
-		}
+		let authStruct = TwitarrV3CreateAccountRequest(username: name, password: password, verification: regCode)
+		let authData = try! JSONEncoder().encode(authStruct)
 	//	print (String(decoding:authData, as: UTF8.self))
 				
 		// Call the login endpoint
-		var request = NetworkGovernor.buildTwittarRequest(withPath:authPath, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/user/create", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -554,21 +540,11 @@ import UserNotifications
 			return
 		}
 		clearErrors()
-		
-		let authData: Data
-		let encoder = JSONEncoder()
-		if Settings.apiV3 {
-			let changePasswordStruct = TwitarrV3ChangePasswordRequest(password: newPassword)
-			authData = try! encoder.encode(changePasswordStruct)
-		}
-		else {
-			let changePasswordStruct = TwitarrV2ChangePasswordRequest(currentPassword: currentPassword, newPassword: newPassword)
-			authData = try! encoder.encode(changePasswordStruct)
-		}
-				
+		let changePasswordStruct = TwitarrV3ChangePasswordRequest(password: newPassword)
+		let authData = try! JSONEncoder().encode(changePasswordStruct)
+
 		// Call change_password
-		let path = Settings.apiV3 ? "/api/v3/user/password" : "/api/v2/user/change_password"
-		var request = NetworkGovernor.buildTwittarRequest(withPath:path, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/user/password", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -577,7 +553,7 @@ import UserNotifications
 			if let error = NetworkGovernor.shared.parseServerError(package) {
 				self.lastError = error
 			}
-			else if Settings.apiV3, let response = package.response, response.statusCode == 201 {
+			else if let response = package.response, response.statusCode == 201 {
 				// Success. Resetting a V3 password doesn't change the auth token.
 				done()
 			}
@@ -596,21 +572,11 @@ import UserNotifications
 			return
 		}
 		clearErrors()
-		
-		let authData: Data
-		let encoder = JSONEncoder()
-		if Settings.apiV3 {
-			let resetPasswordStruct = TwitarrV3RecoverPasswordRequest(username: name, recoveryKey: regCode, newPassword: newPassword)
-			authData = try! encoder.encode(resetPasswordStruct)
-		}
-		else {
-			let resetPasswordStruct = TwitarrV2ResetPasswordRequest(username: name, regCode: regCode, newPassword: newPassword)
-			authData = try! encoder.encode(resetPasswordStruct)
-		}
+		let resetPasswordStruct = TwitarrV3RecoverPasswordRequest(username: name, recoveryKey: regCode, newPassword: newPassword)
+		let authData = try! JSONEncoder().encode(resetPasswordStruct)
 				
 		// Call reset_password
-		let path = "/api/v3/auth/recovery"
-		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/auth/recovery", query: nil)
 		request.httpMethod = "POST"
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -709,121 +675,6 @@ import UserNotifications
 				CoreDataLog.error("Failure fetching logged in users.", ["Error" : error])
 			}
 		}
-	}
-}
-
-
-// MARK: - Twitarr V2 API Structs
-
-// POST /api/v2/user/new 
-struct TwitarrV2CreateAccountRequest: Codable {
-	let username: String
-	let password: String
-	let displayName: String?
-	let regCode: String
-	
-	enum CodingKeys: String, CodingKey {
-		case username = "new_username"
-		case password = "new_password"
-		case displayName = "display_name"
-		case regCode = "registration_code"
-	}
-}
-
-struct TwitarrV2CreateAccountResponse: Codable {
-	let status: String
-	let user: TwitarrV2UserAccount
-	let key: String
-}
-
-
-// /api/v2/user/auth
-struct TwitarrV2AuthRequestBody: Codable {
-	let username: String
-	let password: String
-}
-
-struct TwitarrV2AuthResponse: Codable {
-	let status: String
-	let username: String
-	let key: String
-}
-
-// /api/v2/user/change_password
-struct TwitarrV2ChangePasswordRequest: Codable {
-	let currentPassword: String
-	let newPassword: String
-
-	enum CodingKeys: String, CodingKey {
-		case currentPassword = "current_password"
-		case newPassword = "new_password"
-	}
-}
-
-struct TwitarrV2ChangePasswordResponse: Codable {
-	let status: String
-	let key: String
-}
-
-// /api/v2/user/reset_password
-struct TwitarrV2ResetPasswordRequest: Codable {
-	let username: String
-	let regCode: String
-	let newPassword: String
-
-	enum CodingKeys: String, CodingKey {
-		case username = "username"
-		case regCode = "registration_code"
-		case newPassword = "new_password"
-	}
-}
-
-struct TwitarrV2ResetPasswordResponse: Codable {
-	let status: String
-	let message: String
-}
-
-// /api/v2/user/profile
-struct TwitarrV2CurrentUserProfileResponse: Codable {
-	let status: String
-	let userAccount: TwitarrV2UserAccount
-	let needPasswordChange: Bool
-	
-	enum CodingKeys: String, CodingKey {
-		case status
-		case userAccount = "user"
-		case needPasswordChange = "need_password_change"
-	}
-}
-
-// This is the User type that is only returned for the current logged in user. The other variant is TwitarrV2UserProfile.
-struct TwitarrV2UserAccount: Codable {
-	let username: String
-	let role: String
-	let emailAddress: String?
-	let displayName: String
-	let currentLocation: String?
-	let lastLogin: Int64
-	let emptyPassword: Bool
-	let lastPhotoUpdated: Int64
-	let roomNumber: String?
-	let realName: String?
-	let pronouns: String?
-	let homeLocation: String?
-	let unnoticedAlerts: Bool?
-	
-	enum CodingKeys: String, CodingKey {
-		case username, role, pronouns
-		case displayName = "display_name"
-		case emailAddress = "email"
-		case currentLocation = "current_location"
-		case lastLogin = "last_login"
-		case emptyPassword = "empty_password"
-		case lastPhotoUpdated = "last_photo_updated"
-		case roomNumber = "room_number"
-		case realName = "real_name"
-		case homeLocation = "home_locations"
-		case unnoticedAlerts = "unnoticed_alerts"
 	}
 }
 

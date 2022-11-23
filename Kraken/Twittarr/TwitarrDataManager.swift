@@ -199,35 +199,7 @@ import UIKit
 			}
 		}
 	}
-	
-	func buildReactionsFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ReactionsSummary) {
-		// Delete any reactions not in the V2 blob
-		let newReactionWords = Set<String>(v2Object.keys)
-		for reaction in reactions {
-			if !newReactionWords.contains(reaction.word) {
-				reactions.remove(reaction)
-			}
-		}
-		
-		// Add/update
-		for (reactionName, reactionV2Obj) in v2Object {
-			var reaction = reactions.first { object in return object.word == reactionName }
-			if reaction == nil {
-				let r = Reaction(context: context)
-				reactions.insert(r)	
-				reaction = r
-			}
-			reaction?.buildFromV2(context: context, post: self, v2Object: reactionV2Obj, reactionName: reactionName)
-		}
-		
-		// Update derived properties
-    	let dict = NSMutableDictionary()
-		for reaction in reactions {
-			dict.setValue(reaction, forKey: reaction.word)
-		}
-		reactionDict = dict		
-	}
-		
+			
 	// Always returns nil if nobody's logged in.
 	func getPendingUserReaction() -> PostOpTweetReaction? {
 		if let username = CurrentUser.shared.loggedInUser?.username, let reaction = reactionOps?.first(where: { reaction in
@@ -433,11 +405,7 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		
 		// Get the tweet at the FRC index
 		if let index = anchorFRCIndex, frc?.fetchedObjects?.count ?? -1 > index, let tweet = frc?.fetchedObjects?[index] {
-			if Settings.apiV3 {
-				query.append(URLQueryItem(name: newer ? "after" : "before", value: String(tweet.id)))
-			}
-			else {
-			}
+			query.append(URLQueryItem(name: newer ? "after" : "before", value: String(tweet.id)))
 		}
 		else {
 			query.append(URLQueryItem(name: "from", value: newer ? "last" : "first"))
@@ -875,88 +843,6 @@ class TwitarrDataManager: NSObject {
 		}
 	}
 	
-}
-
-// MARK: - V2 API Decoding
-
-// Around Feb 2020 Twittar changed its API for a few fields, changing string-valued fields to ints.
-// Eventually we can remove this code.
-struct StringOrInt: Codable, Equatable {
-	var value: String
-	
-	init(from decoder: Decoder) throws {
-		let container = try decoder.singleValueContainer()
-		if let stringVal = try? container.decode(String.self) {
-			value = stringVal
-		}
-		else if let intVal = try? container.decode(Int.self) {
-			value = String(intVal)
-		}
-		else {
-			value = ""
-		}
-	}
-}
-
-struct TwitarrV2Reactions: Codable {
-	let count: Int32
-	let me: Bool
-}
-
-typealias TwitarrV2ReactionsSummary = [ String : TwitarrV2Reactions ]
-
-struct TwitarrV2Post: Codable {
-	let id: String
-	let author: TwitarrV2UserInfo
-	let locked: Bool
-	let timestamp: Int64
-	let text: String
-	let reactions: TwitarrV2ReactionsSummary
-	let photo: TwitarrV2PhotoDetails?
-	let parentChain: [StringOrInt]
-
-	enum CodingKeys: String, CodingKey {
-		case id
-		case author
-		case locked
-		case timestamp
-		case text
-		case reactions
-		case photo
-		case parentChain = "parent_chain"
-	}
-}
-
-// GET /api/v2/stream
-struct TwitarrV2TweetStreamResponse: Codable {
-	let status: String
-	let hasNextPage: Bool
-	let nextPage: Int
-	let streamPosts: [TwitarrV2Post]
-	
-	enum CodingKeys: String, CodingKey {
-		case status
-		case hasNextPage = "has_next_page"
-		case nextPage = "next_page"
-		case streamPosts = "stream_posts"
-	}
-}
-
-struct TwitarrV2QueryText: Codable {
-	let text: String
-}
-
-struct TwitarrV2TweetQuery: Codable {
-	let matches: [TwitarrV2Post]
-	let count: Int
-	let more: Bool
-}
-
-// GET /api/v2/search/tweets/:query
-struct TwitarrV2TweetQueryResponse: Codable {
-	let status: String
-	let query: TwitarrV2QueryText
-	let tweets: TwitarrV2TweetQuery
 }
 
 // MARK: - V3 API Decoding

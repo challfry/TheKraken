@@ -295,18 +295,9 @@ class ImageManager : NSObject {
 	var userImageCache = ImageCache(dirName: "userImageCache", fetchURL: "/api/v2/user/photo/", limit: 2000)
 
 	override init() {
-		if Settings.apiV3 {
-			smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v3/image/thumb/", limit: 1000)
-			medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v3/image/full/", limit: 1000)
-			largeImageCache = medImageCache
-		}
-		else {
-			smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v2/photo/small_thumb/", limit: 1000)
-			medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v2/photo/medium_thumb/", limit: 1000)
-			largeImageCache = ImageCache(dirName: "largeImageCache", fetchURL: "/api/v2/photo/full/", limit: 1000)
-			let userImageQueryParams = [ URLQueryItem(name:"full", value:"true") ]
-			userImageCache.serverQueryParams = userImageQueryParams
-		}
+		smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v3/image/thumb/", limit: 1000)
+		medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v3/image/full/", limit: 1000)
+		largeImageCache = medImageCache
 		super.init()
 	}
 

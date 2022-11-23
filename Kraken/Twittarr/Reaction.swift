@@ -21,22 +21,6 @@ import CoreData
     // Reactions must have a source of some sort.
 	@NSManaged public var sourceTweet: TwitarrPost?
 	@NSManaged public var sourceForumPost: ForumPost?
-
-	func buildFromV2(context: NSManagedObjectContext, post: TwitarrPost, v2Object: TwitarrV2Reactions, reactionName: String) {
-		TestAndUpdate(\.word, reactionName)
-		TestAndUpdate(\.count, v2Object.count)
-		TestAndUpdate(\Reaction.sourceTweet, post)
-				
-		if let userInContext = CurrentUser.shared.getLoggedInUser(in: context) {
-			let selfUser = users.first { object in return object.username == userInContext.username }
-			if v2Object.me, selfUser == nil {
-				users.insert(userInContext)
-			}
-			else if !v2Object.me, selfUser != nil {
-				users.remove(userInContext)
-			}
-		}
-	}
 	
 	func getLikeOpKind() -> LikeOpKind {
 		switch word {

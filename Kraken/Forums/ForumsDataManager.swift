@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @objc(ForumThread) public class ForumThread: KrakenManagedObject {
     @NSManaged public var id: UUID
@@ -102,63 +103,7 @@ import UIKit
 
 		// Not handled: isFavorite
 	}
-    
-    // Only call this within a CoreData perform block.
-//	func buildFromV2Meta(context: NSManagedObjectContext, v2Object: TwitarrV2ForumThreadMeta) {
-//		TestAndUpdate(\.id, v2Object.id)
-//		TestAndUpdate(\.subject, v2Object.subject)
-//		TestAndUpdate(\.lastPostTime, v2Object.timestamp)
-//		TestAndUpdate(\.sticky, v2Object.sticky)
-//		TestAndUpdate(\.locked, v2Object.locked)
-//		TestAndUpdate(\.postCount, v2Object.posts)
-//		
-//		if lastPoster.username != v2Object.lastPostAuthor.username {
-//			let userPool: [String : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [String : KrakenUser] 
-//			if let cdAuthor = userPool[v2Object.lastPostAuthor.username] {
-//				lastPoster = cdAuthor
-//			}
-//		}
-//		
-//		// Set up the associated ForumReadCount object if we have a postCount to update
-//		if let newPostCount = v2Object.count, let readCountObject = getReadCountObject(context: context) {
-//			readCountObject.numPostsRead = postCount - newPostCount
-//		}
-//		
-//	}
-//    
-//	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ForumThread) {
-//		TestAndUpdate(\.id, v2Object.id)
-//		TestAndUpdate(\.subject, v2Object.subject)
-//		TestAndUpdate(\.sticky, v2Object.sticky)
-//		TestAndUpdate(\.locked, v2Object.locked)
-//		TestAndUpdate(\.postCount, v2Object.postCount)
-//	
-//		for post in v2Object.posts {
-//			var existingPost: ForumPost
-//			if let optionalPost = posts.first(where: { $0.id == post.id }) {
-//				existingPost = optionalPost
-//			}
-//			else {
-//				existingPost = ForumPost(context: context)
-//				posts.insert(existingPost)
-//			}
-//			existingPost.buildFromV2(context: context, v2Object: post, thread: self)
-//		}
-//		lastUpdateTime = Date()
-//		
-//		// So, ForumThreadMeta has a value for the timestamp of the last post in the thread.
-//		// ForumThread does not (directly), but it has posts from the thread. The posts array may
-//		// or may not include the last post in the thread.
-//		// Good news is that, if after parsing the posts, postCount == posts.count, we have all the posts and
-//		// (fingers crossed) posts.last.timeStamp == (the value ForumThreadMeta would give for lastPostTime).
-//		if postCount > 0, postCount == posts.count {
-//			let lastPostPostTime = posts.reduce(0) { max($0, $1.timestamp)  }
-//			TestAndUpdate(\.lastPostTime, lastPostPostTime)
-//		}
-//		
-//		internalUpdateLastReadTime(context: context, toNewTime: v2Object.latestRead)
-//	}
-	
+    	
 	// Creates the RCO for this user+forum if it doesn't exist. Remember that every user has an RCO for every forum they
 	// interact with. Will be nil if no logged in user.
 	func getReadCountObject(context: NSManagedObjectContext) -> ForumReadCount? {
@@ -249,10 +194,6 @@ import UIKit
 		isFavorite = false
 		userPosted = false
 	}
-    
-//	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2ForumThread) {
-//	}
-
 }
 
 // In all cases, ForumThread loads have a 'refresh time' that is user-controlled and starts out as viewDidAppear time.
@@ -422,66 +363,6 @@ import UIKit
 				cdThread.buildFromV3(context: context, category: catInContext, v3Object: forumThread)
 			}
 		}
-	}
-}
-
-
-
-// MARK: - V2 API Decoding
-
-// Does not contain info on individual posts in a thread
-struct TwitarrV2ForumThreadMeta: Codable {
-	let id: String
-	let subject: String
-	let sticky: Bool
-	let locked: Bool
-	let lastPostAuthor: TwitarrV2UserInfo
-	let posts: Int64
-	let timestamp: Int64
-	let lastPostPage: Int64
-	let count: Int64?
-	let newPosts: Int64?
-	
-	enum CodingKeys: String, CodingKey {
-		case id, subject, sticky, locked, posts, timestamp, count
-		case lastPostAuthor = "last_post_author"
-		case lastPostPage = "last_post_page"
-		case newPosts = "new_posts"
-	}
-}
-
-// GET /api/v2/forums
-struct TwitarrV2GetForumsResponse: Codable {
-	let status: String
-	let forumThreads: [TwitarrV2ForumThreadMeta]
-	let nextPage: Int64?
-	let prevPage: Int64?
-	let threadCount: Int64
-	let page: Int64
-	let pageCount: Int64
-	
-	enum CodingKeys: String, CodingKey {
-		case status, page
-		case forumThreads = "forum_threads"
-		case nextPage =  "next_page"
-		case prevPage = "prev_page"
-		case threadCount = "thread_count"
-		case pageCount = "page_count"
-	}
-}
-
-// POST /api/v2/forums
-struct TwitarrV2PostNewForum: Codable {
-	let subject: String
-	let text: String
-	let photos: [String]
-	let asMod: Bool
-	let asAdmin: Bool
-	
-	enum CodingKeys: String, CodingKey {
-		case subject, text, photos
-		case asMod = "as_mod"
-		case asAdmin = "as_admin"
 	}
 }
 

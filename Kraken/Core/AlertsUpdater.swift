@@ -106,41 +106,6 @@ class AlertsUpdater: ServerUpdater {
 	}
 }
 
-// MARK: - V2 API Decoding
-
-// GET /api/v2/alerts
-struct TwitarrV2AlertsResponse: Codable {
-	let status: String
-	let announcements: [TwitarrV2Announcement]
-	let tweetMentions: [TwitarrV2Post]?
-	let forumMentions: [TwitarrV2ForumThreadMeta]?
-	let unreadSeamail: [TwitarrV2SeamailThread]?
-	let upcomingEvents: [TwitarrV2Event]?
-	let lastCheckedTime: Int64
-	let queryTime: Int64
-	
-	enum CodingKeys: String, CodingKey {
-		case status, announcements
-		case tweetMentions = "tweet_mentions"
-		case forumMentions = "forum_mentions"
-		case unreadSeamail = "unread_seamail"
-		case upcomingEvents = "upcoming_events"
-		case lastCheckedTime = "last_checked_time"
-		case queryTime = "query_time"
-	}
-}
-
-// POST /api/v2/alerts/last_checked
-struct TwitarrV2AlertsLastCheckedChangeRequest: Codable {
-	let last_checked_time: Int64
-}
-
-struct TwitarrV2AlertsLastCheckedChangeResponse: Codable {
-	let status: String
-	let last_checked_time: Int64
-}
-
-
 // MARK: V3 API Decoding
 
 public struct TwitarrV3UserNotificationData: Codable {
