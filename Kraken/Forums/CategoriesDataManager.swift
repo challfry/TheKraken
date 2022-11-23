@@ -7,34 +7,51 @@
 //
 
 import UIKit
+import CoreData
 
 @objc(ForumCategory) public class ForumCategory: KrakenManagedObject {
 	@NSManaged public var id: UUID
 	@NSManaged public var title: String
 	@NSManaged public var purpose: String
-	@NSManaged public var isAdmin: Bool
+	@NSManaged public var visibleWhenLoggedOut: Bool
+	@NSManaged public var isEventCategory: Bool
 	@NSManaged public var sortIndex: Int32
-	@NSManaged public var minAccessToView: Int32
 	@NSManaged public var numThreads: Int32
 	@NSManaged public var forums: [ForumThread]?
+
+	@NSManaged public var userCatPivots: Set<ForumCategoryPivot>
 	
 	override public func awakeFromInsert() {
 		setPrimitiveValue(UUID(), forKey: "id")
-		setPrimitiveValue(LoggedInKrakenUser.AccessLevel.verified.rawValue, forKey: "minAccessToView")
+		setPrimitiveValue(0, forKey: "sortIndex")
 	}
 
-	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3CategoryData, index: Int32) {
+	// Only set index if no user is logged in
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3CategoryData, index: Int32? = nil) {
 		TestAndUpdate(\.id, v3Object.categoryID)
 		TestAndUpdate(\.title, v3Object.title)
 		TestAndUpdate(\.purpose, v3Object.purpose)
-		TestAndUpdate(\.sortIndex, index)
 		TestAndUpdate(\.numThreads, v3Object.numThreads)
-		
-		// isRestricted is user-specific, and indicates whether THIS USER can create threads. So, we only set this for 
-		// Verified level users, and the value means "whether a Verified (non-mod, non-admin) user can create threads".
-		if let user = CurrentUser.shared.getLoggedInUser(in: context), user.accessLevel == .verified {
-			TestAndUpdate(\.isAdmin, v3Object.isRestricted)		
+		TestAndUpdate(\.isEventCategory, v3Object.isEventCategory)
+		TestAndUpdate(\.visibleWhenLoggedOut, index != nil)
+		if let index = index {
+			TestAndUpdate(\.sortIndex, index)
 		}
+	}
+}
+
+// This pivot indicates that this user can see this Category.
+@objc(ForumCategoryPivot) public class ForumCategoryPivot: KrakenManagedObject {
+	@NSManaged public var category: ForumCategory
+	@NSManaged public var user: KrakenUser
+	@NSManaged public var sortIndex: Int32
+	@NSManaged public var isRestricted: Bool			// if true, this user cannot create threads, but can post in existing threads.
+	
+	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3CategoryData, category: ForumCategory, user: KrakenUser,  index: Int32) {
+		TestAndUpdate(\.user, user)
+		TestAndUpdate(\.category, category)
+		TestAndUpdate(\.sortIndex, index)
+		TestAndUpdate(\.isRestricted, v3Object.isRestricted)
 	}
 }
 
@@ -47,6 +64,7 @@ import UIKit
 	@objc dynamic var isPerformingLoad: Bool = false
 	
 	func checkRefresh() {
+		// Could add a debouncer here, but none yet.
 		loadForumCategories()
 	}
 	
@@ -81,21 +99,36 @@ import UIKit
 			let request = NSFetchRequest<ForumCategory>(entityName: "ForumCategory")
 			request.predicate = NSPredicate(value: true)
 			let cdCats = try request.execute()
-			var cdCatsDict = Dictionary(cdCats.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
+			let cdCatsDict = Dictionary(cdCats.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
 
-			var index: Int32 = 0
-			for category in v3Categories {
-				let cdCat = cdCatsDict[category.categoryID] ?? ForumCategory(context: context)
-				cdCatsDict.removeValue(forKey: category.categoryID)
-				cdCat.buildFromV3(context: context, v3Object: category, index: index)
-				index += 1
+			// Fetch categoryPivots from CD 
+			if let user = CurrentUser.shared.getLoggedInUser(in: context) {
+				let request = ForumCategoryPivot.fetchRequest()
+				request.predicate = NSPredicate(format: "user == %@", user)
+				var cdCatPivots = try request.execute() as! [ForumCategoryPivot]
+
+				var index: Int32 = 0
+				for v3Category in v3Categories {
+					let cdCat = cdCatsDict[v3Category.categoryID] ?? ForumCategory(context: context)
+					cdCat.buildFromV3(context: context, v3Object: v3Category)
+
+					let pivot = cdCatPivots.first { $0.category.id == v3Category.categoryID } ?? ForumCategoryPivot(context: context)
+					pivot.buildFromV3(context: context, v3Object: v3Category, category: cdCat, user: user, index: index)
+					cdCatPivots.removeAll { $0.objectID == pivot.objectID }
+					index += 1
+				}
+				// The pivots left over are no longer viewable to this user.
+				for notVisiblePivot in cdCatPivots {
+					context.delete(notVisiblePivot)
+				}
+				
 			}
-			// The categories left over aren't viewable to this user.
-			for category in cdCatsDict.values {
-				if let currentAccess = CurrentUser.shared.loggedInUser?.accessLevel.rawValue {
-					if category.minAccessToView <= currentAccess {
-						category.minAccessToView = currentAccess + 1
-					}
+			else {
+				var index: Int32 = 0
+				for category in v3Categories {
+					let cdCat = cdCatsDict[category.categoryID] ?? ForumCategory(context: context)
+					cdCat.buildFromV3(context: context, v3Object: category, index: index)
+					index += 1
 				}
 			}
 		}
@@ -114,6 +147,8 @@ struct TwitarrV3CategoryData: Codable {
     var purpose: String
     /// If TRUE, the user cannot create/modify threads in this forum. Should be sorted to top of category list.
     var isRestricted: Bool
+	/// if TRUE, this category is for Event Forums, and is prepopulated with forum threads for each Schedule Event.
+	var isEventCategory: Bool
     /// The number of threads in this category
     var numThreads: Int32
     ///The threads in the category. Only populated for /categories/ID.

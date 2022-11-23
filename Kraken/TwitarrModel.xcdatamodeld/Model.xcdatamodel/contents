@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19574" systemVersion="21C52" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="22A380" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="displayUntil" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -47,14 +47,21 @@
     </entity>
     <entity name="ForumCategory" representedClassName="ForumCategory" syncable="YES">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="isAdmin" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="minAccessToView" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="isEventCategory" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="numThreads" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="purpose" optional="YES" attributeType="String"/>
         <attribute name="sortIndex" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="visibleWhenLoggedOut" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="forums" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="category" inverseEntity="ForumThread"/>
         <relationship name="threadPostOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpForumPost" inverseName="category" inverseEntity="PostOpForumPost"/>
+        <relationship name="userCatPivots" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumCategoryPivot" inverseName="category" inverseEntity="ForumCategoryPivot"/>
+    </entity>
+    <entity name="ForumCategoryPivot" representedClassName="ForumCategoryPivot" syncable="YES">
+        <attribute name="isRestricted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="sortIndex" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="category" maxCount="1" deletionRule="Nullify" destinationEntity="ForumCategory" inverseName="userCatPivots" inverseEntity="ForumCategory"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="categoryPivots" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="ForumPost" representedClassName="ForumPost" syncable="YES">
         <attribute name="createTime" attributeType="Date" usesScalarValueType="NO"/>
@@ -143,6 +150,7 @@
         <relationship name="announcements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="author" inverseEntity="Announcement"/>
         <relationship name="blockedBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedUsers" inverseEntity="KrakenUser"/>
         <relationship name="blockedUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedBy" inverseEntity="KrakenUser"/>
+        <relationship name="categoryPivots" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumCategoryPivot" inverseName="user" inverseEntity="ForumCategoryPivot"/>
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserComment" inverseName="commentedOnUser" inverseEntity="UserComment"/>
         <relationship name="commentOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserComment" inverseName="userCommentedOn" inverseEntity="PostOpUserComment"/>
         <relationship name="favoritedByOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserFavorite" inverseName="userBeingFavorited" inverseEntity="PostOpUserFavorite"/>
@@ -366,43 +374,4 @@
     <fetchRequest name="TwitarrPostsInDateRange" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate"/>
     <fetchRequest name="TwitarrPostsToDelete" entity="TwitarrPost" predicateString="timestamp &gt;= $startDate AND timestamp &lt;= $endDate AND (NOT id IN $ids)"/>
     <fetchRequest name="TwitarrPostsWithIDs" entity="TwitarrPost" predicateString="id IN $ids"/>
-    <elements>
-        <element name="Announcement" positionX="-131.487060546875" positionY="-196.2130737304688" width="128" height="134"/>
-        <element name="Emoji" positionX="-1057.217041015625" positionY="106.9619140625" width="128" height="73"/>
-        <element name="Event" positionX="190.848388671875" positionY="-508.4818725585938" width="128" height="224"/>
-        <element name="ForumCategory" positionX="-864" positionY="-675" width="128" height="164"/>
-        <element name="ForumPost" positionX="-928.894775390625" positionY="-490.3908386230469" width="128" height="194"/>
-        <element name="ForumReadCount" positionX="-768.2960815429688" positionY="-493.8979797363281" width="128" height="133"/>
-        <element name="ForumThread" positionX="-623.646728515625" positionY="-495.2050476074219" width="128" height="254"/>
-        <element name="GameListFavorite" positionX="-1056.041381835938" positionY="192.8661499023438" width="128" height="58"/>
-        <element name="Hashtag" positionX="-1057.814025878906" positionY="260.6491088867188" width="128" height="58"/>
-        <element name="KaraokeFavoriteSong" positionX="-1056.693969726562" positionY="337.1846923828125" width="128" height="75"/>
-        <element name="KrakenUser" positionX="-419.509033203125" positionY="-495.9269409179688" width="128" height="809"/>
-        <element name="LoggedInKrakenUser" positionX="34.24688720703125" positionY="-391.6840209960938" width="128" height="45"/>
-        <element name="PhotoDetails" positionX="-422.6431884765625" positionY="193.2229614257812" width="128" height="179"/>
-        <element name="PostOperation" positionX="-418.780029296875" positionY="-659.5100402832031" width="128" height="118"/>
-        <element name="PostOpEventFollow" positionX="190.5164184570312" positionY="-599.2312164306641" width="128" height="75"/>
-        <element name="PostOpForumPost" positionX="-578.6613159179688" positionY="-826.2532196044922" width="128" height="119"/>
-        <element name="PostOpForumPostDelete" positionX="-577.3396606445312" positionY="-599.9921264648438" width="128" height="58"/>
-        <element name="PostOpForumPostReaction" positionX="-577.9452514648438" positionY="-702.4114227294922" width="128" height="59"/>
-        <element name="PostOpPhoto_Attachment" positionX="-833.66943359375" positionY="-811.6986083984375" width="128" height="104"/>
-        <element name="PostOpSeamailMessage" positionX="33.2459716796875" positionY="-657.3016967773438" width="128" height="30"/>
-        <element name="PostOpSeamailThread" positionX="36.12725830078125" positionY="-616.0679168701172" width="128" height="90"/>
-        <element name="PostOpTweet" positionX="-266.8650512695312" positionY="-818.3788757324219" width="128" height="89"/>
-        <element name="PostOpTweetDelete" positionX="-268.885009765625" positionY="-579.7364196777344" width="128" height="60"/>
-        <element name="PostOpTweetReaction" positionX="-266.48974609375" positionY="-684.15625" width="128" height="59"/>
-        <element name="PostOpUserComment" positionX="-831.2529907226562" positionY="-637.8227081298828" width="128" height="75"/>
-        <element name="PostOpUserFavorite" positionX="186.146728515625" positionY="-813.7686004638672" width="128" height="73"/>
-        <element name="PostOpUserPhoto" positionX="184.8289794921875" positionY="-730.4626312255859" width="128" height="73"/>
-        <element name="PostOpUserProfileEdit" positionX="-115.105712890625" positionY="-655.0635681152344" width="128" height="133"/>
-        <element name="PotentialUser" positionX="34.7012939453125" positionY="-496.3875122070312" width="128" height="90"/>
-        <element name="Reaction" positionX="183.7169189453125" positionY="-77.63458251953125" width="128" height="104"/>
-        <element name="SeamailMessage" positionX="57.231201171875" positionY="97.29388427734375" width="128" height="119"/>
-        <element name="SeamailReadCount" positionX="-864" positionY="-666" width="128" height="104"/>
-        <element name="SeamailThread" positionX="-90.0880126953125" positionY="98.1715087890625" width="128" height="269"/>
-        <element name="ServerTextFile" positionX="-1059.060791015625" positionY="425.644287109375" width="128" height="90"/>
-        <element name="TwitarrPost" positionX="-137.9462890625" positionY="-494.467041015625" width="128" height="254"/>
-        <element name="UserComment" positionX="-602.1513061523438" positionY="82.88018798828125" width="128" height="90"/>
-        <element name="DailyTheme" positionX="-864" positionY="-675" width="128" height="104"/>
-    </elements>
 </model>

@@ -20,6 +20,7 @@ class ForumsRootViewController: BaseCollectionViewController {
 	let categoryDataSource = KrakenDataSource()
 		var loadingSegment = FilteringDataSourceSegment()
 		var categorySegment = FRCDataSourceSegment<ForumCategory>()
+		var loggedInCategorySegment = FRCDataSourceSegment<ForumCategoryPivot>()
  
     var filterPopupVC: EmojiPopupViewController?
     
@@ -45,11 +46,28 @@ class ForumsRootViewController: BaseCollectionViewController {
 		categoryDataSource.append(segment: loadingSegment)
 		loadingSegment.append(loadingStatusCellModel)
 		
-		categoryDataSource.append(segment: categorySegment)
 		categorySegment.loaderDelegate = self
-		categorySegment.activate(predicate: NSPredicate(format: "minAccessToView <= %d", CurrentUser.shared.loggedInUser?.accessLevel.rawValue ?? 0), 
-				sort: [NSSortDescriptor(key: "isAdmin", ascending: false),
+		categorySegment.activate(predicate: NSPredicate(format: "visibleWhenLoggedOut == true"), 
+				sort: [NSSortDescriptor(key: "sortIndex", ascending: true),
 				NSSortDescriptor(key: "title", ascending: true)], cellModelFactory: createCellModel)
+		categoryDataSource.append(segment: categorySegment)
+
+		loggedInCategorySegment.loaderDelegate = self
+		loggedInCategorySegment.activate(predicate: NSPredicate(value: false), 
+				sort: [NSSortDescriptor(key: "sortIndex", ascending: true)],
+				cellModelFactory: createCellModelFromPivot)
+		categoryDataSource.append(segment: loggedInCategorySegment)
+
+        CurrentUser.shared.tell(self, when: "loggedInUser", changeBlock:  { observer, observed in
+			if let user = observed.loggedInUser {
+				observer.loggedInCategorySegment.changePredicate(to: NSPredicate(format: "user.userID == %@", user.userID as CVarArg))
+				observer.categorySegment.changePredicate(to: NSPredicate(value: false))
+			}
+			else {
+				observer.loggedInCategorySegment.changePredicate(to: NSPredicate(value: false))
+				observer.categorySegment.changePredicate(to: NSPredicate(format: "visibleWhenLoggedOut == true"))
+			}
+		})?.execute()
 
 		categoryDataSource.register(with: collectionView, viewController: self)
 
@@ -68,12 +86,31 @@ class ForumsRootViewController: BaseCollectionViewController {
 	
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
 	func createCellModel(_ model: ForumCategory) -> BaseCellModel {
-		let cellModel = ForumCategoryCellMdoel(category: model)
+		let cellModel = ForumCategoryCellModel(category: model)
+		cellModel.model = model
 		cellModel.tapAction = { [weak self] cellModel in
-			if let categoryCellModel = cellModel as? ForumCategoryCellMdoel {
+			if let categoryCellModel = cellModel as? ForumCategoryCellModel {
 				self?.performKrakenSegue(.showForumCategory, sender: categoryCellModel.category)
 			}
 		}
+ //		CurrentUser.shared.tell(cellModel, when: "loggedInUser") { observer, observed in
+ //			observer.shouldBeVisible = observed.loggedInUser == nil  		
+// 		}
+		return cellModel
+	}
+	    
+	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
+	func createCellModelFromPivot(_ model: ForumCategoryPivot) -> BaseCellModel {
+		let cellModel = ForumCategoryCellModel(category: model.category)
+		cellModel.model = model
+		cellModel.tapAction = { [weak self] cellModel in
+			if let categoryCellModel = cellModel as? ForumCategoryCellModel {
+				self?.performKrakenSegue(.showForumCategory, sender: categoryCellModel.category)
+			}
+		}
+//		CurrentUser.shared.tell(cellModel, when: "loggedInUser") { observer, observed in
+ //			observer.shouldBeVisible = observed.loggedInUser != nil  		
+ //		}
 		return cellModel
 	}
 	    
@@ -86,7 +123,7 @@ extension ForumsRootViewController: FRCDataSourceLoaderDelegate {
 	}
 }
 
-@objc class ForumCategoryCellMdoel: CategoryCellModel {
+@objc class ForumCategoryCellModel: CategoryCellModel {
 	var category: ForumCategory
 	
 	init(category: ForumCategory) {

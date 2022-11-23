@@ -14,9 +14,11 @@ import UIKit
 	dynamic var numThreads: Int32 { get set }
 }
 
-@objc class CategoryCellModel: BaseCellModel, CategoryCellProtocol {
+@objc class CategoryCellModel: BaseCellModel, CategoryCellProtocol, FetchedResultsBindingProtocol {
 	private static let validReuseIDs = [ "CategoryCell" : CategoryCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
+
+	dynamic var model: NSFetchRequestResult?
 
 	dynamic var title: String?
 	dynamic var purpose: String?
