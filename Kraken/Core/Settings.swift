@@ -14,12 +14,7 @@ import Foundation
 	@objc enum DisplayStyle: Int {
 		case systemDefault = 0, normalMode, darkMode, deepSeaMode
 	}
-	
-	// Sugar
-	static var apiV3 : Bool {
-		return Settings.shared.apiVersion == 3
-	}
-	
+		
 	// Need somewhere this can be referenced easily.
 	static var v3Decoder: JSONDecoder {
 		let v3 = JSONDecoder()
@@ -35,7 +30,7 @@ import Foundation
 #if DEBUG
 	@objc dynamic public var settingsBaseURL: URL {
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://localhost:8081")!) }
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.0.19:8081")!) }
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.0.3:8081")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://208.113.200.254")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.wookieefive.net")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }

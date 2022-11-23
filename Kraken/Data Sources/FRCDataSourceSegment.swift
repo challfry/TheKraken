@@ -11,7 +11,7 @@ import CoreData
 import os
 
 // A simple cell model and binding protocol. Useful for when your cell can set itself up from data in the model object
-// and can have knowledge of that that object is. Not for use with generic cells that just get told what text to put where,
+// and can have knowledge of what that object is. Not for use with generic cells that just get told what text to put where,
 // or for cells that have to save state back to their cellModel.
 @objc protocol FetchedResultsBindingProtocol : KrakenCellBindingProtocol {
 	var model: NSFetchRequestResult? { get set }

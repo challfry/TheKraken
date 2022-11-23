@@ -20,9 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 //		LocalCoreData.shared.fullCoreDataReset()
 
-		// If it's after April 1, 2022, clear everything in Core Data
+		// If it's after April 1, 2023, clear everything in Core Data
 		let clearDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(secondsFromGMT: 0 - 3600 * 5), 
-				year: 2022, month: 4, day: 1)
+				year: 2023, month: 4, day: 1)
 		if let clearDate = Calendar.current.date(from: clearDayComponents),  Date() > clearDate {
 			LocalCoreData.shared.fullCoreDataReset()
 		}

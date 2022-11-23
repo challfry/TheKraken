@@ -17,6 +17,7 @@ import os
 	private let logger = Logger()
 		
 	func appStarted() {
+#if !targetEnvironment(simulator)
 		NEAppPushManager.loadAllFromPreferences { managers, error in 
 			if let error = error {
 				AppLog.error("Couldn't load push manager prefs: \(error)")
@@ -31,9 +32,11 @@ import os
 		CurrentUser.shared.tell(self, when: "loggedInUser.authKey") { observer, observed in
 			observer.saveSettings(for: observer.pushManager)
 		}
+#endif
 	}
 	
 	func saveSettings(for manager: NEAppPushManager?) {
+#if !targetEnvironment(simulator)
 		let onboardSSID = Settings.shared.onboardWifiNetowrkName
 		if !onboardSSID.isEmpty {
 			let mgr = manager ?? NEAppPushManager()
@@ -80,6 +83,7 @@ import os
 			}
 			pushManager = nil
 		}
+#endif
 	}
 }
 

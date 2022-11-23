@@ -91,6 +91,7 @@ class LocalCoreData: NSObject {
 			}
 			else {
 				container.viewContext.automaticallyMergesChangesFromParent = true
+				print("Core Data Storage Path: \(container.persistentStoreDescriptions.first?.url?.path ?? "borked")")
 			}
 		})
 		return container
