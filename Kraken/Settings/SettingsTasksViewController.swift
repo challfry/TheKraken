@@ -90,7 +90,7 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			if postTask.tweetToEdit != nil {
 				taskSection.append(SettingsInfoCellModel("Post an edit to your tweet:", taskIndex: sectionIndex))
 			}
-			else if let parentTweet = postTask.parent {
+			else if postTask.replyGroup != 0, let parentTweet = TwitarrDataManager.shared.getTweetWithID(postTask.replyGroup) {
 				let parentUsername = parentTweet.author.username
 				taskSection.append(SettingsInfoCellModel("Post a reply to a tweet by @\(parentUsername):", taskIndex: sectionIndex))
 			}

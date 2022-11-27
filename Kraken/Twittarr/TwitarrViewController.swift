@@ -13,7 +13,7 @@ class TwitarrViewController: BaseCollectionViewController {
 	@IBOutlet var postButton: UIBarButtonItem!
 
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
-	var filterPack: TwitarrFilterPack = TwitarrFilterPack(author: nil, text: nil)	
+	var filterPack: TwitarrFilterPack = TwitarrFilterPack()	
 	
 	let dataManager = TwitarrDataManager.shared
 	var tweetDataSource = KrakenDataSource()
@@ -65,9 +65,20 @@ class TwitarrViewController: BaseCollectionViewController {
 				observer.navigationController?.popToViewController(observer, animated: false)
 				observer.collectionView.refreshControl = nil
        		}
-        }?.execute()        
+        }?.execute()
+        
+        if let replyGroupFirst = filterPack.replyGroupFilter {
+        	postButton.title = "Reply"
+        	// Try to ensure the tweet that starts this reply group is loaded.
+			if dataManager.getTweetWithID(replyGroupFirst) == nil {
+				dataManager.loadV3TweetDetail(tweetID: replyGroupFirst)
+			}
+        }   
+        else {
+        	postButton.title = "Post"
+        }
 
-		knownSegues = Set([.tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
+		knownSegues = Set([ .tweetReplyGroup, .tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
 				.composeTweet, .reportContent, .showLikeOptions])
 	}
     
@@ -80,17 +91,27 @@ class TwitarrViewController: BaseCollectionViewController {
 			collectionView.indexPathsForVisibleItems.forEach { filterPack.checkLoadRequiredFor(frcIndex: $0.row) }
 		}
 		else {
-			filterPack.checkLoadRequiredFor(frcIndex: 0)
+//			filterPack.checkLoadRequiredFor(frcIndex: 0)
 		}
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
     	super.viewDidAppear(animated)
 	}
+	
+	@IBAction func postButtonTapped() {
+        if let replyGroupID = filterPack.replyGroupFilter {
+			performKrakenSegue(.composeReplyTweet, sender: replyGroupID)
+        }
+        else {
+			performKrakenSegue(.composeTweet, sender: nil)
+        }
+	}
 			
 	func createCellModel(_ model:TwitarrPost) -> BaseCellModel {
 		let cellModel =  TwitarrTweetCellModel(withModel: model)
 		cellModel.viewController = self
+		cellModel.canReply = filterPack.replyGroupFilter == nil
 		return cellModel
 	}
     

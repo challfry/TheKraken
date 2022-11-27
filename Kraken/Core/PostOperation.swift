@@ -408,14 +408,28 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpTweet) public class PostOpTweet: PostOperation {
 	@NSManaged public var text: String
 	
-		// In v2, Photo needs to be uploaded as a separate POST, then the id is sent.
 	@NSManaged public var photos: NSOrderedSet?			// PostOpPhoto_Attachment. Always matches new state.
 	
 		// Parent tweet, if this is a response. Can be nil.
 	@NSManaged public var parent: TwitarrPost?
+
+		// Reply Group ID, if this is a response. Can be nil. It's possible to reply to a tweet that has never been loaded,
+		// as a 'reply' to a reply is really a reply to the tweet that started the ReplyGroup.
+	@NSManaged public var replyGroup: Int64
 	
 		// If non-nil, this op edits the given tweet.
 	@NSManaged public var tweetToEdit: TwitarrPost?
+	
+	func prepare(context: NSManagedObjectContext, postText: String, replyGroup: Int64? = nil, tweetToEdit: TwitarrPost? = nil) {
+		text = postText
+		self.replyGroup = replyGroup ?? 0
+		if let replyGroup = replyGroup {
+			parent = TwitarrDataManager.shared.getTweetWithID(replyGroup, inContext: context)
+		}
+		self.tweetToEdit = tweetToEdit
+		operationState = .readyToSend
+		
+	}
 				
 	override public func willSave() {
 		super.willSave()
@@ -446,8 +460,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		if let editingPost = self.tweetToEdit {
 			path = "/api/v3/twitarr/\(editingPost.id)/update"
 		}
-		else if let replyTo = parent {
-			path = "/api/v3/twitarr/\(replyTo.id)/reply"
+		else if replyGroup != 0 {
+			path = "/api/v3/twitarr/\(replyGroup)/reply"
 		}
 		else {
 			path = "/api/v3/twitarr/create"

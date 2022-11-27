@@ -242,6 +242,7 @@
         <relationship name="recipients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inSeamailThread" inverseEntity="PotentialUser"/>
     </entity>
     <entity name="PostOpTweet" representedClassName="PostOpTweet" parentEntity="PostOperation" syncable="YES">
+        <attribute name="replyGroup" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="text" attributeType="String"/>
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="opsWithThisParent" inverseEntity="TwitarrPost"/>
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="PostOpPhoto_Attachment" inverseName="parentTweetPostOp" inverseEntity="PostOpPhoto_Attachment"/>

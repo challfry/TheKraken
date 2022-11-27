@@ -62,6 +62,7 @@ import CoreData
 	var currentUserHasLikeOp: LikeOpKind { get set }
 	var currentUserLikesThis: LikeOpKind { get set }
 	var canReply: Bool { get set }
+	var isReplyGroup: Bool { get set }
 	var canEdit: Bool { get set }
 	var canDelete: Bool { get set }
 	var canReport: Bool { get set }
@@ -112,6 +113,7 @@ import CoreData
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
 	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = true
+	dynamic var isReplyGroup: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = true
@@ -144,6 +146,10 @@ import CoreData
 	
 		author = tweetModel.author
 		postTime = tweetModel.createdAt
+		
+		addObservation(tweetModel.tell(self, when: "replyGroup") { observer, observed in
+			observer.isReplyGroup = observed.replyGroup > 0
+		}?.execute())
 					
 		// Show the current number of likes this tweet has.
 		addObservation(tweetModel.tell(self, when: "likeCount") { observer, observed in
@@ -291,7 +297,13 @@ import CoreData
 	
 	func replyButtonTapped() {
    		guard let tweetModel = model as? TwitarrPost else { return } 
-		viewController?.performKrakenSegue(.composeReplyTweet, sender: tweetModel)
+   		if isReplyGroup {
+			viewController?.performKrakenSegue(.tweetReplyGroup, sender: tweetModel.replyGroup)
+   		}
+   		else {
+   			// Starts a reply group when this tweet isn't yet part of one
+			viewController?.performKrakenSegue(.composeReplyTweet, sender: tweetModel.id)
+		}
 	}
 	
 	func editButtonTapped() {
@@ -364,6 +376,7 @@ import CoreData
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
 	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = false
+	dynamic var isReplyGroup: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = false
@@ -731,6 +744,12 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 	}
 	
+	var isReplyGroup: Bool = false {
+		didSet {
+			replyButton.setTitle(isReplyGroup ? "Thread" : "Reply", for: .normal)
+		}
+	}
+	
 	var canEdit: Bool = false {
 		didSet {
 			editButton.isHidden = !canEdit
@@ -749,7 +768,11 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 		}
 	}
 	
-	var loggedInUserIsAuthor: Bool = false
+	var loggedInUserIsAuthor: Bool = false {
+		didSet {
+			likeButton.isHidden = loggedInUserIsAuthor
+		}
+	}
 	var deleteConfirmationMessage: String = ""
 	var isDeleted: Bool	= false
 

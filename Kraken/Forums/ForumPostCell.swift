@@ -34,6 +34,7 @@ import UIKit
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
 	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = false
+	dynamic var isReplyGroup: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = false
@@ -251,6 +252,7 @@ import UIKit
 	dynamic var currentUserHasLikeOp: LikeOpKind = .none
 	dynamic var currentUserLikesThis: LikeOpKind = .none
 	dynamic var canReply: Bool = false
+	dynamic var isReplyGroup: Bool = false
 	dynamic var canEdit: Bool = true
 	dynamic var canDelete: Bool = true
 	dynamic var canReport: Bool = false

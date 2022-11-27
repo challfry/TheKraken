@@ -17,6 +17,7 @@ enum GlobalKnownSegue: String {
 	case reportContent = 			"ReportContent"
 
 	case twitarrRoot = 				"TwitarrRoot"
+	case tweetReplyGroup = 			"TwitarrReplyGroup"			// Shows a reply group
 	case tweetFilter = 				"TweetFilter"
 	case showLikeOptions = 			"LikesPopover"
 	case pendingReplies = 			"PendingReplies"
@@ -69,10 +70,11 @@ enum GlobalKnownSegue: String {
 		case .reportContent: return KrakenManagedObject.self
 
 		case .twitarrRoot: return Void.self
+		case .tweetReplyGroup: return Int64.self
 		case .tweetFilter: return String.self
 		case .showLikeOptions: return LikeTypePopupSegue.self
 		case .pendingReplies: return TwitarrPost.self
-		case .composeReplyTweet: return TwitarrPost.self
+		case .composeReplyTweet: return Int64.self
 		case .editTweet: return TwitarrPost.self
 		case .editTweetOp: return PostOpTweet.self
 		case .composeTweet: return Void.self
@@ -461,8 +463,7 @@ class BaseCollectionViewController: UIViewController {
 		
 		if sender is GlobalNavPacket {
 			// If the dest VC is GlobalNavEnabled, it'll be able to handle this.
-			let segueName = id.rawValue
-			performSegue(withIdentifier: segueName, sender: sender)
+			performSegueWrapper(withIdentifier: id, sender: sender)
 		}
 		if let senderValue = sender {
 			let expectedType = id.senderType
@@ -473,12 +474,25 @@ class BaseCollectionViewController: UIViewController {
 			}
 			
 			if typeIsValid {
-				let segueName = id.rawValue
-				performSegue(withIdentifier: segueName, sender: sender)
+				performSegueWrapper(withIdentifier: id, sender: sender)
 			}
 		}
 		else {
 			// Always allow segues with nil senders. This doesn't mean prepare(for segue) will like it.
+			performSegueWrapper(withIdentifier: id, sender: sender)
+		}
+	}
+	
+	func performSegueWrapper(withIdentifier id: GlobalKnownSegue, sender: Any?) {
+		if id == .tweetReplyGroup {
+			let vc = UIStoryboard(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "TwitarrTweets") as! TwitarrViewController
+			let segue = UIStoryboardSegue(identifier: "TweetReplyGroup", source: self, destination: vc) {
+				self.prepareGlobalSegue(for: .tweetReplyGroup, source: self, destination: vc, sender: sender)
+				self.navigationController?.pushViewController(vc, animated: true)
+			}
+			segue.perform()
+		}
+		else {
 			performSegue(withIdentifier: id.rawValue, sender: sender)
 		}
 	}
@@ -498,32 +512,46 @@ class BaseCollectionViewController: UIViewController {
     	guard let segueName = segue.identifier, let id = GlobalKnownSegue(rawValue: segueName) else {
     		return nil
     	}
+    	return prepareGlobalSegue(for: id, source: segue.source, destination: segue.destination, sender: sender)	
+	}
+    	
+	@discardableResult func prepareGlobalSegue(for id: GlobalKnownSegue, source: UIViewController, 
+			destination: UIViewController, sender: Any?) -> GlobalKnownSegue? {
     	
     	// If this is a global nav to a VC that can handle it, pass it on
-    	if let packet = sender as? GlobalNavPacket, let destVC = segue.destination as? GlobalNavEnabled {
+    	if let packet = sender as? GlobalNavPacket, let destVC = destination as? GlobalNavEnabled {
     		destVC.globalNavigateTo(packet: packet)
     	}
     	
     	switch id {
 
 // Twittar
-		// A filtered view of the tweet stream.
+		// Shows a reply group of tweets. All tweets are either lone wolves or in a reply group. The id # of a group is
+		// always the lowest numbered tweet in the group. This means you cannot reply to a reply tweet and make a new group.
+		case .tweetReplyGroup:
+			if let destVC = destination as? TwitarrViewController, let replyGroupID = sender as? Int64 {
+				destVC.filterPack = TwitarrFilterPack(replyGroup: replyGroupID)
+				destVC.filterPack.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+
+			}
+				
+		// A filtered view of the tweet stream--filter is a search string
 		case .tweetFilter:
-			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
+			if let destVC = destination as? TwitarrViewController, let filterString = sender as? String {
 				destVC.filterPack = TwitarrFilterPack(author: nil, text: filterString)
 			}
 				
 		// PostOpTweets by this user, that are replies to a given tweet.
 		case .pendingReplies:
-			if let destVC = segue.destination as? PendingTwitarrRepliesVC, let parent = sender as? TwitarrPost {
+			if let destVC = destination as? PendingTwitarrRepliesVC, let parent = sender as? TwitarrPost {
 				destVC.parentTweet = parent
 			}
 			
 		case .showLikeOptions:
-			if let destVC = segue.destination as? PostCellLikeVC, let package = sender as? LikeTypePopupSegue {
+			if let destVC = destination as? PostCellLikeVC, let package = sender as? LikeTypePopupSegue {
 				destVC.segueData = package
-				segue.destination.preferredContentSize = CGSize(width: 150, height: 44)
-				if let presentationController = segue.destination.popoverPresentationController {
+				destination.preferredContentSize = CGSize(width: 150, height: 44)
+				if let presentationController = destination.popoverPresentationController {
 					presentationController.barButtonItem = nil
 					presentationController.sourceView = package.button
 					presentationController.delegate = self
@@ -531,24 +559,24 @@ class BaseCollectionViewController: UIViewController {
 			}
 			
 		case .showUserMentions:
-			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
+			if let destVC = destination as? TwitarrViewController, let filterString = sender as? String {
 				destVC.filterPack = TwitarrFilterPack(author: nil, text: filterString)
 			}
 			
 		case .showUserTweets:
-			if let destVC = segue.destination as? TwitarrViewController, let filterString = sender as? String {
+			if let destVC = destination as? TwitarrViewController, let filterString = sender as? String {
 				destVC.filterPack = TwitarrFilterPack(author: filterString, text: nil)
 			}
 			
 		case .composeTweet: break
 		
 		case .composeReplyTweet:
-			if let destVC = segue.destination as? ComposeTweetViewController, let parent = sender as? TwitarrPost {
-				destVC.parentTweet = parent
+			if let destVC = destination as? ComposeTweetViewController, let replyGroupID = sender as? Int64 {
+				destVC.replyGroupID = replyGroupID
 			}
 			
 		case .editTweet, .editTweetOp:
-			if let destVC = segue.destination as? ComposeTweetViewController {
+			if let destVC = destination as? ComposeTweetViewController {
 				if let original = sender as? TwitarrPost {
 					destVC.editTweet = original
 				}
@@ -559,50 +587,50 @@ class BaseCollectionViewController: UIViewController {
 			
 // Forums
 		case .showForumCategory:
-			if let destVC = segue.destination as? ForumsCategoryViewController, let cat = sender as? ForumCategory {
+			if let destVC = destination as? ForumsCategoryViewController, let cat = sender as? ForumCategory {
 				destVC.categoryModel = cat
 			}
 			
 		case .showForumThread:
-			if let destVC = segue.destination as? ForumThreadViewController, let thread = sender as? ForumThread {
+			if let destVC = destination as? ForumThreadViewController, let thread = sender as? ForumThread {
 				destVC.threadModel = thread
 			}
-			if let destVC = segue.destination as? ForumThreadViewController, let threadID = sender as? UUID {
+			if let destVC = destination as? ForumThreadViewController, let threadID = sender as? UUID {
 				destVC.threadModelID = threadID
 			}
 			
 		case .composeForumThread:
-			if let destVC = segue.destination as? ForumComposeViewController, let threadModel = sender as? ForumThread {
+			if let destVC = destination as? ForumComposeViewController, let threadModel = sender as? ForumThread {
 				destVC.thread = threadModel
 			}
-			else if let destVC = segue.destination as? ForumComposeViewController, let catModel = sender as? ForumCategory {
+			else if let destVC = destination as? ForumComposeViewController, let catModel = sender as? ForumCategory {
 				destVC.category = catModel
 			}
 			
 		case .composeForumPost:
-			if let destVC = segue.destination as? ForumComposeViewController, let threadModel = sender as? ForumThread {
+			if let destVC = destination as? ForumComposeViewController, let threadModel = sender as? ForumThread {
 				destVC.thread = threadModel
 			}
 			
 		case .editForumPost:
-			if let destVC = segue.destination as? ForumComposeViewController, let postModel = sender as? ForumPost {
+			if let destVC = destination as? ForumComposeViewController, let postModel = sender as? ForumPost {
 				destVC.editPost = postModel
 			}
 
 		case .editForumPostDraft:
-			if let destVC = segue.destination as? ForumComposeViewController, let postModel = sender as? PostOpForumPost {
+			if let destVC = destination as? ForumComposeViewController, let postModel = sender as? PostOpForumPost {
 				destVC.draftPost = postModel
 			}
 	
 // Seamail
 		case .showSeamailThread:
-			if let destVC = segue.destination as? SeamailThreadViewController,
+			if let destVC = destination as? SeamailThreadViewController,
 					let threadModel = sender as? SeamailThread {
 				destVC.threadModel = threadModel
 			}
 			
 		case .editSeamailThreadOp:
-			if let destVC = segue.destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
+			if let destVC = destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
 				destVC.threadToEdit = thread
 			}
 			
@@ -612,13 +640,13 @@ class BaseCollectionViewController: UIViewController {
 			
 // Maps
 		case .showRoomOnDeckMap:
-			if let destVC = segue.destination as? DeckMapViewController, let location = sender as? String {
+			if let destVC = destination as? DeckMapViewController, let location = sender as? String {
 				destVC.pointAtRoomNamed(location)
 			}
 
 // Users
 		case .userProfile:
-			if let destVC = segue.destination as? UserProfileViewController, let username = sender as? String {
+			if let destVC = destination as? UserProfileViewController, let username = sender as? String {
 				destVC.modelUserName = username
 			}
 			
@@ -626,7 +654,7 @@ class BaseCollectionViewController: UIViewController {
 			break
 			
 		case .modalLogin:
-			if let destVC = segue.destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
+			if let destVC = destination as? ModalLoginViewController, let package = sender as? LoginSegueWithAction {
 				destVC.segueData = package
 				// Specify the presentation style so the ModalLogin VC can layout appropriately
 				// The .automatic style maps to these values anyway, but the dest VC apparently can't know?
@@ -639,7 +667,7 @@ class BaseCollectionViewController: UIViewController {
 			}
 
 		case .reportContent:
-			if let destVC = segue.destination as? ReportContentViewController, let post = sender as? KrakenManagedObject {
+			if let destVC = destination as? ReportContentViewController, let post = sender as? KrakenManagedObject {
 				destVC.contentToReport = post
 			}
 			
@@ -650,7 +678,7 @@ class BaseCollectionViewController: UIViewController {
 			break
 			
 		case .twitarrHelp:
-			if let destVC = segue.destination as? ServerTextFileViewController, let package = sender as? ServerTextFileSeguePackage {
+			if let destVC = destination as? ServerTextFileViewController, let package = sender as? ServerTextFileSeguePackage {
 				destVC.package = package
 			}
 				break

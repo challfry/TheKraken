@@ -11,9 +11,14 @@ import Photos
 import MobileCoreServices
 
 class ComposeTweetViewController: BaseCollectionViewController {
-	var parentTweet: TwitarrPost?			// If we're composing a reply, the parent
+
+	// Config for segues
+	var replyGroupID: Int64?
 	var editTweet: TwitarrPost?				// If we're editing a posted tweet, the original
 	var draftTweet: PostOpTweet?			// If we're editing a draft, the draft
+
+	// The tweet that starts the reply chain, when we're a reply. Could be nil if we've never loaded this tweet.
+	internal var parentTweet: TwitarrPost?			// If we're composing a reply, the parent
 
 	let loginDataSource = KrakenDataSource()
 	let composeDataSource = KrakenDataSource()
@@ -69,7 +74,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			// This is from a draft tweet not yet sent to the server; waiting in the PostOp queue
 			textCell.editText = StringUtilities.cleanupText(draftTweet.text).string
 		}
-		else if let draftText = TwitarrDataManager.shared.getDraftPostText(replyingTo: parentTweet?.id) {
+		else if let draftText = TwitarrDataManager.shared.getDraftPostText(replyingTo: replyGroupID) {
 			// This is from our cache of uncompleted tweets, where user typed something but didn't post.
 			textCell.editText = draftText
 		}
@@ -152,18 +157,23 @@ class ComposeTweetViewController: BaseCollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
-        
+		
         // If we have a tweet (or draft) to edit, but no parent set, and the tweet we're editing is a response (that is, has a parent)
         // set that tweet as the parent.
-        if parentTweet == nil {
+        if replyGroupID == nil {
 			if let editing = editTweet, editing.id != editing.replyGroup {
-				parentTweet = try? TwitarrDataManager.shared.getTweetWithID(editing.replyGroup)
+				replyGroupID = editing.replyGroup
 			}
 			else if let draft = draftTweet {
-				parentTweet = draft.parent
+				replyGroupID = draft.replyGroup
 			}
         }
 
+		// If we have a replyGroupID, load the tweet that starts the reply chain
+		if let replyGroupID = replyGroupID {
+			parentTweet = TwitarrDataManager.shared.getTweetWithID(replyGroupID) 
+		}
+        
 		loginDataSource.viewController = self
         let loginSection = LoginDataSourceSegment()
         loginDataSource.append(segment: loginSection)
@@ -249,7 +259,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
 	override func viewDidDisappear(_ animated: Bool) {
     	super.viewDidDisappear(animated)
-		TwitarrDataManager.shared.saveDraftPost(text: postSuccess ? nil : tweetTextCell.editedText, replyingTo: parentTweet?.id)
+		TwitarrDataManager.shared.saveDraftPost(text: postSuccess ? nil : tweetTextCell.editedText, replyingTo: replyGroupID)
 	}
 
 	// When the Username Completions call returns we need to re-set the predicate. If we were using a fetchedResultsController,
@@ -334,7 +344,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
     func post(withPhotos photos: [PhotoDataType]?) {
     	guard let tweetText = tweetTextCell.editedText ?? tweetTextCell.editText else { return }
 		TwitarrDataManager.shared.queuePost(draftTweet, withText: tweetText, images: photos, 
-				inReplyTo: parentTweet, editing: self.editTweet, done: postEnqueued)    	
+				replyGroupID: replyGroupID, editing: self.editTweet, done: postEnqueued)    	
     }
     
     func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 

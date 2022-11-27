@@ -1196,7 +1196,7 @@
                     <navigationItem key="navigationItem" title="Twitarr" id="Abv-H4-INd">
                         <barButtonItem key="rightBarButtonItem" title="Post" id="CNN-KT-oIF">
                             <connections>
-                                <segue destination="Bly-1t-Nf9" kind="show" identifier="ComposeTweet" id="IvN-8v-NRa"/>
+                                <action selector="postButtonTapped" destination="0s5-bb-y2H" id="dd9-Xj-2Tb"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -1213,6 +1213,7 @@
                         <segue destination="Qw6-mM-5qc" kind="popoverPresentation" identifier="LikesPopover" popoverAnchorBarButtonItem="CNN-KT-oIF" id="Pow-sP-93l">
                             <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES"/>
                         </segue>
+                        <segue destination="Bly-1t-Nf9" kind="show" identifier="ComposeTweet" id="AYR-QU-iv8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0A9-f0-5vG" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2559,19 +2560,19 @@ Additional info:</string>
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="iin-6d-KBo"/>
-        <segue reference="5OF-Gt-GA5"/>
-        <segue reference="j6p-gx-tT1"/>
+        <segue reference="Pow-sP-93l"/>
+        <segue reference="eWg-hD-M7J"/>
         <segue reference="vZQ-MR-Kqg"/>
         <segue reference="ebe-iD-3Jr"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="ZaT-fl-KcI"/>
+        <segue reference="NT7-WF-Ano"/>
         <segue reference="xJS-kz-sQt"/>
         <segue reference="OYC-iy-go3"/>
         <segue reference="Cz0-pb-xEd"/>
-        <segue reference="ibx-KH-vcj"/>
-        <segue reference="d2l-zp-S48"/>
+        <segue reference="AYR-QU-iv8"/>
+        <segue reference="yZ3-I6-e7Y"/>
         <segue reference="RHM-8H-1Ru"/>
-        <segue reference="2Jt-Ly-W1j"/>
+        <segue reference="vXi-dK-Rxk"/>
         <segue reference="gdr-Cd-yXW"/>
         <segue reference="ZQM-8h-AgF"/>
         <segue reference="wjx-Zr-mfc"/>
