@@ -63,7 +63,7 @@ import CoreData
     @NSManaged public var readCounts: Set<SeamailReadCount>	// only for intersection(participants & logged in users)
     
     
-    // Only used for open Fez types
+    // Only used for LFGs (not .open or .closed fezType values)
     @NSManaged public var info: String?
     @NSManaged public var startTime: Date?				// Start/end time for the event, not related to create time of thread.
     @NSManaged public var endTime: Date?
@@ -86,7 +86,7 @@ import CoreData
 
     func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3FezData) throws {
 		TestAndUpdate(\.id, v3Object.fezID)
-		TestAndUpdate(\.fezType, v3Object.fezType.label)
+		TestAndUpdate(\.fezType, v3Object.fezType.rawValue)
 		TestAndUpdate(\.subject, v3Object.title)
 		TestAndUpdate(\.lastModTime, v3Object.lastModificationTime)
 		TestAndUpdate(\.info, v3Object.info)
@@ -230,6 +230,7 @@ import CoreData
 		
 		var queryParams: [URLQueryItem] = []
 		queryParams.append(URLQueryItem(name: "type", value: "closed"))
+		queryParams.append(URLQueryItem(name: "type", value: "open"))
 //		queryParams.append(URLQueryItem(name:"after", value: "\(currentUser.lastSeamailCheckTime)"))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
 		
@@ -448,7 +449,7 @@ import CoreData
 	
 	// Creates a pending POST operation to create a new Seamail thread
 	func queueNewSeamailThreadOp(existingOp: PostOpSeamailThread?, subject: String, message: String, 
-			recipients: Set<PossibleKrakenUser>, done: @escaping (PostOpSeamailThread?) -> Void) {
+			recipients: Set<PossibleKrakenUser>, makeOpen: Bool, done: @escaping (PostOpSeamailThread?) -> Void) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
 			guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
@@ -462,6 +463,7 @@ import CoreData
 			newThread.subject = subject
 			newThread.text = message
 			newThread.author = currentUser
+			newThread.makeOpen = makeOpen
 			
 			// Why both possibleUsers and potentialUsers? I didn't want to create the CoreData objects until a 
 			// thread was queued for sending, and I therefore can't create CoreData PotentialUsers while the user is still
@@ -531,6 +533,9 @@ import CoreData
 enum TwitarrV3FezType: String, CaseIterable, Codable {
     /// A closed chat. Participants are set at creation and can't be changed. No location, start/end time, or capacity. 
     case closed
+	/// An open chat. Participants can be added/removed after creation *and your UI should make this clear*. No location, start/end time, or capacity. 
+	case open
+
     /// Some type of activity.
     case activity
     /// A dining LFG.
@@ -555,6 +560,7 @@ enum TwitarrV3FezType: String, CaseIterable, Codable {
             case .meeetup: return "Meetup"
             case .music: return "Music"
             case .shore: return "Shore"
+            case .open: return "Open"
             case .closed: return "Private"
             default: return "Other"
         }

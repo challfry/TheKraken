@@ -42,6 +42,8 @@ import UIKit
 	@objc dynamic lazy var subjectCell: TextViewCellModel = TextViewCellModel("Subject:")
 	@objc dynamic lazy var messageCell: TextViewCellModel = TextViewCellModel("Initial Message:")
 
+	lazy var openOrClosedCell = SwitchCellModel(labelText: "Make this an open chat so you can add or remove users later")
+	
 	lazy var postButtonCell: ButtonCellModel = {
 		let buttonCell = ButtonCellModel()
 		buttonCell.setupButton(2, title:"Send", action: weakify(self, type(of: self).postAction))
@@ -86,6 +88,7 @@ import UIKit
 		composeSection.append(messageRecipientsCell)
 		composeSection.append(subjectCell)
 		composeSection.append(messageCell)
+		composeSection.append(openOrClosedCell)
 		composeSection.append(postButtonCell)
 		
 		CurrentUser.shared.tell(postButtonCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
@@ -240,7 +243,7 @@ import UIKit
 		if let subjectText = subjectCell.getText(), let messageText = messageCell.getText(),
 				subjectText.count > 0, messageText.count > 0, usersInThread.count > 0 {
 			SeamailDataManager.shared.queueNewSeamailThreadOp(existingOp: threadToEdit, subject: subjectText, 
-					message: messageText, recipients: usersInThread, done: postQueued)
+					message: messageText, recipients: usersInThread, makeOpen: openOrClosedCell.switchState, done: postQueued)
 			isBusyPosting = true
 			postStatusCell.shouldBeVisible = true
 		}

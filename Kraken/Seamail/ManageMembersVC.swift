@@ -1,64 +1,75 @@
 //
-//  SeamailThreadViewController.swift
+//  ManageMembersVC.swift
 //  Kraken
 //
-//  Created by Chall Fry on 5/15/19.
-//  Copyright © 2019 Chall Fry. All rights reserved.
+//  Created by Chall Fry on 11/27/22.
+//  Copyright © 2022 Chall Fry. All rights reserved.
 //
 
 import UIKit
 import CoreData
 
-class SeamailThreadViewController: BaseCollectionViewController {
+class ManageMembersVC: BaseCollectionViewController {
 
 	var threadModel: SeamailThread?
 	
 	private let compositeDataSource = KrakenDataSource()
-	private let 	messageSegment = FRCDataSourceSegment<SeamailMessage>()
-	private let 	queuedMsgSegment = FRCDataSourceSegment<PostOpSeamailMessage>()
-	private let 	newMessageSegment = FilteringDataSourceSegment()
+	private let 	participantSegment = FRCDataSourceSegment<SeamailMessage>()
+	private let 	waitListSegment = FRCDataSourceSegment<PostOpSeamailMessage>()
+	private let 	managementSegment = FilteringDataSourceSegment()
 	private let dataManager = SeamailDataManager.shared
 	private let coreData = LocalCoreData.shared
 	
-	var postingCell = TextViewCellModel("")
-	var sendButtonCell: ButtonCellModel?
-	private var isBusyPosting: Bool = false
-	private var postAuthor: String = ""
-
+	lazy var usernameTextCell: TextFieldCellModel = {
+		let cell = TextFieldCellModel("Search for User")
+		cell.showClearTextButton = true
+//		cell.returnButtonHit = textFieldReturnHit
+		return cell
+	}()
+	
+	lazy var userSuggestionsCell: UserListCoreDataCellModel = {
+		let cell = UserListCoreDataCellModel(withTitle: "Suggestions")
+//		cell.selectionCallback = suggestedUserTappedAction
+		return cell
+	}()
+	
 // MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Manage Members"
         knownSegues = [.dismiss]
-        if let thread = threadModel {
-	        SeamailDataManager.shared.loadSeamailThread(thread: thread) {
-      		}
+        guard let thread = threadModel else {
+        	// Can't do anything--no fez to show
+			performKrakenSegue(.dismiss, sender: threadModel)
 		}
-        
-        // Save the name of the logged in user at load time; if that user changes dismiss the view.
-        // We *might* loosen this restriction so that if both prev and current user are in the thread
-        // we could stay, but that's awful thin. Obviously, if we transition to logged out or to a user not
-        // in this thread we can't show the thread.
-        postAuthor = CurrentUser.shared.loggedInUser?.username ?? ""
+		SeamailDataManager.shared.loadSeamailThread(thread: thread) { }
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-        	if observer.postAuthor != CurrentUser.shared.loggedInUser?.username {
-        		observer.performKrakenSegue(.dismiss, sender: observer.threadModel)
-        	}
+			observer.performKrakenSegue(.dismiss, sender: observer.threadModel)
         }
         
-        if let participants = threadModel?.participants, let currentUsername = CurrentUser.shared.loggedInUser?.username {
-        	let others = participants.compactMap { $0.username != currentUsername ? $0.username : nil }
-        	if others.count == 1, let otherPerson = others.first {
-        		title = "@\(otherPerson)"
-        	}
-        	else if others.count == 2 {
-        		let sorted = others.sorted()
-        		title = "@\(sorted[0]), @\(sorted[1])"
-        	}
-        	else {
-        		title = "\(participants.count) Member Chat "
-        	}
-        }
+//        if let participants = threadModel?.participants, let currentUsername = CurrentUser.shared.loggedInUser?.username {
+//        	let others = participants.compactMap { $0.username != currentUsername ? $0.username : nil }
+//        	if others.count == 1, let otherPerson = others.first {
+//        		title = "@\(otherPerson)"
+//        	}
+//        	else if others.count == 2 {
+//        		let sorted = others.sorted()
+//        		title = "@\(sorted[0]), @\(sorted[1])"
+//        	}
+//        	else {
+//        		title = "\(participants.count) Member Chat "
+//        	}
+//        }
                 
+		compositeDataSource.register(with: collectionView, viewController: self)
+		managementSegment.append(usernameTextCell)
+		managementSegment.append(userSuggestionsCell)
+		managementSegment.append(messageRecipientsCell)
+		managementSegment.append(subjectCell)
+		managementSegment.append(messageCell)
+		managementSegment.append(openOrClosedCell)
+		managementSegment.append(postButtonCell)
+
    		// Set up the FRCs for the messages in the thread and the messages in the send queue
    		var messagePredicate: NSPredicate
    		var opPredicate: NSPredicate
@@ -113,13 +124,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		compositeDataSource.append(segment: messageSegment)
 		compositeDataSource.append(segment: queuedMsgSegment)
 		compositeDataSource.append(segment: newMessageSegment)
-		
-		// When the cells finish getting added to the CV, scroll the CV to the bottom cell.
-		compositeDataSource.scheduleBatchUpdateCompletionBlock {
-			let lastSection = self.compositeDataSource.numberOfSections(in: self.collectionView) - 1
-			self.collectionView.scrollToItem(at: IndexPath(row: 1, section: lastSection), at: .bottom, animated: false)
-		}
-    }
+	}
     
     override func viewDidAppear(_ animated: Bool) {
     	super.viewDidAppear(animated)
@@ -150,9 +155,3 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	
 }
 
-extension SeamailThreadViewController: FRCDataSourceLoaderDelegate {
-	func userIsViewingCell(at: IndexPath) {
-		threadModel?.markPostAsRead(index: at.row)
-	}
-
-}

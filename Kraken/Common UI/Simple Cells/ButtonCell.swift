@@ -42,7 +42,7 @@ import UIKit
 		super.init(bindingWith: ButtonCellProtocol.self)
 	}
 	
-	init(title: String, action: (() -> Void)?, alignment: NSTextAlignment = .right) {
+	init(title: String, alignment: NSTextAlignment = .right, action: (() -> Void)?) {
 		buttonAlignment = alignment
 		button1Enabled = true
 		button1Text = title

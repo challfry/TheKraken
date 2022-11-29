@@ -785,6 +785,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var subject: String
 	@NSManaged public var text: String
 	@NSManaged public var recipients: Set<PotentialUser>?
+	@NSManaged public var makeOpen: Bool
 
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
@@ -812,7 +813,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		let userIDs = recipients?.compactMap { $0.actualUser?.userID } ?? []
-		let newThreadStruct = TwitarrV3FezContentData(fezType: .closed, title: subject, info: "", 
+		let newThreadStruct = TwitarrV3FezContentData(fezType: makeOpen ? .open : .closed, title: subject, info: "", 
 				startTime: nil, endTime: nil, location: nil, minCapacity: 0, maxCapacity: 0, initialUsers: userIDs)
 		let newThreadData = try! JSONEncoder().encode(newThreadStruct)
 		request.httpBody = newThreadData
@@ -1079,7 +1080,31 @@ struct TwitarrV3NoteCreateData: Codable {
     var note: String
 }
 
-struct TwitarrV3FezContentData: Codable {
+public struct TwitarrV3FezContentData: Codable {
+	/// The `FezType` .label of the fez.
+	var fezType: TwitarrV3FezType
+	/// The title for the FriendlyFez.
+	var title: String
+	/// A description of the fez.
+	var info: String
+	/// The starting time for the fez.
+	var startTime: Date?
+	/// The ending time for the fez.
+	var endTime: Date?
+	/// The location for the fez.
+	var location: String?
+	/// The minimum number of seamonkeys needed for the fez.
+	var minCapacity: Int
+	/// The maximum number of seamonkeys for the fez.
+	var maxCapacity: Int
+	/// Users to add to the fez upon creation. The creator is always added as the first user.
+	var initialUsers: [UUID]
+	/// If TRUE, the Fez will be created by user @moderator instead of the current user. Current user must be a mod.
+	var createdByModerator: Bool?
+	/// If TRUE, the Fez will be created by user @moderator instead of the current user. Current user must be a mod.
+	var createdByTwitarrTeam: Bool?
+}
+struct TwitakrrV3FezContentData: Codable {
     /// The `FezType` .label of the fez.
     var fezType: TwitarrV3FezType
     /// The title for the FriendlyFez.

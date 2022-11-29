@@ -367,8 +367,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 		append(ModeSwitchButtonCellModel(title: "Actually, just let me log in.", forMode: .login, segment: self))
 		append(ModeSwitchButtonCellModel(title: "Create a new account", forMode: .createAccount, segment: self))
 		append(ModeSwitchButtonCellModel(title: "I've, uh, forgotten my password.", forMode: .forgotPassword, segment: self))
-		append(ButtonCellModel(title: "Read Code of Conduct", action: weakify(self, type(of:self).readCodeOfConductAction), 
-				alignment: .left))
+		append(ButtonCellModel(title: "Read Code of Conduct", alignment: .left, action: weakify(self, type(of:self).readCodeOfConductAction)))
 	}
 	
 	func startLoggingIn() {

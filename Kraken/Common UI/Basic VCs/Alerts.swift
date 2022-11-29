@@ -34,15 +34,17 @@ func showDelayedTextAlert(title: String, message: String) {
 
 extension UIApplication {
 
-    class func getTopViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
+    class func getTopViewController(base: UIViewController? = nil) -> UIViewController? {
+		var baseVC = base ?? UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap { $0.windows }
+				.first { $0.isKeyWindow }?.rootViewController
 
-        if let nav = base as? UINavigationController {
+        if let nav = baseVC as? UINavigationController {
             return getTopViewController(base: nav.visibleViewController)
 
-        } else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
+        } else if let tab = baseVC as? UITabBarController, let selected = tab.selectedViewController {
             return getTopViewController(base: selected)
 
-        } else if let presented = base?.presentedViewController {
+        } else if let presented = baseVC?.presentedViewController {
             return getTopViewController(base: presented)
         }
         return base

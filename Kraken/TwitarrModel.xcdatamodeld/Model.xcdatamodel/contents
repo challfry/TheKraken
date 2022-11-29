@@ -237,6 +237,7 @@
         <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="opsAddingMessages" inverseEntity="SeamailThread"/>
     </entity>
     <entity name="PostOpSeamailThread" representedClassName="PostOpSeamailThread" parentEntity="PostOperation" syncable="YES">
+        <attribute name="makeOpen" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="subject" attributeType="String"/>
         <attribute name="text" attributeType="String"/>
         <relationship name="recipients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inSeamailThread" inverseEntity="PotentialUser"/>

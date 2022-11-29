@@ -118,7 +118,6 @@ class ForumsCategoryViewController: BaseCollectionViewController {
         }?.execute()   
 
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-        	let currentUserID = CurrentUser.shared.loggedInUser?.userID	
 			if let cm = observer.categoryModel, let currentUserID = CurrentUser.shared.loggedInUser?.userID,
 					let userCatPivot = cm.userCatPivots.first(where: { $0.user.userID == currentUserID }) {
 				observer.newForumButton.isEnabled = !userCatPivot.isRestricted

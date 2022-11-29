@@ -88,6 +88,7 @@
 		EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
+		EA82092929343D0D005A251F /* ManageMembersVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA82092829343D0D005A251F /* ManageMembersVC.swift */; };
 		EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6A2366332E0042C0DC /* SegmentCell.swift */; };
 		EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA83FC6C2366334A0042C0DC /* SegmentCell.xib */; };
 		EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6E2368F01D0042C0DC /* Styler.swift */; };
@@ -351,6 +352,7 @@
 		EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyThemeUpdater.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
+		EA82092829343D0D005A251F /* ManageMembersVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageMembersVC.swift; sourceTree = "<group>"; };
 		EA83FC6A2366332E0042C0DC /* SegmentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentCell.swift; sourceTree = "<group>"; };
 		EA83FC6C2366334A0042C0DC /* SegmentCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SegmentCell.xib; sourceTree = "<group>"; };
 		EA83FC6E2368F01D0042C0DC /* Styler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styler.swift; sourceTree = "<group>"; };
@@ -594,6 +596,7 @@
 				EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */,
 				EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */,
 				EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */,
+				EA82092829343D0D005A251F /* ManageMembersVC.swift */,
 				EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */,
 				EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */,
 				EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */,
@@ -1384,6 +1387,7 @@
 				EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */,
 				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */,
+				EA82092929343D0D005A251F /* ManageMembersVC.swift in Sources */,
 				EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */,
 				EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */,
 				EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */,

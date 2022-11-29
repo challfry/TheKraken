@@ -105,7 +105,7 @@ import UIKit
 		emailCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email)
 		homeLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation)
 		roomNumberCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .roomNumber)
-		mapRoomCell = ButtonCellModel(title: "Show Room On Map", action: mapButtonTapped, alignment: .center)
+		mapRoomCell = ButtonCellModel(title: "Show Room On Map", alignment: .center, action: mapButtonTapped)
 		
 		currentLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation)
 		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)

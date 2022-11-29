@@ -86,5 +86,28 @@ extension NSMutableAttributedString {
 		}
 		append(stringToAppend)
 	}
+}
 
+extension UIFont {
+    class func systemFont(ofSize fontSize: CGFloat, symbolicTraits: UIFontDescriptor.SymbolicTraits) -> UIFont {
+        let font = UIFont.systemFont(ofSize: fontSize).including(symbolicTraits: symbolicTraits) ?? UIFont.preferredFont(forTextStyle: .body)
+        return UIFontMetrics(forTextStyle: .body).scaledFont(for: font)
+    }
+
+    func including(symbolicTraits: UIFontDescriptor.SymbolicTraits) -> UIFont? {
+        var traits = self.fontDescriptor.symbolicTraits
+        traits.update(with: symbolicTraits)
+        return withOnly(symbolicTraits: traits)
+    }
+
+    func excluding(symbolicTraits: UIFontDescriptor.SymbolicTraits) -> UIFont? {
+        var traits = self.fontDescriptor.symbolicTraits
+        traits.remove(symbolicTraits)
+        return withOnly(symbolicTraits: traits)
+    }
+
+    func withOnly(symbolicTraits: UIFontDescriptor.SymbolicTraits) -> UIFont? {
+        guard let fontDescriptor = fontDescriptor.withSymbolicTraits(symbolicTraits) else { return nil }
+        return .init(descriptor: fontDescriptor, size: pointSize)
+    }
 }
