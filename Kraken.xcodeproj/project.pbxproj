@@ -89,6 +89,8 @@
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
 		EA82092929343D0D005A251F /* ManageMembersVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA82092829343D0D005A251F /* ManageMembersVC.swift */; };
+		EA820955293EB3FC005A251F /* LFGParticipantCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA820954293EB3FC005A251F /* LFGParticipantCell.swift */; };
+		EA820957293EB422005A251F /* LFGParticipantCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA820956293EB422005A251F /* LFGParticipantCell.xib */; };
 		EA83FC6B2366332E0042C0DC /* SegmentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6A2366332E0042C0DC /* SegmentCell.swift */; };
 		EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA83FC6C2366334A0042C0DC /* SegmentCell.xib */; };
 		EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC6E2368F01D0042C0DC /* Styler.swift */; };
@@ -137,7 +139,7 @@
 		EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0E91122E942770077D5D0 /* SwiftUtils.swift */; };
 		EAA12B6627B4A55B002F9C47 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAA12B6527B4A55B002F9C47 /* NetworkExtension.framework */; };
 		EAA12B6927B4A55B002F9C47 /* KrakenPushProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA12B6827B4A55B002F9C47 /* KrakenPushProvider.swift */; };
-		EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EAA12B6427B4A55B002F9C47 /* KrakenLocalPushExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EAA12B7427B4AB92002F9C47 /* LocalPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA12B7327B4AB92002F9C47 /* LocalPush.swift */; };
 		EAA2E4BD2242D300009F287F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4BC2242D300009F287F /* AppDelegate.swift */; };
 		EAA2E4C12242D300009F287F /* ForumsCategoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA2E4C02242D300009F287F /* ForumsCategoryVC.swift */; };
@@ -192,11 +194,11 @@
 		EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */; };
 		EACB06AE2404FF530075924E /* EmojiDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF589D42403EE8300ECB7DB /* EmojiDataManager.swift */; };
 		EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */; };
+		EAD4CB1D293EC9530018C381 /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */; };
 		EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */; };
 		EADF5DA023DD30E7008BA172 /* DeckDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC8A236E33450042C0DC /* DeckDataManager.swift */; };
 		EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */; };
 		EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */; };
-		EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */; };
 		EAE59152229EA345002B5DEF /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAE59151229EA345002B5DEF /* Photos.framework */; };
 		EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */; };
 		EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF340F224ED88300C7A0D9 /* LoginCells.swift */; };
@@ -242,15 +244,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		EAA12B7227B4A55C002F9C47 /* Embed App Extensions */ = {
+		EAA12B7227B4A55C002F9C47 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed App Extensions */,
+				EAA12B6E27B4A55C002F9C47 /* KrakenLocalPushExtension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -353,6 +355,8 @@
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
 		EA82092829343D0D005A251F /* ManageMembersVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageMembersVC.swift; sourceTree = "<group>"; };
+		EA820954293EB3FC005A251F /* LFGParticipantCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LFGParticipantCell.swift; sourceTree = "<group>"; };
+		EA820956293EB422005A251F /* LFGParticipantCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LFGParticipantCell.xib; sourceTree = "<group>"; };
 		EA83FC6A2366332E0042C0DC /* SegmentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentCell.swift; sourceTree = "<group>"; };
 		EA83FC6C2366334A0042C0DC /* SegmentCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SegmentCell.xib; sourceTree = "<group>"; };
 		EA83FC6E2368F01D0042C0DC /* Styler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styler.swift; sourceTree = "<group>"; };
@@ -469,11 +473,11 @@
 		EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SmallUserCell.xib; sourceTree = "<group>"; };
 		EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarEditCell.swift; sourceTree = "<group>"; };
+		EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
 		EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTimers.swift; sourceTree = "<group>"; };
 		EAE26A1623D6F8BE00D6FACA /* ArrayDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotion.swift; sourceTree = "<group>"; };
 		EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectionCell.swift; sourceTree = "<group>"; };
-		EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
 		EAE59151229EA345002B5DEF /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenDataSource.swift; sourceTree = "<group>"; };
 		EAEF340F224ED88300C7A0D9 /* LoginCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCells.swift; sourceTree = "<group>"; };
@@ -596,7 +600,6 @@
 				EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */,
 				EAC696E6228CDB7B00EE6EEB /* SeamailThreadViewController.swift */,
 				EAB4537222D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift */,
-				EA82092829343D0D005A251F /* ManageMembersVC.swift */,
 				EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */,
 				EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */,
 				EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */,
@@ -764,6 +767,16 @@
 			path = "Kraken/Third Party";
 			sourceTree = "<group>";
 		};
+		EA820953293EB398005A251F /* LFG */ = {
+			isa = PBXGroup;
+			children = (
+				EA82092829343D0D005A251F /* ManageMembersVC.swift */,
+				EA820954293EB3FC005A251F /* LFGParticipantCell.swift */,
+				EA820956293EB422005A251F /* LFGParticipantCell.xib */,
+			);
+			path = LFG;
+			sourceTree = "<group>";
+		};
 		EA83FC7023693A560042C0DC /* Deck Maps */ = {
 			isa = PBXGroup;
 			children = (
@@ -895,6 +908,7 @@
 				EA1E3B8D2245795100017F07 /* Twittarr */,
 				EA1E3B8E2245796F00017F07 /* Forums */,
 				EA1E3B8F2245798400017F07 /* Seamail */,
+				EA820953293EB398005A251F /* LFG */,
 				EAAA68EC24013A1200C9EF82 /* Users_Hashtags_Emoji */,
 				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
@@ -943,6 +957,10 @@
 		EAAA68E624012E8B00C9EF82 /* Complex Cells */ = {
 			isa = PBXGroup;
 			children = (
+				EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */,
+				EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */,
+				EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */,
+				EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */,
 			);
 			path = "Complex Cells";
 			sourceTree = "<group>";
@@ -972,8 +990,6 @@
 			children = (
 				EAF589CE2401F1EE00ECB7DB /* DisclosureCell.swift */,
 				EA86ADE72279B49400363CBF /* DisclosureCell.xib */,
-				EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */,
-				EAE5914D229E5A78002B5DEF /* PhotoSelectionCell.xib */,
 				EAB4536822D1F63900CD1671 /* LabelCell.swift */,
 				EA86ADDD2275BD3500363CBF /* LabelCell.xib */,
 				EA86ADE5227983E500363CBF /* SingleValueCell.xib */,
@@ -989,8 +1005,6 @@
 				EA83FC6C2366334A0042C0DC /* SegmentCell.xib */,
 				EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */,
 				EA278A49226A755400808AED /* LoadingStatusCell.xib */,
-				EA1B9FE423514E8100BFEB46 /* PostOpStatusCell.swift */,
-				EA1B9FE523514E8100BFEB46 /* PostOpStatusCell.xib */,
 				EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */,
 				EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */,
 			);
@@ -1096,7 +1110,7 @@
 				EAA2E4B52242D300009F287F /* Sources */,
 				EAA2E4B62242D300009F287F /* Frameworks */,
 				EAA2E4B72242D300009F287F /* Resources */,
-				EAA12B7227B4A55C002F9C47 /* Embed App Extensions */,
+				EAA12B7227B4A55C002F9C47 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -1151,7 +1165,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1320;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1400;
 				ORGANIZATIONNAME = "Chall Fry";
 				TargetAttributes = {
 					EA2286E423E3B61C0036C20E = {
@@ -1232,6 +1246,7 @@
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EA4E84EC2328734F0059E5EB /* KaraokeLoadingCell.xib in Resources */,
 				EA8694B523D4A5A800ABE391 /* AnnouncementCell.xib in Resources */,
+				EA820957293EB422005A251F /* LFGParticipantCell.xib in Resources */,
 				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
 				EA2286F723E42ED90036C20E /* BoardGameCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
@@ -1262,9 +1277,9 @@
 				EA2286DD23E275A40036C20E /* KrakenIcon100px.png in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
 				EAAA68E523FFBA4600C9EF82 /* LargeTextFieldCell.xib in Resources */,
+				EAD4CB1D293EC9530018C381 /* PhotoSelectionCell.xib in Resources */,
 				EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,
-				EAE5914F229E5A78002B5DEF /* PhotoSelectionCell.xib in Resources */,
 				EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */,
 				EA86ADEA2279B4E400363CBF /* ProfileCommentCell.xib in Resources */,
 				EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */,
@@ -1342,6 +1357,7 @@
 				EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */,
 				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
+				EA820955293EB3FC005A251F /* LFGParticipantCell.swift in Sources */,
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
 				EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
@@ -1511,6 +1527,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -1525,6 +1542,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = JHK5ZNZ4L3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;

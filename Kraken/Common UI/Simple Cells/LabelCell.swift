@@ -27,6 +27,15 @@ import UIKit
 		labelText = NSAttributedString(string: titleLabel)
 		super.init(bindingWith: LabelCellProtocol.self)
 	}
+	
+	init(_ titleLabel: String, fontTraits: UIFontDescriptor.SymbolicTraits? = nil, stringTraits: [NSAttributedString.Key : Any] = [:]) {
+		var attrs = stringTraits
+		if let ft = fontTraits {
+			attrs[.font] = UIFont.systemFont(ofSize: 17, symbolicTraits: ft)
+		}
+		labelText = NSAttributedString(string: titleLabel, attributes: attrs)
+		super.init(bindingWith: LabelCellProtocol.self)
+	}
 }
 
 // It turns out we actually need this cell in multiple places.

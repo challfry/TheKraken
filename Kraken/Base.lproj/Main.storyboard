@@ -99,6 +99,7 @@
                     <connections>
                         <outlet property="collectionView" destination="1A7-J6-kmJ" id="azs-l9-0ME"/>
                         <segue destination="8mQ-cw-ZRS" kind="unwind" identifier="dismiss" unwindAction="dismissingSeamailThreadWithSegue:" id="PL9-i9-TfZ"/>
+                        <segue destination="xee-yK-Zrf" kind="show" identifier="SeamailManageMenbers" id="oem-q2-sVJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Ms-N4-lZA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -145,6 +146,46 @@
                 <exit id="umr-Bh-GE6" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="3206" y="1184"/>
+        </scene>
+        <!--Manage Members-->
+        <scene sceneID="Hyp-iE-TQq">
+            <objects>
+                <viewController restorationIdentifier="ManageMembersVC" storyboardIdentifier="ManageMembersVC" title="Manage Members" id="xee-yK-Zrf" customClass="ManageMembersVC" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="1f7-JY-ODw">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="C2s-xh-PZw">
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="e0J-Y9-Ahl">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Erv-FN-2OO"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="C2s-xh-PZw" firstAttribute="leading" secondItem="Erv-FN-2OO" secondAttribute="leading" id="DpZ-jf-iIt"/>
+                            <constraint firstItem="Erv-FN-2OO" firstAttribute="bottom" secondItem="C2s-xh-PZw" secondAttribute="bottom" id="MXg-WY-eRp"/>
+                            <constraint firstItem="C2s-xh-PZw" firstAttribute="top" secondItem="Erv-FN-2OO" secondAttribute="top" id="anm-Fz-uKy"/>
+                            <constraint firstItem="Erv-FN-2OO" firstAttribute="trailing" secondItem="C2s-xh-PZw" secondAttribute="trailing" id="xmM-Sk-g7o"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="O7r-ta-6AE"/>
+                    <connections>
+                        <outlet property="collectionView" destination="C2s-xh-PZw" id="31G-Nu-hgp"/>
+                        <segue destination="lFb-ZU-152" kind="unwind" identifier="dismiss" unwindAction="dismissManageMembers:" id="Kcd-mF-6QV"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kRG-yd-5R9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="lFb-ZU-152" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="3990" y="1184"/>
         </scene>
         <!--Settings-->
         <scene sceneID="0uu-32-IUj">
@@ -558,9 +599,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="92" width="200" height="201"/>
+                                <rect key="frame" x="214" y="92" width="200" height="200.5"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -2544,6 +2585,7 @@ Additional info:</string>
                         <rect key="frame" x="0.0" y="975" width="768" height="49"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <color key="backgroundColor" name="TabBar Background"/>
+                        <color key="selectedImageTintColor" name="Kraken Icon Blue"/>
                     </tabBar>
                     <connections>
                         <segue destination="FbF-R0-wHc" kind="relationship" relationship="viewControllers" id="mB2-NL-D0V"/>
@@ -2565,7 +2607,7 @@ Additional info:</string>
         <segue reference="vZQ-MR-Kqg"/>
         <segue reference="ebe-iD-3Jr"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="NT7-WF-Ano"/>
+        <segue reference="Cci-1G-tOu"/>
         <segue reference="xJS-kz-sQt"/>
         <segue reference="OYC-iy-go3"/>
         <segue reference="Cz0-pb-xEd"/>
@@ -2578,7 +2620,7 @@ Additional info:</string>
         <segue reference="wjx-Zr-mfc"/>
         <segue reference="rR9-QS-2f0"/>
         <segue reference="2Ae-eC-yt5"/>
-        <segue reference="jdD-6N-h46"/>
+        <segue reference="hV8-Mc-Uo7"/>
         <segue reference="jrK-s2-V8J"/>
     </inferredMetricsTieBreakers>
     <resources>
@@ -2616,6 +2658,9 @@ Additional info:</string>
         </namedColor>
         <namedColor name="CollectionView Background">
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Kraken Icon Blue">
+            <color red="0.017999999225139618" green="0.0" blue="0.86599999666213989" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Kraken Label Text">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

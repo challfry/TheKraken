@@ -131,11 +131,14 @@ import CoreData
 				addObservation(thread.tell(self, when:"lastModTime") { observer, observed in
 	    			observer.lastPostTime.text = StringUtilities.relativeTimeString(forDate: observed.lastModTime)
 				}?.execute())
-	    		
-	    		let participantArray = thread.participants.sorted { $0.username < $1.username }
-	    		for user in participantArray {
-	    			userCellSection.append(createUserCellModel(user, name: user.username))
-	    		}
+
+				addObservation(thread.tell(self, when:"participants") { observer, observed in	    		
+					observer.userCellSection.allCellModels.removeAllObjects()
+					let participantArray = observed.participants.sorted { $0.username < $1.username }
+					for user in participantArray {
+						observer.userCellSection.append(observer.createUserCellModel(user, name: user.username))
+					}
+				}?.execute())
 	    		
 	    		// Accessibility
 	    		let groupElem = UIAccessibilityElement(accessibilityContainer: self)

@@ -28,7 +28,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 // MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        knownSegues = [.dismiss]
+        knownSegues = [.dismiss, .seamailManageMembers]
         if let thread = threadModel {
 	        SeamailDataManager.shared.loadSeamailThread(thread: thread) {
       		}
@@ -101,9 +101,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 			newMessageSegment.append(labelCell)
 			
 			if model.owner?.userID == CurrentUser.shared.loggedInUser?.userID {
-				let manageMembersBtn = ButtonCellModel(title: "Manage Members", alignment: .center) {
-					print("button tapped")
-				}
+				let manageMembersBtn = ButtonCellModel(title: "Manage Members", alignment: .center, action: manageMembersButtonHit)
 				newMessageSegment.append(manageMembersBtn)
 			}
 		}
@@ -144,10 +142,16 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		}
 	}
 	
-	func postQueued(_ post: PostOpSeamailMessage?) {
-		
+	func manageMembersButtonHit() {
+		performKrakenSegue(.seamailManageMembers, sender: threadModel)
 	}
 	
+	func postQueued(_ post: PostOpSeamailMessage?) {
+	}
+	
+	// This is the unwind segue from the Manage Members view.
+	@IBAction func dismissManageMembers(_ segue: UIStoryboardSegue) {
+	}	
 }
 
 extension SeamailThreadViewController: FRCDataSourceLoaderDelegate {

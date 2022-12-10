@@ -35,7 +35,7 @@ func showDelayedTextAlert(title: String, message: String) {
 extension UIApplication {
 
     class func getTopViewController(base: UIViewController? = nil) -> UIViewController? {
-		var baseVC = base ?? UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap { $0.windows }
+		let baseVC = base ?? UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap { $0.windows }
 				.first { $0.isKeyWindow }?.rootViewController
 
         if let nav = baseVC as? UINavigationController {

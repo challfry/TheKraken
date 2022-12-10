@@ -427,25 +427,7 @@ import CoreData
 		Settings.shared.seamailNotificationBadgeCount = 0
 	}
 	
-	// Called by the Add Message PostOp, after the server responds
-//	func addNewSeamailMessage(context: NSManagedObjectContext, threadID: String, v2Object: TwitarrV2SeamailMessage) {
-//		do {
-//			let request = self.coreData.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "SeamailThreadsWithIDs", 
-//					substitutionVariables: [ "ids" : [threadID] ]) as! NSFetchRequest<SeamailThread>
-//			let cdThreads = try request.execute()
-//			if let thread = cdThreads.first {
-//				UserManager.shared.update(users: v2Object.readUsers, inContext: context)
-//
-//				// Yes, even if we're adding a new message, check to see if it's already here. Because networking.
-//				let message = thread.messages.first { $0.id == v2Object.id } ?? SeamailMessage(context: context)
-//				message.buildFromV2(context: context, v2Object: v2Object, newThread: thread)
-//				thread.messages.insert(message)
-//			}
-//		}
-//		catch {
-//			CoreDataLog.error("Failed to add new Seamail message to CoreData.", ["error" : error])
-//		}
-//	}
+// MARK: Actions
 	
 	// Creates a pending POST operation to create a new Seamail thread
 	func queueNewSeamailThreadOp(existingOp: PostOpSeamailThread?, subject: String, message: String, 
@@ -523,6 +505,56 @@ import CoreData
 			catch {
 				CoreDataLog.error("Couldn't save context while creating new Seamail thread.", ["error" : error])
 				done(nil)
+			}
+		}
+	}
+	
+	// Does NOT post an op--user must be in network range. Reasoning is that adding users to LFGs is time-dependent, and 
+	// unlike posting while ashore, adding a user to a LFG hours later is gonna cause issues (i.e. the LFG fills up in the interim
+	// and the user doesn't understand how they got waitlisted).
+	func addUserToChat(user: KrakenUser, thread: SeamailThread) {
+		// POST /api/v3/fez/ID/user/ID/add. The response is an updated FezData. So, mark this as a recent load but always perform it.
+		recentLoads[thread.id] = Date()
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/user/\(user.userID)/add")
+		request.httpMethod = "POST"
+		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				self.lastError = error
+			}
+			else if let data = package.data {
+				do {
+					let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
+					self.ingestSeamailThreads(from: [response])
+					self.recentLoads.removeValue(forKey: thread.id)
+				}
+				catch {
+					NetworkLog.error("Failure parsing network response.", ["Error" : error, "url" : request.url as Any])
+				} 
+			}
+		}
+	}
+	
+	// Does NOT post an op--user must be in network range.
+	func removeUserFromChat(user: KrakenUser, thread: SeamailThread) {
+		// POST /api/v3/fez/:ID/user/:userID/remove. The response is an updated FezData. So, mark this as a recent load but always perform it.
+		recentLoads[thread.id] = Date()
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/user/\(user.userID)/remove")
+		request.httpMethod = "POST"
+		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				self.lastError = error
+			}
+			else if let data = package.data {
+				do {
+					let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
+					self.ingestSeamailThreads(from: [response])
+					self.recentLoads.removeValue(forKey: thread.id)
+				}
+				catch {
+					NetworkLog.error("Failure parsing network response.", ["Error" : error, "url" : request.url as Any])
+				} 
 			}
 		}
 	}

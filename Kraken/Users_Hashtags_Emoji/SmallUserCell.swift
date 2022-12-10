@@ -47,11 +47,10 @@ class SmallUserCell: BaseCollectionViewCell, SmallUserCellBindingProtocol {
 	var model: NSFetchRequestResult? {
 		didSet {
 			if let user = model as? KrakenUser {
-	    		user.loadUserThumbnail()
-	    		user.tell(self, when:"thumbPhoto") { observer, observed in
+	    		addObservation(user.tell(self, when:"thumbPhoto") { observer, observed in
 					observed.loadUserThumbnail()
 					observer.imageView.image = observed.thumbPhoto
-	    		}?.schedule()
+	    		}?.execute())
 			}
 			else if model == nil {
 				imageView.image = UIImage(named: "UnknownUser")

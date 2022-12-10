@@ -39,6 +39,7 @@ enum GlobalKnownSegue: String {
 	case seamailRoot = 				"SeamailRoot"
 	case showSeamailThread = 		"ShowSeamailThread"
 	case editSeamailThreadOp = 		"EditSeamailThreadOp"
+	case seamailManageMembers = 	"SeamailManageMenbers"
 
 	case eventsRoot = 				"EventsRoot"
 	
@@ -92,6 +93,7 @@ enum GlobalKnownSegue: String {
 		case .seamailRoot: return Void.self
 		case .showSeamailThread: return SeamailThread.self
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
+		case .seamailManageMembers: return SeamailThread.self
 		
 		case .eventsRoot: return String.self
 		
@@ -632,6 +634,11 @@ class BaseCollectionViewController: UIViewController {
 		case .editSeamailThreadOp:
 			if let destVC = destination as? ComposeSeamailThreadVC, let thread = sender as? PostOpSeamailThread {
 				destVC.threadToEdit = thread
+			}
+
+		case .seamailManageMembers:
+			if let destVC = destination as? ManageMembersVC, let thread = sender as? SeamailThread {
+				destVC.threadModel = thread
 			}
 			
 // Events
