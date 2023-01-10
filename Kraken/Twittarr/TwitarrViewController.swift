@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class TwitarrViewController: BaseCollectionViewController {
+class TwitarrViewController: BaseCollectionViewController, GlobalNavEnabled {
 	@IBOutlet var postButton: UIBarButtonItem!
 
 	// For VCs that show a filtered view (@Author/#Hashtag/@Mention/String Search) this is where we store the filter
@@ -44,6 +44,7 @@ class TwitarrViewController: BaseCollectionViewController {
 		tweetSegment.loaderDelegate = filterPack
 		tweetSegment.activate(predicate: filterPack.predicate, sort: filterPack.sortDescriptors, cellModelFactory: createCellModel)
 		filterPack.frc = tweetSegment.frc
+		title = filterPack.filterTitle
 		
         loginDataSource.append(segment: loginSection)
 		loginSection.headerCellText = "In order to see the Twitarr stream, you will need to log in first."
@@ -77,9 +78,6 @@ class TwitarrViewController: BaseCollectionViewController {
         else {
         	postButton.title = "Post"
         }
-
-		knownSegues = Set([ .tweetReplyGroup, .tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
-				.composeTweet, .reportContent, .showLikeOptions])
 	}
     
     override func viewWillAppear(_ animated: Bool) {
@@ -120,9 +118,24 @@ class TwitarrViewController: BaseCollectionViewController {
 			DispatchQueue.main.async { self.collectionView.refreshControl?.endRefreshing() }
 		}
     }
+    
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
+				.composeTweet, .reportContent, .showLikeOptions ])
+	}
 
 	// This is the unwind segue from the Tweet compose view.
 	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
-	}	
+	}
+	
+	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+		if let segue = packet.segue, segue != .twitarrRoot {
+			performKrakenSegue(segue, sender: packet.sender)
+			return true
+		}
+		return false
+	}
+
 }
 

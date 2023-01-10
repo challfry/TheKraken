@@ -156,7 +156,6 @@ class ComposeTweetViewController: BaseCollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-		knownSegues = Set([.userProfile, .fullScreenCamera, .cropCamera])
 		
         // If we have a tweet (or draft) to edit, but no parent set, and the tweet we're editing is a response (that is, has a parent)
         // set that tweet as the parent.
@@ -389,6 +388,9 @@ class ComposeTweetViewController: BaseCollectionViewController {
     }
     
 // MARK: - Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .userProfile, .fullScreenCamera, .cropCamera])
+	}
 
 	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the
 	// source VC to get the photo that was taken.

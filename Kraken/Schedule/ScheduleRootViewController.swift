@@ -86,8 +86,6 @@ import EventKitUI
 		locationPicker.dataSource = self
 		locationPicker.delegate = self
 		locationPickerContainer.isHidden = true
-
-		knownSegues = Set([.modalLogin, .showRoomOnDeckMap, .showForumThread])
     }
 	
 	var minuteNotification: Any?
@@ -386,6 +384,9 @@ import EventKitUI
 	}
 
     // MARK: - Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .modalLogin, .showRoomOnDeckMap, .showForumThread ])
+	}
 
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		// Force the view to load

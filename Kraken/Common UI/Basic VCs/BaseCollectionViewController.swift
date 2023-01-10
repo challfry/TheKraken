@@ -17,7 +17,6 @@ enum GlobalKnownSegue: String {
 	case reportContent = 			"ReportContent"
 
 	case twitarrRoot = 				"TwitarrRoot"
-	case tweetReplyGroup = 			"TwitarrReplyGroup"			// Shows a reply group
 	case tweetFilter = 				"TweetFilter"
 	case showLikeOptions = 			"LikesPopover"
 	case pendingReplies = 			"PendingReplies"
@@ -42,6 +41,8 @@ enum GlobalKnownSegue: String {
 	case seamailManageMembers = 	"SeamailManageMenbers"
 
 	case eventsRoot = 				"EventsRoot"
+	
+	case lfgRoot = 					"LFGRoot"
 	
 	case deckMapRoot =				"DeckMapRoot"
 	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
@@ -71,8 +72,7 @@ enum GlobalKnownSegue: String {
 		case .reportContent: return KrakenManagedObject.self
 
 		case .twitarrRoot: return Void.self
-		case .tweetReplyGroup: return Int64.self
-		case .tweetFilter: return String.self
+		case .tweetFilter: return TwitarrFilterPack.self
 		case .showLikeOptions: return LikeTypePopupSegue.self
 		case .pendingReplies: return TwitarrPost.self
 		case .composeReplyTweet: return Int64.self
@@ -96,6 +96,8 @@ enum GlobalKnownSegue: String {
 		case .seamailManageMembers: return SeamailThread.self
 		
 		case .eventsRoot: return String.self
+		
+		case .lfgRoot: return Void.self
 		
 		case .deckMapRoot: return Void.self
 		case .showRoomOnDeckMap: return String.self
@@ -144,8 +146,8 @@ class BaseCollectionViewController: UIViewController {
 	var zoomViewWidthConstraint: NSLayoutConstraint?
 	var zoomViewHeightConstraint: NSLayoutConstraint?
 	
-	// Subclasses should set this to the list of global segue enums (see above) they actually support in their viewDidLoad method.
-	var knownSegues: Set<GlobalKnownSegue> = Set()
+	// Subclasses should set this to the list of global segue enums (see above) they actually support
+	var knownSegues: Set<GlobalKnownSegue> { Set() }
 
 // MARK: Methods	
     override func viewDidLoad() {
@@ -456,6 +458,25 @@ class BaseCollectionViewController: UIViewController {
 		return knownSegues.contains(segue)
 	}
 	
+	func segueOrNavToLink(_ link: String) {
+		// Open externally if it's not our link
+		if let url = URL(string: link), !["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host]
+				.contains(url.host ?? "nohostfoundasdfasfasf") {
+			UIApplication.shared.open(url)
+			return
+		}
+	
+		let packet = GlobalNavPacket(from: self, url: link)
+		// If the current VC can perform the segue, do it
+		if let segueType = packet.segue, canPerformSegue(segueType) {
+			performKrakenSegue(segueType, sender: packet.sender)
+		}
+		else {
+			// Use global nav to get to the dest.
+			ContainerViewController.shared?.globalNavigateTo(packet: packet)
+		}
+	}
+	
 	func performKrakenSegue(_ id: GlobalKnownSegue, sender: Any?) {
 		guard canPerformSegue(id) else {
 			let vcType = type(of: self)
@@ -467,7 +488,7 @@ class BaseCollectionViewController: UIViewController {
 			// If the dest VC is GlobalNavEnabled, it'll be able to handle this.
 			performSegueWrapper(withIdentifier: id, sender: sender)
 		}
-		if let senderValue = sender {
+		else if let senderValue = sender {
 			let expectedType = id.senderType
 			var typeIsValid =  type(of: senderValue) == expectedType || expectedType == Any.self
 			if !typeIsValid {
@@ -486,17 +507,7 @@ class BaseCollectionViewController: UIViewController {
 	}
 	
 	func performSegueWrapper(withIdentifier id: GlobalKnownSegue, sender: Any?) {
-		if id == .tweetReplyGroup {
-			let vc = UIStoryboard(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "TwitarrTweets") as! TwitarrViewController
-			let segue = UIStoryboardSegue(identifier: "TweetReplyGroup", source: self, destination: vc) {
-				self.prepareGlobalSegue(for: .tweetReplyGroup, source: self, destination: vc, sender: sender)
-				self.navigationController?.pushViewController(vc, animated: true)
-			}
-			segue.perform()
-		}
-		else {
-			performSegue(withIdentifier: id.rawValue, sender: sender)
-		}
+		performSegue(withIdentifier: id.rawValue, sender: sender)
 	}
 
 	// Most global segues are only dependent on their destination VC and info in the sender parameter.
@@ -528,19 +539,10 @@ class BaseCollectionViewController: UIViewController {
     	switch id {
 
 // Twittar
-		// Shows a reply group of tweets. All tweets are either lone wolves or in a reply group. The id # of a group is
-		// always the lowest numbered tweet in the group. This means you cannot reply to a reply tweet and make a new group.
-		case .tweetReplyGroup:
-			if let destVC = destination as? TwitarrViewController, let replyGroupID = sender as? Int64 {
-				destVC.filterPack = TwitarrFilterPack(replyGroup: replyGroupID)
-				destVC.filterPack.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
-
-			}
-				
-		// A filtered view of the tweet stream--filter is a search string
+		// A filtered view of the tweet stream. Used for text search, hashtag search, @username search, reply groups.
 		case .tweetFilter:
-			if let destVC = destination as? TwitarrViewController, let filterString = sender as? String {
-				destVC.filterPack = TwitarrFilterPack(author: nil, text: filterString)
+			if let destVC = destination as? TwitarrViewController, let filter = sender as? TwitarrFilterPack {
+				destVC.filterPack = filter
 			}
 				
 		// PostOpTweets by this user, that are replies to a given tweet.
@@ -626,8 +628,7 @@ class BaseCollectionViewController: UIViewController {
 	
 // Seamail
 		case .showSeamailThread:
-			if let destVC = destination as? SeamailThreadViewController,
-					let threadModel = sender as? SeamailThread {
+			if let destVC = destination as? SeamailThreadViewController, let threadModel = sender as? SeamailThread {
 				destVC.threadModel = threadModel
 			}
 			

@@ -127,8 +127,6 @@ import Photos
 			observer.avatarUpdateStatusCell.postOp = observer.editPhotoOp
 			observer.profileUpdateStatusCell.postOp = observer.editProfileOp
 		}?.execute()
-
-		knownSegues = Set([.fullScreenCamera, .cropCamera, .dismiss])
 	}
  
     override func viewDidAppear(_ animated: Bool) {
@@ -136,29 +134,6 @@ import Photos
 		dataSource.enableAnimations = true
 		CurrentUser.shared.clearErrors()
 	}
-	
-	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if let segueID = prepareGlobalSegue(for: segue, sender: sender) {
-			
-			// Override default camera behavior when we're the source, so the camera starts in selfie mode.
-			switch segueID {
-			case .fullScreenCamera, .cropCamera: 
-				if let destVC = segue.destination as? CameraViewController {
-					destVC.selfieMode = true
-				}
-			default: break 
-			}
-		}
-	}
-	
-	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the
-	// source VC to get the photo that was taken.
-	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
-		guard let sourceVC = segue.source as? CameraViewController else { return }
-		if let photoContainer = sourceVC.capturedPhoto {
-			prepareImageForUpload(photoContainer: photoContainer)
-		}
-	}	
 	
     func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 
     		_ info: [AnyHashable : Any]?) {
@@ -184,5 +159,33 @@ import Photos
 			}
 		}
 	}
+	
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .fullScreenCamera, .cropCamera, .dismiss ])
+	}
+
+	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+		if let segueID = prepareGlobalSegue(for: segue, sender: sender) {
+			
+			// Override default camera behavior when we're the source, so the camera starts in selfie mode.
+			switch segueID {
+			case .fullScreenCamera, .cropCamera: 
+				if let destVC = segue.destination as? CameraViewController {
+					destVC.selfieMode = true
+				}
+			default: break 
+			}
+		}
+	}
+	
+	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the
+	// source VC to get the photo that was taken.
+	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
+		guard let sourceVC = segue.source as? CameraViewController else { return }
+		if let photoContainer = sourceVC.capturedPhoto {
+			prepareImageForUpload(photoContainer: photoContainer)
+		}
+	}	
 }
 

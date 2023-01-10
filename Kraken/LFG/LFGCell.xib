@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_0" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="LFGCell" reuseIdentifier="LFGCell" id="cYT-Pu-m2J" customClass="LFGCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="93"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Cw0-1a-wPJ">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="93"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RDh-Si-puI">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="97"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sxw-Xa-0EQ" userLabel="Title BG">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="46.666666666666664"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GaI-9R-RQb" userLabel="Top Line">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="1"/>
+                                        <color key="backgroundColor" name="Icon Foreground"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="1" id="N5i-gl-C5o"/>
+                                        </constraints>
+                                    </view>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="900" verticalHuggingPriority="251" horizontalCompressionResistancePriority="600" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kX8-al-r9v">
+                                        <rect key="frame" x="20.000000000000004" y="2" width="36.333333333333343" height="20.333333333333332"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                        <color key="textColor" name="Kraken Label Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="700" text="(canceled)" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WPK-hN-G0T">
+                                        <rect key="frame" x="60.333333333333343" y="2" width="81" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" name="Red Alert Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Time" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J6T-2H-bFR">
+                                        <rect key="frame" x="19.999999999999996" y="24.333333333333336" width="37.666666666666657" height="20.333333333333336"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" name="Kraken Secondary Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" name="Info Title Background"/>
+                                <constraints>
+                                    <constraint firstItem="kX8-al-r9v" firstAttribute="top" secondItem="Sxw-Xa-0EQ" secondAttribute="top" constant="2" id="0sS-zT-n0Q"/>
+                                    <constraint firstItem="GaI-9R-RQb" firstAttribute="leading" secondItem="Sxw-Xa-0EQ" secondAttribute="leading" id="5jc-vf-gyb"/>
+                                    <constraint firstAttribute="bottom" secondItem="J6T-2H-bFR" secondAttribute="bottom" constant="2" id="Aiz-KX-BBg"/>
+                                    <constraint firstItem="WPK-hN-G0T" firstAttribute="firstBaseline" secondItem="kX8-al-r9v" secondAttribute="firstBaseline" id="F79-qQ-aPJ"/>
+                                    <constraint firstAttribute="trailing" secondItem="GaI-9R-RQb" secondAttribute="trailing" id="GaI-ho-x1P"/>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="WPK-hN-G0T" secondAttribute="trailing" constant="2" id="PY6-z1-3NJ"/>
+                                    <constraint firstItem="WPK-hN-G0T" firstAttribute="leading" secondItem="kX8-al-r9v" secondAttribute="trailing" constant="4" id="UW8-CR-OWM"/>
+                                    <constraint firstItem="J6T-2H-bFR" firstAttribute="leading" secondItem="kX8-al-r9v" secondAttribute="leading" id="Ufy-uh-C7M"/>
+                                    <constraint firstItem="GaI-9R-RQb" firstAttribute="top" secondItem="Sxw-Xa-0EQ" secondAttribute="top" id="VcS-kj-LXE"/>
+                                    <constraint firstItem="J6T-2H-bFR" firstAttribute="top" secondItem="kX8-al-r9v" secondAttribute="bottom" constant="2" id="s7o-Yl-jT9"/>
+                                    <constraint firstItem="kX8-al-r9v" firstAttribute="leading" secondItem="Sxw-Xa-0EQ" secondAttribute="leading" constant="20" symbolic="YES" id="xPW-bc-Y9E"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="by: @owner" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3sB-6U-33d">
+                                <rect key="frame" x="20.000000000000007" y="48.666666666666664" width="89.666666666666686" height="20.333333333333336"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1/1 attendees" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I2s-JC-2QC">
+                                <rect key="frame" x="258.66666666666669" y="48.666666666666664" width="100.33333333333331" height="20.333333333333336"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="gaming" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="v18-QQ-QiX">
+                                <rect key="frame" x="19.999999999999996" y="72.666666666666671" width="56.666666666666657" height="20.333333333333329"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0 posts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jpq-jI-QLr">
+                                <rect key="frame" x="302" y="72.666666666666671" width="57" height="20.333333333333329"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="jpq-jI-QLr" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="v18-QQ-QiX" secondAttribute="trailing" constant="2" id="0b9-uU-a2B"/>
+                            <constraint firstAttribute="trailing" secondItem="Sxw-Xa-0EQ" secondAttribute="trailing" id="3WC-eW-rIj"/>
+                            <constraint firstItem="3sB-6U-33d" firstAttribute="leading" secondItem="kX8-al-r9v" secondAttribute="leading" id="4Jk-Ey-vxj"/>
+                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="jpq-jI-QLr" secondAttribute="bottom" constant="4" id="7TD-MM-w3u"/>
+                            <constraint firstAttribute="trailing" secondItem="I2s-JC-2QC" secondAttribute="trailing" constant="16" id="7dn-wy-Tlo"/>
+                            <constraint firstItem="v18-QQ-QiX" firstAttribute="firstBaseline" secondItem="3sB-6U-33d" secondAttribute="baseline" constant="24" symbolType="layoutAnchor" id="9gT-1e-KTV"/>
+                            <constraint firstItem="I2s-JC-2QC" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="3sB-6U-33d" secondAttribute="trailing" constant="2" id="DI6-yT-blN"/>
+                            <constraint firstItem="jpq-jI-QLr" firstAttribute="trailing" secondItem="I2s-JC-2QC" secondAttribute="trailing" id="Jc5-FH-Ls0"/>
+                            <constraint firstItem="3sB-6U-33d" firstAttribute="top" secondItem="Sxw-Xa-0EQ" secondAttribute="bottom" constant="2" id="K6z-pJ-a9N"/>
+                            <constraint firstItem="Sxw-Xa-0EQ" firstAttribute="leading" secondItem="RDh-Si-puI" secondAttribute="leading" id="RMY-9X-AOU"/>
+                            <constraint firstItem="I2s-JC-2QC" firstAttribute="firstBaseline" secondItem="3sB-6U-33d" secondAttribute="firstBaseline" id="RXi-6i-Ij7"/>
+                            <constraint firstItem="jpq-jI-QLr" firstAttribute="firstBaseline" secondItem="v18-QQ-QiX" secondAttribute="firstBaseline" id="d5k-1X-8cR"/>
+                            <constraint firstItem="Sxw-Xa-0EQ" firstAttribute="top" secondItem="RDh-Si-puI" secondAttribute="top" id="gqn-wY-f0B"/>
+                            <constraint firstAttribute="height" priority="100" id="hvh-cH-1E0"/>
+                            <constraint firstItem="v18-QQ-QiX" firstAttribute="leading" secondItem="3sB-6U-33d" secondAttribute="leading" id="rKh-mg-W13"/>
+                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="v18-QQ-QiX" secondAttribute="bottom" constant="4" id="req-mh-Nxp"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <color key="backgroundColor" name="Cell Background"/>
+                <constraints>
+                    <constraint firstItem="RDh-Si-puI" firstAttribute="leading" secondItem="Cw0-1a-wPJ" secondAttribute="leading" id="3Ck-Zy-UgF"/>
+                    <constraint firstItem="RDh-Si-puI" firstAttribute="top" secondItem="Cw0-1a-wPJ" secondAttribute="top" id="rCF-qC-zqp"/>
+                    <constraint firstAttribute="bottom" secondItem="RDh-Si-puI" secondAttribute="bottom" priority="600" id="tY4-fa-rTi"/>
+                    <constraint firstAttribute="trailing" secondItem="RDh-Si-puI" secondAttribute="trailing" id="vFq-XZ-AZT"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="375" height="93"/>
+            <connections>
+                <outlet property="attendeesLabel" destination="I2s-JC-2QC" id="ZH4-kS-VDR"/>
+                <outlet property="cancelLabel" destination="WPK-hN-G0T" id="zjd-4t-1fU"/>
+                <outlet property="categoryLabel" destination="v18-QQ-QiX" id="iFv-Ib-K3C"/>
+                <outlet property="numPostsLabel" destination="jpq-jI-QLr" id="Glu-dO-JLG"/>
+                <outlet property="ownerLabel" destination="3sB-6U-33d" id="G5B-d8-Xzf"/>
+                <outlet property="timeLabel" destination="J6T-2H-bFR" id="9Jq-ny-q9I"/>
+                <outlet property="titleLabel" destination="kX8-al-r9v" id="hR7-2C-Tcw"/>
+            </connections>
+            <point key="canvasLocation" x="262.30769230769232" y="-8.1753554502369656"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="Cell Background">
+            <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Icon Foreground">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Info Title Background">
+            <color red="1" green="0.97299998998641968" blue="0.87599998712539673" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Secondary Text">
+            <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Red Alert Text">
+            <color red="0.72500002384185791" green="0.045000001788139343" blue="0.045000001788139343" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

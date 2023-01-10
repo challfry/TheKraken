@@ -21,7 +21,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
 		cell.headerText = "Kraken Version \(appVersion)b\(buildVersion)"
 		cell.authorName = "From: Chall Fry"
-		cell.text = "A big thank you to our wonderful beta testers!"
+		cell.text = NSAttributedString(string: "A big thank you to our wonderful beta testers!")
 		return cell
 	}()
 	
@@ -32,45 +32,77 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
 		cell.headerText = "Reminder"
 		cell.authorName = "From: Chall Fry"
-		cell.text = """
+		cell.text = NSAttributedString(string: """
 				Kraken will automatically purge all cached data on April 1, a couple of weeks after the cruise ends. Photos, \
 				posts, messages, favorites, and users will all be gone. You should save any info you want to keep.
 				
 				If you have photos you want to save, you can do so by tapping on the photo, tapping the Share button, \
 				and tapping Save Image.
-				"""
+				""")
 				
 		cell.shouldBeVisible = (dayAfterCruise() ?? 0) > 1
 		return cell
 	}()
 
-	var twitarrCell: SocialCellModel?
-	var forumsCell: SocialCellModel?
-	var mailCell: SocialCellModel?
-	var scheduleCell: SocialCellModel?
-	var deckMapCell: SocialCellModel?
-	var karaokeCell: SocialCellModel?
-	var gamesCell: SocialCellModel?
-	var scrapbookCell: SocialCellModel?
-	var lighterModeCell: SocialCellModel?
-	var settingsCell : SocialCellModel?
-	var helpCell: SocialCellModel?
-	var aboutCell: SocialCellModel?
+	var twitarrCell = SocialCellModel("Twittar", imageNamed: "hourglass")
+	var forumsCell = SocialCellModel("Forums", imageNamed: "person.2")
+	var mailCell = SocialCellModel("Seamail", imageNamed: "text.bubble")
+	var scheduleCell = SocialCellModel("Schedule", imageNamed: "calendar")
+	var lfgCell = SocialCellModel("LFG", imageNamed: "person.3.sequence.fill")
+	var deckMapCell = SocialCellModel("Deck Maps", imageNamed: "map")
+	var karaokeCell = SocialCellModel("Karaoke", imageNamed: "music.mic")
+	var gamesCell = SocialCellModel("Games", imageNamed: "suit.club")
+	var scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook")
+	var lighterModeCell = SocialCellModel("Lighter Mode", imageNamed: "flame")
+	var settingsCell = SocialCellModel("Settings", imageNamed: "wrench.and.screwdriver")
+	var helpCell = SocialCellModel("About Twitarr", imageNamed: "questionmark.circle")
+	var aboutCell = SocialCellModel("About The Kraken", imageNamed: "questionmark.circle")
+	
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+		
+		twitarrCell.navPacket = GlobalNavPacket(from: self, tab: .twitarr)
+		forumsCell.navPacket = GlobalNavPacket(from: self, tab: .forums)
+		mailCell.navPacket = GlobalNavPacket(from: self, tab: .seamail)
+		scheduleCell.navPacket = GlobalNavPacket(from: self, tab: .events)
+		lfgCell.navPacket = GlobalNavPacket(from: self, tab: .lfg)
+		deckMapCell.navPacket = GlobalNavPacket(from: self, tab: .deckPlans)
+		karaokeCell.navPacket = GlobalNavPacket(from: self, tab: .karaoke)
+		gamesCell.navPacket = GlobalNavPacket(from: self, tab: .games)
+		scrapbookCell.navPacket = GlobalNavPacket(from: self, tab: .scrapbook)
+		lighterModeCell.navPacket = GlobalNavPacket(from: self, tab: .lighter)
+		settingsCell.navPacket = GlobalNavPacket(from: self, tab: .settings)
+		helpCell.navPacket = GlobalNavPacket(from: self,tab: .twitarrHelp, arguments: ["filename" : "twitarrhelptext.md", "title" : "Twitarr Help"])
+		aboutCell.navPacket = GlobalNavPacket(from: self, tab: .about)
+	}
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
-		knownSegues = [.twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .deckMapRoot, .karaokeRoot, .gamesRoot,
-				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode]
 		
+		// Watch for updates to valid sections
+		AlertsUpdater.shared.tell(self, when: "lastUpdateTime") {observer, observed in
+			observer.updateEnabledFeatures(ValidSections.shared.disabledSections)
+		}?.execute()
+
 		// Set the badge on the Daily tab
 		AnnouncementDataManager.shared.tell(self, when: ["dailyTabBadgeCount"]) { observer, observed in
 			let badgeCount = observed.dailyTabBadgeCount
 			observer.navigationController?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
 		}?.execute()
 
-		// Watch for updates to valid sections
-		ValidSectionUpdater.shared.tell(self, when: "lastUpdateTime") {observer, observed in
-			observer.updateEnabledFeatures(observed.disabledSections)
+		// Set the badges on the Seamail cell and tab
+		CurrentUser.shared.tell(self, when: "loggedInUser.newSeamailMessages") { observer, observed in
+			let badgeCount = observed.loggedInUser?.newSeamailMessages ?? 0
+			observer.mailCell.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
+			if let tabController = observer.navigationController?.tabBarController as? RootTabBarViewController {
+				tabController.setBadge(for: .seamail, to: Int(badgeCount))
+			}
+		}?.execute()
+		
+		// Set the badge on the LFG cell
+		CurrentUser.shared.tell(self, when: "loggedInUser.newLFGMessages") { observer, observed in
+			let badgeCount = observed.loggedInUser?.newLFGMessages ?? 0
+			observer.lfgCell.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
 		}?.execute()
 	}
 
@@ -91,56 +123,51 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 				cellModelFactory: self.createAnnouncementCellModel)
 		dataSource.append(segment: announcementSegment)
 		
-		// Lazy or not, we can't make these cells until viewDidLoad time
-		twitarrCell = SocialCellModel("Twittar", imageNamed: "Twitarr",  nav: GlobalNavPacket(from: self, tab: .twitarr))
-		forumsCell = SocialCellModel("Forums", imageNamed: "Forums", nav: GlobalNavPacket(from: self, tab: .forums))
-		mailCell = SocialCellModel("Seamail", imageNamed: "Seamail", nav: GlobalNavPacket(from: self, tab: .seamail))
-		scheduleCell = SocialCellModel("Schedule", imageNamed: "Schedule", nav: GlobalNavPacket(from: self, tab: .events))
-		deckMapCell = SocialCellModel("Deck Maps", imageNamed: "Map", nav: GlobalNavPacket(from: self, tab: .deckPlans))
-		karaokeCell = SocialCellModel("Karaoke", imageNamed: "Karaoke", nav: GlobalNavPacket(from: self, tab: .karaoke))
-		gamesCell = SocialCellModel("Games", imageNamed: "Games", nav: GlobalNavPacket(from: self, tab: .games))
-		scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook", nav: GlobalNavPacket(from: self, tab: .scrapbook))
-		lighterModeCell = SocialCellModel("Lighter Mode", imageNamed: "Flame", nav: GlobalNavPacket(from: self, tab: .lighter))
-		settingsCell = SocialCellModel("Settings", imageNamed: "Settings", nav: GlobalNavPacket(from: self, tab: .settings))
-		helpCell = SocialCellModel("About Twitarr", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .twitarrHelp, 
-				arguments: ["filename" : "twitarrhelptext.md", "title" : "Twitarr Help"]))
-		aboutCell = SocialCellModel("About The Kraken", imageNamed: "About", nav: GlobalNavPacket(from: self, tab: .about))
-
 		dataSource.append(segment: appFeaturesSegment)
-		appFeaturesSegment.append(twitarrCell!)
-		appFeaturesSegment.append(forumsCell!)
-		appFeaturesSegment.append(mailCell!)
-		appFeaturesSegment.append(scheduleCell!)
-		appFeaturesSegment.append(deckMapCell!)
-		appFeaturesSegment.append(karaokeCell!)
-		appFeaturesSegment.append(gamesCell!)
-//		appFeaturesSegment.append(scrapbookCell!)
-		appFeaturesSegment.append(lighterModeCell!)
-		appFeaturesSegment.append(settingsCell!)
-		appFeaturesSegment.append(helpCell!)
-		appFeaturesSegment.append(aboutCell!)
+		appFeaturesSegment.append(twitarrCell)
+		appFeaturesSegment.append(forumsCell)
+		appFeaturesSegment.append(mailCell)
+		appFeaturesSegment.append(scheduleCell)
+		appFeaturesSegment.append(lfgCell)
+		appFeaturesSegment.append(deckMapCell)
+		appFeaturesSegment.append(karaokeCell)
+		appFeaturesSegment.append(gamesCell)
+//		appFeaturesSegment.append(scrapbookCell)
+		appFeaturesSegment.append(lighterModeCell)
+		appFeaturesSegment.append(settingsCell)
+		appFeaturesSegment.append(helpCell)
+		appFeaturesSegment.append(aboutCell)
 		
 		// Lighter Mode
 		#if targetEnvironment(macCatalyst) 
-			lighterModeCell?.shouldBeVisible = false		
+			lighterModeCell.shouldBeVisible = false		
 		#endif
 		if UIDevice.current.userInterfaceIdiom != .phone {
-			lighterModeCell?.shouldBeVisible = false		
+			lighterModeCell.shouldBeVisible = false		
 		}
 
   		dataSource.register(with: collectionView, viewController: self)
   		
-		// Set the badge on the Seamail cell
-		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
-				"loggedInUser.seamailParticipant.count"]) { observer, observed in
-			if let currentUser = observed.loggedInUser {
-				let badgeCount = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count
-				observer.mailCell?.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
-			}
-			else {
-				observer.mailCell?.badgeValue = nil
-			}
-		}?.execute()
+
+//		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
+//				"loggedInUser.seamailParticipant.count"]) { observer, observed in
+//			if let currentUser = observed.loggedInUser {
+//				var seamailBadgeCount = 0
+//				var lfgBadgeCount = 0
+//				currentUser.seamailReadCounts.forEach { readCounts in
+//					if readCounts.postCount - readCounts.readCount <= 0 || !readCounts.thread.participants.contains(currentUser) {
+//						return
+//					}
+//					["open", "closed"].contains(readCounts.thread.fezType) ? (seamailBadgeCount += 1) : (lfgBadgeCount += 1)
+//				}
+//				observer.mailCell?.badgeValue = seamailBadgeCount > 0 ? "\(seamailBadgeCount) new" : nil
+//				observer.lfgCell?.badgeValue = lfgBadgeCount > 0 ? "\(lfgBadgeCount) new" : nil
+//			}
+//			else {
+//				observer.mailCell?.badgeValue = nil
+//				observer.lfgCell?.badgeValue = nil
+//			}
+//		}?.execute()
 
     }
     
@@ -162,12 +189,18 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     	return cellModel
     }
     
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .lfgRoot, .deckMapRoot, .karaokeRoot, .gamesRoot,
+				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile ])
+	}
+    
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
     // nav pushes on iPad.
     @discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
     	navigationController?.popToRootViewController(animated: false)
     
-    	if ValidSectionUpdater.shared.disabledTabs.contains(packet.tab) {
+    	if ValidSections.shared.disabledTabs.contains(packet.tab) {
 			let replacementVC = DisabledContentViewController(forTab: packet.tab)
 			self.navigationController?.pushViewController(replacementVC, animated: true)
 			return true
@@ -179,6 +212,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .forums: performKrakenSegue(.forumsRoot, sender: packet)
 			case .seamail: performKrakenSegue(.seamailRoot, sender: packet)
 			case .events: performKrakenSegue(.eventsRoot, sender: packet)
+			case .lfg: performKrakenSegue(.lfgRoot, sender: packet)
 			case .deckPlans: performKrakenSegue(.deckMapRoot, sender: packet)
 			case .karaoke: performKrakenSegue(.karaokeRoot, sender: packet)
 			case .games: performKrakenSegue(.gamesRoot, sender: packet)
@@ -191,16 +225,20 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .about: performKrakenSegue(.about, sender: packet)			
 			default: break
 		}
+		
+		if let username = packet.arguments["profile"] {
+			performKrakenSegue(.userProfile, sender: username)			
+		}
 		return true
 	}
 	
-    func updateEnabledFeatures(_ disabledSections: Set<ValidSectionUpdater.Section>) {
-		twitarrCell?.contentDisabled = disabledSections.contains(.stream)
-		forumsCell?.contentDisabled = disabledSections.contains(.forums)
-		mailCell?.contentDisabled = disabledSections.contains(.seamail)
-		scheduleCell?.contentDisabled = disabledSections.contains(.calendar)
-		deckMapCell?.contentDisabled = disabledSections.contains(.deckPlans)
-		karaokeCell?.contentDisabled = disabledSections.contains(.karaoke)
+    func updateEnabledFeatures(_ disabledSections: Set<ValidSections.Section>) {
+		twitarrCell.contentDisabled = disabledSections.contains(.stream)
+		forumsCell.contentDisabled = disabledSections.contains(.forums)
+		mailCell.contentDisabled = disabledSections.contains(.seamail)
+		scheduleCell.contentDisabled = disabledSections.contains(.calendar)
+		deckMapCell.contentDisabled = disabledSections.contains(.deckPlans)
+		karaokeCell.contentDisabled = disabledSections.contains(.karaoke)
     }
     
 	

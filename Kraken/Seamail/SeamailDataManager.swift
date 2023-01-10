@@ -54,22 +54,27 @@ import CoreData
 
     @NSManaged public var id: UUID
     @NSManaged public var fezType: String
-    @NSManaged public var participants: Set<KrakenUser>		// ALL participants: attendees + waitlisters. Unordered.
     @NSManaged public var subject: String
-    @NSManaged public var messages: Set<SeamailMessage>
-    @NSManaged public var opsAddingMessages: Set<PostOpSeamailMessage>?
     @NSManaged public var owner: KrakenUser?
-    @NSManaged public var lastModTime: Date			// Date of last post, user join/leave, or info change
+    @NSManaged public var lastModTime: Date					// Date of last post, user join/leave, or info change
+    @NSManaged public var participants: Set<KrakenUser>		// ALL participants: attendees + waitlisters. Unordered.
     @NSManaged public var readCounts: Set<SeamailReadCount>	// only for intersection(participants & logged in users)
-    
+	@NSManaged public var messages: Set<SeamailMessage>
+    @NSManaged public var opsAddingMessages: Set<PostOpSeamailMessage>?
+
     
     // Only used for LFGs (not .open or .closed fezType values)
     @NSManaged public var info: String?
     @NSManaged public var startTime: Date?				// Start/end time for the event, not related to create time of thread.
     @NSManaged public var endTime: Date?
     @NSManaged public var location: String?
+    @NSManaged public var cancelled: Bool
+    @NSManaged public var minParticipants: Int32
+    @NSManaged public var maxParticipants: Int32
+
+    @NSManaged public var participantCount: Int32			// == participants.count IF that value is loaded in. Some calls only give us counts.
     @NSManaged public var attendees: NSMutableOrderedSet	// <KrakenUser> Shows the attendees/waitlisters in join order.
-    @NSManaged public var waitList: NSMutableOrderedSet		// <KrakenUser>
+    @NSManaged public var waitList: NSMutableOrderedSet		// <KrakenUser> attendees + waitlist should equal participants, but ordered.
         
     // When a user reads a Seamail thread we mark it as read read by adding them to this set. When new messages arrive
     // for a thread we removeAll on this set. Therefore, any threads NOT in the currentUser's upToDateSeamailThreads set
@@ -93,13 +98,18 @@ import CoreData
 		TestAndUpdate(\.startTime, v3Object.startTime)
 		TestAndUpdate(\.endTime, v3Object.endTime)
 		TestAndUpdate(\.location, v3Object.location)
+		TestAndUpdate(\.participantCount, v3Object.participantCount)
+		TestAndUpdate(\.minParticipants, v3Object.minParticipants)
+		TestAndUpdate(\.maxParticipants, v3Object.maxParticipants)
+		TestAndUpdate(\.cancelled, v3Object.cancelled)
 		
 		// Users: Owner, participants, and waitlisters
 		let userPool: [UUID : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser]
 		if let threadOwner = userPool[v3Object.owner.userID], self.owner != threadOwner {
 			self.owner = threadOwner
 		}
-		// Members should be nonnil for seamails--otherwise how did we get here?
+		
+		// Usually members is nonnil if we're a participant in the seamail thread/lfg.
 		if let members = v3Object.members {
 			var newParticipantList: Set<KrakenUser> = []
 			let newAttendeeList = NSMutableOrderedSet()
@@ -155,16 +165,20 @@ import CoreData
 				}
 			}
 		}
+		else {
+			// Not sure whether we can use a nil members struct as proof of non-membership.
+		}
     }
 	
-	func getReadCounts(done: @escaping (SeamailReadCount) -> Void) {
+	func getReadCounts(done: @escaping (SeamailReadCount?) -> Void) {
 		LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
 			let selfInContext = try context.existingObject(with: self.objectID) as! SeamailThread
 			let result = try selfInContext.getReadCountsInternal(context: context, user: currentUser)
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { success in
 				if success {
 					DispatchQueue.main.async {
-						done(result)
+						let mainThreadReadCounts = try? self.managedObjectContext?.existingObject(with: result.objectID) as? SeamailReadCount
+						done(mainThreadReadCounts)
 					}
 				}
 			}
@@ -219,18 +233,19 @@ import CoreData
 	var recentLoads: [UUID : Date] = [:]
 	
 // MARK: Methods
+	@objc dynamic var isLoadingJoined = false
 	func loadSeamails(done: (() -> Void)? = nil) {
 		// TODO: Add Limiter
 
-		guard !isLoading, let _ = CurrentUser.shared.loggedInUser else {
+		guard !isLoadingJoined, let _ = CurrentUser.shared.loggedInUser else {
 			done?()
 			return
 		}
-		isLoading = true
+		isLoadingJoined = true
 		
-		var queryParams: [URLQueryItem] = []
-		queryParams.append(URLQueryItem(name: "type", value: "closed"))
-		queryParams.append(URLQueryItem(name: "type", value: "open"))
+		let queryParams: [URLQueryItem] = []
+//		queryParams.append(URLQueryItem(name: "type", value: "closed"))
+//		queryParams.append(URLQueryItem(name: "type", value: "open"))
 //		queryParams.append(URLQueryItem(name:"after", value: "\(currentUser.lastSeamailCheckTime)"))
 //		queryParams.append(URLQueryItem(name:"app", value:"plain"))
 		
@@ -251,11 +266,42 @@ import CoreData
 			}
 			
 			done?()
-			self.isLoading = false
+			self.isLoadingJoined = false
 		}
 	}
 	
-	func updateSeamailThreadID(threadID: UUID) {
+	@objc dynamic var isLoadingOpen = false
+	func loadOpenLFGs(done: (() -> Void)? = nil) {
+		// TODO: Add Limiter
+
+		guard !isLoadingOpen, let _ = CurrentUser.shared.loggedInUser else {
+			done?()
+			return
+		}
+		isLoadingOpen = true
+		
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/open")
+		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				self.lastError = error
+			}
+			else if let data = package.data {
+				do {
+					let newSeamails = try Settings.v3Decoder.decode(TwitarrV3FezListData.self, from: data)
+					self.ingestSeamailThreads(from: newSeamails.fezzes, isAllJoinedThreads: false)
+				}
+				catch {
+					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])
+				} 
+			}
+			
+			done?()
+			self.isLoadingOpen = false
+		}
+	}
+	
+	func updateSeamailWithID(threadID: UUID) {
 		do {
 			let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
 			request.predicate = NSPredicate(format: "id == %@", threadID as CVarArg)
@@ -270,6 +316,7 @@ import CoreData
 		}
 	}
 	
+	// If successful, this fn may cause the server to mark this thread as fully read by the user.
 	func loadSeamailThread(thread: SeamailThread, start: Int = -1, done: @escaping () -> Void) {
 		if let lastLoadDate = recentLoads[thread.id], lastLoadDate.timeIntervalSinceNow > -10.0 {
 			return
@@ -288,7 +335,7 @@ import CoreData
 			else if let data = package.data {
 				do {
 					let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
-					self.ingestSeamailThreads(from: [response])
+					self.ingestSeamailThread(from: response)
 					self.recentLoads.removeValue(forKey: thread.id)
 				}
 				catch {
@@ -300,12 +347,14 @@ import CoreData
 		}
 	}
 		
-	func ingestSeamailThreads(from threads: [TwitarrV3FezData]) {
+	func ingestSeamailThreads(from threads: [TwitarrV3FezData], isAllJoinedThreads: Bool = true) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failed to add new Seamails.")
 			
 			// Update all the users in all the theads.
-			let allParticipants = threads.compactMap { $0.members?.participants }.flatMap { $0 }
+			var allParticipants = threads.flatMap { ($0.members?.participants ?? []) }
+			allParticipants.append(contentsOf: threads.flatMap { $0.members?.waitingList ?? [] } )
+			allParticipants.append(contentsOf: threads.map { $0.owner } )
 			UserManager.shared.update(users: allParticipants, inContext: context)
 
 			// Fetch all the threads from CD
@@ -326,29 +375,66 @@ import CoreData
 //				currentUser.lastSeamailCheckTime = lastChecked
 //			}
 			
+			// Update counts for threads with new msgs
+			if isAllJoinedThreads, let user = CurrentUser.shared.getLoggedInUser(in: context) {
+				var numNewSeamailThreads: Int32 = 0
+				var numNewLFGThreads: Int32 = 0
+				for thread in threads {
+					if [.open, .closed].contains(thread.fezType) {
+						if let members = thread.members, members.postCount > members.readCount {
+							numNewSeamailThreads += 1
+						}
+					}
+					else {
+						if let members = thread.members, members.postCount > members.readCount {
+							numNewLFGThreads += 1
+						}
+					}
+				}
+				user.newSeamailMessages = numNewSeamailThreads
+				user.newLFGMessages = numNewLFGThreads
+			}
+			
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { success in 
 				self.updateNotifications(context: context)
 			}
 		}
 	}
 	
-	func ingestSeamailThread(from thread: TwitarrV3FezData, inContext context: NSManagedObjectContext) throws -> SeamailThread {
-		// Update all the users in all the theads.
-		let allParticipants = thread.members?.participants ?? []
-		UserManager.shared.update(users: allParticipants, inContext: context)
+	// Use this only for cases where the user is a member and we're getting all the messages.
+	func ingestSeamailThread(from thread: TwitarrV3FezData, done: ((SeamailThread) -> Void)? = nil) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving Seamail thread to Core Data.")
+			// Update all the users in the thead.
+			var allParticipants = (thread.members?.participants ?? []) + (thread.members?.waitingList ?? [])
+			allParticipants.append(thread.owner)
+			UserManager.shared.update(users: allParticipants, inContext: context)
 
-		// Fetch all the threads from CD
-		let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
-		request.predicate = NSPredicate(format: "id == %@", thread.fezID as CVarArg)
-		request.fetchLimit = 1
-		let cdThreads = try request.execute()
-		let cdThread = cdThreads.first ?? SeamailThread(context: context)
-		try cdThread.buildFromV3(context: context, v3Object: thread)
+			// Fetch all the threads from CD
+			let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
+			request.predicate = NSPredicate(format: "id == %@", thread.fezID as CVarArg)
+			request.fetchLimit = 1
+			let cdThreads = try request.execute()
+			let cdThread = cdThreads.first ?? SeamailThread(context: context)
+			try cdThread.buildFromV3(context: context, v3Object: thread)
+			
+			// If this response indicates that the # of posts the user has read is < the total # they can see, AND the response
+			// includes the last post, the server just marked this chat as fully read.
+			if let user = CurrentUser.shared.getLoggedInUser(in: context), let members = thread.members, let paginator = members.paginator, 
+					paginator.start + paginator.total == members.postCount, members.postCount > members.readCount {
+				if [.open, .closed].contains(thread.fezType) {
+					user.newSeamailMessages -= 1
+				}
+				else {
+					user.newLFGMessages -= 1
+				}
+			}
 
-		LocalCoreData.shared.setAfterSaveBlock(for: context) { success in 
-			self.updateNotifications(context: context)
+			LocalCoreData.shared.setAfterSaveBlock(for: context) { success in 
+				self.updateNotifications(context: context)
+				done?(cdThread)
+			}
 		}
-		return cdThread
 	}
 	
 	func ingestSeamailPost(from post: TwitarrV3FezPostData, toThread: SeamailThread, inContext context: NSManagedObjectContext) throws {
@@ -512,10 +598,19 @@ import CoreData
 	// Does NOT post an op--user must be in network range. Reasoning is that adding users to LFGs is time-dependent, and 
 	// unlike posting while ashore, adding a user to a LFG hours later is gonna cause issues (i.e. the LFG fills up in the interim
 	// and the user doesn't understand how they got waitlisted).
+	//
+	// If the user to add is the current user, does a /api/v3/fez/:fez_ID/join, which adds the user to an LFG.
+	// If the user to add is not the current user, the current user must be the owner of the fez, and the command adds the given user.
 	func addUserToChat(user: KrakenUser, thread: SeamailThread) {
 		// POST /api/v3/fez/ID/user/ID/add. The response is an updated FezData. So, mark this as a recent load but always perform it.
 		recentLoads[thread.id] = Date()
-		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/user/\(user.userID)/add")
+		var request: URLRequest
+		if user.userID == CurrentUser.shared.loggedInUser?.userID {
+			request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/join")
+		}
+		else {
+			request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/user/\(user.userID)/add")
+		}
 		request.httpMethod = "POST"
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
@@ -539,7 +634,13 @@ import CoreData
 	func removeUserFromChat(user: KrakenUser, thread: SeamailThread) {
 		// POST /api/v3/fez/:ID/user/:userID/remove. The response is an updated FezData. So, mark this as a recent load but always perform it.
 		recentLoads[thread.id] = Date()
-		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/user/\(user.userID)/remove")
+		var request: URLRequest
+		if user.userID == CurrentUser.shared.loggedInUser?.userID {
+			request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/unjoin")
+		}
+		else {
+			request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)/user/\(user.userID)/remove")
+		}
 		request.httpMethod = "POST"
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
@@ -630,11 +731,11 @@ struct TwitarrV3FezData: Codable {
     /// The location for the fez.
     var location: String?
     /// How many users are currently members of the fez. Can be larger than maxParticipants; which indicates a waitlist.
-	var participantCount: Int
+	var participantCount: Int32
     /// The min number of people for the activity. Set by the host. Fezzes may?? auto-cancel if the minimum participant count isn't met when the fez is scheduled to start.
-	var minParticipants: Int
+	var minParticipants: Int32
     /// The max number of people for the activity. Set by the host.
-	var maxParticipants: Int
+	var maxParticipants: Int32
 	/// TRUE if the fez has been cancelled by the owner. Cancelled fezzes should display CANCELLED so users know not to show up, but cancelled fezzes are not deleted.
 	var cancelled: Bool
 	/// The most recent of: Creation time for the fez, time of the last post (may not exactly match post time), user add/remove, or update to fezzes' fields. 

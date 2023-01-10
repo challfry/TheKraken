@@ -21,7 +21,6 @@ import UIKit
         super.viewDidLoad()
         dataSource.collectionView = collectionView
         self.title = String("User: \(modelUserName ?? "")")
-		knownSegues = Set([.showUserTweets, .showUserMentions, .showRoomOnDeckMap, .editUserProfile])
 
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
@@ -177,7 +176,11 @@ import UIKit
 		}
 	}
     
-    // MARK: Navigation
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .showUserTweets, .showUserMentions, .showRoomOnDeckMap, .editUserProfile ])
+	}
+
     func pushUserTweetsView() {
     	if let username = modelUserName {
     		self.performKrakenSegue(.showUserTweets, sender: "\(username)")

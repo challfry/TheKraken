@@ -26,9 +26,7 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
 		}
 		tweetSegment.activate(predicate: predicate, sort: [NSSortDescriptor(key: "originalPostTime", ascending: true)],
 				cellModelFactory: createCellModel)
-
-		knownSegues = Set([.userProfile, .editTweetOp])
-  }
+	}
     
     override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
@@ -38,6 +36,11 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
 	func createCellModel(_ model:PostOpTweet) -> BaseCellModel {
 		let cellModel =  TwitarrTweetOpCellModel(withModel: model)
 		return cellModel
+	}
+	
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .userProfile, .editTweetOp ])
 	}
 }
 

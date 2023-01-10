@@ -301,7 +301,7 @@ let tweetCacheFreshTime = 300.0
 // using a freshness algorithm that remembers which ranges of results were last fetched.
 class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 	var replyGroupFilter: Int64?					// Filters to tweets in this reply group.
-	var authorFilter: String?						// Filters to tweets authored by this author
+	var authorFilter: String?						// Filters to tweets authored by this author, by username
 	var mentionsFilter: String?						// Filters to tweets that "@" mention this user
 	var hashtagFilter: String?						// Filters to tweets with this hashtag
 	var textFilter: String?							// Filters to tweets with this text
@@ -326,7 +326,6 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 	
 	// MARK: Methods
 	init(author: String? = nil, text: String? = nil, replyGroup: Int64? = nil) {
-		sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
 		
 		// This could be extended to combine multiple predicate types together
 		if let searchText = text {
@@ -353,7 +352,7 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 		}
 		else if let replyGroup = replyGroup {
 			replyGroupFilter = replyGroup
-			predicate = NSPredicate(format: "replyGroup == %d", replyGroup)
+			predicate = NSPredicate(format: "replyGroup == %d OR id == %d", replyGroup, replyGroup)
 			filterTitle = "Thread"
 			topPostIsNewest = false
 		}
@@ -362,8 +361,84 @@ class TwitarrFilterPack: NSObject, FRCDataSourceLoaderDelegate {
 			predicate = NSPredicate(value: true)
 			filterTitle = "Twitarr"
 		}
-		
+		sortDescriptors = [NSSortDescriptor(key: "id", ascending: !topPostIsNewest)]
+
 		super.init()
+	}
+	
+	init(urlString: String) {
+		var predicates = Array<NSPredicate>()			
+		filterTitle = "Tweets"
+		if let url = URL(string: urlString), let components = URLComponents(string: urlString),
+				 url.pathComponents.count > 1, url.pathComponents[1] == "tweets" {
+			if url.pathComponents.count == 3, let tweetID = Int64(url.pathComponents[2]) {
+				replyGroupFilter = tweetID
+				predicate = NSPredicate(format: "replyGroup == %d OR id == %d", tweetID, tweetID)
+				filterTitle = "Thread"
+				topPostIsNewest = false
+			}
+			
+			for queryItem in components.queryItems ?? [] {
+				if var value = queryItem.value {
+					switch queryItem.name {
+						case "search": 
+							textFilter = value
+							predicates.append(NSPredicate(format: "text contains %@", value))
+							filterTitle = value
+						case "hashtag": 
+							if !value.hasPrefix("#") {
+								value.insert("#", at: value.startIndex)
+							}
+							hashtagFilter = value
+							predicates.append(NSPredicate(format: "text contains %@", value))
+							filterTitle = value
+						case "mentions":
+							if !value.hasPrefix("@") {
+								value.insert("@", at: value.startIndex)
+							}
+							mentionsFilter = value
+							predicates.append(NSPredicate(format: "text contains %@", value))
+							filterTitle = value
+						case "mentionSelf":
+							mentionsFilter = "@\(CurrentUser.shared.loggedInUser?.username ?? "")"
+							predicates.append(NSPredicate(format: "text contains %@", value))
+							filterTitle = value
+//						case "byUser":
+						case "byUsername":
+							authorFilter = value
+							predicates.append(NSPredicate(format: "author.username == %@", value))
+							filterTitle = "Author: \(value)"
+//						case "bookmarked":
+						case "replyGroup":
+							let threadID = Int64(value) ?? 0
+							replyGroupFilter = threadID
+							predicates.append(NSPredicate(format: "replyGroup == %d OR id == %d", threadID, threadID))
+							filterTitle = "Thread"
+							topPostIsNewest = false
+//						case "hideReplies":
+//						case "likeType":
+//						case "after":
+//						case "before":
+//						case "afterDate":
+//						case "beforeDate":
+//						case "from":
+//						case "start":
+//						case "limit":
+						default: break
+					}
+				}
+			}
+		}
+		// AND predicate with no subpredicates evals to true.
+		predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+		sortDescriptors = [NSSortDescriptor(key: "id", ascending: !topPostIsNewest)]
+		super.init()
+	}
+	
+	// Returns TRUE of any sort of filter is applied, FALSE if it specifies all tweets
+	func hasFilter() -> Bool {
+		return replyGroupFilter != nil || authorFilter != nil || mentionsFilter != nil || hashtagFilter != nil ||
+				textFilter != nil
 	}
 	
 	// Builds a request for some tweets, anchored at the given offset, or newest available if index is nil.

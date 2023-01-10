@@ -15,7 +15,6 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		
     override func viewDidLoad() {
 		super.viewDidLoad()
-		knownSegues = Set([.userProfile, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp])
   		dataSource.register(with: collectionView, viewController: self)
 		
 		let context = LocalCoreData.shared.mainThreadContext
@@ -57,6 +56,11 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 		dataSource.enableAnimations = true
 	}
 	
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .userProfile, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp ])
+	}
+
 	// This is the unwind segue handler for the profile edit VC
 	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
 	}

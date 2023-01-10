@@ -162,7 +162,7 @@ import UIKit
 
 //MARK: Action Handlers
 	func linkTextTapped(link: String) {
-		viewController?.performKrakenSegue(.tweetFilter, sender: link)
+		viewController?.segueOrNavToLink(link)
 	}
 	
 	func authorIconTapped() {

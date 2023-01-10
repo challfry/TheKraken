@@ -10,6 +10,7 @@ import UIKit
 
 @objc protocol LabelCellProtocol {
 	dynamic var labelText: NSAttributedString? { get set }
+	dynamic var bgColor: UIColor? { get set }
 }
 
 @objc class LabelCellModel: BaseCellModel, LabelCellProtocol {	
@@ -17,7 +18,8 @@ import UIKit
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
 	dynamic var labelText: NSAttributedString?
-	
+	dynamic var bgColor: UIColor? = UIColor(named: "Cell Background")
+
 	init(_ titleLabel: NSAttributedString) {
 		labelText = titleLabel
 		super.init(bindingWith: LabelCellProtocol.self)
@@ -67,6 +69,12 @@ class LabelCell: BaseCollectionViewCell, LabelCellProtocol {
 		}
 	}
 	
+	var bgColor: UIColor? {
+		didSet {
+			backgroundColor = bgColor
+		}
+	}
+
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		label.styleFor(.body)

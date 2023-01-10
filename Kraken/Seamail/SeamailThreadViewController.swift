@@ -11,9 +11,10 @@ import CoreData
 
 class SeamailThreadViewController: BaseCollectionViewController {
 
-	var threadModel: SeamailThread?
+	@objc dynamic var threadModel: SeamailThread?
 	
 	private let compositeDataSource = KrakenDataSource()
+	private let 	headerSegment = FilteringDataSourceSegment()
 	private let 	messageSegment = FRCDataSourceSegment<SeamailMessage>()
 	private let 	queuedMsgSegment = FRCDataSourceSegment<PostOpSeamailMessage>()
 	private let 	newMessageSegment = FilteringDataSourceSegment()
@@ -21,14 +22,12 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	private let coreData = LocalCoreData.shared
 	
 	var postingCell = TextViewCellModel("")
-	var sendButtonCell: ButtonCellModel?
 	private var isBusyPosting: Bool = false
 	private var postAuthor: String = ""
 
 // MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        knownSegues = [.dismiss, .seamailManageMembers]
         if let thread = threadModel {
 	        SeamailDataManager.shared.loadSeamailThread(thread: thread) {
       		}
@@ -45,41 +44,300 @@ class SeamailThreadViewController: BaseCollectionViewController {
         	}
         }
         
-        if let participants = threadModel?.participants, let currentUsername = CurrentUser.shared.loggedInUser?.username {
-        	let others = participants.compactMap { $0.username != currentUsername ? $0.username : nil }
-        	if others.count == 1, let otherPerson = others.first {
-        		title = "@\(otherPerson)"
-        	}
-        	else if others.count == 2 {
-        		let sorted = others.sorted()
-        		title = "@\(sorted[0]), @\(sorted[1])"
-        	}
-        	else {
-        		title = "\(participants.count) Member Chat "
-        	}
+        // Set the view title
+        if let model = threadModel, let fezType = TwitarrV3FezType(rawValue: model.fezType), 
+        		let currentUsername = CurrentUser.shared.loggedInUser?.username {
+        	if fezType == .open || fezType == .closed {
+				let others = model.participants.compactMap { $0.username != currentUsername ? $0.username : nil }
+				if others.count == 1, let otherPerson = others.first {
+					title = "@\(otherPerson)"
+				}
+				else if others.count == 2 {
+					let sorted = others.sorted()
+					title = "@\(sorted[0]), @\(sorted[1])"
+				}
+				else {
+					title = "\(model.participants.count) Member Chat "
+				}
+			}
+			else {
+				title = "\(fezType.label) LFG"
+			}
         }
+        
+        // Header Segment: Owner, Time, Attendee Count, Location, Info. Participants OR attendees + waitlist.
+        headerSegment.append(createTitleHeaderCell())
+        headerSegment.append(createOwnerHeaderCell())
+        headerSegment.append(createLocationHeaderCell())
+        headerSegment.append(createTimeHeaderCell())
+        headerSegment.append(createInfoHeaderCell())
+        headerSegment.append(createAttendeeCountsCell())
+        headerSegment.append(createParticipantsHeaderCell())
+        headerSegment.append(createAttendeesHeaderCell())
+        headerSegment.append(createWaitlistHeaderCell())
+        headerSegment.append(createChatHeaderCell())
                 
    		// Set up the FRCs for the messages in the thread and the messages in the send queue
-   		var messagePredicate: NSPredicate
-   		var opPredicate: NSPredicate
- 		if let model = threadModel {
-			messagePredicate = NSPredicate(format: "thread.id = %@", model.id as CVarArg)
-			opPredicate = NSPredicate(format: "thread.id = %@ && operationState < 4", model.id as CVarArg)
+		self.tell(self, when: "threadModel.participants") { observer, observed in
+  			var messagePredicate: NSPredicate
+   			var opPredicate: NSPredicate
+			if let model = observed.threadModel, model.participants.first(where: { $0.userID == CurrentUser.shared.loggedInUser?.userID }) != nil {
+				messagePredicate = NSPredicate(format: "thread.id = %@", model.id as CVarArg)
+				opPredicate = NSPredicate(format: "thread.id = %@ && operationState < 4", model.id as CVarArg)
+			}
+			else {
+				messagePredicate = NSPredicate(value: false)
+				opPredicate = NSPredicate(value: false)
+			}
+			observer.messageSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "id", ascending: true) ],
+					cellModelFactory: observer.createMessageCellModel)
+			observer.queuedMsgSegment.activate(predicate: opPredicate, sort: [ NSSortDescriptor(key: "originalPostTime", ascending:true) ],
+					cellModelFactory: observer.createMessageOpCellModel)
+		}?.execute()
+		messageSegment.loaderDelegate = self
+							
+		// Next, the segment for the new message text field, send button, and join/leave/manage buttons.
+		newMessageSegment.append(createNewPostEditCell())
+		newMessageSegment.append(createSendButtonCell())
+		newMessageSegment.append(createOpenChatInfoCell())
+		newMessageSegment.append(createJoinLeaveManageCell())
+		
+		// Put everything together in the composite data source
+		compositeDataSource.register(with: collectionView, viewController: self)
+		compositeDataSource.append(segment: headerSegment)
+		compositeDataSource.append(segment: messageSegment)
+		compositeDataSource.append(segment: queuedMsgSegment)
+		compositeDataSource.append(segment: newMessageSegment)
+		
+		// When the cells finish getting added to the CV, scroll the CV to the bottom cell.
+		compositeDataSource.scheduleBatchUpdateCompletionBlock {
+			let numSections = self.compositeDataSource.numberOfSections(in: self.collectionView)
+			if numSections > 0 {
+				self.collectionView.scrollToItem(at: IndexPath(row: 0, section: numSections - 1), at: .bottom, animated: false)
+			}
+		}
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+    	super.viewDidAppear(animated)
+		compositeDataSource.enableAnimations = true
+	}
+
+	func sendButtonHit() {
+		if let messageText = postingCell.getText(), messageText.count > 0, let thread = threadModel {
+			SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: messageText,
+					thread: thread, done: postQueued)
+			isBusyPosting = true
+			postingCell.editText = "X"
+			postingCell.editText = ""
+		}
+	}
+	
+	func joinLeaveManageButtonHit() {
+		guard let currentUser = CurrentUser.shared.loggedInUser, let thread = threadModel else {
+			return
+		}
+		if let ownerID = thread.owner?.userID, ownerID == currentUser.userID {
+			performKrakenSegue(.seamailManageMembers, sender: threadModel)
+		}
+		else if thread.participants.contains(where: { $0.userID == currentUser.userID }) {
+			let alert = UIAlertController(title: "Leave LFG?", 
+					message: "Are you sure you want to leave the LFG? You'll be giving up your spot--LFGs with limited space are first-come, first-served.", 
+					preferredStyle: .actionSheet) 
+			alert.addAction(UIAlertAction(title: "Leave", style: .default, handler: { _ in 
+				SeamailDataManager.shared.removeUserFromChat(user: currentUser, thread: thread)
+			}))
+			alert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { _ in }))
+			self.present(alert, animated: true, completion: nil)
 		}
 		else {
-			messagePredicate = NSPredicate(value: false)
-			opPredicate = messagePredicate
+			SeamailDataManager.shared.addUserToChat(user: currentUser, thread: thread)
 		}
-   		messageSegment.activate(predicate: messagePredicate, sort: [ NSSortDescriptor(key: "id", ascending: true) ],
-   				cellModelFactory: createMessageCellModel)
-		messageSegment.loaderDelegate = self
-   		queuedMsgSegment.activate(predicate: opPredicate, sort: [ NSSortDescriptor(key: "originalPostTime", ascending:true) ],
-   				cellModelFactory: createMessageOpCellModel)
-							
-		// Next, the filter segment for the new message text field and button.
-		newMessageSegment.append(postingCell)
+	}
+	
+	func postQueued(_ post: PostOpSeamailMessage?) {
+	}
+	
+// MARK: - Cells
+	func createTitleHeaderCell() -> LabelCellModel {
+		let cell = LabelCellModel("")
+		self.tell(cell, when: ["threadModel.subject"]) { observer, observed in
+			let labelText = NSMutableAttributedString()
+			if let subject = observed.threadModel?.subject {
+				labelText.append(NSAttributedString(string: subject, attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+			}
+			observer.labelText = labelText
+		}?.execute()
+		cell.shouldBeVisible = true
+		return cell
+	}
+
+	func createOwnerHeaderCell() -> LabelCellModel {
+		let cell = LabelCellModel("")
+		self.tell(cell, when: ["threadModel.owner.username", "threadModel.owner.displayName"]) { observer, observed in
+			let labelText = NSMutableAttributedString()
+			if let owner = observed.threadModel?.owner {
+				labelText.append(NSAttributedString(string: "Organizer: ", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+				labelText.append(NSAttributedString(string: "\(owner.displayName) (@\(owner.username))", 
+						attributes: [.font: UIFont.systemFont(ofSize: 17)]))
+			}
+			observer.labelText = labelText
+		}?.execute()
+		self.tell(cell, when: "threadModel.fezType") { observer, observed in
+			observer.shouldBeVisible = !["open", "closed"].contains(observed.threadModel?.fezType)
+		}?.execute()
+		return cell
+	}
+	
+	func createLocationHeaderCell() -> LabelCellModel {
+		let cell = LabelCellModel("")
+		self.tell(cell, when: ["threadModel.location"]) { observer, observed in
+			let labelText = NSMutableAttributedString()
+			if let location = observed.threadModel?.location {
+				labelText.append(NSAttributedString(string: "Location: ", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+				labelText.append(NSAttributedString(string: location, attributes: [.font: UIFont.systemFont(ofSize: 17)]))
+			}
+			observer.labelText = labelText
+		}?.execute()
+		self.tell(cell, when: "threadModel.fezType") { observer, observed in
+			observer.shouldBeVisible = !["open", "closed"].contains(observed.threadModel?.fezType)
+		}?.execute()
+		return cell
+	}
+	
+	func createTimeHeaderCell() -> LabelCellModel {
+		let cell = LabelCellModel("")
+		self.tell(cell, when: ["threadModel.startTime", "threadModel.endTime"]) { observer, observed in
+			var labelText = NSAttributedString()
+			if let thread = observed.threadModel, let startTime = thread.startTime {
+				labelText = StringUtilities.eventTimeString(startTime: startTime, endTime: thread.endTime)
+			}
+			observer.labelText = labelText
+		}?.execute()
+		self.tell(cell, when: "threadModel.fezType") { observer, observed in
+			observer.shouldBeVisible = !["open", "closed"].contains(observed.threadModel?.fezType)
+		}?.execute()
+		return cell
+	}
+	
+	func createInfoHeaderCell() -> LabelCellModel {
+		let cell = LabelCellModel("")
+		self.tell(cell, when: ["threadModel.info"]) { observer, observed in
+			let labelText = NSMutableAttributedString()
+			if let info = observed.threadModel?.info {
+				labelText.append(NSAttributedString(string: "Event Info: ", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+				labelText.append(NSAttributedString(string: info, attributes: [.font: UIFont.systemFont(ofSize: 17)]))
+			}
+			observer.labelText = labelText
+		}?.execute()
+		self.tell(cell, when: "threadModel.fezType") { observer, observed in
+			observer.shouldBeVisible = !["open", "closed"].contains(observed.threadModel?.fezType)
+		}?.execute()
+		return cell
+	}
+	
+	func createAttendeeCountsCell() -> LabelCellModel {
+		let cell = LabelCellModel("")
+		self.tell(cell, when: ["threadModel.participantCount", "threadModel.maxParticipants"]) { observer, observed in
+			let labelText = NSMutableAttributedString()
+			if let model = observed.threadModel {
+				labelText.append(NSAttributedString(string: "\(model.participantCount)/\(model.maxParticipants) attendees", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+			}
+			observer.labelText = labelText
+		}?.execute()
+		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
+			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+			observer.shouldBeVisible = !["open", "closed"].contains(observed.threadModel?.fezType) && !isMember
+		}?.execute()
+		return cell
+	}
+	
+	func createParticipantsHeaderCell() -> SeamailParticipantsCellModel {
+		let cell = SeamailParticipantsCellModel(withTitle: "Participants:")
+		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
+			if let thread = observed.threadModel {
+				observer.users = Array(thread.participants).sorted(by: { $0.username < $1.username } )
+				observer.title = "\(thread.participantCount) participants"
+				let isMember = thread.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+				observer.shouldBeVisible = ["open", "closed"].contains(thread.fezType) && isMember
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		return cell
+	}
+	
+	func createAttendeesHeaderCell() -> SeamailParticipantsCellModel {
+		let cell = SeamailParticipantsCellModel(withTitle: "Attendees:")
+		self.tell(cell, when: ["threadModel.attendees"]) { observer, observed in
+			observer.users = (observed.threadModel?.attendees.array as? [MaybeUser]) ?? []
+			observer.title = "\(observed.threadModel?.attendees.count ?? 0)/\(observed.threadModel?.maxParticipants ?? 0) attendees:"
+		}?.execute()
+		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
+			if let thread = observed.threadModel {
+				let isMember = thread.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+				observer.shouldBeVisible = !["open", "closed"].contains(thread.fezType) && isMember
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		return cell
+	}
+	
+	func createWaitlistHeaderCell() -> SeamailParticipantsCellModel {
+		let cell = SeamailParticipantsCellModel(withTitle: "Wait List:")
+		self.tell(cell, when: ["threadModel.waitList"]) { observer, observed in
+			observer.users = (observed.threadModel?.waitList.array as? [MaybeUser]) ?? []
+			observer.title = "\(observed.threadModel?.waitList.count ?? 0) on wait list:"
+		}?.execute()
+		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
+			let isLFG = !["open", "closed"].contains(observed.threadModel?.fezType)
+			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+			let hasWaitlist = observed.threadModel?.waitList.count ?? 0 > 0
+			observer.shouldBeVisible = isLFG && hasWaitlist && isMember
+		}?.execute()
+		return cell
+	}
+	
+	func createChatHeaderCell() -> LabelCellModel {
+		let labelText = NSAttributedString(string: "Chat", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)])
+		let cell = LabelCellModel(labelText)
+		cell.bgColor = UIColor(named: "Info Title Background")
+		self.tell(cell, when: "threadModel.participants") { observer, observed in
+			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+			observer.shouldBeVisible = isMember
+		}?.execute()
+		return cell
+	}
+
+	// Gets called from within collectionView:cellForItemAt:
+	func createMembersCellModel(_ model:SeamailThread) -> BaseCellModel {
+		let cellModel = SeamailThreadCellModel(withModel: model, reuse: "seamailThread")
+		return cellModel
+	}
+
+	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {
+		return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
+	}
+	
+	func createMessageOpCellModel(_ model:PostOpSeamailMessage) -> BaseCellModel {
+		return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
+	}
+	
+	func createNewPostEditCell() -> TextViewCellModel {
+		let cell = TextViewCellModel("")
+		self.tell(cell, when: "threadModel.participants") { observer, observed in
+			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+			observer.shouldBeVisible = isMember
+		}?.execute()
+		postingCell = cell
+		return cell
+	}
+	
+	func createSendButtonCell() -> ButtonCellModel {
 		let buttonCell = ButtonCellModel(title: "Send", action: weakify(self, type(of: self).sendButtonHit))
-		sendButtonCell = buttonCell
 		CurrentUser.shared.tell(buttonCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
 			if CurrentUser.shared.isMultiUser(), let currentUser = CurrentUser.shared.loggedInUser {
 				let posterFont = UIFont(name:"Georgia-Italic", size: 14)
@@ -92,63 +350,56 @@ class SeamailThreadViewController: BaseCollectionViewController {
 				observer.infoText = nil
 			}
 		}?.execute()
-		newMessageSegment.append(sendButtonCell!)
-		if let model = threadModel, TwitarrV3FezType(rawValue: model.fezType) == .open {
-			let labelText = NSAttributedString(string: "This is an open chat. The creator can add or remove members at any time.", 
-					attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitItalic), 
-					.foregroundColor: UIColor(named: "Kraken Secondary Text") as Any])
-			let labelCell = LabelCellModel(labelText)
-			newMessageSegment.append(labelCell)
-			
-			if model.owner?.userID == CurrentUser.shared.loggedInUser?.userID {
-				let manageMembersBtn = ButtonCellModel(title: "Manage Members", alignment: .center, action: manageMembersButtonHit)
-				newMessageSegment.append(manageMembersBtn)
+		self.tell(buttonCell, when: "threadModel.participants") { observer, observed in
+			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+			observer.shouldBeVisible = isMember
+		}?.execute()
+		return buttonCell
+	}
+	
+	func createOpenChatInfoCell() -> LabelCellModel {
+		let labelText = NSAttributedString(string: "This is an open chat. The creator can add or remove members at any time.", 
+				attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitItalic), 
+				.foregroundColor: UIColor(named: "Kraken Secondary Text") as Any])
+		let cell = LabelCellModel(labelText)
+		self.tell(cell, when: "threadModel.fezType") { observer, observed in
+			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str) {
+				observer.shouldBeVisible = type == .open
 			}
-		}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		return cell
+	}
+	
+	func createJoinLeaveManageCell() -> ButtonCellModel {
+		let cell = ButtonCellModel(title: "Join this LFG", alignment: .center, action: weakify(self, type(of: self).joinLeaveManageButtonHit))
+		self.tell(cell, when: ["threadModel.participants", "threadModel.owner.userID"]) { observer, observed in
+			if observed.threadModel?.owner?.userID == CurrentUser.shared.loggedInUser?.userID {
+				observer.button1Text = "Manage Members" 
+			}
+			else {
+				let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+				observer.button1Text = isMember ? "Leave this LFG" : "Join this LFG" 
+			}
+		}?.execute()
+		self.tell(cell, when: "threadModel.fezType") { observer, observed in
+			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str) {
+				observer.shouldBeVisible = type != .closed
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		return cell
+	}
+	
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .userProfile ])
+	}
 
-		// Put everything together in the composite data source
-		compositeDataSource.register(with: collectionView, viewController: self)
-		compositeDataSource.append(segment: messageSegment)
-		compositeDataSource.append(segment: queuedMsgSegment)
-		compositeDataSource.append(segment: newMessageSegment)
-		
-		// When the cells finish getting added to the CV, scroll the CV to the bottom cell.
-		compositeDataSource.scheduleBatchUpdateCompletionBlock {
-			let lastSection = self.compositeDataSource.numberOfSections(in: self.collectionView) - 1
-			self.collectionView.scrollToItem(at: IndexPath(row: 1, section: lastSection), at: .bottom, animated: false)
-		}
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-    	super.viewDidAppear(animated)
-		compositeDataSource.enableAnimations = true
-	}
-
-	func createMessageCellModel(_ model:SeamailMessage) -> BaseCellModel {
-			return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
-	}
-	
-	func createMessageOpCellModel(_ model:PostOpSeamailMessage) -> BaseCellModel {
-			return SeamailMessageCellModel(withModel: model, reuse: "SeamailMessageCell")
-	}
-	
-	func sendButtonHit() {
-		if let messageText = postingCell.getText(), messageText.count > 0, let thread = threadModel {
-			SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: messageText,
-					thread: thread, done: postQueued)
-			isBusyPosting = true
-			postingCell.editText = "X"
-			postingCell.editText = ""
-		}
-	}
-	
-	func manageMembersButtonHit() {
-		performKrakenSegue(.seamailManageMembers, sender: threadModel)
-	}
-	
-	func postQueued(_ post: PostOpSeamailMessage?) {
-	}
-	
 	// This is the unwind segue from the Manage Members view.
 	@IBAction func dismissManageMembers(_ segue: UIStoryboardSegue) {
 	}	
@@ -160,3 +411,4 @@ extension SeamailThreadViewController: FRCDataSourceLoaderDelegate {
 	}
 
 }
+

@@ -126,5 +126,18 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 		self.deepSeaView = deepSeaView
 	}
 		
-
+	func columnIndex(for vc: UIViewController) -> Int {
+		if let column = childControllers.firstIndex(of: vc) {
+			return column
+		}
+		if let nav = vc.navigationController as? KrakenNavController {
+			return nav.columnIndex
+		}
+		else if let nav = vc.navigationController {
+			if let column = childControllers.firstIndex(of: nav) {
+				return column
+			}
+		}
+		return 0
+	}
 }

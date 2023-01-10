@@ -269,13 +269,13 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 			dateFormatter.timeStyle = .short
 			dateFormatter.locale = Locale(identifier: "en_US")
 			var includeDeviceTime = false
-			if let serverTZ = ServerTimeUpdater.shared.serverTimezone {
+			if let serverTZ = ServerTime.shared.serverTimezone {
 				dateFormatter.timeZone = serverTZ
 				timeString.append(string: dateFormatter.string(from: event.startTime), attrs: baseAttrs)
 				dateFormatter.dateStyle = .none
 				timeString.append(string: " - \(dateFormatter.string(from: event.endTime))")
 
-				if abs(ServerTimeUpdater.shared.deviceTimeOffset + TimeInterval(ServerTimeUpdater.shared.timeZoneOffset)) > 300.0 {
+				if abs(ServerTime.shared.deviceTimeOffset + TimeInterval(ServerTime.shared.timeZoneOffset)) > 300.0 {
 					timeString.append(string: " (Boat Time)\n", attrs: boatAttrs)
 					includeDeviceTime = true
 				}
@@ -287,7 +287,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 			// If we're ashore and don't have access to server time (and, specifically, the server timezone),
 			// OR we do have access and the serverTime is > 5 mins off of deviceTime, show device time.
 			if includeDeviceTime {
-				dateFormatter.timeZone = ServerTimeUpdater.shared.deviceTimezone
+				dateFormatter.timeZone = ServerTime.shared.deviceTimezone
 				dateFormatter.dateStyle = .none
 				timeString.append(string: "\(dateFormatter.string(from: event.startTime))", attrs: baseAttrs)
 				timeString.append(string: " - \(dateFormatter.string(from: event.endTime))")

@@ -53,10 +53,10 @@ class AlertsUpdater: ServerUpdater {
 	
 	func parseAlertsResponse(_ response: TwitarrV3UserNotificationData, _ currentUser: LoggedInKrakenUser?) {
 		// Server Time
-		ServerTimeUpdater.shared.updateServerTime(response)
+		ServerTime.shared.updateServerTime(response)
 		
 		// Disabled Features
-		ValidSectionUpdater.shared.updateDisabledFeatures(disabled: response.disabledFeatures)
+		ValidSections.shared.updateDisabledFeatures(disabled: response.disabledFeatures)
 		
 		// Wifi network
 		Settings.shared.onboardWifiNetowrkName = response.shipWifiSSID ?? ""
@@ -66,6 +66,7 @@ class AlertsUpdater: ServerUpdater {
 		AnnouncementDataManager.shared.updateAnnouncementCounts(activeIDs: actives, unseenCount: Int64(response.newAnnouncementCount))
 
 		if let currentUser = currentUser {
+			// Tweet Mentions, Forum Mentions, new LFG and Seamail msgs
 			LocalCoreData.shared.performNetworkParsing { context in
 				let userInContext = context.object(with: currentUser.objectID) as! LoggedInKrakenUser
 				userInContext.buildFromV3NotificationInfo(context: context, notification: response)				
@@ -104,6 +105,8 @@ class AlertsUpdater: ServerUpdater {
 			}
 		}
 	}
+	
+	
 }
 
 // MARK: V3 API Decoding

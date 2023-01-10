@@ -11,7 +11,7 @@ import UIKit
 import CoreData
 
 // This is our internal model object for users.
-@objc(KrakenUser) public class KrakenUser : KrakenManagedObject {
+@objc(KrakenUser) public class KrakenUser : KrakenManagedObject, MaybeUser {
 	@NSManaged public var userID: UUID
 	@NSManaged public var username: String
 	@NSManaged public var displayName: String
@@ -44,11 +44,15 @@ import CoreData
 	@NSManaged public var commentOps: Set<PostOpUserComment>?
 	
 	@NSManaged public var seamailParticipant: Set<SeamailThread>
+	@NSManaged public var seamailReadCounts: Set<SeamailReadCount>	
 	@NSManaged public var upToDateAnnouncements: Set<Announcement>
 	
 	// KrakenUser has more relationships in the datamodel that aren't declared here.
 	@NSManaged public var forumThreads: Set<ForumThread>
 	@NSManaged public var tweets: Set<TwitarrPost>
+	
+	// MaybeUser protocol
+	var actualUser: KrakenUser? { self }
 	
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
@@ -240,9 +244,14 @@ import CoreData
 // PotentialUser is used by POSTing classes that can create content while offline. A PotentialUser is just a username,
 // although it has a link to the actual KrakenUser if one exists. A Potentialuser *might* be an actual Twitarr account,
 // but it may not have been validated.
-@objc(PotentialUser) public class PotentialUser : KrakenManagedObject {
+@objc(PotentialUser) public class PotentialUser : KrakenManagedObject, MaybeUser {
 	@NSManaged var username: String
 	@NSManaged var actualUser: KrakenUser?
+}
+
+@objc protocol MaybeUser {
+	var username: String { get }
+	var actualUser: KrakenUser? { get }
 }
 
 // MARK: - Data Manager

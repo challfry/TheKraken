@@ -100,6 +100,7 @@
                         <outlet property="collectionView" destination="1A7-J6-kmJ" id="azs-l9-0ME"/>
                         <segue destination="8mQ-cw-ZRS" kind="unwind" identifier="dismiss" unwindAction="dismissingSeamailThreadWithSegue:" id="PL9-i9-TfZ"/>
                         <segue destination="xee-yK-Zrf" kind="show" identifier="SeamailManageMenbers" id="oem-q2-sVJ"/>
+                        <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="YBf-1C-vwM"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Ms-N4-lZA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -601,7 +602,7 @@
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
                                 <rect key="frame" x="214" y="92" width="200" height="200.5"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -1616,6 +1617,7 @@
                     <connections>
                         <outlet property="collectionView" destination="yfF-e0-2gX" id="tm6-Ma-QTf"/>
                         <segue destination="SZu-Xt-If2" kind="show" identifier="ShowForumCategory" id="qdg-UW-bUS"/>
+                        <segue destination="ppy-9j-Eyt" kind="show" identifier="ShowForumThread" id="CFt-8y-mTZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hy7-C8-ksd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2512,6 +2514,62 @@ Additional info:</string>
             </objects>
             <point key="canvasLocation" x="-1499" y="-972"/>
         </scene>
+        <!--LFG-->
+        <scene sceneID="5M7-07-Vr9">
+            <objects>
+                <viewController storyboardIdentifier="LFGRootViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Jcd-tK-yNb" customClass="LFGRootViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="y0c-Um-HL2">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="n7t-5E-q7w">
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="DoE-EC-ch7">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="l7R-g9-a1W"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="l7R-g9-a1W" firstAttribute="bottom" secondItem="n7t-5E-q7w" secondAttribute="bottom" id="0QV-4w-BHx"/>
+                            <constraint firstItem="l7R-g9-a1W" firstAttribute="trailing" secondItem="n7t-5E-q7w" secondAttribute="trailing" id="9fg-kx-bpy"/>
+                            <constraint firstItem="n7t-5E-q7w" firstAttribute="top" secondItem="l7R-g9-a1W" secondAttribute="top" id="DGj-94-dqU"/>
+                            <constraint firstItem="n7t-5E-q7w" firstAttribute="leading" secondItem="l7R-g9-a1W" secondAttribute="leading" id="RfQ-5f-j0s"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="LFG" id="chY-s1-leQ"/>
+                    <connections>
+                        <outlet property="collectionView" destination="n7t-5E-q7w" id="9ui-Yp-gQd"/>
+                        <segue destination="UX8-5D-MNK" kind="show" identifier="ShowSeamailThread" id="eE5-IR-ObY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="QPm-BS-jnW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-4000.0000000000005" y="-1718.3035714285713"/>
+        </scene>
+        <!--LFG Nav Controller-->
+        <scene sceneID="fuA-6v-647">
+            <objects>
+                <navigationController storyboardIdentifier="LFGNavController" title="LFG Nav Controller" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Qvm-8E-Tdo" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="1oN-sZ-aQL"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="A9t-8Y-Srf">
+                        <rect key="frame" x="0.0" y="48" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="Jcd-tK-yNb" kind="relationship" relationship="rootViewController" id="lb5-PP-RLb"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="cFp-19-pFk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3159" y="-1717"/>
+        </scene>
         <!--Container View Controller-->
         <scene sceneID="9nU-2B-aJX">
             <objects>
@@ -2571,6 +2629,8 @@ Additional info:</string>
                         <segue destination="HrE-Zn-DrS" kind="show" identifier="GamesRoot" id="rR9-QS-2f0"/>
                         <segue destination="Sic-CI-J08" kind="presentation" identifier="RockBalladMode" modalPresentationStyle="fullScreen" id="PcK-7L-7V5"/>
                         <segue destination="QKS-mG-czd" kind="show" identifier="ForumsRoot" id="xJS-kz-sQt"/>
+                        <segue destination="Jcd-tK-yNb" kind="show" identifier="LFGRoot" id="HJe-et-hA8"/>
+                        <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="g1q-Cb-8AB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R26-At-KAA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2601,26 +2661,28 @@ Additional info:</string>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="HJe-et-hA8"/>
         <segue reference="iin-6d-KBo"/>
-        <segue reference="Pow-sP-93l"/>
-        <segue reference="eWg-hD-M7J"/>
+        <segue reference="5OF-Gt-GA5"/>
+        <segue reference="j6p-gx-tT1"/>
         <segue reference="vZQ-MR-Kqg"/>
         <segue reference="ebe-iD-3Jr"/>
         <segue reference="TWa-ya-eZ5"/>
-        <segue reference="Cci-1G-tOu"/>
+        <segue reference="ZaT-fl-KcI"/>
         <segue reference="xJS-kz-sQt"/>
         <segue reference="OYC-iy-go3"/>
-        <segue reference="Cz0-pb-xEd"/>
+        <segue reference="CFt-8y-mTZ"/>
         <segue reference="AYR-QU-iv8"/>
         <segue reference="yZ3-I6-e7Y"/>
         <segue reference="RHM-8H-1Ru"/>
-        <segue reference="vXi-dK-Rxk"/>
+        <segue reference="2Jt-Ly-W1j"/>
         <segue reference="gdr-Cd-yXW"/>
         <segue reference="ZQM-8h-AgF"/>
         <segue reference="wjx-Zr-mfc"/>
         <segue reference="rR9-QS-2f0"/>
         <segue reference="2Ae-eC-yt5"/>
         <segue reference="hV8-Mc-Uo7"/>
+        <segue reference="eE5-IR-ObY"/>
         <segue reference="jrK-s2-V8J"/>
     </inferredMetricsTieBreakers>
     <resources>

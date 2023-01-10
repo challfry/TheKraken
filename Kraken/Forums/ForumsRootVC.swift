@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class ForumsRootViewController: BaseCollectionViewController {
+class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 //	var forumsNavTitleButton: UIButton!
 //	@IBOutlet weak var forumsFilterView: UIVisualEffectView!
 //	@IBOutlet weak var forumsFilterViewTop: NSLayoutConstraint!
@@ -70,8 +70,6 @@ class ForumsRootViewController: BaseCollectionViewController {
 		})?.execute()
 
 		categoryDataSource.register(with: collectionView, viewController: self)
-
-		knownSegues = Set([.showForumCategory, .modalLogin])
 	}
 		
     override func viewWillAppear(_ animated: Bool) {
@@ -114,7 +112,20 @@ class ForumsRootViewController: BaseCollectionViewController {
 		return cellModel
 	}
 	    
-// MARK: Actions
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .showForumCategory, .showForumThread, .modalLogin ])
+	}
+	
+	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+		if let segue = packet.segue, [.showForumCategory, .showForumThread].contains(segue) {
+			performKrakenSegue(segue, sender: packet.sender)
+			return true
+		}
+		return false
+	}
+
+
 }
 
 extension ForumsRootViewController: FRCDataSourceLoaderDelegate {

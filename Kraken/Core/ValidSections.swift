@@ -1,5 +1,5 @@
 //
-//  ValidSectionUpdater.swift
+//  ValidSections.swift
 //  Kraken
 //
 //  Created by Chall Fry on 9/12/19.
@@ -8,8 +8,8 @@
 
 import UIKit
 
-@objc class ValidSectionUpdater: ServerUpdater {
-	static let shared = ValidSectionUpdater()
+@objc class ValidSections: NSObject {
+	static let shared = ValidSections()
 	
 	enum Section: String {
 		case forums = "forums"
@@ -61,16 +61,7 @@ import UIKit
 	var disabledSections = Set<Section>()
 	var disabledTabs = Set<RootTabBarViewController.Tab>()
 	
-	init() {
-		// Update every 15 minutes.
-		super.init(15 * 60)
-		
-	}
-
-	override func updateMethod() {
-		self.updateComplete(success: true)
-	}
-	
+	// Called from the Alert updater.
 	func updateDisabledFeatures(disabled: [TwitarrV3DisabledFeature]) {
 		var newDisabledSections = Set<Section>()
 		for disabledFeature in disabled {
@@ -85,7 +76,6 @@ import UIKit
 		}
 		self.disabledSections = newDisabledSections
 		self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
-		self.lastUpdateTime = Date()
 	}
 	
 	func tabForSection(_ section: Section) -> RootTabBarViewController.Tab {
@@ -104,17 +94,4 @@ import UIKit
 		
 		return .unknown
 	}
-}
-
-// MARK: - V2 API Decoding
-
-struct TwitarrV2ServerSectionStatus: Codable {
-	let name: String
-	let enabled: Bool
-}
-
-// GET /api/v2/admin/sections
-struct TwitarrV2ServerSectionStatusResponse: Codable {
-	let status: String
-	let sections: [TwitarrV2ServerSectionStatus]
 }

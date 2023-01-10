@@ -65,7 +65,7 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 		notifications.forEach { notification in
 			// Load a thread if there's a new message.
 			if let seamailIDStr = notification.request.content.userInfo["Seamail"] as? String, let seamailID = UUID(uuidString: seamailIDStr) {
-				SeamailDataManager.shared.updateSeamailThreadID(threadID: seamailID)
+				SeamailDataManager.shared.updateSeamailWithID(threadID: seamailID)
 			}
 			else if let _ = notification.request.content.userInfo["Announcement"] {
 				AnnouncementDataManager.shared.updateAnnouncements()

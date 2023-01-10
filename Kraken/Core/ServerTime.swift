@@ -1,5 +1,5 @@
 //
-//  ServerTimeUpdater.swift
+//  ServerTime.swift
 //  Kraken
 //
 //  Created by Chall Fry on 9/12/19.
@@ -8,8 +8,8 @@
 
 import UIKit
 
-@objc class ServerTimeUpdater: ServerUpdater {
-	static let shared = ServerTimeUpdater()
+@objc class ServerTime : NSObject {
+	static let shared = ServerTime()
 
 	// Server Time
 	@objc dynamic var serverTimezone: TimeZone?		// This is the Timezone the server claims to be using
@@ -33,18 +33,15 @@ import UIKit
 	//		2. Does the device TZ match the server TZ? If not, the user will have to be sure to do time computations whenever
 	//			they look at a wall clock.
 
-	init() {
+	override init() {
 		// Not using the autoupdating timezone, as we're manually updating it and watching the notification.
 		deviceTimezone = TimeZone.current
 		deviceTimezoneOffset = deviceTimezone.secondsFromGMT()
-		super.init(15 * 60)
+		super.init()
 		NotificationCenter.default.addObserver(self, selector: #selector(deviceTimeZoneChanged), name: Notification.Name.NSSystemTimeZoneDidChange, object: nil)
 	}
-
-	override func updateMethod() {
-		self.updateComplete(success: true)
-	}
 	
+	// Called by the Alert Updater.
 	func updateServerTime(_ response: TwitarrV3UserNotificationData)
 	{
 		self.serverTimezoneOffset = response.serverTimeOffset
@@ -78,14 +75,3 @@ import UIKit
 		return ""
 	}
 }
-
-// MARK: - V2 API Decoding
-
-// GET /api/v2/time
-struct TwitarrV2ServerTimeResponse: Codable {
-	let status: String
-	let epoch: Int64
-	let time: String
-	let offset: Int
-}
-

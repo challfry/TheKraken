@@ -820,10 +820,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
 		self.queueNetworkPost(request: request, success: { data in
-			LocalCoreData.shared.performNetworkParsing { context in
-				context.pushOpErrorExplanation("Failure saving new Seamail thread to Core Data.")
-				let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
-				let thread = try SeamailDataManager.shared.ingestSeamailThread(from: response, inContext: context)
+			let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
+			SeamailDataManager.shared.ingestSeamailThread(from: response) { thread in
 				SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: self.text, 
 						thread: thread, done: { msg in return})
 			}

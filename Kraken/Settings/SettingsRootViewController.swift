@@ -28,7 +28,6 @@ class SettingsRootViewController: BaseCollectionViewController {
 	override func viewDidLoad() {
         super.viewDidLoad()
 		title = "Settings"
-		knownSegues = Set([.userProfile, .postOperations, .modalLogin])
 
 		PostOperationDataManager.shared.tell(self, when: "operationsWithErrorsCount") { observer, observed in
 			if observed.operationsWithErrorsCount > 0 {
@@ -180,7 +179,10 @@ class SettingsRootViewController: BaseCollectionViewController {
 //		performSegue(withIdentifier: "showUserProfile", sender: loginCell.modelKrakenUser)
 	}
 
-    // MARK: Navigation
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .userProfile, .postOperations, .modalLogin ])
+	}
 
 	// This is the unwind segue handler for the profile edit VC
 	@IBAction func dismissingProfileEditVC(segue: UIStoryboardSegue) {
@@ -387,7 +389,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 		super.init("Time Zone Info")
 		labelText = NSAttributedString(string: "Timeline is Synchronized.")
 		
-		ServerTimeUpdater.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
+		ServerTime.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
 				"deviceTimeOffset"]) { observer, observed in
 			var timeHeaderString: NSAttributedString
 			if observed.serverTimezone == nil {
@@ -409,7 +411,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	init() {
 		super.init("")
 		
-		ServerTimeUpdater.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
+		ServerTime.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
 				"deviceTimeOffset"]) { observer, observed in
 			if observed.serverTimezone == nil {
 				observer.labelText = NSAttributedString(string: "We don't yet know what time the server thinks it is.")
@@ -457,7 +459,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	init() {
 		super.init("")
 		
-		ServerTimeUpdater.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
+		ServerTime.shared.tell(self, when: ["serverTimezone", "deviceTimezone", "timeZoneOffset",
 				"deviceTimeOffset"]) { observer, observed in
 			if observed.serverTimezone == nil {
 				observer.shouldBeVisible = false

@@ -78,25 +78,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		backgroundSessionCompletionHandler = completionHandler
 	}
 	
-	func application(_ application: UIApplication,  open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
-		
-		guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true) else {
-				return false
-		}
-		
-		if components.host == "events" {
-			var arguments = [String : Any]()
-			if let queryItems = components.queryItems, let eventQueryItem = queryItems.first(where: { $0.name == "eventID" } ) {
-				if let value = eventQueryItem.value, (30..<60).contains(value.count), !value.contains(" ") {
-					arguments["eventID"] = value
-				}
-			}
-			let packet = GlobalNavPacket(column: 0, tab: .events, arguments: arguments)
-			globalNavigateTo(packet: packet)
-			return true
-		}
-		
-		return false
+	func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
+		var packet = GlobalNavPacket(from: nil, url: url.absoluteString)
+		globalNavigateTo(packet: packet)
+		return true
 	}
 
 // MARK: State Restoration
@@ -150,6 +135,8 @@ protocol GlobalNavEnabled {
 struct GlobalNavPacket {
 	var column: Int								// Which column of the container view gets the nav
 	var tab: RootTabBarViewController.Tab
+	var segue: GlobalKnownSegue?
+	var sender: Any?
 	var arguments: [String : Any]
 	
 	init(from viewController: UIViewController, tab: RootTabBarViewController.Tab, arguments: [String : Any] = [:]) {
@@ -166,6 +153,53 @@ struct GlobalNavPacket {
 		self.column = column
 		self.tab = tab
 		self.arguments = arguments
+	}
+	
+	init(from viewController: UIViewController?, url urlString: String) {
+		column = 0
+		if let nav = viewController?.navigationController as? KrakenNavController {
+			column = nav.columnIndex
+		}
+		arguments = ["url": urlString]
+		if let url = URL(string: urlString), // let components = URLComponents(string: urlString),
+				 url.pathComponents.count > 1, url.pathComponents[0] == "/" {
+			switch url.pathComponents[1] {
+				case "profile": 
+					tab = .daily
+					segue = .userProfile
+					sender = url.lastPathComponent
+				case "tweets": 
+					tab = .twitarr
+					let filterPack = TwitarrFilterPack(urlString: urlString)
+					sender = filterPack
+					segue = filterPack.hasFilter() ? .tweetFilter : .twitarrRoot
+				case "forums":
+					tab = .forums
+					if url.pathComponents.count == 3, let catID = UUID(uuidString: url.pathComponents[2]) {
+						segue = .showForumCategory
+						sender = catID
+					}
+					else {
+						segue = .forumsRoot
+					}
+				case "forum": 
+					tab = .forums
+					if url.pathComponents.count == 3, let forumID = UUID(uuidString: url.pathComponents[2]) {
+						segue = .showForumThread
+						sender = forumID
+					}
+				case "seamail": 
+					tab = .seamail
+				case "fez":
+					tab = .lfg
+				case "events":
+					tab = .events
+				default: tab = .daily
+			}
+		}
+		else {
+			tab = .daily
+		}
 	}
 }
 

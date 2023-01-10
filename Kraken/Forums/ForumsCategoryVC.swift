@@ -129,8 +129,6 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 				observer.newForumButton.isEnabled = false
 			}
         }?.execute()   
-
-		knownSegues = Set([.showForumThread, .composeForumThread, .modalLogin])
 	}
 		
     override func viewWillAppear(_ animated: Bool) {
@@ -300,6 +298,11 @@ class ForumsCategoryViewController: BaseCollectionViewController {
     @IBAction func postedForumsButtonTapped() {
     	setFilterType(.userHasPosted)
     }
+    
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .showForumThread, .composeForumThread, .modalLogin ])
+	}
 
 	// This is the unwind segue from the compose view.
 	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {

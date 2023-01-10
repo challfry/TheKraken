@@ -17,8 +17,9 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case twitarr = "TwitarrNavController"
 		case forums = "ForumsNavViewController" 
 		case seamail = "SeamailNavViewController"
-
 		case events = "ScheduleNavController"
+
+		case lfg = "LFGNavViewController"
 		case settings = "SettingsNavController"
 		case karaoke = "KaraokeNavController"
 		case games = "GamesListNavController"
@@ -31,28 +32,19 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 	}
 	
 	override func awakeFromNib() {
-		ValidSectionUpdater.shared.tell(self, when: "lastUpdateTime") {observer, observed in
-			observer.updateEnabledTabs(observed.disabledSections)
+		AlertsUpdater.shared.tell(self, when: "lastUpdateTime") {observer, observed in
+			observer.updateEnabledTabs(ValidSections.shared.disabledSections)
 		}?.execute()
 	}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
-		// Set the badge on the Seamail tab
-		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
-				"loggedInUser.seamailParticipant.count"]) { observer, observed in
-			let seamailNav = observer.viewControllers?.first { $0.restorationIdentifier == Tab.seamail.rawValue }
-			if let currentUser = observed.loggedInUser {
-				let badgeCount = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count
-				seamailNav?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
-			}
-			else {
-				seamailNav?.tabBarItem.badgeValue = nil
-			}
-		}?.execute()
-
-
+	}
+	
+	func setBadge(for tab: Tab, to badgeValue: Int) {
+		if let foundVC = viewControllers?.first(where: { $0.restorationIdentifier == tab.rawValue }) {
+			foundVC.tabBarItem.badgeValue = badgeValue > 0 ? "\(badgeValue)" : nil
+		}
 	}
 		
 	// Nav to tabs in the tab bar if they exist; else return false
@@ -73,7 +65,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		return false
     }
     
-    func updateEnabledTabs(_ disabledSections: Set<ValidSectionUpdater.Section>) {
+    func updateEnabledTabs(_ disabledSections: Set<ValidSections.Section>) {
  		// Sections is something the server models, to indicate functional areas of the service.
  		// Sections *almost* map to Tabs, but not quite, so we do some layer glue here to translate.
 		var newDisabledTabs = Set<Tab>()

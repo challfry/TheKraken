@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -44,33 +44,37 @@
                                 <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="200" verticalCompressionResistancePriority="200" text="Announcement text" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W1m-RW-orX">
-                                <rect key="frame" x="20" y="65" width="374" height="37"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ekJ-ef-n6J">
                                 <rect key="frame" x="352" y="40" width="42" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" editable="NO" text="Announcement Text" translatesAutoresizingMaskIntoConstraints="NO" id="CKi-5E-Z34">
+                                <rect key="frame" x="20" y="65" width="374" height="36"/>
+                                <color key="backgroundColor" name="Cell Background"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <connections>
+                                    <outlet property="delegate" destination="gTV-IL-0wX" id="Kgy-PS-mHy"/>
+                                </connections>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" name="AnnouncementBody"/>
                         <constraints>
                             <constraint firstItem="ubJ-2W-l74" firstAttribute="leading" secondItem="CVQ-nT-XGB" secondAttribute="leading" id="BaM-5z-dEC"/>
                             <constraint firstAttribute="trailing" secondItem="ubJ-2W-l74" secondAttribute="trailing" id="DEz-TB-FuG"/>
+                            <constraint firstAttribute="bottom" secondItem="CKi-5E-Z34" secondAttribute="bottom" priority="200" constant="10" id="FFq-ml-VRR"/>
                             <constraint firstItem="9sC-kf-UPd" firstAttribute="leading" secondItem="CVQ-nT-XGB" secondAttribute="leading" constant="20" id="JMA-gM-dug"/>
-                            <constraint firstItem="W1m-RW-orX" firstAttribute="leading" secondItem="9sC-kf-UPd" secondAttribute="leading" id="TAJ-MK-Kzd"/>
                             <constraint firstItem="9sC-kf-UPd" firstAttribute="top" secondItem="ubJ-2W-l74" secondAttribute="bottom" constant="4" id="Te1-LV-Rge"/>
+                            <constraint firstItem="CKi-5E-Z34" firstAttribute="top" secondItem="9sC-kf-UPd" secondAttribute="bottom" constant="4" id="WsM-g7-JiR"/>
                             <constraint firstItem="ubJ-2W-l74" firstAttribute="top" secondItem="CVQ-nT-XGB" secondAttribute="top" id="YZO-cC-2cg"/>
-                            <constraint firstAttribute="bottom" secondItem="W1m-RW-orX" secondAttribute="bottom" priority="999" constant="10" id="ecI-OE-pHt"/>
-                            <constraint firstItem="W1m-RW-orX" firstAttribute="top" secondItem="9sC-kf-UPd" secondAttribute="bottom" constant="4" id="gfX-lO-Fyi"/>
+                            <constraint firstItem="CKi-5E-Z34" firstAttribute="leading" secondItem="9sC-kf-UPd" secondAttribute="leading" id="ZgN-L8-TQg"/>
                             <constraint firstAttribute="trailing" secondItem="ekJ-ef-n6J" secondAttribute="trailing" constant="20" id="kPJ-Az-Qfb"/>
                             <constraint firstItem="ekJ-ef-n6J" firstAttribute="firstBaseline" secondItem="9sC-kf-UPd" secondAttribute="firstBaseline" id="qdg-h1-dKk"/>
+                            <constraint firstItem="CKi-5E-Z34" firstAttribute="trailing" secondItem="ekJ-ef-n6J" secondAttribute="trailing" id="qxM-UT-zKF"/>
                             <constraint firstItem="ekJ-ef-n6J" firstAttribute="leading" secondItem="9sC-kf-UPd" secondAttribute="trailing" constant="10" id="vyi-9p-RSn"/>
-                            <constraint firstItem="W1m-RW-orX" firstAttribute="trailing" secondItem="ekJ-ef-n6J" secondAttribute="trailing" id="yOG-UN-d28"/>
                         </constraints>
                     </view>
                 </subviews>
@@ -84,7 +88,7 @@
             <size key="customSize" width="414" height="112"/>
             <connections>
                 <outlet property="announcementHeaderLabel" destination="6R2-kI-1pO" id="d86-Zi-Hy6"/>
-                <outlet property="announcementTextLabel" destination="W1m-RW-orX" id="DMZ-v6-TrO"/>
+                <outlet property="announcementTextView" destination="CKi-5E-Z34" id="Yht-Cb-gjM"/>
                 <outlet property="authorLabel" destination="9sC-kf-UPd" id="129-hX-rVO"/>
                 <outlet property="relativeTimeLabel" destination="ekJ-ef-n6J" id="Zaa-LX-NQb"/>
                 <outlet property="roundedRectView" destination="CVQ-nT-XGB" id="XkG-t9-nmc"/>
@@ -98,6 +102,12 @@
         </namedColor>
         <namedColor name="AnnouncementHeader">
             <color red="0.625" green="0.125" blue="0.21799999475479126" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Cell Background">
+            <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Kraken Secondary Text">
             <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

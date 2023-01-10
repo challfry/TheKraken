@@ -136,12 +136,13 @@
         <attribute name="lastPhotoUpdated" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastSeamailCheckTime" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="limitProfileAccess" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="newLFGMessages" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="newSeamailMessages" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="profileMessage" optional="YES" attributeType="String"/>
         <attribute name="pronouns" optional="YES" attributeType="String"/>
         <attribute name="realName" optional="YES" attributeType="String"/>
         <attribute name="role" optional="YES" attributeType="String"/>
         <attribute name="roomNumber" optional="YES" attributeType="String"/>
-        <attribute name="seamailMessages" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="thumbPhotoData" optional="YES" attributeType="Binary"/>
         <attribute name="tweetMentions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="userID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -164,7 +165,7 @@
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction"/>
         <relationship name="seamailAttendee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="attendees" inverseEntity="SeamailThread"/>
         <relationship name="seamailAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="author" inverseEntity="SeamailMessage"/>
-        <relationship name="seamailOwnedThreads" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="owner" inverseEntity="SeamailThread"/>
+        <relationship name="seamailOwnedThreads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="owner" inverseEntity="SeamailThread"/>
         <relationship name="seamailParticipant" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="participants" inverseEntity="SeamailThread"/>
         <relationship name="seamailReadCounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailReadCount" inverseName="user" inverseEntity="SeamailReadCount"/>
         <relationship name="seamailReader" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="readUsers" inverseEntity="SeamailMessage"/>
@@ -309,12 +310,16 @@
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailReadCounts" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="SeamailThread" representedClassName="SeamailThread" syncable="YES">
+        <attribute name="cancelled" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="endTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="fezType" optional="YES" attributeType="String"/>
+        <attribute name="fezType" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="info" optional="YES" attributeType="String"/>
         <attribute name="lastModTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="maxParticipants" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="minParticipants" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="participantCount" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="startTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="subject" attributeType="String"/>
         <relationship name="attendees" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="KrakenUser" inverseName="seamailAttendee" inverseEntity="KrakenUser"/>

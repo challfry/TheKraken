@@ -58,7 +58,8 @@ import UserNotifications
 	// new tweet mentions and new forum mentions. We may not actually have the underlying data loaded.
 	@NSManaged public var tweetMentions: Int32
 	@NSManaged public var forumMentions: Int32
-	@NSManaged public var seamailMessages: Int32		// # of msg threads with new seamail messages.
+	@NSManaged public var newSeamailMessages: Int32		// # of msg threads with new seamail messages.
+	@NSManaged public var newLFGMessages: Int32			// # of joined LFGs with new messages.
 	
 
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
@@ -87,7 +88,8 @@ import UserNotifications
 	func buildFromV3NotificationInfo(context: NSManagedObjectContext, notification: TwitarrV3UserNotificationData) {
 		TestAndUpdate(\.tweetMentions, Int32(notification.newTwarrtMentionCount))
 		TestAndUpdate(\.forumMentions, Int32(notification.newForumMentionCount))
-		TestAndUpdate(\.seamailMessages, Int32(notification.newSeamailMessageCount))
+		TestAndUpdate(\.newSeamailMessages, Int32(notification.newSeamailMessageCount))
+		TestAndUpdate(\.newLFGMessages, Int32(notification.newFezMessageCount))
 	}
 	
 	func getPendingUserCommentOp(commentingOn: KrakenUser, inContext: NSManagedObjectContext) -> PostOpUserComment? {

@@ -23,19 +23,18 @@ import UIKit
 	dynamic var iconName: String?
 	dynamic var badgeValue: String?
 	dynamic var contentDisabled: Bool = false
-	var navPacket: GlobalNavPacket
+	var navPacket: GlobalNavPacket?
 	
 	
 
-	init(_ titleLabel: String, imageNamed: String, nav: GlobalNavPacket) {
+	init(_ titleLabel: String, imageNamed: String) {
 		labelText = titleLabel
 		iconName = imageNamed
-		self.navPacket = nav
 		super.init(bindingWith: SocialCellProtocol.self)
 	}
 	
 	override func cellTapped(dataSource: KrakenDataSource?) {
-		if let appDel = UIApplication.shared.delegate as? AppDelegate {
+		if let appDel = UIApplication.shared.delegate as? AppDelegate, let navPacket = navPacket {
 			appDel.globalNavigateTo(packet: navPacket)
 		}
 	}
@@ -97,7 +96,18 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 			imageView.image = UIImage(named: "Disabled")?.withRenderingMode(.alwaysTemplate)
 		} 
 		else if let name = iconName {
-			imageView.image = UIImage(named: name)?.withRenderingMode(.alwaysTemplate)
+//			imageView.image = UIImage(named: name)?.withRenderingMode(.alwaysTemplate)
+			if #available(iOS 15.0, *) {
+//				let config = UIImage.SymbolConfiguration(hierarchicalColor: UIColor(named: "Kraken Icon Blue")!)
+//						.applying(UIImage.SymbolConfiguration(pointSize: 22, weight: .regular, scale: .large))
+				let config = UIImage.SymbolConfiguration(paletteColors: [UIColor(named: "Kraken Icon Secondary")!,  UIColor(named: "Kraken Icon Blue")!])
+						.applying(UIImage.SymbolConfiguration(pointSize: 22, weight: .regular, scale: .large))
+//				let config = UIImage.SymbolConfiguration(paletteColors: [UIColor(named: "Kraken Icon Blue")!,  UIColor(named: "Kraken Icon Secondary")!])
+				imageView.image = UIImage(systemName: name)?.applyingSymbolConfiguration(config)
+			}
+			else {
+				imageView.image = UIImage(named: name)?.withRenderingMode(.alwaysTemplate)
+			}
 		}
 		else {
 			imageView.image = nil

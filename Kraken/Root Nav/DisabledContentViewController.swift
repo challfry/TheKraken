@@ -32,6 +32,8 @@ class DisabledContentViewController: UIViewController {
 			tabName = "Seamail"
 		case .events:
 			tabName = "Schedule"
+		case .lfg:
+			tabName = "LFG"
 		case .settings:
 			tabName = "Settings"
 		case .karaoke:
@@ -84,6 +86,9 @@ class DisabledContentViewController: UIViewController {
 		case .events:
 			featureName = "the Events Schedule"
 			featurePath = "/events"
+		case .lfg:
+			featureName = "Looking For Group"
+			featurePath = "/lfg"
 		case .settings:
 			featureName = "the Settings Panel"
 			featurePath = ""

@@ -40,14 +40,16 @@ class StringUtilities {
         return separatorChars
     }
     
-	static var urlRegex: NSRegularExpression?
+	static let genericUrlRegex = {
+		let genericUrlRegexStr = """
+				(?i)\\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\\s()<>{}\\[\\]]+|\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\))+(?:\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\)|[^\\s`!()\\[\\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\\b/?(?!@))|(?:(?<!@)[a-z0-9]+(?:[.\\-][a-z0-9]+)*(?::[0-9]+/)(?:[^\\s()<>{}\\[\\]]+|\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\))+(?:\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\)|[^\\s`!()\\[\\]{};:'".,<>?«»“”‘’])\\b/?(?!@)))
+				"""
+		return try! NSRegularExpression(pattern: genericUrlRegexStr, options: .caseInsensitive)
+	}()
+
+// MARK: -
 	
     class func cleanupText(_ string: String, addLinks: Bool = true, font: UIFont? = nil) -> NSMutableAttributedString {
-		if StringUtilities.urlRegex == nil, let regexHostname = Settings.shared.baseURL.host?.replacingOccurrences(of: ".", with: "\\.") {
-			let regexStr = "(?:https?://)?\(regexHostname)(?::[0-9]+)?([-A-Z0-9+&@#/%?=~_|!:,.;]*[A-Z0-9+&@#/%=~_|])"
-			urlRegex = try? NSRegularExpression(pattern: regexStr, options: .caseInsensitive)
-		}
-
 		let unscaledBaseFont = font ?? UIFont.systemFont(ofSize: 17)
 		let baseFont = UIFontMetrics(forTextStyle: .body).scaledFont(for: unscaledBaseFont)
 		let defaultAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont, .foregroundColor : UIColor(named: "Kraken Label Text") as Any]
@@ -58,9 +60,10 @@ class StringUtilities {
 	   	while inputString.hasSuffix("\n") {
 	   		inputString.removeLast()
 	   	}
+		inputString = inputString.replacingOccurrences(of: "\r\n", with: "\n")
 
 		let words = inputString.split(separator: " ", omittingEmptySubsequences: false)
-		let attrString = words.reduce(NSMutableAttributedString()) { attrString, word in
+		var attrString = words.reduce(NSMutableAttributedString()) { attrString, word in
 			if word.hasPrefix("@") && word.count <= 50 && word.count >= 3 {
 				let scalars = word.unicodeScalars
 				let firstValidUsernameIndex = scalars.index(scalars.startIndex, offsetBy: 1)
@@ -80,7 +83,7 @@ class StringUtilities {
 						let name = String(scalars[firstValidUsernameIndex..<firstNonUsernameIndex])
 						.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
 					attrString.append(NSAttributedString(string: " ", attributes: defaultAttrs))
-					linkAttrs.updateValue(name, forKey: .link)
+					linkAttrs.updateValue("\(Settings.shared.settingsBaseURL)/profile/\(name)", forKey: .link)
 					let attrName = NSAttributedString(string: "@\(name)", attributes: addLinks ? linkAttrs : defaultAttrs)
 					
 					attrString.append(attrName)
@@ -104,7 +107,7 @@ class StringUtilities {
 						let hashtag = String(scalars[firstValidHashtagIndex..<firstNonHashtagIndex])
 						.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
 					attrString.append(NSAttributedString(string: " ", attributes: defaultAttrs))
-					linkAttrs.updateValue(hashtag, forKey: .link)
+					linkAttrs.updateValue("\(Settings.shared.settingsBaseURL)/tweets?hashtag=\(hashtag)", forKey: .link)
 					let attrName = NSAttributedString(string: "#\(hashtag)", attributes: addLinks ? linkAttrs : defaultAttrs)
 					attrString.append(attrName)
 					let restOfString = String(scalars[firstNonHashtagIndex...])
@@ -123,33 +126,108 @@ class StringUtilities {
 			attrString.deleteCharacters(in: NSRange(location: 0, length: 1))
 		}
 		
-		// This uses a regex to find URL links that point to our server, and (somewhat) shorten them. 
-		// It attempts to use Vapor's configured hostname to match against.
-		// This would be cooler if we could parse the link path and make the link text into a description of
-		// where the link goes. e.g. "http://192.168.0.19:8081/fez/ADDBA5D9-1154-4033-88AE-07B12F3AE162"
-		// could have linktext "[An LFG Link]" or somesuch.
-//		if let matches = urlRegex?.matches(in: attrString.string, range: NSRange(0..<attrString.string.count)) {
-//			for match in matches.reversed() {
-//				attrString.replaceCharacters(in: match.range(at: 0), with: )
-//				if let stringRange = Range(match.range(at: 0), in: attrString.string) {
-//					var urlStr = String(string[stringRange])
-//					// iOS Safari doesn't put "http(s)://" at the start links copied from the linkbar.
-//					if !urlStr.hasPrefix("http") {
-//						urlStr = "http://" + urlStr
-//					}
-//					var shortenedLinkText = urlStr
-//					if match.numberOfRanges > 1, let range2 = Range(match.range(at: 1), in: string) {
-//						shortenedLinkText = String(string[range2])
-//					}
-//					string.replaceSubrange(stringRange, with: "<a href=\"\(urlStr)\">\(shortenedLinkText)</a>")
-//				}
-//			}
-//		}
+		// Find all matches in the entire text string (range 0 to end).
+		let matches = genericUrlRegex.matches(in: attrString.string, range: NSRange(0..<string.count))
+		processUrlMatches(attrString: &attrString, matches: matches)
 
 		let stringWithJocomoji = StringUtilities.addInlineImages(str: attrString)
     	return stringWithJocomoji
 	}
  
+	/// Process a set of regex matches and substitute appropriate content in a return HTML string.
+	///
+	/// Pass by ref can kinda be voodoo.
+	/// https://stackoverflow.com/questions/27364117/is-swift-pass-by-value-or-pass-by-reference
+	///
+	/// - Parameters:
+	///   - string: Reference to the Leaf string that is the HTML content to return to the user.
+	///   - matches: Array of regex matching ranges.
+	/// - Returns: void
+	///
+	private class func processUrlMatches(attrString: inout NSMutableAttributedString, matches: [NSTextCheckingResult]) -> Void {
+
+		// We reverse the matches since we're gonna manipulate the string and insert characters (ie, HTML)
+		// so we want to preserve the range indices if there are multiple matches within the same string.
+		for match in matches.reversed() {
+			guard let stringRange = Range(match.range(at: 0), in: attrString.string) else { continue }
+			var urlStr = String(attrString.string[stringRange])
+
+			// iOS Safari doesn't put "http(s)://" at the start links copied from the linkbar.
+			// If the scheme isn't specified it messes with the URLComponents constructor and it
+			// interprets the entire string as a path component. Weird.
+			if !urlStr.hasPrefix("http") {
+				urlStr = "http://\(urlStr)"
+			}
+			// Sometimes people write urls at the end of sentence like https://twitarr.com. This is
+			// not a valid URL and usually 404's, so we chomp off that last period from the match.
+			// https://stackoverflow.com/questions/24122288/remove-last-character-from-string-swift-language
+			//
+			// A future consideration could be to insert a special unicode character or sequence that the 
+			// frontend JS can detect and give users a popup saying their URL has been messed with.
+			var urlTextSuffix = ""
+			if urlStr.hasSuffix(".") {
+				urlStr = String(urlStr.dropLast())
+				urlTextSuffix = "."
+			}
+			
+			var linkText = urlStr
+			if let url = URL(string: urlStr) {
+				if ["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host]
+						.contains(url.host ?? "nohostfoundasdfasfasf") {
+					if url.pathComponents.count > 1, url.pathComponents[0] == "/" {
+						switch url.pathComponents[1] {
+							case "tweets": linkText = "[Twitarr Tweet Link]"
+							case "forums": 
+								if url.pathComponents.count == 2 {
+									linkText = "[Forum Categories Link]"
+								}
+								else {
+									linkText = "[Forum Category Link]"
+								}
+							case "forum": linkText = "[Forum Link]"
+							case "seamail": linkText = "[Seamail Link]"
+							case "fez": 
+								if url.pathComponents.count > 2 {
+									switch url.pathComponents[2] {
+										case "joined": linkText = "[Joined LFGs Link]"
+										case "owned": linkText = "[Your LFGs Link]"
+										case "faq": linkText = "[LFG FAQ Link]"
+										default: linkText = "[LFG Link]"
+									}
+								}
+								else {
+									linkText = "[LFGs Link]"
+								}
+							case "events": linkText = "[Events Link]"
+							case "user", "profile": linkText = "[User Link]"
+							case "boardgames": 
+								if url.pathComponents.count > 2 {
+									linkText = "[Boardgame Link]"
+								}
+								else {
+									linkText = "[Boardgames Link]"
+								}
+							case "karaoke": 
+								linkText = "[Karaoke Link]"
+							default: linkText = "[Twitarr Link]"
+						}
+					}
+					else {
+						linkText = "[Twitarr Link]"
+					}
+				}
+			}
+			
+			let baseAttrs = attrString.attributes(at: match.range(at: 0).lowerBound, effectiveRange: nil)
+			var linkAttrs = baseAttrs
+			linkAttrs.updateValue(UIColor.blue as Any, forKey: .foregroundColor)
+			linkAttrs.updateValue(urlStr, forKey: .link)
+			let linkAttributedStr = NSMutableAttributedString(string: linkText, attributes: linkAttrs)
+			linkAttributedStr.append(NSAttributedString(string: urlTextSuffix, attributes: baseAttrs))
+			attrString.replaceCharacters(in: match.range(at: 0), with: linkAttributedStr)
+		}
+	}
+
  	// Takes text that may contain HTML fragment tags and removes the tags. This fn can also perform SOME TYPES of transforms,
  	// parsing the HTML tags and applying their attributes to the text, converting HTML to Attributed String attributes.
  	// 
@@ -430,6 +508,52 @@ class StringUtilities {
 		return "some time ago"
 	}
 	
+	// Makes a multiline attributed string showing the start and end time, in both Device Time and Boat Time, unless they match.
+	class func eventTimeString(startTime: Date, endTime: Date?, baseFont: UIFont = UIFont.systemFont(ofSize: 17.0)) -> NSMutableAttributedString {
+		let timeString = NSMutableAttributedString()
+		let baseAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont as Any, .foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
+		var boatAttrs = baseAttrs
+		if let descriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitItalic) {
+	        let italicFont = UIFont(descriptor: descriptor, size: 0) 
+			boatAttrs  = [ .font : italicFont as Any, .foregroundColor : UIColor(named: "Kraken Secondary Text") as Any ]
+		}
+		
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateStyle = .short
+		dateFormatter.timeStyle = .short
+		dateFormatter.locale = Locale(identifier: "en_US")
+		var includeDeviceTime = false
+		if let serverTZ = ServerTime.shared.serverTimezone {
+			dateFormatter.timeZone = serverTZ
+			timeString.append(string: dateFormatter.string(from: startTime), attrs: baseAttrs)
+			dateFormatter.dateStyle = .none
+			if let endTime = endTime {
+				timeString.append(string: " - \(dateFormatter.string(from: endTime))")
+			}
+
+			if abs(ServerTime.shared.deviceTimeOffset + TimeInterval(ServerTime.shared.timeZoneOffset)) > 300.0 {
+				timeString.append(string: " (Boat Time)\n", attrs: boatAttrs)
+				includeDeviceTime = true
+			}
+		}
+		else {
+			includeDeviceTime = true
+		}
+		
+		// If we're ashore and don't have access to server time (and, specifically, the server timezone),
+		// OR we do have access and the serverTime is > 5 mins off of deviceTime, show device time.
+		if includeDeviceTime {
+			dateFormatter.timeZone = ServerTime.shared.deviceTimezone
+			dateFormatter.dateStyle = .none
+			timeString.append(string: "\(dateFormatter.string(from: startTime))", attrs: baseAttrs)
+			if let endTime = endTime {
+				timeString.append(string: " - \(dateFormatter.string(from: endTime))")
+			}
+			timeString.append(string: " (Device Time)", attrs: boatAttrs)
+		}
+		return timeString
+	}
+
 	// Apple's ISO8601 date formatter does not actually parse most of the variants the standard specsifies. And,
 	// for the cases it does handle you generally have to specify beforehand what options you're expecting. For 
 	// our purposes, V3 sends dates with fractional seconds, but the default ISO8601DateFormatter won't parse them

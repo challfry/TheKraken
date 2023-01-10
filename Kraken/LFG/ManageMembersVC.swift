@@ -33,7 +33,6 @@ class ManageMembersVC: BaseCollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Manage Members"
-        knownSegues = [.dismiss]
         guard let thread = threadModel else {
         	// Can't do anything--no fez to show
 			performKrakenSegue(.dismiss, sender: threadModel)
@@ -113,6 +112,10 @@ class ManageMembersVC: BaseCollectionViewController {
 		}
 	}
 	
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .dismiss ])
+	}
 }
 
 extension ManageMembersVC: FRCDataSourceLoaderDelegate {

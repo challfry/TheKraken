@@ -12,8 +12,6 @@ import BackgroundTasks
 @objc class ServerUpdater : NSObject {
 
 	static var updateActions: [ServerUpdater] = [
-			ServerTimeUpdater.shared,
-			ValidSectionUpdater.shared,
 			AlertsUpdater.shared,
 			DailyThemeUpdater.shared,
 	]
@@ -137,9 +135,9 @@ class RefreshTimers: NSObject {
 		}
 		
 		// Run these things immediately on foreground.
-		if !isLaunch {
+//		if !isLaunch {
 			ServerUpdater.runServerUpdates()
-		}
+//		}
 	}
 	
 	class func appBackgrounded() {
@@ -150,20 +148,20 @@ class RefreshTimers: NSObject {
 	}
 	
 	class func scheduleAppRefresh() {
-		if #available(iOS 13.0, *) {
-			let request = BGAppRefreshTaskRequest(identifier: "com.challfry-FQD.Kraken.refresh")
-			request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) 
-        
-			do {
-				try BGTaskScheduler.shared.submit(request)
-				RefreshLog.debug("Scheduled BG Refresh.")
-				
-				// e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.challfry-FQD.Kraken.refresh"]
-//				RefreshLog.debug("Eval debugger line here.")
-			} catch {
-				RefreshLog.error("Could not schedule app refresh: \(error)")
-			}
-		}
+//		if #available(iOS 13.0, *) {
+//			let request = BGAppRefreshTaskRequest(identifier: "com.challfry-FQD.Kraken.refresh")
+//			request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) 
+//        
+//			do {
+//				try BGTaskScheduler.shared.submit(request)
+//				RefreshLog.debug("Scheduled BG Refresh.")
+//				
+//				// e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.challfry-FQD.Kraken.refresh"]
+////				RefreshLog.debug("Eval debugger line here.")
+//			} catch {
+//				RefreshLog.error("Could not schedule app refresh: \(error)")
+//			}
+//		}
     }
     
 }

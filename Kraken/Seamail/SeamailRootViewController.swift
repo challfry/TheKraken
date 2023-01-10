@@ -35,18 +35,6 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 // MARK: Methods	
 	override func awakeFromNib() {
 		super.awakeFromNib()
-		
-		// Set the badge on the Seamail tab
-		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
-				"loggedInUser.seamailParticipant.count"]) { observer, observed in
-			if let currentUser = observed.loggedInUser {
-				let badgeCount = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count
-				observer.navigationController?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
-			}
-			else {
-				observer.navigationController?.tabBarItem.badgeValue = nil
-			}
-		}?.execute()
 	}
 	
 	override func viewDidLoad() {
@@ -70,7 +58,10 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		// stores ALL the seamail we ever download, for any user who logs in on this device.
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
 			if let currentUserID = observed.loggedInUser?.userID {
-				observer.threadSegment.changePredicate(to: NSPredicate(format: "ANY participants.userID == %@", currentUserID as CVarArg))
+				let pred = NSCompoundPredicate(andPredicateWithSubpredicates: [
+						NSPredicate(format: "fezType IN %@", ["open", "closed"] as CVarArg),
+						NSPredicate(format: "ANY participants.userID == %@", currentUserID as CVarArg)])
+				observer.threadSegment.changePredicate(to: pred)
         		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)
         		observer.dataManager.loadSeamails { 
 					DispatchQueue.main.async { observer.collectionView.reloadData() }
@@ -88,7 +79,6 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
         }?.execute()        
 
 		title = "Seamail"
-		knownSegues = Set([.userProfile, .showSeamailThread])
 		
 		if let packet = globalNav {
 			_ = globalNavigateTo(packet: packet)
@@ -102,6 +92,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 		loginDataSource.enableAnimations = true
 		threadDataSource.enableAnimations = true
 		loginSection.clearAllSensitiveFields()
+		dataManager.loadSeamails()
 	}
 	
 	@objc func startRefresh() {
@@ -127,6 +118,9 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	}
     
     // MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .userProfile, .showSeamailThread ])
+	}
     
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		// If we haven't loaded the FRC yet, cache the packet and return

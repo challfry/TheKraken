@@ -15,7 +15,7 @@ fileprivate struct Log: LoggingProtocol {
 	var instanceEnabled: Bool = false	
 }
 
-
+// A DS segment that can have cells independently become visible or hidden. Only has one section.
 @objc class FilteringDataSourceSegment : KrakenDataSourceSegment, KrakenDataSourceSegmentProtocol {
 
 	@objc dynamic var allCellModels = NSMutableArray() // [BaseCellModel]()
@@ -153,15 +153,31 @@ fileprivate struct Log: LoggingProtocol {
 		else if !newShouldBeVisible && numVisibleSections == 1 {
 			collectionView?.deleteSections(IndexSet(integer: deleteOffset))
 			log.debug("Filtering Segment deleting sections", ["sections" : deleteOffset, "DS" : self.dataSource ?? ""])
+			
+			// Unbind any previously visible cells
+			for (cellIndex, cellModel) in oldModels.enumerated() {
+				let path = IndexPath(row: cellIndex, section: deleteOffset)
+				if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
+					cellModel.unbind(cell: cell)
+				}
+			}
 		}
 		numVisibleSections = newShouldBeVisible ? 1 : 0
-		
+		if !newShouldBeVisible {
+			return
+		}
 
 		var deletes = [IndexPath]()
 		var inserts = [IndexPath]()
 		for cellIndex in 0 ..< oldModels.count {
 			if !visibleCellModels.contains(oldModels[cellIndex]) {
 				deletes.append(IndexPath(row: cellIndex, section: deleteOffset))
+				
+				// If this cellModel has a cell, unbind it
+				let path = IndexPath(row: cellIndex, section: deleteOffset)
+				if let cell = collectionView?.cellForItem(at: path) as? BaseCollectionViewCell {
+					oldModels[cellIndex].unbind(cell: cell)
+				}
 			}
 		}
 		for cellIndex in 0 ..< visibleCellModels.count {

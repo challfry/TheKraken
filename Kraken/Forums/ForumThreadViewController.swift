@@ -41,9 +41,6 @@ class ForumThreadViewController: BaseCollectionViewController {
     
 	override func viewDidLoad() {
         super.viewDidLoad()
-		knownSegues = Set([.composeForumPost, .editForumPost, .tweetFilter, .userProfile, .modalLogin, .reportContent,
-				.showLikeOptions])
-		
 		// First add the segment with all the posts
 		threadDataSource.append(segment: threadSegment)
 		threadSegment.loaderDelegate = self
@@ -101,6 +98,12 @@ class ForumThreadViewController: BaseCollectionViewController {
 	@IBAction func postButtonTapped(_ sender: Any) {
 		performKrakenSegue(.composeForumPost, sender: threadModel)
 	}
+	
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> {
+		Set<GlobalKnownSegue>([ .composeForumPost, .editForumPost, .tweetFilter, .userProfile, .modalLogin, .reportContent,
+				.showLikeOptions ])
+	}		
 	
 	// This is the unwind segue from the compose view.
 	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {

@@ -23,7 +23,6 @@ class ScrapbookViewController: BaseCollectionViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		knownSegues = Set([])
 
 		// Prep the login DS
 		loginDataSource.viewController = self
@@ -125,6 +124,9 @@ class ScrapbookViewController: BaseCollectionViewController {
 		}
 		return cellModel
 	}
+	
+// MARK: Navigation
+	override var knownSegues : Set<GlobalKnownSegue> { Set<GlobalKnownSegue>() }
 }
 
 // MARK: Karaoke Cell

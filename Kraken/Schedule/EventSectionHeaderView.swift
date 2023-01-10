@@ -31,7 +31,7 @@ class EventSectionHeaderView: BaseCollectionSupplementaryView {
 		dateFormatter.locale = Locale(identifier: "en_US")
 		
 		// 
-		if let serverTZ = ServerTimeUpdater.shared.serverTimezone {
+		if let serverTZ = ServerTime.shared.serverTimezone {
 			dateFormatter.timeZone = serverTZ
 		}
 

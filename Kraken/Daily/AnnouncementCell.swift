@@ -9,20 +9,59 @@
 import UIKit
 import CoreData
 
-@objc protocol AnnouncementCellBindingProtocol: FetchedResultsBindingProtocol {
+@objc protocol AnnouncementCellBindingProtocol  {
+	var headerText: String { get set }
+	var authorName: String { get set } 
+	var announcementTime: Date { get set }
+	var text: NSAttributedString { get set }
 }
 
-@objc class AnnouncementCellModel: BaseCellModel, AnnouncementCellBindingProtocol {
+@objc class AnnouncementCellModel: BaseCellModel, AnnouncementCellBindingProtocol, FetchedResultsBindingProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
 		return [ "AnnouncementCell" : AnnouncementCell.self ] 
 	}
 	
-	dynamic var model: NSFetchRequestResult?
+	dynamic var headerText: String = ""
+	dynamic var authorName: String = ""
+	dynamic	var announcementTime: Date = Date()
+	dynamic var text: NSAttributedString = NSAttributedString()
+
+	var model: NSFetchRequestResult? {
+		didSet {
+			clearObservations()
+			if let announcementModel = model as? Announcement {
+				headerText = "Announcement"
+			
+				addObservation(announcementModel.tell(self, when: "text") { observer, observed in
+					if let text = observed.text {
+						observer.text = StringUtilities.cleanupText(text)
+					}
+					else {
+						observer.text =  NSAttributedString()
+					}
+				}?.execute())
+				
+				addObservation(announcementModel.tell(self, when: ["author.displayName", "author.username"]) { observer, observed in
+					observer.authorName = "From: \(observed.author?.displayName ?? observed.author?.username ?? "unknown")"
+				}?.execute())
+				
+				addObservation(announcementModel.tell(self, when: "updatedAt") { observer, observed in
+					observer.announcementTime = observed.updatedAt
+				}?.execute())
+			}
+			else {
+				headerText = ""
+				text = NSAttributedString()
+				authorName = ""
+				announcementTime = Date()
+			}
+		}
+	}
 	
 	init() {
 		super.init(bindingWith: AnnouncementCellBindingProtocol.self)
 		
-		// Every 10 seconds, update the post time (the relative time since now that the post happened).
+		// Every 10 seconds, call updateIsActive, so the model can mark itself inactive which causes it to be removed from the FRC.
 		NotificationCenter.default.addObserver(forName: RefreshTimers.MinuteUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
 			if let self = self, let announcementModel = self.model as? Announcement {
@@ -32,70 +71,31 @@ import CoreData
 	}
 }
 
-@objc protocol LocalAnnouncementCellBindingProtocol {
-	var headerText: String { get set }
-	var authorName: String { get set } 
-	var relativeTimeString: String { get set }
-	var text: String { get set }
-}
-
-
-@objc class LocalAnnouncementCellModel: BaseCellModel, LocalAnnouncementCellBindingProtocol {
+@objc class LocalAnnouncementCellModel: BaseCellModel, AnnouncementCellBindingProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
 		return [ "AnnouncementCell" : AnnouncementCell.self ] 
 	}
 	
 	dynamic var headerText: String = ""
 	dynamic var authorName: String = ""
-	dynamic	var relativeTimeString: String = ""
-	dynamic var text: String = ""
+	dynamic	var announcementTime: Date = Date()
+	dynamic var text: NSAttributedString = NSAttributedString()
 		
 	init() {
-		super.init(bindingWith: LocalAnnouncementCellBindingProtocol.self)
+		super.init(bindingWith: AnnouncementCellBindingProtocol.self)
 	}
 }
 
-class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol, LocalAnnouncementCellBindingProtocol {
+class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol, UITextViewDelegate {
 	private static let cellInfo = [ "AnnouncementCell" : PrototypeCellInfo("AnnouncementCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return AnnouncementCell.cellInfo }
 
 	@IBOutlet var announcementHeaderLabel: UILabel!
 	@IBOutlet var authorLabel: UILabel!
 	@IBOutlet var relativeTimeLabel: UILabel!
-	@IBOutlet var announcementTextLabel: UILabel!
+	@IBOutlet var announcementTextView: UITextView!
 	@IBOutlet var roundedRectView: AnnouncementRoundedRectView!
 	
-	var model: NSFetchRequestResult? {
-		didSet {
-			clearObservations()
-			if let announcementModel = model as? Announcement {
-				announcementHeaderLabel.text = "Announcement"
-			
-				addObservation(announcementModel.tell(self, when: "text") { observer, observed in
-					if let text = observed.text {
-						observer.announcementTextLabel.attributedText = StringUtilities.cleanupText(text)
-					}
-					else {
-						observer.announcementTextLabel.text = ""
-					}
-				}?.execute())
-				
-				addObservation(announcementModel.tell(self, when: "author.displayName") { observer, observed in
-					observer.authorLabel.text = "From: \(observed.author?.displayName ?? observed.author?.username ?? "unknown")"
-				}?.execute())
-				
-				addObservation(announcementModel.tell(self, when: "updatedAt") { observer, observed in
-					observer.relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: announcementModel.updatedAt)
-				}?.execute())
-			}
-			else {
-				announcementTextLabel.text = ""
-				authorLabel.text = ""
-			}
-			cellSizeChanged()
-			roundedRectView.setNeedsDisplay()
-		}
-	}
 	
 	var headerText: String = "" {
 		didSet {
@@ -109,15 +109,15 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 		}
 	}
 	
-	var relativeTimeString: String = "" {
+	var announcementTime: Date = Date() {
 		didSet {
-			relativeTimeLabel.text = relativeTimeString
+			relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: announcementTime)
 		}
 	}
 	
-	var text: String = "" {
+	var text: NSAttributedString = NSAttributedString() {
 		didSet {
-			announcementTextLabel.text = text
+			announcementTextView.attributedText = text
 		}
 	}
 	
@@ -126,16 +126,24 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 		announcementHeaderLabel.styleFor(.body)
 		authorLabel.styleFor(.body)
 		relativeTimeLabel.styleFor(.body)
-		announcementTextLabel.styleFor(.body)
+		announcementTextView.styleFor(.body)
 
 		// Every 10 seconds, update the post time.
 		NotificationCenter.default.addObserver(forName: RefreshTimers.TenSecUpdateNotification, object: nil,
 				queue: nil) { [weak self] notification in
-    		if let self = self, let announcementModel = self.model as? Announcement, announcementModel.isActive {
-				self.relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: announcementModel.updatedAt)
+    		if let self = self {
+				self.relativeTimeLabel.text = StringUtilities.relativeTimeString(forDate: self.announcementTime)
 			}
 		}
 	}
+	
+	// Handler for tapping on linktext. The textView is non-editable.
+	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange,  interaction: UITextItemInteraction) -> Bool {
+		if let vc = viewController as? BaseCollectionViewController {
+	 		vc.segueOrNavToLink(URL.absoluteString)
+		}
+        return false
+    }
 }
 
 
@@ -160,28 +168,6 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 
 	}
 }
-
-
-// Reversed
-let preSailAnnouncements : [String] = [
-	"Tomorrow we Sail",
-	
-	".. but have you packed enough Ukeleles?",
-	"I'm hungry for seafood, but what food is the sea hungry for?",
-	""
-]
-
-let duringCruiseAnnouncements : [String] = [
-	"Day 1: Leaving Fort Lauderdale",
-	"Day 2: Half Moon Cay",
-	"Day 3: At Sea",
-	"Day 4: Santo Domingo",
-	"Day 5: At Sea",
-	"Day 6: Grand Turk",
-	"Day 7: At Sea",
-	"Day 8: Fort Lauderdale"
-]
-
 
 //let announcementAlertColors: [String] = [
 //	"Fuschia Alert",

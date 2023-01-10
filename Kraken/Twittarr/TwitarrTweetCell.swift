@@ -279,7 +279,7 @@ import CoreData
 
 //MARK: Action Handlers
 	func linkTextTapped(link: String) {
- 		viewController?.performKrakenSegue(.tweetFilter, sender: link)
+		viewController?.segueOrNavToLink(link)
 	}
 	
 	func authorIconTapped() {
@@ -298,7 +298,7 @@ import CoreData
 	func replyButtonTapped() {
    		guard let tweetModel = model as? TwitarrPost else { return } 
    		if isReplyGroup {
-			viewController?.performKrakenSegue(.tweetReplyGroup, sender: tweetModel.replyGroup)
+			viewController?.performKrakenSegue(.tweetFilter, sender: TwitarrFilterPack(replyGroup: tweetModel.replyGroup))
    		}
    		else {
    			// Starts a reply group when this tweet isn't yet part of one
