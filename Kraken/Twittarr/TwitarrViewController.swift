@@ -121,8 +121,8 @@ class TwitarrViewController: BaseCollectionViewController, GlobalNavEnabled {
     
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .tweetFilter, .pendingReplies, .userProfile, .modalLogin, .composeReplyTweet, .editTweet,
-				.composeTweet, .reportContent, .showLikeOptions ])
+		Set<GlobalKnownSegue>([ .tweetFilter, .pendingReplies, .userProfile_Name, .userProfile_User, .modalLogin, 
+				.composeReplyTweet, .editTweet, .composeTweet, .reportContent, .showLikeOptions ])
 	}
 
 	// This is the unwind segue from the Tweet compose view.

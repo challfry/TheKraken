@@ -246,22 +246,6 @@ extension AnnouncementDataManager: NSFetchedResultsControllerDelegate {
 	}
 }
 
-
-// MARK: - V2 API Decoding 
-
-struct TwitarrV2Announcement: Codable {
-    let id: String
-	let author: TwitarrV2UserInfo
-	let text: String
-    let timestamp: Int64
-}
-
-// GET /api/v2/announcements
-struct TwitarrV2AnnouncementsResponse: Codable {
-	let status: String
-	let announcements: [TwitarrV2Announcement]
-}
-
 // MARK: V3 API Decoding
 
 public struct TwitarrV3AnnouncementData: Codable {

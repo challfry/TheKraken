@@ -39,6 +39,16 @@
 		EA257F7C276602CE00910CC5 /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA257F7B276602CE00910CC5 /* CategoryCell.swift */; };
 		EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA278A49226A755400808AED /* LoadingStatusCell.xib */; };
 		EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */; };
+		EA283FD6297911C6005450E7 /* SwiftyLineProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FCA297911C5005450E7 /* SwiftyLineProcessor.swift */; };
+		EA283FD7297911C6005450E7 /* SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FCB297911C5005450E7 /* SwiftyMarkdown.swift */; };
+		EA283FD8297911C6005450E7 /* SwiftyTokeniser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FCC297911C5005450E7 /* SwiftyTokeniser.swift */; };
+		EA283FD9297911C6005450E7 /* CharacterRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FCD297911C6005450E7 /* CharacterRule.swift */; };
+		EA283FDA297911C6005450E7 /* SwiftyMarkdown+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FCE297911C6005450E7 /* SwiftyMarkdown+iOS.swift */; };
+		EA283FDB297911C6005450E7 /* SwiftyMarkdown+macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FCF297911C6005450E7 /* SwiftyMarkdown+macOS.swift */; };
+		EA283FDC297911C6005450E7 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD0297911C6005450E7 /* Token.swift */; };
+		EA283FDD297911C6005450E7 /* String+SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD1297911C6005450E7 /* String+SwiftyMarkdown.swift */; };
+		EA283FDE297911C6005450E7 /* PerfomanceLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD2297911C6005450E7 /* PerfomanceLog.swift */; };
+		EA283FE0297911C6005450E7 /* SwiftyScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD4297911C6005450E7 /* SwiftyScanner.swift */; };
 		EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39B18523DA823600A2FB1B /* AboutViewController.swift */; };
 		EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */; };
 		EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */; };
@@ -136,6 +146,7 @@
 		EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */; };
 		EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */; };
 		EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */; };
+		EA99D27C297B293600C8D63E /* ActiveCallVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA99D27B297B293600C8D63E /* ActiveCallVC.swift */; };
 		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
 		EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* DailyViewController.swift */; };
@@ -178,12 +189,6 @@
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
 		EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */ = {isa = PBXBuildFile; fileRef = EABD2FFB23DA8B0800232F28 /* AboutText.md */; };
-		EABD300623DAD7E000232F28 /* SwiftyLineProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD2FFE23DAD7E000232F28 /* SwiftyLineProcessor.swift */; };
-		EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD2FFF23DAD7E000232F28 /* SwiftyMarkdown.swift */; };
-		EABD300923DAD7E000232F28 /* SwiftyMarkdown+macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300223DAD7E000232F28 /* SwiftyMarkdown+macOS.swift */; };
-		EABD300A23DAD7E000232F28 /* SwiftyTokeniser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300323DAD7E000232F28 /* SwiftyTokeniser.swift */; };
-		EABD300B23DAD7E000232F28 /* SwiftyMarkdown+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */; };
-		EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */; };
 		EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = EAC2D3B323CC7AEC0055780C /* Hats.scnassets */; };
 		EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC45AAD23E6CACF00907B1F /* PortAndThemeCell.swift */; };
 		EAC45AB023E6CACF00907B1F /* PortAndThemeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC45AAE23E6CACF00907B1F /* PortAndThemeCell.xib */; };
@@ -199,6 +204,8 @@
 		EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */; };
 		EAD4CB1D293EC9530018C381 /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */; };
 		EADC819F2963BA0400232A37 /* SeamailUserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EADC819E2963BA0400232A37 /* SeamailUserListCell.xib */; };
+		EADC81A2296F3F6500232A37 /* InitiateCallVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADC81A1296F3F6500232A37 /* InitiateCallVC.swift */; };
+		EADC81A42970929F00232A37 /* PhonecallDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADC81A32970929F00232A37 /* PhonecallDataManager.swift */; };
 		EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */; };
 		EADF5DA023DD30E7008BA172 /* DeckDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA83FC8A236E33450042C0DC /* DeckDataManager.swift */; };
 		EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */; };
@@ -298,6 +305,18 @@
 		EA257F7B276602CE00910CC5 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		EA278A49226A755400808AED /* LoadingStatusCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingStatusCell.xib; sourceTree = "<group>"; };
 		EA278A98226A86BE00808AED /* FilteringDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteringDataSourceSegment.swift; sourceTree = "<group>"; };
+		EA283FC9297911C5005450E7 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		EA283FCA297911C5005450E7 /* SwiftyLineProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyLineProcessor.swift; sourceTree = "<group>"; };
+		EA283FCB297911C5005450E7 /* SwiftyMarkdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyMarkdown.swift; sourceTree = "<group>"; };
+		EA283FCC297911C5005450E7 /* SwiftyTokeniser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyTokeniser.swift; sourceTree = "<group>"; };
+		EA283FCD297911C6005450E7 /* CharacterRule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterRule.swift; sourceTree = "<group>"; };
+		EA283FCE297911C6005450E7 /* SwiftyMarkdown+iOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftyMarkdown+iOS.swift"; sourceTree = "<group>"; };
+		EA283FCF297911C6005450E7 /* SwiftyMarkdown+macOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftyMarkdown+macOS.swift"; sourceTree = "<group>"; };
+		EA283FD0297911C6005450E7 /* Token.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
+		EA283FD1297911C6005450E7 /* String+SwiftyMarkdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+SwiftyMarkdown.swift"; sourceTree = "<group>"; };
+		EA283FD2297911C6005450E7 /* PerfomanceLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfomanceLog.swift; sourceTree = "<group>"; };
+		EA283FD3297911C6005450E7 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		EA283FD4297911C6005450E7 /* SwiftyScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyScanner.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
 		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		EA39B18523DA823600A2FB1B /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
@@ -406,6 +425,7 @@
 		EA951D2923CDB18100453B3C /* ScrapbookViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrapbookViewController.swift; sourceTree = "<group>"; };
 		EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeFavoriteSongCell.xib; sourceTree = "<group>"; };
 		EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsUpdater.swift; sourceTree = "<group>"; };
+		EA99D27B297B293600C8D63E /* ActiveCallVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveCallVC.swift; sourceTree = "<group>"; };
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
 		EA9E693522980CC500B4DC6D /* Kraken.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kraken.entitlements; sourceTree = "<group>"; };
@@ -459,14 +479,6 @@
 		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		EABD2FFB23DA8B0800232F28 /* AboutText.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AboutText.md; sourceTree = "<group>"; wrapsLines = 1; };
-		EABD2FFE23DAD7E000232F28 /* SwiftyLineProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyLineProcessor.swift; sourceTree = "<group>"; };
-		EABD2FFF23DAD7E000232F28 /* SwiftyMarkdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyMarkdown.swift; sourceTree = "<group>"; };
-		EABD300023DAD7E000232F28 /* SwiftyMarkdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftyMarkdown.h; sourceTree = "<group>"; };
-		EABD300123DAD7E000232F28 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		EABD300223DAD7E000232F28 /* SwiftyMarkdown+macOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftyMarkdown+macOS.swift"; sourceTree = "<group>"; };
-		EABD300323DAD7E000232F28 /* SwiftyTokeniser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyTokeniser.swift; sourceTree = "<group>"; };
-		EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftyMarkdown+iOS.swift"; sourceTree = "<group>"; };
-		EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+SwiftyMarkdown.swift"; sourceTree = "<group>"; };
 		EAC2D3B323CC7AEC0055780C /* Hats.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Hats.scnassets; sourceTree = "<group>"; };
 		EAC45AAD23E6CACF00907B1F /* PortAndThemeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortAndThemeCell.swift; sourceTree = "<group>"; };
 		EAC45AAE23E6CACF00907B1F /* PortAndThemeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PortAndThemeCell.xib; sourceTree = "<group>"; };
@@ -482,6 +494,8 @@
 		EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarEditCell.swift; sourceTree = "<group>"; };
 		EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
 		EADC819E2963BA0400232A37 /* SeamailUserListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailUserListCell.xib; sourceTree = "<group>"; };
+		EADC81A1296F3F6500232A37 /* InitiateCallVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitiateCallVC.swift; sourceTree = "<group>"; };
+		EADC81A32970929F00232A37 /* PhonecallDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhonecallDataManager.swift; sourceTree = "<group>"; };
 		EADE3C1022EEEE3E00841DF4 /* RefreshTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTimers.swift; sourceTree = "<group>"; };
 		EAE26A1623D6F8BE00D6FACA /* ArrayDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotion.swift; sourceTree = "<group>"; };
@@ -930,6 +944,7 @@
 				EA3C631322975CD100077E3B /* Settings */,
 				EA39B18723DA824500A2FB1B /* About */,
 				EA1E3B962245849B00017F07 /* Users */,
+				EADC81A0296F3F3700232A37 /* Phone */,
 				EA1E3BA1224D79C400017F07 /* Server Resources */,
 				EAAA68DF23FD0BF900C9EF82 /* Rock Ballad Mode */,
 				EAC71D48228A13BC002F7BB3 /* Data Sources */,
@@ -1044,14 +1059,18 @@
 		EABD2FFD23DAD7E000232F28 /* SwiftyMarkdown */ = {
 			isa = PBXGroup;
 			children = (
-				EABD300123DAD7E000232F28 /* README.md */,
-				EABD2FFE23DAD7E000232F28 /* SwiftyLineProcessor.swift */,
-				EABD2FFF23DAD7E000232F28 /* SwiftyMarkdown.swift */,
-				EABD300023DAD7E000232F28 /* SwiftyMarkdown.h */,
-				EABD300223DAD7E000232F28 /* SwiftyMarkdown+macOS.swift */,
-				EABD300323DAD7E000232F28 /* SwiftyTokeniser.swift */,
-				EABD300423DAD7E000232F28 /* SwiftyMarkdown+iOS.swift */,
-				EABD300523DAD7E000232F28 /* String+SwiftyMarkdown.swift */,
+				EA283FC9297911C5005450E7 /* README.md */,
+				EA283FD3297911C6005450E7 /* LICENSE */,
+				EA283FCD297911C6005450E7 /* CharacterRule.swift */,
+				EA283FD2297911C6005450E7 /* PerfomanceLog.swift */,
+				EA283FD1297911C6005450E7 /* String+SwiftyMarkdown.swift */,
+				EA283FCA297911C5005450E7 /* SwiftyLineProcessor.swift */,
+				EA283FCB297911C5005450E7 /* SwiftyMarkdown.swift */,
+				EA283FCE297911C6005450E7 /* SwiftyMarkdown+iOS.swift */,
+				EA283FCF297911C6005450E7 /* SwiftyMarkdown+macOS.swift */,
+				EA283FD4297911C6005450E7 /* SwiftyScanner.swift */,
+				EA283FCC297911C5005450E7 /* SwiftyTokeniser.swift */,
+				EA283FD0297911C6005450E7 /* Token.swift */,
 			);
 			path = SwiftyMarkdown;
 			sourceTree = "<group>";
@@ -1067,6 +1086,16 @@
 				EA3C630F2296275F00077E3B /* VerticalLayout.swift */,
 			);
 			path = "Data Sources";
+			sourceTree = "<group>";
+		};
+		EADC81A0296F3F3700232A37 /* Phone */ = {
+			isa = PBXGroup;
+			children = (
+				EADC81A1296F3F6500232A37 /* InitiateCallVC.swift */,
+				EA99D27B297B293600C8D63E /* ActiveCallVC.swift */,
+				EADC81A32970929F00232A37 /* PhonecallDataManager.swift */,
+			);
+			path = Phone;
 			sourceTree = "<group>";
 		};
 		EAE59150229EA345002B5DEF /* Frameworks */ = {
@@ -1350,12 +1379,12 @@
 				EA8694B723D4A5BE00ABE391 /* SocialCell.swift in Sources */,
 				EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */,
 				EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */,
-				EABD300A23DAD7E000232F28 /* SwiftyTokeniser.swift in Sources */,
 				EAAA68EB24012FE700C9EF82 /* HashtagCompletionCell.swift in Sources */,
 				EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */,
-				EABD300C23DAD7E000232F28 /* String+SwiftyMarkdown.swift in Sources */,
+				EA283FDD297911C6005450E7 /* String+SwiftyMarkdown.swift in Sources */,
 				EA4A1D1B22540801008501A3 /* Observable.swift in Sources */,
 				EA2286E023E39B830036C20E /* GamesDataManager.swift in Sources */,
+				EA283FDC297911C6005450E7 /* Token.swift in Sources */,
 				EA58112223E7BE6600F62D4E /* TableIndexView.swift in Sources */,
 				EAAF5E50233A00FC006361F4 /* ProfileCommentCell.swift in Sources */,
 				EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */,
@@ -1370,6 +1399,7 @@
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */,
 				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,
+				EADC81A42970929F00232A37 /* PhonecallDataManager.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
 				EA820955293EB3FC005A251F /* LFGParticipantCell.swift in Sources */,
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
@@ -1378,19 +1408,18 @@
 				EA4E84EE232A2CE70059E5EB /* ServerTime.swift in Sources */,
 				EA58112023E6E7D900F62D4E /* CruiseDateCalculator.swift in Sources */,
 				EA2286F523E42D9F0036C20E /* BoardGameCell.swift in Sources */,
+				EA283FD8297911C6005450E7 /* SwiftyTokeniser.swift in Sources */,
 				EA1B9FE623514E8100BFEB46 /* PostOpStatusCell.swift in Sources */,
 				EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */,
 				EA444A542298A9B70098DE97 /* PostOperation.swift in Sources */,
 				EAB4537122D1F8BA00CD1671 /* SwitchCell.swift in Sources */,
 				EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */,
-				EABD300B23DAD7E000232F28 /* SwiftyMarkdown+iOS.swift in Sources */,
 				EA3E11712947277900A3DC19 /* LFGCell.swift in Sources */,
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
 				EA6CD9B823EF873500B9BC3C /* SquidAnimation.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
-				EABD300923DAD7E000232F28 /* SwiftyMarkdown+macOS.swift in Sources */,
 				EA8694B423D4A5A800ABE391 /* AnnouncementCell.swift in Sources */,
 				EA534E2E2302164000FE4787 /* EventsDataManager.swift in Sources */,
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
@@ -1416,6 +1445,7 @@
 				EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */,
 				EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */,
 				EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */,
+				EA283FD6297911C6005450E7 /* SwiftyLineProcessor.swift in Sources */,
 				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */,
 				EA82092929343D0D005A251F /* ManageMembersVC.swift in Sources */,
@@ -1434,6 +1464,7 @@
 				EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */,
 				EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */,
 				EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */,
+				EA99D27C297B293600C8D63E /* ActiveCallVC.swift in Sources */,
 				EA3E116F2945157E00A3DC19 /* LFGRootViewController.swift in Sources */,
 				EA86ADF0227D18AD00363CBF /* ServerTextFileViewController.swift in Sources */,
 				EA3C630E2293913600077E3B /* ComposeTweetViewController.swift in Sources */,
@@ -1442,13 +1473,18 @@
 				EA931D54261E79A00076C3D0 /* KrakenError.swift in Sources */,
 				EA4A1D1922540801008501A3 /* EBNKeypathEntryInfo.mm in Sources */,
 				EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */,
-				EABD300723DAD7E000232F28 /* SwiftyMarkdown.swift in Sources */,
-				EABD300623DAD7E000232F28 /* SwiftyLineProcessor.swift in Sources */,
+				EA283FDE297911C6005450E7 /* PerfomanceLog.swift in Sources */,
+				EA283FDA297911C6005450E7 /* SwiftyMarkdown+iOS.swift in Sources */,
+				EA283FE0297911C6005450E7 /* SwiftyScanner.swift in Sources */,
+				EADC81A2296F3F6500232A37 /* InitiateCallVC.swift in Sources */,
 				EAAF9BDC25C78B1C0078C794 /* ForumsRootVC.swift in Sources */,
 				EA2286F023E3C7450036C20E /* GamesListStructs.swift in Sources */,
+				EA283FDB297911C6005450E7 /* SwiftyMarkdown+macOS.swift in Sources */,
 				EAF589CF2401F1EE00ECB7DB /* DisclosureCell.swift in Sources */,
+				EA283FD7297911C6005450E7 /* SwiftyMarkdown.swift in Sources */,
 				EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,
+				EA283FD9297911C6005450E7 /* CharacterRule.swift in Sources */,
 				EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */,
 				EAC6113223BB3091007583EC /* ObjCUtils.m in Sources */,
 				EAAF9BF025CBDECE0078C794 /* ForumPostDataManager.swift in Sources */,
@@ -1575,7 +1611,7 @@
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KrakenLocalPushExtension/Info.plist;
@@ -1587,7 +1623,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Kraken Local Push Dev";
@@ -1606,7 +1642,7 @@
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KrakenLocalPushExtension/Info.plist;
@@ -1618,7 +1654,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken.KrakenLocalPushExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Kraken Local Push Extension Dist";
@@ -1757,15 +1793,18 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kraken;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = "maccatalyst.com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1786,15 +1825,18 @@
 				CODE_SIGN_ENTITLEMENTS = Kraken/Kraken.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = Kraken/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kraken;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.challfry-FQD.Kraken";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Kraken App Distribution";

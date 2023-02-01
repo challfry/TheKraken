@@ -99,7 +99,7 @@ import CoreData
 		return "seamailLargeThread"
 	}
 
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		if isInteractive {
 			dataSource?.performKrakenSegue(.showSeamailThread, sender: model)
 		}
@@ -256,7 +256,7 @@ import CoreData
 		return "seamailLargeThread"
 	}
 
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		if isInteractive {
 			dataSource?.performKrakenSegue(.showSeamailThread, sender: model)
 		}
@@ -358,8 +358,8 @@ import CoreData
 		cellModel.shouldBeVisible = true
 		cellModel.username = name
 		cellModel.selectionCallback = { [weak self] in
-			if self?.isInteractive == true {
-				self?.dataSource?.performKrakenSegue(.userProfile, sender: name)
+			if self?.isInteractive == true, let model = model {
+				self?.dataSource?.performKrakenSegue(.userProfile_User, sender: model)
 			}
 		}
 		return cellModel

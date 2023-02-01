@@ -397,7 +397,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .userProfile ])
+		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .userProfile_User, .userProfile_Name ])
 	}
 
 	// This is the unwind segue from the Manage Members view.

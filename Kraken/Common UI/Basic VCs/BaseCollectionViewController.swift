@@ -51,14 +51,18 @@ enum GlobalKnownSegue: String {
 	case gamesRoot =				"GamesRoot"
 	case scrapbookRoot =			"ScrapbookRoot"
 	case lighterMode =				"RockBalladMode"
+	case pirateAR =					"PirateARCamera"
 	
 	case settingsRoot = 			"SettingsRoot"
 	case postOperations =			"PostOperations"
 	case about = 					"AboutViewController"
 	case twitarrHelp = 				"TwitarrHelp"
 
-	case userProfile = 				"UserProfile"
+	case userProfile_Name = 		"UserProfile_Name"
+	case userProfile_User = 		"UserProfile"
 	case editUserProfile = 			"EditUserProfile"
+	case initiatePhoneCall = 		"InitiatePhoneCall"
+	case activePhoneCall = 			"ActivePhoneCall"
 	
 	case fullScreenCamera = 		"fullScreenCamera"
 	case cropCamera = 				"cropCamera"
@@ -106,20 +110,31 @@ enum GlobalKnownSegue: String {
 		case .gamesRoot: return Void.self
 		case .scrapbookRoot: return Void.self
 		case .lighterMode: return Void.self
+		case .pirateAR: return BaseCollectionViewCell.self
 
 		case .settingsRoot: return Void.self
 		case .postOperations: return Any.self
 		case .about: return Void.self
 		case .twitarrHelp: return ServerTextFileSeguePackage.self
 
-		case .userProfile: return String.self
+		case .userProfile_Name: return String.self
+		case .userProfile_User: return KrakenUser.self
 		case .editUserProfile: return PostOpUserProfileEdit.self
-
+		case .initiatePhoneCall: return Void.self
+		case .activePhoneCall: return Void.self
 		
 		case .fullScreenCamera: return BaseCollectionViewCell.self
 		case .cropCamera: return BaseCollectionViewCell.self
 
 //		@unknown default: return Void.self
+		}
+	}
+	
+	func segueName() -> String {
+		switch self {
+			case .userProfile_Name: return "UserProfile"
+			case .userProfile_User: return "UserProfile"
+			default: return rawValue
 		}
 	}
 }
@@ -507,7 +522,7 @@ class BaseCollectionViewController: UIViewController {
 	}
 	
 	func performSegueWrapper(withIdentifier id: GlobalKnownSegue, sender: Any?) {
-		performSegue(withIdentifier: id.rawValue, sender: sender)
+		performSegue(withIdentifier: id.segueName(), sender: sender)
 	}
 
 	// Most global segues are only dependent on their destination VC and info in the sender parameter.
@@ -653,9 +668,15 @@ class BaseCollectionViewController: UIViewController {
 			}
 
 // Users
-		case .userProfile:
+		case .userProfile_Name:
 			if let destVC = destination as? UserProfileViewController, let username = sender as? String {
 				destVC.modelUserName = username
+			}
+			
+		case .userProfile_User:
+			if let destVC = destination as? UserProfileViewController, let target = sender as? KrakenUser {
+				destVC.modelKrakenUser = target
+				destVC.modelUserName = target.username
 			}
 			
 		case .editUserProfile:
@@ -685,11 +706,15 @@ class BaseCollectionViewController: UIViewController {
 		case .fullScreenCamera, .cropCamera:
 			break
 			
+		case .pirateAR:
+			if let destVC = destination as? CameraViewController {
+				destVC.pirateMode = true
+			}
+			
 		case .twitarrHelp:
 			if let destVC = destination as? ServerTextFileViewController, let package = sender as? ServerTextFileSeguePackage {
 				destVC.package = package
 			}
-				break
 			
 		default: break 
 		}

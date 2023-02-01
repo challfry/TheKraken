@@ -332,12 +332,10 @@ import CoreData
 			
 			if let callback = done {
 				LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
-					DispatchQueue.main.async {
-						let highestLoadedOffset = saveSuccess ? offset + v3Data.posts.count : offset
-						let mainThreadForumThread = 
-								LocalCoreData.shared.mainThreadContext.object(with: threadInContext.objectID) as? ForumThread 
-						callback(mainThreadForumThread, highestLoadedOffset)
-					}
+					let highestLoadedOffset = saveSuccess ? offset + v3Data.posts.count : offset
+					let mainThreadForumThread = 
+							LocalCoreData.shared.mainThreadContext.object(with: threadInContext.objectID) as? ForumThread 
+					callback(mainThreadForumThread, highestLoadedOffset)
 				}
 			}
 
@@ -504,10 +502,8 @@ import CoreData
 			postOp.operationState = .readyToSend
 						
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
-				DispatchQueue.main.async {
-					let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postOp.objectID) as? PostOpForumPost 
-					done(mainThreadPost)
-				}
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postOp.objectID) as? PostOpForumPost 
+				done(mainThreadPost)
 			}
 		}
 	}

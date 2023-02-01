@@ -7,15 +7,17 @@
 //
 
 import UIKit
+import CoreData
 
 
 @objc class UserProfileViewController: BaseCollectionViewController {
 	let dataSource = KrakenDataSource()
 	
-	// The user name is what the VC is 'modeling', not the KrakenUser. This way, even if there's no user with that name,
-	// the VC still appears and is responsible for displaying the error.
 	var modelUserName : String?
-	@objc dynamic fileprivate var modelKrakenUser: KrakenUser?
+	@objc dynamic var modelKrakenUser: KrakenUser?
+	@objc dynamic var pendingFavoriteOp: PostOpUserRelation?
+	@objc dynamic var pendingMuteOp: PostOpUserRelation?
+	@objc dynamic var pendingBlockOp: PostOpUserRelation?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,8 +26,13 @@ import UIKit
 
 		collectionView.refreshControl = UIRefreshControl()
 		collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
-
-		if let userName = modelUserName {
+		setupCellModels()
+		dataSource.register(with: collectionView, viewController: self)
+	}
+	
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		if modelKrakenUser == nil, let userName = modelUserName {
 	        modelKrakenUser = UserManager.shared.loadUserProfile(userName) { resultUser in
 				if self.modelKrakenUser != resultUser {
 					self.modelKrakenUser = resultUser
@@ -34,8 +41,6 @@ import UIKit
 			}
 		}
 		
-		setupCellModels()
-		dataSource.register(with: collectionView, viewController: self)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -76,22 +81,144 @@ import UIKit
     
     // TODO: Add Change Password cell
     
-    lazy var blockUserCell: ButtonCellModel = {
-		let cell = ButtonCellModel(alignment: .center)
-		cell.button1Action = {
-			self.showBlockUserAlert()
+    lazy var favoriteUserCell: ButtonCellModel = {
+		let cell = ButtonCellModel(alignment: .left)
+		cell.button1Action = { [weak self] in
+			if let self = self, let currentUser = CurrentUser.shared.loggedInUser, let targetUser = self.modelKrakenUser {
+				let currentFavorite = currentUser.favoriteUsers.contains(targetUser)
+				CurrentUser.shared.setRelation(type: .favorite, forUser: targetUser, to: !currentFavorite)
+			}
 		}
+		cell.button1Enabled = true
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
+			cell.shouldBeVisible = observed.isLoggedIn() && observed.loggedInUser?.userID != observer.modelKrakenUser?.userID
+		}?.execute()
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser.favoriteUsers") { observer, observed in 
+			if let currentUser = CurrentUser.shared.loggedInUser, let targetUser = observer.modelKrakenUser {
+				cell.button1Text = currentUser.favoriteUsers.contains(targetUser) ? "Remove Favorite" : "Add Favorite"
+			}
+		}?.execute()
+
+		CurrentUser.shared.tell(self, when: "loggedInUser.postOps") { observer, observed in 
+			if let currentUser = CurrentUser.shared.loggedInUser, let targetUser = observer.modelKrakenUser {
+				observer.pendingFavoriteOp = currentUser.getPendingUserRelationOp(type: .favorite, forUser: targetUser,
+						inContext: LocalCoreData.shared.mainThreadContext)
+				if let op = observer.pendingFavoriteOp {
+					cell.button2Enabled = true
+					cell.button2Text = "Cancel"
+					cell.button2Action = { 		
+						PostOperationDataManager.shared.remove(op: op)
+						observer.pendingFavoriteOp = nil
+					}
+				}
+				else {
+					cell.button2Enabled = false
+					cell.button2Text = nil
+				}
+			}
+		}?.execute()
+
+		self.tell(cell, when: "pendingFavoriteOp.errorString") { observer, observed in
+			if let op = observed.pendingFavoriteOp {
+				observer.errorText = op.operationState != .callSuccess ? op.errorString : nil
+			}
+			else {
+				observer.errorText = nil
+			}
+		}?.execute()
+
+		return cell
+    }()
+
+    lazy var muteUserCell: ButtonCellModel = {
+		let cell = ButtonCellModel(alignment: .left)
+		cell.button1Action = showMuteUserAlert
 		cell.button1Enabled = true
 		
 		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
 			cell.shouldBeVisible = observed.loggedInUser?.username != observer.modelUserName
 		}?.execute()
 		
-		CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in 
-			cell.button1Text = UserManager.shared.userIsBlocked(observer.modelKrakenUser) ? "Unblock User" : "Block User"
+		CurrentUser.shared.tell(self, when: "loggedInUser.mutedUsers") { observer, observed in 
+			if let currentUser = CurrentUser.shared.loggedInUser, let targetUser = observer.modelKrakenUser {
+				cell.button1Text = currentUser.mutedUsers.contains(targetUser) ? "Unmute User" : "Mute User"
+			}
 		}?.execute()
-		self.tell(self, when: "modelKrakenUser.blockedGlobally") { observer, observed in 
-			cell.button1Text = UserManager.shared.userIsBlocked(observer.modelKrakenUser) ? "Unblock User" : "Block User"
+
+		CurrentUser.shared.tell(self, when: "loggedInUser.postOps") { observer, observed in 
+			if let currentUser = CurrentUser.shared.loggedInUser, let targetUser = observer.modelKrakenUser {
+				observer.pendingMuteOp = currentUser.getPendingUserRelationOp(type: .mute, forUser: targetUser,
+						inContext: LocalCoreData.shared.mainThreadContext)
+				if let op = observer.pendingMuteOp {
+					cell.button2Enabled = true
+					cell.button2Text = "Cancel"
+					cell.button2Action = { 		
+						PostOperationDataManager.shared.remove(op: op)
+						observer.pendingMuteOp = nil
+					}
+				}
+				else {
+					cell.button2Enabled = false
+					cell.button2Text = nil
+				}
+			}
+		}?.execute()
+
+		self.tell(cell, when: "pendingMuteOp.errorString") { observer, observed in 
+			if let op = observed.pendingMuteOp {
+				observer.errorText = op.operationState != .callSuccess ? op.errorString : nil
+			}
+			else {
+				observer.errorText = nil
+			}
+		}?.execute()
+
+		return cell
+    }()
+    
+    lazy var blockUserCell: ButtonCellModel = {
+		let cell = ButtonCellModel(alignment: .left)
+		cell.button1Action = showBlockUserAlert
+		cell.button1Enabled = true
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in 
+			cell.shouldBeVisible = observed.loggedInUser?.username != observer.modelUserName
+		}?.execute()
+				
+		CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in 
+			if let currentUser = CurrentUser.shared.loggedInUser, let targetUser = observer.modelKrakenUser {
+				cell.button1Text = currentUser.blockedUsers.contains(targetUser) ? "Unblock User" : "Block User"
+			}
+		}?.execute()
+		
+		CurrentUser.shared.tell(self, when: "loggedInUser.postOps") { observer, observed in 
+			if let currentUser = CurrentUser.shared.loggedInUser, let targetUser = observer.modelKrakenUser {
+				observer.pendingBlockOp = currentUser.getPendingUserRelationOp(type: .block, forUser: targetUser,
+						inContext: LocalCoreData.shared.mainThreadContext)
+				if let op = observer.pendingBlockOp {
+					cell.button2Enabled = true
+					cell.button2Text = "Cancel"
+					cell.button2Action = { 		
+						PostOperationDataManager.shared.remove(op: op)
+						observer.pendingBlockOp = nil
+					}
+				}
+				else {
+					cell.button2Enabled = false
+					cell.button2Text = nil
+				}
+			}
+		}?.execute()
+		
+		self.tell(cell, when: "pendingBlockOp.errorString") { observer, observed in 
+			if let op = observed.pendingBlockOp {
+				observer.errorText = op.operationState != .callSuccess ? op.errorString : nil
+			}
+			else {
+				observer.errorText = nil
+			}
 		}?.execute()
 
 		return cell
@@ -130,6 +257,8 @@ import UIKit
 		section.append(sendSeamailCell!)		
 		section.append(editProfileCell!)		
 		section.append(profileCommentCell!)
+		section.append(favoriteUserCell)
+		section.append(muteUserCell)
 		section.append(blockUserCell)
     }
     
@@ -150,18 +279,38 @@ import UIKit
 		pushMapView()
 	}
 	
-	func showBlockUserAlert() {
-		// If the user hit the "Unblock" button we'll get here. No need for alert, just unblock.
-		if let userToUnblock = modelKrakenUser, UserManager.shared.userIsBlocked(userToUnblock) {
-			UserManager.shared.setupBlockOnUser(userToUnblock, isBlocked: false)
+	func showMuteUserAlert() {
+		// If the user hit the "Unmute" button we'll get here. No need for alert, just unmute.
+		guard let currentUser = CurrentUser.shared.loggedInUser, let targetUser = modelKrakenUser else {
+			return
+		}
+		if currentUser.mutedUsers.contains(targetUser) {
+			CurrentUser.shared.setRelation(type: .mute, forUser: targetUser, to: false)
 			return		
 		}
 	
-		var message = "This will hide all posts by this user."
-		if let user = modelUserName {
-			message = "This will hide all posts by user \"\(user)\"."
+		let message = "This will hide all content by user \"\(targetUser.username)\" from you. They won't know they're muted by you."
+   		let alert = UIAlertController(title: "Mute User", message: message, preferredStyle: .alert) 
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), 
+				style: .cancel, handler: nil))
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Mute", comment: "Default action"), 
+				style: .destructive, handler: { action in
+					CurrentUser.shared.setRelation(type: .mute, forUser: targetUser, to: true)
+				}))
+		present(alert, animated: true, completion: nil)
+	}
+	
+	func showBlockUserAlert() {
+		// If the user hit the "Unblock" button we'll get here. No need for alert, just unblock.
+		guard let currentUser = CurrentUser.shared.loggedInUser, let targetUser = modelKrakenUser else {
+			return
+		}
+		if currentUser.blockedUsers.contains(targetUser) {
+			CurrentUser.shared.setRelation(type: .block, forUser: targetUser, to: false)
+			return		
 		}
 	
+		let message = "This will hide all content by user \"\(targetUser.username)\" from you, and hide all your content from them."
    		let alert = UIAlertController(title: "Block User", message: message, preferredStyle: .alert) 
 		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), 
 				style: .cancel, handler: nil))
@@ -171,8 +320,8 @@ import UIKit
 	}
 	
 	func blockUserConfirmed(action: UIAlertAction) {
-		if let userToBlock = modelKrakenUser {
-			UserManager.shared.setupBlockOnUser(userToBlock, isBlocked: true)
+		if let targetUser = modelKrakenUser {
+			CurrentUser.shared.setRelation(type: .block, forUser: targetUser, to: true)
 		}
 	}
     
@@ -300,18 +449,17 @@ import UIKit
 					}
 				}?.execute()
 				
-				CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.postOps.*",
-						"loggedInUser.starredUsers.*", "loggedInUser.postOps.*.isFavorite"]) { observer, observed in
+				CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.postOps", 
+						"loggedInUser.favoriteUsers"]) { observer, observed in
 					var selectFavButton = false
 					if let currentUser = observed.loggedInUser {
-						selectFavButton = currentUser.starredUsers?.contains(where: { $0.username == userModel.username })
-								?? false
+						selectFavButton = currentUser.favoriteUsers.contains(where: { $0.userID == userModel.userID })
 								
-						if let favOp = currentUser.getPendingUserFavoriteOp(forUser: userModel, 
+						if let favOp = currentUser.getPendingUserRelationOp(type: .favorite, forUser: userModel, 
 								inContext: LocalCoreData.shared.mainThreadContext) {
-							selectFavButton = favOp.isFavorite
+							selectFavButton = favOp.isActive
 							observer.favoritePendingLabel.isHidden = false		
-							observer.favoritePendingLabel.text = favOp.isFavorite ? "Favorite Pending" : "Un-favorite Pending"
+							observer.favoritePendingLabel.text = favOp.isActive ? "Favorite Pending" : "Un-favorite Pending"
 						}
 						else {
 							observer.favoritePendingLabel.isHidden = true		
@@ -339,7 +487,7 @@ import UIKit
 		guard isInteractive	else { return }
 		if let userToFav = model as? KrakenUser {
 			favoriteButton.isSelected = !favoriteButton.isSelected
-			CurrentUser.shared.setFavoriteUser(forUser: userToFav, to: favoriteButton.isSelected)
+			CurrentUser.shared.setRelation(type: .favorite, forUser: userToFav, to: favoriteButton.isSelected)
 		}
 	}
 }
@@ -471,7 +619,7 @@ import UIKit
 		}
 	}
 	
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 	
 		// Trying it this way, but I think it's better if the cell launches segues itself (besides how I feel about segues).
 		switch displayMode {

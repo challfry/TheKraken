@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @objc protocol ForumsThreadBindingProtocol: FetchedResultsBindingProtocol {
 	var isInteractive: Bool { get set }
@@ -62,7 +63,7 @@ import UIKit
 		}
 	}
 	
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		if isInteractive, let threadModel = thread {
 			dataSource?.performKrakenSegue(.showForumThread, sender: threadModel)
 		}
@@ -156,10 +157,10 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 				let favObservation = rc.tell(self, when: "isFavorite") { observer, observed in
 					observer.favoriteButton.isSelected = observed.isFavorite
 					if observed.isFavorite {
-						observer.favoriteButton.accessibilityTraits.insert(.selected)
+						observer.favoriteButton.accessibilityTraits.insert(UIAccessibilityTraits.selected)
 					}
 					else {
-						observer.favoriteButton.accessibilityTraits.remove(.selected)
+						observer.favoriteButton.accessibilityTraits.remove(UIAccessibilityTraits.selected)
 					}
 				}?.execute()
 				if let observation = favObservation {

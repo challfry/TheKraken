@@ -84,6 +84,7 @@ struct NetworkResponse {
 	var response: HTTPURLResponse?
 	var data: Data?
 	var networkError: NetworkError?
+	var socket: URLSessionWebSocketTask?
 	
 	func debugPrintData() -> String {
 		if let d = data {
@@ -193,16 +194,20 @@ struct NetworkResponse {
 		}
 	}
 	
-	class func buildTwittarRequest(withPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
+	class func buildTwittarRequest(withPath path:String, query:[URLQueryItem]? = nil, webSocket: Bool = false) -> URLRequest {
 	
 		var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
 		components?.path = path
 		components?.queryItems = query
+		if webSocket {
+			// Better if this looked at baseURL to see if it was https
+			components?.scheme = "ws"
+		}
 		
 		// Fallback, no query params
 		let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(path)
 	//	let request = URLRequest(url:builtURL)
-		let request = URLRequest(url:builtURL, cachePolicy:.reloadIgnoringLocalAndRemoteCacheData)
+		let request = URLRequest(url: builtURL, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
 		return request
 	}
 
@@ -255,13 +260,19 @@ struct NetworkResponse {
 			}
 		
 			// Make a new InternalTask, and get the network request started
-			let task = self.session.dataTask(with:request) 
+			var task: URLSessionTask
+			if request.url?.scheme == "ws" || request.url?.scheme == "wss" {
+				task = self.session.webSocketTask(with: request)
+			}
+			else {
+				task = self.session.dataTask(with:request)
+			}
 			let queuedTask = InternalTask(task: task, responseData: Data(), doneCallbacks:[done])
 			self.activeTasks.append(queuedTask)
 			task.resume()
 			
-			let reqeustStr = request.httpMethod ?? ""
-			NetworkLog.debug("Started network \(reqeustStr) request to \(request.url?.absoluteString ?? "<unknown>")")
+			let requestStr = request.httpMethod ?? ""
+			NetworkLog.debug("Started network \(requestStr) request to \(request.url?.absoluteString ?? "<unknown>")")
 		}
 	}
 	
@@ -276,10 +287,8 @@ struct NetworkResponse {
 				resultError.errorString = "HTTP Error \(response.statusCode)"
 				
 				if let data = package.data, data.count > 0 {
-//					print (String(decoding:data, as: UTF8.self))
-					let decoder = JSONDecoder()
-					
-					if let errorInfo = try? decoder.decode(TwitarrV3ErrorResponse.self, from: data) {
+//					print (String(decoding:data, as: UTF8.self))					
+					if let errorInfo = try? Settings.v3Decoder.decode(TwitarrV3ErrorResponse.self, from: data) {
 						resultError.errorString = errorInfo.reason
 						resultError.fieldErrors = errorInfo.fieldErrors
 					}
@@ -303,7 +312,6 @@ struct NetworkResponse {
 			}
 		}
 	}
-	
 }
 
 // MARK: URLSessionDelegate
@@ -437,25 +445,38 @@ extension NetworkGovernor: URLSessionDataDelegate {
     	
 //		print (String(decoding:data, as: UTF8.self))
     }
-    
-
 }
 
-// MARK: - Twitarr V2 API Structs
+extension NetworkGovernor: URLSessionWebSocketDelegate {
 
-struct TwitarrV2ErrorResponse: Codable {
-	let status: String
-	let error: String
-}
-
-struct TwitarrV2ErrorsResponse: Codable {
-	let status: String
-	let errors: [String]
-}
-
-struct TwitarrV2ErrorDictionaryResponse: Codable {
-	let status: String
-	let errors: [String : [String]]
+	func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol: String?) {
+		print("NetworkGovernor: socket opened.")
+		let findOurTask: InternalTask? = activeTasksQ.sync {
+			if let index = activeTasks.firstIndex(where: { $0.task.taskIdentifier == webSocketTask.taskIdentifier } ) {
+				return activeTasks[index]
+			}
+			return nil
+		}
+		guard let foundTask = findOurTask else {
+			return
+		}
+		
+		var responsePacket = NetworkResponse(response: nil, data: nil, networkError: nil)
+		responsePacket.socket = webSocketTask
+		for doneCallback in foundTask.doneCallbacks {
+			doneCallback(responsePacket)
+		}
+	}
+	
+	func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+		print("NetworkGovernor: socket closed.")
+		activeTasksQ.sync {
+			if let index = activeTasks.firstIndex(where: { $0.task.taskIdentifier == webSocketTask.taskIdentifier } ) {
+				activeTasks.remove(at: index)
+			}
+		}
+		PhonecallDataManager.shared.notifyWhenSocketClosed(socket: webSocketTask)
+	}
 }
 
 // MARK: - Twitarr V3 API Structs

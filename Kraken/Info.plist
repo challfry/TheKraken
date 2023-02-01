@@ -55,13 +55,19 @@
 	<string>Calendar access lets Kraken add events from the official cruise schedule.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera Access lets you take photos to attach to Twitarr posts, and selfies for your user avatar. Pirate Selfie mode uses face tracking and the TrueDepth camera to place pirate hats on your head.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Kraken requires access to your local network in order to deliver Push Notifications.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Kraken uses the microphone for phone calls</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library Access lets you choose photos to attach to Twitarr posts, Seamail, and Forum posts.</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Reminders access lets Kraken add events from the official cruise schedule.</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>audio</string>
 		<string>fetch</string>
+		<string>voip</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

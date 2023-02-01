@@ -162,7 +162,7 @@ import Photos
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .fullScreenCamera, .cropCamera, .dismiss ])
+		Set<GlobalKnownSegue>([ .fullScreenCamera, .cropCamera, .pirateAR, .dismiss ])
 	}
 
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

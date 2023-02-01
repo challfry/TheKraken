@@ -10,7 +10,13 @@ import UIKit
 
 
 
+
+
+
 class StringUtilities {
+
+	static func applyMarkdownRules() {
+	}
 
 	struct HTMLTag {
 		var tagName: String
@@ -39,7 +45,7 @@ class StringUtilities {
         separatorChars.insert(charactersIn: "-.+_")
         return separatorChars
     }
-    
+        
 	static let genericUrlRegex = {
 		let genericUrlRegexStr = """
 				(?i)\\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\\s()<>{}\\[\\]]+|\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\))+(?:\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\)|[^\\s`!()\\[\\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\\b/?(?!@))|(?:(?<!@)[a-z0-9]+(?:[.\\-][a-z0-9]+)*(?::[0-9]+/)(?:[^\\s()<>{}\\[\\]]+|\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\))+(?:\\([^\\s()]*?\\([^\\s()]+\\)[^\\s()]*?\\)|\\([^\\s]+?\\)|[^\\s`!()\\[\\]{};:'".,<>?«»“”‘’])\\b/?(?!@)))
@@ -61,74 +67,71 @@ class StringUtilities {
 	   		inputString.removeLast()
 	   	}
 		inputString = inputString.replacingOccurrences(of: "\r\n", with: "\n")
-
-		let words = inputString.split(separator: " ", omittingEmptySubsequences: false)
-		var attrString = words.reduce(NSMutableAttributedString()) { attrString, word in
-			if word.hasPrefix("@") && word.count <= 50 && word.count >= 3 {
-				let scalars = word.unicodeScalars
-				let firstValidUsernameIndex = scalars.index(scalars.startIndex, offsetBy: 1)
-				var firstNonUsernameIndex = firstValidUsernameIndex
-				// Move forward to the last char that's valid in a username
-				while firstNonUsernameIndex < scalars.endIndex, validUsernameChars.contains(scalars[firstNonUsernameIndex]) {
-					scalars.formIndex(after: &firstNonUsernameIndex)		
-				}
-				// Separator chars can't be at the end. Move backward until we get a non-separator. This check fixes posts with 
-				// constructions like "Hello, @admin." where the period ends a sentence. 
-				while firstNonUsernameIndex > firstValidUsernameIndex, 
-						usernameSeparators.contains(scalars[scalars.index(before: firstNonUsernameIndex)]) {
-					scalars.formIndex(before: &firstNonUsernameIndex)		
-				}
-				// After trimming, username must be >=2 chars, plus the @ sign makes 3.
-				if scalars.distance(from: scalars.startIndex, to: firstNonUsernameIndex) >= 3,
-						let name = String(scalars[firstValidUsernameIndex..<firstNonUsernameIndex])
-						.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
-					attrString.append(NSAttributedString(string: " ", attributes: defaultAttrs))
-					linkAttrs.updateValue("\(Settings.shared.settingsBaseURL)/profile/\(name)", forKey: .link)
-					let attrName = NSAttributedString(string: "@\(name)", attributes: addLinks ? linkAttrs : defaultAttrs)
-					
-					attrString.append(attrName)
-					let restOfString = String(scalars[firstNonUsernameIndex...])
-					attrString.append(NSAttributedString(string: (restOfString), attributes: defaultAttrs))
-				}
-				else {
-					attrString.append(NSAttributedString(string: " \(word)", attributes: defaultAttrs))
-				}
-			}
-			else if word.hasPrefix("#") && word.count <= 50 && word.count >= 3 {
-				let scalars = word.unicodeScalars
-				let firstValidHashtagIndex = scalars.index(scalars.startIndex, offsetBy: 1)
-				var firstNonHashtagIndex = firstValidHashtagIndex
-				// Move forward to the last char that's valid in a hashtag
-				while firstNonHashtagIndex < scalars.endIndex, CharacterSet.alphanumerics.contains(scalars[firstNonHashtagIndex]) {
-					scalars.formIndex(after: &firstNonHashtagIndex)		
-				}
-				// After trimming, hashtag must be >=2 chars, plus the # sign makes 3.
-				if scalars.distance(from: scalars.startIndex, to: firstNonHashtagIndex) >= 3,
-						let hashtag = String(scalars[firstValidHashtagIndex..<firstNonHashtagIndex])
-						.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-					attrString.append(NSAttributedString(string: " ", attributes: defaultAttrs))
-					linkAttrs.updateValue("\(Settings.shared.settingsBaseURL)/tweets?hashtag=\(hashtag)", forKey: .link)
-					let attrName = NSAttributedString(string: "#\(hashtag)", attributes: addLinks ? linkAttrs : defaultAttrs)
-					attrString.append(attrName)
-					let restOfString = String(scalars[firstNonHashtagIndex...])
-					attrString.append(NSAttributedString(string: (restOfString), attributes: defaultAttrs))
-				}
-				else {
-					attrString.append(NSAttributedString(string: " \(word)", attributes: defaultAttrs))
-				}
-			}
-			else {
-				attrString.append(NSAttributedString(string: " \(word)", attributes: defaultAttrs))
-			}
-			return attrString
+		
+		var attrString: NSMutableAttributedString
+		if inputString.hasPrefix("<Markdown>") {
+			let mdSourceString = String(inputString.dropFirst("<Markdown>".count))
+			let markdown = SwiftyMarkdown(string: "") 
+			markdown.setFontNameForAllStyles(with: "TimesNewRomanPSMT")
+			markdown.setFontColorForAllStyles(with: UIColor(named: "Kraken Label Text")!)
+			markdown.code.fontName = "Courier New"
+			markdown.blockquotes.fontName = "Courier New"
+			attrString = NSMutableAttributedString(attributedString: markdown.attributedString(from: mdSourceString))
 		}
-		if attrString.length > 0 {
-			attrString.deleteCharacters(in: NSRange(location: 0, length: 1))
+		else {
+			attrString = NSMutableAttributedString(string: inputString, attributes: defaultAttrs)
 		}
 		
-		// Find all matches in the entire text string (range 0 to end).
-		let matches = genericUrlRegex.matches(in: attrString.string, range: NSRange(0..<string.count))
-		processUrlMatches(attrString: &attrString, matches: matches)
+		let str = attrString.string
+		var stringIndex = str.startIndex
+		while stringIndex < str.endIndex {
+			if str[stringIndex] == "@", stringIndex == str.startIndex || str[str.index(before: stringIndex)] == " " {
+				let startIndex = stringIndex
+				let nameStartIndex = str.index(after: startIndex)
+				var endIndex = nameStartIndex
+				while endIndex < str.endIndex, validUsernameChars.contains(str.unicodeScalars[endIndex]) { 
+					endIndex = str.index(after: endIndex) 
+				}
+				while endIndex > nameStartIndex {
+					let prevIndex = str.index(before: endIndex)
+					if !usernameSeparators.contains(str.unicodeScalars[prevIndex]) { 
+						break
+					}
+					endIndex = prevIndex 
+				}
+				if str.distance(from: nameStartIndex, to: endIndex) >= 2 {
+					let username = str[nameStartIndex..<endIndex]
+					linkAttrs.updateValue("\(Settings.shared.settingsBaseURL)/profile/\(username)", forKey: .link)
+					attrString.setAttributes(linkAttrs, range: NSRange(location: str.distance(from: string.startIndex, to: startIndex), 
+							length: str.distance(from: startIndex, to: endIndex)))
+					stringIndex = endIndex
+				}
+			}
+			else if str[stringIndex] == "#", stringIndex == str.startIndex || str[str.index(before: stringIndex)] == " " {
+				let startIndex = stringIndex
+				let nameStartIndex = str.index(after: startIndex)
+				var endIndex = nameStartIndex
+				while endIndex < str.endIndex, CharacterSet.alphanumerics.contains(str.unicodeScalars[endIndex]) { 
+					endIndex = str.index(after: endIndex) 
+				}
+				if str.distance(from: nameStartIndex, to: endIndex) >= 2 {
+					let hashtag = str[nameStartIndex..<endIndex]
+					linkAttrs.updateValue("\(Settings.shared.settingsBaseURL)/tweets?hashtag=\(hashtag)", forKey: .link)
+					attrString.setAttributes(linkAttrs, range: NSRange(location: str.distance(from: string.startIndex, to: startIndex), 
+							length: str.distance(from: startIndex, to: endIndex)))
+					stringIndex = endIndex
+				}
+			}
+			if stringIndex < str.endIndex {
+				stringIndex = str.index(after: stringIndex)
+			}
+		}
+				
+		if addLinks {
+			let str = attrString.string
+			let matches = genericUrlRegex.matches(in: str, range: NSRange(0..<str.count))
+			processUrlMatches(attrString: &attrString, matches: matches)
+		}
 
 		let stringWithJocomoji = StringUtilities.addInlineImages(str: attrString)
     	return stringWithJocomoji

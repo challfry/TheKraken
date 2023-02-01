@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="22A380" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="22C65" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="displayUntil" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -125,7 +125,6 @@
         <attribute name="aboutMessage" optional="YES" attributeType="String"/>
         <attribute name="accessLevel" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="authKey" optional="YES" attributeType="String"/>
-        <attribute name="blockedGlobally" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="currentLocation" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
         <attribute name="emailAddress" optional="YES" attributeType="String"/>
@@ -133,7 +132,6 @@
         <attribute name="homeLocation" optional="YES" attributeType="String"/>
         <attribute name="lastAlertCheckTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="lastLogin" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="lastPhotoUpdated" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastSeamailCheckTime" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="limitProfileAccess" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="newLFGMessages" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
@@ -149,18 +147,21 @@
         <attribute name="userImageName" optional="YES" attributeType="String"/>
         <attribute name="username" optional="YES" attributeType="String"/>
         <relationship name="announcements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="author" inverseEntity="Announcement"/>
-        <relationship name="blockedBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedUsers" inverseEntity="KrakenUser"/>
-        <relationship name="blockedUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedBy" inverseEntity="KrakenUser"/>
+        <relationship name="blockedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedUsers" inverseEntity="KrakenUser"/>
+        <relationship name="blockedUsers" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="blockedBy" inverseEntity="KrakenUser"/>
         <relationship name="categoryPivots" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumCategoryPivot" inverseName="user" inverseEntity="ForumCategoryPivot"/>
         <relationship name="commentedUpon" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserComment" inverseName="commentedOnUser" inverseEntity="UserComment"/>
         <relationship name="commentOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserComment" inverseName="userCommentedOn" inverseEntity="PostOpUserComment"/>
-        <relationship name="favoritedByOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserFavorite" inverseName="userBeingFavorited" inverseEntity="PostOpUserFavorite"/>
+        <relationship name="favoritedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="favoriteUsers" inverseEntity="KrakenUser"/>
+        <relationship name="favoriteUsers" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="favoritedBy" inverseEntity="KrakenUser"/>
         <relationship name="followedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Event" inverseName="followedBy" inverseEntity="Event"/>
         <relationship name="forumPostAuthor" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="author" inverseEntity="ForumPost"/>
         <relationship name="forumReadCount" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumReadCount" inverseName="user" inverseEntity="ForumReadCount"/>
         <relationship name="forumThreads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="creator" inverseEntity="ForumThread"/>
         <relationship name="fromPotential" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="actualUser" inverseEntity="PotentialUser"/>
         <relationship name="lastPosterInForum" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="lastPoster" inverseEntity="ForumThread"/>
+        <relationship name="mutedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="mutedUsers" inverseEntity="KrakenUser"/>
+        <relationship name="mutedUsers" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="mutedBy" inverseEntity="KrakenUser"/>
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction"/>
         <relationship name="seamailAttendee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="attendees" inverseEntity="SeamailThread"/>
@@ -170,8 +171,7 @@
         <relationship name="seamailReadCounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailReadCount" inverseName="user" inverseEntity="SeamailReadCount"/>
         <relationship name="seamailReader" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="readUsers" inverseEntity="SeamailMessage"/>
         <relationship name="seamailWaitlisted" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="waitList" inverseEntity="SeamailThread"/>
-        <relationship name="starredBy" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredUsers" inverseEntity="KrakenUser"/>
-        <relationship name="starredUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="starredBy" inverseEntity="KrakenUser"/>
+        <relationship name="targetedByRelationOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserRelation" inverseName="targetUser" inverseEntity="PostOpUserRelation"/>
         <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="author" inverseEntity="TwitarrPost"/>
         <relationship name="upToDateAnnouncements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="viewedBy" inverseEntity="Announcement"/>
         <relationship name="upToDateSeamailThreads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="fullyReadBy" inverseEntity="SeamailThread"/>
@@ -261,10 +261,6 @@
         <attribute name="comment" attributeType="String"/>
         <relationship name="userCommentedOn" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="commentOps" inverseEntity="KrakenUser"/>
     </entity>
-    <entity name="PostOpUserFavorite" representedClassName="PostOpUserFavorite" parentEntity="PostOperation" syncable="YES">
-        <attribute name="isFavorite" attributeType="Boolean" usesScalarValueType="YES"/>
-        <relationship name="userBeingFavorited" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="favoritedByOps" inverseEntity="KrakenUser"/>
-    </entity>
     <entity name="PostOpUserPhoto" representedClassName="PostOpUserPhoto" parentEntity="PostOperation" syncable="YES">
         <attribute name="image" optional="YES" attributeType="Binary"/>
         <attribute name="imageMimetype" attributeType="String"/>
@@ -276,6 +272,11 @@
         <attribute name="pronouns" optional="YES" attributeType="String"/>
         <attribute name="realName" optional="YES" attributeType="String"/>
         <attribute name="roomNumber" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="PostOpUserRelation" representedClassName="PostOpUserRelation" parentEntity="PostOperation" syncable="YES">
+        <attribute name="isActive" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="relationType" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="targetUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="targetedByRelationOps" inverseEntity="KrakenUser"/>
     </entity>
     <entity name="PotentialUser" representedClassName="PotentialUser" syncable="YES">
         <attribute name="username" attributeType="String"/>

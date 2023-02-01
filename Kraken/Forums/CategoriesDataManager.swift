@@ -78,9 +78,8 @@ import CoreData
 			}
 			else if let data = package.data {
 				self.lastError = nil
-				let decoder = JSONDecoder()
 				do {
-					let response = try decoder.decode([TwitarrV3CategoryData].self, from: data)
+					let response = try Settings.v3Decoder.decode([TwitarrV3CategoryData].self, from: data)
 					self.ingestForumCategories(from: response)
 				}
 				catch {
@@ -154,3 +153,4 @@ struct TwitarrV3CategoryData: Codable {
     ///The threads in the category. Only populated for /categories/ID.
     var forumThreads: [TwitarrV3ForumListData]?
 }
+

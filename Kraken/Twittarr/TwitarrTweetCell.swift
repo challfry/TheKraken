@@ -172,17 +172,14 @@ import CoreData
 			observer.photoDetails = observed.photoDetails.array as? [PhotoDetails]
 		}?.execute())
 		
-		let determineBlockState: () -> Bool = { [weak self] in
-			guard let self = self else { return false }
-			let newState = (CurrentUser.shared.loggedInUser?.blockedUsers.contains(tweetModel.author) ?? false) || 
-					(self.author?.blockedGlobally ?? false)
-			return newState
+		let determineBlockState: () -> Bool = {
+			if let currentUser = CurrentUser.shared.loggedInUser {
+				return currentUser.blockedUsers.contains(tweetModel.author) || currentUser.mutedUsers.contains(tweetModel.author)
+			}
+			return false
 		}
 		
-		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser.blockedUsers") { observer, observed in
-			observer.authorIsBlocked = determineBlockState()
-		}?.execute())
-		addObservation(tweetModel.author.tell(self, when: "blockedGlobally") { observer, observed in
+		addObservation(CurrentUser.shared.tell(self, when: ["loggedInUser.blockedUsers", "loggedInUser.mutedUsers"]) { observer, observed in
 			observer.authorIsBlocked = determineBlockState()
 		}?.execute())
 		
@@ -284,7 +281,7 @@ import CoreData
 	
 	func authorIconTapped() {
 		if let tweetModel = model as? TwitarrPost {
-			viewController?.performKrakenSegue(.userProfile, sender: tweetModel.author.username)
+			viewController?.performKrakenSegue(.userProfile_User, sender: tweetModel.author)
 		}
 	}
 	
@@ -508,7 +505,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			if let author = author {
 				author.loadUserThumbnail()
 				authorIconObservation?.stopObservations()
-				authorIconObservation = author.tell(self, when: ["thumbPhotoData", "thumbPhoto"]) { observer, observed in
+				authorIconObservation = author.tell(self, when: ["userImageName", "thumbPhoto"]) { observer, observed in
 					if observer.authorIsBlocked {
 						observer.userButton.setBackgroundImage(nil, for: .normal)
 					}
@@ -991,10 +988,6 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
    		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
 			bindingModel.editButtonTapped()
 		}
-
-//		else if let tweetOpModel = model as? PostOpTweet {
-//			viewController?.performSegue(withIdentifier: "EditTweet", sender: tweetOpModel)
-//		}
 	}
 	
 	@IBAction func deleteButtonTapped() {

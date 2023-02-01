@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @objc protocol CategoryCellProtocol {
 	dynamic var title: String? { get set }
@@ -30,7 +31,7 @@ import UIKit
 		super.init(bindingWith: CategoryCellProtocol.self)
 	}
 
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		tapAction?(self)
 	}
 }

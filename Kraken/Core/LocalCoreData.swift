@@ -169,7 +169,9 @@ class LocalCoreData: NSObject {
 				}
 			}
 			if let afterSaveClosure = context.userInfo["afterSaveClosure"] as? (Bool) -> Void {
-				afterSaveClosure(saveSucceeded)
+				DispatchQueue.main.async {
+					afterSaveClosure(saveSucceeded)
+				}
 			}
 			context.userInfo.removeAllObjects()
 		}
@@ -208,7 +210,9 @@ class LocalCoreData: NSObject {
 				}
 			}
 			if let afterSaveClosure = context.userInfo["afterSaveClosure"] as? (Bool) -> Void {
-				afterSaveClosure(saveSucceeded)
+				DispatchQueue.main.async {
+					afterSaveClosure(saveSucceeded)
+				}
 			}
 			context.userInfo.removeAllObjects()
 		}

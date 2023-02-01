@@ -56,7 +56,7 @@ class DailyThemeUpdater: ServerUpdater {
 			else if let data = package.data {
 				do {
 					self.lastError = nil
-					let response = try JSONDecoder().decode([TwitarrV3DailyThemeData].self, from: data)
+					let response = try Settings.v3Decoder.decode([TwitarrV3DailyThemeData].self, from: data)
 					self.parseDailyThemeResponse(response)
 					self.updateComplete(success: true)
 				}

@@ -290,10 +290,6 @@ class ImageManager : NSObject {
 	var medImageCache: ImageCache
 	var largeImageCache: ImageCache
 
-	// Caches full-sized user images. Keyed by username
-	// GET /api/v2/user/photo/:username?full=true
-	var userImageCache = ImageCache(dirName: "userImageCache", fetchURL: "/api/v2/user/photo/", limit: 2000)
-
 	override init() {
 		smallImageCache = ImageCache(dirName: "smallImageCache", fetchURL: "/api/v3/image/thumb/", limit: 1000)
 		medImageCache = ImageCache(dirName: "mediumImageCache", fetchURL: "/api/v3/image/full/", limit: 1000)
@@ -323,7 +319,6 @@ class ImageManager : NSObject {
 		smallImageCache.invalidateImage(withKey: withKey)
 		medImageCache.invalidateImage(withKey: withKey)
 		largeImageCache.invalidateImage(withKey: withKey)
-		userImageCache.invalidateImage(withKey: withKey)
 	}
 	
 	// Must be inside a context.perform. Adds the given photoDetails to CD, sets the "PhotoDetails" key

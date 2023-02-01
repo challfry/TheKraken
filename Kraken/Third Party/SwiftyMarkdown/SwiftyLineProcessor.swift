@@ -7,6 +7,12 @@
 //
 
 import Foundation
+import os.log
+
+extension OSLog {
+	private static var subsystem = "SwiftyLineProcessor"
+	static let swiftyLineProcessorPerformance = OSLog(subsystem: subsystem, category: "Swifty Line Processor Performance")
+}
 
 public protocol LineStyling {
     var shouldTokeniseLine : Bool { get }
@@ -38,6 +44,13 @@ public enum Remove {
 public enum ChangeApplication {
     case current
     case previous
+	case untilClose
+}
+
+public struct FrontMatterRule {
+	let openTag : String
+	let closeTag : String
+	let keyValueSeparator : Character
 }
 
 public struct LineRule {
@@ -58,13 +71,21 @@ public struct LineRule {
 
 public class SwiftyLineProcessor {
     
+	public var processEmptyStrings : LineStyling?
+	public internal(set) var frontMatterAttributes : [String : String] = [:]
+	
+	var closeToken : String? = nil
     let defaultType : LineStyling
-    public var processEmptyStrings : LineStyling?
-    let lineRules : [LineRule]
     
-    public init( rules : [LineRule], defaultRule: LineStyling) {
+    let lineRules : [LineRule]
+	let frontMatterRules : [FrontMatterRule]
+	
+	let perfomanceLog = PerformanceLog(with: "SwiftyLineProcessorPerformanceLogging", identifier: "Line Processor", log: OSLog.swiftyLineProcessorPerformance)
+	    
+	public init( rules : [LineRule], defaultRule: LineStyling, frontMatterRules : [FrontMatterRule] = []) {
         self.lineRules = rules
         self.defaultType = defaultRule
+		self.frontMatterRules = frontMatterRules
     }
     
     func findLeadingLineElement( _ element : LineRule, in string : String ) -> String {
@@ -87,25 +108,27 @@ public class SwiftyLineProcessor {
         return output
     }
     
-    func processLineLevelAttributes( _ text : String ) -> SwiftyLine {
+    func processLineLevelAttributes( _ text : String ) -> SwiftyLine? {
         if text.isEmpty, let style = processEmptyStrings {
             return SwiftyLine(line: "", lineStyle: style)
         }
         let previousLines = lineRules.filter({ $0.changeAppliesTo == .previous })
-        for element in previousLines {
-            let output = (element.shouldTrim) ? text.trimmingCharacters(in: .whitespaces) : text
-            let charSet = CharacterSet(charactersIn: element.token )
-            if output.unicodeScalars.allSatisfy({ charSet.contains($0) }) {
-                return SwiftyLine(line: "", lineStyle: element.type)
-            }
-        }
+
         for element in lineRules {
             guard element.token.count > 0 else {
                 continue
             }
             var output : String = (element.shouldTrim) ? text.trimmingCharacters(in: .whitespaces) : text
             let unprocessed = output
+			
+			if let hasToken = self.closeToken, unprocessed != hasToken {
+				return nil
+			}
             
+			if !text.contains(element.token) {
+				continue
+			}
+			
             switch element.removeFrom {
             case .leading:
                 output = findLeadingLineElement(element, in: output)
@@ -114,6 +137,9 @@ public class SwiftyLineProcessor {
             case .both:
                 output = findLeadingLineElement(element, in: output)
                 output = findTrailingLineElement(element, in: output)
+			case .entireLine:
+				let maybeOutput = output.replacingOccurrences(of: element.token, with: "")
+				output = ( maybeOutput.isEmpty ) ? maybeOutput : output
             default:
                 break
             }
@@ -121,25 +147,89 @@ public class SwiftyLineProcessor {
             guard unprocessed != output else {
                 continue
             }
+			if element.changeAppliesTo == .untilClose {
+				self.closeToken = (self.closeToken == nil) ? element.token : nil
+				return nil
+			}
+
+			
+			
             output = (element.shouldTrim) ? output.trimmingCharacters(in: .whitespaces) : output
             return SwiftyLine(line: output, lineStyle: element.type)
             
         }
         
+		for element in previousLines {
+			let output = (element.shouldTrim) ? text.trimmingCharacters(in: .whitespaces) : text
+			let charSet = CharacterSet(charactersIn: element.token )
+			if output.unicodeScalars.allSatisfy({ charSet.contains($0) }) {
+				return SwiftyLine(line: "", lineStyle: element.type)
+			}
+		}
+		
         return SwiftyLine(line: text.trimmingCharacters(in: .whitespaces), lineStyle: defaultType)
     }
+	
+	func processFrontMatter( _ strings : [String] ) -> [String] {
+		guard let firstString = strings.first?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+			return strings
+		}
+		var rulesToApply : FrontMatterRule? = nil
+		for matter in self.frontMatterRules {
+			if firstString == matter.openTag {
+				rulesToApply = matter
+				break
+			}
+		}
+		guard let existentRules = rulesToApply else {
+			return strings
+		}
+		var outputString = strings
+		// Remove the first line, which is the front matter opening tag
+		let _ = outputString.removeFirst()
+		var closeFound = false
+		while !closeFound {
+			let nextString = outputString.removeFirst()
+			if nextString == existentRules.closeTag {
+				closeFound = true
+				continue
+			}
+			var keyValue = nextString.components(separatedBy: "\(existentRules.keyValueSeparator)")
+			if keyValue.count < 2 {
+				continue
+			}
+			let key = keyValue.removeFirst()
+			let value = keyValue.joined()
+			self.frontMatterAttributes[key] = value
+		}
+		while outputString.first?.isEmpty ?? false {
+			outputString.removeFirst()
+		}
+		return outputString
+	}
     
     public func process( _ string : String ) -> [SwiftyLine] {
         var foundAttributes : [SwiftyLine] = []
-        for  heading in string.components(separatedBy: CharacterSet.newlines) {
+		
+		
+		self.perfomanceLog.start()
+		
+		var lines = string.components(separatedBy: CharacterSet.newlines)
+		lines = self.processFrontMatter(lines)
+		
+		self.perfomanceLog.tag(with: "(Front matter completed)")
+		
+
+        for  heading in lines {
             
             if processEmptyStrings == nil && heading.isEmpty {
                 continue
             }
-            
-            let input : SwiftyLine
-            input = processLineLevelAttributes(String(heading))
-            
+			            
+			guard let input = processLineLevelAttributes(String(heading)) else {
+				continue
+			}
+			
             if let existentPrevious = input.lineStyle.styleIfFoundStyleAffectsPreviousLine(), foundAttributes.count > 0 {
                 if let idx = foundAttributes.firstIndex(of: foundAttributes.last!) {
                     let updatedPrevious = foundAttributes.last!
@@ -147,20 +237,9 @@ public class SwiftyLineProcessor {
                 }
                 continue
             }
-            
-            // rcf Markdown considers two non-empty Body lines to be part of the same paragraph, unless the first
-            // line has two spaces at the end or a <br> tag. Not handling the exception cases here, just making
-            // paragraph lines coalesce.
-            if !input.line.isEmpty, let last = foundAttributes.last, !last.line.isEmpty, 
-            		let lastStyle = last.lineStyle as? MarkdownLineStyle,
-            		let thisStyle = input.lineStyle as? MarkdownLineStyle, 
-            		[.body, .unorderedList].contains(lastStyle), thisStyle == .body {
-				foundAttributes.removeLast()
-				foundAttributes.append(SwiftyLine(line: ("\(last.line) \(input.line)"), lineStyle: last.lineStyle))
-				continue
-			}
-            
             foundAttributes.append(input)
+			
+			self.perfomanceLog.tag(with: "(line completed: \(heading)")
         }
         return foundAttributes
     }

@@ -20,7 +20,7 @@ import UIKit
 		super.init(withModel: withModel, reuse: reuse, bindingWith: bindingWith)
 	}
 	
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		dataSource?.performKrakenSegue(.showSeamailThread, sender: model)
 	}
 }

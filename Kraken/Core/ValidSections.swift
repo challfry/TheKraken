@@ -15,13 +15,16 @@ import UIKit
 		case forums = "forums"
 		case stream = "stream"
 		case seamail = "seamail"
+		case lfg = "lfg"
 		case calendar = "calendar"
 		case deckPlans = "deck_plans"
 		case games = "games"
 		case karaoke = "karaoke"
+		case phonecall = "phonecall"
 		case search = "search"
 		case registration = "registration"
-		case userProfile = "user_profile"
+		case editUserProfile = "user_profile"
+		case directphone = "directphone"
 		
 		init?(with v3Feature: TwitarrV3SwiftarrFeature) {
 			switch v3Feature {
@@ -31,10 +34,10 @@ import UIKit
 				self = .forums
 			case .seamail:
 				self = .seamail
+			case .friendlyfez:
+				self = .lfg
 			case .schedule:
 				self = .calendar
-			case .friendlyfez:
-				return nil
 			case .karaoke:
 				self = .karaoke
 			case .gameslist:
@@ -42,7 +45,11 @@ import UIKit
 			case .images:
 				return nil
 			case .users:
-				self = .userProfile
+				self = .editUserProfile
+			case .phone:
+				self = .phonecall
+			case .directphone:
+				self = .directphone
 			case .all:
 				return nil
 			case .unknown:
@@ -51,7 +58,8 @@ import UIKit
 		}
 		
 		static func all() -> Set<Section> {
-			return Set([.forums, .stream, .seamail, .calendar, .games, .karaoke, .search, .registration, .userProfile])
+			return Set([.forums, .stream, .seamail, .lfg, .calendar, .deckPlans, .games, .karaoke, .phonecall,
+					.search, .registration, .editUserProfile])
 		}
 	}
 	
@@ -76,6 +84,8 @@ import UIKit
 		}
 		self.disabledSections = newDisabledSections
 		self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
+		
+		Settings.shared.useDirectVOIPConnnections = !newDisabledSections.contains(.directphone)
 	}
 	
 	func tabForSection(_ section: Section) -> RootTabBarViewController.Tab {
@@ -83,13 +93,16 @@ import UIKit
 		case .forums: return .forums
 		case .stream: return .twitarr
 		case .seamail: return .seamail
+		case .lfg: return .lfg
 		case .calendar: return .events
 		case .deckPlans: return .deckPlans
-		case .games: break // return .
+		case .games: return .games
 		case .karaoke: return .karaoke
+		case .phonecall: return .initiatePhoneCall
+		case .directphone: break
 		case .search: break // return .
+		case .editUserProfile: return .editUserProfile
 		case .registration: break
-		case .userProfile: break
 		}
 		
 		return .unknown

@@ -379,7 +379,7 @@ import MobileCoreServices
 
 	// MARK: - Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile, .fullScreenCamera, .cropCamera ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .fullScreenCamera, .cropCamera ])
 	}
     
 	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the

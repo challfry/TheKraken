@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreData
 
 @objc(Emoji) public class Emoji: KrakenManagedObject {
 	@NSManaged public var name: String
@@ -57,9 +58,7 @@ class EmojiDataManager: NSObject {
 			}
 			
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { success in
-				DispatchQueue.main.async {
-					self.getRecentlyUsedEmoji()
-				}
+				self.getRecentlyUsedEmoji()
 			}
 		}
 	}

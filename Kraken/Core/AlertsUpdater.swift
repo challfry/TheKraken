@@ -35,7 +35,7 @@ class AlertsUpdater: ServerUpdater {
 			else if let data = package.data {
 				do {
 					self.lastError = nil
-					let response = try JSONDecoder().decode(TwitarrV3UserNotificationData.self, from: data)
+					let response = try Settings.v3Decoder.decode(TwitarrV3UserNotificationData.self, from: data)
 					self.parseAlertsResponse(response, currentUser)
 					self.updateComplete(success: true)
 				}
@@ -232,6 +232,8 @@ public enum TwitarrV3SwiftarrFeature: String, Codable, CaseIterable {
 	case gameslist
 	case images
 	case users
+	case phone
+	case directphone
 	case all
 	
 	/// For clients use. Clients need to be prepared for additional values to be added serverside. Those new values get decoded as 'unknown'.

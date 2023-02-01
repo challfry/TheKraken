@@ -8,11 +8,13 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 @objc protocol ParticipantCellBindingProtocol: FetchedResultsBindingProtocol {
 	dynamic var showActionButton: Bool { get set } 
 	dynamic var actionButtonTitle: String { get set }
 	dynamic var buttonAction: (() -> Void)? { get set } 
+//	dynamic var avatarButtonAction: (() -> Void)? { get set } 
 }
 
 @objc class ParticipantCellModel: FetchedResultsCellModel, ParticipantCellBindingProtocol {
@@ -21,6 +23,7 @@ import UIKit
 	dynamic var showActionButton: Bool = false
 	dynamic var actionButtonTitle: String = "Remove"
 	dynamic var buttonAction: (() -> Void)?
+//	dynamic var avatarButtonAction: (() -> Void)?
 		
 	override init(withModel: NSFetchRequestResult?, reuse: String, bindingWith: Protocol = ParticipantCellBindingProtocol.self)
 	{
@@ -29,7 +32,7 @@ import UIKit
 }
 
 class ParticipantCell: BaseCollectionViewCell, ParticipantCellBindingProtocol {
-	@IBOutlet var imageView: UIImageView!
+	@IBOutlet var imageButton: UIButton!
 	@IBOutlet var usernameLabel: UILabel!
 	@IBOutlet var actionButton: UIButton!
 	dynamic var buttonAction: (() -> Void)?
@@ -41,17 +44,18 @@ class ParticipantCell: BaseCollectionViewCell, ParticipantCellBindingProtocol {
 		didSet {
 			clearObservations()
 
+			imageButton.setTitle("", for: .normal)
 			if let user = model as? KrakenUser {
 	    		addObservation(user.tell(self, when:"thumbPhoto") { observer, observed in
 					observed.loadUserThumbnail()
-					observer.imageView.image = observed.thumbPhoto
+					observer.imageButton.setBackgroundImage(observed.thumbPhoto, for: .normal)
 	    		}?.execute())
 	    		addObservation(user.tell(self, when:"username") { observer, observed in
 					observer.usernameLabel.text = observed.username
 	    		}?.execute())
 			}
 			else if model == nil {
-				imageView.image = UIImage(named: "UnknownUser")
+				imageButton.setBackgroundImage(UIImage(named: "UnknownUser"), for: .normal)
 				usernameLabel.text = "Unknown"
 			}
 		}
@@ -72,6 +76,14 @@ class ParticipantCell: BaseCollectionViewCell, ParticipantCellBindingProtocol {
 	@IBAction func buttonTapped(_ sender: Any) {
 		buttonAction?()
 	}
+
+	@IBAction func avatarButtonAction(_ sender: Any) {
+		if let modeledUser = model as? KrakenUser, let vc = viewController as? BaseCollectionViewController {
+			vc.performKrakenSegue(.userProfile_User, sender: modeledUser)
+		}
+	}
+	
+	
 	
 }
 

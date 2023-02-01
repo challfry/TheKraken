@@ -22,8 +22,8 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	lazy var noSeamailCell: LabelCellModel = {
 		let cell = LabelCellModel("No Seamails in your inbox yet, but you can start a conversation by tapping the \"New\" button." )
 		
-		CurrentUser.shared.tell(cell, when: "loggedInUser.seamailParticipant.count") { observer, observed in
-			observer.shouldBeVisible = observed.loggedInUser?.seamailParticipant.count == 0
+		self.tell(cell, when: "threadSegment.isEmpty") { observer, observed in
+			observer.shouldBeVisible = observed.threadSegment.isEmpty
 		}?.execute()
 		
 		return cell
@@ -119,7 +119,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
     
     // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile, .showSeamailThread ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .showSeamailThread ])
 	}
     
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {

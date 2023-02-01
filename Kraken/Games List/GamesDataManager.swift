@@ -41,7 +41,7 @@ import Compression
 	// implementation that can use either file format.
 	init(from: JsonGamesListGame) {
 		gameName = from.gameName
-		gameDescription = from.gameDescription
+		gameDescription = from.gameDescription?.replacingOccurrences(of: "<br/>", with: "\n")
 		bggGameName = from.bggGameName
 		yearPublished = from.yearPublished
 		minPlayers = from.minPlayers

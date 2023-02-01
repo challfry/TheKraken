@@ -8,6 +8,7 @@
 
 import UIKit
 import MobileCoreServices
+import UniformTypeIdentifiers
 
 @objc protocol ProfileAvatarEditCellProtocol {
 	var userModel: KrakenUser? { get set }
@@ -85,7 +86,7 @@ import MobileCoreServices
 			self.dataSource?.performKrakenSegue(.fullScreenCamera, sender: self)
 		}
 		else {
-			self.dataSource?.performKrakenSegue(.cropCamera, sender: self)
+			self.dataSource?.performKrakenSegue(.pirateAR, sender: self)
 		}
 	}
 	
@@ -94,7 +95,7 @@ import MobileCoreServices
 			let picker = UIImagePickerController()
 			picker.delegate = self
 			picker.allowsEditing = true
-			picker.mediaTypes = [kUTTypeImage as String]
+			picker.mediaTypes = [UTType.image.identifier]
 			viewController?.present(picker, animated: true)
 		}
 	}	

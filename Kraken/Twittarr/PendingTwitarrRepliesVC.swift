@@ -40,7 +40,7 @@ class PendingTwitarrRepliesVC: BaseCollectionViewController {
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile, .editTweetOp ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .editTweetOp ])
 	}
 }
 

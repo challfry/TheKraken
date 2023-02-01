@@ -101,8 +101,8 @@ class ForumThreadViewController: BaseCollectionViewController {
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .composeForumPost, .editForumPost, .tweetFilter, .userProfile, .modalLogin, .reportContent,
-				.showLikeOptions ])
+		Set<GlobalKnownSegue>([ .composeForumPost, .editForumPost, .tweetFilter, .userProfile_User, .userProfile_Name,
+				.modalLogin, .reportContent, .showLikeOptions ])
 	}		
 	
 	// This is the unwind segue from the compose view.

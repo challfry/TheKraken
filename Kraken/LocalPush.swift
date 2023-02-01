@@ -24,6 +24,7 @@ import os
 			}
 			let manager = managers?.first
 			self.saveSettings(for: manager)
+			manager?.delegate = self
 		}
 		
 		Settings.shared.tell(self, when: "onboardWifiNetowrkName") { observer, observed in
@@ -54,7 +55,6 @@ import os
 					mgr.matchSSIDs != [onboardSSID] || mgr.isEnabled == false {
 				mgr.localizedDescription = "App Extension for Background Server Communication"
 				mgr.providerBundleIdentifier = "com.challfry-FQD.Kraken.KrakenLocalPushExtension"
-//				mgr.delegate = self
 				mgr.isEnabled = true
 				mgr.providerConfiguration = [
 					"twitarrURL": websocketURLString,
@@ -74,6 +74,8 @@ import os
 				}
 			}
 			pushManager = mgr
+			mgr.isEnabled = true
+			mgr.delegate = self
 		}
 		else if let mgr = manager {
 			mgr.removeFromPreferences { error in
@@ -87,8 +89,9 @@ import os
 	}
 }
 
-//extension LocalPush: NEAppPushDelegate {
-//    func appPushManager(_ manager: NEAppPushManager, didReceiveIncomingCallWithUserInfo userInfo: [AnyHashable: Any] = [:]) {
-//        logger.log("LocalPush received an incoming call?? This should not happen.")
-//	}
-//}
+extension LocalPush: NEAppPushDelegate {
+    func appPushManager(_ manager: NEAppPushManager, didReceiveIncomingCallWithUserInfo userInfo: [AnyHashable: Any] = [:]) {
+        logger.log("LocalPush received an incoming call")
+        PhonecallDataManager.shared.receivedIncomingCallNotification(userInfo: userInfo)
+	}
+}

@@ -99,6 +99,9 @@ extension SwiftyMarkdown {
 				fontName = italic.fontName ?? fontName
 				fontSize = italic.fontSize
 				globalItalic = true
+			case .strikethrough:
+				fontName = strikethrough.fontName ?? fontName
+				fontSize = strikethrough.fontSize
 			default:
 				break
 			}
@@ -127,10 +130,10 @@ extension SwiftyMarkdown {
 		}
 		
 		if globalItalic, let italicDescriptor = font.fontDescriptor.withSymbolicTraits(.traitItalic) {
-			font = UIFont(descriptor: italicDescriptor, size: 0)
+			font = UIFont(descriptor: italicDescriptor, size: fontSize ?? 0)
 		}
 		if globalBold, let boldDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) {
-			font = UIFont(descriptor: boldDescriptor, size: 0)
+			font = UIFont(descriptor: boldDescriptor, size: fontSize ?? 0)
 		}
 		
 		return font
@@ -140,6 +143,8 @@ extension SwiftyMarkdown {
 	func color( for line : SwiftyLine ) -> UIColor {
 		// What type are we and is there a font name set?
 		switch line.lineStyle as! MarkdownLineStyle {
+		case .yaml:
+			return body.color
 		case .h1, .previousH1:
 			return h1.color
 		case .h2, .previousH2:
@@ -158,8 +163,10 @@ extension SwiftyMarkdown {
 			return code.color
 		case .blockquote:
 			return blockquotes.color
-		case .unorderedList:
+		case .unorderedList, .unorderedListIndentFirstOrder, .unorderedListIndentSecondOrder, .orderedList, .orderedListIndentFirstOrder, .orderedListIndentSecondOrder:
 			return body.color
+		case .referencedLink:
+			return link.color
 		}
 	}
 	

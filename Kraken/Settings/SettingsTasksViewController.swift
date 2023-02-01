@@ -58,7 +58,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp ])
 	}
 
 	// This is the unwind segue handler for the profile edit VC
@@ -184,19 +184,37 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			}
 			taskSection.append(LabelCellModel(userCommentTask.comment))
 			
-		case let userFavoritedTask as PostOpUserFavorite:
-			if let favoritedUsername = userFavoritedTask.userBeingFavorited?.username {
-				let headerCell = SettingsInfoCellModel("Favorite/Un-favorite a user", taskIndex: sectionIndex)
-				userFavoritedTask.tell(headerCell, when: "isFavorite") { observer, observed in
-					let str = observed.isFavorite ? "• Add \(favoritedUsername) to favorite users" : 
-							"• Remove \(favoritedUsername) from favorite users"
-					observer.labelText = NSAttributedString(string: str)
+		case let userRelationTask as PostOpUserRelation:
+			if let targetUser = userRelationTask.targetUser {
+				let targetUsername = targetUser.username
+				let headerCell = SettingsInfoCellModel("Favorite a user", taskIndex: sectionIndex)
+				userRelationTask.tell(headerCell, when: ["relationType", "isActive"]) { observer, observed in
+					switch (observed.relationType, observed.isActive) {
+						case (.favorite, true):
+							observer.titleText = "Favorite a user"
+							observer.labelText = NSAttributedString(string: "• Add \(targetUsername) to favorite users")
+						case (.favorite, false):
+							observer.titleText = "Un-favorite a user"
+							observer.labelText = NSAttributedString(string: "• Remove \(targetUsername) from favorite users")
+						case (.mute, true):
+							observer.titleText = "Mute a user"
+							observer.labelText = NSAttributedString(string: "• Add \(targetUsername) to muted users")
+						case (.mute, false):
+							observer.titleText = "Unmute a user"
+							observer.labelText = NSAttributedString(string: "• Remove \(targetUsername) from muted users")
+						case (.block, true):
+							observer.titleText = "Block a user"
+							observer.labelText = NSAttributedString(string: "• Add \(targetUsername) to blocked users")
+						case (.block, false):
+							observer.titleText = "Unblock a user"
+							observer.labelText = NSAttributedString(string: "• Remove \(targetUsername) from blocked users")
+					}
 				}?.execute()
 				taskSection.append(headerCell)
 				let disclosureCell = DisclosureCellModel()
-				disclosureCell.title = "See profile for \(favoritedUsername)"
+				disclosureCell.title = "See profile for \(targetUsername)"
 				disclosureCell.tapAction = { cell in
-					self.performKrakenSegue(.userProfile, sender: favoritedUsername)
+					self.performKrakenSegue(.userProfile_User, sender: targetUser)
 				}
 				taskSection.append(disclosureCell)
 			}
@@ -369,7 +387,7 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 				task is PostOpForumPostReaction || 
 				task is PostOpTweetDelete || 
 				task is PostOpForumPostDelete || 
-				task is PostOpUserFavorite || 
+				task is PostOpUserRelation || 
 				task is PostOpEventFollow {
 			return false
 		}

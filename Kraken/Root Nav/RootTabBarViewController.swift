@@ -24,8 +24,11 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case karaoke = "KaraokeNavController"
 		case games = "GamesListNavController"
 		case deckPlans = "DeckMapNavController"
+		case initiatePhoneCall = "InitiateCallViewController"
+		case editUserProfile = "UserProfileEditViewController"
 		case scrapbook = "ScrapbookNavController"
 		case lighter = "RockBalladViewController"
+		case pirateAR = "CameraViewController"
 		case twitarrHelp = "ServerTextFileDisplay"
 		case about = "AboutViewController"
 		case unknown = ""
@@ -74,14 +77,17 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 				case .forums: newDisabledTabs.insert(.forums)
 				case .stream: newDisabledTabs.insert(.twitarr)
 				case .seamail: newDisabledTabs.insert(.seamail)
+				case .lfg: newDisabledTabs.insert(.lfg)
 				case .calendar: newDisabledTabs.insert(.events)
 				case .deckPlans: newDisabledTabs.insert(.deckPlans)
 				case .games: break // newDisabledTabs.insert(.)
 				case .karaoke: newDisabledTabs.insert(.karaoke)
+				case .phonecall: newDisabledTabs.insert(.initiatePhoneCall)
+				case .directphone: break
+				case .editUserProfile: newDisabledTabs.insert(.editUserProfile)
 				case .search: break // newDisabledTabs.insert(.)
 				case .registration: break
-				case .userProfile: break
-    		}
+			}
     	}
     	
     	let tabsToEnable = disabledTabs.subtracting(newDisabledTabs)

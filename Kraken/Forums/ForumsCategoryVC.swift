@@ -153,7 +153,6 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 		forumsNavTitleButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
 		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Label Text"), for: .normal)
 		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Secondary Text"), for: .highlighted)
-		forumsNavTitleButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
 		navigationItem.titleView = forumsNavTitleButton
 		forumsNavTitleButton.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
 		

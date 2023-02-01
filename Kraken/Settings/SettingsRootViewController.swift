@@ -67,7 +67,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 			for user in userArray {
 				let cell = LoggedInUserCellModel(user: user, action: weakify(self, SettingsRootViewController.userButtonTapped))
 				cell.showUserProfileAction = { [weak self] in
-					self?.performKrakenSegue(.userProfile, sender: user.username)
+					self?.performKrakenSegue(.editUserProfile, sender: user.username)
 				}
 				loginInfoSection.append(cell)
 			}
@@ -181,7 +181,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile, .postOperations, .modalLogin ])
+		Set<GlobalKnownSegue>([ .userProfile_Name, .userProfile_User, .postOperations, .modalLogin ])
 	}
 
 	// This is the unwind segue handler for the profile edit VC
@@ -377,7 +377,7 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
         }?.execute()        
 	}
 	
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		if PostOperationDataManager.shared.pendingOperationCount > 0 {
 			dataSource?.performKrakenSegue(.postOperations, sender: nil)
 		}

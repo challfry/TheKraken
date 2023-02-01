@@ -46,6 +46,7 @@ class ManageMembersVC: BaseCollectionViewController {
         participantLabelSegment.append(LabelCellModel("Participants:", fontTraits: .traitBold))
                         
    		// Set up the FRCs for the participants in the chat and the potential additions
+   		userSuggestionSegment.fetchRequest.fetchLimit = 10
    		let participantPredicate = NSPredicate(format: "seamailAttendee.id = %@", thread.id as CVarArg)
    		participantSegment.activate(predicate: participantPredicate, sort: [ NSSortDescriptor(key: "username", ascending: true) ],
    				cellModelFactory: createParticipantCellModel)

@@ -19,6 +19,7 @@ import UIKit
 	dynamic var button2Enabled: Bool { get set } 
 	dynamic var button2Action: (() -> Void)? { get set } 
 	dynamic var infoText: NSAttributedString? { get set }
+	dynamic var errorText: String? { get set }
 }
 
 @objc class ButtonCellModel: BaseCellModel, ButtonCellProtocol {
@@ -34,11 +35,13 @@ import UIKit
 	dynamic var button2Enabled: Bool 
 	dynamic var button2Action: (() -> Void)?
 	dynamic var infoText: NSAttributedString?
+	dynamic var errorText: String?
 	
 	init(alignment: NSTextAlignment = .right) {
 		buttonAlignment = alignment
 		button1Enabled = false
 		button2Enabled = false
+		errorText = nil
 		super.init(bindingWith: ButtonCellProtocol.self)
 	}
 	
@@ -48,6 +51,7 @@ import UIKit
 		button1Text = title
 		button1Action = action
 		button2Enabled = false
+		errorText = nil
 		super.init(bindingWith: ButtonCellProtocol.self)
 	}
 	
@@ -73,7 +77,8 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 	@IBOutlet var leftConstraint: NSLayoutConstraint!
 	@IBOutlet var centerXConstraint: NSLayoutConstraint!
 	@IBOutlet var rightConstraint: NSLayoutConstraint!
-
+	@IBOutlet weak var errorLabel: UILabel!
+	
 	private static let cellInfo = [ "ButtonCell" : PrototypeCellInfo("ButtonCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
@@ -85,6 +90,7 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 			leftConstraint.isActive = buttonAlignment == .left
 			centerXConstraint.isActive = buttonAlignment == .center
 			rightConstraint.isActive = buttonAlignment == .right
+			errorLabel.textAlignment = buttonAlignment
 		}
 	}
 
@@ -106,6 +112,13 @@ class ButtonCell: BaseCollectionViewCell, ButtonCellProtocol {
 	var infoText: NSAttributedString? {
 		didSet {
 			infoLabel.attributedText = infoText
+		}
+	}
+	
+	var errorText: String? {
+		didSet {
+			errorLabel.text = errorText
+			cellSizeChanged()
 		}
 	}
 

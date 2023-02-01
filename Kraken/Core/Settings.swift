@@ -22,6 +22,12 @@ import Foundation
 		return v3
 	}
 	
+	static var v3Encoder: JSONEncoder {
+		let v3 = JSONEncoder()
+		v3.dateEncodingStrategy = .formatted(DateFormatter.iso8601Full)
+		return v3
+	}
+	
 	// Settings that can't be changed once we initialize, but can be mutated for the next launch declared here.
 	@objc dynamic public lazy var baseURL = settingsBaseURL
 	@objc dynamic public lazy var apiVersion = 3
@@ -94,6 +100,12 @@ import Foundation
 		get { return getSetting(name: "onboardWifiNetowrkName", defaultValue: "") }
 		set { setSetting(name: "onboardWifiNetowrkName", newValue: newValue) }
 	}
+	
+	// Whether to use direct connect or server-mediated VOIP.
+	@objc dynamic public var useDirectVOIPConnnections: Bool {
+		get { return getSetting(name: "useDirectVOIPConnnections", defaultValue: true) }
+		set { setSetting(name: "useDirectVOIPConnnections", newValue: newValue) }
+	}
 
 // MARK: Debug Settings
 	
@@ -124,9 +136,12 @@ import Foundation
 
 
 // MARK: Private stuff for Settings to do its work.
-	private func getSetting<settingType>(name: String, defaultValue:settingType) -> settingType {
+	private func getSetting<settingType>(name: String, defaultValue: settingType) -> settingType {
+		if UserDefaults.standard.object(forKey: name) == nil {
+			return defaultValue
+		}
 		switch settingType.self {
-			// Bool auto-interprets missing values as "false"
+			// Bool auto-interprets missing values as "false", and converts things like String("yes") to true.
 		case is Bool.Type: 
 			return UserDefaults.standard.bool(forKey:name) as! settingType
 			

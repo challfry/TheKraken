@@ -31,7 +31,7 @@ import UIKit
 		username = (model as? KrakenUser)?.username
 	}
 	
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		selectionCallback?()
 	}
 }

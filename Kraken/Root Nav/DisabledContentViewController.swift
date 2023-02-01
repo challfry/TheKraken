@@ -40,12 +40,18 @@ class DisabledContentViewController: UIViewController {
 			tabName = "Karaoke"
 		case .games:
 			tabName = "Games"
+		case .initiatePhoneCall:
+			tabName = "Shipwide Confabulator"
+		case .editUserProfile:
+			tabName = "User Profile"
 		case .deckPlans:
 			tabName = "Deck Maps"
 		case .scrapbook:
 			tabName = "Scrapbook"
 		case .lighter:
 			tabName = "Lighter"
+		case .pirateAR:
+			tabName = "PirateAR"
 		case .twitarrHelp:
 			tabName = "Help"
 		case .about:
@@ -98,6 +104,12 @@ class DisabledContentViewController: UIViewController {
 		case .games:
 			featureName = "the Board Games List"
 			featurePath = "/boardgames"
+		case .initiatePhoneCall:
+			featureName = "Phone Calls"
+			featurePath = ""
+		case .editUserProfile:
+			featureName = "User Profile"
+			featurePath = "/profile/edit"
 		case .deckPlans:
 			featureName = "Deck Maps"
 			featurePath = ""
@@ -106,6 +118,9 @@ class DisabledContentViewController: UIViewController {
 			featurePath = ""
 		case .lighter:
 			featureName = "Lighter"
+			featurePath = ""
+		case .pirateAR:
+			featureName = "Pirate Selfie"
 			featurePath = ""
 		case .twitarrHelp:
 			featureName = "Help"

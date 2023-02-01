@@ -167,7 +167,7 @@ import UIKit
 	
 	func authorIconTapped() {
 		if let postModel = model as? ForumPost {
-			viewController?.performKrakenSegue(.userProfile, sender: postModel.author.username)
+			viewController?.performKrakenSegue(.userProfile_User, sender: postModel.author)
 		}
 	}
 	

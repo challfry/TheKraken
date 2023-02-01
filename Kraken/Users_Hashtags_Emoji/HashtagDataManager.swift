@@ -87,7 +87,7 @@ class HashtagDataManager: NSObject {
 				self.lastError = nil
 			//	print (String(data: data, encoding: .utf8))
 				do {
-					let response = try JSONDecoder().decode(HashtagAutocompleteResponse.self, from: data)
+					let response = try Settings.v3Decoder.decode(HashtagAutocompleteResponse.self, from: data)
 					self.addHashtags(Set<String>(response.values))
 
 					DispatchQueue.main.async { 

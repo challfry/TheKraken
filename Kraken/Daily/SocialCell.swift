@@ -33,9 +33,12 @@ import UIKit
 		super.init(bindingWith: SocialCellProtocol.self)
 	}
 	
-	override func cellTapped(dataSource: KrakenDataSource?) {
-		if let appDel = UIApplication.shared.delegate as? AppDelegate, let navPacket = navPacket {
-			appDel.globalNavigateTo(packet: navPacket)
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
+		if let appDel = UIApplication.shared.delegate as? AppDelegate, var packet = navPacket {
+			if let vc = vc as? BaseCollectionViewController, let nav = vc.navigationController as? KrakenNavController {
+				packet.column = nav.columnIndex
+			}
+			appDel.globalNavigateTo(packet: packet)
 		}
 	}
 }

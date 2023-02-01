@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -47,7 +47,7 @@
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="S31-kK-NU7">
                                 <rect key="frame" x="0.0" y="97.5" width="374" height="280.5"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="S31-kK-NU7" secondAttribute="height" multiplier="4:3" id="5rV-WO-Rxx"/>
+                                    <constraint firstAttribute="width" secondItem="S31-kK-NU7" secondAttribute="height" multiplier="4:3" priority="900" id="5rV-WO-Rxx"/>
                                 </constraints>
                             </imageView>
                         </subviews>
@@ -56,10 +56,10 @@
             </view>
             <color key="backgroundColor" red="0.15021631120000001" green="0.32354319100000001" blue="0.47015506029999998" alpha="0.83936215753424659" colorSpace="custom" customColorSpace="displayP3"/>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="6tX-gt-Y9J" secondAttribute="trailing" constant="20" id="76Y-BK-irx"/>
+                <constraint firstAttribute="trailing" secondItem="6tX-gt-Y9J" secondAttribute="trailing" priority="999" constant="20" id="76Y-BK-irx"/>
                 <constraint firstItem="6tX-gt-Y9J" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="dGK-5Y-L3d"/>
                 <constraint firstItem="6tX-gt-Y9J" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="4" id="rVs-ge-w6U"/>
-                <constraint firstAttribute="bottom" secondItem="6tX-gt-Y9J" secondAttribute="bottom" priority="200" constant="8" id="rna-ss-YFy"/>
+                <constraint firstAttribute="bottom" secondItem="6tX-gt-Y9J" secondAttribute="bottom" priority="220" constant="8" id="rna-ss-YFy"/>
             </constraints>
             <size key="customSize" width="414" height="388"/>
             <connections>

@@ -44,6 +44,17 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		
 		return cell
 	}()
+	
+	lazy var noOpenLFGsCell: LabelCellModel = {
+		let cell = LabelCellModel("There are no upcoming LFGs to join." )
+		cell.bgColor = UIColor(named: "Text View Background")
+		
+		openSegment.tell(cell, when: "isEmpty") { observer, observed in
+			observer.shouldBeVisible = observed.isEmpty
+		}?.execute()
+		
+		return cell
+	}()
 
 	lazy var openHeaderCell: LabelCellModel = {
 		let labelText = NSAttributedString(string: "LFGs you could join:", 
@@ -75,7 +86,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
        
 		lfgDataSource.append(segment: openHeaderSegment)
 		openHeaderSegment.append(openHeaderCell)
-		openHeaderSegment.append(noJoinedLFGsCell)
+		openHeaderSegment.append(noOpenLFGsCell)
 
 		lfgDataSource.append(segment: openSegment)
 		openSegment.activate(predicate: NSPredicate(value: false), sort: [ NSSortDescriptor(key: "startTime", ascending: true)],
@@ -143,7 +154,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile, .showSeamailThread ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .showSeamailThread ])
 	}
 
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {

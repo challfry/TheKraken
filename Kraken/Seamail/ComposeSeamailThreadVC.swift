@@ -100,7 +100,7 @@ import UIKit
 				observer.infoText = NSAttributedString(string: "Posting as: \(currentUser.username)", attributes: textAttrs)
 			}
 			else {
-				observer.infoText = nil
+				observer.infoText = NSAttributedString?.none
 			}
 		}?.execute()
 

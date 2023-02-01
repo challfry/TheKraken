@@ -25,7 +25,7 @@ import UIKit
 		super.init(bindingWith: DisclosureCellProtocol.self)
 	}
 
-	override func cellTapped(dataSource: KrakenDataSource?) {
+	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		tapAction?(self)
 	}
 }

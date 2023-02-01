@@ -176,10 +176,8 @@ import CoreData
 			let result = try selfInContext.getReadCountsInternal(context: context, user: currentUser)
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { success in
 				if success {
-					DispatchQueue.main.async {
-						let mainThreadReadCounts = try? self.managedObjectContext?.existingObject(with: result.objectID) as? SeamailReadCount
-						done(mainThreadReadCounts)
-					}
+					let mainThreadReadCounts = try? self.managedObjectContext?.existingObject(with: result.objectID) as? SeamailReadCount
+					done(mainThreadReadCounts)
 				}
 			}
 		}

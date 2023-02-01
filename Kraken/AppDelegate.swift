@@ -34,6 +34,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		UNUserNotificationCenter.current().delegate = Notifications.shared
 		Notifications.appForegrounded()
 		watchForStateChanges()
+		
+		let _ = PhonecallDataManager.shared
+		
 		return true
 	}
 
@@ -79,7 +82,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
-		var packet = GlobalNavPacket(from: nil, url: url.absoluteString)
+		let packet = GlobalNavPacket(from: nil, url: url.absoluteString)
 		globalNavigateTo(packet: packet)
 		return true
 	}
@@ -139,12 +142,15 @@ struct GlobalNavPacket {
 	var sender: Any?
 	var arguments: [String : Any]
 	
-	init(from viewController: UIViewController, tab: RootTabBarViewController.Tab, arguments: [String : Any] = [:]) {
+	init(from viewController: UIViewController, tab: RootTabBarViewController.Tab, arguments: [String : Any] = [:],
+			segue: GlobalKnownSegue? = nil, sender: Any? = nil) {
 		column = 0
 		if let nav = viewController.navigationController as? KrakenNavController {
 			column = nav.columnIndex
 		}
 		self.tab = tab
+		self.segue = segue
+		self.sender = sender
 		self.arguments = arguments
 	}
 	
@@ -166,7 +172,7 @@ struct GlobalNavPacket {
 			switch url.pathComponents[1] {
 				case "profile": 
 					tab = .daily
-					segue = .userProfile
+					segue = .userProfile_Name
 					sender = url.lastPathComponent
 				case "tweets": 
 					tab = .twitarr

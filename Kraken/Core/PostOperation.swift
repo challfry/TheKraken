@@ -930,38 +930,39 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
-@objc(PostOpUserFavorite) public class PostOpUserFavorite: PostOperation {
-	@NSManaged public var isFavorite: Bool
-	@NSManaged public var userBeingFavorited: KrakenUser?
+@objc(PostOpUserRelation) public class PostOpUserRelation: PostOperation {
+	@NSManaged public var relationType: UserRelationType			// favorite, mute, block
+	@NSManaged public var isActive: Bool
+	@NSManaged public var targetUser: KrakenUser?
 
 	override public func willSave() {
 		super.willSave()
 		guard operationDescription == nil else { return }
-		operationDescription = isFavorite ? "Pending: favorite another user." : "Pending: unfavorite another user."
+		operationDescription = isActive ? "Pending: \(relationType) another user." : "Pending: un \(relationType) another user."
 	}
 
-//	override func postV2(context: NSManagedObjectContext) {
-//		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.username == author.username else { return }
-//		guard let userFavorited = userBeingFavorited else { return }
-//		confirmPostBeingSent(context: context)
-//				
-//		// POST /api/v2/user/profile/:username/star
-//		let encodedUsername = userFavorited.username.addingPathComponentPercentEncoding() ?? ""
-//		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath:"/api/v2/user/profile/\(encodedUsername)/star", query: nil)
-//		NetworkGovernor.addUserCredential(to: &request, forUser: author)
-//		request.httpMethod = "POST"
-//		queueNetworkPost(request: request, success:  { data in
-//			LocalCoreData.shared.performNetworkParsing { context in
-//				context.pushOpErrorExplanation("Failure saving User Favorite change to Core Data. (the network call succeeded, but we couldn't save the change).")
-//				let decoder = JSONDecoder()
-//				let response = try decoder.decode(TwitarrV2ToggleUserStarResponse.self, from: data)
-//				if response.status == "ok", let currentUserInContext = context.object(with: self.author.objectID) as? LoggedInKrakenUser {
-//					currentUserInContext.updateUserStar(context: context, targetUser: userFavorited, newState: response.starred)
-//				}
-//			}
-//		})
-//	}
-
+	override func post(context: NSManagedObjectContext) {
+		guard let currentUser = CurrentUser.shared.loggedInUser, currentUser.userID == author.userID else { return }
+		guard let targetUser = targetUser else { return }
+		confirmPostBeingSent(context: context)
+		
+		// POST /api/v3/users/:user_ID/favorite
+		var path: String
+		switch (relationType, isActive) {
+			case (.favorite, true):  path = "/api/v3/users/\(targetUser.userID)/favorite"
+			case (.favorite, false): path = "/api/v3/users/\(targetUser.userID)/unfavorite"
+			case (.mute, true):  path = "/api/v3/users/\(targetUser.userID)/mute"
+			case (.mute, false): path = "/api/v3/users/\(targetUser.userID)/unmute"
+			case (.block, true):  path = "/api/v3/users/\(targetUser.userID)/block"
+			case (.block, false): path = "/api/v3/users/\(targetUser.userID)/unblock"
+		}
+		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: path, query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		request.httpMethod = "POST"
+		queueNetworkPost(request: request) { [self] data in
+			CurrentUser.shared.updatedUserRelation(type: relationType, actingUser: author, targetUser: targetUser, newState: isActive)
+		}		
+	}
 }
 
 @objc(PostOpUserProfileEdit) public class PostOpUserProfileEdit: PostOperation {
@@ -1027,11 +1028,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 		
 		queueNetworkPost(request: request, success: { data in
-			var newFilename: String?
-			if let response = try? Settings.v3Decoder.decode(TwitarrV3UploadedImageData.self, from: data) {
-				newFilename = response.filename
+			if let response = try? Settings.v3Decoder.decode(TwitarrV3UserHeader.self, from: data) {
+				UserManager.shared.updateUserHeader(for: self.author, from: response)
 			}
-			UserManager.shared.updateUserImageInfo(user: self.author, newFilename: newFilename)
 		})
 	}
 }
@@ -1066,11 +1065,6 @@ struct TwitarrV3ForumCreateData: Codable {
     var title: String
     /// The first post in the forum. 
 	var firstPost: TwitarrV3PostContentData
-}
-
-struct TwitarrV3UploadedImageData: Codable {
-    /// The generated name of the uploaded image.
-    var filename: String
 }
 
 struct TwitarrV3NoteCreateData: Codable {

@@ -64,14 +64,15 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 	@IBOutlet var themeLabel: UILabel!
 	@IBOutlet var imageView: UIImageView!
 	
+	// Backup for when we don't have a theme set for a day
 	static let itinerary: [PortAndTheme] = [
 	PortAndTheme(cruiseDay: 1, theme: "Welcome, New Cruisers!", port: "Fort Lauderdale, Florida", arrival: nil, departure: "5:00 PM"),
-	PortAndTheme(cruiseDay: 2, theme: nil, port: "Nassau, Bahamas", arrival: "8:00 AM", departure: "2:30 PM"),
-	PortAndTheme(cruiseDay: 3, theme: "Cosplay Day", port: "At Sea", arrival: nil, departure: nil),
-	PortAndTheme(cruiseDay: 4, theme: nil, port: "Frederiksted, St. Croix, U.S. Virgin Islands", arrival: "1:00 PM", departure: "8:00 PM"),
-	PortAndTheme(cruiseDay: 5, theme: "Formal Night", port: "At Sea", arrival: nil, departure: nil),
-	PortAndTheme(cruiseDay: 6, theme: "Birthday Day", port: "At Sea", arrival: nil, departure: nil),
-	PortAndTheme(cruiseDay: 7, theme: "Jammies Day", port: "Half Moon Cay, Bahamas", arrival: "8:00 AM", departure: "3:00 PM"),
+	PortAndTheme(cruiseDay: 2, theme: nil, port: "At Sea", arrival: nil, departure: nil),
+	PortAndTheme(cruiseDay: 3, theme: nil, port: "At Sea", arrival: nil, departure: nil),
+	PortAndTheme(cruiseDay: 4, theme: nil, port: "San Juan, Puerto Rico", arrival: "7:00 AM", departure: "TBD"),
+	PortAndTheme(cruiseDay: 5, theme: nil, port: "Road Town, Tortola", arrival: "7:00 AM", departure: "3:00 PM"),
+	PortAndTheme(cruiseDay: 6, theme: nil, port: "At Sea", arrival: nil, departure: nil),
+	PortAndTheme(cruiseDay: 7, theme: nil, port: "Half Moon Cay, Bahamas", arrival: "8:00 AM", departure: "3:00 PM"),
 	PortAndTheme(cruiseDay: 8, theme: "Goodbye, everyone!", port: "Fort Lauderdale, Florida", arrival: "7:00 AM", departure: nil)
 	]
 	
@@ -82,6 +83,9 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 		portLabel.styleFor(.body)
 		arriveDepartLabel.styleFor(.body)
 		themeLabel.styleFor(.body)
+		
+		// Image styling
+		imageView.layer.cornerRadius = 10
     }
     
     var dailyTheme: DailyTheme? {

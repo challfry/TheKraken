@@ -816,10 +816,8 @@ class TwitarrDataManager: NSObject {
 			}
 			
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 
-				DispatchQueue.main.async {
-					let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postToQueue.objectID) as? PostOpTweet 
-					done(mainThreadPost)
-				}
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: postToQueue.objectID) as? PostOpTweet 
+				done(mainThreadPost)
 			}
 		}
 	}

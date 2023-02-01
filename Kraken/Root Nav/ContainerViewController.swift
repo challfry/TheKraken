@@ -42,6 +42,13 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 				observer.deepSeaView?.alpha = observed.uiDisplayStyle == .deepSeaMode ? 1.0 : 0.0
 			}
 		}?.execute()
+		
+		// Overlay everything with the Phone Call UI when on a phone call
+		PhonecallDataManager.shared.tell(self, when: "currentCall") { observer, observed in 
+			if let _ = observed.currentCall {
+				observer.performSegue(withIdentifier: "ActivePhoneCall", sender: nil)
+			}
+		}
 	}
     
     func determineChildLayout(for ourSize: CGSize) {

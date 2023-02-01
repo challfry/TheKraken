@@ -72,8 +72,9 @@ class CameraViewController: UIViewController {
 	var parrot: SCNReferenceNode?
 #endif
 
-	// Configuration
+	// Configuration for Segues to use
 	var selfieMode: Bool = false						// Set to TRUE to initially use front camera
+	var pirateMode: Bool = false
 	
 	// RESULTS HERE, pull one of these from the unwind segue
 	var capturedPhoto: PhotoDataType?
@@ -117,6 +118,10 @@ class CameraViewController: UIViewController {
 			localPirateView.delegate = self
 //			localPirateView.session.delegate = self
 			localPirateView.automaticallyUpdatesLighting	= true
+			
+			if pirateMode {
+				pirateButtonTapped()
+			}
 		}
 #endif
 		
@@ -348,7 +353,7 @@ class CameraViewController: UIViewController {
 		discoverer = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, 
 				position: .unspecified)
 		cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
-		if selfieMode || cameraDevice == nil {
+		if selfieMode || pirateMode || cameraDevice == nil {
 			cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
 		}
 		haveLockOnDevice = false
@@ -375,13 +380,18 @@ class CameraViewController: UIViewController {
 		cameraView.layer.insertSublayer(cameraPreview!, at: 0)
 		captureSession.commitConfiguration()
 
-		captureSession.startRunning()
+		
+		DispatchQueue.global(qos: .background).async {
+			self.captureSession.startRunning()
+		}
+	//	captureSession.startRunning()
 		#endif
 	}
 		
 // MARK: Actions
 	
 	@IBAction func closeButtonTapped() {
+		pirateView?.session.pause()
 		dismiss(animated: true, completion: nil)
 	}
 	
@@ -449,7 +459,9 @@ class CameraViewController: UIViewController {
 			pirateView?.session.pause()
 			pirateView?.isHidden = true
 			cameraView.isHidden = false
-			captureSession.startRunning()
+			DispatchQueue.global(qos: .background).async {
+				self.captureSession.startRunning()
+			}
 		}
 		
 		updateButtonStates()
@@ -611,6 +623,7 @@ class CameraViewController: UIViewController {
 	}
 	
 	@IBAction func photoAccepted(sender: UIButton, forEvent event: UIEvent) {
+		pirateView?.session.pause()
 		performSegue(withIdentifier: "dismissCamera", sender: capturedPhoto)
 		updateButtonStates()
 	}

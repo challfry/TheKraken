@@ -90,7 +90,7 @@ import UIKit
 		// Do nothing by default
 	}
 
-	func cellTapped(dataSource: KrakenDataSource?) {
+	func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		// Do nothing by default
 		
 	}
@@ -384,7 +384,7 @@ struct PrototypeCellInfo {
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if isTakingTouchEvent {
 			if isHighlighted {
-				cellModel?.cellTapped(dataSource: dataSource)
+				cellModel?.cellTapped(dataSource: dataSource, vc: viewController)
 				if allowsSelection {
 					privateSelectCell(!privateSelected)
 				}

@@ -52,8 +52,12 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	var deckMapCell = SocialCellModel("Deck Maps", imageNamed: "map")
 	var karaokeCell = SocialCellModel("Karaoke", imageNamed: "music.mic")
 	var gamesCell = SocialCellModel("Games", imageNamed: "suit.club")
+//	var phoneCell = SocialCellModel("Shipwide Confabulator", imageNamed: "phone") // voice flinger, hurl chatter
+	var phoneCell = SocialCellModel("KrakenTalk™", imageNamed: "phone") // voice flinger, hurl chatter
 	var scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook")
 	var lighterModeCell = SocialCellModel("Lighter Mode", imageNamed: "flame")
+	var pirateARCell = SocialCellModel("Pirate Selfie", imageNamed: "flame")
+	var profileCell = SocialCellModel("Edit Profile", imageNamed: "person")
 	var settingsCell = SocialCellModel("Settings", imageNamed: "wrench.and.screwdriver")
 	var helpCell = SocialCellModel("About Twitarr", imageNamed: "questionmark.circle")
 	var aboutCell = SocialCellModel("About The Kraken", imageNamed: "questionmark.circle")
@@ -69,8 +73,11 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		deckMapCell.navPacket = GlobalNavPacket(from: self, tab: .deckPlans)
 		karaokeCell.navPacket = GlobalNavPacket(from: self, tab: .karaoke)
 		gamesCell.navPacket = GlobalNavPacket(from: self, tab: .games)
+		phoneCell.navPacket = GlobalNavPacket(from: self, tab: .initiatePhoneCall, segue: .initiatePhoneCall, sender: nil)
 		scrapbookCell.navPacket = GlobalNavPacket(from: self, tab: .scrapbook)
 		lighterModeCell.navPacket = GlobalNavPacket(from: self, tab: .lighter)
+		pirateARCell.navPacket = GlobalNavPacket(from: self, tab: .pirateAR)
+		profileCell.navPacket = GlobalNavPacket(from: self, tab: .daily, segue: .editUserProfile, sender: nil)
 		settingsCell.navPacket = GlobalNavPacket(from: self, tab: .settings)
 		helpCell.navPacket = GlobalNavPacket(from: self,tab: .twitarrHelp, arguments: ["filename" : "twitarrhelptext.md", "title" : "Twitarr Help"])
 		aboutCell.navPacket = GlobalNavPacket(from: self, tab: .about)
@@ -134,6 +141,9 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		appFeaturesSegment.append(gamesCell)
 //		appFeaturesSegment.append(scrapbookCell)
 		appFeaturesSegment.append(lighterModeCell)
+		appFeaturesSegment.append(phoneCell)
+//		appFeaturesSegment.append(pirateARCell)
+		appFeaturesSegment.append(profileCell)
 		appFeaturesSegment.append(settingsCell)
 		appFeaturesSegment.append(helpCell)
 		appFeaturesSegment.append(aboutCell)
@@ -147,29 +157,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		}
 
   		dataSource.register(with: collectionView, viewController: self)
-  		
-
-//		CurrentUser.shared.tell(self, when: ["loggedInUser", "loggedInUser.upToDateSeamailThreads.count", 
-//				"loggedInUser.seamailParticipant.count"]) { observer, observed in
-//			if let currentUser = observed.loggedInUser {
-//				var seamailBadgeCount = 0
-//				var lfgBadgeCount = 0
-//				currentUser.seamailReadCounts.forEach { readCounts in
-//					if readCounts.postCount - readCounts.readCount <= 0 || !readCounts.thread.participants.contains(currentUser) {
-//						return
-//					}
-//					["open", "closed"].contains(readCounts.thread.fezType) ? (seamailBadgeCount += 1) : (lfgBadgeCount += 1)
-//				}
-//				observer.mailCell?.badgeValue = seamailBadgeCount > 0 ? "\(seamailBadgeCount) new" : nil
-//				observer.lfgCell?.badgeValue = lfgBadgeCount > 0 ? "\(lfgBadgeCount) new" : nil
-//			}
-//			else {
-//				observer.mailCell?.badgeValue = nil
-//				observer.lfgCell?.badgeValue = nil
-//			}
-//		}?.execute()
-
-    }
+	}
     
     override func viewDidAppear(_ animated: Bool) {
     	super.viewDidAppear(animated)
@@ -192,7 +180,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
 		Set<GlobalKnownSegue>([ .twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .lfgRoot, .deckMapRoot, .karaokeRoot, .gamesRoot,
-				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile ])
+				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile_Name, .userProfile_User, .editUserProfile, 
+				.pirateAR, .initiatePhoneCall])
 	}
     
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
@@ -207,7 +196,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     	}
     
 		switch packet.tab {
-			case .daily: break
+			case .daily:
+				if let segue = packet.segue {
+					performKrakenSegue(segue, sender: packet.sender)
+				}
 			case .twitarr: performKrakenSegue(.twitarrRoot, sender: packet)
 			case .forums: performKrakenSegue(.forumsRoot, sender: packet)
 			case .seamail: performKrakenSegue(.seamailRoot, sender: packet)
@@ -216,18 +208,21 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .deckPlans: performKrakenSegue(.deckMapRoot, sender: packet)
 			case .karaoke: performKrakenSegue(.karaokeRoot, sender: packet)
 			case .games: performKrakenSegue(.gamesRoot, sender: packet)
+			case .initiatePhoneCall: performKrakenSegue(.initiatePhoneCall, sender: packet)
+			case .editUserProfile: performKrakenSegue(.editUserProfile, sender: packet)
 			case .scrapbook: performKrakenSegue(.scrapbookRoot, sender: packet)
 			case .settings: performKrakenSegue(.settingsRoot, sender: packet)
 			case .lighter: performKrakenSegue(.lighterMode, sender: packet)
+			case .pirateAR: performKrakenSegue(.pirateAR, sender: packet)
 			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: 
 					ServerTextFileSeguePackage(titleText: packet.arguments["title"] as? String, fileToLoad: 
 					packet.arguments["filename"] as? String))
 			case .about: performKrakenSegue(.about, sender: packet)			
-			default: break
+			case .unknown: break
 		}
 		
 		if let username = packet.arguments["profile"] {
-			performKrakenSegue(.userProfile, sender: username)			
+			performKrakenSegue(.userProfile_Name, sender: username)			
 		}
 		return true
 	}
@@ -236,12 +231,30 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		twitarrCell.contentDisabled = disabledSections.contains(.stream)
 		forumsCell.contentDisabled = disabledSections.contains(.forums)
 		mailCell.contentDisabled = disabledSections.contains(.seamail)
+		lfgCell.contentDisabled = disabledSections.contains(.lfg)
 		scheduleCell.contentDisabled = disabledSections.contains(.calendar)
 		deckMapCell.contentDisabled = disabledSections.contains(.deckPlans)
 		karaokeCell.contentDisabled = disabledSections.contains(.karaoke)
+		gamesCell.contentDisabled = disabledSections.contains(.games)
+		phoneCell.contentDisabled = disabledSections.contains(.phonecall)
+		profileCell.contentDisabled = disabledSections.contains(.editUserProfile)
     }
     
-	
+	// This is the handler for the CameraViewController's unwind segue. Pull the captured photo out of the
+	// source VC to get the photo that was taken.
+	@IBAction func dismissingCamera(_ segue: UIStoryboardSegue) {
+//		guard let sourceVC = segue.source as? CameraViewController else { return }
+//		if let photoPacket = sourceVC.capturedPhoto {
+//			switch photoPacket {
+//			case .camera(let photo): break
+//			case .image(let image): break
+//			case .library: break
+//			case .data: break
+//			case .server: break
+//			}
+//		}
+	}	
+
 	
 
 }

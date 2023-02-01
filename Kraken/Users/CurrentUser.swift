@@ -53,8 +53,6 @@ import UserNotifications
 	// Specific to the logged-in user
 	@NSManaged public var postOps: Set<PostOperation>?
 	
-	@NSManaged public var blockedUsers: Set<KrakenUser>
-
 	// new tweet mentions and new forum mentions. We may not actually have the underlying data loaded.
 	@NSManaged public var tweetMentions: Int32
 	@NSManaged public var forumMentions: Int32
@@ -63,7 +61,10 @@ import UserNotifications
 	
 
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
-	@NSManaged public var starredUsers: Set<KrakenUser>?			// Set of users the logged in user has starred.
+	@NSManaged public var favoriteUsers: Set<KrakenUser>			// Set of users the logged in user has favorited.
+	@NSManaged public var mutedUsers: Set<KrakenUser>				// Set of users the logged in user has muted.
+	@NSManaged public var blockedUsers: Set<KrakenUser>				// Set of users the logged in user has chosen to block -- does not
+																	// include incoming blocks from others! 
 	@NSManaged public var lastLogin: Int64
 	@NSManaged public var lastAlertCheckTime: Date
 	@NSManaged public var lastSeamailCheckTime: Int64
@@ -92,6 +93,17 @@ import UserNotifications
 		TestAndUpdate(\.newLFGMessages, Int32(notification.newFezMessageCount))
 	}
 	
+	// Assumes targets is a comprehensive current list of all users with the given relation--Removes relation for any
+	// users not in the targets list.
+	func buildFromV3RelationInfo(context: NSManagedObjectContext, type: UserRelationType, targets: [TwitarrV3UserHeader]) {
+		let dict = UserManager.shared.update(users: targets, inContext: context)
+		switch type {
+			case .favorite: favoriteUsers = Set(dict.values)
+			case .mute: mutedUsers = Set(dict.values)
+			case .block: blockedUsers = Set(dict.values)
+		}
+	}
+	
 	func getPendingUserCommentOp(commentingOn: KrakenUser, inContext: NSManagedObjectContext) -> PostOpUserComment? {
 		if let ops = postOps {
 			for op in ops {
@@ -105,19 +117,19 @@ import UserNotifications
 		return nil
 	}
 	
-	func getPendingUserFavoriteOp(forUser: KrakenUser, inContext: NSManagedObjectContext) -> PostOpUserFavorite? {
+	func getPendingUserRelationOp(type: UserRelationType, forUser: KrakenUser, inContext: NSManagedObjectContext) -> PostOpUserRelation? {
 		if let ops = postOps {
 			for op in ops {
-				if let userStarOp = op as? PostOpUserFavorite, let userBeingFavorited = userStarOp.userBeingFavorited,
-						userBeingFavorited.username == forUser.username {
-					let starOpInContext = try? inContext.existingObject(with: userStarOp.objectID) as? PostOpUserFavorite
-					return starOpInContext
+				if let relationOp = op as? PostOpUserRelation, relationOp.relationType == type, let targetUser = relationOp.targetUser,
+						targetUser.userID == forUser.userID {
+					let opInContext = try? inContext.existingObject(with: relationOp.objectID) as? PostOpUserRelation
+					return opInContext
 				}
 			}
 		}
 		return nil
 	}
-	
+		
 	func getPendingProfileEditOp(inContext: NSManagedObjectContext = LocalCoreData.shared.mainThreadContext) -> PostOpUserProfileEdit? {
 		if let ops = postOps {
 			for op in ops {
@@ -142,21 +154,6 @@ import UserNotifications
 			}
 		}
 		return nil
-	}
-
-// MARK: V2	
-	
-	func updateUserStar(context: NSManagedObjectContext, targetUser: KrakenUser, newState: Bool?) {
-		//
-		if let isStarred = newState {
-			let currentlyStarred = starredUsers?.contains(targetUser) ?? false
-			if isStarred && !currentlyStarred {
-				starredUsers?.insert(targetUser)
-			}
-			else {
-				starredUsers?.remove(targetUser)
-			}
-		}
 	}
 	
 	// Photo should be resized for upload and should be a mime type the server can understand.
@@ -248,6 +245,12 @@ import UserNotifications
 	}
 }
 
+@objc public enum UserRelationType: Int32 {
+	case favorite
+	case mute
+	case block
+}
+
 // There is at most 1 *current* logged-in user at a time. That user is specified by CurrentUser.shared.loggedInUser.
 // We may store the login token for multiple users, but only one of them is *active* at a time.
 @objc class CurrentUser: NSObject {
@@ -287,14 +290,6 @@ import UserNotifications
 		context.performAndWait {
 			do {
 				resultUser = try context.existingObject(with: loggedInObjectID) as? LoggedInKrakenUser
-				
-//				if resultUser == nil {
-//					let mom = LocalCoreData.shared.persistentContainer.managedObjectModel
-//					let request = mom.fetchRequestFromTemplate(withName: "FindAUser", 
-//							substitutionVariables: [ "username" : username ]) as! NSFetchRequest<KrakenUser>
-//					let results = try request.execute()
-//					resultUser = results.first as? LoggedInKrakenUser
-//				}
 			}
 			catch {
 				CoreDataLog.error("Error while getting logged in user for context.", ["error" : error])
@@ -344,8 +339,7 @@ import UserNotifications
 				self.lastError = error
 			}
 			else if let data = package.data {
-				let decoder = JSONDecoder()
-				if let loginResponse = try? decoder.decode(TwitarrV3TokenStringData.self, from: data) {
+				if let loginResponse = try? Settings.v3Decoder.decode(TwitarrV3TokenStringData.self, from: data) {
 					self.loginSuccess(username: name, tokenResponse: loginResponse)
 				}
 				else {
@@ -411,9 +405,8 @@ import UserNotifications
 				// No response object indicates a network error of some sort (NOT a server error)
 			}
 			else {
-				let decoder = JSONDecoder()
 				if let data = package.data {
-					if let profileResponse = try? decoder.decode (TwitarrV3ProfilePublicData.self, from: data) {
+					if let profileResponse = try? Settings.v3Decoder.decode (TwitarrV3ProfilePublicData.self, from: data) {
 						let _ = UserManager.shared.updateLoggedInUserInfo(from: profileResponse)
 					}
 				}
@@ -519,8 +512,7 @@ import UserNotifications
 				self.isChangingLoginState = false
 			}
 			else {
-				let decoder = JSONDecoder()
-				if let data = package.data, let createAcctResponse = try? decoder.decode(TwitarrV3CreateAccountResponse.self, 
+				if let data = package.data, let createAcctResponse = try? Settings.v3Decoder.decode(TwitarrV3CreateAccountResponse.self, 
 						from: data) {
 					
 					// Login the user immediately after account creation
@@ -587,8 +579,7 @@ import UserNotifications
 				self.lastError = error
 			}
 			else if let data = package.data {
-				let decoder = JSONDecoder()
-				if let response = try? decoder.decode(TwitarrV3TokenStringData.self, from: data) {
+				if let response = try? Settings.v3Decoder.decode(TwitarrV3TokenStringData.self, from: data) {
 					// V3 reset returns a login token. Log ourselves in with it and immediately initiate a password change
 					// to the user's new password.
 					self.loginSuccess(username: name, tokenResponse: response)
@@ -602,33 +593,7 @@ import UserNotifications
 	}
 	
 // MARK: Move these to LoggedInKrakenUser!!!
-		
-	// This lets the logged in user favorite another user.
-	func setFavoriteUser(forUser: KrakenUser, to newState: Bool) {
-		guard let loggedInUser = loggedInUser else { return }
-		clearErrors()
-		
-		let context = LocalCoreData.shared.networkOperationContext
-		context.performAndWait {
-			do {
-				// get user in context
-				let userInContext = try context.existingObject(with: forUser.objectID) as! KrakenUser
-					
-				// Check for existing op for this user
-				let op = loggedInUser.getPendingUserFavoriteOp(forUser: forUser, inContext: context) ?? 
-						PostOpUserFavorite(context: context)
-				op.isFavorite = newState
-				op.userBeingFavorited = userInContext
-				op.operationState = .readyToSend
 			
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
-			}
-		}
-	}
-	
 	// 
 	func changeUserProfileFields(displayName: String?, realName: String?, pronouns: String?, email: String?, 
 			homeLocation: String?, roomNumber: String?) {
@@ -678,6 +643,74 @@ import UserNotifications
 			}
 		}
 	}
+	
+// MARK: Favorite, Mute, Block
+	// Creates an op to set the indicated relation. Current user is always acting user.
+	func setRelation(type: UserRelationType, forUser: KrakenUser, to newState: Bool) {
+		guard let loggedInUser = loggedInUser else { return }
+		clearErrors()
+		
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving User \(type) change to Core Data. (the network call succeeded, but we couldn't save the change).")
+					
+			// Check for existing op for this user
+			let op = loggedInUser.getPendingUserRelationOp(type: type, forUser: forUser, inContext: context) ?? PostOpUserRelation(context: context)
+			op.relationType = type
+			op.isActive = newState
+			op.targetUser = UserManager.shared.user(forUser, inContext: context)
+			op.operationState = .readyToSend
+		}
+	}
+
+	// Called when an op succeeds or the server has otherwise changed the given relation. updates CD.
+	func updatedUserRelation(type: UserRelationType, actingUser: KrakenUser, targetUser: KrakenUser, newState: Bool) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure saving User \(type) change to Core Data. (the network call succeeded, but we couldn't save the change).")
+			if let authorInContext = context.object(with: actingUser.objectID) as? LoggedInKrakenUser,
+					let targetInContext = context.object(with: targetUser.objectID) as? KrakenUser {
+				switch (type, newState) {
+					case (.favorite, true):  authorInContext.favoriteUsers.insert(targetInContext)
+					case (.favorite, false): authorInContext.favoriteUsers.remove(targetInContext)
+					case (.mute, true):  authorInContext.mutedUsers.insert(targetInContext)
+					case (.mute, false): authorInContext.mutedUsers.remove(targetInContext)
+					case (.block, true):  authorInContext.blockedUsers.insert(targetInContext)
+					case (.block, false): authorInContext.blockedUsers.remove(targetInContext)
+				}
+			}
+		}
+	}
+	
+	func updateUserRelations(type: UserRelationType, actingUser: KrakenUser? = CurrentUser.shared.loggedInUser) {
+		guard let actingUser = actingUser else { return }
+		var path: String
+		switch type {
+			case .favorite: path = "/api/v3/users/favorites"
+			case .mute: path = "/api/v3/users/mutes"
+			case .block: path = "/api/v3/users/blocks"
+		}
+		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: path, query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = NetworkGovernor.shared.parseServerError(package) {
+				AppLog.error(error.errorString)
+			}
+			else if let data = package.data {
+				do {
+					let headers = try Settings.v3Decoder.decode([TwitarrV3UserHeader].self, from: data)
+					LocalCoreData.shared.performNetworkParsing { context in
+						context.pushOpErrorExplanation("Failure adding user \(type) to Core Data.")
+						if let userInContext = UserManager.shared.user(actingUser, inContext: context) as? LoggedInKrakenUser {
+							userInContext.buildFromV3RelationInfo(context: context, type: type, targets: headers)
+						}
+					}
+				} catch 
+				{
+					NetworkLog.error("Failure loading user favorites.", ["Error" : error])
+				} 
+			}
+		}
+	}
+	
 }
 
 // MARK: - Twitarr V3 API Structs
