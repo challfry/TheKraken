@@ -72,7 +72,7 @@ func cruiseStartRelativeDays() -> Int {
 }
 	
 	
-// For 2023, this date is 12:00 Midnight, Saturday March 14, 2022 EDT
+// For 2023, this date is 12:00 Midnight, Saturday March 12, 2022 EDT
 func lastCruiseEndDate() -> Date? {
 	let endDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(identifier: "America/New_York"), 
 			year: 2022, month: 3, day: 12)

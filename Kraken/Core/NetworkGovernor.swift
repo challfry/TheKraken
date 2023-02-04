@@ -391,8 +391,10 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		lastError = error
 		var networkError: NetworkError? 
     	if let error = error {
-			NetworkLog.error("Task completed with error.", ["error" : error])	
-			newConnectionState(.noConnection)	
+			NetworkLog.error("Task completed with error.", ["error" : error])
+			if !(task is URLSessionWebSocketTask) {		// Websocket tasks break for reasons that aren't server disconnects
+				newConnectionState(.noConnection)	
+			}
 			networkError = NetworkError(error.localizedDescription)
     		    		
     		// todo: real error handling here

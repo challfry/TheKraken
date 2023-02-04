@@ -225,7 +225,7 @@ import CoreData
 	static let shared = SeamailDataManager()
 	
 	private let coreData = LocalCoreData.shared
-	var lastError : ServerError?
+	dynamic var lastError : ServerError?
 	@objc dynamic var isLoading = false
 	
 	var recentLoads: [UUID : Date] = [:]
@@ -593,6 +593,37 @@ import CoreData
 		}
 	}
 	
+	// Creates a pending POST operation to create a new LFG
+	func queueNewLFGOp(existingOp: PostOpLFGCreate?, lfgType: TwitarrV3FezType, title: String, info: String, location: String, 
+			startTime: Date, endTime: Date, minCapacity: Int32, maxCapacity: Int32, done: ((PostOpLFGCreate?) -> Void)?) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failure creating LFG in Core Data.")
+			
+			var lfgCreateOp: PostOpLFGCreate
+			if let existingOp = existingOp, let opInContext = try? context.existingObject(with: existingOp.objectID) as? PostOpLFGCreate {
+				lfgCreateOp = opInContext
+			}
+			else {
+				lfgCreateOp = PostOpLFGCreate(context: context)
+			}
+			
+			lfgCreateOp.lfgType = lfgType.rawValue
+			lfgCreateOp.title = title
+			lfgCreateOp.info = info
+			lfgCreateOp.location = location
+			lfgCreateOp.startTime = startTime
+			lfgCreateOp.endTime = endTime
+			lfgCreateOp.minCapacity = minCapacity
+			lfgCreateOp.maxCapacity = maxCapacity
+			lfgCreateOp.operationState = .readyToSend
+
+			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in		
+				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: lfgCreateOp.objectID) as? PostOpLFGCreate 
+				done?(mainThreadPost)
+			}
+		}
+	}
+	
 	// Does NOT post an op--user must be in network range. Reasoning is that adding users to LFGs is time-dependent, and 
 	// unlike posting while ashore, adding a user to a LFG hours later is gonna cause issues (i.e. the LFG fills up in the interim
 	// and the user doesn't understand how they got waitlisted).
@@ -674,7 +705,7 @@ enum TwitarrV3FezType: String, CaseIterable, Codable {
     /// A gaming LFG.
     case gaming
     /// A general meetup.
-    case meeetup
+    case meetup
     /// A music-related LFG.
     case music
     /// Some other type of LFG.
@@ -688,7 +719,7 @@ enum TwitarrV3FezType: String, CaseIterable, Codable {
             case .activity: return "Activity"
             case .dining: return "Dining"
             case .gaming: return "Gaming"
-            case .meeetup: return "Meetup"
+            case .meetup: return "Meetup"
             case .music: return "Music"
             case .shore: return "Shore"
             case .open: return "Open"

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="JmB-lb-5kb" customClass="PopupCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="341" height="37"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="IzJ-EM-wSM">
+                <rect key="frame" x="0.0" y="0.0" width="341" height="37"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="16k-hy-JMO">
+                        <rect key="frame" x="20.000000000000004" y="4" width="41.333333333333343" height="29"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" name="Kraken Label Text"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hHY-ht-MCA">
+                        <rect key="frame" x="71.333333333333329" y="4" width="249.66666666666669" height="29"/>
+                        <state key="normal" title="Button"/>
+                        <buttonConfiguration key="configuration" style="gray" title="Select">
+                            <color key="baseForegroundColor" name="Kraken Label Text"/>
+                        </buttonConfiguration>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="hHY-ht-MCA" firstAttribute="top" relation="greaterThanOrEqual" secondItem="IzJ-EM-wSM" secondAttribute="top" constant="4" id="7bi-cY-sCH"/>
+                    <constraint firstItem="16k-hy-JMO" firstAttribute="top" secondItem="IzJ-EM-wSM" secondAttribute="top" priority="850" constant="4" id="Bcy-oL-IkU"/>
+                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="hHY-ht-MCA" secondAttribute="bottom" priority="900" constant="4" id="hSg-vT-H0U"/>
+                    <constraint firstItem="hHY-ht-MCA" firstAttribute="centerY" secondItem="16k-hy-JMO" secondAttribute="centerY" id="k76-mk-HGl"/>
+                    <constraint firstAttribute="trailing" secondItem="hHY-ht-MCA" secondAttribute="trailing" constant="20" id="kd1-AA-91A"/>
+                    <constraint firstAttribute="bottom" secondItem="16k-hy-JMO" secondAttribute="bottom" priority="850" constant="4" id="mLS-MP-7Un"/>
+                    <constraint firstItem="16k-hy-JMO" firstAttribute="leading" secondItem="IzJ-EM-wSM" secondAttribute="leading" constant="20" id="mhO-T5-ed1"/>
+                    <constraint firstItem="hHY-ht-MCA" firstAttribute="leading" secondItem="16k-hy-JMO" secondAttribute="trailing" constant="10" id="rHc-t0-iRK"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="341" height="37"/>
+            <connections>
+                <outlet property="popupButton" destination="hHY-ht-MCA" id="b8y-LS-VY1"/>
+                <outlet property="titleLabel" destination="16k-hy-JMO" id="YCI-tV-2rg"/>
+            </connections>
+            <point key="canvasLocation" x="281.67938931297709" y="-27.816901408450704"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

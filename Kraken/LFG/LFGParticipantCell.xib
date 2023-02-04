@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -11,16 +12,16 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="ParticipantCell" reuseIdentifier="ParticipantCell" id="OEl-4Y-uDP" customClass="ParticipantCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="68"/>
+            <rect key="frame" x="0.0" y="0.0" width="375" height="95"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="pCs-4W-pUj">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="68"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="95"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="200" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zRq-fe-ljr">
                         <rect key="frame" x="74" y="23.666666666666671" width="198" height="21"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <nil key="textColor"/>
+                        <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lxk-Bf-0LA">
@@ -42,25 +43,43 @@
                             <action selector="avatarButtonAction:" destination="OEl-4Y-uDP" eventType="touchUpInside" id="WeT-0I-yHG"/>
                         </connections>
                     </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8jy-EU-EeB">
+                        <rect key="frame" x="16" y="66" width="339" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" name="Red Alert Text"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="bottom" secondItem="1iL-b0-SwT" secondAttribute="bottom" priority="200" constant="10" id="49z-1b-LFZ"/>
+                    <constraint firstAttribute="bottom" secondItem="8jy-EU-EeB" secondAttribute="bottom" priority="900" constant="8" id="31U-6V-mVH"/>
                     <constraint firstItem="1iL-b0-SwT" firstAttribute="top" secondItem="pCs-4W-pUj" secondAttribute="top" constant="10" id="8fZ-jz-mcW"/>
                     <constraint firstItem="zRq-fe-ljr" firstAttribute="leading" secondItem="1iL-b0-SwT" secondAttribute="trailing" constant="10" id="CBn-Eg-0Ao"/>
                     <constraint firstItem="zRq-fe-ljr" firstAttribute="centerY" secondItem="1iL-b0-SwT" secondAttribute="centerY" id="OtW-9Z-jpm"/>
                     <constraint firstItem="Lxk-Bf-0LA" firstAttribute="leading" secondItem="zRq-fe-ljr" secondAttribute="trailing" constant="8" symbolic="YES" id="VJn-gw-EwE"/>
                     <constraint firstAttribute="trailing" secondItem="Lxk-Bf-0LA" secondAttribute="trailing" constant="20" symbolic="YES" id="d11-TM-dRh"/>
+                    <constraint firstItem="8jy-EU-EeB" firstAttribute="trailing" secondItem="Lxk-Bf-0LA" secondAttribute="trailing" id="e3F-mp-cKu"/>
                     <constraint firstItem="Lxk-Bf-0LA" firstAttribute="centerY" secondItem="1iL-b0-SwT" secondAttribute="centerY" id="f2E-O5-i9G"/>
+                    <constraint firstItem="8jy-EU-EeB" firstAttribute="leading" secondItem="1iL-b0-SwT" secondAttribute="leading" id="gy5-lb-s6k"/>
                     <constraint firstItem="1iL-b0-SwT" firstAttribute="leading" secondItem="pCs-4W-pUj" secondAttribute="leading" constant="16" id="jjQ-4w-1Xr"/>
+                    <constraint firstItem="8jy-EU-EeB" firstAttribute="top" secondItem="1iL-b0-SwT" secondAttribute="bottom" constant="8" symbolic="YES" id="lgO-cz-nae"/>
                 </constraints>
             </collectionViewCellContentView>
-            <size key="customSize" width="375" height="68"/>
+            <size key="customSize" width="375" height="95"/>
             <connections>
                 <outlet property="actionButton" destination="Lxk-Bf-0LA" id="iDW-c8-Shi"/>
+                <outlet property="errorLabel" destination="8jy-EU-EeB" id="rZR-3Q-I5F"/>
                 <outlet property="imageButton" destination="1iL-b0-SwT" id="BuU-CK-xg1"/>
                 <outlet property="usernameLabel" destination="zRq-fe-ljr" id="hLL-t0-Fsp"/>
             </connections>
-            <point key="canvasLocation" x="348.46153846153845" y="50.473933649289094"/>
+            <point key="canvasLocation" x="348.46153846153845" y="60.071090047393362"/>
         </collectionViewCell>
     </objects>
+    <resources>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Red Alert Text">
+            <color red="0.72500002384185791" green="0.045000001788139343" blue="0.045000001788139343" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
 </document>

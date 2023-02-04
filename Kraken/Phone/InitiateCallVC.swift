@@ -89,7 +89,7 @@ import AVFoundation
 	func createMatchingUserCell(_ model: KrakenUser) -> BaseCellModel {
 		let cell = ParticipantCellModel(withModel: model, reuse: "ParticipantCell")
 		cell.showActionButton = model.userID != CurrentUser.shared.loggedInUser?.userID
-		cell.buttonAction = { [weak self] in self?.callUserTappedAction(user: model) }
+		cell.buttonAction = { [weak self] in self?.callUserTappedAction(cell: cell, user: model) }
 		cell.actionButtonTitle = "Call"
 		return cell
 	}
@@ -101,15 +101,38 @@ import AVFoundation
 		return cell
 	}
 	
+	var phonecall: CurrentCallInfo?
+	
 // MARK: Actions
-	func callUserTappedAction(user: KrakenUser) {
+	func callUserTappedAction(cell: ParticipantCellModel, user: KrakenUser) {
 //   		let alert = UIAlertController(title: "Call \(user.username)?", message: "", 
 //   				preferredStyle: .alert) 
 //		alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 //		alert.addAction(UIAlertAction(title: "Call", style: .default, handler: { _ in
-			PhonecallDataManager.shared.requestCallTo(user: user)
+			PhonecallDataManager.shared.requestCallTo(user: user) { phonecall in
+				self.phonecall = phonecall
+				self.phonecall?.tell(cell, when: "callError") { observer, observed in
+					if let callError = observed.callError as? ServerError {
+						observer.errorText = "\(self.getShortTime()) \(callError.getGeneralError())"
+					}
+					else if let errorText = observed.callError?.localizedDescription {
+						observer.errorText = "\(self.getShortTime()) \(errorText)"
+					}
+					else {
+						observer.errorText = nil
+					}
+				}
+			}
 //		}))
 //		present(alert, animated: true, completion: nil)
+	}
+	
+	func getShortTime() -> String {
+		let dateFormatter = DateFormatter()
+		dateFormatter.locale = Locale(identifier: "en_US")
+		dateFormatter.dateStyle = .none
+		dateFormatter.timeStyle = .short
+		return dateFormatter.string(from: Date())
 	}
 
 // MARK: Navigation

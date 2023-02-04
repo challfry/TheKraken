@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 @objc protocol LFGCellBindingProtocol: FetchedResultsBindingProtocol {
 }

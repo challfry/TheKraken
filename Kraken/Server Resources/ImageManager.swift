@@ -391,11 +391,10 @@ class ImageManager : NSObject {
 			
 			// We're using requestImageData instead of requestImage due to the likely over-optimistic possibility
 			// that we may not need to decompress/recompress the image.
-			let _ = PHImageManager.default().requestImageDataAndOrientation(for: asset, 
-					options: options) { imageDataParam, dataUTI, orientation, info in
-				var imageData = imageDataParam
-				if let origImageData = imageData, let uti = dataUTI, var mimeType =
-						UTTypeCopyPreferredTagWithClass(uti as CFString, kUTTagClassMIMEType)?.takeRetainedValue() as String? {
+			let _: PHImageRequestID = PHImageManager.default().requestImageDataAndOrientation(for: asset, 
+					options: options) { (imageDataParam: Data?, utiString: String?, orientation: CGImagePropertyOrientation, info: [AnyHashable : Any]?) in
+				if let origImageData = imageDataParam, let utiString = utiString, let uti = UTType(utiString), var mimeType = uti.preferredMIMEType  {
+					var imageData: Data? = origImageData
 					
 					// Do we need to recompress to convert the data to something the server can handle?
 					// If we don't need to do this, we go right on through with imageData and mimeType unchanged.

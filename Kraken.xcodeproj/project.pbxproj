@@ -201,6 +201,13 @@
 		EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */; };
 		EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */; };
 		EACB06AE2404FF530075924E /* EmojiDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF589D42403EE8300ECB7DB /* EmojiDataManager.swift */; };
+		EAD0EE0D298B2FB100B07DCE /* CreateLFGViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD0EE0C298B2FB000B07DCE /* CreateLFGViewController.swift */; };
+		EAD0EE0F298BAFD500B07DCE /* PopupCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD0EE0E298BAFD500B07DCE /* PopupCell.xib */; };
+		EAD0EE11298BB29D00B07DCE /* PopupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD0EE10298BB29D00B07DCE /* PopupCell.swift */; };
+		EAD0EE13298C682D00B07DCE /* DatePickerCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD0EE12298C682D00B07DCE /* DatePickerCell.xib */; };
+		EAD0EE15298C699700B07DCE /* DatePickerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD0EE14298C699700B07DCE /* DatePickerCell.swift */; };
+		EAD0EE17298CF26F00B07DCE /* AttendeeCountsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD0EE16298CF26F00B07DCE /* AttendeeCountsCell.xib */; };
+		EAD0EE19298CF8A100B07DCE /* AttendeeCountsCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD0EE18298CF8A100B07DCE /* AttendeeCountsCells.swift */; };
 		EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */; };
 		EAD4CB1D293EC9530018C381 /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */; };
 		EADC819F2963BA0400232A37 /* SeamailUserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EADC819E2963BA0400232A37 /* SeamailUserListCell.xib */; };
@@ -491,6 +498,13 @@
 		EAC696EC2290159000EE6EEB /* StringUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtilities.swift; sourceTree = "<group>"; };
 		EAC71D49228A13F6002F7BB3 /* FRCDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRCDataSourceSegment.swift; sourceTree = "<group>"; };
 		EAC71D6C228ACC4F002F7BB3 /* SmallUserCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SmallUserCell.xib; sourceTree = "<group>"; };
+		EAD0EE0C298B2FB000B07DCE /* CreateLFGViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateLFGViewController.swift; sourceTree = "<group>"; };
+		EAD0EE0E298BAFD500B07DCE /* PopupCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PopupCell.xib; sourceTree = "<group>"; };
+		EAD0EE10298BB29D00B07DCE /* PopupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupCell.swift; sourceTree = "<group>"; };
+		EAD0EE12298C682D00B07DCE /* DatePickerCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DatePickerCell.xib; sourceTree = "<group>"; };
+		EAD0EE14298C699700B07DCE /* DatePickerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerCell.swift; sourceTree = "<group>"; };
+		EAD0EE16298CF26F00B07DCE /* AttendeeCountsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AttendeeCountsCell.xib; sourceTree = "<group>"; };
+		EAD0EE18298CF8A100B07DCE /* AttendeeCountsCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendeeCountsCells.swift; sourceTree = "<group>"; };
 		EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarEditCell.swift; sourceTree = "<group>"; };
 		EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
 		EADC819E2963BA0400232A37 /* SeamailUserListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailUserListCell.xib; sourceTree = "<group>"; };
@@ -795,10 +809,17 @@
 			children = (
 				EA3E116E2945157E00A3DC19 /* LFGRootViewController.swift */,
 				EA82092829343D0D005A251F /* ManageMembersVC.swift */,
+				EAD0EE0C298B2FB000B07DCE /* CreateLFGViewController.swift */,
 				EA3E11702947277900A3DC19 /* LFGCell.swift */,
 				EA3E11722947279700A3DC19 /* LFGCell.xib */,
 				EA820954293EB3FC005A251F /* LFGParticipantCell.swift */,
 				EA820956293EB422005A251F /* LFGParticipantCell.xib */,
+				EAD0EE10298BB29D00B07DCE /* PopupCell.swift */,
+				EAD0EE0E298BAFD500B07DCE /* PopupCell.xib */,
+				EAD0EE14298C699700B07DCE /* DatePickerCell.swift */,
+				EAD0EE12298C682D00B07DCE /* DatePickerCell.xib */,
+				EAD0EE18298CF8A100B07DCE /* AttendeeCountsCells.swift */,
+				EAD0EE16298CF26F00B07DCE /* AttendeeCountsCell.xib */,
 			);
 			path = LFG;
 			sourceTree = "<group>";
@@ -1278,6 +1299,7 @@
 				EA257F7A2765FEBA00910CC5 /* CategoryCell.xib in Resources */,
 				EA8694AD23D3091A00ABE391 /* DailyActivityCell2.xib in Resources */,
 				EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */,
+				EAD0EE0F298BAFD500B07DCE /* PopupCell.xib in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
 				EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */,
@@ -1287,12 +1309,14 @@
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EADC819F2963BA0400232A37 /* SeamailUserListCell.xib in Resources */,
 				EA4E84EC2328734F0059E5EB /* KaraokeLoadingCell.xib in Resources */,
+				EAD0EE13298C682D00B07DCE /* DatePickerCell.xib in Resources */,
 				EA8694B523D4A5A800ABE391 /* AnnouncementCell.xib in Resources */,
 				EA820957293EB422005A251F /* LFGParticipantCell.xib in Resources */,
 				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
 				EA2286F723E42ED90036C20E /* BoardGameCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
 				EA3E11732947279700A3DC19 /* LFGCell.xib in Resources */,
+				EAD0EE17298CF26F00B07DCE /* AttendeeCountsCell.xib in Resources */,
 				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
 				EA4767342341A4B000F56E08 /* LoggedInUserCell.xib in Resources */,
 				EAAA68E323FD122F00C9EF82 /* RockBalladMode.mov in Resources */,
@@ -1396,6 +1420,7 @@
 				EAAF9BE625C7B7030078C794 /* CategoriesDataManager.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EACB06AE2404FF530075924E /* EmojiDataManager.swift in Sources */,
+				EAD0EE15298C699700B07DCE /* DatePickerCell.swift in Sources */,
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */,
 				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,
@@ -1406,6 +1431,7 @@
 				EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */,
 				EA4A1D1C22540801008501A3 /* NSDictionary+EBNObservable.m in Sources */,
 				EA4E84EE232A2CE70059E5EB /* ServerTime.swift in Sources */,
+				EAD0EE0D298B2FB100B07DCE /* CreateLFGViewController.swift in Sources */,
 				EA58112023E6E7D900F62D4E /* CruiseDateCalculator.swift in Sources */,
 				EA2286F523E42D9F0036C20E /* BoardGameCell.swift in Sources */,
 				EA283FD8297911C6005450E7 /* SwiftyTokeniser.swift in Sources */,
@@ -1417,6 +1443,7 @@
 				EA3E11712947277900A3DC19 /* LFGCell.swift in Sources */,
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
+				EAD0EE11298BB29D00B07DCE /* PopupCell.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
 				EA6CD9B823EF873500B9BC3C /* SquidAnimation.swift in Sources */,
 				EA86ADD82272BAD300363CBF /* LoadingStatusCell.swift in Sources */,
@@ -1480,6 +1507,7 @@
 				EAAF9BDC25C78B1C0078C794 /* ForumsRootVC.swift in Sources */,
 				EA2286F023E3C7450036C20E /* GamesListStructs.swift in Sources */,
 				EA283FDB297911C6005450E7 /* SwiftyMarkdown+macOS.swift in Sources */,
+				EAD0EE19298CF8A100B07DCE /* AttendeeCountsCells.swift in Sources */,
 				EAF589CF2401F1EE00ECB7DB /* DisclosureCell.swift in Sources */,
 				EA283FD7297911C6005450E7 /* SwiftyMarkdown.swift in Sources */,
 				EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */,

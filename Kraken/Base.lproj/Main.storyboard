@@ -2516,6 +2516,46 @@ Additional info:</string>
             </objects>
             <point key="canvasLocation" x="-1499" y="-972"/>
         </scene>
+        <!--CreateLFG View Controller-->
+        <scene sceneID="KFr-rQ-vL2">
+            <objects>
+                <viewController id="Slh-I1-F98" customClass="CreateLFGViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="JG6-BB-d3A">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="jbX-0Q-bBr">
+                                <rect key="frame" x="0.0" y="92" width="414" height="804"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="G1C-Sy-OwL">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Tyr-hN-tYg"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="jbX-0Q-bBr" firstAttribute="leading" secondItem="Tyr-hN-tYg" secondAttribute="leading" id="3nO-aY-9zf"/>
+                            <constraint firstItem="jbX-0Q-bBr" firstAttribute="top" secondItem="Tyr-hN-tYg" secondAttribute="top" id="4fF-4j-Gnm"/>
+                            <constraint firstItem="Tyr-hN-tYg" firstAttribute="trailing" secondItem="jbX-0Q-bBr" secondAttribute="trailing" id="ZUP-rA-AUv"/>
+                            <constraint firstItem="jbX-0Q-bBr" firstAttribute="bottom" secondItem="Tyr-hN-tYg" secondAttribute="bottom" constant="83" id="gFk-q1-0qk"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="jqI-Ma-RZ0"/>
+                    <connections>
+                        <outlet property="collectionView" destination="jbX-0Q-bBr" id="5kY-Hc-ouJ"/>
+                        <segue destination="lCj-kd-l6g" kind="unwind" identifier="dismissingPostingView" unwindAction="dismissingPostingView:" id="B2M-s9-wJU"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7MO-4e-CjV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="lCj-kd-l6g" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="-4804.347826086957" y="-1718.3035714285713"/>
+        </scene>
         <!--LFG-->
         <scene sceneID="5M7-07-Vr9">
             <objects>
@@ -2545,10 +2585,18 @@ Additional info:</string>
                             <constraint firstItem="n7t-5E-q7w" firstAttribute="leading" secondItem="l7R-g9-a1W" secondAttribute="leading" id="RfQ-5f-j0s"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="LFG" id="chY-s1-leQ"/>
+                    <navigationItem key="navigationItem" title="LFG" id="chY-s1-leQ">
+                        <barButtonItem key="rightBarButtonItem" title="Create" id="10y-D9-Zur">
+                            <connections>
+                                <action selector="createLFGTapped" destination="Jcd-tK-yNb" id="hdr-AV-jR4"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="n7t-5E-q7w" id="9ui-Yp-gQd"/>
+                        <outlet property="createLFGButton" destination="10y-D9-Zur" id="MUH-nj-FFF"/>
                         <segue destination="UX8-5D-MNK" kind="show" identifier="ShowSeamailThread" id="eE5-IR-ObY"/>
+                        <segue destination="Slh-I1-F98" kind="show" identifier="LFGCreate" id="K5i-zM-yNP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QPm-BS-jnW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

@@ -12,6 +12,8 @@ import CoreData
 
 class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 
+	@IBOutlet weak var createLFGButton: UIBarButtonItem!
+	
 	// Used to store incoming global nav until our view is loaded. 
 	var globalNav: GlobalNavPacket?
 
@@ -65,6 +67,8 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		return cell
 	}()
 	
+// MARK: - Methods
+	
 	override func viewDidLoad() {
         super.viewDidLoad()
         startRefresh()
@@ -108,6 +112,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
         		observer.dataManager.loadOpenLFGs()
         		observer.dataManager.loadSeamails()
 				observer.navigationController?.popToViewController(self, animated: false)
+				observer.createLFGButton.isEnabled = true
 			}
        		else {
        			// If nobody's logged in, pop to root, show the login cells.
@@ -115,6 +120,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
  				observer.joinedSegment.changePredicate(to: NSPredicate(value: false))
 				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
 				observer.navigationController?.popToViewController(self, animated: false)
+				observer.createLFGButton.isEnabled = false
        		}
         }?.execute()        
 
@@ -152,12 +158,23 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		return cellModel
 	}
 
+// MARK: Actions
+	@IBAction func createLFGTapped() {
+		performKrakenSegue(.lfgCreateEdit, sender: nil)
+	}
+
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .showSeamailThread ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .showSeamailThread, .lfgCreateEdit ])
 	}
 
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
 		return true
 	}
+	
+	// This is the unwind segue from the compose view.
+	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
+		dataManager.loadSeamails()
+	}	
+
 }

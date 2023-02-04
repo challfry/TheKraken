@@ -454,7 +454,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			}
 		}
 		let postStruct = TwitarrV3PostContentData(text: text, images: uploadImages)
-		let httpContentData = try! JSONEncoder().encode(postStruct)
+		let httpContentData = try! Settings.v3Encoder.encode(postStruct)
 
 		var path: String
 		if let editingPost = self.tweetToEdit {
@@ -606,7 +606,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			path = "/api/v3/forum/post/\(editPost.id)/update"
 			let newText = text ?? editPost.text
 			let postData = TwitarrV3PostContentData(text: newText, images: uploadImages)
-			content = try! JSONEncoder().encode(postData)
+			content = try! Settings.v3Encoder.encode(postData)
 		}
 		else if let existingThread = thread {
 			guard let text = text else {
@@ -616,7 +616,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			// If it's a new post in an existing thread, takes a TwitarrV3PostContentData, returns a TwitarrV3PostData
 			path = "/api/v3/forum/\(existingThread.id)/create"
 			let postData = TwitarrV3PostContentData(text: text, images: uploadImages)
-			content = try! JSONEncoder().encode(postData)
+			content = try! Settings.v3Encoder.encode(postData)
 		}
 		else if let category = category {
 			// New thread, takes a TwitarrV3ForumCreateData, returns a TwitarrV3ForumData
@@ -632,7 +632,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			path = "/api/v3/forum/categories/\(category.id)/create"
 			let firstPostData = TwitarrV3PostContentData(text: text, images: uploadImages)			
 			let postData = TwitarrV3ForumCreateData(title: subject, firstPost: firstPostData)
-			content = try! JSONEncoder().encode(postData)
+			content = try! Settings.v3Encoder.encode(postData)
 		}
 		else {
 			recordServerErrorFailure(ServerError("Forum post operation is malformed."))
@@ -815,7 +815,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		let userIDs = recipients?.compactMap { $0.actualUser?.userID } ?? []
 		let newThreadStruct = TwitarrV3FezContentData(fezType: makeOpen ? .open : .closed, title: subject, info: "", 
 				startTime: nil, endTime: nil, location: nil, minCapacity: 0, maxCapacity: 0, initialUsers: userIDs)
-		let newThreadData = try! JSONEncoder().encode(newThreadStruct)
+		let newThreadData = try! Settings.v3Encoder.encode(newThreadStruct)
 		request.httpBody = newThreadData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
@@ -829,6 +829,48 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
+@objc(PostOpLFGCreate) public class PostOpLFGCreate: PostOperation {
+	@NSManaged public var lfgType: String			// Much match a .raw from TwitarrV3FezType
+	@NSManaged public var title: String
+	@NSManaged public var info: String
+	@NSManaged public var location: String
+	@NSManaged public var startTime: Date
+	@NSManaged public var endTime: Date
+	@NSManaged public var minCapacity: Int32
+	@NSManaged public var maxCapacity: Int32
+
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
+		operationDescription = "Creating a new LFG."
+	}
+
+	override func post(context: NSManagedObjectContext) {
+		guard let lfgtype = TwitarrV3FezType(rawValue: lfgType) else {
+			self.recordServerErrorFailure(ServerError("Invalid LFG type. Cannot complete creating this LFG."))
+			return
+		}
+		confirmPostBeingSent(context: context)
+						
+		// POST /api/v3/fez/create
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/fez/create", query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		request.httpMethod = "POST"
+		let newLFGStruct = TwitarrV3FezContentData(fezType: lfgtype, title: title, info: info,  startTime: startTime, endTime: endTime, 
+				location: location, minCapacity: minCapacity, maxCapacity: maxCapacity, initialUsers: [])
+		let newThreadData = try! Settings.v3Encoder.encode(newLFGStruct)
+		request.httpBody = newThreadData
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		
+		self.queueNetworkPost(request: request, success: { data in
+			let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
+			SeamailDataManager.shared.ingestSeamailThread(from: response) { thread in
+				
+			}
+		})
+	}
+}
+
+// Used for both LFG and seamail messages
 @objc(PostOpSeamailMessage) public class PostOpSeamailMessage: PostOperation {
 	@NSManaged public var thread: SeamailThread?
 	@NSManaged public var text: String
@@ -850,7 +892,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		let newMessageStruct = TwitarrV3PostContentData(text: text, images: [])
-		let newMessageData = try! JSONEncoder().encode(newMessageStruct)
+		let newMessageData = try! Settings.v3Encoder.encode(newMessageStruct)
 		request.httpBody = newMessageData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
@@ -914,7 +956,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 		else {
 			let postContent = TwitarrV3NoteCreateData(note: comment)
-			let postData = try! JSONEncoder().encode(postContent)
+			let postData = try! Settings.v3Encoder.encode(postContent)
 			request.httpMethod = "POST"
 			request.httpBody = postData
 			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -983,7 +1025,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		
 		let postContent = UserProfileUploadData(header: nil, displayName: displayName, realName: realName, 
 				preferredPronoun: pronouns, homeLocation: homeLocation, roomNumber: roomNumber, email: email, message: "", about: "")
-		let postData = try! JSONEncoder().encode(postContent)
+		let postData = try! Settings.v3Encoder.encode(postContent)
 		
 		// POST /api/v3/user/profile`
 		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/user/profile", query: nil)
@@ -1018,7 +1060,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		if let imageData = image {
 			let uploadData = TwitarrV3ImageUploadData(filename: "userAvatar", image: imageData as Data)
-			let postData = try! JSONEncoder().encode(uploadData)
+			let postData = try! Settings.v3Encoder.encode(uploadData)
 			request.httpBody = postData
 			request.httpMethod = "POST"
 			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1086,9 +1128,9 @@ public struct TwitarrV3FezContentData: Codable {
 	/// The location for the fez.
 	var location: String?
 	/// The minimum number of seamonkeys needed for the fez.
-	var minCapacity: Int
+	var minCapacity: Int32
 	/// The maximum number of seamonkeys for the fez.
-	var maxCapacity: Int
+	var maxCapacity: Int32
 	/// Users to add to the fez upon creation. The creator is always added as the first user.
 	var initialUsers: [UUID]
 	/// If TRUE, the Fez will be created by user @moderator instead of the current user. Current user must be a mod.

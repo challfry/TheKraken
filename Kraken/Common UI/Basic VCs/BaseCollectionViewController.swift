@@ -43,6 +43,7 @@ enum GlobalKnownSegue: String {
 	case eventsRoot = 				"EventsRoot"
 	
 	case lfgRoot = 					"LFGRoot"
+	case lfgCreateEdit = 			"LFGCreate"
 	
 	case deckMapRoot =				"DeckMapRoot"
 	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
@@ -102,6 +103,7 @@ enum GlobalKnownSegue: String {
 		case .eventsRoot: return String.self
 		
 		case .lfgRoot: return Void.self
+		case .lfgCreateEdit: return SeamailThread?.self
 		
 		case .deckMapRoot: return Void.self
 		case .showRoomOnDeckMap: return String.self
@@ -657,6 +659,11 @@ class BaseCollectionViewController: UIViewController {
 				destVC.threadModel = thread
 			}
 			
+// LFG
+		case .lfgCreateEdit:
+			if let destVC = destination as? CreateLFGViewController, let thread = sender as? SeamailThread {
+				destVC.lfgModel = thread
+			}
 // Events
 		case .eventsRoot: break
 			

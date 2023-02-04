@@ -372,7 +372,8 @@ class UserManager : NSObject {
 		
 	// Updates a bunch of users at once. The array of TwitarrV3UserHeader objects can have duplicates, but is assumed
 	// to be the parsed out of a single network call (i.e. duplicate IDs will have all fields equal). Does not save the context.
-	@discardableResult func update(users origUsers: [TwitarrV3UserHeader], inContext context: NSManagedObjectContext) -> [UUID : KrakenUser] {
+	@discardableResult func update(users origUsers: [TwitarrV3UserHeader], inContext context: NSManagedObjectContext,
+			includeCurrentUser: Bool = true) -> [UUID : KrakenUser] {
 		do {
 			// Unique all the users
 			let usersDict = Dictionary(origUsers.map { ($0.userID, $0) }, uniquingKeysWith: { (first,_) in first })
@@ -395,7 +396,7 @@ class UserManager : NSObject {
 						
 			// Results should now have all the users that were passed in. Add the logged in user, because several
 			// parsers require it.
-			if let currentUser = CurrentUser.shared.loggedInUser, 
+			if includeCurrentUser, let currentUser = CurrentUser.shared.loggedInUser, 
 				let userInContext = try? context.existingObject(with: currentUser.objectID) as? KrakenUser {
 				resultDict[currentUser.userID] = userInContext
 			}

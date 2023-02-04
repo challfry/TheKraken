@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 @objc class ComposeSeamailThreadVC: BaseCollectionViewController, GlobalNavEnabled {
 	// PostOp for thread creation

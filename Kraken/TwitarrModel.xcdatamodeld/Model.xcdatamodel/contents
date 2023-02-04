@@ -226,6 +226,16 @@
         <attribute name="reactionWord" optional="YES" attributeType="String"/>
         <relationship name="sourcePost" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="reactionOps" inverseEntity="ForumPost"/>
     </entity>
+    <entity name="PostOpLFGCreate" representedClassName="PostOpLFGCreate" parentEntity="PostOperation" syncable="YES">
+        <attribute name="endTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="info" optional="YES" attributeType="String"/>
+        <attribute name="lfgType" optional="YES" attributeType="String"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="maxCapacity" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="minCapacity" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="startTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="PostOpPhoto_Attachment" representedClassName="PostOpPhoto_Attachment" syncable="YES">
         <attribute name="filename" optional="YES" attributeType="String"/>
         <attribute name="imageData" optional="YES" attributeType="Binary"/>

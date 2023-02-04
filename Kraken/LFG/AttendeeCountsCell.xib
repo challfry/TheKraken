@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AttendeeCountsCell" id="bC1-Ft-AB1" customClass="AttendeeCountsCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="371" height="102"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="ixF-hH-6Q5">
+                <rect key="frame" x="0.0" y="0.0" width="371" height="102"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Minimum Attendees" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mDN-G6-QK7">
+                        <rect key="frame" x="20" y="18.666666666666668" width="185" height="21.000000000000004"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" name="Kraken Label Text"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="2" borderStyle="roundedRect" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="bhn-Cn-ooZ">
+                        <rect key="frame" x="215" y="12" width="38" height="34"/>
+                        <constraints>
+                            <constraint firstAttribute="width" priority="700" constant="35" id="JTE-eL-Cf4"/>
+                        </constraints>
+                        <color key="textColor" name="Kraken Text Entry"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <textInputTraits key="textInputTraits"/>
+                    </textField>
+                    <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="50" translatesAutoresizingMaskIntoConstraints="NO" id="iWC-j3-Wh7">
+                        <rect key="frame" x="261" y="13" width="94" height="32"/>
+                    </stepper>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Maximum Attendees" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c9V-5g-O4g">
+                        <rect key="frame" x="20" y="67" width="185" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" name="Kraken Label Text"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="2" borderStyle="roundedRect" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="wpw-5q-Hza">
+                        <rect key="frame" x="215" y="60.666666666666657" width="38" height="34"/>
+                        <constraints>
+                            <constraint firstAttribute="width" priority="700" constant="35" id="9wS-AV-G63"/>
+                        </constraints>
+                        <color key="textColor" name="Kraken Text Entry"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <textInputTraits key="textInputTraits"/>
+                    </textField>
+                    <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minimumValue="2" maximumValue="50" translatesAutoresizingMaskIntoConstraints="NO" id="jqu-MV-zyR">
+                        <rect key="frame" x="261" y="59" width="94" height="37"/>
+                    </stepper>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="iWC-j3-Wh7" firstAttribute="centerY" secondItem="bhn-Cn-ooZ" secondAttribute="centerY" id="0ja-53-fnX"/>
+                    <constraint firstAttribute="bottom" secondItem="jqu-MV-zyR" secondAttribute="bottom" priority="900" constant="6" id="Blt-ws-hnb"/>
+                    <constraint firstItem="jqu-MV-zyR" firstAttribute="trailing" secondItem="iWC-j3-Wh7" secondAttribute="trailing" id="DL6-Kk-5up"/>
+                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="wpw-5q-Hza" secondAttribute="bottom" priority="950" constant="6" id="EPS-S0-ZB4"/>
+                    <constraint firstItem="c9V-5g-O4g" firstAttribute="leading" secondItem="ixF-hH-6Q5" secondAttribute="leading" constant="20" id="FHu-Kk-u0h"/>
+                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="jqu-MV-zyR" secondAttribute="bottom" priority="950" constant="6" id="IAV-So-7AX"/>
+                    <constraint firstItem="jqu-MV-zyR" firstAttribute="leading" secondItem="wpw-5q-Hza" secondAttribute="trailing" constant="8" symbolic="YES" id="MZp-q8-5P8"/>
+                    <constraint firstItem="wpw-5q-Hza" firstAttribute="leading" secondItem="c9V-5g-O4g" secondAttribute="trailing" constant="10" id="Tmn-iL-QQT"/>
+                    <constraint firstItem="c9V-5g-O4g" firstAttribute="centerY" secondItem="wpw-5q-Hza" secondAttribute="centerY" id="Y3m-JH-YoQ"/>
+                    <constraint firstItem="iWC-j3-Wh7" firstAttribute="leading" secondItem="bhn-Cn-ooZ" secondAttribute="trailing" constant="8" symbolic="YES" id="YRc-l2-Ogk"/>
+                    <constraint firstItem="jqu-MV-zyR" firstAttribute="centerY" secondItem="wpw-5q-Hza" secondAttribute="centerY" id="a15-BH-Pr7"/>
+                    <constraint firstItem="iWC-j3-Wh7" firstAttribute="top" secondItem="ixF-hH-6Q5" secondAttribute="top" constant="13" id="aEd-1C-yDp"/>
+                    <constraint firstItem="bhn-Cn-ooZ" firstAttribute="centerY" secondItem="mDN-G6-QK7" secondAttribute="centerY" id="gfK-zg-grS"/>
+                    <constraint firstItem="jqu-MV-zyR" firstAttribute="top" secondItem="iWC-j3-Wh7" secondAttribute="bottom" constant="14" id="ibJ-qE-st2"/>
+                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="c9V-5g-O4g" secondAttribute="bottom" priority="950" constant="6" id="j3Z-j4-ANr"/>
+                    <constraint firstAttribute="trailing" secondItem="iWC-j3-Wh7" secondAttribute="trailing" constant="16" id="jzU-un-bEE"/>
+                    <constraint firstItem="bhn-Cn-ooZ" firstAttribute="leading" secondItem="mDN-G6-QK7" secondAttribute="trailing" constant="10" id="mhh-c6-trI"/>
+                    <constraint firstItem="mDN-G6-QK7" firstAttribute="leading" secondItem="ixF-hH-6Q5" secondAttribute="leading" constant="20" id="yxY-c5-Hz6"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="371" height="102"/>
+            <connections>
+                <outlet property="maxAttendeesField" destination="wpw-5q-Hza" id="DrB-b9-zrz"/>
+                <outlet property="maxAttendeesStepper" destination="jqu-MV-zyR" id="D6L-vd-lCq"/>
+                <outlet property="minAttendeesField" destination="bhn-Cn-ooZ" id="JAf-Rq-2uG"/>
+                <outlet property="minAttendeesStepper" destination="iWC-j3-Wh7" id="Yp1-hj-YZE"/>
+            </connections>
+            <point key="canvasLocation" x="200.76335877862596" y="28.87323943661972"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Text Entry">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

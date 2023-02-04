@@ -190,7 +190,7 @@ import CoreData
 			}
 			if calendar == nil {
 				let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
- 				newCalendar.title = "JoCo Cruise 2022"
+ 				newCalendar.title = "JoCo Cruise 2023"
 				if eventStore.sources.count == 0 {
 					newCalendar.source = EKSource()
 				}
@@ -410,7 +410,9 @@ class EventsDataManager: NSObject {
 	private let coreData = LocalCoreData.shared
 	fileprivate let ekEventStore = EKEventStore()
 		
-	// This is how much time to add to the current time to use the 2020 cruise schedule.
+	// This is how much time to add to the current time to use the cruise schedule. Will be negative if the Schedule
+	// is for a previous year. To use: Date() + debugEventTimeOffset -> current time of day and day of week, but date and year 
+	// match the week of the Schedule data.
 	var debugEventsTimeOffset: TimeInterval = 0.0
 	
 	// TRUE when we've got a network call running to update the stream, or the current filter.
@@ -420,7 +422,7 @@ class EventsDataManager: NSObject {
 // MARK: Methods
 
 	override init() {
-		// Just once, calc our debug date offset
+		// Just once, calc our debug date offset. This is an offset from the current date to give us a date covered by the Schedule.ics file.
 		let currentTime = Date()
 		let tz = TimeZone(abbreviation: "EDT")
 		let components = DateComponents(calendar: Calendar.current, timeZone: tz, year: 2022, month: 3, 

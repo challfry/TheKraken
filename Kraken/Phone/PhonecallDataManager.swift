@@ -19,6 +19,7 @@ import UIKit
 	var answeredCall: Bool = false
 	var socket: URLSessionWebSocketTask?
 	var callStartTime: Date?
+	@objc dynamic var callError: Error?
 	
 	// Direct call
 	var portListener: NWListener?
@@ -56,20 +57,26 @@ import UIKit
 				let newEnded = UserDefaults(suiteName: "group.com.challfry-FQD.Kraken")?.string(forKey: "phoneCallEnded") ?? ""
 				if newAnswered != self.answered {
 					self.answered = newAnswered
-					print("New value for answered: \(newAnswered)")
 					if self.answeredCall == false, let newEndedUUID = UUID(uuidString: newEnded), newEndedUUID == self.callUUID {
 						PhonecallDataManager.shared.endCall()
 					}
 				}
 				if newEnded != self.ended {
 					self.ended = newEnded
-					print("New value for ended: \(newEnded)")
 					if let newEndedUUID = UUID(uuidString: newEnded), newEndedUUID == self.callUUID {
+						// If the call ended before it started, it was declined
+						if self.socket == nil {
+							self.setError(ServerError("Call declined"))
+						}
 						PhonecallDataManager.shared.endCall()
 					}
 				}
 			}
 		}
+	}
+	
+	func setError(_ newError: Error?) {
+		self.callError = newError
 	}
 	
 	deinit {
@@ -80,8 +87,7 @@ import UIKit
 @objc class PhonecallDataManager: NSObject {
 	static let shared = PhonecallDataManager()
 	
-	var lastError: Error?
-	private let logger = Logger()
+	private let logger = Logger(subsystem: "Kraken", category: "PhonecallDataManager")
     private let dispatchQueue = DispatchQueue(label: "CallManager.dispatchQueue")
 	private let provider: CXProvider
     let callController = CXCallController()
@@ -117,7 +123,7 @@ import UIKit
 // MARK: - Networking
 
 	// The user has tapped the 'Call' button and wants to initiate a phone call.
-	func requestCallTo(user: KrakenUser) {
+	func requestCallTo(user: KrakenUser, done: @escaping (CurrentCallInfo) -> Void) {
 		dispatchQueue.async { [self] in
 			// Don't accept call start if we think we're on another call or if we aren't logged in.
 			logger.info("Initiating phone call to \(user.username)")
@@ -132,14 +138,14 @@ import UIKit
 			transaction.addAction(startCallAction)
 			callController.request(transaction) { error in
 				if let error = error {
-					print("Error requesting transaction:", error.localizedDescription)
-				} else {
-					print("Requested transaction successfully")
+					self.logger.info("Error requesting transaction: \(error.localizedDescription)")
+					newCall.setError(error)
+					return
 				}
 	   
 				let updateNameAction = CXCallUpdate()
 				updateNameAction.localizedCallerName = "\(user.username)"
-				self.provider.reportCall(with: self.currentCall!.callUUID, updated: updateNameAction)
+				self.provider.reportCall(with: newCall.callUUID, updated: updateNameAction)
 			}
 			
 			// Direct phone-to-phone sockets
@@ -150,12 +156,12 @@ import UIKit
 				NetworkGovernor.addUserCredential(to: &request)
 				request.httpMethod = "POST"
 				if let bodyData = getWIFIAddressStruct() {
-					request.httpBody = try! JSONEncoder().encode(bodyData)
+					request.httpBody = try! Settings.v3Encoder.encode(bodyData)
 				}
 				NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 					if let error = NetworkGovernor.shared.parseServerError(package) {
 						NetworkLog.error(error.localizedDescription)
-						self.lastError = error
+						newCall.setError(error)
 						self.endCall(reason: .failed)
 					}
 				}
@@ -167,14 +173,16 @@ import UIKit
 				NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 					if let error = NetworkGovernor.shared.parseServerError(package) {
 						NetworkLog.error(error.localizedDescription)
-						self.lastError = error
+						newCall.setError(error)
+						self.endCall(reason: .failed)
 					}
 					else if let socket = package.socket {
-						self.currentCall?.socket = socket
+						newCall.socket = socket
 						self.receiveMessageFromServerSocket()
 					}
 				}
 			}
+			done(newCall)
 		}
 	}
 	
@@ -191,6 +199,7 @@ import UIKit
 				userImage: userInfo["userImage"] as? String)
 		UserManager.shared.updateUserHeader(for: nil, from: callerHeader) { [self] caller in
 			guard currentCall == nil else {
+				// TODO: I think we can get rid of this: OS-level call management can handle it!
 				logger.log("Already on a call; not answering.")
 				return
 			} 
@@ -214,7 +223,8 @@ import UIKit
 				update.hasVideo = false
 				self.provider.reportNewIncomingCall(with: callID, update: update) { error in
 					if let error = error {
-						print("Report incoming call failed: \(error)")
+						self.logger.info("Report incoming call failed: \(error.localizedDescription)")
+						self.currentCall?.setError(error)
 						self.endCall(reason: .failed)
 						return
 					}
@@ -242,7 +252,11 @@ import UIKit
 						addressStruct.ipV4Addr = String(cString: hostname)
 					}
 					else {
-						addressStruct.ipV6Addr = String(cString: hostname)
+						var hostnameString = String(cString: hostname)
+						if let weird_en0AtEnd = hostnameString.firstIndex(of: "%") {
+							hostnameString = String(hostnameString[hostnameString.startIndex..<weird_en0AtEnd])
+						}
+						addressStruct.ipV6Addr = hostnameString
 					}
 				}
 			}
@@ -253,6 +267,7 @@ import UIKit
 		return nil
 	}
 
+	// Called on the DataManager's dispatch queue.
 	func openDirectCallWSServer(call: CurrentCallInfo) {
         do {
 			let parameters = NWParameters(tls: nil)
@@ -264,32 +279,34 @@ import UIKit
         
             guard let port = NWEndpoint.Port(rawValue: 80) else {
             	logger.error("Could not create port for websocket server.")
+            	call.setError(ServerError("Could not create port for websocket server."))
             	return
 			}
 			call.portListener = try NWListener(using: parameters, on: port)
       		call.portListener?.newConnectionHandler = { newConnection in
-				print("iOS Socket Server got new incoming Connection.")
+            	self.logger.info("iOS Socket Server got new incoming Connection.")
             	call.connection = newConnection
             	
-				newConnection.stateUpdateHandler = { state in
+				newConnection.stateUpdateHandler = { [weak self] state in
+					guard let self = self else { return }
                     switch state {
                     case .ready:
-                        print("iOS Socket Server: Client ready")
+                        self.logger.info("iOS Socket Server: Client ready")
 						call.callStartTime = Date()
 						self.receiveMessageFromDirectSocket()
 						if let jsonData = try? Settings.v3Encoder.encode(PhoneSocketStartData()) {
 							self.sendDataPacket(data: jsonData, isAudio: false)
 						}
                     case .failed(let error):
-                        print("Client connection failed \(error.localizedDescription)")
+                        self.logger.info("Client connection failed \(error.localizedDescription)")
                     case .waiting(let error):
-                        print("Waiting for long time \(error.localizedDescription)")
+                        self.logger.info("Waiting for long time \(error.localizedDescription)")
 					case .setup:
-                        print("iOS Socket Server: In Setup State")
+                        self.logger.info("iOS Socket Server: In Setup State")
 					case .preparing:
-                        print("iOS Socket Server: In preparing state")
+                        self.logger.info("iOS Socket Server: In preparing state")
 					case .cancelled:
-                        print("iOS Socket Server: In cancelled state")
+                        self.logger.info("iOS Socket Server: In cancelled state")
 					default:
 						break
                     }
@@ -298,13 +315,12 @@ import UIKit
                 newConnection.start(queue: self.dispatchQueue)
      		}
         
-			call.portListener?.stateUpdateHandler = { state in
-				print(state)
+			call.portListener?.stateUpdateHandler = { [weak self] state in
 				switch state {
 				case .ready:
-					print("portListener Ready")
+					self?.logger.info("portListener Ready")
 				case .failed(let error):
-					print("portListener failed with \(error.localizedDescription)")
+					self?.logger.info("portListener failed with \(error.localizedDescription)")
 				default:
 					break
 				}
@@ -314,6 +330,7 @@ import UIKit
 		}
 		catch {
 			logger.error("Error opening Websocket Server: \(error)")
+			call.setError(error)
 		}
 	}
 	
@@ -339,20 +356,22 @@ import UIKit
 			NetworkGovernor.addUserCredential(to: &socketRequest)
 		}
 		NetworkGovernor.shared.queue(socketRequest) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				NetworkLog.error(error.localizedDescription)
-				self.lastError = error
-			}
-			else if let socket = package.socket {
-				self.currentCall?.socket = socket
-				self.receiveMessageFromServerSocket()
+			self.dispatchQueue.async {
+				if let error = NetworkGovernor.shared.parseServerError(package) {
+					NetworkLog.error(error.localizedDescription)
+					currentCall.setError(error)
+				}
+				else if let socket = package.socket {
+					currentCall.socket = socket
+					self.receiveMessageFromServerSocket()
+				}
 			}
 		}	
 	}
 	
 	func endCall(reason: CXCallEndedReason? = nil) {
 		if let callID = self.currentCall?.callUUID 	{
-			print("Reporting call ended.")
+			logger.info("Reporting call ended.")
 			provider.reportCall(with: callID, endedAt: Date(), reason: reason ?? .remoteEnded)
 		}
 
@@ -368,7 +387,6 @@ import UIKit
 			NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 				if let error = NetworkGovernor.shared.parseServerError(package) {
 					NetworkLog.error(error.localizedDescription)
-					self.lastError = error
 				}
 			}	
 		}
@@ -396,10 +414,11 @@ import UIKit
 		}
 		socket.receive { [weak self] result in
 			guard let self = self else { return }
-			// print("Got some data incoming!!!! ")
+			// self.logger.info("Got some data incoming!!!! ")
 			switch result {
 				case .failure(let error):
-					print("Error during websocket receive: \(error.localizedDescription)")
+					self.logger.info("Error during websocket receive: \(error.localizedDescription)")
+					self.currentCall?.setError(error)
 					self.endCall()
 					return
 				case .success(let msg):
@@ -415,17 +434,18 @@ import UIKit
 		// _ completeContent: Data?, _ contentContext: NWConnection.ContentContext?, _ isComplete: Bool, _ error: NWError?
 		// print("Start of the receiveMessageFromDirectSocket() method.")
 		guard let conn = currentCall?.connection else {
-			print("No connection in the call object?")
+			logger.info("No connection in the call object?")
 			return
 		}
 		conn.receiveMessage { (data, context, isComplete, error) in
-			// print("Received a new message from client")
+			// logger.info("Received a new message from client")
 			if let data = data {
 				self.processIncomingSocketMessage(data)
 				self.receiveMessageFromDirectSocket()
 			}
 			else if let error = error {
-				print("Connection.receiveMessage returned an error: \(error)")
+				self.logger.info("Connection.receiveMessage returned an error: \(error)")
+				self.currentCall?.setError(error)
 				self.endCall()
 			}
 		}
@@ -448,10 +468,10 @@ import UIKit
 			self.bufferLock.lock()
 			self.networkData.append(networkBufData)
 			self.bufferLock.unlock()
-//				print("Write \(frameCount) frames into buffers")
+//				logger.info("Write \(frameCount) frames into buffers")
 		}
 		else {
-			print("Too-small packet for audio data.")
+			logger.info("Too-small packet for audio data.")
 		}
 	}
 	
@@ -464,14 +484,19 @@ import UIKit
 			let context = NWConnection.ContentContext(identifier: "send",  metadata: [message])
 			directServerConnection.send(content: data, contentContext: context, completion: .contentProcessed({ error in
 				if let error = error {
-					print("Error during send: \(error)")
+					self.logger.info("Error during send: \(error)")
+					if case let .posix(posixError) = error, posixError == .ENOTCONN {
+					} 
+					else {
+						self.currentCall?.setError(error)
+					}
 					self.endCall()
 				}
 			}))
 		}
 		else {
 			currentCall.socket?.send(.data(data)) { error in
-				print("[\(Date())] Sent packet: \(data.count / 2) frames. error: \(String(describing: error))")
+				self.logger.info("[\(Date())] Sent packet: \(data.count / 2) frames. error: \(String(describing: error))")
 			}
 		}
 	}
@@ -491,64 +516,6 @@ import UIKit
 			let inputFormat = engine.inputNode.outputFormat(forBus: 0)
 			let networkFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16000.0, channels: 1, interleaved: true)!
 			let converter = AVAudioConverter(from: inputFormat, to: networkFormat)!
-			
-//			let sinkNode = AVAudioSinkNode() { timeStamp, frameCount, audioBufferList -> OSStatus in
-//	//			let ablPointer = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: audioBufferList))
-//				guard let inputPCMBuffer = AVAudioPCMBuffer(pcmFormat: inputFormat, bufferListNoCopy: audioBufferList) else {
-//					return noErr
-//				}
-//				let networkBufferFrames = AVAudioFrameCount(Double(inputPCMBuffer.frameLength) * networkFormat.sampleRate / inputFormat.sampleRate)
-//				guard let socket = self.currentCall?.socket, 
-//						let networkBuffer = AVAudioPCMBuffer(pcmFormat: networkFormat, frameCapacity: networkBufferFrames) else {
-//					return noErr
-//				}
-//				var error: NSError? = nil
-//				var suppliedBuffer = false
-//				converter.convert(to: networkBuffer, error: &error) { inNumPackets, outStatus in
-//					if !suppliedBuffer {
-//						outStatus.pointee = AVAudioConverterInputStatus.haveData
-//						suppliedBuffer = true
-//						return inputPCMBuffer
-//					}
-//					else {
-//						outStatus.pointee = AVAudioConverterInputStatus.noDataNow
-//						return nil
-//					}
-//				}
-//
-//				if let error = error {
-//					print(error.localizedDescription)
-//				}
-//				else if let channelData = networkBuffer.int16ChannelData {
-//					var packet = Data()
-//					var frames: Int32 = Int32(networkBuffer.frameLength)
-//					withUnsafeBytes(of: &frames, { packet.append(contentsOf: $0) })
-//					let buf: UnsafeMutablePointer<Int16> = channelData[0]
-//					let rawBuf = UnsafeRawPointer(buf)
-//					packet.append(Data(bytes: rawBuf, count: Int(frames) * 2))
-//					socket.send(.data(packet)) { error in
-//						print("[\(Date())] Sent packet: \(frames) frames. error: \(String(describing: error))")
-//					}
-//				}
-//				return noErr
-//				
-//				// Fills buffer with whitenoise before sending to network.
-////				let buf: AudioBuffer = ablPointer[0]
-////				let rawDataPtr: UnsafeMutableRawPointer = buf.mData!
-////				let newBufPtr: UnsafeMutablePointer<Int16> = rawDataPtr.bindMemory(to: Int16.self, capacity: Int(frameCount))
-////				for index in 0..<frameCount {
-////					newBufPtr[Int(index)] = Int16.random(in: -32000...32000)
-////				}
-//			}
-			
-
-//			let inputMixer = AVAudioMixerNode()
-//			engine.attach(inputMixer)
-//			engine.attach(sinkNode)
-//			engine.connect(engine.inputNode, to: inputMixer, fromBus: 0, toBus: 0, format: inputFormat)
-//			engine.connect(engine.inputNode, to: sinkNode, format: nil)
-//			engine.connect(inputMixer, to: sinkNode, format: networkFormat)
-//			inputMixer.volume = 0.1
 	
 //			engine.connect(engine.inputNode, to: engine.outputNode, format: nil)
 			engine.inputNode.isVoiceProcessingAGCEnabled = true
@@ -575,7 +542,7 @@ import UIKit
 				}
 
 				if error != nil {
-					print(error!.localizedDescription)
+					self.logger.info("\(error!.localizedDescription)")
 				}
 				else if let channelData = networkBuffer.int16ChannelData {
 					var packet = Data()
@@ -590,7 +557,7 @@ import UIKit
 				//	}
 				}
 				else {
-					print ("NO DATA IN 16BIT BUFFER")
+					self.logger.info("NO DATA IN 16BIT BUFFER")
 				}
 			}
 			
@@ -613,7 +580,7 @@ import UIKit
 						self.networkData.removeSubrange(0..<(framesToCopy * 2))
 					}
 					
-//					print("[\(Date())] Copied \(framesToCopy) frames out of buffer, now \(self.networkData.count / 2) frames in buf.")
+//					logger.info("[\(Date())] Copied \(framesToCopy) frames out of buffer, now \(self.networkData.count / 2) frames in buf.")
 					self.bufferLock.unlock()
 				return noErr
 			}
@@ -621,7 +588,8 @@ import UIKit
 			engine.connect(sourceNode, to: engine.mainMixerNode, format: networkFormat)			
 		} 
 		catch {
-			logger.error("Failed to setup audio session: \(error)")
+			logger.error("Failed to setup audio session: \(error, privacy: .public)")
+			self.currentCall?.setError(ServerError("Failed to setup audio session: \(error)"))
 		}
 		engine.prepare()
 	}
@@ -629,10 +597,11 @@ import UIKit
 	func startAudio(audioSession: AVAudioSession) {
 		do {
 			try engine.start()
-			print(engine.description)
+			logger.info("\(self.engine.description, privacy: .public)")
 		}
 		catch {
-			print("Error during startAudio: \(error)")
+			logger.info("Error during startAudio: \(error)")
+			self.currentCall?.setError(ServerError("Failed to setup audio: \(error)"))
 		}
 	}
 
@@ -645,57 +614,57 @@ import UIKit
 
 extension PhonecallDataManager: CXProviderDelegate {
 	func providerDidReset(_ provider: CXProvider) {
-		print("Got told providerDidReset.")
+		logger.info("Got told providerDidReset.")
 		stopAudio()
 		endCall()
 	}
 	
     func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
-		print("Got told to start a call.")
+		logger.info("Got told to start a call.")
 		action.fulfill()
     }
 
     func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
-		print("Got told CXAnswerCallAction.")
+		logger.info("Got told CXAnswerCallAction.")
 		openAnswerSocket()
 		action.fulfill()
     }
     
     // Gets called by provider when incoming call is ringing, as well as during call.
     func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
-		print("Got told CXEndCallAction.")
+		logger.info("Got told CXEndCallAction.")
 		endCall()
 		action.fulfill()
     }
     
     func provider(_ provider: CXProvider, perform action: CXSetHeldCallAction) {
-		print("Got told CXSetHeldCallAction.")
+		logger.info("Got told CXSetHeldCallAction.")
 		action.fulfill()
     }
     
     func provider(_ provider: CXProvider, perform action: CXSetMutedCallAction) {
-		print("Got told CXSetMutedCallAction.")
+		logger.info("Got told CXSetMutedCallAction.")
 		action.fulfill()
     }
     
     func provider(_ provider: CXProvider, timedOutPerforming action: CXAction) {
     	switch action {
-    		case is CXStartCallAction: print("Got told CXStartCallAction timed out.")
-    		case is CXAnswerCallAction: print("Got told CXAnswerCallAction timed out.")
-    		case is CXEndCallAction: print("Got told CXEndCallAction timed out.")
-    		default: print("Got told timed out.")
+    		case is CXStartCallAction: logger.info("Got told CXStartCallAction timed out.")
+    		case is CXAnswerCallAction: logger.info("Got told CXAnswerCallAction timed out.")
+    		case is CXEndCallAction: logger.info("Got told CXEndCallAction timed out.")
+    		default: logger.info("Got told timed out.")
     	}
     }
     
     func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
 		configureAudioSession(audioSession: audioSession)
     	startAudio(audioSession: audioSession)
-		print("Got told didActivate audio session.")
+		logger.info("Got told didActivate audio session.")
     }
     
 	func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
 		stopAudio()
-		print("Got told didDeactivate audio session.")
+		logger.info("Got told didDeactivate audio session.")
     }
 }
 
@@ -728,4 +697,63 @@ extension PhoneSocketServerAddress : CustomDebugStringConvertible {
 // 	Other Party In Call, name and icon
 //	Hold?
 //	Hangup
+
+// MARK: - SinkNode test
+//			let sinkNode = AVAudioSinkNode() { timeStamp, frameCount, audioBufferList -> OSStatus in
+//	//			let ablPointer = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: audioBufferList))
+//				guard let inputPCMBuffer = AVAudioPCMBuffer(pcmFormat: inputFormat, bufferListNoCopy: audioBufferList) else {
+//					return noErr
+//				}
+//				let networkBufferFrames = AVAudioFrameCount(Double(inputPCMBuffer.frameLength) * networkFormat.sampleRate / inputFormat.sampleRate)
+//				guard let socket = self.currentCall?.socket, 
+//						let networkBuffer = AVAudioPCMBuffer(pcmFormat: networkFormat, frameCapacity: networkBufferFrames) else {
+//					return noErr
+//				}
+//				var error: NSError? = nil
+//				var suppliedBuffer = false
+//				converter.convert(to: networkBuffer, error: &error) { inNumPackets, outStatus in
+//					if !suppliedBuffer {
+//						outStatus.pointee = AVAudioConverterInputStatus.haveData
+//						suppliedBuffer = true
+//						return inputPCMBuffer
+//					}
+//					else {
+//						outStatus.pointee = AVAudioConverterInputStatus.noDataNow
+//						return nil
+//					}
+//				}
+//
+//				if let error = error {
+//					logger.info(error.localizedDescription)
+//				}
+//				else if let channelData = networkBuffer.int16ChannelData {
+//					var packet = Data()
+//					var frames: Int32 = Int32(networkBuffer.frameLength)
+//					withUnsafeBytes(of: &frames, { packet.append(contentsOf: $0) })
+//					let buf: UnsafeMutablePointer<Int16> = channelData[0]
+//					let rawBuf = UnsafeRawPointer(buf)
+//					packet.append(Data(bytes: rawBuf, count: Int(frames) * 2))
+//					socket.send(.data(packet)) { error in
+//						logger.info("[\(Date())] Sent packet: \(frames) frames. error: \(String(describing: error))")
+//					}
+//				}
+//				return noErr
+//				
+//				// Fills buffer with whitenoise before sending to network.
+////				let buf: AudioBuffer = ablPointer[0]
+////				let rawDataPtr: UnsafeMutableRawPointer = buf.mData!
+////				let newBufPtr: UnsafeMutablePointer<Int16> = rawDataPtr.bindMemory(to: Int16.self, capacity: Int(frameCount))
+////				for index in 0..<frameCount {
+////					newBufPtr[Int(index)] = Int16.random(in: -32000...32000)
+////				}
+//			}
+			
+
+//			let inputMixer = AVAudioMixerNode()
+//			engine.attach(inputMixer)
+//			engine.attach(sinkNode)
+//			engine.connect(engine.inputNode, to: inputMixer, fromBus: 0, toBus: 0, format: inputFormat)
+//			engine.connect(engine.inputNode, to: sinkNode, format: nil)
+//			engine.connect(inputMixer, to: sinkNode, format: networkFormat)
+//			inputMixer.volume = 0.1
 

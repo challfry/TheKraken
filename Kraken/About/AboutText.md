@@ -8,7 +8,7 @@
 
 ## Wait, wait. What's JoCo Cruise? What's Twitarr? ##
 
-JoCo is Jonathan Coulton. JoCo Cruise is a yearly theme cruise—in 2022 the cruise will be in the Carribbean, from March 5-12. Twitarr is a server that cruisegoers bring onto the ship, providing several social media features for cruisegoers.
+JoCo is Jonathan Coulton. JoCo Cruise is a yearly theme cruise—in 2023 the cruise will be in the Carribbean, from March 5-12. Twitarr is a server that cruisegoers bring onto the ship, providing several social media features for cruisegoers.
 
 Because Twitarr is on the ship, it's always available onboard, even if you don't have Internet access. However, because Twitarr is on the ship, it isn't available when ashore, even if you do have Internet access.
 

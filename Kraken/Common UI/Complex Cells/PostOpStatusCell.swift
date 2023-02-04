@@ -33,6 +33,12 @@ import UIKit
 	init() {
 		super.init(bindingWith: PostOpStatusCellProtocol.self)
 	}
+	
+	func setErrorState(errorString: String) {
+		errorText = errorString
+		statusText = "Error"
+		shouldBeVisible = true
+	}
 }
 
 @objc class PostOpStatusCellModel: OperationStatusCellModel {

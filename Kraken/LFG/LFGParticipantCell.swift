@@ -13,6 +13,7 @@ import CoreData
 @objc protocol ParticipantCellBindingProtocol: FetchedResultsBindingProtocol {
 	dynamic var showActionButton: Bool { get set } 
 	dynamic var actionButtonTitle: String { get set }
+	dynamic var errorText: String? { get set }
 	dynamic var buttonAction: (() -> Void)? { get set } 
 //	dynamic var avatarButtonAction: (() -> Void)? { get set } 
 }
@@ -22,6 +23,7 @@ import CoreData
 	dynamic var selectionCallback: (() -> Void)? 
 	dynamic var showActionButton: Bool = false
 	dynamic var actionButtonTitle: String = "Remove"
+	dynamic var errorText: String?
 	dynamic var buttonAction: (() -> Void)?
 //	dynamic var avatarButtonAction: (() -> Void)?
 		
@@ -35,6 +37,8 @@ class ParticipantCell: BaseCollectionViewCell, ParticipantCellBindingProtocol {
 	@IBOutlet var imageButton: UIButton!
 	@IBOutlet var usernameLabel: UILabel!
 	@IBOutlet var actionButton: UIButton!
+	@IBOutlet var errorLabel: UILabel!
+	
 	dynamic var buttonAction: (() -> Void)?
 	
 	private static let cellInfo = [ "ParticipantCell" : PrototypeCellInfo("LFGParticipantCell") ]
@@ -70,6 +74,13 @@ class ParticipantCell: BaseCollectionViewCell, ParticipantCellBindingProtocol {
 	var actionButtonTitle: String = "Remove" {
 		didSet {
 			actionButton.setTitle(actionButtonTitle, for: .normal)
+		}
+	}
+	
+	var errorText: String? {
+		didSet {
+			errorLabel.text = errorText
+			cellSizeChanged()
 		}
 	}
 	

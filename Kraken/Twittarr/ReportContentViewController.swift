@@ -54,7 +54,7 @@ class ReportContentViewController: UIViewController {
 		var request = NetworkGovernor.buildTwittarRequest(withPath: requestPath)
 		request.httpMethod = "POST"
 		let postStruct = TwitarrV3ReportData(message: textView.text)
-		let httpContentData = try! JSONEncoder().encode(postStruct)
+		let httpContentData = try! Settings.v3Encoder.encode(postStruct)
 		request.httpBody = httpContentData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.addUserCredential(to: &request)

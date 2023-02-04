@@ -16,22 +16,41 @@ class KrakenPushProvider: NEAppPushProvider {
 	var socket: URLSessionWebSocketTask?
 	var lastPing: Date?
 	let logger = Logger(subsystem: "com.challfry.kraken.localpush", category: "KrakenPushProvider")
+	var startState: Bool = false	// TRUE between calls to Start and Stop. Tracks NEAppPushProvider's state, NOT the socket itself.
 	
 	override init() {
 		super.init()
 		logger.log("KrakenPushProvider init()")
-		let config = URLSessionConfiguration.default
-		session = .init(configuration: config, delegate: self, delegateQueue: nil)
+	}
+	
+	deinit {
+		logger.log("KrakenPushProvider de-init.")
 	}
 
     override func start() {
-		logger.log("KrakenPushProvider start()")
+    	if startState == true {
+			logger.log("KrakenPushProvider start() called while already started.")
+    	}
+    	else {
+			logger.log("KrakenPushProvider start()")
+		}
+		startState = true
 		openWebSocket()
 	}
 	
 	func openWebSocket() {
 		guard let config = providerConfiguration, let twitarrStr = config["twitarrURL"] as? String, let token = config["token"] as? String,
 				!twitarrStr.isEmpty, !token.isEmpty, let twitarrURL = URL(string: twitarrStr) else {
+			return
+		}
+		if session == nil {
+			let config = URLSessionConfiguration.ephemeral
+			config.allowsCellularAccess = false
+			config.waitsForConnectivity = true
+			session = .init(configuration: config, delegate: self, delegateQueue: nil)
+		}
+		if let existingSocket = socket, existingSocket.state == .running {
+			self.logger.log("Not opening socket; existing one is already open.")
 			return
 		}
 	
@@ -59,7 +78,7 @@ class KrakenPushProvider: NEAppPushProvider {
 				case .failure(let error):
 					self.logger.error("Error during websocket receive: \(error.localizedDescription, privacy: .public)")
 				case .success(let msg):
-//					self.logger.log("got a successful message.")
+					self.logger.log("got a successful message.")
 					var msgData: Data?
 					switch msg {
 					case .string(let str): 
@@ -140,11 +159,17 @@ class KrakenPushProvider: NEAppPushProvider {
         logger.log("stop() called")
 		socket?.cancel(with: .goingAway,  reason: nil)
 		socket = nil
+		session?.finishTasksAndInvalidate()
+		startState = false
 		completionHandler()
     }
     
     override func handleTimerEvent() {
-        logger.log("HandleTimerEvent() called")
+		logger.log("HandleTimerEvent() called for instance \(String(format: "%p", self), privacy: .public) lastPing: \(self.lastPing?.debugDescription ?? "<nil>", privacy: .public)")
+        if let pingTime = lastPing, Date().timeIntervalSince(pingTime) < 1.0 {
+	        logger.warning("HandleTimerEvent() called with very low delay from last call.")
+	        return
+        }
         lastPing = Date()
         if socket == nil {
         	openWebSocket()
@@ -159,12 +184,14 @@ class KrakenPushProvider: NEAppPushProvider {
         }
     }
     
+    // NEProvider override
     override func sleep(completionHandler: @escaping() -> Void) {
         logger.log("sleep() called")
         // Add code here to get ready to sleep.
         completionHandler()
     }
     
+    // NEProvider override
     override func wake() {
         logger.log("wake() called")
     }
@@ -192,15 +219,20 @@ class KrakenPushProvider: NEAppPushProvider {
 extension KrakenPushProvider: URLSessionTaskDelegate {
 	func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
         logger.log("Session went invalid because: \(error)")
+       	self.session = nil
 	}
-	
+}
+
+extension KrakenPushProvider: URLSessionWebSocketDelegate {	
 	func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol: String?) {
-        logger.log("Socket opened with protocol: \(didOpenWithProtocol ?? "<unknown>")")
+        logger.log("Socket opened with protocol: \(didOpenWithProtocol ?? "<unknown>", privacy: .public)")
 	
 	}
 	
 	func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         logger.log("Socket closed with code: \(didCloseWith.rawValue)")
+		socket?.cancel(with: .goingAway,  reason: nil)
+		socket = nil
 	}
 }
 

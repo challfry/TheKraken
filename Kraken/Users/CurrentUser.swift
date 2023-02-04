@@ -96,7 +96,7 @@ import UserNotifications
 	// Assumes targets is a comprehensive current list of all users with the given relation--Removes relation for any
 	// users not in the targets list.
 	func buildFromV3RelationInfo(context: NSManagedObjectContext, type: UserRelationType, targets: [TwitarrV3UserHeader]) {
-		let dict = UserManager.shared.update(users: targets, inContext: context)
+		let dict = UserManager.shared.update(users: targets, inContext: context, includeCurrentUser: false)
 		switch type {
 			case .favorite: favoriteUsers = Set(dict.values)
 			case .mute: mutedUsers = Set(dict.values)
@@ -497,7 +497,7 @@ import UserNotifications
 		clearErrors()
 		
 		let authStruct = TwitarrV3CreateAccountRequest(username: name, password: password, verification: regCode)
-		let authData = try! JSONEncoder().encode(authStruct)
+		let authData = try! Settings.v3Encoder.encode(authStruct)
 	//	print (String(decoding:authData, as: UTF8.self))
 				
 		// Call the login endpoint
@@ -535,7 +535,7 @@ import UserNotifications
 		}
 		clearErrors()
 		let changePasswordStruct = TwitarrV3ChangePasswordRequest(password: newPassword)
-		let authData = try! JSONEncoder().encode(changePasswordStruct)
+		let authData = try! Settings.v3Encoder.encode(changePasswordStruct)
 
 		// Call change_password
 		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/user/password", query: nil)
@@ -567,7 +567,7 @@ import UserNotifications
 		}
 		clearErrors()
 		let resetPasswordStruct = TwitarrV3RecoverPasswordRequest(username: name, recoveryKey: regCode, newPassword: newPassword)
-		let authData = try! JSONEncoder().encode(resetPasswordStruct)
+		let authData = try! Settings.v3Encoder.encode(resetPasswordStruct)
 				
 		// Call reset_password
 		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/auth/recovery", query: nil)
