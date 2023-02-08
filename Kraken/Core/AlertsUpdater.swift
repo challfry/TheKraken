@@ -28,7 +28,7 @@ class AlertsUpdater: ServerUpdater {
 		NetworkGovernor.addUserCredential(to: &request)
 		let currentUser = CurrentUser.shared.loggedInUser
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 				self.updateComplete(success: false)
 			}

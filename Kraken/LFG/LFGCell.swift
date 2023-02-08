@@ -85,6 +85,26 @@ class LFGCell: BaseCollectionViewCell, LFGCellBindingProtocol {
 					}?.execute())
 				}
 			}
+			else if let op = model as? PostOpLFGCreate {
+	    		addObservation(op.tell(self, when: "title") { observer, observed in
+					observer.titleLabel.text = observed.title
+					observer.cellSizeChanged()
+	    		}?.execute())
+				cancelLabel.isHidden = true // op can't be for a cancelled lfg
+	    		addObservation(op.tell(self, when: ["startTime", "endTime"]) { observer, observed in
+					observer.timeLabel.attributedText = observer.makeTimeString()
+					observer.cellSizeChanged()
+	    		}?.execute())
+	    		addObservation(op.tell(self, when: "author") { observer, observed in
+					observer.ownerLabel.text = "by @\(observed.author.username)"
+	    		}?.execute())
+	    		addObservation(op.tell(self, when: "maxCapacity") { observer, observed in
+					observer.attendeesLabel.text = "\(observed.maxCapacity) attendees max"
+	    		}?.execute())
+	    		addObservation(op.tell(self, when: "lfgType") { observer, observed in
+					observer.categoryLabel.text = "\(observed.lfgType)"
+	    		}?.execute())
+			}
 			else if model == nil {
 				titleLabel.text = ""
 			}

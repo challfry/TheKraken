@@ -267,7 +267,7 @@ class UserManager : NSObject {
 		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/users/find/\(encodedUsername)", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				AppLog.error(error.errorString)
 				done(nil)	// Didn't find any user with that name
 			}
@@ -297,7 +297,7 @@ class UserManager : NSObject {
 			var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/users/\(user.userID)/profile", query: nil)
 			NetworkGovernor.addUserCredential(to: &request)
 			NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-				if let error = NetworkGovernor.shared.parseServerError(package) {
+				if let error = package.serverError {
 					AppLog.error(error.errorString)
 					done?(nil)
 				}
@@ -476,10 +476,7 @@ class UserManager : NSObject {
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.autocorrectCallInProgress = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				NetworkLog.error("Error with user autocomplete", ["error" : error])
-			}
-			else if let data = package.data {
+			if let data = package.data {
 				LocalCoreData.shared.performNetworkParsing { context in
 					context.pushOpErrorExplanation("Failure parsing UserInfo from Autocomplete response.")
 					let result = try Settings.v3Decoder.decode([TwitarrV3UserHeader].self, from: data)

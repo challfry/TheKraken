@@ -49,7 +49,7 @@ class DailyThemeUpdater: ServerUpdater {
 		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/notification/dailythemes")
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 				self.updateComplete(success: false)
 			}

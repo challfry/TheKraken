@@ -225,7 +225,7 @@ import CoreData
 	static let shared = SeamailDataManager()
 	
 	private let coreData = LocalCoreData.shared
-	dynamic var lastError : ServerError?
+	@objc dynamic var lastError : ServerError?
 	@objc dynamic var isLoading = false
 	
 	var recentLoads: [UUID : Date] = [:]
@@ -250,7 +250,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/joined", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {
@@ -268,20 +268,20 @@ import CoreData
 		}
 	}
 	
-	@objc dynamic var isLoadingOpen = false
+	@objc dynamic var isLoadingOpenLFGs = false
 	func loadOpenLFGs(done: (() -> Void)? = nil) {
 		// TODO: Add Limiter
 
-		guard !isLoadingOpen, let _ = CurrentUser.shared.loggedInUser else {
+		guard !isLoadingOpenLFGs, let _ = CurrentUser.shared.loggedInUser else {
 			done?()
 			return
 		}
-		isLoadingOpen = true
+		isLoadingOpenLFGs = true
 		
 		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/open")
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {
@@ -295,7 +295,7 @@ import CoreData
 			}
 			
 			done?()
-			self.isLoadingOpen = false
+			self.isLoadingOpenLFGs = false
 		}
 	}
 	
@@ -327,7 +327,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {
@@ -594,7 +594,7 @@ import CoreData
 	}
 	
 	// Creates a pending POST operation to create a new LFG
-	func queueNewLFGOp(existingOp: PostOpLFGCreate?, lfgType: TwitarrV3FezType, title: String, info: String, location: String, 
+	func queueNewLFGOp(existingOp: PostOpLFGCreate?, existingLFG: SeamailThread?, lfgType: TwitarrV3FezType, title: String, info: String, location: String, 
 			startTime: Date, endTime: Date, minCapacity: Int32, maxCapacity: Int32, done: ((PostOpLFGCreate?) -> Void)?) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure creating LFG in Core Data.")
@@ -605,6 +605,10 @@ import CoreData
 			}
 			else {
 				lfgCreateOp = PostOpLFGCreate(context: context)
+			}
+			
+			if let existingLFG = existingLFG, let lfgInContext = try? context.existingObject(with: existingLFG.objectID) as? SeamailThread {
+				lfgCreateOp.editingLFG = lfgInContext		// Makes this an edit rather than a create if non-nil
 			}
 			
 			lfgCreateOp.lfgType = lfgType.rawValue
@@ -643,7 +647,7 @@ import CoreData
 		request.httpMethod = "POST"
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {
@@ -673,7 +677,7 @@ import CoreData
 		request.httpMethod = "POST"
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {
@@ -681,6 +685,30 @@ import CoreData
 					let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
 					self.ingestSeamailThreads(from: [response])
 					self.recentLoads.removeValue(forKey: thread.id)
+				}
+				catch {
+					NetworkLog.error("Failure parsing network response.", ["Error" : error, "url" : request.url as Any])
+				} 
+			}
+		}
+	}
+	
+	// Does NOT post an op--user must be in network range. Must be owner to cancel.
+	func markLFGCancelled(_ lfg: SeamailThread) {
+		// POST /api/v3/fez/ID/cancel
+		recentLoads[lfg.id] = Date()
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(lfg.id)/cancel")
+		request.httpMethod = "POST"
+		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = package.serverError {
+				self.lastError = error
+			}
+			else if let data = package.data {
+				do {
+					let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
+					self.ingestSeamailThreads(from: [response])
+					self.recentLoads.removeValue(forKey: lfg.id)
 				}
 				catch {
 					NetworkLog.error("Failure parsing network response.", ["Error" : error, "url" : request.url as Any])

@@ -70,26 +70,27 @@ import UIKit
 		changed = TestAndUpdate(\.replyGroup, replyGroup) || changed
 
 		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
+		let tempDetails = mutableOrderedSetValue(forKey: "photoDetails")
 		if let newImageFilenames = v3Object.images {
 			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
 			for (index, image) in newImageFilenames.enumerated() {
-				if photoDetails.count <= index, let photoToAdd = photoDict[image] {
-					photoDetails.add(photoToAdd)
+				if tempDetails.count <= index, let photoToAdd = photoDict[image] {
+					tempDetails.add(photoToAdd)
 				} 
-				if (photoDetails[index] as? PhotoDetails)?.id != image, let photoToAdd = photoDict[image] {
-					photoDetails.replaceObject(at:index, with: photoToAdd)
+				if (tempDetails[index] as? PhotoDetails)?.id != image, let photoToAdd = photoDict[image] {
+					tempDetails.replaceObject(at:index, with: photoToAdd)
 				}
 			}
-			if photoDetails.count > newImageFilenames.count {
-				photoDetails.removeObjects(in: NSRange(location: newImageFilenames.count, length: photoDetails.count - newImageFilenames.count))
+			if tempDetails.count > newImageFilenames.count {
+				tempDetails.removeObjects(in: NSRange(location: newImageFilenames.count, length: photoDetails.count - newImageFilenames.count))
 			}
 		} 
 		else {
-			if photoDetails.count > 0 {
-				photoDetails.removeAllObjects()
+			if tempDetails.count > 0 {
+				tempDetails.removeAllObjects()
 			}
 		}
-
+		
 		let userDict: [UUID : KrakenUser ] = context.userInfo.object(forKey: "Users") as! [UUID : KrakenUser] 
 		if let krakenUser = userDict[v3Object.author.userID] {
 			if value(forKey: "author") == nil || krakenUser.userID != author.userID {
@@ -653,10 +654,7 @@ class TwitarrDataManager: NSObject {
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				NetworkLog.error(error.localizedDescription)
-			}
-			else if let data = package.data {
+			if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				do {
 					let twarrts = try Settings.v3Decoder.decode([TwitarrV3TwarrtData].self, from: data)
@@ -676,8 +674,7 @@ class TwitarrDataManager: NSObject {
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				NetworkLog.error(error.localizedDescription)
+			if let error = package.getAnyError() {
 				done?(.failure(error))
 				return
 			}
@@ -743,10 +740,7 @@ class TwitarrDataManager: NSObject {
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				NetworkLog.error(error.localizedDescription)
-			}
-			else if let data = package.data {
+			if let data = package.data {
 //				print (String(decoding:data, as: UTF8.self))
 				do {
 					let twarrt = try Settings.v3Decoder.decode(TwitarrV3TwarrtDetailData.self, from: data)

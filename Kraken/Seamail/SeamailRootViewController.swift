@@ -22,8 +22,8 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
 	lazy var noSeamailCell: LabelCellModel = {
 		let cell = LabelCellModel("No Seamails in your inbox yet, but you can start a conversation by tapping the \"New\" button." )
 		
-		self.tell(cell, when: "threadSegment.isEmpty") { observer, observed in
-			observer.shouldBeVisible = observed.threadSegment.isEmpty
+		threadSegment.wrapper.tell(cell, when: "isEmpty") { observer, observed in
+			observer.shouldBeVisible = observed.isEmpty
 		}?.execute()
 		
 		return cell

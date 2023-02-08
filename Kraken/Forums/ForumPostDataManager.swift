@@ -286,7 +286,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 				done?(thread, fromOffset)
 			}
@@ -350,10 +350,7 @@ import CoreData
 		isPerformingLoad = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.isPerformingLoad = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				NetworkLog.error(error.localizedDescription)
-			}
-			else if let data = package.data {
+			if let data = package.data {
 //				print (String(decoding:data, as: UTF8.self))
 				do {
 					let post = try Settings.v3Decoder.decode(TwitarrV3PostDetailData.self, from: data)

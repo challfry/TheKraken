@@ -311,7 +311,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarRequest(withPath:path, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 				filterPack.threadLoadError()
 			}

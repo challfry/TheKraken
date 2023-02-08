@@ -251,7 +251,7 @@ class ImageCache {
 			let request = NetworkGovernor.buildTwittarRequest(withPath:"\(self.fetchURLPath)\(key)", 
 					query: self.serverQueryParams)
 			NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-				if let error = NetworkGovernor.shared.parseServerError(package) {
+				if let error = package.serverError {
 					// Load failed for some reason
 					ImageLog.error("Couldn't load image from server.", ["cacheKey" : key, "error" : error])
 					DispatchQueue.main.async { done(nil) }

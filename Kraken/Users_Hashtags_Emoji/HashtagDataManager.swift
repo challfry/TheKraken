@@ -80,7 +80,7 @@ class HashtagDataManager: NSObject {
 		let request = NetworkGovernor.buildTwittarRequest(withEscapedPath:"/api/v2/hashtag/ac/\(encodedPrefix)", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.autocompleteCallInProgress = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {

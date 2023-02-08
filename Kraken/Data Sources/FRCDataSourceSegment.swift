@@ -71,6 +71,10 @@ protocol FRCDataSourceLoaderDelegate {
 	func userIsViewingCell(at: IndexPath)
 }
 
+@objc class FRCDataSourceSegmentObservationWrapper: NSObject {
+	@objc dynamic var isEmpty: Bool = true
+}
+
 // Note: For some reason I couldn't put protocol conformance into extensions, and I didn't bother trying to figure out why.
 // Why would I do such a terrible thing? Because you can put the methods in the class and move on. 
 class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDataSourceSegmentProtocol,
@@ -82,7 +86,9 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 	var fetchRequest = NSFetchRequest<FetchedObjectType>()
 	var frc: NSFetchedResultsController<FetchedObjectType>?
 	fileprivate var cellModelSections: [FRCSection] = []
-	@objc dynamic var isEmpty: Bool = true
+	
+	// Hack to make isEmpty an observable property.
+	var wrapper =  FRCDataSourceSegmentObservationWrapper()
 	
 	// Clients need to implement this to populate the cell's data from the model.
 	var createCellModel: ((_ fromModel: FetchedObjectType) -> BaseCellModel)?
@@ -334,7 +340,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			}
 		}
 		dataSource?.runUpdates()
-		isEmpty = frc?.fetchedObjects?.isEmpty ?? true
+		wrapper.isEmpty = frc?.fetchedObjects?.isEmpty ?? true
 	}
 	
 	func changePredicate(to: NSPredicate) {
@@ -419,7 +425,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 //		else {
 //			log.d("Not scheduling update in response to FRC content change; change is only reloads.")
 //		}
-		isEmpty = frc?.fetchedObjects?.isEmpty ?? true
+		wrapper.isEmpty = frc?.fetchedObjects?.isEmpty ?? true
 	}
 
 // MARK: UICollectionView Data Source

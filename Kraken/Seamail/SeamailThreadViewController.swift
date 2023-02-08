@@ -101,6 +101,9 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		newMessageSegment.append(createSendButtonCell())
 		newMessageSegment.append(createOpenChatInfoCell())
 		newMessageSegment.append(createJoinLeaveManageCell())
+		newMessageSegment.append(createEditLFGCell())
+		newMessageSegment.append(createReportLFGCell())
+		newMessageSegment.append(createCancelLFGCell())
 		
 		// Put everything together in the composite data source
 		compositeDataSource.register(with: collectionView, viewController: self)
@@ -153,6 +156,30 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		else {
 			SeamailDataManager.shared.addUserToChat(user: currentUser, thread: thread)
 		}
+	}
+	
+	func editLFGButtonHit() {
+		performKrakenSegue(.lfgCreateEdit, sender: threadModel)
+	}
+	
+	func reportLFGButtonHit() {
+		guard let lfgModel = threadModel else { return } 
+		performKrakenSegue(.reportContent, sender: lfgModel)
+	}
+	
+	func cancelLFGButtonHit() {
+		let message = "Cancelling the LFG will mark the LFG as not happening and notify all participants. The LFG won't be deleted; participants can still create and read posts."
+   		let alert = UIAlertController(title: "Cancel LFG", message: message,  preferredStyle: .alert) 
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Do It", comment: "Cancel action"), 
+				style: .destructive, handler: cancelLFGConfirmedHandler))
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Wait--Don't", comment: "Default action"), 
+				style: .cancel, handler: nil))
+		present(alert, animated: true, completion: nil)
+	}
+	
+	func cancelLFGConfirmedHandler(_ action: UIAlertAction) {
+		guard let lfgModel = threadModel else { return }
+		SeamailDataManager.shared.markLFGCancelled(lfgModel)
 	}
 	
 	func postQueued(_ post: PostOpSeamailMessage?) {
@@ -395,9 +422,51 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		return cell
 	}
 	
+	func createEditLFGCell() -> ButtonCellModel {
+		let cell = ButtonCellModel(title: "Edit LFG", alignment: .center, action: weakify(self, type(of: self).editLFGButtonHit))
+		self.tell(cell, when: ["threadModel.fezType", "threadModel.owner"]) { observer, observed in
+			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str), ![.closed, .open].contains(type),
+					let owner = observed.threadModel?.owner, owner.userID == CurrentUser.shared.loggedInUser?.userID {
+				observer.shouldBeVisible = true
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		return cell
+	}
+	
+	func createReportLFGCell() -> ButtonCellModel {
+		let cell = ButtonCellModel(title: "Report this LFG", alignment: .center, action: weakify(self, type(of: self).reportLFGButtonHit))
+		self.tell(cell, when: ["threadModel.fezType"]) { observer, observed in
+			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str), ![.closed, .open].contains(type) {
+				observer.shouldBeVisible = true
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		return cell
+	}
+	
+	func createCancelLFGCell() -> ButtonCellModel {
+		let cell = ButtonCellModel(title: "Cancel this LFG", alignment: .center, action: weakify(self, type(of: self).cancelLFGButtonHit))
+		self.tell(cell, when: ["threadModel.fezType", "threadModel.owner", "threadModel.cancelled"]) { observer, observed in
+			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str), ![.closed, .open].contains(type),
+					let owner = observed.threadModel?.owner, owner.userID == CurrentUser.shared.loggedInUser?.userID,
+					let cancelled = observed.threadModel?.cancelled, cancelled == false {
+				observer.shouldBeVisible = true
+			}
+			else {
+				observer.shouldBeVisible = false
+			}
+		}?.execute()
+		return cell
+	}
+	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .userProfile_User, .userProfile_Name ])
+		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .lfgCreateEdit, .userProfile_User, .userProfile_Name, .reportContent ])
 	}
 
 	// This is the unwind segue from the Manage Members view.

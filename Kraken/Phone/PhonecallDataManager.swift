@@ -22,7 +22,6 @@ import UIKit
 	@objc dynamic var callError: Error?
 	
 	// Direct call
-	var portListener: NWListener?
 	var connection: NWConnection?
 	var serverURL: String?
 
@@ -65,7 +64,7 @@ import UIKit
 					self.ended = newEnded
 					if let newEndedUUID = UUID(uuidString: newEnded), newEndedUUID == self.callUUID {
 						// If the call ended before it started, it was declined
-						if self.socket == nil {
+						if self.socket == nil, self.callError == nil {
 							self.setError(ServerError("Call declined"))
 						}
 						PhonecallDataManager.shared.endCall()
@@ -95,7 +94,10 @@ import UIKit
 
 	
 	// This would be so much more efficient if I just used ring buffers, but: it's *audio*. Literally not millions of samples/sec.
-	var engine = AVAudioEngine()
+	var portListener: NWListener?
+	var session = AVAudioSession.sharedInstance()
+	var sessionIsInSpeakerMode: Bool = false		// Because there seems to be no way to GET this property, only set it.
+	var engine: AVAudioEngine?
 	let bufferLock = NSLock()
 	var networkData = Data()
 		
@@ -118,6 +120,62 @@ import UIKit
 		provider = CXProvider(configuration: type(of: self).providerConfiguration)
 		super.init()
         provider.setDelegate(self, queue: nil)
+        
+		if Settings.shared.useDirectVOIPConnnections {
+			openDirectCallWSServer()
+		}
+		try? session.setCategory(.playAndRecord, mode: .voiceChat, policy: .default, options: [.allowBluetoothA2DP, .allowBluetooth])
+		try? session.setPreferredSampleRate(48000.0)
+		try? session.setPreferredIOBufferDuration(0.005)
+		
+		NotificationCenter.default.addObserver(self, selector: #selector(audioRouteChanged),
+				name: AVAudioSession.routeChangeNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(audioInterruptNotification),
+				name: AVAudioSession.interruptionNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(mediaResetNotification),
+				name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(engineRouteChanged),
+				name: .AVAudioEngineConfigurationChange, object: nil)
+
+	}
+	
+	@objc func audioRouteChanged(notification: Notification) {
+		guard let userInfo = notification.userInfo,
+				let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+				let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
+			return
+		}
+		logger.info("Route change notification. Reason: \(reason.rawValue). Route now: \(self.getAudioRoute().rawValue, privacy: .public)")
+	}
+
+	@objc func audioInterruptNotification(notification: Notification) {
+		guard let userInfo = notification.userInfo,
+			let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+			let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+				return
+		}
+		switch type {
+		case .began: logger.info("Interruption began")
+		case .ended: logger.info("Interruption ended")
+		default: break
+		}
+	}
+	
+	@objc func mediaResetNotification(notification: Notification) {
+		logger.info("Media Services Reset")
+	}
+	
+	@objc func engineRouteChanged(notification: Notification) {
+		DispatchQueue.main.async {
+			if self.engine != nil {
+				self.logger.info("IN ENGINEROUTECHANGE, Route was: \(self.getAudioRoute().rawValue, privacy: .public)")
+				self.engine = nil
+				self.configureAudioSession(audioSession: self.session)
+				self.startAudio(audioSession: self.session)
+	//			self.logger.info("\(self.session.currentRoute, privacy: .public)")
+				self.logger.info("IN ENGINEROUTECHANGE, Route now: \(self.getAudioRoute().rawValue, privacy: .public)")
+			}
+		}
 	}
 
 // MARK: - Networking
@@ -125,6 +183,12 @@ import UIKit
 	// The user has tapped the 'Call' button and wants to initiate a phone call.
 	func requestCallTo(user: KrakenUser, done: @escaping (CurrentCallInfo) -> Void) {
 		dispatchQueue.async { [self] in
+			try? session.setCategory(.playAndRecord, mode: .voiceChat, policy: .default, options: [.allowBluetoothA2DP, .allowBluetooth])
+			try? session.setActive(true, options: .notifyOthersOnDeactivation)	
+			if let input = session.availableInputs?.first(where: { $0.portType == .builtInMic }) {
+				try? session.setPreferredInput(input)
+			}
+
 			// Don't accept call start if we think we're on another call or if we aren't logged in.
 			logger.info("Initiating phone call to \(user.username)")
 			let newCall = CurrentCallInfo(calling: user)
@@ -150,7 +214,7 @@ import UIKit
 			
 			// Direct phone-to-phone sockets
 			if Settings.shared.useDirectVOIPConnnections {
-				openDirectCallWSServer(call: newCall)			
+				openDirectCallWSServer()			
 				var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/phone/initiate/\(newCall.callUUID)/to/\(user.userID)",
 						query: nil)
 				NetworkGovernor.addUserCredential(to: &request)
@@ -159,8 +223,7 @@ import UIKit
 					request.httpBody = try! Settings.v3Encoder.encode(bodyData)
 				}
 				NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-					if let error = NetworkGovernor.shared.parseServerError(package) {
-						NetworkLog.error(error.localizedDescription)
+					if let error = package.getAnyError() {
 						newCall.setError(error)
 						self.endCall(reason: .failed)
 					}
@@ -171,8 +234,7 @@ import UIKit
 						query: nil, webSocket: true)
 				NetworkGovernor.addUserCredential(to: &request)
 				NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-					if let error = NetworkGovernor.shared.parseServerError(package) {
-						NetworkLog.error(error.localizedDescription)
+					if let error = package.getAnyError() {
 						newCall.setError(error)
 						self.endCall(reason: .failed)
 					}
@@ -195,6 +257,8 @@ import UIKit
 			return
 		}		
 
+		try? session.setCategory(.playAndRecord, mode: .voiceChat, policy: .default, options: [.allowBluetoothA2DP, .allowBluetooth])
+		try? session.setActive(true, options: .notifyOthersOnDeactivation)	
 		let callerHeader = TwitarrV3UserHeader(userID: callerID, username: username, displayName: userInfo["displayName"] as? String,
 				userImage: userInfo["userImage"] as? String)
 		UserManager.shared.updateUserHeader(for: nil, from: callerHeader) { [self] caller in
@@ -267,9 +331,12 @@ import UIKit
 		return nil
 	}
 
-	// Called on the DataManager's dispatch queue.
-	func openDirectCallWSServer(call: CurrentCallInfo) {
+	func openDirectCallWSServer() {
         do {
+        	// If we already have a listener up and running, leave it.
+			if let listener = self.portListener, listener.state == .ready {
+				return
+        	}
 			let parameters = NWParameters(tls: nil)
 			parameters.allowLocalEndpointReuse = true
 			parameters.includePeerToPeer = true
@@ -279,12 +346,16 @@ import UIKit
         
             guard let port = NWEndpoint.Port(rawValue: 80) else {
             	logger.error("Could not create port for websocket server.")
-            	call.setError(ServerError("Could not create port for websocket server."))
+//            	call.setError(ServerError("Could not create port for websocket server."))
             	return
 			}
-			call.portListener = try NWListener(using: parameters, on: port)
-      		call.portListener?.newConnectionHandler = { newConnection in
+			portListener = try NWListener(using: parameters, on: port)
+      		portListener?.newConnectionHandler = { newConnection in
             	self.logger.info("iOS Socket Server got new incoming Connection.")
+            	guard let call = self.currentCall else {
+            		newConnection.cancel()
+            		return
+            	}
             	call.connection = newConnection
             	
 				newConnection.stateUpdateHandler = { [weak self] state in
@@ -299,14 +370,18 @@ import UIKit
 						}
                     case .failed(let error):
                         self.logger.info("Client connection failed \(error.localizedDescription)")
+						self.endCall(reason: .remoteEnded)
+						if call.callStartTime == nil {
+							call.callError = error
+						}
                     case .waiting(let error):
                         self.logger.info("Waiting for long time \(error.localizedDescription)")
 					case .setup:
-                        self.logger.info("iOS Socket Server: In Setup State")
+                        self.logger.info("iOS Socket Server: Connection In Setup State")
 					case .preparing:
-                        self.logger.info("iOS Socket Server: In preparing state")
+                        self.logger.info("iOS Socket Server: Connection In preparing state")
 					case .cancelled:
-                        self.logger.info("iOS Socket Server: In cancelled state")
+                        self.logger.info("iOS Socket Server: Connection In cancelled state")
 					default:
 						break
                     }
@@ -315,22 +390,32 @@ import UIKit
                 newConnection.start(queue: self.dispatchQueue)
      		}
         
-			call.portListener?.stateUpdateHandler = { [weak self] state in
+			portListener?.stateUpdateHandler = { [weak self] state in
 				switch state {
+				case .setup:
+					self?.logger.info("WS portListener In Setup State")
+				case .waiting:
+					self?.logger.info("WS portListener In Waiting State")
 				case .ready:
-					self?.logger.info("portListener Ready")
+					self?.logger.info("WS portListener Ready")
 				case .failed(let error):
-					self?.logger.info("portListener failed with \(error.localizedDescription)")
+					self?.logger.info("WS portListener failed with \(error.localizedDescription)")
+					self?.portListener?.cancel()
+					self?.portListener = nil
+				case .cancelled:
+					self?.logger.info("WS portListener cancelled")
+					self?.portListener = nil
+					self?.endCall(reason: .failed)
 				default:
 					break
 				}
 			}
         
-			call.portListener?.start(queue: dispatchQueue)
+			portListener?.start(queue: dispatchQueue)
 		}
 		catch {
 			logger.error("Error opening Websocket Server: \(error)")
-			call.setError(error)
+//			setError(error)
 		}
 	}
 	
@@ -349,6 +434,7 @@ import UIKit
 			NetworkGovernor.addUserCredential(to: &notifyRequest)
 			notifyRequest.httpMethod = "POST"
 			NetworkGovernor.shared.queue(notifyRequest) { (package: NetworkResponse) in
+				// *We* don't care about these errors -- the user's *other* devices they're logged in with care.
 			}
 		}
 		else {
@@ -357,8 +443,7 @@ import UIKit
 		}
 		NetworkGovernor.shared.queue(socketRequest) { (package: NetworkResponse) in
 			self.dispatchQueue.async {
-				if let error = NetworkGovernor.shared.parseServerError(package) {
-					NetworkLog.error(error.localizedDescription)
+				if let error = package.getAnyError() {
 					currentCall.setError(error)
 				}
 				else if let socket = package.socket {
@@ -385,13 +470,11 @@ import UIKit
 			request.httpMethod = "POST"
 			NetworkGovernor.addUserCredential(to: &request)
 			NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-				if let error = NetworkGovernor.shared.parseServerError(package) {
-					NetworkLog.error(error.localizedDescription)
-				}
-			}	
-		}
-		if let listener = currentCall?.portListener {
-			listener.cancel()
+				// Don't care about errors here
+			}
+			if reason == .unanswered {
+				currentCall?.callError = ServerError("Unanswered")
+			}
 		}
 		if let conn = currentCall?.connection {
 			conn.cancel()
@@ -502,26 +585,117 @@ import UIKit
 	}
 	
 // MARK: - Audio
-	func configureAudioSession(audioSession: AVAudioSession) {
+	enum AudioRoute: String {
+		case microphone
+		case speaker
+		case headphone
+		case bluetooth
+	}
+	
+	func hasWiredHeadphoneRoute() -> Bool {
+        let availableInputs = session.availableInputs ?? []
+        for input in availableInputs {
+            if [.headsetMic, .headphones].contains(input.portType) {
+                return true
+            }
+        }
+        return false
+	}
+	
+	func hasWirelessHeadphoneRoute() -> Bool {
+        let availableInputs = session.availableInputs ?? []
+        for input in availableInputs {
+            if [.bluetoothA2DP, .bluetoothHFP, .bluetoothLE].contains(input.portType) {
+                return true
+            }
+        }
+        return false
+	}
+	
+	func getAudioRoute() -> AudioRoute {
+		if let route = session.currentRoute.inputs.first {
+			switch route.portType {
+			case .bluetoothA2DP, .bluetoothLE, .bluetoothHFP: return .bluetooth
+			case .headsetMic, .headphones: return .headphone
+			default: return sessionIsInSpeakerMode ? .speaker : .microphone
+			}
+		}
+		return .microphone
+	}
+	
+	func setAudioRoute(_ newRoute: AudioRoute) {
+		if newRoute == getAudioRoute() {
+			return
+		}
 		do {
-			try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetooth])
-			try audioSession.setActive(true)			
+			if sessionIsInSpeakerMode {
+				try session.overrideOutputAudioPort(.none)
+			}
+			sessionIsInSpeakerMode = newRoute == .speaker
+			// Here because there is an apparent bug in iOS where Airpods will get immediately 'discovered' as new devices as soon as you
+			// set a different input, and the session will 'help' by switching to the 'new' devices that were there before.
+			if newRoute == .bluetooth {
+				try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetoothA2DP, .allowBluetooth])
+			}
+			else {
+				try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .voiceChat, options: [])
+			}
+			switch newRoute {
+			case .microphone: 
+				if let pref = session.availableInputs?.first( where: { $0.portType == .builtInMic }) {
+					try session.setPreferredInput(pref)
+				}
+			case .speaker: 
+				try session.overrideOutputAudioPort(.none)
+			case .headphone:
+				if let pref = session.availableInputs?.first( where: { [.headsetMic, .headphones].contains($0.portType) }) {
+					try session.setPreferredInput(pref)
+				}
+			case .bluetooth:
+				if let pref = session.availableInputs?.first( where: { [.bluetoothA2DP, .bluetoothHFP, .bluetoothLE].contains($0.portType) }) {
+					try session.setPreferredInput(pref)
+				}
+			}
+			logger.log("Route switched to: \(newRoute.rawValue, privacy: .public)")
+		}
+		catch {
+			logger.log("Error switching audio route: \(error, privacy: .public)")
+		}
+	}
+
+	func configureAudioSession(audioSession: AVAudioSession) {
+//		do {
+//			self.session = audioSession
+//			try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetoothA2DP, .allowBluetooth])
+//			try audioSession.setActive(true)
 			networkData.removeAll()
 			
 			// Engine
-			engine = AVAudioEngine()
-
+			var engine: AVAudioEngine
+			if let e = self.engine {
+				engine = e
+				engine.inputNode.removeTap(onBus: 1)
+				engine.reset()
+			}
+			else {
+				engine = AVAudioEngine()
+				self.engine = engine
+			}
+			
 			// Get the native audio format of the engine's input bus.
 //			try engine.inputNode.setVoiceProcessingEnabled(true)
-			let inputFormat = engine.inputNode.outputFormat(forBus: 0)
+//			try engine.outputNode.setVoiceProcessingEnabled(true)
+			let inputBus = 1
+			let inputFormat = engine.inputNode.outputFormat(forBus: inputBus)
 			let networkFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16000.0, channels: 1, interleaved: true)!
 			let converter = AVAudioConverter(from: inputFormat, to: networkFormat)!
 	
-//			engine.connect(engine.inputNode, to: engine.outputNode, format: nil)
+//			let blahFormat = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)
+//			engine.connect(engine.inputNode, to: engine.mainMixerNode, format: nil)
 			engine.inputNode.isVoiceProcessingAGCEnabled = true
 //			try engine.inputNode.setVoiceProcessingEnabled(true)
 
-			engine.inputNode.installTap(onBus: 1, bufferSize: 256, format: nil) { (buffer: AVAudioPCMBuffer, time: AVAudioTime) in
+			engine.inputNode.installTap(onBus: inputBus, bufferSize: 512, format: nil) { (buffer: AVAudioPCMBuffer, time: AVAudioTime) in
 				let networkBufferFrames = AVAudioFrameCount(Double(buffer.frameLength) * networkFormat.sampleRate / inputFormat.sampleRate)
 				guard // let socket = self.currentCall?.socket, 
 						let networkBuffer = AVAudioPCMBuffer(pcmFormat: networkFormat, frameCapacity: networkBufferFrames) else {
@@ -549,12 +723,16 @@ import UIKit
 					var frames: Int32 = Int32(networkBuffer.frameLength)
 					withUnsafeBytes(of: &frames, { packet.append(contentsOf: $0) })
 					let buf: UnsafeMutablePointer<Int16> = channelData[0]
+					let buffer = UnsafeMutableBufferPointer(start: buf, count: Int(frames))
+			//		var max: Int16 = 0
+					for (index, sample) in buffer.enumerated() {
+						buffer[index] = Int16((Float(sample) * 4.0).clamped(to: -32760...32760))
+					}
+	//				print("XXXXX \(max)")
 					let rawBuf = UnsafeRawPointer(buf)
 					packet.append(Data(bytes: rawBuf, count: Int(frames) * 2))
 					self.sendDataPacket(data: packet)
-				//	socket.send(.data(packet)) { error in
-				//		print("[\(Date())] Sent packet: \(frames) frames. error: \(String(describing: error))")
-				//	}
+//					print("[\(Date())] Sent packet: \(frames) frames. error: \(String(describing: error))")
 				}
 				else {
 					self.logger.info("NO DATA IN 16BIT BUFFER")
@@ -563,41 +741,48 @@ import UIKit
 			
 			let sourceNode = AVAudioSourceNode() { silence, timeStamp, frameCount, audioBufferList -> OSStatus in
 				let ablPointer = UnsafeMutableAudioBufferListPointer(audioBufferList)
-					self.bufferLock.lock()
-					let framesInBuf = self.networkData.count / 2
-					let framesToCopy = min(Int(frameCount), framesInBuf)
-					let destRawPtr: UnsafeMutableRawPointer = ablPointer[0].mData!
-					let destPtr: UnsafeMutablePointer<UInt8> = destRawPtr.bindMemory(to: UInt8.self, capacity: framesToCopy * 2)
-					self.networkData.copyBytes(to: destPtr, from: 0..<(framesToCopy * 2))
-					
-					// Zero-fill dest buf if framesToCopy < frameCount
-
-					// If we have more than .25 seconds worth in the buffer, dump it all.
-					if framesInBuf > 16000 / 4 {
-						self.networkData.removeAll()
-					}
-					else {
-						self.networkData.removeSubrange(0..<(framesToCopy * 2))
-					}
-					
-//					logger.info("[\(Date())] Copied \(framesToCopy) frames out of buffer, now \(self.networkData.count / 2) frames in buf.")
-					self.bufferLock.unlock()
+				self.bufferLock.lock()
+				let framesInDataBuf = self.networkData.count / 2
+				let framesToCopy = min(Int(frameCount), framesInDataBuf)
+				let destRawPtr: UnsafeMutableRawPointer = ablPointer[0].mData!
+				let destPtr: UnsafeMutablePointer<UInt8> = destRawPtr.bindMemory(to: UInt8.self, capacity: Int(frameCount) * 2)
+				if framesToCopy < frameCount {
+					destPtr.assign(repeating: 0, count: Int(frameCount) * 2)
+				}
+				self.networkData.copyBytes(to: destPtr, from: 0..<(framesToCopy * 2))
+				
+				// If we have more than .25 seconds worth in the buffer, dump it all.
+				if framesInDataBuf > 16000 / 4 {
+					self.networkData.removeAll()
+				}
+				else {
+					self.networkData.removeSubrange(0..<(framesToCopy * 2))
+				}
+				
+//				self.logger.info("[\(Date())] Copied \(framesToCopy) frames out of buffer, now \(self.networkData.count / 2) frames in buf.")
+				self.bufferLock.unlock()
 				return noErr
 			}
 			engine.attach(sourceNode)
 			engine.connect(sourceNode, to: engine.mainMixerNode, format: networkFormat)			
-		} 
-		catch {
-			logger.error("Failed to setup audio session: \(error, privacy: .public)")
-			self.currentCall?.setError(ServerError("Failed to setup audio session: \(error)"))
-		}
-		engine.prepare()
+//		} 
+//		catch {
+//			logger.error("Failed to setup audio session: \(error, privacy: .public)")
+//			self.currentCall?.setError(ServerError("Failed to setup audio session: \(error)"))
+//		}
 	}
 	
 	func startAudio(audioSession: AVAudioSession) {
 		do {
-			try engine.start()
-			logger.info("\(self.engine.description, privacy: .public)")
+			if let engine = engine {
+				try engine.start()
+				if !engine.isRunning {
+					try engine.inputNode.setVoiceProcessingEnabled(false)
+					try engine.start()
+				}
+				logger.info("In startAudio: \(engine.description, privacy: .public)")
+				logger.info("\(engine.inputNode.outputFormat(forBus: 1), privacy: .public)")
+			}
 		}
 		catch {
 			logger.info("Error during startAudio: \(error)")
@@ -606,9 +791,9 @@ import UIKit
 	}
 
 	func stopAudio() {
-		engine.inputNode.removeTap(onBus: 0)
-		engine.stop()
-		try? AVAudioSession.sharedInstance().setActive(false)
+		engine?.inputNode.removeTap(onBus: 1)
+		engine?.stop()
+		logger.info("StopAudio() called.")
 	}
 }
 
@@ -657,13 +842,14 @@ extension PhonecallDataManager: CXProviderDelegate {
     }
     
     func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
+		logger.info("Got told didActivate audio session.")
 		configureAudioSession(audioSession: audioSession)
     	startAudio(audioSession: audioSession)
-		logger.info("Got told didActivate audio session.")
     }
     
 	func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
 		stopAudio()
+		try? session.setActive(false)	
 		logger.info("Got told didDeactivate audio session.")
     }
 }

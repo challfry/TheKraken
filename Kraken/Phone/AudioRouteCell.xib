@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AudioRouteCell" id="F9u-B8-1QK" customClass="AudioRouteCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="382" height="54"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="MoC-sa-Cgy">
+                <rect key="frame" x="0.0" y="0.0" width="382" height="54"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Lpv-d6-5LV">
+                        <rect key="frame" x="20" y="6" width="40" height="40"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="40" id="6no-7d-Idu"/>
+                            <constraint firstAttribute="height" constant="40" id="Nfv-Z6-7in"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" horizontalCompressionResistancePriority="700" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jMt-1s-XKC">
+                        <rect key="frame" x="76" y="15.666666666666664" width="236" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="T59-bq-tI7" userLabel="Checked Image">
+                        <rect key="frame" x="322" y="6" width="40" height="40"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="40" id="0Ef-IR-QmZ"/>
+                            <constraint firstAttribute="width" constant="40" id="0g4-2s-ZfM"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="T59-bq-tI7" secondAttribute="trailing" priority="900" constant="20" id="Hpr-cZ-6Bo"/>
+                    <constraint firstItem="T59-bq-tI7" firstAttribute="top" secondItem="MoC-sa-Cgy" secondAttribute="top" constant="6" id="LZb-EI-Xbg"/>
+                    <constraint firstAttribute="bottom" secondItem="T59-bq-tI7" secondAttribute="bottom" priority="900" constant="6" id="LkU-e6-oVa"/>
+                    <constraint firstItem="T59-bq-tI7" firstAttribute="leading" secondItem="jMt-1s-XKC" secondAttribute="trailing" constant="10" id="SLv-WH-UNh"/>
+                    <constraint firstItem="jMt-1s-XKC" firstAttribute="leading" secondItem="Lpv-d6-5LV" secondAttribute="trailing" constant="16" id="UC7-b4-nbr"/>
+                    <constraint firstItem="Lpv-d6-5LV" firstAttribute="leading" secondItem="MoC-sa-Cgy" secondAttribute="leading" constant="20" id="jyo-ef-2kH"/>
+                    <constraint firstAttribute="bottom" secondItem="Lpv-d6-5LV" secondAttribute="bottom" priority="900" constant="6" id="kua-re-rGC"/>
+                    <constraint firstItem="Lpv-d6-5LV" firstAttribute="top" secondItem="MoC-sa-Cgy" secondAttribute="top" constant="6" id="lsA-Ra-RaN"/>
+                    <constraint firstItem="jMt-1s-XKC" firstAttribute="centerY" secondItem="Lpv-d6-5LV" secondAttribute="centerY" id="mnu-kb-m05"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <color key="backgroundColor" name="Phone UI Dark Gray"/>
+            <size key="customSize" width="382" height="54"/>
+            <connections>
+                <outlet property="checkedImage" destination="T59-bq-tI7" id="zq4-k0-6vF"/>
+                <outlet property="iconImageView" destination="Lpv-d6-5LV" id="cKJ-qp-ghD"/>
+                <outlet property="titleLabel" destination="jMt-1s-XKC" id="CiL-gh-YES"/>
+            </connections>
+            <point key="canvasLocation" x="291.60305343511448" y="-40.140845070422536"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="Phone UI Dark Gray">
+            <color white="0.14538660645484924" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </namedColor>
+    </resources>
+</document>

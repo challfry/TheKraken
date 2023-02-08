@@ -314,6 +314,15 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		return statusString
 	}
 	
+	func setOperationState(_ newState: PostOperationState) {
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Could set operation state for a PostOp.")
+			if let selfInContext = try context.existingObject(with: self.objectID) as? PostOperation {
+				selfInContext.operationState = newState
+			}
+		}
+	}
+	
 	func post(context: NSManagedObjectContext) {
 		operationState = .serverError
 		errorString = "Kraken hasn't implemented this operation yet."
@@ -332,7 +341,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			failure: ((ServerError) -> Void)? = nil) {
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			do {
-				if let err = NetworkGovernor.shared.parseServerError(package) {
+				if let err = package.serverError {
 					self.recordServerErrorFailure(err)
 					failure?(err)
 				}
@@ -830,6 +839,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 }
 
 @objc(PostOpLFGCreate) public class PostOpLFGCreate: PostOperation {
+	@NSManaged public var editingLFG: SeamailThread?
 	@NSManaged public var lfgType: String			// Much match a .raw from TwitarrV3FezType
 	@NSManaged public var title: String
 	@NSManaged public var info: String
@@ -841,18 +851,37 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
-		operationDescription = "Creating a new LFG."
+		operationDescription = nil
 	}
 
+	override public func willSave() {
+		super.willSave()
+		// willSave gets called repeatedly until we don't set any values!
+		if editingLFG != nil && operationDescription != "Updating your LFG" {
+			operationDescription = "Updating your LFG"
+		}
+		else if editingLFG == nil && operationDescription != "Creating a new LFG" {
+			operationDescription = "Creating a new LFG"
+		}
+	}
+	
 	override func post(context: NSManagedObjectContext) {
 		guard let lfgtype = TwitarrV3FezType(rawValue: lfgType) else {
 			self.recordServerErrorFailure(ServerError("Invalid LFG type. Cannot complete creating this LFG."))
 			return
 		}
 		confirmPostBeingSent(context: context)
-						
-		// POST /api/v3/fez/create
-		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/fez/create", query: nil)
+		
+		var path: String
+		if let lfgBeingEdited = editingLFG { 
+			// POST /api/v3/fez/ID/update -- updating an existing LFG
+			path = "/api/v3/fez/\(lfgBeingEdited.id)/update"
+		}
+		else {
+			// POST /api/v3/fez/create -- creating a new LFG
+			path = "/api/v3/fez/create"
+		}
+		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		let newLFGStruct = TwitarrV3FezContentData(fezType: lfgtype, title: title, info: info,  startTime: startTime, endTime: endTime, 

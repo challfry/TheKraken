@@ -66,23 +66,14 @@ class PopupCell: BaseCollectionViewCell, PopupCellBindingProtocol {
 		didSet { buildMenu() }
 	}
 	var singleSelectionMode: Bool = true {
-		didSet { 
-			popupButton.changesSelectionAsPrimaryAction = singleSelectionMode
-			if !singleSelectionMode {
-				popupButton.menu?.children.forEach { 
-					if let menuItem = $0 as? UIAction { 
-						menuItem.state = .off 
-					} 
-				}
-			}
-		}
+		didSet { buildMenu() }
 	}
 	var menuItems: [String] = [] {
 		didSet { buildMenu() }
 	}
 	var selectedMenuItem: Int = 0 {
 		didSet { 
-			if let menu = popupButton.menu, menu.children.count < selectedMenuItem, let action = menu.children[selectedMenuItem] as? UIAction,
+			if let menu = popupButton.menu, menu.children.count > selectedMenuItem, let action = menu.children[selectedMenuItem] as? UIAction,
 					action.state != .on {
 				action.state = .on
 			}
@@ -96,9 +87,15 @@ class PopupCell: BaseCollectionViewCell, PopupCellBindingProtocol {
 			}
 		}) }
 		if singleSelectionMode && !items.isEmpty {
-			items[0].state = .on 
+			if selectedMenuItem < items.count {
+				items[selectedMenuItem].state = .on
+			}
+			else {
+				items[0].state = .on 
+			}
 		}
-		popupButton.menu = UIMenu(title: menuPrompt, children: items)
+		popupButton.changesSelectionAsPrimaryAction = singleSelectionMode
+		popupButton.menu = UIMenu(title: menuPrompt, options: singleSelectionMode ? .singleSelection : [], children: items)
 	}
 }
 

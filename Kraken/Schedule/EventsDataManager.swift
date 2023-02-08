@@ -463,10 +463,7 @@ class EventsDataManager: NSObject {
 		networkUpdateActive = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			self.networkUpdateActive = false
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				NetworkLog.error(error.localizedDescription)
-			}
-			else if let data = package.data {
+			if let data = package.data {
 //				print (String(decoding:data!, as: UTF8.self))
 				let decoder = JSONDecoder()
 				do {

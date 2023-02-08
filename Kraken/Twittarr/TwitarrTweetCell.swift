@@ -486,6 +486,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	
 	private var opsByCurrentUserObservations: [EBNObservation?] = []
 	@objc dynamic var loggedInUserHasLikedThis: Bool = false
+	var previousPhotoCount = 0
 
 // MARK: Binding Protocol Vars
 
@@ -635,11 +636,11 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			numDisplayedPhotos = photoArray.count
 			if numDisplayedPhotos == 1 {
 				let firstPhoto = photoArray[0]
-				if !isPrototypeCell {
+//				if !isPrototypeCell {
 					ImageManager.shared.image(withSize:.medium, forKey: firstPhoto.id) { image in
 						self.postImage.image = image
 					}
-				}
+//				}
 			}
 		}
 		else if let photoArray = photoAttachments, photoArray.count > 0 {
@@ -673,6 +674,11 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 			loopBreak = loopBreak + 1
 		} while (postImagesCollection.isHidden != (numDisplayedPhotos < 2)) && loopBreak < 200
 		photoPageControl.numberOfPages = numDisplayedPhotos == 0 ? 1 : numDisplayedPhotos
+		
+		if previousPhotoCount != numDisplayedPhotos {
+			previousPhotoCount = numDisplayedPhotos
+			cellSizeChanged()
+		}
 	}
 	
 	var currentUserReplyOpCount: Int32 = 0 {

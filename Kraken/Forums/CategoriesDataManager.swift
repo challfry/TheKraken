@@ -73,7 +73,7 @@ import CoreData
 		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/forum/categories", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {

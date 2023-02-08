@@ -103,7 +103,7 @@ enum GlobalKnownSegue: String {
 		case .eventsRoot: return String.self
 		
 		case .lfgRoot: return Void.self
-		case .lfgCreateEdit: return SeamailThread?.self
+		case .lfgCreateEdit: return Any.self
 		
 		case .deckMapRoot: return Void.self
 		case .showRoomOnDeckMap: return String.self
@@ -661,8 +661,13 @@ class BaseCollectionViewController: UIViewController {
 			
 // LFG
 		case .lfgCreateEdit:
-			if let destVC = destination as? CreateLFGViewController, let thread = sender as? SeamailThread {
-				destVC.lfgModel = thread
+			if let destVC = destination as? CreateLFGViewController{
+				if let thread = sender as? SeamailThread {
+					destVC.lfgModel = thread
+				}
+				else if let op = sender as? PostOpLFGCreate {
+					destVC.opToEdit = op
+				}
 			}
 // Events
 		case .eventsRoot: break

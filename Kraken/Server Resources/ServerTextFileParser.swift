@@ -44,7 +44,7 @@ class ServerTextFileParser: NSObject {
 		let request = NetworkGovernor.buildTwittarRequest(withPath:"/public/\(named)", query: nil)
 		isFetchingData = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 				self.loadLocallySavedFile(named: named)
 			}

@@ -84,6 +84,7 @@ struct NetworkResponse {
 	var response: HTTPURLResponse?
 	var data: Data?
 	var networkError: NetworkError?
+	var serverError: ServerError?
 	var socket: URLSessionWebSocketTask?
 	
 	func debugPrintData() -> String {
@@ -93,6 +94,10 @@ struct NetworkResponse {
 		else {
 			return "No Data"
 		}
+	}
+	
+	func getAnyError() -> Error? {
+		return networkError ?? serverError
 	}
 }
 
@@ -418,8 +423,17 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 				CurrentUser.shared.logoutUser(nil, sendLogoutMsg: false)
 			}
 			
-			let responsePacket = NetworkResponse(response: resp, data: responseData, networkError: networkError)
-
+			var responsePacket = NetworkResponse(response: resp, data: responseData, networkError: networkError)
+			responsePacket.serverError = NetworkGovernor.shared.parseServerError(responsePacket)
+			if let err =  responsePacket.serverError {
+				NetworkLog.error(err.localizedDescription)
+			}
+			for doneCallback in foundTask.doneCallbacks {
+				doneCallback(responsePacket)
+			}
+		}
+		else {
+			var responsePacket = NetworkResponse(response: nil, data: nil, networkError: networkError)
 			for doneCallback in foundTask.doneCallbacks {
 				doneCallback(responsePacket)
 			}

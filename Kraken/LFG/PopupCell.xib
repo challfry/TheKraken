@@ -37,7 +37,7 @@
                     <constraint firstItem="16k-hy-JMO" firstAttribute="top" secondItem="IzJ-EM-wSM" secondAttribute="top" priority="850" constant="4" id="Bcy-oL-IkU"/>
                     <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="hHY-ht-MCA" secondAttribute="bottom" priority="900" constant="4" id="hSg-vT-H0U"/>
                     <constraint firstItem="hHY-ht-MCA" firstAttribute="centerY" secondItem="16k-hy-JMO" secondAttribute="centerY" id="k76-mk-HGl"/>
-                    <constraint firstAttribute="trailing" secondItem="hHY-ht-MCA" secondAttribute="trailing" constant="20" id="kd1-AA-91A"/>
+                    <constraint firstAttribute="trailing" secondItem="hHY-ht-MCA" secondAttribute="trailing" priority="999" constant="20" id="kd1-AA-91A"/>
                     <constraint firstAttribute="bottom" secondItem="16k-hy-JMO" secondAttribute="bottom" priority="850" constant="4" id="mLS-MP-7Un"/>
                     <constraint firstItem="16k-hy-JMO" firstAttribute="leading" secondItem="IzJ-EM-wSM" secondAttribute="leading" constant="20" id="mhO-T5-ed1"/>
                     <constraint firstItem="hHY-ht-MCA" firstAttribute="leading" secondItem="16k-hy-JMO" secondAttribute="trailing" constant="10" id="rHc-t0-iRK"/>

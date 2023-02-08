@@ -11,7 +11,7 @@ import Foundation
 class CreateLFGViewController: BaseCollectionViewController {
 
 	var lfgModel: SeamailThread?
-	var opToEdit: PostOpSeamailThread?
+	var opToEdit: PostOpLFGCreate?
 
 	let dataManager = SeamailDataManager.shared
 	let composeDataSource = KrakenDataSource()
@@ -63,7 +63,14 @@ class CreateLFGViewController: BaseCollectionViewController {
 	
 	lazy var postButtonCell: ButtonCellModel = {
 		let buttonCell = ButtonCellModel()
-		buttonCell.setupButton(2, title:"Create", action: weakify(self, type(of: self).postAction))
+		var title = "Create"
+		if lfgModel != nil {
+			title = "Update"
+		}
+		else if opToEdit != nil {
+			title = "Edit"
+		}
+		buttonCell.setupButton(2, title: title, action: weakify(self, type(of: self).postAction))
 		return buttonCell
 	}()
 	
@@ -92,7 +99,6 @@ class CreateLFGViewController: BaseCollectionViewController {
 // MARK: - Methods
 	override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Create LFG"
 
 		composeDataSource.register(with: collectionView, viewController: self)
 		let composeSection = composeDataSource.appendFilteringSegment(named: "ComposeSection")
@@ -109,6 +115,84 @@ class CreateLFGViewController: BaseCollectionViewController {
 		
 		defaultLocationsCell.tell(locationCell, when: "selectedMenuItem") { observer, observed in
 			observer.editText = observed.selectedMenuTitle()
+		}
+	}
+	
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+        title = "Create LFG"
+		if let model = self.lfgModel {
+			title = "Update LFG"
+			// Populate UI with initial values from LFG
+			titleCell.editText = model.subject
+			infoCell.editText = model.info
+			locationCell.editText = model.location
+			switch TwitarrV3FezType(rawValue: model.fezType) {
+				case .activity: eventTypeCell.selectedMenuItem = 0
+				case .dining: eventTypeCell.selectedMenuItem = 1
+				case .gaming: eventTypeCell.selectedMenuItem = 2
+				case .meetup: eventTypeCell.selectedMenuItem = 3
+				case .music: eventTypeCell.selectedMenuItem = 4
+				case .shore: eventTypeCell.selectedMenuItem = 5
+				case .other: eventTypeCell.selectedMenuItem = 6
+				default: eventTypeCell.selectedMenuItem = 0
+			}
+			if let startTime = model.startTime {
+				startDateCell.selectedDate = startTime
+				let duration = (model.endTime?.timeIntervalSince(startTime) ?? 1800) / 60
+				switch duration {
+					case ..<40: eventDurationCell.selectedMenuItem = 0
+					case 40..<55: eventDurationCell.selectedMenuItem = 1
+					case 55..<75: eventDurationCell.selectedMenuItem = 2
+					case 75..<105: eventDurationCell.selectedMenuItem = 3
+					case 105..<165: eventDurationCell.selectedMenuItem = 4
+					case 165..<225: eventDurationCell.selectedMenuItem = 5
+					case 225...: eventDurationCell.selectedMenuItem = 6
+					default: eventDurationCell.selectedMenuItem = 0
+				}
+			}
+			attendeeCountsCell.minAttendees = model.minParticipants
+			attendeeCountsCell.maxAttendees = model.maxParticipants
+		}
+		else if let op = self.opToEdit {
+			title = "Edit LFG"
+			
+			op.setOperationState(.notReadyToSend)
+			titleCell.editText = op.title
+			infoCell.editText = op.info
+			locationCell.editText = op.location
+			switch TwitarrV3FezType(rawValue: op.lfgType) {
+				case .activity: eventTypeCell.selectedMenuItem = 0
+				case .dining: eventTypeCell.selectedMenuItem = 1
+				case .gaming: eventTypeCell.selectedMenuItem = 2
+				case .meetup: eventTypeCell.selectedMenuItem = 3
+				case .music: eventTypeCell.selectedMenuItem = 4
+				case .shore: eventTypeCell.selectedMenuItem = 5
+				case .other: eventTypeCell.selectedMenuItem = 6
+				default: eventTypeCell.selectedMenuItem = 0
+			}
+			startDateCell.selectedDate = op.startTime
+			let duration = op.endTime.timeIntervalSince(op.startTime) / 60.0
+			switch duration {
+				case ..<40: eventDurationCell.selectedMenuItem = 0
+				case 40..<55: eventDurationCell.selectedMenuItem = 1
+				case 55..<75: eventDurationCell.selectedMenuItem = 2
+				case 75..<105: eventDurationCell.selectedMenuItem = 3
+				case 105..<165: eventDurationCell.selectedMenuItem = 4
+				case 165..<225: eventDurationCell.selectedMenuItem = 5
+				case 225...: eventDurationCell.selectedMenuItem = 6
+				default: eventDurationCell.selectedMenuItem = 0
+			}
+			attendeeCountsCell.minAttendees = op.minCapacity
+			attendeeCountsCell.maxAttendees = op.maxCapacity
+		}
+	}
+	
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		if let op = self.opToEdit {
+			// Whether we committed edits to the op or not, mark the op ready to send again.
+			op.setOperationState(.readyToSend)
 		}
 	}
 	
@@ -156,8 +240,9 @@ class CreateLFGViewController: BaseCollectionViewController {
 		let endTime = Calendar.current.date(byAdding: .minute, value: duration, to: startTime) ?? startTime
 		let minAttendees = attendeeCountsCell.minAttendees
 		let maxAttendees = attendeeCountsCell.maxAttendees
-		SeamailDataManager.shared.queueNewLFGOp(existingOp: nil, lfgType: lfgType, title: titleText, info: infoText, 
-				location: locationText, startTime: startTime, endTime: endTime, minCapacity: minAttendees, maxCapacity: maxAttendees, done: postQueued)
+		SeamailDataManager.shared.queueNewLFGOp(existingOp: self.opToEdit, existingLFG: self.lfgModel, 
+				lfgType: lfgType, title: titleText, info: infoText, location: locationText, startTime: startTime, endTime: endTime, 
+				minCapacity: minAttendees, maxCapacity: maxAttendees, done: postQueued)
 		postStatusCell.shouldBeVisible = true
 	}
 	

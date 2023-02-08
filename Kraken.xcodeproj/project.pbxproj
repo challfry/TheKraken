@@ -139,6 +139,8 @@
 		EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98742323A58100E10156 /* KaraokeSongCell.xib */; };
 		EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */; };
 		EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */; };
+		EA8CC2892992018C001889B5 /* AudioRouteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8CC2882992018C001889B5 /* AudioRouteCell.xib */; };
+		EA8CC28B299202E1001889B5 /* AudioRouteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CC28A299202E1001889B5 /* AudioRouteCell.swift */; };
 		EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */; };
 		EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
@@ -425,6 +427,8 @@
 		EA8B98742323A58100E10156 /* KaraokeSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeSongCell.xib; sourceTree = "<group>"; };
 		EA8B987E232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeArtistSectionHeaderView.xib; sourceTree = "<group>"; };
 		EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeRootViewController.swift; sourceTree = "<group>"; };
+		EA8CC2882992018C001889B5 /* AudioRouteCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioRouteCell.xib; sourceTree = "<group>"; };
+		EA8CC28A299202E1001889B5 /* AudioRouteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRouteCell.swift; sourceTree = "<group>"; };
 		EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailLargeThreadCell.xib; sourceTree = "<group>"; };
 		EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaraokeDataManager.swift; sourceTree = "<group>"; };
 		EA90455E22DC032C00790F97 /* SmallUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallUserCell.swift; sourceTree = "<group>"; };
@@ -1114,6 +1118,8 @@
 			children = (
 				EADC81A1296F3F6500232A37 /* InitiateCallVC.swift */,
 				EA99D27B297B293600C8D63E /* ActiveCallVC.swift */,
+				EA8CC28A299202E1001889B5 /* AudioRouteCell.swift */,
+				EA8CC2882992018C001889B5 /* AudioRouteCell.xib */,
 				EADC81A32970929F00232A37 /* PhonecallDataManager.swift */,
 			);
 			path = Phone;
@@ -1292,6 +1298,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
+				EA8CC2892992018C001889B5 /* AudioRouteCell.xib in Resources */,
 				EA1099FC2397376700F5172D /* ForumsThreadCell.xib in Resources */,
 				EAF589D324025D6100ECB7DB /* HashtagButtonCell.xib in Resources */,
 				EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */,
@@ -1519,6 +1526,7 @@
 				EA83FC7223693A800042C0DC /* DeckMapViewController.swift in Sources */,
 				EAAA68E123FD0C1600C9EF82 /* RockBalladViewController.swift in Sources */,
 				EAC71D4A228A13F6002F7BB3 /* FRCDataSourceSegment.swift in Sources */,
+				EA8CC28B299202E1001889B5 /* AudioRouteCell.swift in Sources */,
 				EA951D2A23CDB18100453B3C /* ScrapbookViewController.swift in Sources */,
 				EA47886D23EBC14700897A5A /* BaseCollectionSupplementaryView.swift in Sources */,
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,

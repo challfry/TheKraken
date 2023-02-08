@@ -31,7 +31,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		let labelText = NSAttributedString(string: "LFGs you've already joined:", 
 				attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)])
 		let cell = LabelCellModel(labelText)
-		cell.bgColor = UIColor(named: "Text View Background")
+		cell.bgColor = UIColor(named: "Info Title Background")
 		cell.shouldBeVisible = true
 		return cell
 	}()
@@ -40,7 +40,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		let cell = LabelCellModel("You haven't joined any LFGs yet." )
 		cell.bgColor = UIColor(named: "Text View Background")
 		
-		joinedSegment.tell(cell, when: "isEmpty") { observer, observed in
+		joinedSegment.wrapper.tell(cell, when: "isEmpty") { observer, observed in
 			observer.shouldBeVisible = observed.isEmpty
 		}?.execute()
 		
@@ -51,7 +51,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		let cell = LabelCellModel("There are no upcoming LFGs to join." )
 		cell.bgColor = UIColor(named: "Text View Background")
 		
-		openSegment.tell(cell, when: "isEmpty") { observer, observed in
+		openSegment.wrapper.tell(cell, when: "isEmpty") { observer, observed in
 			observer.shouldBeVisible = observed.isEmpty
 		}?.execute()
 		
@@ -62,7 +62,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		let labelText = NSAttributedString(string: "LFGs you could join:", 
 				attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)])
 		let cell = LabelCellModel(labelText)
-		cell.bgColor = UIColor(named: "Text View Background")
+		cell.bgColor = UIColor(named: "Info Title Background")
 		cell.shouldBeVisible = true
 		return cell
 	}()
@@ -106,7 +106,10 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 				observer.joinedSegment.changePredicate(to: joinedPred)
 				let openPred = NSCompoundPredicate(andPredicateWithSubpredicates: [
 						NSPredicate(format: "NOT (fezType IN %@)", ["open", "closed"] as CVarArg),
-						NSPredicate(format: "NOT (ANY participants.userID == %@)", currentUserID as CVarArg)])
+						NSPredicate(format: "SUBQUERY(participants, $x, $x.userID == %@).@count == 0", currentUserID as CVarArg),
+						NSPredicate(format: "startTime > %@", Date() - 3600 as CVarArg),
+						NSPredicate(format: "cancelled == false"),
+						])
 				observer.openSegment.changePredicate(to: openPred)
         		observer.lfgDataSource.register(with: observer.collectionView, viewController: observer)
         		observer.dataManager.loadOpenLFGs()

@@ -58,7 +58,7 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp, .lfgCreateEdit ])
 	}
 
 	// This is the unwind segue handler for the profile edit VC
@@ -158,7 +158,11 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 			taskSection.append(SettingsInfoCellModel("Send a Seamail Message:", taskIndex: sectionIndex))
 			taskSection.append(cellModel)
 
-
+// LFG
+		case let lfgCreateTask as PostOpLFGCreate:
+			let cellModel = LFGCellModel(withModel: lfgCreateTask, reuse: "LFGCell")
+			taskSection.append(SettingsInfoCellModel("Create an LFG:", taskIndex: sectionIndex))
+			taskSection.append(cellModel)
 
 // Events
 		case let eventFollowTask as PostOpEventFollow:
@@ -403,6 +407,9 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 		}
 		else if task is PostOpSeamailThread {
 			viewController?.performKrakenSegue(.editSeamailThreadOp, sender: task)
+		}
+		else if task is PostOpLFGCreate {
+			viewController?.performKrakenSegue(.lfgCreateEdit, sender: task)
 		}
 		else if task is PostOpUserProfileEdit {
 			viewController?.performKrakenSegue(.editUserProfile, sender: task)

@@ -43,7 +43,9 @@ class ReportContentViewController: UIViewController {
 			requestPath = "/api/v3/forum/\(forumToReport.id)/report"
 		case let forumPostToReport as ForumPost:
 			requestPath = "/api/v3/forum/post/\(forumPostToReport.id)/report"
-		// LFGs and LFG posts are reportable; but not in Kraken yet
+		case let lfgToReport as SeamailThread:
+			requestPath = "/api/v3/fez/\(lfgToReport.id)/report"
+		// LFG posts are reportable; but not in Kraken yet
 
 		case let userProfileToReport as KrakenUser:
 			requestPath = "/api/v3/users/\(userProfileToReport.userID)/report"
@@ -59,7 +61,7 @@ class ReportContentViewController: UIViewController {
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.getAnyError() {
 				self.lastError = error
 			}
 			else {

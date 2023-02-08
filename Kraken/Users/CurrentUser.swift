@@ -334,7 +334,7 @@ import UserNotifications
 		request.addValue("Basic \(credentials)", forHTTPHeaderField: "Authorization")
 		
 		NetworkGovernor.shared.queue(request) { package in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				// Login failed.
 				self.lastError = error
 			}
@@ -393,7 +393,7 @@ import UserNotifications
 		NetworkGovernor.addUserCredential(to: &request)
 		
 		NetworkGovernor.shared.queue(request) { package in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				// HTTP 401 error at this point means the user isn't actually logged in. This can happen if they
 				// change their password from another device. 403 can happen if the user is banned.
 				if error.httpStatus == 401 || error.httpStatus == 403 {
@@ -454,7 +454,6 @@ import UserNotifications
 				request.httpMethod = "POST"
 				NetworkGovernor.shared.queue(request) { package in
 					// The only server errors we can get are variants of "That guy wasn't logged in" or "Your token is wrong"
-					let _ = NetworkGovernor.shared.parseServerError(package)
 				}
 			}
 			
@@ -506,23 +505,21 @@ import UserNotifications
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			self.isChangingLoginState = false
+			if let error = package.serverError {
 				// CreateUserAccount failed.
 				self.lastError = error
-				self.isChangingLoginState = false
 			}
 			else {
 				if let data = package.data, let createAcctResponse = try? Settings.v3Decoder.decode(TwitarrV3CreateAccountResponse.self, 
 						from: data) {
 					
 					// Login the user immediately after account creation
-					self.isChangingLoginState = false
 					self.loginUser(name: createAcctResponse.username, password: password)
 				}
 				else
 				{
 					self.lastError = ServerError("Unknown error")
-					self.isChangingLoginState = false
 				}
 			}
 		}
@@ -544,7 +541,7 @@ import UserNotifications
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let response = package.response, response.statusCode == 201 {
@@ -575,7 +572,7 @@ import UserNotifications
 		request.httpBody = authData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.serverError {
 				self.lastError = error
 			}
 			else if let data = package.data {
@@ -691,10 +688,7 @@ import UserNotifications
 		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: path, query: nil)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
-				AppLog.error(error.errorString)
-			}
-			else if let data = package.data {
+			if let data = package.data {
 				do {
 					let headers = try Settings.v3Decoder.decode([TwitarrV3UserHeader].self, from: data)
 					LocalCoreData.shared.performNetworkParsing { context in

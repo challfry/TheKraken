@@ -77,6 +77,7 @@ import AVFoundation
 			AVCaptureDevice.requestAccess(for: AVMediaType.audio) { granted in
             }
         }
+        
 	}
 
 // MARK: Cells
@@ -121,7 +122,7 @@ import AVFoundation
 					else {
 						observer.errorText = nil
 					}
-				}
+				}?.execute()
 			}
 //		}))
 //		present(alert, animated: true, completion: nil)

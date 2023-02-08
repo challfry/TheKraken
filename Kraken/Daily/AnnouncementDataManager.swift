@@ -135,7 +135,7 @@ import CoreData
 	func updateAnnouncements() {
 		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/notification/announcements", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = NetworkGovernor.shared.parseServerError(package) {
+			if let error = package.getAnyError() {
 				self.lastError = error
 			}
 			else if let data = package.data {
