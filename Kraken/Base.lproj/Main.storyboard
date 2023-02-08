@@ -72,7 +72,7 @@
                                 </items>
                             </navigationBar>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1A7-J6-kmJ">
-                                <rect key="frame" x="0.0" y="92" width="414" height="770"/>
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
                                 <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Z7h-Nh-09i">
                                     <size key="itemSize" width="50" height="50"/>
@@ -159,7 +159,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="C2s-xh-PZw">
-                                <rect key="frame" x="0.0" y="92" width="414" height="770"/>
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="e0J-Y9-Ahl">
                                     <size key="itemSize" width="128" height="128"/>
@@ -1636,7 +1636,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="uG2-2f-nge">
-                                <rect key="frame" x="0.0" y="92" width="414" height="770"/>
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
                                 <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="VIl-sM-GDe">
                                     <size key="itemSize" width="375" height="200"/>
@@ -2528,7 +2528,7 @@ Additional info:</string>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="jbX-0Q-bBr">
-                                <rect key="frame" x="0.0" y="92" width="414" height="853"/>
+                                <rect key="frame" x="0.0" y="92" width="414" height="804"/>
                                 <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="G1C-Sy-OwL">
                                     <size key="itemSize" width="128" height="128"/>
@@ -2568,7 +2568,7 @@ Additional info:</string>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="n7t-5E-q7w">
-                                <rect key="frame" x="0.0" y="92" width="414" height="770"/>
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
                                 <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="DoE-EC-ch7">
                                     <size key="itemSize" width="128" height="128"/>
@@ -2843,15 +2843,15 @@ Additional info:</string>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="lb5-PP-RLb"/>
-        <segue reference="9Vl-4N-xRJ"/>
-        <segue reference="FIa-Xg-OnU"/>
+        <segue reference="HJe-et-hA8"/>
+        <segue reference="K5i-zM-yNP"/>
+        <segue reference="iin-6d-KBo"/>
         <segue reference="Pow-sP-93l"/>
         <segue reference="jyo-2T-54r"/>
         <segue reference="Nie-gD-4T3"/>
         <segue reference="Xin-A8-aio"/>
-        <segue reference="TWa-ya-eZ5"/>
-        <segue reference="YBf-1C-vwM"/>
+        <segue reference="xJS-a0-3Zb"/>
+        <segue reference="g1q-Cb-8AB"/>
         <segue reference="xJS-kz-sQt"/>
         <segue reference="nVa-Wl-Nva"/>
         <segue reference="CFt-8y-mTZ"/>

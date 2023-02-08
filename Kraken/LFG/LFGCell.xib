@@ -5,7 +5,6 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -91,7 +90,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="jpq-jI-QLr" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="v18-QQ-QiX" secondAttribute="trailing" constant="2" id="0b9-uU-a2B"/>
                             <constraint firstAttribute="trailing" secondItem="Sxw-Xa-0EQ" secondAttribute="trailing" id="3WC-eW-rIj"/>
@@ -120,6 +119,7 @@
                     <constraint firstAttribute="trailing" secondItem="RDh-Si-puI" secondAttribute="trailing" id="vFq-XZ-AZT"/>
                 </constraints>
             </collectionViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <size key="customSize" width="375" height="93"/>
             <connections>
                 <outlet property="attendeesLabel" destination="I2s-JC-2QC" id="ZH4-kS-VDR"/>
@@ -149,8 +149,5 @@
         <namedColor name="Red Alert Text">
             <color red="0.72500002384185791" green="0.045000001788139343" blue="0.045000001788139343" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>

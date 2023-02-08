@@ -67,6 +67,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
         
         // Header Segment: Owner, Time, Attendee Count, Location, Info. Participants OR attendees + waitlist.
         headerSegment.append(createTitleHeaderCell())
+        headerSegment.append(createCanceledHeaderCell())
         headerSegment.append(createOwnerHeaderCell())
         headerSegment.append(createLocationHeaderCell())
         headerSegment.append(createTimeHeaderCell())
@@ -196,6 +197,14 @@ class SeamailThreadViewController: BaseCollectionViewController {
 			observer.labelText = labelText
 		}?.execute()
 		cell.shouldBeVisible = true
+		return cell
+	}
+
+	func createCanceledHeaderCell() -> LabelCellModel {
+		let cell = LabelCellModel("This LFG has been canceled by its creator.", stringTraits: [.foregroundColor: UIColor(named: "Red Alert Text") as Any])
+		self.tell(cell, when: ["threadModel.cancelled"]) { observer, observed in
+			observer.shouldBeVisible = observed.threadModel?.cancelled == true
+		}?.execute()
 		return cell
 	}
 
