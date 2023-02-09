@@ -59,7 +59,7 @@ class LocalCoreData: NSObject {
 		// slightly different URLs that point to the same server instance to alias (e.g. HTTP vs. HTTPS).
 		// This way, each different server you connect to gets its own cache.
 		let serverURL = Settings.shared.baseURL
-		let containerName = "TwitarrV3CoreData_\(serverURL.host ?? "")_\(serverURL.port ?? 80)_\(serverURL.path)"
+		let containerName = "TwitarrV3CoreData_\(serverURL.host ?? "")_\(serverURL.port ?? 80)_2023"
 		let container = NSPersistentContainer(name: containerName, managedObjectModel: model)
 		container.loadPersistentStores(completionHandler: { (storeDescription, error) in
 			if let error = error as NSError? {

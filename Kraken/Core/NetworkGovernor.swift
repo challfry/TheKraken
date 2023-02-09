@@ -331,6 +331,8 @@ extension NetworkGovernor: URLSessionDelegate {
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
 		NetworkLog.debug("URLSession sent an URLAuthentication challenge.")
+		// One place where this is called is when we connect to an HTTPS server for the first time.
+		// It's possible to add code here to do things like manually validate a self-signed server cert.
 		completionHandler(.performDefaultHandling, nil)
 	}
 
@@ -357,17 +359,30 @@ extension NetworkGovernor: URLSessionTaskDelegate {
     		willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, 
     		completionHandler: @escaping (URLRequest?) -> Void)  {
 		NetworkLog.debug("urlSession willPerformHTTPRedirection.")
+		// Is this just a https upgrade to the same URL?
+		if let origURL = task.originalRequest?.url, var components = URLComponents(url: origURL, resolvingAgainstBaseURL: false) {
+			components.scheme = "https"
+			if let origURLHttps = components.url, let newURL = request.url, origURLHttps == newURL {
+				var modifiedRequest = request
+				modifiedRequest.allHTTPHeaderFields?["Authorization"] = task.originalRequest?.allHTTPHeaderFields?["Authorization"]
+				completionHandler(modifiedRequest)
+				return
+			}
+		}
+		completionHandler(request)
 	}
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
 		NetworkLog.debug("urlSession didReceive challenge.")
+		completionHandler(.performDefaultHandling, nil)
 	}
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, 
     		needNewBodyStream completionHandler: @escaping (InputStream?) -> Void) {
 		NetworkLog.debug("urlSession needNewBodyStream.")
+		completionHandler(nil)
 	}
 
 	public func urlSession(_ session: URLSession, task: URLSessionTask, 
@@ -433,7 +448,7 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 			}
 		}
 		else {
-			var responsePacket = NetworkResponse(response: nil, data: nil, networkError: networkError)
+			let responsePacket = NetworkResponse(response: nil, data: nil, networkError: networkError)
 			for doneCallback in foundTask.doneCallbacks {
 				doneCallback(responsePacket)
 			}
