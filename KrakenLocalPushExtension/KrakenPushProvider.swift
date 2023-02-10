@@ -55,6 +55,7 @@ class WebsocketNotifier: NSObject {
 	var startState: Bool = false	// TRUE between calls to Start and Stop. Tracks NEAppPushProvider's state, NOT the socket itself.
 	var isInApp: Bool = false
 	var incomingPhonecallHandler: (([AnyHashable : Any]) -> Void)?
+	var socketPingTimer: Timer?
 	
 	// Config values that can come from ProviderConfiguration. Must be non-nil to open socket
 	private var serverURL: URL?
@@ -128,6 +129,12 @@ class WebsocketNotifier: NSObject {
 		}
 		else {
 			self.logger.log("openWebSocket didn't create a socket.")
+		}
+		
+		if pushProvider == nil {
+			socketPingTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
+				self?.handleTimerEvent()
+			}
 		}
 	}
 	
@@ -228,6 +235,8 @@ class WebsocketNotifier: NSObject {
 		socket = nil
 		session?.finishTasksAndInvalidate()
 		startState = false
+		socketPingTimer?.invalidate()
+		socketPingTimer = nil
 		completionHandler()
     }
     
