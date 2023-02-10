@@ -552,7 +552,7 @@ import UIKit
 			self.bufferLock.lock()
 			self.networkData.append(networkBufData)
 			self.bufferLock.unlock()
-//				logger.info("Write \(frameCount) frames into buffers")
+//			logger.info("Incoming audio: wrote \(frameCount) frames into buffers")
 		}
 		else {
 			logger.info("Too-small packet for audio data.")
@@ -567,6 +567,7 @@ import UIKit
 			let message = NWProtocolWebSocket.Metadata(opcode: .binary)
 			let context = NWConnection.ContentContext(identifier: "send",  metadata: [message])
 			directServerConnection.send(content: data, contentContext: context, completion: .contentProcessed({ error in
+//				self.logger.info("[\(Date())] Sent packet: \(data.count / 2) frames. error: \(String(describing: error))")
 				if let error = error {
 					self.logger.info("Error during send: \(error)")
 					if case let .posix(posixError) = error, posixError == .ENOTCONN {
@@ -580,7 +581,7 @@ import UIKit
 		}
 		else {
 			currentCall.socket?.send(.data(data)) { error in
-				self.logger.info("[\(Date())] Sent packet: \(data.count / 2) frames. error: \(String(describing: error))")
+//				self.logger.info("[\(Date())] Sent packet: \(data.count / 2) frames. error: \(String(describing: error))")
 			}
 		}
 	}
