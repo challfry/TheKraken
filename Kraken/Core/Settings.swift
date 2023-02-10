@@ -36,8 +36,8 @@ import Foundation
 #if DEBUG
 	@objc dynamic public var settingsBaseURL: URL {
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://localhost:8081")!) }
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.0.3:8081")!) }
-	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://beta.twitarr.com")!) }
+	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://192.168.0.3:8081")!) }
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://beta.twitarr.com")!) }
 	//	get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.wookieefive.net")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}

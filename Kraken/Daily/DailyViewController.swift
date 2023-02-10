@@ -93,8 +93,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 
 		// Set the badge on the Daily tab
 		AnnouncementDataManager.shared.tell(self, when: ["dailyTabBadgeCount"]) { observer, observed in
-			let badgeCount = observed.dailyTabBadgeCount
-			observer.navigationController?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
+			observer.setDailyTabBadgeCount()
+		}?.execute()
+		CurrentUser.shared.tell(self, when: "loggedInUser.postOps.count") { observer, observed in
+			observer.setDailyTabBadgeCount()
 		}?.execute()
 
 		// Set the badges on the Seamail cell and tab
@@ -111,6 +113,17 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			let badgeCount = observed.loggedInUser?.newLFGMessages ?? 0
 			observer.lfgCell.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
 		}?.execute()
+		
+		// Set the badge on the Settings cell
+		CurrentUser.shared.tell(self, when: "loggedInUser.postOps.count") { observer, observed in
+			let badgeCount = observed.loggedInUser?.postOps?.count ?? 0
+			observer.settingsCell.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
+		}?.execute()
+	}
+	
+	func setDailyTabBadgeCount() {
+		let badgeCount = AnnouncementDataManager.shared.dailyTabBadgeCount + (CurrentUser.shared.loggedInUser?.postOps?.count ?? 0)
+		navigationController?.tabBarItem.badgeValue = badgeCount > 0 ? "\(badgeCount)" : nil
 	}
 
     override func viewDidLoad() {

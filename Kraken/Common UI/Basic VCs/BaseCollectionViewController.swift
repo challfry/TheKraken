@@ -593,7 +593,7 @@ class BaseCollectionViewController: UIViewController {
 		
 		case .composeReplyTweet:
 			if let destVC = destination as? ComposeTweetViewController, let replyGroupID = sender as? Int64 {
-				destVC.replyGroupID = replyGroupID
+				destVC.replyGroupID = replyGroupID == -1 ? nil : replyGroupID
 			}
 			
 		case .editTweet, .editTweetOp:

@@ -422,7 +422,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		// Parent tweet, if this is a response. Can be nil.
 	@NSManaged public var parent: TwitarrPost?
 
-		// Reply Group ID, if this is a response. Can be nil. It's possible to reply to a tweet that has never been loaded,
+		// Reply Group ID, if this is a response. It's possible to reply to a tweet that has never been loaded,
 		// as a 'reply' to a reply is really a reply to the tweet that started the ReplyGroup.
 	@NSManaged public var replyGroup: Int64
 	
@@ -431,7 +431,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	
 	func prepare(context: NSManagedObjectContext, postText: String, replyGroup: Int64? = nil, tweetToEdit: TwitarrPost? = nil) {
 		text = postText
-		self.replyGroup = replyGroup ?? 0
+		self.replyGroup = replyGroup ?? -1
 		if let replyGroup = replyGroup {
 			parent = TwitarrDataManager.shared.getTweetWithID(replyGroup, inContext: context)
 		}
@@ -469,7 +469,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		if let editingPost = self.tweetToEdit {
 			path = "/api/v3/twitarr/\(editingPost.id)/update"
 		}
-		else if replyGroup != 0 {
+		else if replyGroup >= 0 {
 			path = "/api/v3/twitarr/\(replyGroup)/reply"
 		}
 		else {

@@ -148,7 +148,7 @@ import CoreData
 		postTime = tweetModel.createdAt
 		
 		addObservation(tweetModel.tell(self, when: "replyGroup") { observer, observed in
-			observer.isReplyGroup = observed.replyGroup > 0
+			observer.isReplyGroup = observed.replyGroup >= 0
 		}?.execute())
 					
 		// Show the current number of likes this tweet has.

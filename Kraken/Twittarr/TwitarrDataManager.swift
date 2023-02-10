@@ -779,6 +779,7 @@ class TwitarrDataManager: NSObject {
 		
 	// For new mainline posts, new posts that are replies, and edits to existing posts
 	// Creates a PostOperation, saving all the data needed to post a new tweet, and queues it for posting.
+	// images == nil means "Don't modify images". images == [] means remove any images from post.
 	func queuePost(_ existingDraft: PostOpTweet?, withText: String, images: [PhotoDataType]?, 
 			replyGroupID: Int64? = nil, editing: TwitarrPost? = nil, done: @escaping (PostOpTweet?) -> Void) {
 		EmojiDataManager.shared.gatherEmoji(from: withText)	
@@ -796,17 +797,19 @@ class TwitarrDataManager: NSObject {
 			let postToQueue = draftInContext ?? PostOpTweet(context: context)
 			postToQueue.prepare(context: context, postText: withText, replyGroup: replyGroupID, tweetToEdit: editPost)
 			
-			let photoOpArray: [PostOpPhoto_Attachment]? = images?.map {
-				let op = PostOpPhoto_Attachment(context: context); op.setupFromPhotoData($0); 
-				op.parentTweetPostOp = postToQueue
-				return op 
-			}
-			// In theory we could avoid replacing all the photos if there were no changes, but edits shouldn't happen *that* often.
-			if let photoOpArray = photoOpArray {
-				postToQueue.photos = NSOrderedSet(array: photoOpArray)
-			}
-			else {
-				postToQueue.photos = nil
+			if let images = images {
+				let photoOpArray: [PostOpPhoto_Attachment]? = images.map {
+					let op = PostOpPhoto_Attachment(context: context); op.setupFromPhotoData($0); 
+					op.parentTweetPostOp = postToQueue
+					return op 
+				}
+				// In theory we could avoid replacing all the photos if there were no changes, but edits shouldn't happen *that* often.
+				if let photoOpArray = photoOpArray {
+					postToQueue.photos = NSOrderedSet(array: photoOpArray)
+				}
+				else {
+					postToQueue.photos = nil
+				}
 			}
 			
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in 

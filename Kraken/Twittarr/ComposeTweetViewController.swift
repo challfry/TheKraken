@@ -140,7 +140,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
         // Only used when editing a draft, where we have a photo that's already pulled from the library and made
         // into an NSData, but not yet uploaded to the server.
 		let cellModel = DraftImageCellModel()
-        if let draftImage = draftTweet?.photos?[0] as? PostOpPhoto_Attachment, let imageData = draftImage.imageData {
+        if let draftImage = draftTweet?.photos?.firstObject as? PostOpPhoto_Attachment, let imageData = draftImage.imageData {
         	cellModel.imageData = imageData as NSData
         	photoSelectionCell.shouldBeVisible = false
         }
@@ -164,7 +164,7 @@ class ComposeTweetViewController: BaseCollectionViewController {
 				replyGroupID = editing.replyGroup
 			}
 			else if let draft = draftTweet {
-				replyGroupID = draft.replyGroup
+				replyGroupID = draft.replyGroup == -1 ? nil : draft.replyGroup
 			}
         }
 

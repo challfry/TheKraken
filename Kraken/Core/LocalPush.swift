@@ -76,7 +76,7 @@ import os
 		if !onboardSSID.isEmpty {
 			let mgr = manager ?? NEAppPushManager()
 			var websocketURLComponents = URLComponents()
-			websocketURLComponents.scheme = "ws"
+			websocketURLComponents.scheme = Settings.shared.baseURL.scheme == "https" ? "wss" : "ws"
 			websocketURLComponents.host = Settings.shared.baseURL.host
 			websocketURLComponents.port = Settings.shared.baseURL.port
 			websocketURLComponents.path = "/api/v3/notification/socket"
@@ -129,7 +129,7 @@ import os
 	func checkStartInAppSocket() {
 		if pushManager?.isActive != true, krakenInAppPushProvider.startState == false {
 			var websocketURLComponents = URLComponents()
-			websocketURLComponents.scheme = "ws"
+			websocketURLComponents.scheme = Settings.shared.baseURL.scheme == "https" ? "wss" : "ws"
 			websocketURLComponents.host = Settings.shared.baseURL.host
 			websocketURLComponents.port = Settings.shared.baseURL.port
 			websocketURLComponents.path = "/api/v3/notification/socket"

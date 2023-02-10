@@ -205,8 +205,12 @@ struct NetworkResponse {
 		components?.path = path
 		components?.queryItems = query
 		if webSocket {
-			// Better if this looked at baseURL to see if it was https
-			components?.scheme = "ws"
+			if components?.scheme == "https" {
+				components?.scheme = "wss"
+			}
+			else {
+				components?.scheme = "ws"
+			}
 		}
 		
 		// Fallback, no query params
@@ -257,7 +261,8 @@ struct NetworkResponse {
 			// If there's already a request outstanding for this exact URL, de-duplicate it here
 			for taskIndex in 0..<self.activeTasks.count {
 				if self.activeTasks[taskIndex].task.originalRequest?.url == request.url && 
-						self.activeTasks[taskIndex].task.originalRequest?.httpMethod == request.httpMethod {
+						self.activeTasks[taskIndex].task.originalRequest?.httpMethod == request.httpMethod &&
+						self.activeTasks[taskIndex].task.originalRequest?.httpBody == request.httpBody {
 					self.activeTasks[taskIndex].doneCallbacks.append(done)
 					NetworkLog.debug("De-duped network \(request.httpMethod ?? "") request to \(request.url?.absoluteString ?? "<unknown>")")
 					return
