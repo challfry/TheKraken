@@ -173,6 +173,7 @@ import Photos
 			case .fullScreenCamera, .cropCamera: 
 				if let destVC = segue.destination as? CameraViewController {
 					destVC.selfieMode = true
+					destVC.pirateMode = true
 				}
 			default: break 
 			}

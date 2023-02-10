@@ -40,7 +40,7 @@ class CameraViewController: UIViewController {
 	@IBOutlet var 	leftShutter: UIButton!
 	@IBOutlet var 	rightShutter: UIButton!
 	
-	@IBOutlet var 	capturedPhotoContainerView: UIVisualEffectView!
+	@IBOutlet var 	capturedPhotoContainerView: UIView!			// Could be UIVisualEffectView
 	@IBOutlet var 		capturedPhotoView: UIImageView!
 	@IBOutlet var 		capturedPhotoViewHeightConstraint: NSLayoutConstraint!
 	@IBOutlet var 		retryButton: UIButton!
@@ -58,7 +58,7 @@ class CameraViewController: UIViewController {
 	var photoOutput = AVCapturePhotoOutput()
 	var discoverer: AVCaptureDevice.DiscoverySession?
 	
-	//
+	// For using the volume buttons as a shutter.
 	var audioSession: AVAudioSession?
 	var savedAudioVolume: Float = 0.0
 	
@@ -119,9 +119,6 @@ class CameraViewController: UIViewController {
 //			localPirateView.session.delegate = self
 			localPirateView.automaticallyUpdatesLighting	= true
 			
-			if pirateMode {
-				pirateButtonTapped()
-			}
 		}
 #endif
 		
@@ -150,14 +147,20 @@ class CameraViewController: UIViewController {
 	}
 	
 	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-		guard keyPath == "outputVolume" else { return }
+		guard keyPath == "outputVolume", let session = audioSession, savedAudioVolume != session.outputVolume else { return }
+		savedAudioVolume = session.outputVolume
 		beginTakingPicture()
 	}
     
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		CoreMotion.shared.start(forClient: "CameraWidgets", updatesPerSec: 2)
+		capturedPhotoContainerView.isHidden = true
 		  
+		if pirateMode {
+			pirateButtonTapped()
+		}
+
 		if let inputDevice = cameraDevice {
 			if verticalSlider == nil {
 				verticalSlider = VerticalSlider(for: inputDevice, frame: CGRect(x: 0, y: 200, width: 40, height: 400))

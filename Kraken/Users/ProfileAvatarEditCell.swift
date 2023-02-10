@@ -86,7 +86,7 @@ import UniformTypeIdentifiers
 			self.dataSource?.performKrakenSegue(.fullScreenCamera, sender: self)
 		}
 		else {
-			self.dataSource?.performKrakenSegue(.pirateAR, sender: self)
+			self.dataSource?.performKrakenSegue(.cropCamera, sender: self)
 		}
 	}
 	
