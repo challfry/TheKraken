@@ -802,20 +802,20 @@ extension PhonecallDataManager: CXProviderDelegate {
 	
     func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
 		logger.info("Got told to start a call.")
-		#if targetEnvironment(macCatalyst)
-			configureAudioSession(audioSession: audioSession)
-    		startAudio(audioSession: audioSession)
-		#endif
+		if ProcessInfo.processInfo.isiOSAppOnMac {
+			configureAudioSession(audioSession: session)
+    		startAudio(audioSession: session)
+		}
 		action.fulfill()
     }
 
     func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
 		logger.info("Got told CXAnswerCallAction.")
 		openAnswerSocket()
-		#if targetEnvironment(macCatalyst)
-			configureAudioSession(audioSession: audioSession)
-    		startAudio(audioSession: audioSession)
-		#endif
+		if ProcessInfo.processInfo.isiOSAppOnMac {
+			configureAudioSession(audioSession: session)
+    		startAudio(audioSession: session)
+		}
 		action.fulfill()
     }
     
@@ -823,10 +823,10 @@ extension PhonecallDataManager: CXProviderDelegate {
     func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
 		logger.info("Got told CXEndCallAction.")
 		endCall()
-		#if targetEnvironment(macCatalyst)
+		if ProcessInfo.processInfo.isiOSAppOnMac {
 			stopAudio()
 			try? session.setActive(false)	
-		#endif
+		}
 		action.fulfill()
     }
     
