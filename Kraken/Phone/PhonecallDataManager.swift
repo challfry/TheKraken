@@ -98,6 +98,7 @@ import UIKit
 	var session = AVAudioSession.sharedInstance()
 	var sessionIsInSpeakerMode: Bool = false		// Because there seems to be no way to GET this property, only set it.
 	var engine: AVAudioEngine?
+	var sourceNode: AVAudioSourceNode?
 	let bufferLock = NSLock()
 	var networkData = Data()
 		
@@ -669,23 +670,15 @@ import UIKit
 //			try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetoothA2DP, .allowBluetooth])
 //			try audioSession.setActive(true)
 			networkData.removeAll()
-			
+			let inputBus = 1
+
 			// Engine
-			var engine: AVAudioEngine
-			if let e = self.engine {
-				engine = e
-				engine.inputNode.removeTap(onBus: 1)
-				engine.reset()
-			}
-			else {
-				engine = AVAudioEngine()
-				self.engine = engine
-			}
+			let engine = AVAudioEngine()
+			self.engine = engine
 			
 			// Get the native audio format of the engine's input bus.
 //			try engine.inputNode.setVoiceProcessingEnabled(true)
 //			try engine.outputNode.setVoiceProcessingEnabled(true)
-			let inputBus = 1
 			let inputFormat = engine.inputNode.outputFormat(forBus: inputBus)
 			let networkFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16000.0, channels: 1, interleaved: true)!
 			let converter = AVAudioConverter(from: inputFormat, to: networkFormat)!
@@ -763,6 +756,7 @@ import UIKit
 				self.bufferLock.unlock()
 				return noErr
 			}
+			self.sourceNode = sourceNode
 			engine.attach(sourceNode)
 			engine.connect(sourceNode, to: engine.mainMixerNode, format: networkFormat)			
 //		} 
@@ -793,6 +787,7 @@ import UIKit
 	func stopAudio() {
 		engine?.inputNode.removeTap(onBus: 1)
 		engine?.stop()
+		engine = nil
 		logger.info("StopAudio() called.")
 	}
 }

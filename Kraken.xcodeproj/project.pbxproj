@@ -141,6 +141,7 @@
 		EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8B9888232641DB00E10156 /* KaraokeRootViewController.swift */; };
 		EA8CC2892992018C001889B5 /* AudioRouteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8CC2882992018C001889B5 /* AudioRouteCell.xib */; };
 		EA8CC28B299202E1001889B5 /* AudioRouteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CC28A299202E1001889B5 /* AudioRouteCell.swift */; };
+		EA8CC28C2995D1A7001889B5 /* KrakenPushProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA12B6827B4A55B002F9C47 /* KrakenPushProvider.swift */; };
 		EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8F474223862F6A00CF6F1C /* SeamailLargeThreadCell.xib */; };
 		EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8F47442389E40300CF6F1C /* KaraokeDataManager.swift */; };
 		EA90455F22DC032C00790F97 /* SmallUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA90455E22DC032C00790F97 /* SmallUserCell.swift */; };
@@ -675,6 +676,7 @@
 			isa = PBXGroup;
 			children = (
 				EA5E2A5D2259801F00CB4A11 /* LocalCoreData.swift */,
+				EAA12B7327B4AB92002F9C47 /* LocalPush.swift */,
 				EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */,
 				EA1E3B9C22461D0300017F07 /* NetworkGovernor.swift */,
 				EA444A532298A9B70098DE97 /* PostOperation.swift */,
@@ -947,7 +949,6 @@
 				EA9E693522980CC500B4DC6D /* Kraken.entitlements */,
 				EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */,
 				EAA2E4BC2242D300009F287F /* AppDelegate.swift */,
-				EAA12B7327B4AB92002F9C47 /* LocalPush.swift */,
 				EAA2E4C72242D301009F287F /* LaunchScreen.storyboard */,
 				EAA2E4C22242D300009F287F /* Main.storyboard */,
 				EA333C8D225818A600247B3E /* TwitarrModel.xcdatamodeld */,
@@ -1433,6 +1434,7 @@
 				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,
 				EADC81A42970929F00232A37 /* PhonecallDataManager.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
+				EA8CC28C2995D1A7001889B5 /* KrakenPushProvider.swift in Sources */,
 				EA820955293EB3FC005A251F /* LFGParticipantCell.swift in Sources */,
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
 				EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */,

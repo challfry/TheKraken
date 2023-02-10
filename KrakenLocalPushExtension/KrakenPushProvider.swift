@@ -12,13 +12,56 @@ import NetworkExtension
 import UserNotifications
 
 class KrakenPushProvider: NEAppPushProvider {
+	var websocketNotifier = WebsocketNotifier()
+	
+	override init() {
+		super.init()
+		websocketNotifier.pushProvider = self
+	}
+
+    override func start() {
+    	websocketNotifier.updateConfig()
+    	websocketNotifier.start()
+    }
+    
+	override func stop(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+		websocketNotifier.stop(with: reason, completionHandler: completionHandler)
+	}
+
+	override func handleTimerEvent() {
+		websocketNotifier.handleTimerEvent()
+	}
+	
+    // NEProvider override
+    override func sleep(completionHandler: @escaping() -> Void) {
+		websocketNotifier.logger.log("sleep() called")
+        // Add code here to get ready to sleep.
+        completionHandler()
+    }
+    
+    // NEProvider override
+    override func wake() {
+       websocketNotifier.logger.log("wake() called")
+    }
+    
+}
+
+class WebsocketNotifier: NSObject {
+	var pushProvider: KrakenPushProvider?		// NULL if notifier is being used in-app
 	var session: URLSession?
 	var socket: URLSessionWebSocketTask?
 	var lastPing: Date?
 	let logger = Logger(subsystem: "com.challfry.kraken.localpush", category: "KrakenPushProvider")
 	var startState: Bool = false	// TRUE between calls to Start and Stop. Tracks NEAppPushProvider's state, NOT the socket itself.
+	var isInApp: Bool = false
+	var incomingPhonecallHandler: (([AnyHashable : Any]) -> Void)?
 	
-	override init() {
+	// Config values that can come from ProviderConfiguration. Must be non-nil to open socket
+	private var serverURL: URL?
+	private var token: String?
+	
+	init(isInApp: Bool = false) {
+		self.isInApp = isInApp
 		super.init()
 		logger.log("KrakenPushProvider init()")
 	}
@@ -26,21 +69,41 @@ class KrakenPushProvider: NEAppPushProvider {
 	deinit {
 		logger.log("KrakenPushProvider de-init.")
 	}
+	
+	func updateConfig(serverURL: URL? = nil, token: String? = nil) {
+		if let provider = pushProvider {
+			if let config = provider.providerConfiguration, let twitarrStr = config["twitarrURL"] as? String, let token = config["token"] as? String,
+					!twitarrStr.isEmpty, !token.isEmpty, let twitarrURL = URL(string: twitarrStr) {
+				self.serverURL = twitarrURL
+				self.token = token		
+			}
+			else {
+				self.serverURL = nil
+				self.token = nil
+			}
+		}
+		else {
+			self.serverURL = serverURL
+			self.token = token
+		}
+	}
 
-    override func start() {
-    	if startState == true {
+    func start() {
+		if startState == true {
 			logger.log("KrakenPushProvider start() called while already started.")
-    	}
-    	else {
-			logger.log("KrakenPushProvider start()")
+		}
+		else if let _ = self.serverURL, let token = self.token, !token.isEmpty {
+			logger.log("KrakenPushProvider \(self.isInApp ? "In-App" : "Extension", privacy: .public) start()")
+		}
+		else {
+			logger.log("KrakenPushProvider \(self.isInApp ? "In-App" : "Extension", privacy: .public) start -- can't start this config")
 		}
 		startState = true
 		openWebSocket()
 	}
 	
 	func openWebSocket() {
-		guard let config = providerConfiguration, let twitarrStr = config["twitarrURL"] as? String, let token = config["token"] as? String,
-				!twitarrStr.isEmpty, !token.isEmpty, let twitarrURL = URL(string: twitarrStr) else {
+		guard let twitarrURL = self.serverURL, let token = self.token, !token.isEmpty else {
 			return
 		}
 		if session == nil {
@@ -77,6 +140,10 @@ class KrakenPushProvider: NEAppPushProvider {
 				switch result {
 				case .failure(let error):
 					self.logger.error("Error during websocket receive: \(error.localizedDescription, privacy: .public)")
+					socket.cancel(with: .goingAway,  reason: nil)
+					self.socket = nil
+					self.session?.finishTasksAndInvalidate()
+					self.session = nil					
 				case .success(let msg):
 					self.logger.log("got a successful message.")
 					var msgData: Data?
@@ -155,7 +222,7 @@ class KrakenPushProvider: NEAppPushProvider {
 		}
     }
     
-    override func stop(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+    func stop(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         logger.log("stop() called")
 		socket?.cancel(with: .goingAway,  reason: nil)
 		socket = nil
@@ -164,7 +231,7 @@ class KrakenPushProvider: NEAppPushProvider {
 		completionHandler()
     }
     
-    override func handleTimerEvent() {
+    func handleTimerEvent() {
 		logger.log("HandleTimerEvent() called for instance \(String(format: "%p", self), privacy: .public) lastPing: \(self.lastPing?.debugDescription ?? "<nil>", privacy: .public)")
         if let pingTime = lastPing, Date().timeIntervalSince(pingTime) < 1.0 {
 	        logger.warning("HandleTimerEvent() called with very low delay from last call.")
@@ -184,19 +251,7 @@ class KrakenPushProvider: NEAppPushProvider {
         }
     }
     
-    // NEProvider override
-    override func sleep(completionHandler: @escaping() -> Void) {
-        logger.log("sleep() called")
-        // Add code here to get ready to sleep.
-        completionHandler()
-    }
-    
-    // NEProvider override
-    override func wake() {
-        logger.log("wake() called")
-    }
-    
-    func incomingCallNotification(name: String, callID: String, userHeader: TwitarrV3UserHeader, callerAddr: PhoneSocketServerAddress?) {
+    func incomingCallNotification(name: String, callID: String, userHeader: Extension_TwitarrV3UserHeader, callerAddr: Extension_PhoneSocketServerAddress?) {
         logger.log("Incoming call")
 		var dict = [ "name": name, "callID": callID, "callerID": userHeader.userID.uuidString,
 				"username": userHeader.username] as [String : Any]
@@ -212,18 +267,24 @@ class KrakenPushProvider: NEAppPushProvider {
 		if let userImage = userHeader.userImage {
 			dict["userImage"] = userImage
 		}
-    	reportIncomingCall(userInfo: dict)
+		if let provider = pushProvider {
+	    	provider.reportIncomingCall(userInfo: dict)
+		}
+		else {
+			// This optional block exists so our in-app socket can deliver an incoming phone call without linking anything new into the extension.
+			incomingPhonecallHandler?(dict)
+		}
     }
 }
 
-extension KrakenPushProvider: URLSessionTaskDelegate {
+extension WebsocketNotifier: URLSessionTaskDelegate {
 	func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
         logger.log("Session went invalid because: \(error)")
        	self.session = nil
 	}
 }
 
-extension KrakenPushProvider: URLSessionWebSocketDelegate {	
+extension WebsocketNotifier: URLSessionWebSocketDelegate {	
 	func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol: String?) {
         logger.log("Socket opened with protocol: \(didOpenWithProtocol ?? "<unknown>", privacy: .public)")
 	
@@ -271,17 +332,18 @@ struct SocketNotificationData: Codable {
 	/// An ID of an Announcement, Fez, Twarrt, ForumPost, or Event.
 	var contentID: String
 	/// For .incomingPhoneCall notifications, the caller.
-	var caller: TwitarrV3UserHeader?
+	var caller: Extension_TwitarrV3UserHeader?
 	/// For .incomingPhoneCall notification,s the caller's IP addresses. May be nil, in which case the receiver opens a server socket instead.
-	var callerAddress: PhoneSocketServerAddress?
+	var callerAddress: Extension_PhoneSocketServerAddress?
 }
 
-struct PhoneSocketServerAddress: Codable {
+struct Extension_PhoneSocketServerAddress: Codable {
 	var ipV4Addr: String?
 	var ipV6Addr: String?
 }
 
-struct TwitarrV3UserHeader: Codable {
+// UserHeader is already defined in the app, but I need it defined in the extension without pulling everything in.
+struct Extension_TwitarrV3UserHeader: Codable {
     /// The user's ID.
     var userID: UUID
     /// The user's username.
