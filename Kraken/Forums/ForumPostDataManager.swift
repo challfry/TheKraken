@@ -288,7 +288,6 @@ import CoreData
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = package.serverError {
 				self.lastError = error
-				done?(thread, fromOffset)
 			}
 			else if let data = package.data {
 				self.lastError = nil
@@ -296,10 +295,10 @@ import CoreData
 				do {
 					let response = try Settings.v3Decoder.decode(TwitarrV3ForumData.self, from: data)
 					self.parseThreadWithPosts(for: thread, from: response, offset: fromOffset, done: done)
+					done?(thread, fromOffset)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
-					done?(thread, fromOffset)
 				} 
 			}
 			self.isPerformingLoad = false

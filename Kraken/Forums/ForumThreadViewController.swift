@@ -29,6 +29,8 @@ class ForumThreadViewController: BaseCollectionViewController {
 				self.postButton.isEnabled = !tm.locked
 				let lastKnownPost = tm.posts.count
 				ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: lastKnownPost) { thread, lastIndex in
+					self.highestRefreshedIndex = lastIndex
+					cell.lastLoadTime = Date()
 				}
 			}
     	}
@@ -73,6 +75,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 		ForumPostDataManager.shared.loadThreadPosts(for: threadModel, forID: threadModelID, fromOffset: 0) { thread, lastIndex in
     		self.threadModel = thread
 			self.highestRefreshedIndex = lastIndex
+			self.loadTimeCellModel.lastLoadTime = Date()
 		}
 	}
 	
