@@ -149,9 +149,9 @@ import EventKitUI
 	// 		2. Otherwise, the first event in the list (ordered by start time) with an end time in the future.
 	// It's possible with this algorithm to select an event that hasn't started yet, if there are no currently running events.
 	// This algorithm should favor 'active' events over 'all-day' events when an 'active' event is running.
-	func findIndexPathForEventAt(date: Date) -> IndexPath {
+	func findIndexPathForEventAt(date: Date) -> IndexPath? {
 		var currentTime = date
-		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
+		if Settings.shared.debugTimeWarpToCruiseWeek {
 			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
 		}
 		
@@ -182,17 +182,20 @@ import EventKitUI
 				}
 			}
 		}
-		
-		return bestResult ?? IndexPath(row: 0, section: 0)
+		if let result = bestResult, let segment = eventsSegment {
+			bestResult = scheduleDataSource.globalIndexPath(for: result, inSegment: segment)
+			return bestResult
+		}
+		return nil
 	}
 	
 // MARK: Actions
 	
 	// This is the Now button in the top-left of the navbar
 	@IBAction func rightNowButtonTapped() {
-		var indexPath = findIndexPathForEventAt(date: Date())
-		indexPath.section += 1
-		collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+		if let indexPath = findIndexPathForEventAt(date: Date()) {
+			collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+		}
 	}
 	
 	@IBAction func filterButtonTapped() {

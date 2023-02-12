@@ -108,9 +108,9 @@ class SettingsRootViewController: BaseCollectionViewController {
 		
 		// Debug Settings
 		let debugSettingsSection = dataSource.appendFilteringSegment(named: "Debug Prefs")
-//		let debugHeaderCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
-//		debugHeaderCell.labelText = NSAttributedString(string: "Support for Debugging and Testing")
-//		debugSettingsSection.append(cell: DebugTimeWarpToCruiseWeek2019CellModel())
+		let debugHeaderCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Debug Settings"))
+		debugHeaderCell.labelText = NSAttributedString(string: "Support for Debugging and Testing")
+		debugSettingsSection.append(cell: DebugTimeWarpToCruiseWeekCellModel())
 //		debugSettingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
 		
 		let clearCacheCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
@@ -577,14 +577,14 @@ class SettingsInfoCell: BaseCollectionViewCell, SettingsInfoCellProtocol {
 	}
 }
 
-@objc class DebugTimeWarpToCruiseWeek2019CellModel: SwitchCellModel {
+@objc class DebugTimeWarpToCruiseWeekCellModel: SwitchCellModel {
 	init() {
-		super.init(labelText: "Makes Schedule filters act as if we're in the middle of cruise week 2019. Exact time follows time of week.")
+		super.init(labelText: "Makes Schedule filters act as if we're in the middle of cruise week. Exact time follows time of week.")
 		switchStateChanged = { 
-			Settings.shared.debugTimeWarpToCruiseWeek2019 = self.switchState
+			Settings.shared.debugTimeWarpToCruiseWeek = self.switchState
 		}
-		Settings.shared.tell(self, when: "debugTimeWarpToCruiseWeek2019") { observer, observed in
-			observer.switchState = observed.debugTimeWarpToCruiseWeek2019
+		Settings.shared.tell(self, when: "debugTimeWarpToCruiseWeek") { observer, observed in
+			observer.switchState = observed.debugTimeWarpToCruiseWeek
 		}?.execute()
 	}
 }

@@ -198,6 +198,21 @@ class KrakenDataSource: NSObject {
 		return nil
 	}
 	
+	// Determines the CollectionView index path for a segment-relative path. The given segment must be visible;
+	// the assumption is that segmentRelativePath refers to a visible cell.
+	func globalIndexPath(for segmentRelativePath: IndexPath, inSegment: KrakenDataSourceSegment) -> IndexPath? {
+		var sectionOffset = 0
+		for segment in visibleSegments {
+			if segment == inSegment {
+				let returnValue = IndexPath(row: segmentRelativePath.row, section: segmentRelativePath.section + sectionOffset)
+				return returnValue
+			} 
+			sectionOffset += segment.numVisibleSections
+		}
+		log.error("Couldn't find segment for globalIndexPath")
+		return nil
+	}
+	
 	var selectedCell: BaseCellModel?
 	func setCellSelection(cell: BaseCollectionViewCell, newState: Bool) {
 		// Only dealing with the single-select case; eventually create an enum with selection types?

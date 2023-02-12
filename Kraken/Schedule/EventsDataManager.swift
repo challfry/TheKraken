@@ -60,7 +60,7 @@ import CoreData
 	
 	public func isHappeningNow() -> Bool {
 		var currentTime = Date()
-		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
+		if Settings.shared.debugTimeWarpToCruiseWeek {
 			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
 		}
 		
@@ -73,7 +73,7 @@ import CoreData
 	
 	public func isHappeningSoon(within: TimeInterval = 60.0 * 60.0) -> Bool {
 		var currentTime = Date()
-		if Settings.shared.debugTimeWarpToCruiseWeek2019 {
+		if Settings.shared.debugTimeWarpToCruiseWeek {
 			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
 		}
 		
@@ -423,16 +423,17 @@ class EventsDataManager: NSObject {
 
 	override init() {
 		// Just once, calc our debug date offset. This is an offset from the current date to give us a date covered by the Schedule.ics file.
-		let currentTime = Date()
-		let tz = TimeZone(abbreviation: "EDT")
-		let components = DateComponents(calendar: Calendar.current, timeZone: tz, year: 2022, month: 3, 
-				day: 14, hour: 9, minute: 0, second: 0, nanosecond: 0)
-		if let cruiseEndDate = components.date {
-			var debugTime = currentTime
-			while cruiseEndDate.compare(debugTime) == .orderedAscending {
-				debugEventsTimeOffset -= 60 * 60 * 24 * 7	// One week
-				debugTime = Date(timeInterval: debugEventsTimeOffset, since: currentTime)
+		if let lastCruiseEndDate = lastCruiseEndDate() {
+			var checkDate = Date()
+			while checkDate > lastCruiseEndDate {
+				if let newDate = Calendar.current.date(byAdding: .day, value: -7, to: checkDate) {
+					checkDate = newDate
+				}
+				else {
+					break
+				}
 			}
+			debugEventsTimeOffset = checkDate.timeIntervalSince(Date())
 		}
 	}
 	

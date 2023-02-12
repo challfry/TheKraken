@@ -125,9 +125,9 @@ import Foundation
 	}
 
 	// Makes the schedule filters act as if the current time is mid-cruise 2019.
-	@objc dynamic public var debugTimeWarpToCruiseWeek2019: Bool {
-		get { return getSetting(name: "debugTimeWarpToCruiseWeek2019", defaultValue: false) }
-		set { setSetting(name: "debugTimeWarpToCruiseWeek2019", newValue: newValue) }
+	@objc dynamic public var debugTimeWarpToCruiseWeek: Bool {
+		get { return getSetting(name: "debugTimeWarpToCruiseWeek", defaultValue: false) }
+		set { setSetting(name: "debugTimeWarpToCruiseWeek", newValue: newValue) }
 	}
 	
 	// Makes local notifications for Schedule events fire 10 seconds after they're created, instead of 5 mins before

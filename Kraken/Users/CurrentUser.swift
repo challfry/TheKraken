@@ -595,27 +595,19 @@ import UserNotifications
 	// 
 	func changeUserProfileFields(displayName: String?, realName: String?, pronouns: String?, email: String?, 
 			homeLocation: String?, roomNumber: String?) {
-		guard let loggedInUser = loggedInUser else { return }
-		
-		let context = LocalCoreData.shared.networkOperationContext
-		context.perform {
-			do {
-				// Check for existing op for this user
-				let op = loggedInUser.getPendingProfileEditOp(inContext: context) ?? 
-						PostOpUserProfileEdit(context: context)
-				op.displayName = displayName
-				op.realName = realName
-				op.pronouns = pronouns
-				op.email = email
-				op.homeLocation = homeLocation
-				op.roomNumber = roomNumber
-				op.operationState = .readyToSend
-			
-				try context.save()
-			}
-			catch {
-				CoreDataLog.error("Couldn't save context.", ["error" : error])
-			}
+		guard loggedInUser != nil else { return }
+		LocalCoreData.shared.performNetworkParsing { context in
+			context.pushOpErrorExplanation("Failed to create op to edit user profile.")
+			guard let currentUser = self.getLoggedInUser(in: context) else { return }
+			// Check for existing op for this user
+			let op = currentUser.getPendingProfileEditOp(inContext: context) ?? PostOpUserProfileEdit(context: context)
+			op.displayName = displayName
+			op.realName = realName
+			op.pronouns = pronouns
+			op.email = email
+			op.homeLocation = homeLocation
+			op.roomNumber = roomNumber
+			op.operationState = .readyToSend
 		}
 	}
 	
@@ -645,14 +637,15 @@ import UserNotifications
 // MARK: Favorite, Mute, Block
 	// Creates an op to set the indicated relation. Current user is always acting user.
 	func setRelation(type: UserRelationType, forUser: KrakenUser, to newState: Bool) {
-		guard let loggedInUser = loggedInUser else { return }
+		guard loggedInUser != nil else { return }
 		clearErrors()
 		
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure saving User \(type) change to Core Data. (the network call succeeded, but we couldn't save the change).")
+			guard let currentUser = self.getLoggedInUser(in: context) else { return }
 					
 			// Check for existing op for this user
-			let op = loggedInUser.getPendingUserRelationOp(type: type, forUser: forUser, inContext: context) ?? PostOpUserRelation(context: context)
+			let op = currentUser.getPendingUserRelationOp(type: type, forUser: forUser, inContext: context) ?? PostOpUserRelation(context: context)
 			op.relationType = type
 			op.isActive = newState
 			op.targetUser = UserManager.shared.user(forUser, inContext: context)

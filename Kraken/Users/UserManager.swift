@@ -378,7 +378,7 @@ class UserManager : NSObject {
 			// Unique all the users
 			let usersDict = Dictionary(origUsers.map { ($0.userID, $0) }, uniquingKeysWith: { (first,_) in first })
 		
-			let userIDs = Array(usersDict.keys)
+			let userIDs: [UUID] = Array(usersDict.keys)
 			let request = NSFetchRequest<KrakenUser>(entityName: "KrakenUser")
 			request.predicate = NSPredicate(format: "userID IN %@", userIDs)
 			let results = try request.execute()
@@ -394,11 +394,10 @@ class UserManager : NSObject {
 				resultDict[addingUser.userID] = addingUser
 			}
 						
-			// Results should now have all the users that were passed in. Add the logged in user, because several
+			// ResultDict should now have all the users that were passed in. Add the logged in user, because several
 			// parsers require it.
-			if includeCurrentUser, let currentUser = CurrentUser.shared.loggedInUser, 
-				let userInContext = try? context.existingObject(with: currentUser.objectID) as? KrakenUser {
-				resultDict[currentUser.userID] = userInContext
+			if includeCurrentUser, let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+				resultDict[currentUser.userID] = currentUser
 			}
 			context.userInfo.setObject(resultDict, forKey: "Users" as NSString)
 			return resultDict
