@@ -119,6 +119,7 @@ extension ForumThreadViewController: FRCDataSourceLoaderDelegate {
 				highestRefreshedIndex + 1 < tm.postCount, !ForumsDataManager.shared.isPerformingLoad {
 			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex + 1) { thread, lastIndex in
 				self.highestRefreshedIndex = lastIndex
+				self.loadTimeCellModel.lastLoadTime = Date()
 			}
 		}
 	}
