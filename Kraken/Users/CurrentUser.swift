@@ -334,7 +334,7 @@ import UserNotifications
 		request.addValue("Basic \(credentials)", forHTTPHeaderField: "Authorization")
 		
 		NetworkGovernor.shared.queue(request) { package in
-			if let error = package.serverError {
+			if let error: Error = (package.serverError ?? package.networkError) {
 				// Login failed.
 				self.lastError = error
 			}
@@ -510,17 +510,18 @@ import UserNotifications
 				// CreateUserAccount failed.
 				self.lastError = error
 			}
-			else {
-				if let data = package.data, let createAcctResponse = try? Settings.v3Decoder.decode(TwitarrV3CreateAccountResponse.self, 
-						from: data) {
+			else if let error = package.networkError {
+				self.lastError = error
+			}
+			else if let data = package.data, let createAcctResponse = try? Settings.v3Decoder.decode(TwitarrV3CreateAccountResponse.self, 
+					from: data) {
 					
-					// Login the user immediately after account creation
-					self.loginUser(name: createAcctResponse.username, password: password)
-				}
-				else
-				{
-					self.lastError = ServerError("Unknown error")
-				}
+				// Login the user immediately after account creation
+				self.loginUser(name: createAcctResponse.username, password: password)
+			}
+			else
+			{
+				self.lastError = ServerError("Couldn't decode server response to createNewAccount request.")
 			}
 		}
 	}

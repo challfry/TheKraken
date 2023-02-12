@@ -450,9 +450,10 @@ import CoreData
 	// with data from an /api/v2/alerts call. This response data does not contain the messages in Seamail threads,
 	// just the counts.
 	func updateNotifications(context: NSManagedObjectContext) {
-		print ("updateNotifications")
+		guard LocalPush.shared.pushManager?.isActive != true, LocalPush.shared.krakenInAppPushProvider.socket != nil else { return }
 		guard globalAppIsInBackground else { return }
 		guard let currentUser = CurrentUser.shared.getLoggedInUser(in: context) else { return }
+		NetworkLog.info("SeamailDataManager: updateNotifications")
 		
 		// If the number of conversations with new messages hasn't changed, exit.
 		let numNewConvos = currentUser.seamailParticipant.count - currentUser.upToDateSeamailThreads.count

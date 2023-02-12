@@ -335,7 +335,7 @@ extension NetworkGovernor: URLSessionDelegate {
 
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-		NetworkLog.debug("URLSession sent an URLAuthentication challenge.")
+		NetworkLog.debug("NetworkGovernor received URLAuthenticationChallenge of type \(challenge.protectionSpace.authenticationMethod).")
 		// One place where this is called is when we connect to an HTTPS server for the first time.
 		// It's possible to add code here to do things like manually validate a self-signed server cert.
 		completionHandler(.performDefaultHandling, nil)

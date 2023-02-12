@@ -55,7 +55,7 @@ import UIKit
 				switch error {
 					case let serverError as ServerError: observer.errorText = serverError.getGeneralError()
 					case let networkError as NetworkError: observer.errorText = networkError.getErrorString()
-					default: observer.errorText = "Unknown Error"
+					default: observer.errorText = error.localizedDescription
 				}
 //				observer.statusText = "This is a very long error string, specifically to test out how the cell resizes itself in response to the text in the label changing."
 			}

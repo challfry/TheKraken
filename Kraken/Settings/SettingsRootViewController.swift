@@ -49,7 +49,10 @@ class SettingsRootViewController: BaseCollectionViewController {
 		NetworkGovernor.shared.tell(self, when: ["connectionState", "connectedViaWIFI"]) { observer, observed in
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
 		}?.schedule()
-		LocalPush.shared.tell(self, when: "pushManager.isActive") { observer, observed in
+		LocalPush.shared.tell(self, when: ["pushManager.isActive", "krakenInAppPushProvider.socket"]) { observer, observed in
+			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
+		}?.schedule()
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
 		}?.schedule()
 		networkInfoSection.append(ServerAddressEditCellModel("Server URL"))
@@ -146,11 +149,22 @@ class SettingsRootViewController: BaseCollectionViewController {
 			resultString.append(string:"Not connected to wifi.", attrs: nil)
 		}
 		
-		if LocalPush.shared.pushManager?.isActive == true {
-			resultString.append(string: " Local Push Connectivity is active.")
-		}
+		if  CurrentUser.shared.loggedInUser == nil {
+			resultString.append(string: " No Local Push Connectivity while logged out.")
+		} 
 		else {
-			resultString.append(string: " No Local Push Connectivity.")
+			switch (LocalPush.shared.pushManager?.isActive == true, LocalPush.shared.krakenInAppPushProvider.startState) {
+				case (true, true): resultString.append(string: " Local Push Connectivity is active both in-app and in background.")
+				case (true, false): resultString.append(string: " Local Push Connectivity is active.")
+				case (false, true): 
+					if LocalPush.shared.krakenInAppPushProvider.socket != nil {
+						resultString.append(string: " Local Push Connectivity is active while app is running.")
+					}
+					else {
+						resultString.append(string: " No Local Push. In-app socket not running.")
+					}
+				case (false, false): resultString.append(string: " No Local Push Connectivity.")
+			}
 		}
 		
 		if NetworkGovernor.shared.connectionState == .canConnect {

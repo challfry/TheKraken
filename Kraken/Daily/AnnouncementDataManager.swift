@@ -202,7 +202,7 @@ import CoreData
 	// contents of the announcement in the notification.
 	func postNewAnnouncementNotification() {
 		// If the pushProvider is running, it'll post this for us
-		guard LocalPush.shared.pushManager?.isActive != true else { return }
+		guard LocalPush.shared.pushManager?.isActive != true, LocalPush.shared.krakenInAppPushProvider.socket != nil else { return }
 		let content = UNMutableNotificationContent()
 		content.title = "New Twitarr Announcement"
 		content.body = "Tap to view this announcement in The Kraken."

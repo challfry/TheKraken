@@ -97,7 +97,10 @@ import Foundation
 	
 	// The SSID of the onboard WIFI network. Received from the server.
 	@objc dynamic public var onboardWifiNetowrkName: String {
-		get { return getSetting(name: "onboardWifiNetowrkName", defaultValue: "") }
+		get { 
+			let setting = getSetting(name: "onboardWifiNetowrkName", defaultValue: "")
+			return setting
+		}
 		set { setSetting(name: "onboardWifiNetowrkName", newValue: newValue) }
 	}
 	

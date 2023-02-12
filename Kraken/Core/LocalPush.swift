@@ -14,7 +14,7 @@ import os
 	static let shared = LocalPush()
 	
 	@objc dynamic var pushManager: NEAppPushManager?
-	var krakenInAppPushProvider = WebsocketNotifier(isInApp: true)		// Runs when app is fg and extension isn't running
+	@objc dynamic var krakenInAppPushProvider = WebsocketNotifier(isInApp: true)		// Runs when app is fg and extension isn't running
 	private let logger = Logger()
 	private var providerDownTimer: Timer?
 	
@@ -71,18 +71,19 @@ import os
 	}
 	
 	func saveSettings(for manager: NEAppPushManager?) {
+		var websocketURLComponents = URLComponents()
+		websocketURLComponents.scheme = Settings.shared.baseURL.scheme == "https" ? "wss" : "ws"
+		websocketURLComponents.host = Settings.shared.baseURL.host
+		websocketURLComponents.port = Settings.shared.baseURL.port
+		websocketURLComponents.path = "/api/v3/notification/socket"
+		let websocketURLString = websocketURLComponents.string ?? ""
+		let token = CurrentUser.shared.loggedInUser?.authKey ?? ""
+		krakenInAppPushProvider.updateConfig(serverURL: websocketURLComponents.url, token: token)
+		
 #if !targetEnvironment(simulator)
 		let onboardSSID = Settings.shared.onboardWifiNetowrkName
 		if !onboardSSID.isEmpty {
 			let mgr = manager ?? NEAppPushManager()
-			var websocketURLComponents = URLComponents()
-			websocketURLComponents.scheme = Settings.shared.baseURL.scheme == "https" ? "wss" : "ws"
-			websocketURLComponents.host = Settings.shared.baseURL.host
-			websocketURLComponents.port = Settings.shared.baseURL.port
-			websocketURLComponents.path = "/api/v3/notification/socket"
-			let websocketURLString = websocketURLComponents.string ?? ""
-			
-			let token = CurrentUser.shared.loggedInUser?.authKey ?? ""
 			
 			if websocketURLString != mgr.providerConfiguration["twitarrURL"] as? String ||
 					token != mgr.providerConfiguration["token"] as? String ||
@@ -128,13 +129,6 @@ import os
 	// Try to ensure the app extension's socket and our in-app socket are not running at the same time.
 	func checkStartInAppSocket() {
 		if pushManager?.isActive != true, krakenInAppPushProvider.startState == false {
-			var websocketURLComponents = URLComponents()
-			websocketURLComponents.scheme = Settings.shared.baseURL.scheme == "https" ? "wss" : "ws"
-			websocketURLComponents.host = Settings.shared.baseURL.host
-			websocketURLComponents.port = Settings.shared.baseURL.port
-			websocketURLComponents.path = "/api/v3/notification/socket"
-			let token = CurrentUser.shared.loggedInUser?.authKey
-			krakenInAppPushProvider.updateConfig(serverURL: websocketURLComponents.url, token: token)
 			krakenInAppPushProvider.start()
 		}
 	}

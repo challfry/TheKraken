@@ -46,10 +46,10 @@ class KrakenPushProvider: NEAppPushProvider {
     
 }
 
-class WebsocketNotifier: NSObject {
+@objc class WebsocketNotifier: NSObject {
 	var pushProvider: KrakenPushProvider?		// NULL if notifier is being used in-app
 	var session: URLSession?
-	var socket: URLSessionWebSocketTask?
+	@objc dynamic var socket: URLSessionWebSocketTask?
 	var lastPing: Date?
 	let logger = Logger(subsystem: "com.challfry.kraken.localpush", category: "KrakenPushProvider")
 	var startState: Bool = false	// TRUE between calls to Start and Stop. Tracks NEAppPushProvider's state, NOT the socket itself.
@@ -71,6 +71,7 @@ class WebsocketNotifier: NSObject {
 		logger.log("KrakenPushProvider de-init.")
 	}
 	
+	// Don't call this from within websocketnotifier.
 	func updateConfig(serverURL: URL? = nil, token: String? = nil) {
 		if let provider = pushProvider {
 			if let config = provider.providerConfiguration, let twitarrStr = config["twitarrURL"] as? String, let token = config["token"] as? String,
@@ -86,6 +87,9 @@ class WebsocketNotifier: NSObject {
 		else {
 			self.serverURL = serverURL
 			self.token = token
+			if startState == true {
+				openWebSocket()
+			}
 		}
 	}
 
@@ -131,7 +135,7 @@ class WebsocketNotifier: NSObject {
 			self.logger.log("openWebSocket didn't create a socket.")
 		}
 		
-		if pushProvider == nil {
+		if pushProvider == nil && socketPingTimer == nil {
 			socketPingTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
 				self?.handleTimerEvent()
 			}
@@ -241,13 +245,18 @@ class WebsocketNotifier: NSObject {
     }
     
     func handleTimerEvent() {
-		logger.log("HandleTimerEvent() called for instance \(String(format: "%p", self), privacy: .public) lastPing: \(self.lastPing?.debugDescription ?? "<nil>", privacy: .public)")
         if let pingTime = lastPing, Date().timeIntervalSince(pingTime) < 1.0 {
 	        logger.warning("HandleTimerEvent() called with very low delay from last call.")
 	        return
         }
+        else if startState == false {
+	        logger.warning("HandleTimerEvent() called while in stop state.")
+	        return
+        }
+		logger.log("HandleTimerEvent() called for instance \(String(format: "%p", self), privacy: .public) lastPing: \(self.lastPing?.debugDescription ?? "<nil>", privacy: .public)")
+        
         lastPing = Date()
-        if socket == nil {
+        if socket == nil, startState == true {
         	openWebSocket()
         }
         socket?.sendPing { [weak self] error in
@@ -286,16 +295,39 @@ class WebsocketNotifier: NSObject {
     }
 }
 
-extension WebsocketNotifier: URLSessionTaskDelegate {
+// Delegate methods for the session itself
+extension WebsocketNotifier: URLSessionDelegate {
 	func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
         logger.log("Session went invalid because: \(error)")
        	self.session = nil
 	}
 }
 
+// Delegate methods for the session's Tasks -- common to all task types
+extension WebsocketNotifier: URLSessionTaskDelegate {
+	public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        logger.log("Notifier Socket task received didCompleteWithError: \(error, privacy: .public)")
+	}
+	
+    public func urlSession(_ session: URLSession, task: URLSessionTask, 
+    		willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, 
+    		completionHandler: @escaping (URLRequest?) -> Void)  {
+        logger.log("Notifier Socket task received willPerformHTTPRedirection")
+		completionHandler(request)
+	}
+	
+    public func urlSession(_ session: URLSession, task: URLSessionTask, 
+    		didReceive challenge: URLAuthenticationChallenge, 
+    		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+		logger.log("Notifier Socket task received URLAuthenticationChallenge of type \(challenge.protectionSpace.authenticationMethod).")
+		completionHandler(.performDefaultHandling, nil)
+	}
+}
+
+// Delegate methods for WebSocket tasks
 extension WebsocketNotifier: URLSessionWebSocketDelegate {	
 	func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol: String?) {
-        logger.log("Socket opened with protocol: \(didOpenWithProtocol ?? "<unknown>", privacy: .public)")
+        logger.log("Notifier Socket opened with protocol: \(didOpenWithProtocol ?? "<unknown>", privacy: .public)")
 	
 	}
 	
