@@ -108,13 +108,13 @@ class ParserDelegate: NSObject, XMLParserDelegate {
 	
 	func parserDidEndDocument(_ parser: XMLParser) {
 		if objectIDs.count == 0 {
-			print ("\(gameName)\t \(isExtendedSearch ? "FuzzySearch:" : "") No ID Found")
+			print ("\(gameName)\t\(isExtendedSearch ? "FuzzySearch:" : "") No ID Found")
 		}
 		else if objectIDs.count == 1 {
-			print ("\(gameName)\t\(objectIDs[0]) \(isExtendedSearch ? "FuzzySearch:" : "")")
+			print ("\(gameName)\t\(objectIDs[0])\t\(isExtendedSearch ? "FuzzySearch:" : "")")
 		}
 		else {
-			print ("\(gameName)\t\(objectIDs[0]) -- \(isExtendedSearch ? "FuzzySearch:" : "") \(objectIDs.count) IDs Found")
+			print ("\(gameName)\t\(objectIDs[0])\t\(isExtendedSearch ? "FuzzySearch:" : "") \(objectIDs.count) IDs Found")
 		}
 	}
 }
@@ -226,8 +226,12 @@ if fileContents == nil {
 }
 
 // Shortened contents for testing
-if false {
+if true {
 	fileContents = """
+	and then we died	1
+	"""
+
+let xtra = """
 	Elder Sign
 	Eldritch Horror
 	Epic Spell Wars
@@ -240,38 +244,43 @@ if false {
 	"""
 }
 
+// Input file is "<Name>\t<NumCopies>\t<DonatedBy>\t<Notes>"
 // Get the XML for each record, convert to JSON, store in gamesList array
-var lastGame: String = ""
-var numCopies: Int = 0
 let scanner = Scanner(string: fileContents!)
-while !scanner.isAtEnd, let thisGame = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
-	if lastGame == thisGame {
-		numCopies += 1
-		continue
+while !scanner.isAtEnd, let thisLine = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
+	let tabFields = thisLine.split(separator: "\t", maxSplits: 8, omittingEmptySubsequences: false)
+	var thisGame = String(tabFields[0])
+	var strippedName = thisGame
+	strippedName.removeAll { $0 == "–" }			// BGG doesn't match dashes, or maybe it considers them 'exclude' ops
+
+	var numCopies = 1
+	if tabFields.count >= 2 {
+		numCopies = Int(tabFields[1]) ?? 1
 	}
-	if lastGame == "" {
-		numCopies = 1
-		lastGame = thisGame
-		continue
+	
+	var donatedBy: String? = nil
+	if tabFields.count >= 3, !tabFields[2].isEmpty {
+		donatedBy = String(tabFields[2])
+	}
+	
+	var notes: String? = nil
+	if tabFields.count >= 4, !tabFields[3].isEmpty {
+		notes = String(tabFields[3])
 	}
 		
-//	let tabFields = nextLine.split(separator: "\t", maxSplits: 8, omittingEmptySubsequences: false)
-	var gameObj = getGame(named: lastGame)
+	var gameObj = getGame(named: strippedName)
 //	var gameObj = getGameInfo(from: "230305", gameName: String(tabFields[0]))
 	
+	gameObj.gameName = thisGame
 	gameObj.numCopies = numCopies
-//	gameObj.donatedBy = tabFields[2].isEmpty ? nil : String(tabFields[2])
+	gameObj.donatedBy = donatedBy
+	gameObj.notes = notes
 //	gameObj.notes = tabFields[3].isEmpty ? nil : String(tabFields[3])
 //	gameObj.expands = tabFields[4].isEmpty ? nil : String(tabFields[4])
 	
 	gamesList.append(gameObj)
 	Thread.sleep(forTimeInterval: 2.0)
-	
-	numCopies = 1
-	lastGame = thisGame
 }
-var gameObj = getGame(named: lastGame)
-gameObj.numCopies = numCopies
 
 //let outputFileData = try JSONEncoder().encode(gamesList)
 //print(String(data: outputFileData, encoding: .utf8)!)
