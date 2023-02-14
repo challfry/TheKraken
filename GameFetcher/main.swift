@@ -226,9 +226,9 @@ if fileContents == nil {
 }
 
 // Shortened contents for testing
-if true {
+if false {
 	fileContents = """
-	and then we died	1
+	Blood Bowl: Team Manager - The Card Game	1
 	"""
 
 let xtra = """
@@ -244,14 +244,21 @@ let xtra = """
 	"""
 }
 
-// Input file is "<Name>\t<NumCopies>\t<DonatedBy>\t<Notes>"
+// HOW TO USE:
+//	Use a spreadsheet to make a list of games with numCopies and donatedBy fields. JoCo releases a list like this every year.
+//	Add in any notes, and manually fill in the expandsGaneNamed colum. Copy the 5-column list into a tab-delimited text file.
+// 	Run GameFetcher on that text file. 
+//
+//	You'll need to run the script several times, adjusting game names each time, to find matches for as many game titles as possible.
+// 
+// Input file is "<Name>\t<NumCopies>\t<DonatedBy>\t<Notes>\t<ExpandsGameNamed>"
+
 // Get the XML for each record, convert to JSON, store in gamesList array
 let scanner = Scanner(string: fileContents!)
 while !scanner.isAtEnd, let thisLine = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
 	let tabFields = thisLine.split(separator: "\t", maxSplits: 8, omittingEmptySubsequences: false)
-	var thisGame = String(tabFields[0])
-	var strippedName = thisGame
-	strippedName.removeAll { $0 == "–" }			// BGG doesn't match dashes, or maybe it considers them 'exclude' ops
+	let thisGame = String(tabFields[0])
+	var strippedName = thisGame.replacingOccurrences(of: " – ", with: " ").replacingOccurrences(of: " - ", with: " ")
 
 	var numCopies = 1
 	if tabFields.count >= 2 {
@@ -267,6 +274,11 @@ while !scanner.isAtEnd, let thisLine = scanner.scanUpToCharacters(from: Characte
 	if tabFields.count >= 4, !tabFields[3].isEmpty {
 		notes = String(tabFields[3])
 	}
+	
+	var expands: String? = nil
+	if tabFields.count >= 5, !tabFields[4].isEmpty {
+		expands = String(tabFields[4])
+	}
 		
 	var gameObj = getGame(named: strippedName)
 //	var gameObj = getGameInfo(from: "230305", gameName: String(tabFields[0]))
@@ -275,8 +287,7 @@ while !scanner.isAtEnd, let thisLine = scanner.scanUpToCharacters(from: Characte
 	gameObj.numCopies = numCopies
 	gameObj.donatedBy = donatedBy
 	gameObj.notes = notes
-//	gameObj.notes = tabFields[3].isEmpty ? nil : String(tabFields[3])
-//	gameObj.expands = tabFields[4].isEmpty ? nil : String(tabFields[4])
+	gameObj.expands = expands
 	
 	gamesList.append(gameObj)
 	Thread.sleep(forTimeInterval: 2.0)
