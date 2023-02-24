@@ -760,6 +760,7 @@
                         <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="hIj-Jv-E7S"/>
                         <segue destination="1mH-gG-DrE" kind="show" identifier="PostOperations" id="Yxg-Xl-ZUF"/>
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="eK7-8I-NMd"/>
+                        <segue destination="PbB-bw-9Xu" kind="show" identifier="EditUserProfile" id="JWT-Wq-CQ0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LVi-K1-QnL" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2850,15 +2851,15 @@ Additional info:</string>
         <segue reference="jyo-2T-54r"/>
         <segue reference="Nie-gD-4T3"/>
         <segue reference="Xin-A8-aio"/>
-        <segue reference="xJS-a0-3Zb"/>
-        <segue reference="g1q-Cb-8AB"/>
+        <segue reference="JWT-Wq-CQ0"/>
+        <segue reference="eK7-8I-NMd"/>
         <segue reference="xJS-kz-sQt"/>
         <segue reference="nVa-Wl-Nva"/>
         <segue reference="CFt-8y-mTZ"/>
         <segue reference="ibx-KH-vcj"/>
         <segue reference="d2l-zp-S48"/>
         <segue reference="RHM-8H-1Ru"/>
-        <segue reference="vXi-dK-Rxk"/>
+        <segue reference="hIj-Jv-E7S"/>
         <segue reference="gdr-Cd-yXW"/>
         <segue reference="ZQM-8h-AgF"/>
         <segue reference="wjx-Zr-mfc"/>

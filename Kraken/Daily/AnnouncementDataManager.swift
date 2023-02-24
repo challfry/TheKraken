@@ -15,7 +15,7 @@ import CoreData
     @NSManaged public var updatedAt: Date					// Time the announcement was created/updated
     @NSManaged public var displayUntil: Date				
     @NSManaged public var author: KrakenUser?
-    @NSManaged public var isActive: Bool					// TRUE if the announcement isn't expired. Defaults to true.
+    @NSManaged public var isActive: Bool					// TRUE if the announcement isn't expired or deleted. Defaults to true.
     
     @NSManaged public var viewedBy: Set<KrakenUser>
     
@@ -33,6 +33,7 @@ import CoreData
 		if displayUntil != v3Object.displayUntil {
 			self.displayUntil = v3Object.displayUntil
 		}
+		// Server only ever tells us about active announcements
 		isActive = true
 		
 		// Set the author
@@ -57,18 +58,16 @@ import CoreData
 	}
 }
 
-@objc class AnnouncementDataManager: NSObject {
+@objc class AnnouncementDataManager: ServerUpdater {
 	static let shared = AnnouncementDataManager()
 	var lastError: Error?
-	
-	var currentAnnouncements: [Announcement] = []
-	
+		
 	@objc dynamic var dailyTabBadgeCount: Int = 0
 	
 	private var fetchedData: NSFetchedResultsController<Announcement>
 	private var serverActiveIds: [Int64] = []
 	
-	override init() {
+	init() {
 		let fetchRequest = NSFetchRequest<Announcement>(entityName: "Announcement")
 //		fetchRequest.predicate = NSPredicate(format: "isActive == true AND displayUntil > %@", Date() as NSDate)
 		fetchRequest.predicate = NSPredicate(format: "isActive == true")
@@ -76,16 +75,14 @@ import CoreData
 		fetchRequest.fetchBatchSize = 50
 		self.fetchedData = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: LocalCoreData.shared.mainThreadContext, 
 				sectionNameKeyPath: nil, cacheName: nil)
-		super.init()
+		// Set up the server updater with a 15 minute refresh
+		super.init(60 * 15)
 		
 		DispatchQueue.main.async {
 			
 			self.fetchedData.delegate = self
 			do {
 				try self.fetchedData.performFetch()
-				if let announcements = self.fetchedData.fetchedObjects {
-					self.currentAnnouncements = announcements
-				}
 			}
 			catch {
 				CoreDataLog.error("Couldn't fetch Announcements.", [ "error" : error ])
@@ -98,8 +95,13 @@ import CoreData
 		}
 	}
 	
+	// ServerUpdater calls this periodically
+	override func updateMethod() {
+		updateAnnouncements(done: { self.updateComplete(success: true) })
+	}
+	
 	func updateBadgeCount() {
-		if let currentUser = CurrentUser.shared.loggedInUser {
+		if let currentUser = CurrentUser.shared.loggedInUser, let currentAnnouncements = fetchedData.fetchedObjects {
 			dailyTabBadgeCount = Set(currentAnnouncements).subtracting(currentUser.upToDateAnnouncements).count
 		}
 		else {
@@ -109,9 +111,13 @@ import CoreData
 		}
 	}
 		
+	// Called when the user views the Daily View, which has all the active announcements.
 	func markAllAnnouncementsRead() {
 		LocalCoreData.shared.performLocalCoreDataChange() { context, currentUser in
-			for announcement in self.currentAnnouncements {
+			let fetchRequest = NSFetchRequest<Announcement>(entityName: "Announcement")
+			fetchRequest.predicate = NSPredicate(format: "isActive == true")
+			let currentAnnouncements = try context.fetch(fetchRequest)
+			for announcement in currentAnnouncements {
 				if let announcementInContext = try? context.existingObject(with: announcement.objectID) as? Announcement {
 					if !announcementInContext.viewedBy.contains(currentUser) {
 						announcementInContext.viewedBy.insert(currentUser)
@@ -121,18 +127,29 @@ import CoreData
 		}
 	}
 	
+	// Called by the alerts updater; the response handler for V3UserNotificationData.
 	func updateAnnouncementCounts(activeIDs: [Int64], unseenCount: Int64) {
-		// Don't use unseenCount to decide whether to grab announcements. Even if the user has 'seen' the announcement
-		// on another device we still need to load it.
-		currentAnnouncements.forEach { $0.updateIsActive() }
-		let localActiveIDs = Set(currentAnnouncements.map { $0.id })
-		serverActiveIds = activeIDs
-		if !localActiveIDs.isSuperset(of: activeIDs) {
-			updateAnnouncements()
+		LocalCoreData.shared.performNetworkParsing() { context in
+			// Don't use unseenCount to decide whether to grab announcements. Even if the user has 'seen' the announcement
+			// on another device we still need to load it.
+			let fetchRequest = NSFetchRequest<Announcement>(entityName: "Announcement")
+			fetchRequest.predicate = NSPredicate(format: "isActive == true")
+			let currentAnnouncements = try context.fetch(fetchRequest)
+			let localActiveIDs: [Int64] = currentAnnouncements.compactMap { announcement in
+				if announcement.displayUntil < Date() {
+					announcement.isActive = false
+					return nil
+				}
+				return announcement.id
+			}
+			self.serverActiveIds = activeIDs
+			if !Set(localActiveIDs).isSuperset(of: activeIDs) {
+				self.updateAnnouncements()
+			}
 		}
 	}
 
-	func updateAnnouncements() {
+	func updateAnnouncements(done: (() -> Void)? = nil) {
 		let request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/notification/announcements", query: nil)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = package.getAnyError() {
@@ -148,6 +165,7 @@ import CoreData
 					NetworkLog.error("Failure parsing Announcements response.", ["Error" : error, "url" : request.url as Any])
 				}
 			}
+			done?()
 		}
 	}
 
@@ -178,12 +196,14 @@ import CoreData
 			}
 			
 			if isComprehensive {
-				self.currentAnnouncements = self.currentAnnouncements.filter { ann in
+				// Get all active announcements; any ID not in the server list has been deleted by the server
+				let fetchRequest = NSFetchRequest<Announcement>(entityName: "Announcement")
+				fetchRequest.predicate = NSPredicate(format: "isActive == true")
+				let currentAnnouncements = try context.fetch(fetchRequest)
+				currentAnnouncements.forEach { ann in
 					if !newAnnouncementIDs.contains(ann.id) || ann.displayUntil < Date() {
 						ann.isActive = false
-						return false
 					}
-					return true
 				}
 			}
 			
@@ -240,9 +260,6 @@ extension AnnouncementDataManager: NSFetchedResultsControllerDelegate {
 	}
     
 	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		if let announcements = controller.fetchedObjects as? [Announcement] {
-			currentAnnouncements = announcements
-		}
 	}
 }
 

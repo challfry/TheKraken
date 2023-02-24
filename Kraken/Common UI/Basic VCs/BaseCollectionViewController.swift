@@ -476,14 +476,17 @@ class BaseCollectionViewController: UIViewController {
 	}
 	
 	func segueOrNavToLink(_ link: String) {
+		// Bail if we can't make a valid URL
+		guard let url = URL(string: link, relativeTo: Settings.shared.settingsBaseURL) else {
+			return
+		}
 		// Open externally if it's not our link
-		if let url = URL(string: link), !["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host]
-				.contains(url.host ?? "nohostfoundasdfasfasf") {
+		guard ["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host].contains(url.host ?? "nohostfoundasdfasfasf") else {
 			UIApplication.shared.open(url)
 			return
 		}
 	
-		let packet = GlobalNavPacket(from: self, url: link)
+		let packet = GlobalNavPacket(from: self, url: url.absoluteString)
 		// If the current VC can perform the segue, do it
 		if let segueType = packet.segue, canPerformSegue(segueType) {
 			performKrakenSegue(segueType, sender: packet.sender)

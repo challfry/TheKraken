@@ -138,6 +138,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 //		dailySegment.append(betaCellModel)
 		dailySegment.append(dataDeletionReminderCellModel)
 		
+		// displayUntil > Date() only works to filter out announcements that expired before the app launched. While running,
+		// we have to test on a timer and set isActive to false when they expire.
 		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true AND displayUntil > %@", Date() as NSDate),
 				sort: [ NSSortDescriptor(key: "updatedAt", ascending: false) ], 
 				cellModelFactory: self.createAnnouncementCellModel)

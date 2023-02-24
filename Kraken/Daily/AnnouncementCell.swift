@@ -118,6 +118,7 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 	var text: NSAttributedString = NSAttributedString() {
 		didSet {
 			announcementTextView.attributedText = text
+			cellSizeChanged()
 		}
 	}
 	

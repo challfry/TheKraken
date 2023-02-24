@@ -8,6 +8,7 @@
 
 import UIKit
 import Compression
+import CoreData
 
 class KaraokeArtist: NSObject {
 	var artistName: String

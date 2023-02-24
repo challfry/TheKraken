@@ -13,6 +13,7 @@ import BackgroundTasks
 
 	static var updateActions: [ServerUpdater] = [
 			AlertsUpdater.shared,
+			AnnouncementDataManager.shared,
 			DailyThemeUpdater.shared,
 	]
 	static var numActiveUpdaters: Int = 0

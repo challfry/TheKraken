@@ -40,7 +40,7 @@ import UIKit
 		}
 	}
 
-	init(user: LoggedInKrakenUser, action: @escaping (DisclosureCellModel) -> Void) {
+	init(user: LoggedInKrakenUser) {
 		modelKrakenUser = user
 		super.init(bindingWith: LoggedInUserCellProtocol.self)
 		title = user.username
