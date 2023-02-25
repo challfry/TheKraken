@@ -56,8 +56,11 @@ import UIKit
 		}?.execute()
 		
 		if ProcessInfo.processInfo.isiOSAppOnMac {
-			PhonecallDataManager.shared.tell(self, when: "currentCall.answeredCall") { observer, observed in
-				if observed.currentCall?.answeredCall == false {
+			PhonecallDataManager.shared.tell(self, when: ["currentCall.answeredCall", "currentCall.isCaller"]) { observer, observed in
+				if observed.currentCall?.isCaller == true {
+					observer.acceptCallButton.isHidden = true
+				}
+				else if observed.currentCall?.answeredCall == false {
 					observer.acceptCallButton.isHidden = false
 				}
 				else {

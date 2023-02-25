@@ -17,6 +17,7 @@ import UIKit
 	@objc dynamic var other: KrakenUser
 	@objc dynamic var callUUID: UUID
 	@objc dynamic var answeredCall: Bool = false
+	@objc dynamic var isCaller: Bool = false			// FALSE if this is the call receiver for this call
 	var socket: URLSessionWebSocketTask?
 	var callStartTime: Date?
 	@objc dynamic var callError: Error?
@@ -28,6 +29,7 @@ import UIKit
 	init(calling: KrakenUser) {
 		other = calling
 		callUUID = UUID()
+		isCaller = true
 		super.init()
 		startNotificationTimer()
 	}
