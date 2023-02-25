@@ -16,7 +16,7 @@ import UIKit
 @objc class CurrentCallInfo : NSObject {
 	@objc dynamic var other: KrakenUser
 	@objc dynamic var callUUID: UUID
-	var answeredCall: Bool = false
+	@objc dynamic var answeredCall: Bool = false
 	var socket: URLSessionWebSocketTask?
 	var callStartTime: Date?
 	@objc dynamic var callError: Error?

@@ -55,6 +55,20 @@ import UIKit
 			}
 		}?.execute()
 		
+		if ProcessInfo.processInfo.isiOSAppOnMac {
+			PhonecallDataManager.shared.tell(self, when: "currentCall.answeredCall") { observer, observed in
+				if observed.currentCall?.answeredCall == false {
+					observer.acceptCallButton.isHidden = false
+				}
+				else {
+					observer.acceptCallButton.isHidden = true
+				}
+			}?.execute()
+		}
+		else {
+			acceptCallButton.isHidden = true
+		}
+		
 		NotificationCenter.default.addObserver(self, selector: #selector(engineRouteChanged),
 				name: .AVAudioEngineConfigurationChange, object: nil)
 	}
@@ -96,7 +110,6 @@ import UIKit
 	
 	@IBAction func acceptCallTapped() {
 		PhonecallDataManager.shared.acceptIncomingCall()
-		self.dismiss(animated: true)
 	}
 	
 	
