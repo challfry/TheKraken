@@ -602,9 +602,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="92" width="200" height="200.5"/>
+                                <rect key="frame" x="214" y="92" width="200" height="201"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -2702,17 +2702,32 @@ Additional info:</string>
                                     <constraint firstAttribute="width" constant="300" id="umn-91-s69"/>
                                 </constraints>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="j9Z-gp-CWO">
-                                <rect key="frame" x="145" y="732" width="124" height="48"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="End Call">
-                                    <fontDescription key="titleFontDescription" type="system" pointSize="28"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="endCallTapped" destination="KOr-1k-694" eventType="touchUpInside" id="wwA-NP-byg"/>
-                                </connections>
-                            </button>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="aw3-6j-5v5">
+                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="sHI-uh-isH">
+                                <rect key="frame" x="57" y="732" width="300" height="47.5"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PqL-MW-hIv">
+                                        <rect key="frame" x="0.0" y="0.0" width="145" height="47.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Accept">
+                                            <fontDescription key="titleFontDescription" type="system" pointSize="28"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="acceptCallTapped" destination="KOr-1k-694" eventType="touchUpInside" id="BsG-md-GuJ"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="j9Z-gp-CWO">
+                                        <rect key="frame" x="155" y="0.0" width="145" height="47.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="End Call">
+                                            <fontDescription key="titleFontDescription" type="system" pointSize="28"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="endCallTapped" destination="KOr-1k-694" eventType="touchUpInside" id="wwA-NP-byg"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="aw3-6j-5v5">
                                 <rect key="frame" x="57" y="461.5" width="300" height="250.5"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -2736,28 +2751,28 @@ Additional info:</string>
                         <viewLayoutGuide key="safeArea" id="rQD-fD-61Z"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="rQD-fD-61Z" firstAttribute="bottom" secondItem="j9Z-gp-CWO" secondAttribute="bottom" constant="58" id="0na-zn-8h8"/>
                             <constraint firstItem="aw3-6j-5v5" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="rQD-fD-61Z" secondAttribute="leading" constant="20" id="5Gt-4N-vyS"/>
                             <constraint firstItem="rQD-fD-61Z" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="aw3-6j-5v5" secondAttribute="trailing" constant="20" id="B8Y-y6-xSr"/>
                             <constraint firstItem="aw3-6j-5v5" firstAttribute="centerX" secondItem="rQD-fD-61Z" secondAttribute="centerX" id="J6d-JJ-6pX"/>
                             <constraint firstItem="rQD-fD-61Z" firstAttribute="trailing" secondItem="BzG-em-5a9" secondAttribute="trailing" constant="20" id="T7w-jj-fak"/>
-                            <constraint firstItem="j9Z-gp-CWO" firstAttribute="top" secondItem="aw3-6j-5v5" secondAttribute="bottom" constant="20" id="Wuf-07-ohQ"/>
                             <constraint firstItem="UDa-UO-0Bf" firstAttribute="top" secondItem="BzG-em-5a9" secondAttribute="bottom" constant="8" symbolic="YES" id="Yyr-uB-njp"/>
                             <constraint firstItem="rQD-fD-61Z" firstAttribute="trailing" secondItem="WVU-sy-AOa" secondAttribute="trailing" constant="20" id="afT-r7-uVm"/>
                             <constraint firstItem="BzG-em-5a9" firstAttribute="leading" secondItem="rQD-fD-61Z" secondAttribute="leading" constant="20" id="fQD-fb-Th7"/>
                             <constraint firstItem="BzG-em-5a9" firstAttribute="top" secondItem="rQD-fD-61Z" secondAttribute="top" constant="23" id="gJJ-Pz-pm5"/>
                             <constraint firstItem="WVU-sy-AOa" firstAttribute="leading" secondItem="rQD-fD-61Z" secondAttribute="leading" constant="20" id="hAe-Pu-CoN"/>
+                            <constraint firstItem="sHI-uh-isH" firstAttribute="trailing" secondItem="UDa-UO-0Bf" secondAttribute="trailing" id="kBQ-Uw-RS5"/>
+                            <constraint firstItem="sHI-uh-isH" firstAttribute="leading" secondItem="UDa-UO-0Bf" secondAttribute="leading" id="u9a-QG-aeR"/>
                             <constraint firstItem="WVU-sy-AOa" firstAttribute="top" secondItem="UDa-UO-0Bf" secondAttribute="bottom" constant="8" symbolic="YES" id="wxB-Ki-qWw"/>
                             <constraint firstItem="aw3-6j-5v5" firstAttribute="top" secondItem="WVU-sy-AOa" secondAttribute="bottom" constant="8" symbolic="YES" id="xUI-RU-IRx"/>
                             <constraint firstItem="UDa-UO-0Bf" firstAttribute="centerX" secondItem="rQD-fD-61Z" secondAttribute="centerX" id="xvJ-PS-bqX"/>
-                            <constraint firstItem="j9Z-gp-CWO" firstAttribute="centerX" secondItem="rQD-fD-61Z" secondAttribute="centerX" id="zy3-KE-gY3"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="acceptCallButton" destination="PqL-MW-hIv" id="0NU-ls-FeC"/>
                         <outlet property="avatarImageView" destination="UDa-UO-0Bf" id="zKy-mu-M8o"/>
                         <outlet property="callTimeLabel" destination="WVU-sy-AOa" id="od7-ac-zqb"/>
                         <outlet property="collectionView" destination="aw3-6j-5v5" id="teh-dT-LAc"/>
-                        <outlet property="endCallButton" destination="j9Z-gp-CWO" id="Dsd-yQ-oMR"/>
+                        <outlet property="endCallButton" destination="j9Z-gp-CWO" id="AHe-oc-v0s"/>
                         <outlet property="usernameLabel" destination="BzG-em-5a9" id="9Ld-QC-Oss"/>
                     </connections>
                 </viewController>

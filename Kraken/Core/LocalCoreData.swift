@@ -233,15 +233,9 @@ class LocalCoreData: NSObject {
 	// Deletes every object in the Core Data store. Should only be called at app launch, probably?
 	func fullCoreDataReset() {
 		do {
-			for entity in persistentContainer.managedObjectModel.entities {
-				if let entityName = entity.name {
-					// create the delete request for the specified entity
-					let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-					let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-					try persistentContainer.viewContext.execute(deleteRequest)
-				}
+			if let storeURL = persistentContainer.persistentStoreDescriptions.first?.url {
+				try persistentContainer.persistentStoreCoordinator.destroyPersistentStore(at: storeURL, type: .sqlite, options: nil)
 			}
-			
 		} catch let error as NSError {
 			CoreDataLog.error("Attempted a full reset, failed.", ["error" : error])
 		}

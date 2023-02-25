@@ -114,7 +114,7 @@ class SettingsRootViewController: BaseCollectionViewController {
 //		debugSettingsSection.append(cell: DebugTestLocalNotificationsForEventsCellModel())
 		
 		let clearCacheCell = debugSettingsSection.append(cell: SettingsInfoCellModel("Clear Cache"))
-		clearCacheCell.labelText = NSAttributedString(string: "Resets the local database, fogretting everything cached from the Twitarr server.")
+		clearCacheCell.labelText = NSAttributedString(string: "Resets the local database, forgetting everything cached from the Twitarr server.")
 		debugSettingsSection.append(clearCacheButtonCell)
 
 		// Version

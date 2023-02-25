@@ -455,6 +455,16 @@ import UIKit
 		}	
 	}
 	
+	// Used on Mac to accept calls, as there's no system UI that appears when a call is incoming.
+	func acceptIncomingCall() {
+		logger.info("in acceptIncomingCall()")
+		openAnswerSocket()
+		if ProcessInfo.processInfo.isiOSAppOnMac {
+			configureAudioSession(audioSession: session)
+    		startAudio(audioSession: session)
+		}
+	}
+	
 	func endCall(reason: CXCallEndedReason? = nil) {
 		if let callID = self.currentCall?.callUUID 	{
 			logger.info("Reporting call ended.")

@@ -13,6 +13,7 @@ import UIKit
 	
 	@IBOutlet weak var usernameLabel: UILabel!
 	@IBOutlet weak var avatarImageView: UIImageView!
+	@IBOutlet weak var acceptCallButton: UIButton!
 	@IBOutlet weak var endCallButton: UIButton!
 	@IBOutlet weak var callTimeLabel: UILabel!
 	
@@ -92,6 +93,12 @@ import UIKit
 		super.viewDidDisappear(animated)
 		updateTimer?.invalidate()
 	}
+	
+	@IBAction func acceptCallTapped() {
+		PhonecallDataManager.shared.acceptIncomingCall()
+		self.dismiss(animated: true)
+	}
+	
 	
 	@IBAction func endCallTapped() {
 		PhonecallDataManager.shared.endCall(reason: .unanswered)
