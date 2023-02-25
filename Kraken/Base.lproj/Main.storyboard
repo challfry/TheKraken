@@ -2702,7 +2702,27 @@ Additional info:</string>
                                     <constraint firstAttribute="width" constant="300" id="umn-91-s69"/>
                                 </constraints>
                             </imageView>
-                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="sHI-uh-isH">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Call Time" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVU-sy-AOa">
+                                <rect key="frame" x="20" y="428" width="374" height="25.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="aw3-6j-5v5">
+                                <rect key="frame" x="57" y="461.5" width="300" height="250.5"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" priority="900" constant="300" id="fmE-dU-IxH"/>
+                                </constraints>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="1iC-bR-eUB">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="sHI-uh-isH">
                                 <rect key="frame" x="57" y="732" width="300" height="47.5"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PqL-MW-hIv">
@@ -2727,26 +2747,6 @@ Additional info:</string>
                                     </button>
                                 </subviews>
                             </stackView>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="aw3-6j-5v5">
-                                <rect key="frame" x="57" y="461.5" width="300" height="250.5"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" priority="900" constant="300" id="fmE-dU-IxH"/>
-                                </constraints>
-                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="1iC-bR-eUB">
-                                    <size key="itemSize" width="128" height="128"/>
-                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                </collectionViewFlowLayout>
-                                <cells/>
-                            </collectionView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Call Time" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVU-sy-AOa">
-                                <rect key="frame" x="20" y="428" width="374" height="25.5"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="rQD-fD-61Z"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2760,7 +2760,9 @@ Additional info:</string>
                             <constraint firstItem="BzG-em-5a9" firstAttribute="leading" secondItem="rQD-fD-61Z" secondAttribute="leading" constant="20" id="fQD-fb-Th7"/>
                             <constraint firstItem="BzG-em-5a9" firstAttribute="top" secondItem="rQD-fD-61Z" secondAttribute="top" constant="23" id="gJJ-Pz-pm5"/>
                             <constraint firstItem="WVU-sy-AOa" firstAttribute="leading" secondItem="rQD-fD-61Z" secondAttribute="leading" constant="20" id="hAe-Pu-CoN"/>
+                            <constraint firstItem="sHI-uh-isH" firstAttribute="top" secondItem="aw3-6j-5v5" secondAttribute="bottom" constant="20" id="icd-mu-8OF"/>
                             <constraint firstItem="sHI-uh-isH" firstAttribute="trailing" secondItem="UDa-UO-0Bf" secondAttribute="trailing" id="kBQ-Uw-RS5"/>
+                            <constraint firstItem="rQD-fD-61Z" firstAttribute="bottom" secondItem="sHI-uh-isH" secondAttribute="bottom" constant="58.5" id="qFQ-oL-M17"/>
                             <constraint firstItem="sHI-uh-isH" firstAttribute="leading" secondItem="UDa-UO-0Bf" secondAttribute="leading" id="u9a-QG-aeR"/>
                             <constraint firstItem="WVU-sy-AOa" firstAttribute="top" secondItem="UDa-UO-0Bf" secondAttribute="bottom" constant="8" symbolic="YES" id="wxB-Ki-qWw"/>
                             <constraint firstItem="aw3-6j-5v5" firstAttribute="top" secondItem="WVU-sy-AOa" secondAttribute="bottom" constant="8" symbolic="YES" id="xUI-RU-IRx"/>
