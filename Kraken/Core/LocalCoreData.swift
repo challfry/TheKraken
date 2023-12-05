@@ -235,6 +235,13 @@ class LocalCoreData: NSObject {
 		do {
 			if let storeURL = persistentContainer.persistentStoreDescriptions.first?.url {
 				try persistentContainer.persistentStoreCoordinator.destroyPersistentStore(at: storeURL, type: .sqlite, options: nil)
+				persistentContainer.loadPersistentStores(completionHandler: { (storeDescription, error) in
+					if let error = error as NSError? {
+						fatalError("Unresolved error \(error), \(error.userInfo)")
+					}
+					self.persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+					CoreDataLog.info("Performed a full reset.")
+				})
 			}
 		} catch let error as NSError {
 			CoreDataLog.error("Attempted a full reset, failed.", ["error" : error])

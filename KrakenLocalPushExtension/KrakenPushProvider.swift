@@ -115,6 +115,8 @@ class KrakenPushProvider: NEAppPushProvider {
 			let config = URLSessionConfiguration.ephemeral
 			config.allowsCellularAccess = false
 			config.waitsForConnectivity = true
+			let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+			config.httpAdditionalHeaders = ["X-Swiftarr-Client" : "Kraken \(appVersion)"]
 			session = .init(configuration: config, delegate: self, delegateQueue: nil)
 		}
 		if let existingSocket = socket, existingSocket.state == .running {

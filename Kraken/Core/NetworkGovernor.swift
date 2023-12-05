@@ -106,7 +106,7 @@ struct NetworkResponse {
 // management, analysis, and logging. 
 @objc class NetworkGovernor: NSObject {
 	static let shared = NetworkGovernor()
-	var session: URLSession
+	private var session: URLSession
 	var reachability: SCNetworkReachability?
 	
 	//
@@ -149,6 +149,10 @@ struct NetworkResponse {
 		
 		// Cancel calls after 20 seconds of no data.
 		config.timeoutIntervalForRequest = 20.0
+		
+		// Set the custom request header
+		let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+		config.httpAdditionalHeaders = ["X-Swiftarr-Client" : "Kraken \(appVersion)"]
 		
 		session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
 		
