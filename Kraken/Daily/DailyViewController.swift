@@ -44,7 +44,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		return cell
 	}()
 
-	var twitarrCell = SocialCellModel("Twittar", imageNamed: "hourglass")
+//	var twitarrCell = SocialCellModel("Twittar", imageNamed: "hourglass")
 	var forumsCell = SocialCellModel("Forums", imageNamed: "person.2")
 	var mailCell = SocialCellModel("Seamail", imageNamed: "text.bubble")
 	var scheduleCell = SocialCellModel("Schedule", imageNamed: "calendar")
@@ -65,7 +65,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 		
-		twitarrCell.navPacket = GlobalNavPacket(from: self, tab: .twitarr)
+//		twitarrCell.navPacket = GlobalNavPacket(from: self, tab: .twitarr)
 		forumsCell.navPacket = GlobalNavPacket(from: self, tab: .forums)
 		mailCell.navPacket = GlobalNavPacket(from: self, tab: .seamail)
 		scheduleCell.navPacket = GlobalNavPacket(from: self, tab: .events)
@@ -100,7 +100,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		}?.execute()
 
 		// Set the badges on the Seamail cell and tab
-		CurrentUser.shared.tell(self, when: "loggedInUser.newSeamailMessages") { observer, observed in
+		CurrentUser.shared.tell(self, when: "loggedInUser.newSeamailMessages") { (observer: DailyViewController, observed: CurrentUser) in
 			let badgeCount = observed.loggedInUser?.newSeamailMessages ?? 0
 			observer.mailCell.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
 			if let tabController = observer.navigationController?.tabBarController as? RootTabBarViewController {
@@ -146,7 +146,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		dataSource.append(segment: announcementSegment)
 		
 		dataSource.append(segment: appFeaturesSegment)
-		appFeaturesSegment.append(twitarrCell)
+//		appFeaturesSegment.append(twitarrCell)
 		appFeaturesSegment.append(forumsCell)
 		appFeaturesSegment.append(mailCell)
 		appFeaturesSegment.append(scheduleCell)
@@ -243,7 +243,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	}
 	
     func updateEnabledFeatures(_ disabledSections: Set<ValidSections.Section>) {
-		twitarrCell.contentDisabled = disabledSections.contains(.stream)
+//		twitarrCell.contentDisabled = disabledSections.contains(.stream)
 		forumsCell.contentDisabled = disabledSections.contains(.forums)
 		mailCell.contentDisabled = disabledSections.contains(.seamail)
 		lfgCell.contentDisabled = disabledSections.contains(.lfg)

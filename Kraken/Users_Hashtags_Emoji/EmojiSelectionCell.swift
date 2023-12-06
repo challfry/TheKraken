@@ -103,10 +103,6 @@ class EmojiSelectionCell: BaseCollectionViewCell, EmojiSelectionCellProtocol, UI
 		emojiButton.addTarget(self, action:#selector(buttonTapEnd), for:.touchUpOutside)
 		emojiButton.addTarget(self, action:#selector(buttonTapEnd), for:.touchCancel)
 		emojiButton.addTarget(self, action:#selector(buttonHit), for:.touchUpInside)
-//		emojiButton.showsTouchWhenHighlighted = true
-		emojiButton.adjustsImageWhenHighlighted = true
-		emojiButton.adjustsImageWhenDisabled = true
-		emojiButton.imageEdgeInsets = UIEdgeInsets(top: -4, left: -4, bottom: -4, right: -4)
 		emojiButton.setBackgroundImage(UIImage(named:"BlueButtonHighlight"), for: .highlighted)
 		addSubview(emojiButton)
 
@@ -245,9 +241,6 @@ class EmojiPopupViewController: UIViewController {
 	func setupButton(button: UIButton, index: Int) {
 		if let em = emoji {
 			button.setImage(parentButtonCell?.emojiImage(for:em + EmojiPopupViewController.swatches[index]), for: .normal)
-			button.adjustsImageWhenHighlighted = true
-			button.adjustsImageWhenDisabled = true
-			button.imageEdgeInsets = UIEdgeInsets(top: -4, left: -4, bottom: -4, right: -4)
 		}
 	}
 	
