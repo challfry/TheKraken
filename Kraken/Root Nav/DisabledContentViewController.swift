@@ -38,10 +38,12 @@ class DisabledContentViewController: UIViewController {
 			tabName = "Settings"
 		case .karaoke:
 			tabName = "Karaoke"
+		case .microKaraoke:
+			tabName = "Micro Karaoke"
 		case .games:
 			tabName = "Games"
 		case .initiatePhoneCall:
-			tabName = "Shipwide Confabulator"
+			tabName = "KrakenTalk"
 		case .editUserProfile:
 			tabName = "User Profile"
 		case .deckPlans:
@@ -101,6 +103,9 @@ class DisabledContentViewController: UIViewController {
 		case .karaoke:
 			featureName = "the Karaoke Song Finder"
 			featurePath = "/karaoke"
+		case .microKaraoke:
+			featureName = "the Micro Karaoke Feature"
+			featurePath = "/microkaraoke"
 		case .games:
 			featureName = "the Board Games List"
 			featurePath = "/boardgames"

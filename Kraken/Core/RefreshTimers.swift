@@ -110,7 +110,7 @@ class RefreshTimers: NSObject {
 		NotificationCenter.default.post(Notification(name: RefreshTimers.TenSecUpdateNotification))
 
 		// If the minute changed, send the minute notification as well
-		let minute = Calendar.current.component(.minute, from: Date())
+		let minute = Calendar(identifier: .gregorian).component(.minute, from: Date())
 		if minute != lastMinuteUpdate {
 			lastMinuteUpdate = minute
 			NotificationCenter.default.post(Notification(name: RefreshTimers.MinuteUpdateNotification))
@@ -122,7 +122,7 @@ class RefreshTimers: NSObject {
 //			print("10 second timer.")
 			
 			// If the minute changed, send the minute notification as well
-			let minute = Calendar.current.component(.minute, from: Date())
+			let minute = Calendar(identifier: .gregorian).component(.minute, from: Date())
 			if minute != lastMinuteUpdate {
 				lastMinuteUpdate = minute
 				NotificationCenter.default.post(Notification(name: RefreshTimers.MinuteUpdateNotification))

@@ -22,6 +22,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case lfg = "LFGNavViewController"
 		case settings = "SettingsNavController"
 		case karaoke = "KaraokeNavController"
+		case microKaraoke = "MicroKaraokeNavController"
 		case games = "GamesListNavController"
 		case deckPlans = "DeckMapNavController"
 		case initiatePhoneCall = "InitiateCallViewController"
@@ -82,6 +83,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 				case .deckPlans: newDisabledTabs.insert(.deckPlans)
 				case .games: break // newDisabledTabs.insert(.)
 				case .karaoke: newDisabledTabs.insert(.karaoke)
+				case .microKaraoke: newDisabledTabs.insert(.microKaraoke)
 				case .phonecall: newDisabledTabs.insert(.initiatePhoneCall)
 				case .directphone: break
 				case .editUserProfile: newDisabledTabs.insert(.editUserProfile)

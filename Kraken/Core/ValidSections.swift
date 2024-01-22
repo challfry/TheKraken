@@ -20,6 +20,7 @@ import UIKit
 		case deckPlans = "deck_plans"
 		case games = "games"
 		case karaoke = "karaoke"
+		case microKaraoke = "microkaraoke"
 		case phonecall = "phonecall"
 		case search = "search"
 		case registration = "registration"
@@ -98,6 +99,7 @@ import UIKit
 		case .deckPlans: return .deckPlans
 		case .games: return .games
 		case .karaoke: return .karaoke
+		case .microKaraoke: return .microKaraoke
 		case .phonecall: return .initiatePhoneCall
 		case .directphone: break
 		case .search: break // return .

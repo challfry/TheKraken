@@ -230,7 +230,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 		if Settings.shared.debugTestLocalNotificationsForEvents {
 			enableButton = true
 		}
-		if let eventModel = model as? Event, eventModel.startTime > Date() + 300.0 {
+		if let eventModel = model as? Event, eventModel.startTime > cruiseCurrentDate() + 300.0 {
 			enableButton = true
 		}
 		localNotificationButton.isEnabled = enableButton

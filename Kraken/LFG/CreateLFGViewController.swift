@@ -203,13 +203,13 @@ class CreateLFGViewController: BaseCollectionViewController {
 		guard let titleText = titleCell.getText(), !titleText.isEmpty,
 				let infoText = infoCell.getText(), !infoText.isEmpty,
 				let locationText = locationCell.getText(), !locationText.isEmpty,
-				startTime > Date() else {
+				startTime > cruiseCurrentDate() else {
 			postStatusCell.shouldBeVisible = true
 			var errorString = ""
 			if titleCell.getText() == nil || titleCell.getText()?.isEmpty == true { errorString.append("LFG needs a title\n") }
 			if infoCell.getText() == nil || infoCell.getText()?.isEmpty == true { errorString.append("Info field cannot be empty\n") }
 			if locationCell.getText() == nil || locationCell.getText()?.isEmpty == true { errorString.append("Location field cannot be empty\n") }
-			if startTime <= Date() { errorString.append("LFG cannot start in the past\n") }
+			if startTime <= cruiseCurrentDate() { errorString.append("LFG cannot start in the past\n") }
 			postStatusCell.setErrorState(errorString: errorString)
 			return	
 		}
@@ -237,7 +237,7 @@ class CreateLFGViewController: BaseCollectionViewController {
 			case 6: duration = 240
 			default: duration = 60
 		}
-		let endTime = Calendar.current.date(byAdding: .minute, value: duration, to: startTime) ?? startTime
+		let endTime = Calendar(identifier: .gregorian).date(byAdding: .minute, value: duration, to: startTime) ?? startTime
 		let minAttendees = attendeeCountsCell.minAttendees
 		let maxAttendees = attendeeCountsCell.maxAttendees
 		SeamailDataManager.shared.queueNewLFGOp(existingOp: self.opToEdit, existingLFG: self.lfgModel, 

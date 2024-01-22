@@ -19,17 +19,18 @@ func cruiseCurrentDate() -> Date {
 }
 
 // For 2022, this date is 12:00 Midnight, Saturday March 5, EST
+// For 2024, this date is 12:00 Midnight, Saturday March 9, EST
 func cruiseStartDate() -> Date? {
-	let startDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(identifier: "America/New_York"), 
-			year: 2023, month: 3, day: 5)
-	let startDate = Calendar.current.date(from: startDayComponents)		
+	let startDayComponents = DateComponents(calendar: Calendar(identifier: .gregorian), timeZone: TimeZone(identifier: "America/New_York"), 
+			year: 2024, month: 3, day: 9)
+	let startDate = Calendar(identifier: .gregorian).date(from: startDayComponents)		
 	return startDate
 }
 
 // A 1-based counter showing days before March 5, or nil if it's March 7 or later.
 func daysBeforeCruiseStart() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() < startDate {
-		let components = Calendar.current.dateComponents([.day], from: cruiseCurrentDate(), to: startDate)
+		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: cruiseCurrentDate(), to: startDate)
 		if let dayCount = components.day, dayCount >= 0 {
 			return dayCount + 1
 		}
@@ -40,7 +41,7 @@ func daysBeforeCruiseStart() -> Int? {
 // A 1-based counter; returns 1 on March 5, and 8 on March 12. Nil on all other days.
 func dayOfCruise() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() > startDate {
-		let components = Calendar.current.dateComponents([.day], from: startDate, to: cruiseCurrentDate())
+		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: cruiseCurrentDate())
 		if let dayCount = components.day, dayCount >= 0, dayCount <= 7 {
 			return dayCount + 1
 		}
@@ -51,7 +52,7 @@ func dayOfCruise() -> Int? {
 // A 1-based counter; returns 1 on March 13. Nil if date is earlier.
 func dayAfterCruise() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() > startDate {
-		let components = Calendar.current.dateComponents([.day], from: startDate, to: cruiseCurrentDate())
+		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: cruiseCurrentDate())
 		if let dayCount = components.day, dayCount >= 8 {
 			return dayCount - 7
 		}
@@ -61,7 +62,7 @@ func dayAfterCruise() -> Int? {
 
 func cruiseStartRelativeDays() -> Int {
 	if let startDate = cruiseStartDate() {
-		let components = Calendar.current.dateComponents([.day], from: startDate, to: cruiseCurrentDate())
+		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: cruiseCurrentDate())
 		guard let dayCount = components.day else { return 0 }
 		if cruiseCurrentDate() < startDate {
 			return dayCount - 1
@@ -73,16 +74,17 @@ func cruiseStartRelativeDays() -> Int {
 	
 	
 // For 2023, this date is 12:00 Midnight, Saturday March 12, 2022 EDT
+// For 2024, this date is 12:00 Midnight, Saturday March 12, 2023 EDT
 func lastCruiseEndDate() -> Date? {
-	let endDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(identifier: "America/New_York"), 
-			year: 2022, month: 3, day: 12)
-	let endDate = Calendar.current.date(from: endDayComponents)		
+	let endDayComponents = DateComponents(calendar: Calendar(identifier: .gregorian), timeZone: TimeZone(identifier: "America/New_York"), 
+			year: 2023, month: 3, day: 12)
+	let endDate = Calendar(identifier: .gregorian).date(from: endDayComponents)		
 	return endDate
 }
 
 func lastCruiseEndRelativeDays() -> Int {
 	if let endDate = lastCruiseEndDate() {
-		let components = Calendar.current.dateComponents([.day], from: endDate, to: cruiseCurrentDate())
+		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: endDate, to: cruiseCurrentDate())
 		guard let dayCount = components.day else { return 0 }
 		return dayCount
 	}

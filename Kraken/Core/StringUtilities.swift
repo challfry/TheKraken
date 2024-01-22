@@ -492,7 +492,7 @@ class StringUtilities {
 		
 		// Fix for a really annoying DateFormatter bug. For successive allowedUnits A, B, and C, if the interval
 		// is > 1B - .5A but < 1B, DateFormatter will return "0 C" instead of "1 B". 
-		var interval = Date().timeIntervalSince(forDate)
+		var interval = cruiseCurrentDate().timeIntervalSince(forDate)
 		switch interval {
 		case (hour - 30.0)...hour: interval = hour			// = 1hr for everything above 59.5 minutes
 		case (day - hour / 2)...day: interval = day			// = 1day for everything above 23.5 hours

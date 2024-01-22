@@ -20,13 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 //		LocalCoreData.shared.fullCoreDataReset()
 
-		// If it's after April 1, 2023, clear everything in Core Data
-		let clearDayComponents = DateComponents(calendar: Calendar.current, timeZone: TimeZone(secondsFromGMT: 0 - 3600 * 5), 
-				year: 2023, month: 4, day: 1)
-		if let clearDate = Calendar.current.date(from: clearDayComponents),  Date() > clearDate {
+		// A bit more than 2 weeks after the cruise, wipe all the data (actual calc is start date + 23 days)
+		// This re-clears the DB on every launch after that, but that's okay.
+		if let cruiseStartDate = cruiseStartDate(), let dayToClear = Calendar(identifier: .gregorian).date(byAdding: .day, value: 23, 
+				to: cruiseStartDate, wrappingComponents: false), cruiseCurrentDate() > dayToClear {
 			LocalCoreData.shared.fullCoreDataReset()
 		}
-
+		
 		// Startup tasks. Hopefully they won't interact, but let's keep them in the same order just to be sure.
 		CurrentUser.shared.setInitialLoginState()		// If someone was logged in when the app quit, keeps them logged in. 
 		_ = PostOperationDataManager.shared				// Responsible for POSTs to the server. 

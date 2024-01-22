@@ -193,7 +193,7 @@ import EventKitUI
 	
 	// This is the Now button in the top-left of the navbar
 	@IBAction func rightNowButtonTapped() {
-		if let indexPath = findIndexPathForEventAt(date: Date()) {
+		if let indexPath = findIndexPathForEventAt(date: cruiseCurrentDate()) {
 			collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
 		}
 	}
@@ -336,7 +336,7 @@ import EventKitUI
 			pastEventsPredicate = nil
 		}
 		else {
-			let currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: Date())
+			let currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: cruiseCurrentDate())
 			pastEventsPredicate = NSPredicate(format: "endTime > %@", argumentArray: [currentTime])
 		}
 		setCompoundPredicate()
@@ -356,7 +356,7 @@ import EventKitUI
 		}
 		
 		if let selectedEvent = eventsSegment?.frc?.fetchedObjects?.first( where: { event in
-					return Calendar.current.component(.weekday, from: event.startTime) == dayOfWeek
+					return Calendar(identifier: .gregorian).component(.weekday, from: event.startTime) == dayOfWeek
 				}) {
 			
 			if var indexPath = eventsSegment?.frc?.indexPath(forObject: selectedEvent) {

@@ -753,7 +753,7 @@ import UIKit
 				let destRawPtr: UnsafeMutableRawPointer = ablPointer[0].mData!
 				let destPtr: UnsafeMutablePointer<UInt8> = destRawPtr.bindMemory(to: UInt8.self, capacity: Int(frameCount) * 2)
 				if framesToCopy < frameCount {
-					destPtr.assign(repeating: 0, count: Int(frameCount) * 2)
+					destPtr.update(repeating: 0, count: Int(frameCount) * 2)
 				}
 				self.networkData.copyBytes(to: destPtr, from: 0..<(framesToCopy * 2))
 				

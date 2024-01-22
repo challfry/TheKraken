@@ -51,9 +51,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	var lfgCell = SocialCellModel("LFG", imageNamed: "person.3.sequence.fill")
 	var deckMapCell = SocialCellModel("Deck Maps", imageNamed: "map")
 	var karaokeCell = SocialCellModel("Karaoke", imageNamed: "music.mic")
+	var microKaraokeCell = SocialCellModel("Micro Karaoke", imageNamed: "music.mic.circle")
 	var gamesCell = SocialCellModel("Games", imageNamed: "suit.club")
 //	var phoneCell = SocialCellModel("Shipwide Confabulator", imageNamed: "phone") // voice flinger, hurl chatter
-	var phoneCell = SocialCellModel("KrakenTalk™", imageNamed: "phone") // voice flinger, hurl chatter
+	var phoneCell = SocialCellModel("KrakenTalk", imageNamed: "phone") // voice flinger, hurl chatter
 	var scrapbookCell = SocialCellModel("Scrapbook", imageNamed: "Scrapbook")
 	var lighterModeCell = SocialCellModel("Lighter Mode", imageNamed: "flame")
 	var pirateARCell = SocialCellModel("Pirate Selfie", imageNamed: "flame")
@@ -72,6 +73,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		lfgCell.navPacket = GlobalNavPacket(from: self, tab: .lfg)
 		deckMapCell.navPacket = GlobalNavPacket(from: self, tab: .deckPlans)
 		karaokeCell.navPacket = GlobalNavPacket(from: self, tab: .karaoke)
+		microKaraokeCell.navPacket = GlobalNavPacket(from: self, tab: .karaoke)
 		gamesCell.navPacket = GlobalNavPacket(from: self, tab: .games)
 		phoneCell.navPacket = GlobalNavPacket(from: self, tab: .initiatePhoneCall, segue: .initiatePhoneCall, sender: nil)
 		scrapbookCell.navPacket = GlobalNavPacket(from: self, tab: .scrapbook)
@@ -140,7 +142,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		
 		// displayUntil > Date() only works to filter out announcements that expired before the app launched. While running,
 		// we have to test on a timer and set isActive to false when they expire.
-		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true AND displayUntil > %@", Date() as NSDate),
+		announcementSegment.activate(predicate: NSPredicate(format: "isActive == true AND displayUntil > %@", cruiseCurrentDate() as NSDate),
 				sort: [ NSSortDescriptor(key: "updatedAt", ascending: false) ], 
 				cellModelFactory: self.createAnnouncementCellModel)
 		dataSource.append(segment: announcementSegment)
@@ -153,6 +155,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		appFeaturesSegment.append(lfgCell)
 		appFeaturesSegment.append(deckMapCell)
 		appFeaturesSegment.append(karaokeCell)
+		appFeaturesSegment.append(microKaraokeCell)
 		appFeaturesSegment.append(gamesCell)
 //		appFeaturesSegment.append(scrapbookCell)
 		appFeaturesSegment.append(lighterModeCell)
@@ -222,6 +225,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .lfg: performKrakenSegue(.lfgRoot, sender: packet)
 			case .deckPlans: performKrakenSegue(.deckMapRoot, sender: packet)
 			case .karaoke: performKrakenSegue(.karaokeRoot, sender: packet)
+			case .microKaraoke: performKrakenSegue(.karaokeRoot, sender: packet)
 			case .games: performKrakenSegue(.gamesRoot, sender: packet)
 			case .initiatePhoneCall: performKrakenSegue(.initiatePhoneCall, sender: packet)
 			case .editUserProfile: performKrakenSegue(.editUserProfile, sender: packet)
@@ -250,6 +254,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		scheduleCell.contentDisabled = disabledSections.contains(.calendar)
 		deckMapCell.contentDisabled = disabledSections.contains(.deckPlans)
 		karaokeCell.contentDisabled = disabledSections.contains(.karaoke)
+		karaokeCell.contentDisabled = disabledSections.contains(.microKaraoke)
 		gamesCell.contentDisabled = disabledSections.contains(.games)
 		phoneCell.contentDisabled = disabledSections.contains(.phonecall)
 		profileCell.contentDisabled = disabledSections.contains(.editUserProfile)

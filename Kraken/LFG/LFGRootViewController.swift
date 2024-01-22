@@ -107,7 +107,7 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 				let openPred = NSCompoundPredicate(andPredicateWithSubpredicates: [
 						NSPredicate(format: "NOT (fezType IN %@)", ["open", "closed"] as CVarArg),
 						NSPredicate(format: "SUBQUERY(participants, $x, $x.userID == %@).@count == 0", currentUserID as CVarArg),
-						NSPredicate(format: "startTime > %@", Date() - 3600 as CVarArg),
+						NSPredicate(format: "startTime > %@", cruiseCurrentDate() - 3600 as CVarArg),
 						NSPredicate(format: "cancelled == false"),
 						])
 				observer.openSegment.changePredicate(to: openPred)

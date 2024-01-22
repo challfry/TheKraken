@@ -48,7 +48,7 @@ import CoreData
 	// Cells showing announcements should call this on a timer to force expiration, because FetchedResultsControllers can't.
 	// Well, they can handle the initial check, but once the FRC is open, an expired announcement can't be dismissed.
 	func updateIsActive() {
-		if isActive, displayUntil < Date() {
+		if isActive, displayUntil < cruiseCurrentDate() {
 			LocalCoreData.shared.performLocalCoreDataChange() { context, currentUser in
 				if let announcementInContext = try? context.existingObject(with: self.objectID) as? Announcement {
 					announcementInContext.isActive = false
@@ -136,7 +136,7 @@ import CoreData
 			fetchRequest.predicate = NSPredicate(format: "isActive == true")
 			let currentAnnouncements = try context.fetch(fetchRequest)
 			let localActiveIDs: [Int64] = currentAnnouncements.compactMap { announcement in
-				if announcement.displayUntil < Date() {
+				if announcement.displayUntil < cruiseCurrentDate() {
 					announcement.isActive = false
 					return nil
 				}
@@ -201,7 +201,7 @@ import CoreData
 				fetchRequest.predicate = NSPredicate(format: "isActive == true")
 				let currentAnnouncements = try context.fetch(fetchRequest)
 				currentAnnouncements.forEach { ann in
-					if !newAnnouncementIDs.contains(ann.id) || ann.displayUntil < Date() {
+					if !newAnnouncementIDs.contains(ann.id) || ann.displayUntil < cruiseCurrentDate() {
 						ann.isActive = false
 					}
 				}

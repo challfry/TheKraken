@@ -59,7 +59,7 @@ import CoreData
 	}
 	
 	public func isHappeningNow() -> Bool {
-		var currentTime = Date()
+		var currentTime = cruiseCurrentDate()
 		if Settings.shared.debugTimeWarpToCruiseWeek {
 			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
 		}
@@ -72,7 +72,7 @@ import CoreData
 	}
 	
 	public func isHappeningSoon(within: TimeInterval = 60.0 * 60.0) -> Bool {
-		var currentTime = Date()
+		var currentTime = cruiseCurrentDate()
 		if Settings.shared.debugTimeWarpToCruiseWeek {
 			currentTime = Date(timeInterval: EventsDataManager.shared.debugEventsTimeOffset, since: currentTime)
 		}
@@ -331,7 +331,7 @@ import CoreData
 		}
 		
 //		let tz = TimeZone.current
-//		let dateComponents = Calendar.current.dateComponents(in: tz, from: alarmTime)
+//		let dateComponents = Calendar(identifier: .gregorian).dateComponents(in: tz, from: alarmTime)
 //		let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
 		let trigger = UNTimeIntervalNotificationTrigger(timeInterval: alarmTime.timeIntervalSinceNow, repeats: false)
 
@@ -424,16 +424,16 @@ class EventsDataManager: NSObject {
 	override init() {
 		// Just once, calc our debug date offset. This is an offset from the current date to give us a date covered by the Schedule.ics file.
 		if let lastCruiseEndDate = lastCruiseEndDate() {
-			var checkDate = Date()
+			var checkDate = cruiseCurrentDate()
 			while checkDate > lastCruiseEndDate {
-				if let newDate = Calendar.current.date(byAdding: .day, value: -7, to: checkDate) {
+				if let newDate = Calendar(identifier: .gregorian).date(byAdding: .day, value: -7, to: checkDate) {
 					checkDate = newDate
 				}
 				else {
 					break
 				}
 			}
-			debugEventsTimeOffset = checkDate.timeIntervalSince(Date())
+			debugEventsTimeOffset = checkDate.timeIntervalSince(cruiseCurrentDate())
 		}
 	}
 	

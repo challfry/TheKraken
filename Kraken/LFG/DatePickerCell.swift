@@ -28,9 +28,9 @@ import CoreData
 		// Sets the initial time for the date picker to the next 30 minute interval--people often want to start events at 3:00,
 		// but rarely want to start them at 3:13.
 		if fixStartDate {
-			let components = Calendar.current.dateComponents([.minute], from: Date())
+			let components = Calendar(identifier: .gregorian).dateComponents([.minute], from: cruiseCurrentDate())
 			let minutesToAdd = 30 - ((components.minute ?? 0) % 30)
-			selectedDate = Calendar.current.date(byAdding: .minute, value: minutesToAdd, to: Date()) ?? Date()
+			selectedDate = Calendar(identifier: .gregorian).date(byAdding: .minute, value: minutesToAdd, to: cruiseCurrentDate()) ?? cruiseCurrentDate()
 		}
 		super.init(bindingWith: DatePickerCellBindingProtocol.self)
 	}
