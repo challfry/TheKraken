@@ -118,7 +118,7 @@ import CoreData
 //			return
 //		}
 
-//		let request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "api/v3/image/thumb/\(imageName)")
+//		let request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/image/thumb/\(imageName)")
 //		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 //			if let error = NetworkGovernor.shared.parseServerError(package) {
 //				ImageLog.error(error.errorString)

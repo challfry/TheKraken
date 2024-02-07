@@ -1085,7 +1085,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		confirmPostBeingSent(context: context)
 		
 		// POST api/v3/user/image
-		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "api/v3/user/image", query: nil)
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/user/image", query: nil)
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		if let imageData = image {
 			let uploadData = TwitarrV3ImageUploadData(filename: "userAvatar", image: imageData as Data)

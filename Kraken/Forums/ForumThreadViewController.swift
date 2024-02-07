@@ -16,7 +16,10 @@ class ForumThreadViewController: BaseCollectionViewController {
 	@objc dynamic var threadModel: ForumThread?
 	@objc dynamic var threadModelID: UUID?
 	
+	// The highest index *loaded*
 	var highestRefreshedIndex: Int = 0
+	// The highest index *viewed*
+	var highestViewedIndex: Int64 = 0
 
 	let threadDataSource = KrakenDataSource()
 	var threadSegment = FRCDataSourceSegment<ForumPost>()
@@ -66,6 +69,7 @@ class ForumThreadViewController: BaseCollectionViewController {
 			observer.threadSegment.activate(predicate: threadPredicate, 
 					sort: [ NSSortDescriptor(key: "id", ascending: true)], cellModelFactory: observer.createCellModel)
 			observer.postButton.isEnabled = observed.threadModel?.locked == false
+			
 		}?.execute()
     }
     
@@ -82,12 +86,19 @@ class ForumThreadViewController: BaseCollectionViewController {
 	override func viewDidAppear(_ animated: Bool) {
     	super.viewDidAppear(animated)
 		threadDataSource.enableAnimations = true
+
+		let loadedPostCount = threadSegment.collectionView(collectionView, numberOfItemsInSection: 0) - 1
+		if let currentUser = CurrentUser.shared.loggedInUser, let readCountObject = threadModel?.readCount
+				.first(where: { rco in rco.user.username == currentUser.username }), loadedPostCount > 0 {
+			let scrollTarget = min(loadedPostCount, Int(readCountObject.numPostsRead))
+			collectionView.scrollToItem(at: IndexPath(row: Int(scrollTarget), section: 0), at: .bottom, animated: true)
+		}
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
     	super.viewWillDisappear(animated)
 		if let tm = threadModel {
-			tm.updateLastReadTime()
+			tm.updateLastReadTime(highestViewedIndex: highestViewedIndex)
 		}
 	}
 	
@@ -115,9 +126,12 @@ class ForumThreadViewController: BaseCollectionViewController {
 
 extension ForumThreadViewController: FRCDataSourceLoaderDelegate {
 	func userIsViewingCell(at indexPath: IndexPath) {
+		if indexPath.row > highestViewedIndex {
+			highestViewedIndex = Int64(indexPath.row)
+		}
 		if let tm = threadModel,  indexPath.row + 10 > highestRefreshedIndex, 
 				highestRefreshedIndex + 1 < tm.postCount, !ForumsDataManager.shared.isPerformingLoad {
-			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex + 1) { thread, lastIndex in
+			ForumPostDataManager.shared.loadThreadPosts(for: tm, fromOffset: highestRefreshedIndex) { thread, lastIndex in
 				self.highestRefreshedIndex = lastIndex
 				self.loadTimeCellModel.lastLoadTime = Date()
 			}

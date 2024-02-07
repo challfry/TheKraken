@@ -73,7 +73,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		lfgCell.navPacket = GlobalNavPacket(from: self, tab: .lfg)
 		deckMapCell.navPacket = GlobalNavPacket(from: self, tab: .deckPlans)
 		karaokeCell.navPacket = GlobalNavPacket(from: self, tab: .karaoke)
-		microKaraokeCell.navPacket = GlobalNavPacket(from: self, tab: .karaoke)
+		microKaraokeCell.navPacket = GlobalNavPacket(from: self, tab: .microKaraoke)
 		gamesCell.navPacket = GlobalNavPacket(from: self, tab: .games)
 		phoneCell.navPacket = GlobalNavPacket(from: self, tab: .initiatePhoneCall, segue: .initiatePhoneCall, sender: nil)
 		scrapbookCell.navPacket = GlobalNavPacket(from: self, tab: .scrapbook)
@@ -197,9 +197,9 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .lfgRoot, .deckMapRoot, .karaokeRoot, .gamesRoot,
-				.scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile_Name, .userProfile_User, .editUserProfile, 
-				.pirateAR, .initiatePhoneCall])
+		Set<GlobalKnownSegue>([ .twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .lfgRoot, .deckMapRoot, .karaokeRoot, .microKaraokeRoot, 
+				.gamesRoot, .scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile_Name, .userProfile_User, 
+				.editUserProfile, .pirateAR, .initiatePhoneCall])
 	}
     
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
@@ -225,7 +225,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .lfg: performKrakenSegue(.lfgRoot, sender: packet)
 			case .deckPlans: performKrakenSegue(.deckMapRoot, sender: packet)
 			case .karaoke: performKrakenSegue(.karaokeRoot, sender: packet)
-			case .microKaraoke: performKrakenSegue(.karaokeRoot, sender: packet)
+			case .microKaraoke: performKrakenSegue(.microKaraokeRoot, sender: packet)
 			case .games: performKrakenSegue(.gamesRoot, sender: packet)
 			case .initiatePhoneCall: performKrakenSegue(.initiatePhoneCall, sender: packet)
 			case .editUserProfile: performKrakenSegue(.editUserProfile, sender: packet)

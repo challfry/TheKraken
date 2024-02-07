@@ -75,20 +75,24 @@ import UIKit
 	@IBOutlet var spinner: UIActivityIndicatorView!
 	@objc dynamic var collection: UICollectionView?
 
-	private static let cellInfo = [ "LoadingStatusCell" : PrototypeCellInfo("LoadingStatusCell") ]
+	private static let cellInfo = [ "LoadingStatusCell" : PrototypeCellInfo("LoadingStatusCell"), 
+			"LoadingStatusBubbleCell" : PrototypeCellInfo("LoadingStatusBubbleCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
 	var statusText: String = "" {
 		didSet { 
+			errorLabel.isHidden = errorText == nil
+			statusView.isHidden = errorText != nil
 			statusLabel.text = statusText
 			self.layer.removeAllAnimations()
+			cellSizeChanged()
 		}
 	}
 	var errorText: String? {
 		didSet {
+			errorLabel.text = errorText
 			errorLabel.isHidden = errorText == nil
 			statusView.isHidden = errorText != nil
-			errorLabel.text = errorText
 			self.layer.removeAllAnimations()
 			cellSizeChanged()
 		}

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="m4i-yc-vYO" customClass="MKExplainerCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="231"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="redraw" insetsLayoutMarginsFromSafeArea="NO" id="zpW-eM-vKd" customClass="MKRoundedRectView" customModule="Kraken" customModuleProvider="target">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="231"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KYo-iA-osG">
+                        <rect key="frame" x="32" y="16" width="350" height="138.66666666666666"/>
+                        <attributedString key="attributedText">
+                            <fragment>
+                                <string key="content">What's Micro Karaoke? 
+
+</string>
+                                <attributes>
+                                    <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <font key="NSFont" size="17" name="SFPro-Regular"/>
+                                    <font key="NSOriginalFont" size="17" name="SFPro-Regular"/>
+                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                </attributes>
+                            </fragment>
+                            <fragment content="You'll s">
+                                <attributes>
+                                    <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <font key="NSFont" size="17" name="SFPro-Regular"/>
+                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                </attributes>
+                            </fragment>
+                            <fragment content="ing ">
+                                <attributes>
+                                    <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <font key="NSFont" size="17" name="SFPro-Regular"/>
+                                    <font key="NSOriginalFont" size="17" name="SFPro-Regular"/>
+                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                </attributes>
+                            </fragment>
+                            <fragment content="one line">
+                                <attributes>
+                                    <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <font key="NSFont" size="17" name="SFPro-Bold"/>
+                                    <font key="NSOriginalFont" size="17" name="SFPro-Bold"/>
+                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                </attributes>
+                            </fragment>
+                            <fragment>
+                                <string key="content"> of a song while recording video. You won't know what song, or what line, until you start!
+
+Later, watch a music video with you in it.</string>
+                                <attributes>
+                                    <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <font key="NSFont" size="17" name="SFPro-Regular"/>
+                                    <font key="NSOriginalFont" size="17" name="SFPro-Regular"/>
+                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                </attributes>
+                            </fragment>
+                        </attributedString>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bc7-uc-7av">
+                        <rect key="frame" x="131" y="170.66666666666666" width="152.33333333333337" height="34.333333333333343"/>
+                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                        <state key="normal" title="Let's Do It!"/>
+                        <buttonConfiguration key="configuration" style="filled" title="Okay. Let's Do It!"/>
+                        <connections>
+                            <action selector="actionButtonHit:" destination="m4i-yc-vYO" eventType="touchUpInside" id="iiV-t4-0t2"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <color key="backgroundColor" name="AnnouncementBody"/>
+                <constraints>
+                    <constraint firstItem="Bc7-uc-7av" firstAttribute="top" secondItem="KYo-iA-osG" secondAttribute="bottom" constant="16" id="05d-uD-07W"/>
+                    <constraint firstAttribute="trailing" secondItem="KYo-iA-osG" secondAttribute="trailing" constant="32" id="0Lj-Zi-Ige"/>
+                    <constraint firstItem="Bc7-uc-7av" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="KYo-iA-osG" secondAttribute="trailing" id="6BS-nn-xEY"/>
+                    <constraint firstItem="KYo-iA-osG" firstAttribute="top" secondItem="zpW-eM-vKd" secondAttribute="top" constant="16" id="JCV-4v-e40"/>
+                    <constraint firstItem="KYo-iA-osG" firstAttribute="leading" secondItem="zpW-eM-vKd" secondAttribute="leading" constant="32" id="LNW-Ol-Gby"/>
+                    <constraint firstItem="Bc7-uc-7av" firstAttribute="centerX" secondItem="zpW-eM-vKd" secondAttribute="centerX" id="MgK-Iv-fPH"/>
+                    <constraint firstItem="Bc7-uc-7av" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="KYo-iA-osG" secondAttribute="leading" id="PmU-t9-iyz"/>
+                    <constraint firstAttribute="bottom" secondItem="Bc7-uc-7av" secondAttribute="bottom" priority="200" constant="20" symbolic="YES" id="S4l-jj-fII"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="310" height="135"/>
+            <connections>
+                <outlet property="actionButton" destination="Bc7-uc-7av" id="Pug-SM-JPW"/>
+                <outlet property="label" destination="KYo-iA-osG" id="Cgp-OL-U1d"/>
+            </connections>
+            <point key="canvasLocation" x="178.62595419847327" y="-74.295774647887328"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="AnnouncementBody">
+            <color red="0.9100000262260437" green="0.9089999794960022" blue="0.76200002431869507" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

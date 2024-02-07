@@ -281,8 +281,8 @@ import CoreData
 		}
 		isPerformingLoad = true
 		
-		let queryParams: [URLQueryItem] = []
-		let path = "api/v3/forum/\(threadID)"
+		let queryParams: [URLQueryItem] = [ URLQueryItem(name: "start", value: String(fromOffset)) ]
+		let path = "/api/v3/forum/\(threadID)"
 		var request = NetworkGovernor.buildTwittarRequest(withPath: path, query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in

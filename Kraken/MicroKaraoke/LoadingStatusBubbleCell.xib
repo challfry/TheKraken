@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="LoadingStatusBubbleCell" id="6nO-0y-aNo" customClass="LoadingStatusCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="70"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="70"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="5L5-Ag-j1Y" customClass="MKRoundedRectView" customModule="Kraken" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="70"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wQL-Jh-Mob">
+                                <rect key="frame" x="32" y="8" width="311" height="54"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HPy-n9-1Oe">
+                                <rect key="frame" x="134.5" y="20" width="106" height="30"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label Text" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vqZ-tT-T14">
+                                        <rect key="frame" x="0.0" y="5" width="78" height="20.5"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="78" id="RHJ-Iw-wj6"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="italicSystem" pointSize="17"/>
+                                        <color key="textColor" name="Kraken Label Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="gn8-Hi-x22">
+                                        <rect key="frame" x="86" y="5" width="20" height="20"/>
+                                        <color key="color" name="Kraken Label Text"/>
+                                    </activityIndicatorView>
+                                </subviews>
+                                <color key="backgroundColor" name="AnnouncementBody"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="gn8-Hi-x22" secondAttribute="trailing" id="4y8-G0-odW"/>
+                                    <constraint firstItem="gn8-Hi-x22" firstAttribute="centerY" secondItem="vqZ-tT-T14" secondAttribute="centerY" id="H6o-14-anf"/>
+                                    <constraint firstItem="vqZ-tT-T14" firstAttribute="centerY" secondItem="HPy-n9-1Oe" secondAttribute="centerY" id="T2x-0S-o8K"/>
+                                    <constraint firstItem="gn8-Hi-x22" firstAttribute="leading" secondItem="vqZ-tT-T14" secondAttribute="trailing" constant="8" id="bBG-hK-EZ0"/>
+                                    <constraint firstItem="vqZ-tT-T14" firstAttribute="top" relation="greaterThanOrEqual" secondItem="HPy-n9-1Oe" secondAttribute="top" id="boj-vW-nLT"/>
+                                    <constraint firstItem="vqZ-tT-T14" firstAttribute="leading" secondItem="HPy-n9-1Oe" secondAttribute="leading" id="dj6-pk-tIW"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="vqZ-tT-T14" secondAttribute="bottom" id="oe3-ic-KRZ"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" name="AnnouncementBody"/>
+                        <constraints>
+                            <constraint firstItem="wQL-Jh-Mob" firstAttribute="leading" secondItem="5L5-Ag-j1Y" secondAttribute="leading" constant="32" id="5Rm-t5-pfm"/>
+                            <constraint firstAttribute="bottom" secondItem="wQL-Jh-Mob" secondAttribute="bottom" constant="8" id="7tp-fR-vVT"/>
+                            <constraint firstItem="HPy-n9-1Oe" firstAttribute="centerX" secondItem="5L5-Ag-j1Y" secondAttribute="centerX" id="Gm3-Ta-wQ2"/>
+                            <constraint firstAttribute="bottom" secondItem="HPy-n9-1Oe" secondAttribute="bottom" priority="500" constant="20" id="Vzj-ka-SFt"/>
+                            <constraint firstItem="wQL-Jh-Mob" firstAttribute="top" secondItem="5L5-Ag-j1Y" secondAttribute="top" constant="8" id="ZYc-zi-ci9"/>
+                            <constraint firstItem="HPy-n9-1Oe" firstAttribute="top" secondItem="5L5-Ag-j1Y" secondAttribute="top" constant="20" id="x14-zg-biK"/>
+                            <constraint firstAttribute="trailing" secondItem="wQL-Jh-Mob" secondAttribute="trailing" constant="32" id="yiU-1j-blI"/>
+                            <constraint firstItem="HPy-n9-1Oe" firstAttribute="width" relation="lessThanOrEqual" secondItem="5L5-Ag-j1Y" secondAttribute="width" constant="-40" id="ynu-b1-Xbw"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <color key="backgroundColor" name="Cell Background"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="5L5-Ag-j1Y" secondAttribute="trailing" id="S1M-Bb-bWl"/>
+                <constraint firstAttribute="bottom" secondItem="5L5-Ag-j1Y" secondAttribute="bottom" id="Xi1-Fi-ZN5"/>
+                <constraint firstItem="5L5-Ag-j1Y" firstAttribute="leading" secondItem="6nO-0y-aNo" secondAttribute="leading" id="Zrx-RF-16s"/>
+                <constraint firstItem="5L5-Ag-j1Y" firstAttribute="top" secondItem="6nO-0y-aNo" secondAttribute="top" id="l0u-XN-Pvw"/>
+            </constraints>
+            <size key="customSize" width="357" height="109"/>
+            <connections>
+                <outlet property="errorLabel" destination="wQL-Jh-Mob" id="zZe-ef-zG6"/>
+                <outlet property="spinner" destination="gn8-Hi-x22" id="LXy-Yh-J3L"/>
+                <outlet property="statusLabel" destination="vqZ-tT-T14" id="F8k-0e-jHH"/>
+                <outlet property="statusView" destination="HPy-n9-1Oe" id="gAe-Xp-axp"/>
+            </connections>
+            <point key="canvasLocation" x="132.60869565217394" y="60.267857142857139"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="AnnouncementBody">
+            <color red="0.9100000262260437" green="0.9089999794960022" blue="0.76200002431869507" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Cell Background">
+            <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

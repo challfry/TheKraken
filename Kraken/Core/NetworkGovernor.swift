@@ -63,6 +63,8 @@ import Foundation
 			return getCompleteError()
 		}
 	}
+	
+	var localizedDescription: String { getCompleteError() }
 }
 
 @objc class NetworkError: NSObject, Error {
@@ -75,6 +77,8 @@ import Foundation
 	func getErrorString() -> String? {
 		return errorString
 	}
+	
+	var localizedDescription: String { getErrorString() ?? "Error" }
 }
 
 // The response type passed back from network calls. Note that the network governor does its own handling of
@@ -203,10 +207,35 @@ struct NetworkResponse {
 		}
 	}
 	
-	class func buildTwittarRequest(withPath path:String, query:[URLQueryItem]? = nil, webSocket: Bool = false) -> URLRequest {
+	class func buildTwittarRequest(withURL url: URL, query: [URLQueryItem]? = nil, webSocket: Bool = false) -> URLRequest {
+	
+		var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+		components?.queryItems = query
+		if webSocket {
+			if components?.scheme == "https" {
+				components?.scheme = "wss"
+			}
+			else {
+				components?.scheme = "ws"
+			}
+		}
+		
+		// Build the URL from components, falling back to a basic URL with just the path if it's won't build
+		let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(url.path)
+		let request = URLRequest(url: builtURL, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
+		return request
+	}
+	
+	class func buildTwittarRequest(withPath path: String, query: [URLQueryItem]? = nil, webSocket: Bool = false) -> URLRequest {
+	
+		// Fix up paths that need to be absolute paths
+		var absPath = path
+		if !path.hasPrefix("/") {
+			absPath = "/" + path
+		}
 	
 		var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
-		components?.path = path
+		components?.path = absPath
 		components?.queryItems = query
 		if webSocket {
 			if components?.scheme == "https" {
@@ -218,7 +247,7 @@ struct NetworkResponse {
 		}
 		
 		// Fallback, no query params
-		let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(path)
+		let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(absPath)
 	//	let request = URLRequest(url:builtURL)
 		let request = URLRequest(url: builtURL, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
 		return request
@@ -226,13 +255,18 @@ struct NetworkResponse {
 
 	class func buildTwittarRequest(withEscapedPath path:String, query:[URLQueryItem]? = nil) -> URLRequest {
 	
+		// Fix up paths that need to be absolute paths
+		var absPath = path
+		if !path.hasPrefix("/") {
+			absPath = "/" + path
+		}
+	
 		var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
-		components?.percentEncodedPath = path
+		components?.percentEncodedPath = absPath
 		components?.queryItems = query
 		
 		// Fallback, no query params
 		let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(path)
-	//	let request = URLRequest(url:builtURL)
 		let request = URLRequest(url:builtURL, cachePolicy:.reloadIgnoringLocalAndRemoteCacheData)
 		return request
 	}

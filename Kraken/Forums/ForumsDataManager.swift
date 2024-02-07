@@ -125,7 +125,7 @@ import CoreData
 	
 	// External method, called by the UI to update the view time of a forum. Call this just as the user finishes
 	// looking at the forum.
-	func updateLastReadTime() {
+	func updateLastReadTime(highestViewedIndex: Int64) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failed to update forum read time.")
 			if let selfInContext = try context.existingObject(with: self.objectID) as? ForumThread,
@@ -136,9 +136,10 @@ import CoreData
 				// posts the forum has in total. posts.count is how many we've downloaded--the user cannot have
 				// (locally) read more than that. They may not even have read all the downloaded posts--we could 
 				// modify this fn and the UI to track how far the user scrolled.
-				if rco.numPostsRead	< Int64(self.posts.count) {
-					rco.numPostsRead = Int64(self.posts.count)
-				}
+			//	if rco.numPostsRead	< Int64(self.posts.count) {
+			//		rco.numPostsRead = Int64(self.posts.count)
+			//	}
+				rco.numPostsRead = highestViewedIndex
 			}
 		}		
 	}

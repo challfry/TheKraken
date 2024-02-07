@@ -58,14 +58,6 @@ import MobileCoreServices
 		}
 	}
 
-	func buildFromV2(context: NSManagedObjectContext, v2Object: TwitarrV2PhotoDetails) {
-		TestAndUpdate(\.id, v2Object.id)
-		TestAndUpdate(\.animated, v2Object.animated)
-		TestAndUpdate(\.thumbSize, v2Object.thumbSize)
-		TestAndUpdate(\.mediumSize, v2Object.mediumSize)
-		TestAndUpdate(\.fullSize, v2Object.fullSize)
-	}
-	
 	func buildFromV3(context: NSManagedObjectContext, v3photoID: String) {
 		TestAndUpdate(\.id, v3photoID)
 		if thumbWidth == 0 {
@@ -320,37 +312,7 @@ class ImageManager : NSObject {
 		medImageCache.invalidateImage(withKey: withKey)
 		largeImageCache.invalidateImage(withKey: withKey)
 	}
-	
-	// Must be inside a context.perform. Adds the given photoDetails to CD, sets the "PhotoDetails" key
-	// in the context's UserInfo to a dict keyed by the photoDetails IDs
-	func update(photoDetails: [String : TwitarrV2PhotoDetails], inContext context: NSManagedObjectContext) {
-		do {
-			var photoIds = Set(photoDetails.keys)
-			let request = LocalCoreData.shared.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "PhotosWithIds", 
-					substitutionVariables: [ "ids" : photoIds ]) as! NSFetchRequest<PhotoDetails>
-			let results = try request.execute()
-			var resultDict = Dictionary(uniqueKeysWithValues: zip(results.map { $0.id } , results))
-			
-			// I don't think PhotoDetails objects can ever change; therefore there's no updating that needs to be done.
-			photoIds.subtract(resultDict.keys)
-						
-			// Anything still in photoIds needs to be added
-			for photoId in photoIds {
-				let newPhotoDetails = PhotoDetails(context: context)
-				newPhotoDetails.buildFromV2(context: context, v2Object: photoDetails[photoId]!)
-				resultDict[photoId] = newPhotoDetails
-			}
-			
-			// Results should now have all the users that were passed in.
-			context.userInfo.setObject(resultDict, forKey: "PhotoDetails" as NSString)
-		}
-		catch {
-			ImageLog.error("Failed to fetch photoDetail ids while updating with new ids.", ["Error" : error])
-			// I think it's better to eat the error; we just end up with a post with no photo
-			//throw error
-		}
-	}
-	
+		
 	func updateV3(imageFilenames: [String], inContext context: NSManagedObjectContext) {
 		do {
 			let inputPhotoSet = Set(imageFilenames)
@@ -498,90 +460,3 @@ class ImageManager : NSObject {
 }
 
 
-// MARK: - V2 API Decoding
-
-struct TwitarrV2PhotoDetails: Codable {
-	let id: String
-	let animated: Bool
-	var thumbSize: CGSize?
-	var mediumSize: CGSize?
-	var fullSize: CGSize?
-	
-	private struct RawResponse: Codable {
-		let id: String
-		let animated: Bool
-		let sizes: [String: String]
-	}
-	
-	private struct RawResponseWithIntID: Codable {
-		let id: Int64
-		let animated: Bool
-		let sizes: [String: String]
-	}
-	
-	init(from decoder: Decoder) throws {
-		do {
-			var decodeSizes: [String: String]
-			if let rawDecode = try? RawResponse(from: decoder) {
-				id = rawDecode.id
-				animated = rawDecode.animated
-				decodeSizes = rawDecode.sizes
-			}
-			else {
-				let rawDecode = try RawResponseWithIntID(from: decoder)
-				id = "\(rawDecode.id)"
-				animated = rawDecode.animated
-				decodeSizes = rawDecode.sizes
-			}
-			
-			for (sizeTag, photoSize) in decodeSizes {
-				switch sizeTag {
-				case "small_thumb": thumbSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
-				case "medium_thumb": mediumSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
-				case "full": fullSize = TwitarrV2PhotoDetails.ScanSizeFrom(photoSize)
-				default: ImageLog.debug("Found unknown photo size tag")
-				}
-			}
-		} 
-		catch {
-			ImageLog.error("Error thrown when parsing TwitarrV2Photo.", ["Error" : error])
-			id = ""
-			animated = false
-		}
-	}
-	
-	func encode(to encoder: Encoder) throws {
-		var sizes = [String: String]()
-		if let small = thumbSize {
-			let sizeString = "\(small.width)x\(small.height)"
-			sizes.updateValue(sizeString, forKey:"small_thumb")
-		}
-		if let med = mediumSize {
-			let sizeString = "\(med.width)x\(med.height)"
-			sizes.updateValue(sizeString, forKey:"medium_thumb")
-		}
-		if let full = fullSize {
-			let sizeString = "\(full.width)x\(full.height)"
-			sizes.updateValue(sizeString, forKey:"full")
-		}
-		let raw = RawResponse(id: id, animated: animated, sizes: sizes)
-		
-		var container = encoder.singleValueContainer()
-		try container.encode(raw)
-	}
-	
-	static private func ScanSizeFrom(_ value: String) -> CGSize? {
-		let scan = Scanner(string: value)
-		var result = CGSize(width: 0, height: 0)
-		var rawValue: Int = 0
-		
-		var scanSuccess = scan.scanInt(&rawValue)
-		result.width = CGFloat(rawValue)
-		scanSuccess = scanSuccess && scan.scanString("x") != nil
-		scanSuccess = scanSuccess && scan.scanInt(&rawValue)
-		result.height = CGFloat(rawValue)
-		
-		return scanSuccess ? result : nil
-	}
-
-}

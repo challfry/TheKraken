@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		EA027020237CE55900071C5E /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA02701F237CE55900071C5E /* Colors.xcassets */; };
 		EA03F00023E062C90086894D /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA03EFFF23E062C90086894D /* ContainerViewController.swift */; };
+		EA03F3752B733F2000166F3F /* MKSongAndArtistVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA03F3742B733F2000166F3F /* MKSongAndArtistVC.swift */; };
 		EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */; };
 		EA0AA4C22358153B00EC9431 /* SinglePhotoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */; };
 		EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */; };
@@ -192,6 +193,9 @@
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
 		EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */ = {isa = PBXBuildFile; fileRef = EABD2FFB23DA8B0800232F28 /* AboutText.md */; };
+		EABF8B492B70C2AB0045036F /* UploadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EABF8B482B70C2AB0045036F /* UploadCell.xib */; };
+		EABF8B4B2B70F3C60045036F /* CompletedSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EABF8B4A2B70F3C60045036F /* CompletedSongCell.xib */; };
+		EABF8B4D2B719A0E0045036F /* CompletedSongCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABF8B4C2B719A0E0045036F /* CompletedSongCell.swift */; };
 		EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = EAC2D3B323CC7AEC0055780C /* Hats.scnassets */; };
 		EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC45AAD23E6CACF00907B1F /* PortAndThemeCell.swift */; };
 		EAC45AB023E6CACF00907B1F /* PortAndThemeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAC45AAE23E6CACF00907B1F /* PortAndThemeCell.xib */; };
@@ -213,6 +217,9 @@
 		EAD0EE19298CF8A100B07DCE /* AttendeeCountsCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD0EE18298CF8A100B07DCE /* AttendeeCountsCells.swift */; };
 		EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */; };
 		EAD4CB1D293EC9530018C381 /* PhotoSelectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */; };
+		EAD8BF882B5FA50F00C00993 /* MicroKaraokeRootVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD8BF872B5FA50F00C00993 /* MicroKaraokeRootVC.swift */; };
+		EAD8BF8A2B60546500C00993 /* MicroKaraokeExplainerCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAD8BF892B60546500C00993 /* MicroKaraokeExplainerCell.xib */; };
+		EAD8BF8C2B60BAC200C00993 /* MKCameraVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD8BF8B2B60BAC200C00993 /* MKCameraVC.swift */; };
 		EADC819F2963BA0400232A37 /* SeamailUserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EADC819E2963BA0400232A37 /* SeamailUserListCell.xib */; };
 		EADC81A2296F3F6500232A37 /* InitiateCallVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADC81A1296F3F6500232A37 /* InitiateCallVC.swift */; };
 		EADC81A42970929F00232A37 /* PhonecallDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EADC81A32970929F00232A37 /* PhonecallDataManager.swift */; };
@@ -229,6 +236,9 @@
 		EAF589D12402296000ECB7DB /* HashtagCompletionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAF589D02402296000ECB7DB /* HashtagCompletionCell.xib */; };
 		EAF589D324025D6100ECB7DB /* HashtagButtonCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAF589D224025D6100ECB7DB /* HashtagButtonCell.xib */; };
 		EAF777F722A3B1D000B27803 /* ModalLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF777F622A3B1D000B27803 /* ModalLoginViewController.swift */; };
+		EAF839362B6CE5DF00954EE4 /* ReviewClipVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF839352B6CE5DF00954EE4 /* ReviewClipVC.swift */; };
+		EAF839382B6E582400954EE4 /* MKDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF839372B6E582400954EE4 /* MKDataManager.swift */; };
+		EAF8393A2B70791000954EE4 /* LoadingStatusBubbleCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAF839392B70791000954EE4 /* LoadingStatusBubbleCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -281,6 +291,7 @@
 /* Begin PBXFileReference section */
 		EA02701F237CE55900071C5E /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		EA03EFFF23E062C90086894D /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
+		EA03F3742B733F2000166F3F /* MKSongAndArtistVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKSongAndArtistVC.swift; sourceTree = "<group>"; };
 		EA0AA4BF2358153B00EC9431 /* SinglePhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglePhotoCell.swift; sourceTree = "<group>"; };
 		EA0AA4C02358153B00EC9431 /* SinglePhotoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SinglePhotoCell.xib; sourceTree = "<group>"; };
 		EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsLoadTimeCell.swift; sourceTree = "<group>"; };
@@ -491,6 +502,9 @@
 		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		EABD2FFB23DA8B0800232F28 /* AboutText.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AboutText.md; sourceTree = "<group>"; wrapsLines = 1; };
+		EABF8B482B70C2AB0045036F /* UploadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UploadCell.xib; sourceTree = "<group>"; };
+		EABF8B4A2B70F3C60045036F /* CompletedSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CompletedSongCell.xib; sourceTree = "<group>"; };
+		EABF8B4C2B719A0E0045036F /* CompletedSongCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedSongCell.swift; sourceTree = "<group>"; };
 		EAC2D3B323CC7AEC0055780C /* Hats.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Hats.scnassets; sourceTree = "<group>"; };
 		EAC45AAD23E6CACF00907B1F /* PortAndThemeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortAndThemeCell.swift; sourceTree = "<group>"; };
 		EAC45AAE23E6CACF00907B1F /* PortAndThemeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PortAndThemeCell.xib; sourceTree = "<group>"; };
@@ -512,6 +526,9 @@
 		EAD0EE18298CF8A100B07DCE /* AttendeeCountsCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendeeCountsCells.swift; sourceTree = "<group>"; };
 		EAD37BF42363D31B000219AE /* ProfileAvatarEditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarEditCell.swift; sourceTree = "<group>"; };
 		EAD4CB1C293EC9530018C381 /* PhotoSelectionCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PhotoSelectionCell.xib; sourceTree = "<group>"; };
+		EAD8BF872B5FA50F00C00993 /* MicroKaraokeRootVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicroKaraokeRootVC.swift; sourceTree = "<group>"; };
+		EAD8BF892B60546500C00993 /* MicroKaraokeExplainerCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MicroKaraokeExplainerCell.xib; sourceTree = "<group>"; };
+		EAD8BF8B2B60BAC200C00993 /* MKCameraVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKCameraVC.swift; sourceTree = "<group>"; };
 		EADC819E2963BA0400232A37 /* SeamailUserListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SeamailUserListCell.xib; sourceTree = "<group>"; };
 		EADC81A1296F3F6500232A37 /* InitiateCallVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitiateCallVC.swift; sourceTree = "<group>"; };
 		EADC81A32970929F00232A37 /* PhonecallDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhonecallDataManager.swift; sourceTree = "<group>"; };
@@ -529,6 +546,9 @@
 		EAF589D224025D6100ECB7DB /* HashtagButtonCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HashtagButtonCell.xib; sourceTree = "<group>"; };
 		EAF589D42403EE8300ECB7DB /* EmojiDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiDataManager.swift; sourceTree = "<group>"; };
 		EAF777F622A3B1D000B27803 /* ModalLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalLoginViewController.swift; sourceTree = "<group>"; };
+		EAF839352B6CE5DF00954EE4 /* ReviewClipVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewClipVC.swift; sourceTree = "<group>"; };
+		EAF839372B6E582400954EE4 /* MKDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKDataManager.swift; sourceTree = "<group>"; };
+		EAF839392B70791000954EE4 /* LoadingStatusBubbleCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoadingStatusBubbleCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -964,6 +984,7 @@
 				EAAA68EC24013A1200C9EF82 /* Users_Hashtags_Emoji */,
 				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
+				EAD8BF862B5FA4E400C00993 /* MicroKaraoke */,
 				EA2286DE23E39B820036C20E /* Games List */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
 				EA951D2823CDB15700453B3C /* Scrapbook */,
@@ -1114,6 +1135,23 @@
 			path = "Data Sources";
 			sourceTree = "<group>";
 		};
+		EAD8BF862B5FA4E400C00993 /* MicroKaraoke */ = {
+			isa = PBXGroup;
+			children = (
+				EAD8BF872B5FA50F00C00993 /* MicroKaraokeRootVC.swift */,
+				EAD8BF892B60546500C00993 /* MicroKaraokeExplainerCell.xib */,
+				EAF839392B70791000954EE4 /* LoadingStatusBubbleCell.xib */,
+				EABF8B482B70C2AB0045036F /* UploadCell.xib */,
+				EABF8B4C2B719A0E0045036F /* CompletedSongCell.swift */,
+				EABF8B4A2B70F3C60045036F /* CompletedSongCell.xib */,
+				EA03F3742B733F2000166F3F /* MKSongAndArtistVC.swift */,
+				EAD8BF8B2B60BAC200C00993 /* MKCameraVC.swift */,
+				EAF839352B6CE5DF00954EE4 /* ReviewClipVC.swift */,
+				EAF839372B6E582400954EE4 /* MKDataManager.swift */,
+			);
+			path = MicroKaraoke;
+			sourceTree = "<group>";
+		};
 		EADC81A0296F3F3700232A37 /* Phone */ = {
 			isa = PBXGroup;
 			children = (
@@ -1235,7 +1273,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1320;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				ORGANIZATIONNAME = "Chall Fry";
 				TargetAttributes = {
 					EA2286E423E3B61C0036C20E = {
@@ -1299,7 +1337,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAD8BF8A2B60546500C00993 /* MicroKaraokeExplainerCell.xib in Resources */,
 				EAA2E4C92242D301009F287F /* LaunchScreen.storyboard in Resources */,
+				EABF8B492B70C2AB0045036F /* UploadCell.xib in Resources */,
 				EA8CC2892992018C001889B5 /* AudioRouteCell.xib in Resources */,
 				EA1099FC2397376700F5172D /* ForumsThreadCell.xib in Resources */,
 				EAF589D324025D6100ECB7DB /* HashtagButtonCell.xib in Resources */,
@@ -1336,6 +1376,7 @@
 				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
 				EA2286F923E430BC0036C20E /* JoCoGamesCatalog.lzfse in Resources */,
+				EAF8393A2B70791000954EE4 /* LoadingStatusBubbleCell.xib in Resources */,
 				EAF589D12402296000ECB7DB /* HashtagCompletionCell.xib in Resources */,
 				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
 				EAC45AB023E6CACF00907B1F /* PortAndThemeCell.xib in Resources */,
@@ -1351,6 +1392,7 @@
 				EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */,
 				EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */,
 				EA2286DD23E275A40036C20E /* KrakenIcon100px.png in Resources */,
+				EABF8B4B2B70F3C60045036F /* CompletedSongCell.xib in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
 				EAAA68E523FFBA4600C9EF82 /* LargeTextFieldCell.xib in Resources */,
 				EAD4CB1D293EC9530018C381 /* PhotoSelectionCell.xib in Resources */,
@@ -1435,6 +1477,7 @@
 				EA1099FA2397375000F5172D /* ForumsThreadCell.swift in Sources */,
 				EADC81A42970929F00232A37 /* PhonecallDataManager.swift in Sources */,
 				EA4A1D1622540801008501A3 /* NSSet+EBNObservable.m in Sources */,
+				EAF839362B6CE5DF00954EE4 /* ReviewClipVC.swift in Sources */,
 				EA8CC28C2995D1A7001889B5 /* KrakenPushProvider.swift in Sources */,
 				EA820955293EB3FC005A251F /* LFGParticipantCell.swift in Sources */,
 				EAA62C6F22C2F10A0031A999 /* SettingsTasksViewController.swift in Sources */,
@@ -1452,6 +1495,7 @@
 				EA0AA4C12358153B00EC9431 /* SinglePhotoCell.swift in Sources */,
 				EA3E11712947277900A3DC19 /* LFGCell.swift in Sources */,
 				EAA0E91222E942770077D5D0 /* SwiftUtils.swift in Sources */,
+				EAD8BF8C2B60BAC200C00993 /* MKCameraVC.swift in Sources */,
 				EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */,
 				EAD0EE11298BB29D00B07DCE /* PopupCell.swift in Sources */,
 				EAC696EA228D653300EE6EEB /* SeamailMessageCell.swift in Sources */,
@@ -1462,6 +1506,7 @@
 				EA1E3B98224584BC00017F07 /* UserManager.swift in Sources */,
 				EAAA68EE240140A200C9EF82 /* HashtagDataManager.swift in Sources */,
 				EA1E3B9522457A4C00017F07 /* TwitarrDataManager.swift in Sources */,
+				EAF839382B6E582400954EE4 /* MKDataManager.swift in Sources */,
 				EA86ADDC22745A5800363CBF /* BaseCollectionViewController.swift in Sources */,
 				EA86ADEE227D188A00363CBF /* ServerTextFileParser.swift in Sources */,
 				EAC6113523BC1BBC007583EC /* ForumComposeViewController.swift in Sources */,
@@ -1535,6 +1580,8 @@
 				EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */,
 				EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */,
 				EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */,
+				EAD8BF882B5FA50F00C00993 /* MicroKaraokeRootVC.swift in Sources */,
+				EABF8B4D2B719A0E0045036F /* CompletedSongCell.swift in Sources */,
 				EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */,
 				EA5E2A5E2259801F00CB4A11 /* LocalCoreData.swift in Sources */,
 				EAB4537322D3D0CE00CD1671 /* ComposeSeamailThreadVC.swift in Sources */,
@@ -1546,6 +1593,7 @@
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
 				EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */,
+				EA03F3752B733F2000166F3F /* MKSongAndArtistVC.swift in Sources */,
 				EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */,
 				EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,
@@ -1711,6 +1759,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1774,6 +1823,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";

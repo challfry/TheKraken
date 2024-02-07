@@ -55,10 +55,9 @@ class FetchedResultsCellModel : BaseCellModel, FetchedResultsBindingProtocol {
 	var reuse: String
 	
 	init(withModel: NSFetchRequestResult?, reuse: String, bindingWith: Protocol = FetchedResultsBindingProtocol.self) {
-		model = withModel
 		self.reuse = reuse
 		super.init(bindingWith: bindingWith)
-
+		model = withModel
 		self.shouldBeVisible = model != nil
 	}
 	

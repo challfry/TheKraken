@@ -58,7 +58,7 @@
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Kraken requires access to your local network in order to deliver Push Notifications.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Kraken uses the microphone for phone calls</string>
+	<string>Kraken uses the microphone for phone calls and video recording</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library Access lets you choose photos to attach to Twitarr posts, Seamail, and Forum posts.</string>
 	<key>NSRemindersUsageDescription</key>

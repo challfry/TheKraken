@@ -54,6 +54,10 @@ Media credits for Kraken assets:
  - Photo by Isabel Galvez on Unsplash
  - Photo by Brian Yurasits on Unsplash
  - Eyepatch 3D Model by HeavenSkies on DeviantArt.
+ 
+Song credits for Micro Karaoke songs:
+  - "Still Alive" by Jonathan Coulton, who you can find at http://www.jonathancoulton.com, and who Creative Commons licenses his music, which you can read about at https://creativecommons.org/licenses/by-nc/3.0/
+  - "The Captain's Wife's Lament", by Paul and Storm
 
 
 Twit-arr is a labor of love, and a large group of contributers are responsible:

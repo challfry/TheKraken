@@ -69,8 +69,8 @@ class PortAndThemeCell: BaseCollectionViewCell, PortAndThemeBindingProtocol {
 	PortAndTheme(cruiseDay: 1, theme: "Welcome, New Cruisers!", port: "Fort Lauderdale, Florida", arrival: nil, departure: "5:00 PM"),
 	PortAndTheme(cruiseDay: 2, theme: nil, port: "At Sea", arrival: nil, departure: nil),
 	PortAndTheme(cruiseDay: 3, theme: nil, port: "At Sea", arrival: nil, departure: nil),
-	PortAndTheme(cruiseDay: 4, theme: nil, port: "San Juan, Puerto Rico", arrival: "7:00 AM", departure: "TBD"),
-	PortAndTheme(cruiseDay: 5, theme: nil, port: "Road Town, Tortola", arrival: "7:00 AM", departure: "3:00 PM"),
+	PortAndTheme(cruiseDay: 4, theme: nil, port: "Grand Turk", arrival: "8:00 AM", departure: "5:00 PM"),
+	PortAndTheme(cruiseDay: 5, theme: nil, port: "Puerto Plata", arrival: "7:00 AM", departure: "3:00 PM"),
 	PortAndTheme(cruiseDay: 6, theme: nil, port: "At Sea", arrival: nil, departure: nil),
 	PortAndTheme(cruiseDay: 7, theme: nil, port: "Half Moon Cay, Bahamas", arrival: "8:00 AM", departure: "3:00 PM"),
 	PortAndTheme(cruiseDay: 8, theme: "Goodbye, everyone!", port: "Fort Lauderdale, Florida", arrival: "7:00 AM", departure: nil)
