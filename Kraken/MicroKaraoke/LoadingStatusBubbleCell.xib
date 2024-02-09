@@ -72,7 +72,7 @@
             <color key="backgroundColor" name="Cell Background"/>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="5L5-Ag-j1Y" secondAttribute="trailing" id="S1M-Bb-bWl"/>
-                <constraint firstAttribute="bottom" secondItem="5L5-Ag-j1Y" secondAttribute="bottom" id="Xi1-Fi-ZN5"/>
+                <constraint firstAttribute="bottom" secondItem="5L5-Ag-j1Y" secondAttribute="bottom" priority="999" id="Xi1-Fi-ZN5"/>
                 <constraint firstItem="5L5-Ag-j1Y" firstAttribute="leading" secondItem="6nO-0y-aNo" secondAttribute="leading" id="Zrx-RF-16s"/>
                 <constraint firstItem="5L5-Ag-j1Y" firstAttribute="top" secondItem="6nO-0y-aNo" secondAttribute="top" id="l0u-XN-Pvw"/>
             </constraints>

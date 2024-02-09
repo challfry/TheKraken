@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import CoreData
+import AVFoundation
 
 @objc protocol CompletedSongCellProtocol {
 	dynamic var songID: Int64 { get set } 
@@ -48,13 +49,17 @@ class CompletedSongCellModel: FetchedResultsCellModel, CompletedSongCellProtocol
 	
 	func playButtonTapped() {
 		showDownloadView = true
-		MicroKaraokeDataManager.shared.downloadCompletedSong(songID: songID) { finishedVideo in
+		MicroKaraokeDataManager.shared.downloadCompletedSong(songID: songID) { (finishedVideo: AVPlayerItem?, movieFile: URL?) in
 			self.showDownloadView = false
 			if let vc = self.vc as? MicroKaraokeRootViewController {
-				vc.showMovie(finishedVideo)
+				if let player = finishedVideo {
+					vc.showMovie(player)
+				}
+				else if let movie = movieFile {
+					let activityViewController = UIActivityViewController(activityItems: [movie], applicationActivities: nil)
+					self.vc!.present(activityViewController, animated: true, completion: {})
+				}
 			}
-//			let activityViewController = UIActivityViewController(activityItems: [finishedVideo], applicationActivities: nil)
-//			self.vc!.present(activityViewController, animated: true, completion: {})
 		}
 	}
 }

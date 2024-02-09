@@ -254,7 +254,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		scheduleCell.contentDisabled = disabledSections.contains(.calendar)
 		deckMapCell.contentDisabled = disabledSections.contains(.deckPlans)
 		karaokeCell.contentDisabled = disabledSections.contains(.karaoke)
-		karaokeCell.contentDisabled = disabledSections.contains(.microKaraoke)
+		microKaraokeCell.contentDisabled = disabledSections.contains(.microKaraoke)
 		gamesCell.contentDisabled = disabledSections.contains(.games)
 		phoneCell.contentDisabled = disabledSections.contains(.phonecall)
 		profileCell.contentDisabled = disabledSections.contains(.editUserProfile)

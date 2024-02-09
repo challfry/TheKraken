@@ -230,14 +230,15 @@ import UIKit
 		}
 	}
 	
+	// Songs is always considered to be a comprehensive list of songs on the server; songs on in this list are deleted locally.
 	func ingestCompletedVideos(from songs: [MicroKaraokeCompletedSong]) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failed to parse Micro Karaoke songs and add to Core Data.")
 						
 			// Fetch songs from CD that match the ids in the given songs
-			let allSongIDs = songs.map { $0.songID }
 			let request = NSFetchRequest<MicroKaraokeSong>(entityName: "MicroKaraokeSong")
-			request.predicate = NSPredicate(format: "id IN %@", allSongIDs)
+//			request.predicate = NSPredicate(format: "id IN %@", allSongIDs)
+			request.predicate = NSPredicate(value: true)
 			let cdSongs = try request.execute()
 			let cdSongsDict = Dictionary(cdSongs.map { ($0.id, $0) }, uniquingKeysWith: { (first,_) in first })
 
@@ -247,13 +248,19 @@ import UIKit
 			}
 			
 			// Delete songs in db that aren't in results.
+			let serverSongIDs = Set(songs.map( { $0.songID } ))
+				cdSongs.forEach { cdSong in
+					if !serverSongIDs.contains(Int(cdSong.id)) {
+						context.delete(cdSong)
+					}
+				}
 		}
 	}
 	
 // MARK: - Completed Song Download
 	var lastSongDownloadError: String? = nil
-	var doneDownloadingSong: ((AVPlayerItem) -> Void)?
-	func downloadCompletedSong(songID: Int64, done: @escaping(AVPlayerItem) -> Void) {
+	var doneDownloadingSong: ((AVPlayerItem?, URL?) -> Void)?
+	func downloadCompletedSong(songID: Int64, done: @escaping(AVPlayerItem?, URL?) -> Void) {
 		// If we're currently in the process of downloading an song, let it complete.
 		guard downloadingVideoForSongID == nil else {
 			return
@@ -381,6 +388,7 @@ import UIKit
 		}
 	}
 
+	// Once we have all the parts, assemble the video
 	func assembleCompletedVideo(from manifest: MicroKaraokeSongManifest) {
 		do {
 			let comp = AVMutableComposition()
@@ -391,6 +399,10 @@ import UIKit
 			let videoTrack = comp.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
 			let audioTrack = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
 			let audioTrack2 = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+			
+			// Prep the composition for use
+			comp.naturalSize = CGSize(width: 1080, height: 1980)
+			var instructions = [AVMutableVideoCompositionInstruction]()
 
 			for index in 0..<manifest.snippetVideoURLs.count {
 //			for index in 0..<1 {
@@ -399,16 +411,37 @@ import UIKit
 				let videoAsset = AVURLAsset(url: assetDir.appendingPathComponent("\(index).\(pathExtension)"))
 				let audioAsset = AVURLAsset(url: assetDir.appendingPathComponent("\(index).mp3"))
 				let timeRange = CMTimeRange(start: .zero, duration: audioAsset.duration)
-				try videoTrack.insertTimeRange(timeRange, of: videoAsset.tracks(withMediaType: .video)[0], at: insertTimePoint)
+				if let videoAssetVideo = videoAsset.tracks(withMediaType: .video).first {
+					try videoTrack.insertTimeRange(timeRange, of: videoAssetVideo, at: insertTimePoint)
+					
+					// naturalSize appears to not include the transform. So, get the larger axis, scale to that, and trust
+					// that applying preferredTransform will set things right
+					let scaleFactor = 1920.0 / max(videoAssetVideo.naturalSize.height, videoAssetVideo.naturalSize.width)					
+					var transform = videoAssetVideo.preferredTransform.scaledBy(x: scaleFactor, y: scaleFactor )
+					
+					let transformLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+					transformLayerInstruction.setTransform(transform, at: insertTimePoint)
+					let videoCompositorInstructions = AVMutableVideoCompositionInstruction()
+					videoCompositorInstructions.timeRange = CMTimeRange(start: insertTimePoint, duration: audioAsset.duration)
+					videoCompositorInstructions.layerInstructions = [transformLayerInstruction]
+					instructions.append(videoCompositorInstructions)
+				}
 				if let karaokeSinging = videoAsset.tracks(withMediaType: .audio).first {
 					try audioTrack.insertTimeRange(timeRange, of: karaokeSinging, at: insertTimePoint)
 				}
 				if let backingAudio = audioAsset.tracks(withMediaType: .audio).first {
 					try audioTrack2.insertTimeRange(timeRange, of: backingAudio, at: insertTimePoint)
 				}
-
+				
 				insertTimePoint = insertTimePoint + audioAsset.duration
 			}
+			
+			// Video Compositor is intended to be used to describe how to combine multiple video sources into
+			// output frames, but we're just using it to describe the rotation matrix to apply to each clip in the video.
+			let videoCompositor = AVMutableVideoComposition()
+			videoCompositor.instructions = instructions
+			videoCompositor.renderSize = CGSize(width: 1080, height: 1920)
+			videoCompositor.frameDuration = CMTimeMake(value: 1, timescale: 30)
 			
 			let audioMix = AVMutableAudioMix()
 			let volumeParam = AVMutableAudioMixInputParameters(track: audioTrack2)
@@ -420,34 +453,35 @@ import UIKit
 			
 			let playerItem = AVPlayerItem(asset: comp)
 			playerItem.audioMix = audioMix
+			playerItem.videoComposition = videoCompositor
 			
 			DispatchQueue.main.async {
-				self.doneDownloadingSong?(playerItem)
+				self.doneDownloadingSong?(playerItem, nil)
 				self.doneDownloadingSong = nil
 				self.downloadingVideoForSongID = nil
 			}
 
-if false {
-			let finishedVideo = assetDir.appendingPathComponent("Song_\(manifest.songID).mov")
-			try? FileManager.default.removeItem(at: finishedVideo)
-			let export = AVAssetExportSession(asset: comp, presetName: AVAssetExportPresetLowQuality)!
-			export.audioMix = audioMix
-			export.outputURL = finishedVideo
-			export.outputFileType = AVFileType.mov
-			export.exportAsynchronously {
-				switch export.status {
-					case .completed:
-						print("woot")
-						DispatchQueue.main.async {
-//							self.doneDownloadingSong?(finishedVideo)
-						}
-					case .failed:
-						print("Failed: \(export.error as Any)")
-					default:
-						break
-				}
-			}
-}
+// This commented out block is used to export the finished video to a single mov file
+//			let finishedVideo = assetDir.appendingPathComponent("Song_\(manifest.songID).mov")
+//			try? FileManager.default.removeItem(at: finishedVideo)
+//			let export = AVAssetExportSession(asset: comp, presetName: AVAssetExportPresetHighestQuality)!
+//			export.audioMix = audioMix
+//			export.outputURL = finishedVideo
+//			export.videoComposition = videoCompositor
+//			export.outputFileType = AVFileType.mov
+//			export.exportAsynchronously {
+//				switch export.status {
+//					case .completed:
+//						print("woot")
+//						DispatchQueue.main.async {
+//							self.doneDownloadingSong?(nil, finishedVideo)
+//						}
+//					case .failed:
+//						print("Failed: \(export.error as Any)")
+//					default:
+//						break
+//				}
+//			}
 		}
 		catch {
 			print("Error thrown: \(error)")

@@ -2720,26 +2720,26 @@ you'll be singing.</string>
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You'll be singing:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7iZ-rF-Q8G">
-                                <rect key="frame" x="47" y="120" width="320" height="54"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You'll be singing:" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7iZ-rF-Q8G">
+                                <rect key="frame" x="32" y="120" width="350" height="54"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="45"/>
                                 <color key="textColor" systemColor="systemBlueColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="&quot;Still Alive&quot;" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3BA-fC-t2p">
-                                <rect key="frame" x="102.5" y="182" width="209" height="54"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="&quot;Still Alive&quot;" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3BA-fC-t2p">
+                                <rect key="frame" x="32" y="182" width="350" height="54"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="45"/>
                                 <color key="textColor" systemColor="systemBlueColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="by:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M0s-rg-UHO">
-                                <rect key="frame" x="178.5" y="305" width="57" height="54"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="by:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M0s-rg-UHO">
+                                <rect key="frame" x="32" y="305" width="350" height="54"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="45"/>
                                 <color key="textColor" systemColor="systemBlueColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Jonathan Coulton" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2sF-jJ-w9U">
-                                <rect key="frame" x="37" y="367" width="340" height="54"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Jonathan Coulton" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2sF-jJ-w9U">
+                                <rect key="frame" x="32" y="367" width="350" height="54"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="45"/>
                                 <color key="textColor" systemColor="systemBlueColor"/>
                                 <nil key="highlightedColor"/>
@@ -2756,14 +2756,18 @@ you'll be singing.</string>
                         <viewLayoutGuide key="safeArea" id="6MG-QA-GpG"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="M0s-rg-UHO" secondAttribute="trailing" constant="32" id="2LZ-hR-yKA"/>
                             <constraint firstItem="3BA-fC-t2p" firstAttribute="top" secondItem="7iZ-rF-Q8G" secondAttribute="bottom" constant="8" symbolic="YES" id="4dt-JH-qvG"/>
+                            <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="2sF-jJ-w9U" secondAttribute="trailing" constant="32" id="4eh-Po-kwU"/>
                             <constraint firstItem="7iZ-rF-Q8G" firstAttribute="top" secondItem="6MG-QA-GpG" secondAttribute="top" constant="120" id="7Kr-iL-ixJ"/>
-                            <constraint firstItem="2sF-jJ-w9U" firstAttribute="centerX" secondItem="M0s-rg-UHO" secondAttribute="centerX" id="CU4-W4-1fg"/>
-                            <constraint firstItem="3BA-fC-t2p" firstAttribute="centerX" secondItem="7iZ-rF-Q8G" secondAttribute="centerX" id="Fyi-LD-nuD"/>
-                            <constraint firstItem="M0s-rg-UHO" firstAttribute="centerX" secondItem="7iZ-rF-Q8G" secondAttribute="centerX" id="Hb0-HL-OFs"/>
+                            <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="7iZ-rF-Q8G" secondAttribute="trailing" constant="32" id="ILu-hy-eYe"/>
                             <constraint firstItem="M0s-rg-UHO" firstAttribute="top" secondItem="3BA-fC-t2p" secondAttribute="bottom" constant="69" id="LhQ-Ws-Elj"/>
-                            <constraint firstItem="7iZ-rF-Q8G" firstAttribute="centerX" secondItem="6MG-QA-GpG" secondAttribute="centerX" id="M0j-jV-K5v"/>
+                            <constraint firstItem="7iZ-rF-Q8G" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="VDv-VW-Q1J"/>
                             <constraint firstItem="H8b-9V-mMi" firstAttribute="centerX" secondItem="6MG-QA-GpG" secondAttribute="centerX" id="eLo-sk-mxS"/>
+                            <constraint firstItem="3BA-fC-t2p" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="ewi-PG-6ec"/>
+                            <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="3BA-fC-t2p" secondAttribute="trailing" constant="32" id="fdl-hj-WYl"/>
+                            <constraint firstItem="M0s-rg-UHO" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="ilS-cZ-PCq"/>
+                            <constraint firstItem="2sF-jJ-w9U" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="jlT-lF-jft"/>
                             <constraint firstItem="6MG-QA-GpG" firstAttribute="bottom" secondItem="H8b-9V-mMi" secondAttribute="bottom" constant="32" id="kbS-be-2SA"/>
                             <constraint firstItem="2sF-jJ-w9U" firstAttribute="top" secondItem="M0s-rg-UHO" secondAttribute="bottom" constant="8" symbolic="YES" id="n2w-Pv-7xK"/>
                         </constraints>
@@ -3180,7 +3184,7 @@ you'll be singing.</string>
         <segue reference="HJe-et-hA8"/>
         <segue reference="K5i-zM-yNP"/>
         <segue reference="4tn-AW-brx"/>
-        <segue reference="043-Qz-asL"/>
+        <segue reference="2VF-Uz-Vml"/>
         <segue reference="iin-6d-KBo"/>
         <segue reference="Pow-sP-93l"/>
         <segue reference="eWg-hD-M7J"/>

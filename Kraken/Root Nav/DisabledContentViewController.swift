@@ -105,7 +105,7 @@ class DisabledContentViewController: UIViewController {
 			featurePath = "/karaoke"
 		case .microKaraoke:
 			featureName = "the Micro Karaoke Feature"
-			featurePath = "/microkaraoke"
+			featurePath = ""
 		case .games:
 			featureName = "the Board Games List"
 			featurePath = "/boardgames"

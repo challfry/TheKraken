@@ -54,7 +54,8 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: [.defaultToSpeaker, .mixWithOthers])
+		try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: 
+				[.defaultToSpeaker, .mixWithOthers, .allowBluetoothA2DP])
 		try? AVAudioSession.sharedInstance().setActive(true)
 		CoreMotion.shared.start(forClient: "MicroKaraokeRecord", updatesPerSec: 2)
 		cameraPreview?.frame = cameraView.bounds
@@ -108,7 +109,6 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 				audioPlayerDidFinishPlaying(player, successfully: false)
 				return
 			}
-//			guard let songclip = Bundle.main.url(forResource: "Shake It Off/3/listen", withExtension: "mp3") else { return }
 //			guard let songclip = Bundle.main.url(forResource: "Still Alive/3/listen", withExtension: "mp3") else { return }
 			if let vocalSoundURL = MicroKaraokeDataManager.shared.currentListenFile {
 				soundPlayer = try AVAudioPlayer(contentsOf: vocalSoundURL) 
@@ -145,15 +145,18 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 			
 //			guard let songclip = Bundle.main.url(forResource: "Still Alive/3/record", withExtension: "mp3") else { return }
 			if let karaokeSoundURL = MicroKaraokeDataManager.shared.currentRecordFile {
+//				let soundAsset = AVAsset(url: karaokeSoundURL)
+//				let playerItem = AVPlayerItem(asset: soundAsset, automaticallyLoadedAssetKeys: [.tracks, .duration, .commonMetadata])
+//				let promptPlayer = AVPlayer(playerItem: playerItem)
 				let promptPlayer = try AVAudioPlayer(contentsOf: karaokeSoundURL)
-				soundPlayer = promptPlayer
-				promptPlayer.prepareToPlay() 
+				self.soundPlayer = promptPlayer
 				promptPlayer.delegate = self
 				promptPlayer.setVolume(0.05, fadeDuration: 0.0)
-			}
 
-			//  Testing shows this doesn't actually make a video that's quite as long as the limit.
-			// videoOutput.maxRecordedDuration = CMTime(seconds: promptPlayer.duration, preferredTimescale: 44100)
+				//  Testing shows this doesn't actually make a video that's quite as long as the limit.
+				// videoOutput.maxRecordedDuration = CMTime(seconds: promptPlayer.duration, preferredTimescale: 44100)
+				// videoOutput.maxRecordedDuration = soundAsset.duration + CMTime(value: 22050, timescale: 44100)
+			}
 		}
 		catch {
 			print (error)
@@ -174,7 +177,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 					
 					// Play the soundclip
 					self.soundPlayer?.play()
-//					Timer.scheduledTimer(withTimeInterval: 4.0, repeats: false) { timer in 
+//					Timer.scheduledTimer(withTimeInterval: 14.0, repeats: false) { timer in 
 //						self.stopRecording()
 //					}
 				} catch let error as NSError {
@@ -237,6 +240,12 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 
 		if captureSession.canAddOutput(videoOutput) {
 			captureSession.addOutput(videoOutput)
+			
+			videoOutput.connections.forEach {
+				if $0.isVideoOrientationSupported {
+					$0.videoOrientation = .portrait
+				}
+			}
 		}
 
 		cameraPreview = AVCaptureVideoPreviewLayer(session: captureSession)
@@ -261,6 +270,9 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		recordingStoppedEarly = false
 		let fileUrl = MicroKaraokeDataManager.shared.getVideoRecordingURL()
 		try? FileManager.default.removeItem(at: fileUrl)
+		
+		//
+		videoOutput.movieFragmentInterval = CMTime.invalid
 		videoOutput.startRecording(to: fileUrl, recordingDelegate: self)
 	}
 	

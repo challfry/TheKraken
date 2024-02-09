@@ -229,6 +229,7 @@ public enum TwitarrV3SwiftarrFeature: String, Codable, CaseIterable {
 	case schedule
 	case friendlyfez
 	case karaoke
+	case microkaraoke
 	case gameslist
 	case images
 	case users
@@ -248,4 +249,3 @@ public enum TwitarrV3SwiftarrFeature: String, Codable, CaseIterable {
 		self = .init(rawValue: rawValue) ?? .unknown
 	}
 }
-

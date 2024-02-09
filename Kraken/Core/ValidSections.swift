@@ -41,6 +41,8 @@ import UIKit
 				self = .calendar
 			case .karaoke:
 				self = .karaoke
+			case .microkaraoke:
+				self = .microKaraoke
 			case .gameslist:
 				self = .games
 			case .images:
