@@ -132,8 +132,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 			SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: messageText,
 					thread: thread, done: postQueued)
 			isBusyPosting = true
-			postingCell.editText = "X"
-			postingCell.editText = ""
+			postingCell.clearText()
 		}
 	}
 	

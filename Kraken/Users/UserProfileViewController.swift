@@ -40,7 +40,15 @@ import CoreData
 				}
 			}
 		}
-		
+		else if let krakenUser = modelKrakenUser {
+			modelUserName = krakenUser.username
+	        UserManager.shared.loadUserProfile(krakenUser) { resultUser in
+				if self.modelKrakenUser != resultUser {
+					self.modelKrakenUser = resultUser
+					self.updateCellModels(to: resultUser)
+				}
+			}
+		}
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -73,8 +81,8 @@ import CoreData
     var roomNumberCell: UserProfileSingleValueCellModel?
     var mapRoomCell: ButtonCellModel?
     var currentLocationCell: UserProfileSingleValueCellModel?
-    var authoredTweetsCell: ProfileDisclosureCellModel?
-//    var mentionsCell: ProfileDisclosureCellModel?
+	var authoredTweetsCell: ProfileDisclosureCellModel?
+//	var mentionsCell: ProfileDisclosureCellModel?
     var sendSeamailCell: ProfileDisclosureCellModel?
     var editProfileCell: ProfileDisclosureCellModel?
     var profileCommentCell: ProfileCommentCellModel?
@@ -253,7 +261,7 @@ import CoreData
 		section.append(roomNumberCell!)
 		section.append(mapRoomCell!)
 		section.append(currentLocationCell!)
-		section.append(authoredTweetsCell!)
+//		section.append(authoredTweetsCell!)
 		section.append(sendSeamailCell!)		
 		section.append(editProfileCell!)		
 		section.append(profileCommentCell!)

@@ -51,6 +51,8 @@
 			<string></string>
 		</dict>
 	</dict>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Calendar access lets Kraken add events from the official cruise schedule.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Calendar access lets Kraken add events from the official cruise schedule.</string>
 	<key>NSCameraUsageDescription</key>

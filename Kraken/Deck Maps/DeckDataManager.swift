@@ -51,7 +51,7 @@ class DeckDataManager: NSObject {
 				}
 			}
 			
-			self.deck = 1
+			self.deck = deck
 			location = PDFSelection(document: doc)
 			isPortSide = true
 		}
@@ -120,71 +120,75 @@ class DeckDataManager: NSObject {
 			document = pdfDoc
 			
 			// 1
-			namedRooms.append(RoomLocation("The Mainstage", 1, in: pdfDoc, altNames: ["The Main Stage"]))
-			namedRooms.append(RoomLocation("Atrium Bar", 1, in: pdfDoc))
+			namedRooms.append(RoomLocation("World Stage", 1, in: pdfDoc, altNames: ["The Main Stage"]))
+			namedRooms.append(RoomLocation("Future Cruises", 1, in: pdfDoc, searchString: "FUTURE\nCRUISES"))
 			namedRooms.append(RoomLocation("Atrium", 1, in: pdfDoc))
 			namedRooms.append(RoomLocation("Guest Services", 1, in: pdfDoc, searchString: "Guest"))
 			
 			// 2
-			namedRooms.append(RoomLocation("The Mainstage", 2, in: pdfDoc, altNames: ["The Main Stage"]))
+			namedRooms.append(RoomLocation("World Stage", 2, in: pdfDoc, altNames: ["The Main Stage"]))
 			namedRooms.append(RoomLocation("Casino", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Billboard Onboard", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Gallery Bar", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("B.B. King’s Blues Club", 2, in: pdfDoc, altNames: ["B.B. King’s", "B.B. King's"]))
-			namedRooms.append(RoomLocation("America’s Test Kitchen", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Pinnacle Grill", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Pinnacle Bar", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Art Gallery", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Lincoln Center Stage", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Explorer’s Lounge", 2, in: pdfDoc))
-			namedRooms.append(RoomLocation("Digital Workshop", 2, in: pdfDoc, searchString: "DIGITAL E EWORKSHOP"))
-			namedRooms.append(RoomLocation("Crafting Room", 2, in: pdfDoc, searchString: "DIGITAL E EWORKSHOP"))
-			namedRooms.append(RoomLocation("The Dining Room", 2, in: pdfDoc))
+			namedRooms.append(RoomLocation("Billboard Onboard", 2, in: pdfDoc, searchString: "BILLBOARD\nONBOARD"))
+			namedRooms.append(RoomLocation("Rolling Stone Lounge", 2, in: pdfDoc, searchString: "ROLLING STONE", altNames: ["B.B. King’s", "B.B. King's"]))
+			namedRooms.append(RoomLocation("Pinnacle Grill", 2, in: pdfDoc, searchString: "PINNACLE\nGRILL"))
+			namedRooms.append(RoomLocation("Pinnacle Bar", 2, in: pdfDoc, searchString: "PINNACLE\nBAR"))
+			namedRooms.append(RoomLocation("Art Gallery", 2, in: pdfDoc, searchString: "ART\nGALLERY"))
+			namedRooms.append(RoomLocation("Explorer’s Lounge", 2, in: pdfDoc, searchString: "EXPLORER’S"))
+			namedRooms.append(RoomLocation("Portrait Studio", 2, in: pdfDoc, searchString: "PORTRAIT\nSTUDIO"))
+			namedRooms.append(RoomLocation("Crafting Room", 2, in: pdfDoc, searchString: "PORTRAIT\nSTUDIO"))
+			namedRooms.append(RoomLocation("Dining Room", 2, in: pdfDoc))
 			
 			// 3
-			namedRooms.append(RoomLocation("The Mainstage", 3, in: pdfDoc, altNames: ["The Main Stage"]))
+			namedRooms.append(RoomLocation("World Stage", 3, in: pdfDoc, altNames: ["The Main Stage"]))
 			namedRooms.append(RoomLocation("Hudson", 3, in: pdfDoc))
-			namedRooms.append(RoomLocation("Tasman", 3, in: pdfDoc))
-			namedRooms.append(RoomLocation("Half Moon", 3, in: pdfDoc))
+			namedRooms.append(RoomLocation("Library", 3, in: pdfDoc))
+			namedRooms.append(RoomLocation("Half Moon", 3, in: pdfDoc, searchString: "HALF\nMOON"))
 			namedRooms.append(RoomLocation("Stuyvesant", 3, in: pdfDoc))
-			namedRooms.append(RoomLocation("Merabella Luxury Collection", 3, in: pdfDoc, searchString: "MERABELLA"))
-			namedRooms.append(RoomLocation("Ocean Bar", 3, in: pdfDoc))
-			namedRooms.append(RoomLocation("Photo Gallery", 3, in: pdfDoc))
-			namedRooms.append(RoomLocation("The Dining Room", 3, in: pdfDoc))
+			namedRooms.append(RoomLocation("Effy Jewelry", 3, in: pdfDoc, searchString: "EFFY\nJEWELRY"))
+			namedRooms.append(RoomLocation("Shops", 3, in: pdfDoc))
+			namedRooms.append(RoomLocation("Ocean Bar", 3, in: pdfDoc, searchString: "OCEAN\nBAR"))
+			namedRooms.append(RoomLocation("Photo Shop", 3, in: pdfDoc, searchString: "PHOTO\nSHOP"))
+			namedRooms.append(RoomLocation("Dining Room", 3, in: pdfDoc))
 			
 			// 7
-			namedRooms.append(RoomLocation("Neptune Lounge", 7, in: pdfDoc))
+			namedRooms.append(RoomLocation("Neptune Lounge", 7, in: pdfDoc, searchString: "NEPTUNE\nLOUNGE"))
 			
 			// 8
 			namedRooms.append(RoomLocation("Bridge", 8, in: pdfDoc))
 			
 			// 9
-			namedRooms.append(RoomLocation("Fitness Center", 9, in: pdfDoc))
-			namedRooms.append(RoomLocation("Greenhouse Spa & Salon", 9, in: pdfDoc, searchString: "GREENHOUSE"))
+			namedRooms.append(RoomLocation("Fitness Center", 9, in: pdfDoc, searchString: "FITNESS\nCENTER"))
+			namedRooms.append(RoomLocation("Spa & Salon", 9, in: pdfDoc))
 			namedRooms.append(RoomLocation("Hydro Pool", 9, in: pdfDoc))
-			namedRooms.append(RoomLocation("Lido Pool", 9, in: pdfDoc, altNames: ["Lido Pool Area"]))
-			namedRooms.append(RoomLocation("Lido Bar", 9, in: pdfDoc))
+			namedRooms.append(RoomLocation("Lido Pool", 9, in: pdfDoc, searchString: "LIDO\nPOOL"))
+			namedRooms.append(RoomLocation("Lido Bar", 9, in: pdfDoc, searchString: "LIDO\nBAR"))
 			namedRooms.append(RoomLocation("Dive-In", 9, in: pdfDoc))
 			namedRooms.append(RoomLocation("Canaletto", 9, in: pdfDoc))
-			namedRooms.append(RoomLocation("Lido Market", 9, in: pdfDoc))
-			namedRooms.append(RoomLocation("Sea View Bar", 9, in: pdfDoc))
-			namedRooms.append(RoomLocation("New York Pizza", 9, in: pdfDoc))
-			namedRooms.append(RoomLocation("Sea View Pool", 9, in: pdfDoc))
+			namedRooms.append(RoomLocation("Lido Market", 9, in: pdfDoc, searchString: "LIDO\nMARKET"))
+			namedRooms.append(RoomLocation("Sea View Bar", 9, in: pdfDoc, searchString: "SEA VIEW\nBAR"))
+			namedRooms.append(RoomLocation("New York Pizza", 9, in: pdfDoc, searchString: "NEW YORK"))
+			namedRooms.append(RoomLocation("Sea View Pool", 9, in: pdfDoc, searchString: "SEA VIEW\nPOOL"))
 			
 			// 10
-			namedRooms.append(RoomLocation("Club HAL", 10, in: pdfDoc))
-			namedRooms.append(RoomLocation("The Loft", 10, in: pdfDoc, searchString: "Loft"))
+			namedRooms.append(RoomLocation("Kids Club", 10, in: pdfDoc, searchString: "KIDS\nCLUB"))
+			namedRooms.append(RoomLocation("High Score", 10, in: pdfDoc, searchString: "HIGH\nSCORE"))
+			namedRooms.append(RoomLocation("Hang 10", 10, in: pdfDoc, searchString: "HANG\n10"))
 
 			// 11
-	//		namedRooms.append(RoomLocation("Explorations Central & Café/Crow’s Nest", 11, in: pdfDoc))
-			namedRooms.append(RoomLocation("Explorations Central", 11, in: pdfDoc, searchString: "Explorations Central & Café/Crow’s Nest"))
-			namedRooms.append(RoomLocation("Café", 11, in: pdfDoc, searchString: "Explorations Central & Café/Crow’s Nest"))
-			namedRooms.append(RoomLocation("Crow’s Nest", 11, in: pdfDoc, searchString: "Explorations Central & Café/Crow’s Nest"))
-			namedRooms.append(RoomLocation("Ten Forward", 11, in: pdfDoc, searchString: "Explorations Central & Café/Crow’s Nest"))
+			namedRooms.append(RoomLocation("Crow’s Nest", 11, in: pdfDoc))
+			namedRooms.append(RoomLocation("Art Studio", 11, in: pdfDoc, searchString: "ART\nSTUDIO"))
+			namedRooms.append(RoomLocation("Café", 11, in: pdfDoc, searchString: "Crow’s Nest"))
+			namedRooms.append(RoomLocation("Game Room", 11, in: pdfDoc, searchString: "GAME\nROOM"))
+			namedRooms.append(RoomLocation("Ten Forward", 11, in: pdfDoc, searchString: "Crow’s Nest"))
+			namedRooms.append(RoomLocation("Shore Excursions", 11, in: pdfDoc, searchString: "SHORE\nEXCURSIONS"))
 			namedRooms.append(RoomLocation("The Retreat", 11, in: pdfDoc))
 			namedRooms.append(RoomLocation("Tamarind Bar", 11, in: pdfDoc))
 			namedRooms.append(RoomLocation("Tamarind", 11, in: pdfDoc))
-			namedRooms.append(RoomLocation("Sports Courts", 11, in: pdfDoc))
+			namedRooms.append(RoomLocation("Morimoto by Sea", 11, in: pdfDoc, searchString: "MORIMOTO"))
+			namedRooms.append(RoomLocation("Sport Court", 11, in: pdfDoc, searchString: "SPORT\nCOURT"))
+			
+			// 12
+			namedRooms.append(RoomLocation("Sun Deck", 12, in: pdfDoc))
 			
 			// Deck Names
 			namedRooms.append(RoomLocation(deckName:"Main Deck", 1, in: pdfDoc))
@@ -198,6 +202,7 @@ class DeckDataManager: NSObject {
 			namedRooms.append(RoomLocation(deckName:"Lido Deck", 9, in: pdfDoc))
 			namedRooms.append(RoomLocation(deckName:"Panorama Deck", 10, in: pdfDoc))
 			namedRooms.append(RoomLocation(deckName:"Observation Deck", 11, in: pdfDoc))
+			namedRooms.append(RoomLocation(deckName:"Sun Deck", 12, in: pdfDoc))
 		}
 	}
 	

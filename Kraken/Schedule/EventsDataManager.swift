@@ -169,9 +169,18 @@ import CoreData
 	func createCalendarEvent(done: @escaping (EKEvent?) -> Void) {
 		let eventStore = EventsDataManager.shared.ekEventStore
 		createCalendarEventDoneCallback = done
-		eventStore.requestAccess(to: .event) { access, error in 
-			DispatchQueue.main.async {
-				self.calendarAccessCallback(access, error)
+		if #available(iOS 17, *) {
+			eventStore.requestFullAccessToEvents() { access, error in 
+				DispatchQueue.main.async {
+					self.calendarAccessCallback(access, error)
+				}
+			}
+		}
+		else {
+			eventStore.requestAccess(to: .event) { access, error in 
+				DispatchQueue.main.async {
+					self.calendarAccessCallback(access, error)
+				}
 			}
 		}
 	}
@@ -190,7 +199,7 @@ import CoreData
 			}
 			if calendar == nil {
 				let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
- 				newCalendar.title = "JoCo Cruise 2023"
+ 				newCalendar.title = "JoCo Cruise 2024"
 				if eventStore.sources.count == 0 {
 					newCalendar.source = EKSource()
 				}

@@ -47,6 +47,6 @@ extension UIApplication {
         } else if let presented = baseVC?.presentedViewController {
             return getTopViewController(base: presented)
         }
-        return base
+        return baseVC
     }
 }

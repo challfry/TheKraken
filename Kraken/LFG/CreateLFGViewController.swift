@@ -26,7 +26,7 @@ class CreateLFGViewController: BaseCollectionViewController {
 	lazy var defaultLocationsCell: PopupCellModel = {
 		let menuItems = [
 				"Atrium, Deck 1, Midship",
-				"B.B. King's, Deck 2, Midship",
+				"Rolling Stone Lounge, Deck 2, Midship",
 				"Billboard Onboard, Deck 2, Forward",
 				"Pinnacle Bar, Deck 2, Midship",
 				"Explorer's Lounge, Deck 2, Aft",
@@ -38,10 +38,11 @@ class CreateLFGViewController: BaseCollectionViewController {
 				"Lido Pool Area, Deck 9, Midship",
 				"Lido Market, Deck 9, Aft",
 				"Sea View Pool Area, Deck 9, Aft",
-				"Crow's Nest (Ten Forward), Deck 10, Forward",
-				"Shuffleboard Court, Deck 10, Midship",
-				"EXC, Deck 10, Forward",
-				"Sports Deck, Deck 11, Forward",	
+				"High Score, Deck 10, Midship",
+				"Hang 10, Deck 10, Forward",
+				"Crow's Nest (Ten Forward), Deck 11, Forward",
+				"Sports Deck, Deck 11, Aft",	
+				"Sun Deck, Deck 12, Forward",	
 				]
 	 	let cellModel = PopupCellModel(title: "Common Locations:", menuPrompt: "Autofill Location Field With:", menuItems: menuItems,
 	 			singleSelectionMode: false)
@@ -114,6 +115,8 @@ class CreateLFGViewController: BaseCollectionViewController {
 		composeSection.append(postStatusCell)
 		
 		defaultLocationsCell.tell(locationCell, when: "selectedMenuItem") { observer, observed in
+			observer.editedText = nil
+			observer.editText = nil
 			observer.editText = observed.selectedMenuTitle()
 		}
 	}

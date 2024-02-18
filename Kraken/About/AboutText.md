@@ -8,7 +8,7 @@
 
 ## Wait, wait. What's JoCo Cruise? What's Twitarr? ##
 
-JoCo is Jonathan Coulton. JoCo Cruise is a yearly theme cruise—in 2023 the cruise will be in the Carribbean, from March 5-12. Twitarr is a server that cruisegoers bring onto the ship, providing several social media features for cruisegoers.
+JoCo is Jonathan Coulton. JoCo Cruise is a yearly theme cruise—in 2024 the cruise will be in the Carribbean, from March 9-16. Twitarr is a server that cruisegoers bring onto the ship, providing several social media features for cruisegoers.
 
 Because Twitarr is on the ship, it's always available onboard, even if you don't have Internet access. However, because Twitarr is on the ship, it isn't available when ashore, even if you do have Internet access.
 
@@ -18,7 +18,7 @@ If you downloaded this app and **aren't** going on a JoCo Cruise, you can safely
 
 	 _…extremely large eye, large tentacles, large beak, very large fins…large everything really. It's a monster._
 
-CruiseMonkey and RainbowMonkey already exist, do many of the same things, and work on both iPhone and Android. Why use The Kraken?
+Twitarr has a website that I can access. Why use The Kraken instead?
 
  - Kraken caches all the Twitarr data it sees, which means the app is usable when not on the boat. Read your seamail, catch up on forums, check the schedule, all while sitting on the beach.
  - Additionally, you can create _new_ content when you don't have a server connection. Write new posts and seamails, edit existing ones, like/follow/favorite things, update your profile. Kraken will store the changes and send them to the Twitarr server when you get back on the boat.
@@ -28,6 +28,10 @@ CruiseMonkey and RainbowMonkey already exist, do many of the same things, and wo
  - There's sections for Karaoke and Board Games. Search the lists and favorite the items you may want to sing/play for handy reference later.
  - Kraken has pretty good accessibility support.
  - Take a Pirate Selfie, and share it with everyone.
+ - Now with phone call support. You can call other passengers and talk to them aboard the ship, if they also have the Kraken app. 
+ - Rock Ballad Mode, which shows a video of a Zippo lighter flame, has proven to be suprisingly popular.
+ - New this year is Micro Karaoke, an activity where you record yourself singing one line of a song into your phone, and then later watch a music video with you in it.
+
 
 ## Caveats ##
 
@@ -45,7 +49,7 @@ The 'likes' of games, karaoke songs, and forums are stored locally as Twitarr do
 
 Chall Fry wrote The Kraken app.
 
-Julie Wong, Eric Graf, and Keith Stattenfield beta tested it.
+Julie Wong, Eric Graf, Amy T, and Keith Stattenfield beta tested it.
 
 Media credits for Kraken assets:
  - Pirate Icon made by Freepik at flaticon.com
