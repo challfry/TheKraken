@@ -44,6 +44,10 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .daily, 
 					arguments: ["Announcement" : announcement]))
 		}
+		else if let songID = response.notification.request.content.userInfo["mkSongID"] {
+			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .microKaraoke, 
+					arguments: ["songID" : songID]))
+		}
 		completionHandler()
 	}
 

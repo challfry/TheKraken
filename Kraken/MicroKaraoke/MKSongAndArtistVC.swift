@@ -15,6 +15,7 @@ class MicroKaraokeSongAndArtistVC: UIViewController {
 		
 	@IBOutlet weak var songTitleLabel: UILabel!
 	@IBOutlet weak var artistLabel: UILabel!
+	@IBOutlet weak var playlistSongLabel: UILabel!
 	
 	
 	override func viewDidLoad() {
@@ -26,6 +27,12 @@ class MicroKaraokeSongAndArtistVC: UIViewController {
 		super.viewWillAppear(animated)
 		songTitleLabel.text = MicroKaraokeDataManager.shared.getCurrentOffer()?.songName ?? "<unknown>"
 		artistLabel.text = MicroKaraokeDataManager.shared.getCurrentOffer()?.artistName ?? "<unknown>"
+		if let songID = MicroKaraokeDataManager.shared.getCurrentOffer()?.songID {
+			playlistSongLabel.text = "Playlist Song \(songID)"
+		}
+		else {
+			playlistSongLabel.text = ""
+		}
 	}
 	
 // MARK: Navigation

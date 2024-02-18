@@ -244,6 +244,12 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	func getText() -> String? {
 		return editedText ?? editText
 	}
+	
+	func clearText() {
+		editedText = nil
+		editText = ""
+		editText = nil
+	}
 }
 
 class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDelegate {
@@ -260,7 +266,7 @@ class TextViewCell: BaseCollectionViewCell, TextViewCellProtocol, UITextViewDele
 	}
 	var editText: String? {
 		didSet {
-			if isPrototypeCell, let model = cellModel as? TextViewCellModel, let editedText = model.editedText  {
+			if let model = cellModel as? TextViewCellModel, let editedText = model.editedText  {
 				textView.text = editedText
 				let newSize = textView.sizeThatFits(CGSize(width: textView.frame.size.width, height: 10000.0))
 				textViewHeightConstraint.constant = newSize.height

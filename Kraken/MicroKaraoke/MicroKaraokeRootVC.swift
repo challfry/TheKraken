@@ -23,12 +23,14 @@ class MicroKaraokeRootViewController: BaseCollectionViewController {
 	@objc dynamic lazy var loadingCell = MKLoaderCellModel()
 	@objc dynamic lazy var successfulUploadCell = UploadCellModel()
 	@objc dynamic lazy var completedVideosLabelCell = LabelCellModel("See Completed Videos:")
+	
+	private var refreshTimer: Timer?
 
 	override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Micro Karaoke"
 
-		mkDataSource.register(with: collectionView, viewController: self)
+//		mkDataSource.register(with: collectionView, viewController: self)
  		mkDataSource.append(segment: composeSegment)
 //		let composeSection = mkDataSource.appendFilteringSegment(named: "ComposeSection")
 		composeSegment.append(explainerCell)
@@ -44,14 +46,37 @@ class MicroKaraokeRootViewController: BaseCollectionViewController {
 		loadingCell.showSpinner = true
 		successfulUploadCell.shouldBeVisible = false
 
-
-// TODO: 1 minute timer
-		MicroKaraokeDataManager.shared.getCompletedVideos()
+        loginDataSource.append(segment: loginSection)
+		loginSection.headerCellText = "In order to participate in Micro Karaoke, you will need to log in first."
+		
+		// When a user is logged in we'll set up the FRC to load the threads which that user can 'see'. Remember, CoreData
+		// stores ALL the seamail we ever download, for any user who logs in on this device.
+        CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
+			if let _ = observed.loggedInUser?.userID {
+        		observer.mkDataSource.register(with: observer.collectionView, viewController: observer)
+			}
+       		else {
+       			// If nobody's logged in, pop to root, show the login cells.
+				observer.loginDataSource.register(with: observer.collectionView, viewController: observer)
+				observer.navigationController?.popToViewController(observer, animated: false)
+       		}
+        }?.execute()
 	}
 	
     override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		mkDataSource.enableAnimations = true
+		
+		MicroKaraokeDataManager.shared.getCompletedVideos()
+		refreshTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { timer in
+			MicroKaraokeDataManager.shared.getCompletedVideos()
+		}
+	}
+	
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		refreshTimer?.invalidate()
+		refreshTimer = nil
 	}
 	
 // MARK: Navigation

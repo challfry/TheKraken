@@ -116,6 +116,12 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			observer.lfgCell.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
 		}?.execute()
 		
+		// Set the badge on the MicroKaraoke cell
+		CurrentUser.shared.tell(self, when: "loggedInUser.microKaraokeVideos") { observer, observed in
+			let badgeCount = observed.loggedInUser?.microKaraokeVideos ?? 0
+			observer.microKaraokeCell.badgeValue = badgeCount > 0 ? "\(badgeCount) new" : nil
+		}?.execute()
+		
 		// Set the badge on the Settings cell
 		CurrentUser.shared.tell(self, when: "loggedInUser.postOps.count") { observer, observed in
 			let badgeCount = observed.loggedInUser?.postOps?.count ?? 0

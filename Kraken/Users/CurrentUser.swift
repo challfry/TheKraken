@@ -12,7 +12,7 @@ import UserNotifications
 
 @objc(LoggedInKrakenUser) public class LoggedInKrakenUser: KrakenUser {
 
-	@objc enum AccessLevel: Int32 {
+	@objc enum AccessLevel: Int32, Comparable {
 		case unverified
 		case banned
 		case quarantined
@@ -48,6 +48,14 @@ import UserNotifications
 			case .unverified: return "unverified"
 			}
 		}
+		
+		 static func < (lhs: AccessLevel, rhs: AccessLevel) -> Bool {
+		 	return lhs.rawValue < rhs.rawValue
+		 }
+		 
+		 static func == (lhs: AccessLevel, rhs: AccessLevel) -> Bool {
+		 	return lhs.rawValue == rhs.rawValue
+		 }
 	}
 	
 	// Specific to the logged-in user
@@ -58,6 +66,7 @@ import UserNotifications
 	@NSManaged public var forumMentions: Int32
 	@NSManaged public var newSeamailMessages: Int32		// # of msg threads with new seamail messages.
 	@NSManaged public var newLFGMessages: Int32			// # of joined LFGs with new messages.
+	@NSManaged public var microKaraokeVideos: Int32			// # of unwatched MicroKaraoke videos the user participated in creating.
 	
 
 	@NSManaged public var userComments: Set<UserComment>?			// This set is comments the logged in user has made about *others*
@@ -91,6 +100,7 @@ import UserNotifications
 		TestAndUpdate(\.forumMentions, Int32(notification.newForumMentionCount))
 		TestAndUpdate(\.newSeamailMessages, Int32(notification.newSeamailMessageCount))
 		TestAndUpdate(\.newLFGMessages, Int32(notification.newFezMessageCount))
+		TestAndUpdate(\.microKaraokeVideos, Int32(notification.microKaraokeFinishedSongCount))
 	}
 	
 	// Assumes targets is a comprehensive current list of all users with the given relation--Removes relation for any

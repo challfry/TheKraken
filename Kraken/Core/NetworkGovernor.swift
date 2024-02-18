@@ -9,12 +9,15 @@
 import SystemConfiguration
 import Foundation
 
+protocol ErrorWithString: Error {
+	func getErrorString() -> String
+}
 
 // Note 1: This is ONLY for server errors--that is error responses that come from the server, usually with 
 // an HTTP status of 300 or more. NOT for networking errors.
 // Note 2: Error-conforming objects are often enums in Swift, but we don't actually have a use case for this
 // here. UI-level code generally treats all server errors the same, but wants good description strings.
-@objc class ServerError: NSObject, Error {
+@objc class ServerError: NSObject, ErrorWithString {
 	var httpStatus: Int?
 	var errorString: String						// All errors, concatenated.
 	dynamic var fieldErrors: [String: String]?
@@ -58,6 +61,10 @@ import Foundation
 		return errorString
 	}
 	
+	func getErrorString() -> String {
+		return errorString
+	}
+	
 	override var debugDescription: String {
 		get {
 			return getCompleteError()
@@ -67,18 +74,18 @@ import Foundation
 	var localizedDescription: String { getCompleteError() }
 }
 
-@objc class NetworkError: NSObject, Error {
-	var errorString: String?
+@objc class NetworkError: NSObject, ErrorWithString {
+	var errorString: String
 	
-	init(_ str: String?) {
+	init(_ str: String) {
 		errorString = str
 	}
 	
-	func getErrorString() -> String? {
+	func getErrorString() -> String {
 		return errorString
 	}
 	
-	var localizedDescription: String { getErrorString() ?? "Error" }
+	var localizedDescription: String { getErrorString() }
 }
 
 // The response type passed back from network calls. Note that the network governor does its own handling of
@@ -100,7 +107,7 @@ struct NetworkResponse {
 		}
 	}
 	
-	func getAnyError() -> Error? {
+	func getAnyError() -> ErrorWithString? {
 		return networkError ?? serverError
 	}
 }
@@ -284,6 +291,10 @@ struct NetworkResponse {
 		}
 	
 		request.addValue("Bearer \(authKey)", forHTTPHeaderField: "Authorization")
+		// Issue #82, add "X-Swiftarr-User" header for authed calls
+		if let userID = forUser?.userID {
+			request.addValue("\(userID.uuidString)", forHTTPHeaderField: "X-Swiftarr-User")
+		}
 	}
 	
 	// All network calls should funnel through here.

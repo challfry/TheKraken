@@ -151,6 +151,13 @@ public struct TwitarrV3UserNotificationData: Codable {
 	/// The start time of the earliest event that the user has followed with a start time > now. nil if not logged in.
 	var nextFollowedEventTime: Date?
 	
+	/// The event ID of the the next future event the user has followed. This event's start time should always be == nextFollowedEventTime.
+	/// If the user has favorited multiple events that start at the same time, this will be random among them.
+	var nextFollowedEventID: UUID?
+	
+	/// The number of Micro Karaoke songs the user has contributed to and can now view.
+	var microKaraokeFinishedSongCount: Int
+	
 	/// For each alertword the user has, this returns data on hit counts for that word.
 	var alertWords: [TwitarrV3UserNotificationAlertwordData]
 	

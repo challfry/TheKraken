@@ -326,6 +326,29 @@ class UserManager : NSObject {
 		return krakenUser
 	}
 	
+	// Loads the profile for a user already in the local CD database
+	func loadUserProfile(_ user: KrakenUser, done: ((KrakenUser?) -> Void)? = nil) {
+		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: "/api/v3/users/\(user.userID)/profile", query: nil)
+		NetworkGovernor.addUserCredential(to: &request)
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			if let error = package.getAnyError() {
+				AppLog.error(error.getErrorString())
+				done?(nil)
+			}
+			else if let data = package.data {
+	//				print (String(decoding:data!, as: UTF8.self))
+				do {
+					let profileResponse = try Settings.v3Decoder.decode(TwitarrV3ProfilePublicData.self, from: data)
+					self.updateV3Profile(for: user, from: profileResponse, done: done)
+				} catch 
+				{
+					NetworkLog.error("Failure loading user profile.", ["Error" : error])
+					done?(nil)
+				} 
+			}
+		}
+	}
+	
 // MARK: Updating user info from responses
 	func updateUserHeader(for mainThreadUser: KrakenUser?, from header: TwitarrV3UserHeader, done: ((KrakenUser?) -> Void)? = nil) {
 		LocalCoreData.shared.performNetworkParsing { context in
@@ -515,6 +538,8 @@ struct TwitarrV3UserHeader: Codable {
     var displayName: String?
     /// The user's profile image.
     var userImage: String?
+	/// An optional preferred pronoun or form of address.
+	var preferredPronoun: String?
 }
 
 /// Used to return a user's public profile contents.
@@ -539,6 +564,8 @@ struct TwitarrV3ProfilePublicData: Codable {
     var realName: String
     /// An optional cabin number for the user.
     var roomNumber: String
+	/// An optional dinner team assignemnt.
+	var dinnerTeam: DinnerTeam?
     /// A UserNote owned by the visiting user, about the profile's user (see `UserNote`).
     var note: String?
 }
@@ -552,4 +579,22 @@ struct TwitarrV3NoteData: Codable {
     let targetUser: TwitarrV3UserHeader
     /// The text of the note.
     var note: String
+}
+
+public enum DinnerTeam: String, CaseIterable, Codable {
+	/// Red Team
+	case red
+	/// Gold Team
+	case gold
+	/// SRO
+	case sro
+
+	/// `.label` returns consumer-friendly case names.
+	var label: String {
+		switch self {
+		case .red: return "Red Team"
+        case .gold: return "Gold Team"
+        case .sro: return "Club SRO"
+		}
+	}
 }

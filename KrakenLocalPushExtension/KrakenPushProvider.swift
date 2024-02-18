@@ -208,6 +208,9 @@ class KrakenPushProvider: NEAppPushProvider {
 							sendNotification = false
 							UserDefaults(suiteName: "group.com.challfry-FQD.Kraken")?.set(socketNotification.contentID, forKey: "phoneCallEnded")
 							self.logger.log("KrakenPushProvider set UserDefault for phoneCallEnded")
+						case .microKaraokeSongReady:
+							title = "Micro Karaoke Music Video Ready"
+							userInfo["mkSongID"] = socketNotification.contentID
 						}
 						if sendNotification {
 							content.title = title
@@ -367,6 +370,8 @@ struct SocketNotificationData: Codable {
 		case phoneCallAnswered
 		/// Caller hung up while phone was rining, or other party ended the call in progress
 		case phoneCallEnded
+		/// A Micro Karaoke song the user contributed to is ready for viewing. .
+		case microKaraokeSongReady
 	}
 	/// The type of event that happened. See <doc:SocketNotificationData.NotificationTypeData> for values.
 	var type: NotificationTypeData

@@ -15,20 +15,23 @@ import UIKit
     @NSManaged public var id: Int64
     @NSManaged public var songName: String
     @NSManaged public var artistName: String
-    @NSManaged public var lastUpdateTime: Date?
+    @NSManaged public var completionTime: Date?
+    @NSManaged public var userContributed: Bool
+    @NSManaged public var modApproved: Bool
 
     // Sets reasonable default values for properties that could conceivably not change during buildFromV2 methods.
 	public override func awakeFromInsert() {
 		super.awakeFromInsert()
 	}
 	
-    // Only call this within a CoreData perform block. ForumListData doesn't include data about posts.
-    // Requires: Users for creators of all forums.
+    // Only call this within a CoreData perform block.
 	func buildFromV3(context: NSManagedObjectContext, v3Object: MicroKaraokeCompletedSong) {
 		TestAndUpdate(\.id, Int64(v3Object.songID))
 		TestAndUpdate(\.songName, v3Object.songName)
 		TestAndUpdate(\.artistName, v3Object.artistName)
-		TestAndUpdate(\.lastUpdateTime, v3Object.completionTime)
+		TestAndUpdate(\.completionTime, v3Object.completionTime)
+		TestAndUpdate(\.userContributed, v3Object.userContributed)
+		TestAndUpdate(\.modApproved, v3Object.modApproved)
 	}
 }
 
@@ -43,11 +46,14 @@ import UIKit
 	@objc dynamic var songDownloadProgress: Float = 0.0
 	
 	private var currentOffer: MicroKaraokeOfferPacket?
+	private var currentOfferUser: KrakenUser?				// User who was offered the currentOffer
 	public var currentListenFile: URL?						// LOCAL copy of the audio clip with vocals
 	public var currentRecordFile: URL?						// LOCAL copy of the audio clip with no vocals
 	private var offerDoneClosure: (() -> Void)?
 	private var uploadDoneClosure: (() -> Void)?
-	
+	private var doneDownloadingSong: ((AVPlayerItem?, URL?, String?) -> Void)?
+
+// MARK: -	
 	// Gets the file URL that user-recorded videos get saved to. Should only be one video at a time, so they all use the same path.
 	func getVideoRecordingURL() -> URL {
 		let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -56,6 +62,13 @@ import UIKit
 	}
 	
 	func getCurrentOffer() -> MicroKaraokeOfferPacket? {
+		// Make sure the user hasn't changed
+		guard let currentUser = CurrentUser.shared.loggedInUser, let offerUser = currentOfferUser,
+				offerUser.userID == currentUser.userID else {
+			currentOffer = nil
+			currentOfferUser = nil
+			return nil		
+		}
 		// Make sure we have everything we need downloaded
 		guard let offer = currentOffer, offer.offerExpirationTime > Date(), currentListenFile != nil, currentRecordFile != nil,
 				!offerDownloadInProgress else {
@@ -81,6 +94,7 @@ import UIKit
 		NetworkGovernor.addUserCredential(to: &request)
 		offerDownloadInProgress = true
 		currentOffer = nil
+		currentOfferUser = nil
 		currentListenFile = nil
 		currentRecordFile = nil
 		lastNetworkError = nil
@@ -99,6 +113,7 @@ import UIKit
 					var packet = try Settings.v3Decoder.decode(MicroKaraokeOfferPacket.self, from: data)
 					packet.lyrics = packet.lyrics.trimmingCharacters(in: .whitespacesAndNewlines)
 					self.currentOffer = packet
+					self.currentOfferUser = CurrentUser.shared.loggedInUser
 					self.downloadListenClip(for: packet)
 				} catch 
 				{
@@ -202,6 +217,7 @@ import UIKit
 			}
 			// Success or failure, the upload is 'done'. If it failed we should re-check the reservation, so we clear it here.
 			self.currentOffer = nil
+			self.currentOfferUser = nil
 			self.currentListenFile = nil
 			self.currentRecordFile = nil
 			self.videoUploadInProgress = false
@@ -249,33 +265,53 @@ import UIKit
 			
 			// Delete songs in db that aren't in results.
 			let serverSongIDs = Set(songs.map( { $0.songID } ))
-				cdSongs.forEach { cdSong in
-					if !serverSongIDs.contains(Int(cdSong.id)) {
-						context.delete(cdSong)
-					}
+			cdSongs.forEach { cdSong in
+				if !serverSongIDs.contains(Int(cdSong.id)) {
+					context.delete(cdSong)
 				}
+			}
+		}
+	}
+	
+	// Only for moderator users
+	func modApproveSong(song: Int64, done: ((String?) -> Void)?) {
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/microkaraoke/mod/approve/\(song)")
+		NetworkGovernor.addUserCredential(to: &request)
+		request.httpMethod = "POST"
+		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+			var errorString: String?
+			if let error = package.getAnyError() {
+				errorString = error.getErrorString() 
+			}
+			else {
+				self.getCompletedVideos()
+			}
+			done?(errorString)
 		}
 	}
 	
 // MARK: - Completed Song Download
-	var lastSongDownloadError: String? = nil
-	var doneDownloadingSong: ((AVPlayerItem?, URL?) -> Void)?
-	func downloadCompletedSong(songID: Int64, done: @escaping(AVPlayerItem?, URL?) -> Void) {
+	// Done fn is: (movieFile: AVPlayerItem?, movieExportURL: URL?, errorString: String?)
+	func callDoneDownloadingFn(_ movieFile: AVPlayerItem?, _ movieExportURL: URL?, _ errorString: String?) {
+		DispatchQueue.main.async {
+			self.doneDownloadingSong?(movieFile, movieExportURL, errorString)
+			self.doneDownloadingSong = nil
+			self.downloadingVideoForSongID = nil
+		}
+	}
+	
+	func downloadCompletedSong(songID: Int64, done: @escaping(AVPlayerItem?, URL?, String?) -> Void) {
 		// If we're currently in the process of downloading an song, let it complete.
 		guard downloadingVideoForSongID == nil else {
 			return
 		}
 		doneDownloadingSong = done
 		downloadingVideoForSongID = String(songID)
-		lastSongDownloadError = nil
 		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/microkaraoke/song/\(songID)", query: [])
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = package.networkError {
-				self.lastSongDownloadError = error.getErrorString() 
-			}
-			else if let error = package.serverError {
-				self.lastSongDownloadError = error.getCompleteError() 
+			if let error = package.getAnyError() {
+				self.callDoneDownloadingFn(nil, nil, error.getErrorString())
 			}
 			else if let data = package.data {
 				do {
@@ -284,13 +320,11 @@ import UIKit
 				} catch 
 				{
 					NetworkLog.error("Failure parsing Micro Karaoke song.", ["Error" : error, "URL" : request.url as Any])
+					self.callDoneDownloadingFn(nil, nil, error.localizedDescription)
 				} 
 			}
 			else {
-				self.lastSongDownloadError = "Couldn't load data from server."
-			}
-			if self.lastSongDownloadError != nil {
-				self.downloadingVideoForSongID = nil
+				self.callDoneDownloadingFn(nil, nil, "Couldn't load data from server.")
 			}
 		}
 	}
@@ -298,13 +332,16 @@ import UIKit
 	// Calls itself 'recursively' for each video clip in the song. But, since it uses an async callback, it's not
 	// real recursion.
 	func downloadVideo(in manifest: MicroKaraokeSongManifest, at index: Int) {
-		guard index < manifest.snippetVideoURLs.count, let videoURL = URL(string: manifest.snippetVideoURLs[index]) else {
+		guard index < manifest.snippetVideoURLs.count else {
+			self.callDoneDownloadingFn(nil, nil, "Encountered bad song clip index.")
 			return
 		}
+		let videoURL = manifest.snippetVideoURLs[index]
 		songDownloadProgress = Float(index) / Float(manifest.snippetVideoURLs.count)
 		
 		guard var localPath = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
 				.appendingPathComponent("finishedSongParts_\(manifest.songID)") else {
+			self.callDoneDownloadingFn(nil, nil, "Could not access local temp directory.")
 			return		
 		}
 		try? FileManager.default.createDirectory(at: localPath, withIntermediateDirectories: true)
@@ -312,7 +349,7 @@ import UIKit
 		if FileManager.default.fileExists(atPath: localPath.path) {
 			print("Already have video clip \(index)")
 			if index + 1 >= manifest.snippetVideoURLs.count {
-				self.downloadSongAudioClip(in: manifest, at: 0)
+				self.downloadSongAudio(in: manifest)
 			}
 			else {
 				self.downloadVideo(in: manifest, at: index + 1)
@@ -323,17 +360,14 @@ import UIKit
 		var request = NetworkGovernor.buildTwittarRequest(withURL: videoURL)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = package.networkError {
-				self.lastSongDownloadError = error.getErrorString()
-			}
-			else if let error = package.serverError {
-				self.lastSongDownloadError = error.getCompleteError()
+			if let error = package.getAnyError() {
+				self.callDoneDownloadingFn(nil, nil, error.getErrorString())
 			}
 			else if let data = package.data {
 				do {
 					try data.write(to: localPath)
 					if index + 1 >= manifest.snippetVideoURLs.count {
-						self.downloadSongAudioClip(in: manifest, at: 0)
+						self.downloadSongAudio(in: manifest)
 					}
 					else {
 						self.downloadVideo(in: manifest, at: index + 1)
@@ -341,53 +375,47 @@ import UIKit
 				}
 				catch {
 					self.lastNetworkError = error.localizedDescription
+					self.callDoneDownloadingFn(nil, nil, error.localizedDescription)
 				}
 			} else {
-				self.lastSongDownloadError = "Couldn't load vido file from server."
-			}
-			if self.lastSongDownloadError != nil {
-				self.downloadingVideoForSongID = nil
+				self.callDoneDownloadingFn(nil, nil, "Couldn't load video file from server.")
 			}
 		}
 	}
 	
-	func downloadSongAudioClip(in manifest: MicroKaraokeSongManifest, at index: Int)  {
-		guard index < manifest.snippetAudioURLs.count, let audioURL = URL(string: manifest.snippetAudioURLs[index]) else {
+	func downloadSongAudio(in manifest: MicroKaraokeSongManifest) {
+		guard var localPath = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+				.appendingPathComponent("finishedSongParts_\(manifest.songID)") else {
+			self.callDoneDownloadingFn(nil, nil, "Could not access local temp directory.")
 			return
 		}
-//		songDownloadProgress = Float(index) / Float(manifest.snippetVideoURLs.count)
-		let request = NetworkGovernor.buildTwittarRequest(withURL: audioURL)
+		songDownloadProgress = 1.0
+		localPath.appendPathComponent("karaokeaudio.mp3")
+		if FileManager.default.fileExists(atPath: localPath.path) {
+			print("Already have karaoke audio song file.")
+			assembleCompletedVideo(from: manifest)
+			return
+		}
+		let request = NetworkGovernor.buildTwittarRequest(withURL: manifest.karaokeMusicTrack)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = package.networkError {
-				self.lastSongDownloadError = error.getErrorString()
-			}
-			else if let error = package.serverError {
-				self.lastSongDownloadError = error.getCompleteError()
+			if let error = package.getAnyError() {
+				self.callDoneDownloadingFn(nil, nil, error.getErrorString())
 			}
 			else if let data = package.data {
 				do {
-					var localPath = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-							.appendingPathComponent("finishedSongParts_\(manifest.songID)")
-					try FileManager.default.createDirectory(at: localPath, withIntermediateDirectories: true)
-					localPath.appendPathComponent("\(index).mp3")
 					try data.write(to: localPath)
-					if index + 1 >= manifest.snippetAudioURLs.count {
-						self.assembleCompletedVideo(from: manifest)
-					}
-					else {
-						self.downloadSongAudioClip(in: manifest, at: index + 1)
-					}
+					self.assembleCompletedVideo(from: manifest)
 				}
 				catch {
-					self.lastNetworkError = error.localizedDescription
+					self.callDoneDownloadingFn(nil, nil, error.localizedDescription)
 				}
 			} else {
-				self.lastSongDownloadError = "Couldn't load sound file from server."
+				self.callDoneDownloadingFn(nil, nil, "Couldn't load sound file from server.")
 			}
 			self.offerDownloadInProgress = false
 		}
 	}
-
+	
 	// Once we have all the parts, assemble the video
 	func assembleCompletedVideo(from manifest: MicroKaraokeSongManifest) {
 		do {
@@ -403,39 +431,43 @@ import UIKit
 			// Prep the composition for use
 			comp.naturalSize = CGSize(width: 1080, height: 1980)
 			var instructions = [AVMutableVideoCompositionInstruction]()
-
+			
 			for index in 0..<manifest.snippetVideoURLs.count {
 //			for index in 0..<1 {
 				print("adding clip \(index) to video")
-				let pathExtension = URL(string: manifest.snippetVideoURLs[index])!.pathExtension
+				let pathExtension = manifest.snippetVideoURLs[index].pathExtension
 				let videoAsset = AVURLAsset(url: assetDir.appendingPathComponent("\(index).\(pathExtension)"))
-				let audioAsset = AVURLAsset(url: assetDir.appendingPathComponent("\(index).mp3"))
-				let timeRange = CMTimeRange(start: .zero, duration: audioAsset.duration)
+				let duration = CMTime(seconds: manifest.snippetDurations[index], preferredTimescale: 44100) 
+				let timeRange = CMTimeRange(start: .zero, duration: duration)
 				if let videoAssetVideo = videoAsset.tracks(withMediaType: .video).first {
 					try videoTrack.insertTimeRange(timeRange, of: videoAssetVideo, at: insertTimePoint)
 					
 					// naturalSize appears to not include the transform. So, get the larger axis, scale to that, and trust
 					// that applying preferredTransform will set things right
 					let scaleFactor = 1920.0 / max(videoAssetVideo.naturalSize.height, videoAssetVideo.naturalSize.width)					
-					var transform = videoAssetVideo.preferredTransform.scaledBy(x: scaleFactor, y: scaleFactor )
+					let transform = videoAssetVideo.preferredTransform.scaledBy(x: scaleFactor, y: scaleFactor )
 					
 					let transformLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
 					transformLayerInstruction.setTransform(transform, at: insertTimePoint)
 					let videoCompositorInstructions = AVMutableVideoCompositionInstruction()
-					videoCompositorInstructions.timeRange = CMTimeRange(start: insertTimePoint, duration: audioAsset.duration)
+					videoCompositorInstructions.timeRange = CMTimeRange(start: insertTimePoint, duration: duration)
 					videoCompositorInstructions.layerInstructions = [transformLayerInstruction]
 					instructions.append(videoCompositorInstructions)
 				}
 				if let karaokeSinging = videoAsset.tracks(withMediaType: .audio).first {
 					try audioTrack.insertTimeRange(timeRange, of: karaokeSinging, at: insertTimePoint)
-				}
-				if let backingAudio = audioAsset.tracks(withMediaType: .audio).first {
-					try audioTrack2.insertTimeRange(timeRange, of: backingAudio, at: insertTimePoint)
-				}
-				
-				insertTimePoint = insertTimePoint + audioAsset.duration
+				}				
+				insertTimePoint = insertTimePoint + duration
 			}
 			
+			let audioAsset = AVURLAsset(url: assetDir.appendingPathComponent("karaokeaudio.mp3"))
+			if let backingAudio = audioAsset.tracks(withMediaType: .audio).first {
+				// 300ms is my dead reckoning of the audio delay factor for the recorded clips
+				let offset = CMTime(seconds: 0.300, preferredTimescale: 44100)
+				let timeRange = CMTimeRange(start: .zero, duration: insertTimePoint - offset)
+				try audioTrack2.insertTimeRange(timeRange, of: backingAudio, at: offset)
+			}
+
 			// Video Compositor is intended to be used to describe how to combine multiple video sources into
 			// output frames, but we're just using it to describe the rotation matrix to apply to each clip in the video.
 			let videoCompositor = AVMutableVideoComposition()
@@ -456,7 +488,7 @@ import UIKit
 			playerItem.videoComposition = videoCompositor
 			
 			DispatchQueue.main.async {
-				self.doneDownloadingSong?(playerItem, nil)
+				self.doneDownloadingSong?(playerItem, nil, nil)
 				self.doneDownloadingSong = nil
 				self.downloadingVideoForSongID = nil
 			}
@@ -484,7 +516,7 @@ import UIKit
 //			}
 		}
 		catch {
-			print("Error thrown: \(error)")
+			callDoneDownloadingFn(nil, nil, error.localizedDescription)
 		}
 	}
 }
@@ -536,10 +568,14 @@ public struct MicroKaraokeCompletedSong: Codable {
 	var songName: String
 	/// The artist, as they'd appear in karaoke metadata
 	var artistName: String
+	/// Always TRUE unless the user is a mod, in which case will be FALSE for songs that have all the necessary clips recorded but require mod approval to publish.
+	var modApproved: Bool
 	/// When the song's clips were last modified. Usually the time the final snippet gets uploaded (although 'final' means '30th out of 30'
 	/// and not 'the one at the end of the song'). However, clips can get deleted via moderation, causing the server to re-issue an offer
 	/// for the deleted clip, which may change the completion time. NIL if song isn't complete
 	var completionTime: Date?
+	/// TRUE if the current user contributed to the song
+	var userContributed: Bool
 }
 
 public struct MicroKaraokeSongManifest: Codable {
@@ -548,7 +584,9 @@ public struct MicroKaraokeSongManifest: Codable {
 	/// TRUE if all the clips for this song must be recorded in portrait mode. FALSE if they all need to be landscape.
 	var portraitMode: Bool
 	/// The video snippets that make up the song. Some snippets may be 'filler', such as for a song's instrumental section.
-	var snippetVideoURLs: [String]
+	var snippetVideoURLs: [URL]
+	/// How long each snippet should be, in seconds.
+	var snippetDurations: [Double]
 	/// The karaoke audio for the song
-	var snippetAudioURLs: [String]
+	var karaokeMusicTrack: URL
 }

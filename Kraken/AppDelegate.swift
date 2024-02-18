@@ -200,6 +200,8 @@ struct GlobalNavPacket {
 					tab = .lfg
 				case "events":
 					tab = .events
+				case "microkaraoke":
+					tab = .microKaraoke
 				default: tab = .daily
 			}
 		}
