@@ -43,7 +43,7 @@ import Foundation
 	}
 #else
 	@objc dynamic public var settingsBaseURL: URL {
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"http://twitarr.com")!) }
+		get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.com")!) }
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
 #endif
