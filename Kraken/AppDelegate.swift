@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
 	var backgroundSessionCompletionHandler: (() -> Void)?
+	var makeThisVCLandscape = false
 	
 	func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 //		LocalCoreData.shared.fullCoreDataReset()
@@ -85,6 +86,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		let packet = GlobalNavPacket(from: nil, url: url.absoluteString)
 		globalNavigateTo(packet: packet)
 		return true
+	}
+	
+	func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+		if makeThisVCLandscape {
+			return [.landscapeLeft, .landscapeRight]
+		}
+		return [.portrait]
 	}
 
 // MARK: State Restoration

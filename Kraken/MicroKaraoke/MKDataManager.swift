@@ -112,6 +112,9 @@ import UIKit
 				do {
 					var packet = try Settings.v3Decoder.decode(MicroKaraokeOfferPacket.self, from: data)
 					packet.lyrics = packet.lyrics.trimmingCharacters(in: .whitespacesAndNewlines)
+					
+//
+//packet.portraitMode = false
 					self.currentOffer = packet
 					self.currentOfferUser = CurrentUser.shared.loggedInUser
 					self.downloadListenClip(for: packet)
@@ -429,7 +432,7 @@ import UIKit
 			let audioTrack2 = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
 			
 			// Prep the composition for use
-			comp.naturalSize = CGSize(width: 1080, height: 1980)
+			comp.naturalSize = manifest.portraitMode ? CGSize(width: 1080, height: 1920) : CGSize(width: 1920, height: 1080)
 			var instructions = [AVMutableVideoCompositionInstruction]()
 			
 			for index in 0..<manifest.snippetVideoURLs.count {
@@ -462,8 +465,9 @@ import UIKit
 			
 			let audioAsset = AVURLAsset(url: assetDir.appendingPathComponent("karaokeaudio.mp3"))
 			if let backingAudio = audioAsset.tracks(withMediaType: .audio).first {
-				// 300ms is my dead reckoning of the audio delay factor for the recorded clips
-				let offset = CMTime(seconds: 0.300, preferredTimescale: 44100)
+				// 100ms is my dead reckoning of the audio delay factor for the recorded clips
+//				let offset = CMTime(seconds: 0.150, preferredTimescale: 44100)
+				let offset = CMTime(seconds: 0.190, preferredTimescale: 44100)
 				let timeRange = CMTimeRange(start: .zero, duration: insertTimePoint - offset)
 				try audioTrack2.insertTimeRange(timeRange, of: backingAudio, at: offset)
 			}
@@ -472,12 +476,12 @@ import UIKit
 			// output frames, but we're just using it to describe the rotation matrix to apply to each clip in the video.
 			let videoCompositor = AVMutableVideoComposition()
 			videoCompositor.instructions = instructions
-			videoCompositor.renderSize = CGSize(width: 1080, height: 1920)
+			videoCompositor.renderSize = comp.naturalSize
 			videoCompositor.frameDuration = CMTimeMake(value: 1, timescale: 30)
 			
 			let audioMix = AVMutableAudioMix()
 			let volumeParam = AVMutableAudioMixInputParameters(track: audioTrack2)
-			volumeParam.setVolume(0.5, at: CMTime.zero)
+			volumeParam.setVolume(2.5, at: CMTime.zero)
 			audioMix.inputParameters.append(volumeParam)
 			let vp2 = AVMutableAudioMixInputParameters(track: audioTrack)
 			vp2.setVolume(10.0, at: CMTime.zero)

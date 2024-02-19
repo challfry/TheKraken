@@ -178,9 +178,11 @@ class CompletedSongCell: BaseCollectionViewCell, CompletedSongCellProtocol {
 	dynamic var showDownloadView: Bool = false {
 		didSet {
 			downloadView.isHidden = !showDownloadView
-			if showDownloadView, progressTimer != nil {
-				progressTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
-					self.progressBar.progress = MicroKaraokeDataManager.shared.songDownloadProgress
+			if showDownloadView {
+				if progressTimer == nil {
+					progressTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { timer in
+						self.progressBar.progress = MicroKaraokeDataManager.shared.songDownloadProgress
+					}
 				}
 			}
 			else {

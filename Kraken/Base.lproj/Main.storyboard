@@ -374,7 +374,7 @@
                                 </connections>
                             </button>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="j9C-Jo-H8Z">
-                                <rect key="frame" x="0.0" y="144" width="414" height="669"/>
+                                <rect key="frame" x="0.0" y="144" width="414" height="718"/>
                                 <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="mtF-T2-95h">
                                     <size key="itemSize" width="50" height="50"/>
@@ -385,7 +385,7 @@
                                 <cells/>
                             </collectionView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IMs-sM-JMa" customClass="TableIndexView" customModule="Kraken" customModuleProvider="target">
-                                <rect key="frame" x="398" y="144" width="16" height="669"/>
+                                <rect key="frame" x="398" y="144" width="16" height="718"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="16" id="b8a-vc-zn0"/>
@@ -2549,11 +2549,19 @@ Additional info:</string>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hht-Z1-cZI">
-                                <rect key="frame" x="118.5" y="800" width="177" height="35"/>
+                                <rect key="frame" x="217" y="831" width="177" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Looks Good, Ship It!"/>
                                 <connections>
                                     <action selector="uploadButtonTapped" destination="dzH-mR-7Yh" eventType="touchUpInside" id="1oI-6p-TXe"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qbR-sd-IbG">
+                                <rect key="frame" x="20" y="831" width="65" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="tinted" title="Retry"/>
+                                <connections>
+                                    <action selector="retryButtonTapped:" destination="dzH-mR-7Yh" eventType="touchUpInside" id="5o3-7m-dlS"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -2561,17 +2569,20 @@ Additional info:</string>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="CVN-Gj-pMa" firstAttribute="top" secondItem="zjy-zV-7Cj" secondAttribute="top" id="0fy-bO-lwc"/>
-                            <constraint firstItem="Hht-Z1-cZI" firstAttribute="centerX" secondItem="BXj-3f-w8t" secondAttribute="centerX" id="2wr-9H-hoS"/>
-                            <constraint firstItem="BXj-3f-w8t" firstAttribute="bottom" secondItem="Hht-Z1-cZI" secondAttribute="bottom" constant="51" id="8HZ-DR-6U6"/>
+                            <constraint firstItem="BXj-3f-w8t" firstAttribute="bottom" secondItem="Hht-Z1-cZI" secondAttribute="bottom" constant="20" id="8HZ-DR-6U6"/>
+                            <constraint firstItem="qbR-sd-IbG" firstAttribute="leading" secondItem="BXj-3f-w8t" secondAttribute="leading" constant="20" id="BHm-LL-jug"/>
                             <constraint firstAttribute="trailing" secondItem="CVN-Gj-pMa" secondAttribute="trailing" id="KOY-Xp-okh"/>
+                            <constraint firstItem="qbR-sd-IbG" firstAttribute="centerY" secondItem="Hht-Z1-cZI" secondAttribute="centerY" id="Zlg-ss-o6y"/>
                             <constraint firstAttribute="bottom" secondItem="CVN-Gj-pMa" secondAttribute="bottom" id="hsQ-vc-NeZ"/>
+                            <constraint firstItem="BXj-3f-w8t" firstAttribute="trailing" secondItem="Hht-Z1-cZI" secondAttribute="trailing" constant="20" id="ozj-rJ-Pca"/>
                             <constraint firstItem="CVN-Gj-pMa" firstAttribute="leading" secondItem="zjy-zV-7Cj" secondAttribute="leading" id="wQF-jE-3hA"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="uploadButton" destination="Hht-Z1-cZI" id="E4c-Rh-zts"/>
                         <outlet property="videoView" destination="CVN-Gj-pMa" id="921-In-bHO"/>
-                        <segue destination="6BS-Lb-yVh" kind="unwind" identifier="doneRecordingClip" unwindAction="doneRecordingClipWithUnwindSegue:" id="M3y-2a-9Yf"/>
+                        <segue destination="6BS-Lb-yVh" kind="unwind" identifier="doneRecordingClip" animates="NO" unwindAction="doneRecordingClipWithUnwindSegue:" id="M3y-2a-9Yf"/>
+                        <segue destination="6BS-Lb-yVh" kind="unwind" identifier="retryMKRecording" unwindAction="retryMKRecordingWithUnwindSegue:" id="pob-GX-ElQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="C3m-kc-ba8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2591,7 +2602,7 @@ Additional info:</string>
                                 <rect key="frame" x="16" y="0.0" width="56.5" height="48"/>
                                 <buttonConfiguration key="configuration" style="gray" buttonSize="large"/>
                                 <connections>
-                                    <segue destination="f8y-oC-Tqt" kind="unwind" unwindAction="cancelledMKRecordingWithUnwindSegue:" id="yRo-m6-6is"/>
+                                    <action selector="closeButtonTapped" destination="MIJ-pn-3sl" eventType="touchUpInside" id="m5u-nc-uh5"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4dM-bH-W6S">
@@ -2619,6 +2630,28 @@ We do what we must because we can</string>
                                     <constraint firstItem="YfT-e3-Iqy" firstAttribute="leading" secondItem="9X2-cc-pVg" secondAttribute="leading" constant="16" id="ilT-c7-u28"/>
                                     <constraint firstAttribute="bottom" secondItem="YfT-e3-Iqy" secondAttribute="bottom" constant="8" id="lgx-Wq-FLW"/>
                                     <constraint firstItem="YfT-e3-Iqy" firstAttribute="top" secondItem="9X2-cc-pVg" secondAttribute="top" constant="8" id="z99-Uy-nM4"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Cry-oZ-h7Z" userLabel="Rotate Device RoundRect" customClass="MKRotateDialogRRiew" customModule="Kraken" customModuleProvider="target">
+                                <rect key="frame" x="57" y="323.5" width="300" height="249.5"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1SX-oc-SrU">
+                                        <rect key="frame" x="10" y="10" width="280" height="229.5"/>
+                                        <string key="text">This video is in Portrait Mode, which means that everybody needs to record themselves in Portrait Mode.
+
+Rotate your device to continue.</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                        <color key="textColor" name="Camera Preview Label FG"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" name="Camera Preview Label BG"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="1SX-oc-SrU" secondAttribute="trailing" constant="10" id="Qxs-Ir-ra3"/>
+                                    <constraint firstItem="1SX-oc-SrU" firstAttribute="leading" secondItem="Cry-oZ-h7Z" secondAttribute="leading" constant="10" id="kxe-0D-12R"/>
+                                    <constraint firstAttribute="width" constant="300" id="ojX-Gg-gdv"/>
+                                    <constraint firstItem="1SX-oc-SrU" firstAttribute="top" secondItem="Cry-oZ-h7Z" secondAttribute="top" constant="10" id="p8U-L9-jGX"/>
+                                    <constraint firstAttribute="bottom" secondItem="1SX-oc-SrU" secondAttribute="bottom" constant="10" id="sNx-Io-k19"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="I0S-2b-F9L" userLabel="Guide RoundRect">
@@ -2678,12 +2711,14 @@ you'll be singing.</string>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="HoY-ls-e19" secondAttribute="trailing" priority="200" constant="32" id="8eM-tK-7bI"/>
+                            <constraint firstItem="Cry-oZ-h7Z" firstAttribute="centerX" secondItem="o71-Ja-xie" secondAttribute="centerX" id="A0k-dV-O2x"/>
                             <constraint firstItem="4dM-bH-W6S" firstAttribute="centerX" secondItem="o71-Ja-xie" secondAttribute="centerX" id="CdA-kH-lQy"/>
                             <constraint firstItem="o71-Ja-xie" firstAttribute="bottom" secondItem="HoY-ls-e19" secondAttribute="bottom" constant="80" id="Cdm-Ml-KUH"/>
                             <constraint firstItem="HoY-ls-e19" firstAttribute="leading" secondItem="Avj-YR-bXR" secondAttribute="leading" constant="32" id="GXF-v3-4W5"/>
                             <constraint firstItem="4dM-bH-W6S" firstAttribute="top" relation="greaterThanOrEqual" secondItem="o71-Ja-xie" secondAttribute="top" constant="20" id="HiP-rm-1AH"/>
                             <constraint firstItem="YWn-N0-duk" firstAttribute="leading" secondItem="o71-Ja-xie" secondAttribute="leading" constant="16" id="VGD-1L-V8X"/>
                             <constraint firstItem="o71-Ja-xie" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="9X2-cc-pVg" secondAttribute="trailing" constant="32" id="YBC-TB-l43"/>
+                            <constraint firstItem="Cry-oZ-h7Z" firstAttribute="centerY" secondItem="o71-Ja-xie" secondAttribute="centerY" id="YuW-UP-1YM"/>
                             <constraint firstItem="I0S-2b-F9L" firstAttribute="top" secondItem="9X2-cc-pVg" secondAttribute="bottom" constant="20" id="aRV-6T-vxc"/>
                             <constraint firstItem="I0S-2b-F9L" firstAttribute="leading" secondItem="HoY-ls-e19" secondAttribute="leading" id="eBE-BN-tFi"/>
                             <constraint firstItem="YWn-N0-duk" firstAttribute="top" secondItem="o71-Ja-xie" secondAttribute="top" id="fAm-E1-YkA"/>
@@ -2704,7 +2739,10 @@ you'll be singing.</string>
                         <outlet property="lyricLabel" destination="YfT-e3-Iqy" id="Rqi-FI-2yT"/>
                         <outlet property="lyricRoundRect" destination="9X2-cc-pVg" id="Mmo-Ck-oK5"/>
                         <outlet property="recordButton" destination="njM-Us-t59" id="oB6-xi-qRL"/>
+                        <outlet property="rotationDialogView" destination="Cry-oZ-h7Z" id="Xrn-jb-EPh"/>
                         <segue destination="dzH-mR-7Yh" kind="presentation" identifier="playbackRecording" id="ODT-GD-PX1"/>
+                        <segue destination="f8y-oC-Tqt" kind="unwind" identifier="cancelledMKRecording" unwindAction="cancelledMKRecordingWithUnwindSegue:" id="y1k-kF-rJd"/>
+                        <segue destination="f8y-oC-Tqt" kind="unwind" identifier="doneRecordingClip" unwindAction="doneRecordingClipWithUnwindSegue:" id="BiA-cQ-8MK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vLt-jb-3RG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2755,22 +2793,29 @@ you'll be singing.</string>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Okay"/>
                                 <connections>
-                                    <segue destination="MIJ-pn-3sl" kind="showDetail" identifier="MicroKaraokeCamera" id="2VF-Uz-Vml"/>
+                                    <action selector="okayButtonHit:" destination="wBm-15-ajS" eventType="touchUpInside" id="X48-AH-S3i"/>
                                 </connections>
                             </button>
+                            <view hidden="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PAB-fI-WZt" userLabel="Cover View">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6MG-QA-GpG"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="PAB-fI-WZt" firstAttribute="top" secondItem="6MG-QA-GpG" secondAttribute="top" id="1mc-ew-ZEj"/>
                             <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="M0s-rg-UHO" secondAttribute="trailing" constant="32" id="2LZ-hR-yKA"/>
                             <constraint firstItem="3BA-fC-t2p" firstAttribute="top" secondItem="7iZ-rF-Q8G" secondAttribute="bottom" constant="8" symbolic="YES" id="4dt-JH-qvG"/>
                             <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="2sF-jJ-w9U" secondAttribute="trailing" constant="32" id="4eh-Po-kwU"/>
                             <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="Oy8-vk-khq" secondAttribute="trailing" constant="32" id="5ir-OQ-Tct"/>
                             <constraint firstItem="7iZ-rF-Q8G" firstAttribute="top" secondItem="6MG-QA-GpG" secondAttribute="top" constant="50" id="7Kr-iL-ixJ"/>
                             <constraint firstItem="Oy8-vk-khq" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="8Rr-xd-Exb"/>
+                            <constraint firstItem="PAB-fI-WZt" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" id="AUt-1A-jYj"/>
                             <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="7iZ-rF-Q8G" secondAttribute="trailing" constant="32" id="ILu-hy-eYe"/>
                             <constraint firstItem="M0s-rg-UHO" firstAttribute="top" secondItem="3BA-fC-t2p" secondAttribute="bottom" constant="50" id="LhQ-Ws-Elj"/>
                             <constraint firstItem="Oy8-vk-khq" firstAttribute="top" secondItem="2sF-jJ-w9U" secondAttribute="bottom" constant="50" id="Mn4-zm-5RO"/>
+                            <constraint firstItem="6MG-QA-GpG" firstAttribute="bottom" secondItem="PAB-fI-WZt" secondAttribute="bottom" id="Tql-8q-7Q8"/>
                             <constraint firstItem="7iZ-rF-Q8G" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="VDv-VW-Q1J"/>
                             <constraint firstItem="H8b-9V-mMi" firstAttribute="centerX" secondItem="6MG-QA-GpG" secondAttribute="centerX" id="eLo-sk-mxS"/>
                             <constraint firstItem="3BA-fC-t2p" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="ewi-PG-6ec"/>
@@ -2778,19 +2823,183 @@ you'll be singing.</string>
                             <constraint firstItem="M0s-rg-UHO" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="ilS-cZ-PCq"/>
                             <constraint firstItem="2sF-jJ-w9U" firstAttribute="leading" secondItem="6MG-QA-GpG" secondAttribute="leading" constant="32" id="jlT-lF-jft"/>
                             <constraint firstItem="6MG-QA-GpG" firstAttribute="bottom" secondItem="H8b-9V-mMi" secondAttribute="bottom" constant="32" id="kbS-be-2SA"/>
+                            <constraint firstItem="6MG-QA-GpG" firstAttribute="trailing" secondItem="PAB-fI-WZt" secondAttribute="trailing" id="kk7-pQ-ddt"/>
                             <constraint firstItem="2sF-jJ-w9U" firstAttribute="top" secondItem="M0s-rg-UHO" secondAttribute="bottom" constant="8" symbolic="YES" id="n2w-Pv-7xK"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="TIU-xu-8xi"/>
                     <connections>
                         <outlet property="artistLabel" destination="2sF-jJ-w9U" id="flO-Hx-Emp"/>
+                        <outlet property="blackCoverView" destination="PAB-fI-WZt" id="EsB-WK-1Tr"/>
                         <outlet property="playlistSongLabel" destination="Oy8-vk-khq" id="Dqx-tw-gMX"/>
                         <outlet property="songTitleLabel" destination="3BA-fC-t2p" id="OE1-3n-TvQ"/>
+                        <segue destination="MIJ-pn-3sl" kind="presentation" identifier="MicroKaraokeCamera" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="qAh-8n-0jz"/>
+                        <segue destination="Qnt-Bq-Opg" kind="presentation" identifier="MicroKaraokeCameraLandscape" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="u4n-Yt-IXE"/>
+                        <segue destination="Pzw-WX-oUp" kind="unwind" identifier="doneRecordingClip" unwindAction="doneRecordingClipWithUnwindSegue:" id="bxn-lX-HNJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WMR-Mx-PB5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="Pzw-WX-oUp" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="-6800.0000000000009" y="-1677.4553571428571"/>
+            <point key="canvasLocation" x="-7091" y="-192"/>
+        </scene>
+        <!--MK Landscape Camera VC-->
+        <scene sceneID="LRT-aD-JEg">
+            <objects>
+                <viewController id="Qnt-Bq-Opg" userLabel="MK Landscape Camera VC" customClass="MKCameraViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="3dl-tn-eWb">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fd5-RQ-xQ2">
+                                <rect key="frame" x="20" y="20" width="56.5" height="48"/>
+                                <buttonConfiguration key="configuration" style="gray" buttonSize="large"/>
+                                <connections>
+                                    <action selector="closeButtonTapped" destination="Qnt-Bq-Opg" eventType="touchUpInside" id="qyf-V7-Xee"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SlR-B1-lae" userLabel="Countdown Label">
+                                <rect key="frame" x="236" y="218.5" width="178" height="359"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="300"/>
+                                <color key="textColor" name="Camera Preview Label FG"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ts6-DP-qYd" userLabel="Lyric RoundRect" customClass="MKCameraRoundedRectView" customModule="Kraken" customModuleProvider="target">
+                                <rect key="frame" x="47" y="718" width="320" height="95"/>
+                                <subviews>
+                                    <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fLG-iS-C2a">
+                                        <rect key="frame" x="16" y="8" width="288" height="79"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <string key="text">Aperture Science
+We do what we must because we can</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                        <color key="textColor" name="Camera Preview Label FG"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="fLG-iS-C2a" secondAttribute="bottom" constant="8" id="WX7-N0-kLy"/>
+                                    <constraint firstAttribute="trailing" secondItem="fLG-iS-C2a" secondAttribute="trailing" constant="16" id="eds-hj-p0C"/>
+                                    <constraint firstAttribute="width" constant="320" id="g9w-uV-AcR"/>
+                                    <constraint firstItem="fLG-iS-C2a" firstAttribute="top" secondItem="ts6-DP-qYd" secondAttribute="top" constant="8" id="kij-QB-zj5"/>
+                                    <constraint firstItem="fLG-iS-C2a" firstAttribute="leading" secondItem="ts6-DP-qYd" secondAttribute="leading" constant="16" id="y9q-AD-YQT"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gqy-MU-agU" userLabel="Guide RoundRect">
+                                <rect key="frame" x="7" y="833" width="400" height="61"/>
+                                <subviews>
+                                    <label userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u2c-Co-8zl">
+                                        <rect key="frame" x="8" y="4" width="384" height="53"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <string key="text">1. Tap Listen to learn the line
+you'll be singing.</string>
+                                        <fontDescription key="fontDescription" type="italicSystem" pointSize="22"/>
+                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" name="Camera Preview Label BG"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="400" id="JXq-UQ-UA7"/>
+                                    <constraint firstAttribute="bottom" secondItem="u2c-Co-8zl" secondAttribute="bottom" constant="4" id="SGo-IW-Ihh"/>
+                                    <constraint firstAttribute="trailing" secondItem="u2c-Co-8zl" secondAttribute="trailing" constant="8" id="p2U-tJ-OOd"/>
+                                    <constraint firstItem="u2c-Co-8zl" firstAttribute="top" secondItem="gqy-MU-agU" secondAttribute="top" constant="4" id="rF8-qL-IgJ"/>
+                                    <constraint firstItem="u2c-Co-8zl" firstAttribute="leading" secondItem="gqy-MU-agU" secondAttribute="leading" constant="8" id="vcC-cV-jEt"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xRI-5M-Ttd" userLabel="Button Cluster">
+                                <rect key="frame" x="0.0" y="825.5" width="414" height="50.5"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DCK-Bn-ykh">
+                                        <rect key="frame" x="0.0" y="0.0" width="86" height="50.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Listen" buttonSize="large"/>
+                                        <connections>
+                                            <action selector="listenButtonHit" destination="Qnt-Bq-Opg" eventType="touchUpInside" id="aIh-GB-Goy"/>
+                                            <action selector="listenButtonHit" destination="MIJ-pn-3sl" eventType="touchUpInside" id="qyE-bt-IhV"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WQG-QN-QeZ">
+                                        <rect key="frame" x="319.5" y="0.0" width="94.5" height="50.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Record" buttonSize="large"/>
+                                        <connections>
+                                            <action selector="recordButtonHit" destination="Qnt-Bq-Opg" eventType="touchUpInside" id="ckw-48-6sE"/>
+                                            <action selector="recordButtonHit" destination="MIJ-pn-3sl" eventType="touchUpInside" id="fyC-cE-uTD"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="WQG-QN-QeZ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="DCK-Bn-ykh" secondAttribute="trailing" constant="20" id="Aw7-bg-cno"/>
+                                    <constraint firstItem="DCK-Bn-ykh" firstAttribute="top" secondItem="xRI-5M-Ttd" secondAttribute="top" id="KT3-z4-ZVb"/>
+                                    <constraint firstAttribute="bottom" secondItem="WQG-QN-QeZ" secondAttribute="bottom" id="Pwc-Bt-iMK"/>
+                                    <constraint firstAttribute="bottom" secondItem="DCK-Bn-ykh" secondAttribute="bottom" id="UjU-zr-wCp"/>
+                                    <constraint firstAttribute="trailing" secondItem="WQG-QN-QeZ" secondAttribute="trailing" id="aRC-04-Z12"/>
+                                    <constraint firstItem="DCK-Bn-ykh" firstAttribute="leading" secondItem="xRI-5M-Ttd" secondAttribute="leading" id="qqh-xe-0R8"/>
+                                    <constraint firstItem="WQG-QN-QeZ" firstAttribute="top" secondItem="xRI-5M-Ttd" secondAttribute="top" id="xGe-UL-BnI"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LEQ-LC-Nfy" userLabel="Rotate Device RoundRect" customClass="MKRotateDialogRRiew" customModule="Kraken" customModuleProvider="target">
+                                <rect key="frame" x="57" y="338" width="300" height="220.5"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vIm-Dw-7BO">
+                                        <rect key="frame" x="10" y="10" width="280" height="200.5"/>
+                                        <string key="text">This video is in Landscape Mode, which means that everybody needs to record themselves in Landscape.
+
+Rotate your device to continue.</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                        <color key="textColor" name="Camera Preview Label FG"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" name="Camera Preview Label BG"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="vIm-Dw-7BO" secondAttribute="bottom" constant="10" id="9Ej-Wk-CmJ"/>
+                                    <constraint firstItem="vIm-Dw-7BO" firstAttribute="top" secondItem="LEQ-LC-Nfy" secondAttribute="top" constant="10" id="PUk-hX-ZeL"/>
+                                    <constraint firstItem="vIm-Dw-7BO" firstAttribute="leading" secondItem="LEQ-LC-Nfy" secondAttribute="leading" constant="10" id="meP-z6-hh5"/>
+                                    <constraint firstAttribute="trailing" secondItem="vIm-Dw-7BO" secondAttribute="trailing" constant="10" id="qy5-Kz-Z9B"/>
+                                    <constraint firstAttribute="width" constant="300" id="yaq-u3-DWA"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="AKo-aX-NUr"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="LEQ-LC-Nfy" firstAttribute="centerX" secondItem="AKo-aX-NUr" secondAttribute="centerX" id="152-ZL-s0i"/>
+                            <constraint firstItem="xRI-5M-Ttd" firstAttribute="trailing" secondItem="AKo-aX-NUr" secondAttribute="trailing" id="5v5-4E-CaW"/>
+                            <constraint firstItem="AKo-aX-NUr" firstAttribute="bottom" secondItem="xRI-5M-Ttd" secondAttribute="bottom" constant="20" id="8VR-IS-QHw"/>
+                            <constraint firstItem="Fd5-RQ-xQ2" firstAttribute="top" secondItem="AKo-aX-NUr" secondAttribute="top" constant="20" id="E1I-so-qvy"/>
+                            <constraint firstItem="LEQ-LC-Nfy" firstAttribute="centerY" secondItem="AKo-aX-NUr" secondAttribute="centerY" id="JiW-SY-Ndj"/>
+                            <constraint firstItem="gqy-MU-agU" firstAttribute="centerX" secondItem="AKo-aX-NUr" secondAttribute="centerX" id="TNa-kh-qoa"/>
+                            <constraint firstItem="AKo-aX-NUr" firstAttribute="bottom" secondItem="gqy-MU-agU" secondAttribute="bottom" constant="2" id="V5H-vF-VmT"/>
+                            <constraint firstItem="AKo-aX-NUr" firstAttribute="trailing" secondItem="SlR-B1-lae" secondAttribute="trailing" id="WOY-7p-XRR"/>
+                            <constraint firstItem="ts6-DP-qYd" firstAttribute="centerX" secondItem="AKo-aX-NUr" secondAttribute="centerX" id="WnY-yf-eH4"/>
+                            <constraint firstItem="gqy-MU-agU" firstAttribute="top" secondItem="ts6-DP-qYd" secondAttribute="bottom" constant="20" id="YcQ-nJ-fjb"/>
+                            <constraint firstItem="SlR-B1-lae" firstAttribute="centerY" secondItem="AKo-aX-NUr" secondAttribute="centerY" constant="-50" id="Ykv-X6-vlR"/>
+                            <constraint firstItem="Fd5-RQ-xQ2" firstAttribute="leading" secondItem="AKo-aX-NUr" secondAttribute="leading" constant="20" id="lWD-Mh-WDP"/>
+                            <constraint firstItem="AKo-aX-NUr" firstAttribute="leading" secondItem="xRI-5M-Ttd" secondAttribute="leading" id="s1d-5d-uW8"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="cameraView" destination="3dl-tn-eWb" id="eX6-Jv-hAe"/>
+                        <outlet property="countdownLabel" destination="SlR-B1-lae" id="g2m-7A-9Qq"/>
+                        <outlet property="guideLabel" destination="u2c-Co-8zl" id="pEH-7c-ROY"/>
+                        <outlet property="listenButton" destination="DCK-Bn-ykh" id="4Um-1U-kOO"/>
+                        <outlet property="lyricLabel" destination="fLG-iS-C2a" id="Vf1-Gc-TDq"/>
+                        <outlet property="lyricRoundRect" destination="ts6-DP-qYd" id="cne-hE-FEY"/>
+                        <outlet property="recordButton" destination="WQG-QN-QeZ" id="TJi-hI-eyH"/>
+                        <outlet property="rotationDialogView" destination="LEQ-LC-Nfy" id="8VX-Sl-0d4"/>
+                        <segue destination="Lwe-Zt-AFe" kind="unwind" identifier="cancelledMKRecording" unwindAction="cancelledMKRecordingWithUnwindSegue:" id="a3D-y7-dmh"/>
+                        <segue destination="dzH-mR-7Yh" kind="presentation" identifier="playbackRecording" id="ixJ-gR-Thn"/>
+                        <segue destination="Lwe-Zt-AFe" kind="unwind" identifier="doneRecordingClip" unwindAction="doneRecordingClipWithUnwindSegue:" id="fHT-aN-G2X"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Zsk-k6-wxI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="Lwe-Zt-AFe" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="-7091" y="567"/>
         </scene>
         <!--Micro Karaoke-->
         <scene sceneID="Lfn-gi-d2p">
@@ -2824,7 +3033,6 @@ you'll be singing.</string>
                     <navigationItem key="navigationItem" title="Micro Karaoke" id="J3G-9q-B8A"/>
                     <connections>
                         <outlet property="collectionView" destination="5Du-Lc-yCs" id="SvN-kd-meu"/>
-                        <segue destination="MIJ-pn-3sl" kind="showDetail" identifier="MicroKaraokeCamera" id="043-Qz-asL"/>
                         <segue destination="wBm-15-ajS" kind="showDetail" identifier="MicroKaraokeTitleCard" id="RZe-Ul-kCv"/>
                     </connections>
                 </viewController>
@@ -3194,7 +3402,7 @@ you'll be singing.</string>
         <segue reference="HJe-et-hA8"/>
         <segue reference="K5i-zM-yNP"/>
         <segue reference="4tn-AW-brx"/>
-        <segue reference="2VF-Uz-Vml"/>
+        <segue reference="ixJ-gR-Thn"/>
         <segue reference="iin-6d-KBo"/>
         <segue reference="Pow-sP-93l"/>
         <segue reference="eWg-hD-M7J"/>
@@ -3212,7 +3420,7 @@ you'll be singing.</string>
         <segue reference="gdr-Cd-yXW"/>
         <segue reference="ZQM-8h-AgF"/>
         <segue reference="wjx-Zr-mfc"/>
-        <segue reference="rR9-QS-2f0"/>
+        <segue reference="aAg-J3-yGc"/>
         <segue reference="2Ae-eC-yt5"/>
         <segue reference="jdD-6N-h46"/>
         <segue reference="eE5-IR-ObY"/>

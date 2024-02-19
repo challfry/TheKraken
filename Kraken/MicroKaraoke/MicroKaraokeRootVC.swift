@@ -54,6 +54,7 @@ class MicroKaraokeRootViewController: BaseCollectionViewController {
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
 			if let _ = observed.loggedInUser?.userID {
         		observer.mkDataSource.register(with: observer.collectionView, viewController: observer)
+				MicroKaraokeDataManager.shared.getCompletedVideos()
 			}
        		else {
        			// If nobody's logged in, pop to root, show the login cells.
@@ -94,7 +95,6 @@ class MicroKaraokeRootViewController: BaseCollectionViewController {
 				self.explainerCell.enableActionButton = true
 				self.loadingCell.shouldBeVisible = false
 				self.errorObservation?.stopObservations()
-//				self.performKrakenSegue(.microKaraokeCamera, sender: nil)
 				self.performKrakenSegue(.microKaraokeTitleCard, sender: nil)
 			}
 		})
@@ -134,6 +134,7 @@ class MicroKaraokeRootViewController: BaseCollectionViewController {
 	
 	// Called by the CompletedSongCellModel when the music video is ready to view
 	func showMovie(_ finishedMovie: AVPlayerItem) {
+		try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.defaultToSpeaker])
 		let player = AVPlayer(playerItem: finishedMovie)
 		let newVC = AVPlayerViewController()
 		newVC.player = player

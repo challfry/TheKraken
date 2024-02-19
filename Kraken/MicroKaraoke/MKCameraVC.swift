@@ -19,6 +19,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 	@IBOutlet weak var guideLabel: UILabel!
 	@IBOutlet weak var listenButton: UIButton!
 	@IBOutlet weak var recordButton: UIButton!
+	@IBOutlet weak var rotationDialogView: MKCameraRoundedRectView!
 	
 	// Props we need to run the camera
 	var captureSession = AVCaptureSession()
@@ -40,16 +41,19 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 	var listenedOnce: Bool = false			// TRUE once the user listens to the cue track at least once.
 	var countdownTimer: Timer?
 	var secondsOnTimer: Int = 3
-	
+	var landscapeRecording = false
+
+// MARK: -	
 	override func viewDidLoad() {
         super.viewDidLoad()
+        landscapeRecording = MicroKaraokeDataManager.shared.getCurrentOffer()?.portraitMode == false
+		(UIApplication.shared.delegate as? AppDelegate)?.makeThisVCLandscape = landscapeRecording
 		try? configureAVSession()
 		
 		// CoreMotion is our own device motion manager, a singleton for the whole app. We use it here to get device
 		// orientation without allowing our UI to actually rotate.
-		NotificationCenter.default.addObserver(self, selector: #selector(CameraViewController.deviceRotationNotification), 
+		NotificationCenter.default.addObserver(self, selector: #selector(MKCameraViewController.deviceRotationNotification), 
 				name: CoreMotion.OrientationChanged, object: nil)
-						      	        
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
@@ -63,15 +67,20 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		
 		UIApplication.shared.isIdleTimerDisabled = true
 		recordButton.isEnabled = false
-//		rotateCameraViewsForDeviceRotation(with: nil)
 
 		lyricLabel.text = MicroKaraokeDataManager.shared.getCurrentOffer()?.lyrics
+		rotationDialogView.isHidden = true
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
-    	super.viewDidAppear(animated)		
+    	super.viewDidAppear(animated)	
 	}
 
+	override func viewWillDisappear(_ animated: Bool) {
+		(UIApplication.shared.delegate as? AppDelegate)?.makeThisVCLandscape = false
+		super.viewWillDisappear(animated)
+	}
+	
 	override func viewDidDisappear(_ animated: Bool) {
     	super.viewDidDisappear(animated)
 		CoreMotion.shared.stop(client: "MicroKaraokeRecord")
@@ -83,23 +92,147 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		try? AVAudioSession.sharedInstance().setActive(false)
 	}
 	
+// MARK: - Navigation
+	// This is the unwind segue for when the user taps Retry from the Review Clip view
+	@IBAction func retryMKRecording(unwindSegue: UIStoryboardSegue) {
+		setButtonStates()
+	}
+		
+// MARK: - Rotation	
+	// DEVICE rotation angle: 0 is portrait, then clockwise. The UI counter-rotates relative to the device, so when
+	// the device is at 90 degrees, the UI is at 270 degrees.
+	var deviceRotationAngle: Int = 0	
+
 	override var shouldAutorotate: Bool {
-		return false
+		return true
 	}
 	
 	override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-		return .portrait
+		if landscapeRecording {
+			return [.landscapeRight]
+		}
+		else {
+			return .portrait
+		}
 	}
 	
 	func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation {
-		return UIInterfaceOrientation.portrait
+		if landscapeRecording {
+			return .landscapeRight
+		}
+		else {
+			return .portrait
+		}
 	}
 	
 	// This VC doesn't actually rotate, it technically stays in Portrait all the time. However, it 
 	// rotates a bunch of its UI widgets via affine transforms when device rotation is detected. Also,
 	// the notification this responds to is a custom app notification, not a system one.
 	@objc func deviceRotationNotification(_ notification: Notification) {
-		NSLog("rotation")
+		handleDeviceRotation()
+	}
+	
+	func handleDeviceRotation() {		
+		var dialogRotationAngle: Int = 0
+		var isLandscape = false
+		switch CoreMotion.shared.currentDeviceOrientation {
+			case .portrait, .faceUp, .unknown: dialogRotationAngle = 0
+			case .landscapeLeft: dialogRotationAngle = 90; isLandscape = true
+			case .landscapeRight: dialogRotationAngle = -90; isLandscape = true
+			case .portraitUpsideDown, .faceDown: dialogRotationAngle = 180
+			default: dialogRotationAngle = 0
+		}
+		
+		if landscapeRecording {
+			if deviceRotationAngle == 0 {
+				deviceRotationAngle = 270	// Initial state for landscape, where 'up' is when the phone is turned to the left.
+			}
+			dialogRotationAngle += deviceRotationAngle
+		}
+		
+		if isLandscape && !landscapeRecording || !isLandscape && landscapeRecording {
+			self.rotationDialogView.isHidden = false
+			rotationDialogView.alpha = 0.0
+			UIView.animate(withDuration: 0.5) {
+				self.rotationDialogView.alpha = 1.0
+			}
+			let rotationDialogXform = CGAffineTransform(rotationAngle: CGFloat.pi * CGFloat(dialogRotationAngle) / 180.0)
+			rotationDialogView.transform = rotationDialogXform
+			stopRecording(false)
+		}
+		else {
+			UIView.animate(withDuration: 0.5, animations: {	self.rotationDialogView.alpha = 0.0 }, 
+					completion: { completed in 
+					self.rotationDialogView.isHidden = true
+					self.setButtonStates()
+					})
+		}
+		
+		if landscapeRecording {
+			if CoreMotion.shared.currentDeviceOrientation == .landscapeLeft && deviceRotationAngle != 270 {
+				let rootViewXform = CGAffineTransform(rotationAngle: CGFloat.pi * CGFloat(0) / 180.0)
+				UIView.animate(withDuration: 0.5) { self.cameraView.transform = rootViewXform }
+				cameraPreview?.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
+				videoOutput.connections.forEach {
+					if $0.isVideoOrientationSupported {
+						$0.videoOrientation = .landscapeRight
+					}
+				}
+				deviceRotationAngle = 270
+			}
+			else if CoreMotion.shared.currentDeviceOrientation == .landscapeRight && deviceRotationAngle != 90 {
+				let rootViewXform = CGAffineTransform(rotationAngle: CGFloat.pi * CGFloat(180) / 180.0)
+				UIView.animate(withDuration: 0.5) { self.cameraView.transform = rootViewXform }
+				cameraPreview?.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeLeft
+				videoOutput.connections.forEach {
+					if $0.isVideoOrientationSupported {
+						$0.videoOrientation = .landscapeLeft
+					}
+				}
+				deviceRotationAngle = 90
+			}
+		}
+		setButtonStates()
+		cameraPreview?.frame = cameraView.bounds
+	}
+	
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		if landscapeRecording && deviceRotationAngle == 0 {
+			handleDeviceRotation()
+		}
+	}	
+	
+// MARK: - Buttons
+	func setButtonStates() {
+		if !rotationDialogView.isHidden {
+			// Disable all until device rotated
+			listenButton.isEnabled = false
+			recordButton.isEnabled = false
+			listenButton.setTitle("Listen", for: .normal)
+			recordButton.setTitle("Record", for: .normal)
+		}
+		else if !countdownLabel.isHidden || videoOutput.isRecording {
+			// Recording, or about to record. Disable listen, record button should be renamed 'stop'.
+			listenButton.isEnabled = false
+			recordButton.isEnabled = true
+			listenButton.setTitle("Listen", for: .normal)
+			recordButton.setTitle("Stop", for: .normal)
+		}
+		else if let _ = soundPlayer {
+			// Listing to the voice clip. Listen button is renamed 'stop'. Cannot record while listening.
+			listenButton.isEnabled = true
+			recordButton.isEnabled = false
+			listenButton.setTitle("Stop", for: .normal)
+			recordButton.setTitle("Record", for: .normal)
+		}
+		else {
+			// Initial state, except record enables once user has lietened to the clip once.
+			listenButton.isEnabled = true
+			recordButton.isEnabled = listenedOnce
+			listenButton.setTitle("Listen", for: .normal)
+			recordButton.setTitle("Record", for: .normal)
+		}
 	}
 
 	@IBAction func listenButtonHit() {
@@ -109,13 +242,11 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 				audioPlayerDidFinishPlaying(player, successfully: false)
 				return
 			}
-//			guard let songclip = Bundle.main.url(forResource: "Still Alive/3/listen", withExtension: "mp3") else { return }
 			if let vocalSoundURL = MicroKaraokeDataManager.shared.currentListenFile {
 				soundPlayer = try AVAudioPlayer(contentsOf: vocalSoundURL) 
 				soundPlayer?.play()
 				soundPlayer?.delegate = self
-				listenButton.setTitle("Stop", for: .normal)
-				recordButton.isEnabled = false
+				setButtonStates()
 			}
 		} catch let error as NSError {
 			print(error.description)
@@ -125,23 +256,17 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 	@IBAction func recordButtonHit() {
 		do {
 			if countdownLabel.isHidden == false {
-				countdownTimer?.invalidate()
-				countdownTimer = nil
-				countdownLabel.isHidden = true
-				listenButton.isEnabled = true
-				recordButton.setTitle("Record", for: .normal)
+				stopRecording()
 				return
 			}
-			if let player = soundPlayer {
-				player.stop()
-				audioPlayerDidFinishPlaying(player, successfully: false)
+			if let _ = soundPlayer {
+				stopRecording()
 				return
 			}
-			listenButton.isEnabled = false
-			recordButton.setTitle("Stop", for: .normal)
 			secondsOnTimer = 3
 			countdownLabel.text = "\(self.secondsOnTimer)"
 			self.countdownLabel.isHidden = false
+			setButtonStates()
 			
 //			guard let songclip = Bundle.main.url(forResource: "Still Alive/3/record", withExtension: "mp3") else { return }
 			if let karaokeSoundURL = MicroKaraokeDataManager.shared.currentRecordFile {
@@ -152,6 +277,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 				self.soundPlayer = promptPlayer
 				promptPlayer.delegate = self
 				promptPlayer.setVolume(0.05, fadeDuration: 0.0)
+				promptPlayer.prepareToPlay()
 
 				//  Testing shows this doesn't actually make a video that's quite as long as the limit.
 				// videoOutput.maxRecordedDuration = CMTime(seconds: promptPlayer.duration, preferredTimescale: 44100)
@@ -188,6 +314,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 	}
 
 	@IBAction func closeButtonTapped() {
+		(UIApplication.shared.delegate as? AppDelegate)?.makeThisVCLandscape = false
 		performSegue(withIdentifier: "cancelledMKRecording", sender: nil)
 	}
 	
@@ -198,7 +325,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		return
 		#else
 		
-		captureSession.sessionPreset = .high
+		captureSession.sessionPreset = .hd1280x720
 
 		// Find our initial camera, and set up our array of camera devices
 //		discoverer = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
@@ -243,15 +370,25 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 			
 			videoOutput.connections.forEach {
 				if $0.isVideoOrientationSupported {
-					$0.videoOrientation = .portrait
+					$0.videoOrientation = landscapeRecording ? .landscapeRight : .portrait
+				}
+				if $0.isVideoMirroringSupported {
+					$0.isVideoMirrored = true
 				}
 			}
 		}
 
-		cameraPreview = AVCaptureVideoPreviewLayer(session: captureSession)
-		cameraPreview!.videoGravity = AVLayerVideoGravity.resizeAspectFill
-		cameraPreview!.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
-		cameraView.layer.insertSublayer(cameraPreview!, at: 0)
+		let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+		cameraPreview = previewLayer
+		previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+		if landscapeRecording {
+			previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
+		}
+		else {
+			previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
+		}
+		cameraView.layer.insertSublayer(previewLayer, at: 0)
+		previewLayer.frame = cameraView.bounds
 		captureSession.commitConfiguration()
 		
 //		print("Connections: \(captureSession.connections)")
@@ -276,10 +413,18 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		videoOutput.startRecording(to: fileUrl, recordingDelegate: self)
 	}
 	
-	func stopRecording() {
+	func stopRecording(_ recordingComplete: Bool = false) {
+		recordingStoppedEarly = !recordingComplete
 	    videoOutput.stopRecording()
+		if !recordingComplete {
+			soundPlayer?.stop()
+			soundPlayer = nil
+			countdownTimer?.invalidate()
+			countdownTimer = nil
+			countdownLabel.isHidden = true
+		}
+		setButtonStates()
 	}
-
 	
 // MARK: AVAudioPlayerDelegate
 	// Gets called when the audio reaches the end. Does not get called if stop is tapped.
@@ -288,15 +433,9 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 			listenedOnce = true
 			guideLabel.text = "2. Listen to the song again if you need to. When you're ready, tap Record and sing your heart out."
 		}
-		else {
-			recordingStoppedEarly = true
-		}
 		soundPlayer = nil
-		listenButton.isEnabled = true
-		recordButton.isEnabled = listenedOnce
-		listenButton.setTitle("Listen", for: .normal)
-		recordButton.setTitle("Record", for: .normal)
-		stopRecording()
+		setButtonStates()
+		stopRecording(successfully)
 	}
 	
 // MARK: AVCaptureFileOutputRecordingDelegate
@@ -305,13 +444,13 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		if !recordingStoppedEarly {
 			performSegue(withIdentifier: "playbackRecording", sender: outputFileURL)
 		}
-//		let activityViewController = UIActivityViewController(activityItems: [outputFileURL], applicationActivities: nil)
-//		present(activityViewController, animated: true, completion: {})
+		setButtonStates()
 	}
 	
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "playbackRecording", let videoURL = sender as? URL, let destVC = segue.destination as? ReviewClipViewController {
 			destVC.clipURL = videoURL
+			destVC.rotateView180 = deviceRotationAngle == 90
 		}
 	}
 }
@@ -323,6 +462,24 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		rectPath.close()
 		let context = UIGraphicsGetCurrentContext()!
 		context.setFillColor(UIColor(named: "Camera Preview Label BG")?.cgColor ?? UIColor.clear.cgColor)
+		rectPath.fill()
+
+		let borderPath = UIBezierPath(roundedRect: bounds.insetBy(dx: 1.5, dy: 1.5), cornerRadius: 16)
+		let borderColor = UIColor(named: "Camera Preview Label FG")
+		context.setStrokeColor(borderColor?.cgColor ?? UIColor.clear.cgColor)
+		borderPath.lineWidth = 3.0
+		borderPath.stroke()
+
+	}
+}
+
+@objc class MKRotateDialogRRiew: UIView {
+	override func draw(_ rect: CGRect) {
+
+		let rectPath = UIBezierPath(roundedRect: bounds, cornerRadius: 16)
+		rectPath.close()
+		let context = UIGraphicsGetCurrentContext()!
+		context.setFillColor(UIColor(named: "Camera Alert Label BG")?.cgColor ?? UIColor.clear.cgColor)
 		rectPath.fill()
 
 		let borderPath = UIBezierPath(roundedRect: bounds.insetBy(dx: 1.5, dy: 1.5), cornerRadius: 16)

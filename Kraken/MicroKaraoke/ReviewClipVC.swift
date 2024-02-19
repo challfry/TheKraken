@@ -16,19 +16,35 @@ class ReviewClipViewController: UIViewController {
 	@IBOutlet weak var uploadButton: UIButton!
 	
 	public var clipURL: URL?
+	public var rotateView180 = false
 	
 	override func viewDidLoad() {
         super.viewDidLoad()
         
+        if rotateView180 {
+			self.view.transform = CGAffineTransform(rotationAngle: CGFloat.pi * CGFloat(180) / 180.0)
+		}
+ 
         if let clipURL = clipURL {
 	        videoView.configure(clipURL)
 	        videoView.play()
 		}
     }
     
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		videoView.positionPlayerLayer()
+	}		
+
 	@IBAction func uploadButtonTapped() {
+		(UIApplication.shared.delegate as? AppDelegate)?.makeThisVCLandscape = false
 		performSegue(withIdentifier: "doneRecordingClip", sender: nil)
     }
+    
+	@IBAction func retryButtonTapped(_ sender: Any) {
+		performSegue(withIdentifier: "retryMKRecording", sender: nil)
+	}
+    
 }
 
 class ReviewClipView: UIView {
@@ -52,6 +68,10 @@ class ReviewClipView: UIView {
 		}
 		NotificationCenter.default.addObserver(self, selector: #selector(reachTheEndOfTheVideo(_:)), 
 				name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.player?.currentItem)
+    }
+    
+    func positionPlayerLayer() {
+		playerLayer?.frame = bounds
     }
     
     func play() {

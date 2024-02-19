@@ -52,6 +52,7 @@ enum GlobalKnownSegue: String {
 	case microKaraokeRoot =			"MicroKaraokeRoot"
 	case microKaraokeTitleCard =	"MicroKaraokeTitleCard"
 	case microKaraokeCamera =		"MicroKaraokeCamera"
+	case microKaraokeCameraLandscape =	"MicroKaraokeCameraLandscape"
 	case gamesRoot =				"GamesRoot"
 	case scrapbookRoot =			"ScrapbookRoot"
 	case lighterMode =				"RockBalladMode"
@@ -115,6 +116,7 @@ enum GlobalKnownSegue: String {
 		case .microKaraokeRoot: return Void.self
 		case .microKaraokeTitleCard: return Void.self
 		case .microKaraokeCamera: return Void.self
+		case .microKaraokeCameraLandscape: return Void.self
 		case .gamesRoot: return Void.self
 		case .scrapbookRoot: return Void.self
 		case .lighterMode: return Void.self
