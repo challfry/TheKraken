@@ -134,7 +134,7 @@ class MicroKaraokeRootViewController: BaseCollectionViewController {
 	
 	// Called by the CompletedSongCellModel when the music video is ready to view
 	func showMovie(_ finishedMovie: AVPlayerItem) {
-		try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.defaultToSpeaker])
+		try? AVAudioSession.sharedInstance().setCategory(.playback, options: [])
 		let player = AVPlayer(playerItem: finishedMovie)
 		let newVC = AVPlayerViewController()
 		newVC.player = player

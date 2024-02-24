@@ -58,8 +58,8 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: 
-				[.defaultToSpeaker, .mixWithOthers, .allowBluetoothA2DP])
+		try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: .voiceChat, options: 
+				[.mixWithOthers, .allowBluetoothA2DP])
 		try? AVAudioSession.sharedInstance().setActive(true)
 		CoreMotion.shared.start(forClient: "MicroKaraokeRecord", updatesPerSec: 2)
 		cameraPreview?.frame = cameraView.bounds
@@ -263,7 +263,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 				stopRecording()
 				return
 			}
-			secondsOnTimer = 3
+			secondsOnTimer = 4
 			countdownLabel.text = "\(self.secondsOnTimer)"
 			self.countdownLabel.isHidden = false
 			setButtonStates()
@@ -276,7 +276,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 				let promptPlayer = try AVAudioPlayer(contentsOf: karaokeSoundURL)
 				self.soundPlayer = promptPlayer
 				promptPlayer.delegate = self
-				promptPlayer.setVolume(0.05, fadeDuration: 0.0)
+				promptPlayer.setVolume(0.2, fadeDuration: 0.0)
 				promptPlayer.prepareToPlay()
 
 				//  Testing shows this doesn't actually make a video that's quite as long as the limit.
@@ -288,6 +288,13 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 			print (error)
 		}
 
+		var clickPlayer: AVAudioPlayer?
+		if let clickFile = Bundle.main.url(forResource: "MetronomeClick", withExtension: "m4a") {
+			clickPlayer = try? AVAudioPlayer(contentsOf: clickFile)
+			clickPlayer?.prepareToPlay()
+			clickPlayer?.play()
+		}
+			
 		// Countdown using the rough tempo of the actual song.
 		let countdownInterval = 60.0 / (Double(MicroKaraokeDataManager.shared.getCurrentOffer()?.bpm ?? 60))
 		countdownTimer = Timer.scheduledTimer(withTimeInterval: countdownInterval, repeats: true) { timer in
@@ -309,6 +316,9 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 				} catch let error as NSError {
 					print(error.description)
 				}
+			}
+			else {
+				clickPlayer?.play()
 			}
 		}
 	}
@@ -435,14 +445,21 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		}
 		soundPlayer = nil
 		setButtonStates()
-		stopRecording(successfully)
+		self.stopRecording(successfully)
 	}
 	
 // MARK: AVCaptureFileOutputRecordingDelegate
 	func fileOutput(_ output: AVCaptureFileOutput,  didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection],
     		error: Error?) {
 		if !recordingStoppedEarly {
-			performSegue(withIdentifier: "playbackRecording", sender: outputFileURL)
+			//
+			MicroKaraokeDataManager.shared.postProcessRecordedClip() { processedVideoFile in
+				if let processedVideoFile = processedVideoFile {
+					DispatchQueue.main.async {
+						self.performSegue(withIdentifier: "playbackRecording", sender: processedVideoFile)
+					}
+				}
+			}
 		}
 		setButtonStates()
 	}

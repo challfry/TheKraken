@@ -2574,6 +2574,7 @@ Additional info:</string>
                             <constraint firstAttribute="trailing" secondItem="CVN-Gj-pMa" secondAttribute="trailing" id="KOY-Xp-okh"/>
                             <constraint firstItem="qbR-sd-IbG" firstAttribute="centerY" secondItem="Hht-Z1-cZI" secondAttribute="centerY" id="Zlg-ss-o6y"/>
                             <constraint firstAttribute="bottom" secondItem="CVN-Gj-pMa" secondAttribute="bottom" id="hsQ-vc-NeZ"/>
+                            <constraint firstItem="Hht-Z1-cZI" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="qbR-sd-IbG" secondAttribute="trailing" constant="20" id="ivP-dA-LQT"/>
                             <constraint firstItem="BXj-3f-w8t" firstAttribute="trailing" secondItem="Hht-Z1-cZI" secondAttribute="trailing" constant="20" id="ozj-rJ-Pca"/>
                             <constraint firstItem="CVN-Gj-pMa" firstAttribute="leading" secondItem="zjy-zV-7Cj" secondAttribute="leading" id="wQF-jE-3hA"/>
                         </constraints>
@@ -2978,6 +2979,7 @@ Rotate your device to continue.</string>
                             <constraint firstItem="ts6-DP-qYd" firstAttribute="centerX" secondItem="AKo-aX-NUr" secondAttribute="centerX" id="WnY-yf-eH4"/>
                             <constraint firstItem="gqy-MU-agU" firstAttribute="top" secondItem="ts6-DP-qYd" secondAttribute="bottom" constant="20" id="YcQ-nJ-fjb"/>
                             <constraint firstItem="SlR-B1-lae" firstAttribute="centerY" secondItem="AKo-aX-NUr" secondAttribute="centerY" constant="-50" id="Ykv-X6-vlR"/>
+                            <constraint firstItem="SlR-B1-lae" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="AKo-aX-NUr" secondAttribute="leading" constant="20" id="gSQ-FQ-Lfg"/>
                             <constraint firstItem="Fd5-RQ-xQ2" firstAttribute="leading" secondItem="AKo-aX-NUr" secondAttribute="leading" constant="20" id="lWD-Mh-WDP"/>
                             <constraint firstItem="AKo-aX-NUr" firstAttribute="leading" secondItem="xRI-5M-Ttd" secondAttribute="leading" id="s1d-5d-uW8"/>
                         </constraints>
@@ -3424,7 +3426,7 @@ Rotate your device to continue.</string>
         <segue reference="2Ae-eC-yt5"/>
         <segue reference="jdD-6N-h46"/>
         <segue reference="eE5-IR-ObY"/>
-        <segue reference="jrK-s2-V8J"/>
+        <segue reference="RRQ-tC-exJ"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="BlueButtonHighlight" width="60" height="60"/>

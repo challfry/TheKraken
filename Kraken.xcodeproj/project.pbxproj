@@ -99,6 +99,7 @@
 		EA6A8A82231E212A0071BFEA /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6A8A81231E212A0071BFEA /* Alerts.swift */; };
 		EA6CD9B823EF873500B9BC3C /* SquidAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
+		EA71E0E62B88B2CB00A9376C /* MetronomeClick.m4a in Resources */ = {isa = PBXBuildFile; fileRef = EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */; };
 		EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
@@ -398,6 +399,7 @@
 		EA6A8A81231E212A0071BFEA /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquidAnimation.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
+		EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = MetronomeClick.m4a; sourceTree = "<group>"; };
 		EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyThemeUpdater.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
@@ -872,6 +874,7 @@
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */,
 				EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */,
 				EAAA68D723FB209200C9EF82 /* codeofconduct.json */,
 				EAAA68D923FB209900C9EF82 /* helptext.json */,
@@ -1373,6 +1376,7 @@
 				EA8F474323862F6B00CF6F1C /* SeamailLargeThreadCell.xib in Resources */,
 				EA1099F8239663C100F5172D /* ForumsLoadTimeCell.xib in Resources */,
 				EAA2E4C42242D300009F287F /* Main.storyboard in Resources */,
+				EA71E0E62B88B2CB00A9376C /* MetronomeClick.m4a in Resources */,
 				EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */,
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
 				EA2286F923E430BC0036C20E /* JoCoGamesCatalog.lzfse in Resources */,
