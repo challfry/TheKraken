@@ -1622,6 +1622,7 @@
                         <outlet property="collectionView" destination="yfF-e0-2gX" id="tm6-Ma-QTf"/>
                         <segue destination="SZu-Xt-If2" kind="show" identifier="ShowForumCategory" id="qdg-UW-bUS"/>
                         <segue destination="ppy-9j-Eyt" kind="show" identifier="ShowForumThread" id="CFt-8y-mTZ"/>
+                        <segue destination="SZu-Xt-If2" kind="show" identifier="ShowForumFilterPack" id="9El-ZA-7WU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hy7-C8-ksd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -3148,7 +3149,7 @@ Rotate your device to continue.</string>
         <!--LFG Nav Controller-->
         <scene sceneID="fuA-6v-647">
             <objects>
-                <navigationController storyboardIdentifier="LFGNavController" title="LFG Nav Controller" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Qvm-8E-Tdo" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="LFGNavViewController" title="LFG Nav Controller" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Qvm-8E-Tdo" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="LFG" image="person.3.sequence.fill" catalog="system" id="Do4-em-2dd"/>
                     <navigationItem key="navigationItem" id="1oN-sZ-aQL"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="A9t-8Y-Srf">
@@ -3401,7 +3402,7 @@ Rotate your device to continue.</string>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="HJe-et-hA8"/>
+        <segue reference="lb5-PP-RLb"/>
         <segue reference="K5i-zM-yNP"/>
         <segue reference="4tn-AW-brx"/>
         <segue reference="ixJ-gR-Thn"/>
@@ -3415,6 +3416,7 @@ Rotate your device to continue.</string>
         <segue reference="lYy-XO-UON"/>
         <segue reference="nVa-Wl-Nva"/>
         <segue reference="CFt-8y-mTZ"/>
+        <segue reference="9El-ZA-7WU"/>
         <segue reference="1ve-Md-YVN"/>
         <segue reference="wTp-nv-sgn"/>
         <segue reference="RHM-8H-1Ru"/>

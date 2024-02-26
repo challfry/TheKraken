@@ -21,7 +21,8 @@ class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		var loadingSegment = FilteringDataSourceSegment()
 		var categorySegment = FRCDataSourceSegment<ForumCategory>()
 		var loggedInCategorySegment = FRCDataSourceSegment<ForumCategoryPivot>()
- 
+  		var personalCatsSegment = FilteringDataSourceSegment()
+
     var filterPopupVC: EmojiPopupViewController?
     
     lazy var loadingStatusCellModel: LoadingStatusCellModel = {
@@ -37,6 +38,53 @@ class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
     	return cell
     }()
         
+    lazy var searchCellModel: ForumSearchCellModel = {
+		ForumSearchCellModel(searchAction: doSearch)
+    }()
+    
+    lazy var favoriteForumsCellModel: DisclosureCellModel = {
+    	let disclosureCell = DisclosureCellModel()
+		disclosureCell.title = "Favorite Forums"
+    	disclosureCell.tapAction = { cell in
+			self.performKrakenSegue(.showForumFilterPack, sender: ForumsDataManager.shared.getFilterPack(filter: .favorite))
+    	}
+    	return disclosureCell
+    }()
+    
+    lazy var recentForumsCellModel: DisclosureCellModel = {
+    	let disclosureCell = DisclosureCellModel()
+		disclosureCell.title = "Recent Forums"
+    	disclosureCell.tapAction = { cell in
+			self.performKrakenSegue(.showForumFilterPack, sender: ForumsDataManager.shared.getFilterPack(filter: .recent))
+    	}
+    	return disclosureCell
+    }()
+    
+    lazy var ownedForumsCellModel: DisclosureCellModel = {
+    	let disclosureCell = DisclosureCellModel()
+		disclosureCell.title = "Forums You Created"
+    	disclosureCell.tapAction = { cell in
+			self.performKrakenSegue(.showForumFilterPack, sender: ForumsDataManager.shared.getFilterPack(filter: .userCreated))
+    	}
+    	return disclosureCell
+    }()
+
+    lazy var userPostedForumsCellModel: DisclosureCellModel = {
+    	let disclosureCell = DisclosureCellModel()
+		disclosureCell.title = "Forums You Posted In"
+    	disclosureCell.tapAction = { cell in
+			self.performKrakenSegue(.showForumFilterPack, sender: ForumsDataManager.shared.getFilterPack(filter: .userPosted))
+    	}
+    	return disclosureCell
+    }()
+    lazy var mutedForumsCellModel: DisclosureCellModel = {
+    	let disclosureCell = DisclosureCellModel()
+		disclosureCell.title = "Muted Forums"
+    	disclosureCell.tapAction = { cell in
+			self.performKrakenSegue(.showForumFilterPack, sender: ForumsDataManager.shared.getFilterPack(filter: .muted))
+    	}
+    	return disclosureCell
+    }()
 
 // MARK: Methods
 	
@@ -45,6 +93,7 @@ class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		
 		categoryDataSource.append(segment: loadingSegment)
 		loadingSegment.append(loadingStatusCellModel)
+		loadingSegment.append(searchCellModel)
 		
 		categorySegment.loaderDelegate = self
 		categorySegment.activate(predicate: NSPredicate(format: "visibleWhenLoggedOut == true"), 
@@ -58,7 +107,15 @@ class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 				cellModelFactory: createCellModelFromPivot)
 		categoryDataSource.append(segment: loggedInCategorySegment)
 
-        CurrentUser.shared.tell(self, when: "loggedInUser", changeBlock:  { observer, observed in
+  		categoryDataSource.append(segment: personalCatsSegment)
+		personalCatsSegment.append(LabelCellModel("Personal Categories", fontTraits: .traitBold))
+		personalCatsSegment.append(favoriteForumsCellModel)
+		personalCatsSegment.append(recentForumsCellModel)
+		personalCatsSegment.append(ownedForumsCellModel)
+		personalCatsSegment.append(userPostedForumsCellModel)
+		personalCatsSegment.append(mutedForumsCellModel)
+
+		CurrentUser.shared.tell(self, when: "loggedInUser", changeBlock:  { observer, observed in
 			if let user = observed.loggedInUser {
 				observer.loggedInCategorySegment.changePredicate(to: NSPredicate(format: "user.userID == %@", user.userID as CVarArg))
 				observer.categorySegment.changePredicate(to: NSPredicate(value: false))
@@ -82,14 +139,18 @@ class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 		categoryDataSource.enableAnimations = true
 	}
 	
+	override func viewWillDisappear(_ animated: Bool) {
+		resignActiveTextEntry()
+	}
+	
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
 	func createCellModel(_ model: ForumCategory) -> BaseCellModel {
-		let cellModel = ForumCategoryCellModel(category: model)
+		let cellModel = CategoryCellModel(category: model)
 		cellModel.model = model
 		cellModel.tapAction = { [weak self] cellModel in
-			if let categoryCellModel = cellModel as? ForumCategoryCellModel {
-				self?.performKrakenSegue(.showForumCategory, sender: categoryCellModel.category)
-			}
+//			if let categoryCellModel = cellModel as? CategoryCellModel {
+				self?.performKrakenSegue(.showForumCategory, sender: cellModel.category)
+//			}
 		}
  //		CurrentUser.shared.tell(cellModel, when: "loggedInUser") { observer, observed in
  //			observer.shouldBeVisible = observed.loggedInUser == nil  		
@@ -99,12 +160,12 @@ class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 	    
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
 	func createCellModelFromPivot(_ model: ForumCategoryPivot) -> BaseCellModel {
-		let cellModel = ForumCategoryCellModel(category: model.category)
+		let cellModel = CategoryCellModel(category: model.category)
 		cellModel.model = model
 		cellModel.tapAction = { [weak self] cellModel in
-			if let categoryCellModel = cellModel as? ForumCategoryCellModel {
-				self?.performKrakenSegue(.showForumCategory, sender: categoryCellModel.category)
-			}
+//			if let categoryCellModel = cellModel as? CategoryCellModel {
+				self?.performKrakenSegue(.showForumCategory, sender: cellModel.category)
+//			}
 		}
 //		CurrentUser.shared.tell(cellModel, when: "loggedInUser") { observer, observed in
  //			observer.shouldBeVisible = observed.loggedInUser != nil  		
@@ -114,18 +175,21 @@ class ForumsRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 	    
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .showForumCategory, .showForumThread, .modalLogin ])
+		Set<GlobalKnownSegue>([ .showForumCategory, .showForumFilterPack, .showForumThread, .modalLogin ])
 	}
 	
 	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
-		if let segue = packet.segue, [.showForumCategory, .showForumThread].contains(segue) {
+		if let segue = packet.segue, [.showForumCategory, .showForumThread, .showForumFilterPack].contains(segue) {
 			performKrakenSegue(segue, sender: packet.sender)
 			return true
 		}
 		return false
 	}
 
-
+    func doSearch(text: String) {
+    	resignActiveTextEntry()
+		performKrakenSegue(.showForumFilterPack, sender: ForumsDataManager.shared.getFilterPack(search: text))
+    }
 }
 
 extension ForumsRootViewController: FRCDataSourceLoaderDelegate {
@@ -134,14 +198,14 @@ extension ForumsRootViewController: FRCDataSourceLoaderDelegate {
 	}
 }
 
-@objc class ForumCategoryCellModel: CategoryCellModel {
-	var category: ForumCategory
-	
-	init(category: ForumCategory) {
-		self.category = category
-		super.init()
-		self.title = category.title
-		self.purpose = category.purpose
-		self.numThreads = category.numThreads
-	}
-}
+//@objc class ForumCategoryCellModel: CategoryCellModel {
+//	var category: ForumCategory
+//	
+//	init(category: ForumCategory) {
+//		self.category = category
+//		super.init()
+//		self.title = category.title
+//		self.purpose = category.purpose
+//		self.numThreads = category.numThreads
+//	}
+//}

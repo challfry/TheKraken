@@ -12,9 +12,9 @@ import CoreData
 @objc(ForumPost) public class ForumPost: KrakenManagedObject {
     @NSManaged public var id: Int64
     @NSManaged public var text: String
-    @NSManaged public var createTime: Date		
-    @NSManaged public var reactionCount: Int64		// How many users like this post. 0 if unknown. This will
-    											// be unknown for most posts.
+    @NSManaged public var createTime: Date
+    @NSManaged public var isPinned: Bool    
+    @NSManaged public var reactionCount: Int64		// How many users like this post. 0 if unknown. This will be unknown for most posts.
     
     @NSManaged public var author: KrakenUser
     @NSManaged public var thread: ForumThread
@@ -26,7 +26,7 @@ import CoreData
 	@NSManaged public var opEditing: PostOpForumPost?
   
 	// Properties built from reactions
-	@objc dynamic public var reactionDict: NSMutableDictionary?			// the reactions set, keyed by reaction.word
+	@NSManaged public var reactionDict: NSDictionary?			// the reactions set, keyed by reaction.word
 	@objc dynamic public var likeCount: Int32 = 0
 	@objc dynamic public var loveCount: Int32 = 0
 	@objc dynamic public var laughCount: Int32 = 0
@@ -42,25 +42,18 @@ import CoreData
 		super.awakeFromFetch()
 
 		// Update derived properties
-    	let dict = NSMutableDictionary()
-		for reaction in reactions {
-			dict.setValue(reaction, forKey: reaction.word)
-			switch reaction.word {
-				case "like": likeCount = reaction.count
-				case "love": loveCount = reaction.count
-				case "laugh": laughCount = reaction.count
-				default: break
-			}
-		}
-		reactionDict = dict
+		laughCount = reactionDict?["laugh"] as? Int32 ?? 0
+		likeCount = reactionDict?["like"] as? Int32 ?? 0
+		loveCount = reactionDict?["love"] as? Int32 ?? 0
 	}
 
 	// Requires: Users, Photos for post.
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3PostData, thread: ForumThread) {
 		TestAndUpdate(\.id, v3Object.postID)
 		TestAndUpdate(\.text, v3Object.text)
+		TestAndUpdate(\.isPinned, v3Object.isPinned == true)
 		TestAndUpdate(\.createTime, v3Object.createdAt)
-		TestAndUpdate(\.reactionCount, v3Object.likeCount)
+		TestAndUpdate(\.reactionCount, v3Object.likeCount)			// All like types
 		TestAndUpdate(\.thread, thread)
 		
 		// Set the author
@@ -92,10 +85,8 @@ import CoreData
 			}
 		}
 		
-		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike, bookmark: v3Object.isBookmarked)
 					
-		// TODO: Not handled: isBookmarked, userLike
-
 		let hashtags = StringUtilities.extractHashtags(v3Object.text)
 		HashtagDataManager.shared.addHashtags(hashtags)
 	}
@@ -134,70 +125,27 @@ import CoreData
 				photos.removeAllObjects()
 			}
 		}
-					
-		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
-
-		func setReactionCounts(word: String, users: [TwitarrV3UserHeader]) {
-			if let reactionObj = reactionDict?[word] as? Reaction {
-				reactionObj.count = Int32(users.count)
-			}
-			else if users.count > 0 {
-				let newReaction = Reaction(context: context)
-				newReaction.word = word
-				newReaction.count = Int32(users.count)
-				newReaction.sourceForumPost	= self
-			}
-		}
-		setReactionCounts(word: "like", users: v3Object.likes)
-		setReactionCounts(word: "love", users: v3Object.loves)
-		setReactionCounts(word: "laugh", users: v3Object.laughs)
 		
-		// TODO: not handled: isBookmarked
+		// Set the user's reaction and bookmarking.
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike, bookmark: v3Object.isBookmarked)
+
+		// Set reaction counts. The PostDetailData object gives us a list of each user that's reacted, but we aren't using that.
+		let dict: NSDictionary = ["laugh" : v3Object.laughs.count, 
+				"like" : v3Object.likes.count, 
+				"love" : v3Object.loves.count]
+		TestAndUpdate(\.reactionDict, dict)
 	}
 	
-	func buildUserReactionFromV3(context: NSManagedObjectContext, userLike: TwitarrV3LikeType?) {
+	func buildUserReactionFromV3(context: NSManagedObjectContext, userLike: TwitarrV3LikeType?, bookmark: Bool) {
 		// Set the user's reaction to the post
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			// Find any existing reaction the user has
-			var userCurrentReaction: Reaction?
-			if let userReacts = currentUser.reactions {
-				var userCurrentReactions = reactions.intersection(userReacts)
-				
-				// If the user has multiple reactions, something bad has happended. Remove all.
-				if userCurrentReactions.count > 1 {
-					userCurrentReactions.forEach { 
-						if let _ = $0.users.remove(currentUser) {
-							$0.count -= 1
-						}
-					}
-					userCurrentReactions.removeAll()
-				}
-				
-				// If the new reaction is different or deleted, remove existing reaction from CD.
-				userCurrentReaction = userCurrentReactions.first
-				if let ucr = userCurrentReaction, userLike?.rawValue != ucr.word {
-					if let _ = ucr.users.remove(currentUser) {
-						ucr.count -= 1
-					}
-				}
+			let foundReaction = reactions.first { $0.user?.userID == currentUser.userID } 
+			if foundReaction == nil && userLike == nil && !bookmark {
+				// If there's no user like or bookmark, we don't need to create a reaction object
+				return
 			}
-				
-			// Add new reaction, if any
-			if let newReactionWord = userLike?.rawValue, userCurrentReaction?.word != newReactionWord {
-				if let reaction = reactions.first(where: { $0.word == newReactionWord } ) {
-					let (didInsert, _) = reaction.users.insert(currentUser)
-					if didInsert {
-						reaction.count += 1
-					}
-				}
-				else {
-					let newReaction = Reaction(context: context)
-					newReaction.word = newReactionWord
-					newReaction.count = 1
-					newReaction.users = Set([currentUser])
-					newReaction.sourceForumPost	= self
-				}
-			}
+			let reaction = foundReaction ?? Reaction(context: context)
+			reaction.buildReactionFromLikeAndBookmark(context: context, source: self, likeType: userLike, bookmark: bookmark)
 		}
 	}
 
@@ -259,6 +207,35 @@ import CoreData
 			PostOperationDataManager.shared.remove(op: editOp)
 		}
 	}
+}
+
+class ReactionDictTransformer: ValueTransformer {
+    public static func register() {
+        ValueTransformer.setValueTransformer(ReactionDictTransformer(), 
+        		forName: NSValueTransformerName(rawValue: String(describing: ReactionDictTransformer.self)))
+    }
+    
+	override public class func transformedValueClass() -> AnyClass {
+		return NSDictionary.self
+	}
+
+	override public class func allowsReverseTransformation() -> Bool {
+		return true
+	}
+	
+	override public func transformedValue(_ value: Any?) -> Any? {
+		guard let dict = value as? NSDictionary, let data = try? NSKeyedArchiver.archivedData(withRootObject: dict, requiringSecureCoding: true) else { 
+			return nil 
+		}
+		return data
+    }
+    
+    override public func reverseTransformedValue(_ value: Any?) -> Any? {
+        guard let data = value as? NSData, let dict = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSDictionary.self, from: data as Data) else { 
+        	return nil
+		}
+		return dict
+    }
 }
 
 // MARK: - Data Manager
@@ -507,22 +484,28 @@ import CoreData
 	
 // MARK: - V3 API Decoding
 struct TwitarrV3ForumData: Codable {
-    /// The forum's ID.
-    var forumID: UUID
-    /// The ID of the forum's containing Category..
-    var categoryID: UUID
-    /// The forum's title
-    var title: String
-    /// The forum's creator.
-    var creator: TwitarrV3UserHeader
-    /// Whether the forum is in read-only state.
-    var isLocked: Bool
-    /// Whether the user has favorited forum.
-    var isFavorite: Bool
-    /// The paginator contains the total number of posts in the forum, and the start and limit of the requested subset in `posts`.
+	/// The forum's ID.
+	var forumID: UUID
+	/// The ID of the forum's containing Category..
+	var categoryID: UUID
+	/// The forum's title
+	var title: String
+	/// The forum's creator.
+	var creator: TwitarrV3UserHeader
+	/// Whether the forum is in read-only state.
+	var isLocked: Bool
+	/// Whether the user has favorited forum.
+	var isFavorite: Bool
+	/// Whether the user has muted the forum.
+	var isMuted: Bool
+	/// The paginator contains the total number of posts in the forum, and the start and limit of the requested subset in `posts`.
 	var paginator: TwitarrV3Paginator
-    /// The posts in the forum.
-    var posts: [TwitarrV3PostData]
+	/// Posts in the forum.
+	var posts: [TwitarrV3PostData]
+	/// If this forum is for an Event on the schedule, the ID of the event.
+	var eventID: UUID?
+	/// If this forum is pinned or not.
+	var isPinned: Bool?
 }
 
 struct TwitarrV3PostData: Codable {
@@ -542,6 +525,8 @@ struct TwitarrV3PostData: Codable {
     var userLike: TwitarrV3LikeType?
     /// The total number of `LikeType` reactions on the post.
     var likeCount: Int64
+	/// Whether the post has been pinned to the forum.
+	var isPinned: Bool?
 }
 
 public struct TwitarrV3PostDetailData: Codable {

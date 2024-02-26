@@ -100,6 +100,8 @@
 		EA6CD9B823EF873500B9BC3C /* SquidAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */; };
 		EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */; };
 		EA71E0E62B88B2CB00A9376C /* MetronomeClick.m4a in Resources */ = {isa = PBXBuildFile; fileRef = EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */; };
+		EA71E0EA2B8AC17F00A9376C /* ForumSearchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA71E0E92B8AC17F00A9376C /* ForumSearchCell.xib */; };
+		EA71E0EC2B8ACEAE00A9376C /* ForumSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA71E0EB2B8ACEAE00A9376C /* ForumSearchCell.swift */; };
 		EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
@@ -400,6 +402,8 @@
 		EA6CD9B723EF873500B9BC3C /* SquidAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquidAnimation.swift; sourceTree = "<group>"; };
 		EA6DBB1022D172EC009D479D /* PendingTwitarrRepliesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTwitarrRepliesVC.swift; sourceTree = "<group>"; };
 		EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = MetronomeClick.m4a; sourceTree = "<group>"; };
+		EA71E0E92B8AC17F00A9376C /* ForumSearchCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ForumSearchCell.xib; sourceTree = "<group>"; };
+		EA71E0EB2B8ACEAE00A9376C /* ForumSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumSearchCell.swift; sourceTree = "<group>"; };
 		EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyThemeUpdater.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
@@ -647,6 +651,8 @@
 				EA257F792765FEBA00910CC5 /* CategoryCell.xib */,
 				EA1099F5239662E700F5172D /* ForumsLoadTimeCell.swift */,
 				EA1099F7239663C100F5172D /* ForumsLoadTimeCell.xib */,
+				EA71E0EB2B8ACEAE00A9376C /* ForumSearchCell.swift */,
+				EA71E0E92B8AC17F00A9376C /* ForumSearchCell.xib */,
 				EA1099F92397375000F5172D /* ForumsThreadCell.swift */,
 				EA1099FB2397376700F5172D /* ForumsThreadCell.xib */,
 				EA7E45572398A99C0015C7CB /* ForumPostCell.swift */,
@@ -1357,6 +1363,7 @@
 				EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */,
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
 				EA4E84F4232C74FE0059E5EB /* DisabledContentViewController.xib in Resources */,
+				EA71E0EA2B8AC17F00A9376C /* ForumSearchCell.xib in Resources */,
 				EA1B9FE723514E8100BFEB46 /* PostOpStatusCell.xib in Resources */,
 				EAA2E4C62242D301009F287F /* Assets.xcassets in Resources */,
 				EADC819F2963BA0400232A37 /* SeamailUserListCell.xib in Resources */,
@@ -1598,6 +1605,7 @@
 				EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */,
 				EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */,
 				EA03F3752B733F2000166F3F /* MKSongAndArtistVC.swift in Sources */,
+				EA71E0EC2B8ACEAE00A9376C /* ForumSearchCell.swift in Sources */,
 				EA216F66238E26BC00A31D19 /* ForumsDataManager.swift in Sources */,
 				EA8B9889232641DB00E10156 /* KaraokeRootViewController.swift in Sources */,
 				EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */,

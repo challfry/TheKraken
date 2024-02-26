@@ -101,6 +101,9 @@ class LocalCoreData: NSObject {
 		super.init()
 		NotificationCenter.default.addObserver(self, selector: #selector(contextDidSaveNotificationHandler), 
 				name: Notification.Name.NSManagedObjectContextDidSave, object: networkOperationContext)
+				
+		// Set up value transformers here, before we set up the persistent container
+		ReactionDictTransformer.register()
 	}
 	
 	// Updates the main context in response to data saves from the network context

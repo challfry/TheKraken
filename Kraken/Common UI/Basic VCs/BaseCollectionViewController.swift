@@ -29,6 +29,7 @@ enum GlobalKnownSegue: String {
 	
 	case forumsRoot = 				"ForumsRoot"
 	case showForumCategory = 		"ShowForumCategory"
+	case showForumFilterPack = 		"ShowForumFilterPack"
 	case showForumThread = 			"ShowForumThread"
 	case composeForumThread = 		"ComposeForumThread"
 	case composeForumPost = 		"ComposeForumPost"
@@ -93,6 +94,7 @@ enum GlobalKnownSegue: String {
 		
 		case .forumsRoot: return Void.self
 		case .showForumCategory: return ForumCategory.self
+		case .showForumFilterPack: return ForumFilterPack.self
 		case .showForumThread: return Any.self					// ForumThread or UUID of a thread
 		case .composeForumThread: return ForumCategory.self 
 		case .composeForumPost: return ForumThread.self 
@@ -473,6 +475,15 @@ class BaseCollectionViewController: UIViewController {
 		indexPathToScrollToVisible = nil
 	}
 	
+	func resignActiveTextEntry() {
+		if let textField = activeTextEntry as? UITextField {
+			textField.resignFirstResponder()
+		}
+		else if let textView = activeTextEntry as? UITextView {
+			textView.resignFirstResponder()
+		}
+	}
+	
 	// MARK: Navigation
 
 	// FFS Apple should provide this as part of their API. This is used by collectionView cells to see if they're
@@ -620,7 +631,12 @@ class BaseCollectionViewController: UIViewController {
 // Forums
 		case .showForumCategory:
 			if let destVC = destination as? ForumsCategoryViewController, let cat = sender as? ForumCategory {
-				destVC.categoryModel = cat
+				destVC.filterPack = ForumsDataManager.shared.getFilterPack(for: cat)
+			}
+			
+		case .showForumFilterPack:
+			if let destVC = destination as? ForumsCategoryViewController, let pack = sender as? ForumFilterPack {
+				destVC.filterPack = pack
 			}
 			
 		case .showForumThread:

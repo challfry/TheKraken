@@ -18,8 +18,8 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case forums = "ForumsNavViewController" 
 		case seamail = "SeamailNavViewController"
 		case events = "ScheduleNavController"
-
 		case lfg = "LFGNavViewController"
+		
 		case settings = "SettingsNavController"
 		case karaoke = "KaraokeNavController"
 		case microKaraoke = "MicroKaraokeNavController"

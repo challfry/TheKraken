@@ -204,7 +204,8 @@ struct GlobalNavPacket {
 					}
 				case "seamail": 
 					tab = .seamail
-				case "fez":
+				case "fez": fallthrough
+				case "lfg":
 					tab = .lfg
 				case "events":
 					tab = .events

@@ -19,9 +19,6 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 	@IBOutlet weak var newForumButton: UIBarButtonItem!
 	
 	// Set during segue
-	var categoryModel: ForumCategory?
-	
-	//
 	@objc dynamic var filterPack: ForumFilterPack?
 	
 	enum FilterType {
@@ -38,7 +35,7 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 		var loadingSegment = FilteringDataSourceSegment()
 		var threadSegment = FRCDataSourceSegment<ForumThread>()
 		var readCountSegment = FRCDataSourceSegment<ForumReadCount>()
- 
+
 	let loginDataSource = KrakenDataSource()
 		let loginSection = LoginDataSourceSegment()
 
@@ -60,10 +57,8 @@ class ForumsCategoryViewController: BaseCollectionViewController {
     lazy var loadTimeCellModel: ForumsLoadTimeCellModel = {
     	let cell = ForumsLoadTimeCellModel()
     	cell.refreshButtonAction = { [weak self] in
-    		if let strongSelf = self, let cat = strongSelf.categoryModel {
-    			let sort = strongSelf.currentFilterType == .allWithActivitySort ? ForumFilterPack.SortType.update :
-    					ForumFilterPack.SortType.create
-				strongSelf.filterPack = ForumsDataManager.shared.forceRefreshForumThreads(for: cat, sort: sort) 
+    		if let strongSelf = self, let filter = strongSelf.filterPack {
+				ForumsDataManager.shared.forceRefreshForumThreads(for: filter) 
 			}
     	}
     	
@@ -73,33 +68,34 @@ class ForumsCategoryViewController: BaseCollectionViewController {
     	return cell
     }()
     
-
+    lazy var searchCellModel: ForumSearchCellModel = {
+		ForumSearchCellModel(searchAction: doSearch)
+    }()
+    
 // MARK: Methods
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		buildFilterView()
-		
+//		buildFilterView()
+		forumsFilterView.isHidden = true
+	
+// Thread Data Source
 		threadDataSource.append(segment: loadingSegment)
 		loadingSegment.append(loadingStatusCellModel)
 		loadingSegment.append(loadTimeCellModel)
-		
-		guard let cat = categoryModel else {
-			//
-			return
-		}
-		
+//		loadingSegment.append(searchCellModel)
+				
 		threadDataSource.append(segment: threadSegment)
 		threadSegment.loaderDelegate = self
-		threadSegment.activate(predicate: NSPredicate(format: "category == %@", cat), 
-				sort: [NSSortDescriptor(key: "sticky", ascending: false),
-				NSSortDescriptor(key: "lastPostTime", ascending: false)], cellModelFactory: createCellModel)
+		threadSegment.activate(predicate: filterPack?.predicate(), 
+				sort: filterPack?.sortDescriptors(), cellModelFactory: createCellModel)
 
 		threadDataSource.append(segment: readCountSegment)
-		readCountSegment.activate(predicate: NSPredicate(value: false), 
-				sort: [ NSSortDescriptor(key: "lastPostTime", ascending: false)], cellModelFactory: createReadCountCellModel)
+		readCountSegment.activate(predicate:  filterPack?.readCountPredicate(), 
+				sort:filterPack?.readCountSortDescriptors(), cellModelFactory: createReadCountCellModel)
 
-        loginDataSource.append(segment: loginSection)
+// Login Data Source
+		loginDataSource.append(segment: loginSection)
 		loginSection.headerCellText = "In order to see the Forums, you will need to log in first."
 
 		// When a user is logged in we'll set up the FRC to load the threads which that user can 'see'. Remember, CoreData
@@ -118,26 +114,30 @@ class ForumsCategoryViewController: BaseCollectionViewController {
         }?.execute()   
 
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-			if let cm = observer.categoryModel, let currentUserID = CurrentUser.shared.loggedInUser?.userID,
+			if let cm = observer.filterPack?.category, let currentUserID = CurrentUser.shared.loggedInUser?.userID,
 					let userCatPivot = cm.userCatPivots.first(where: { $0.user.userID == currentUserID }) {
 				observer.newForumButton.isEnabled = !userCatPivot.isRestricted
 			}
-			else if let accessLevel = observed.loggedInUser?.accessLevel.rawValue {
+			else if let _ = observer.filterPack?.category, let accessLevel = observed.loggedInUser?.accessLevel.rawValue {
 				observer.newForumButton.isEnabled = accessLevel >= LoggedInKrakenUser.AccessLevel.moderator.rawValue
 			}
 			else {
 				observer.newForumButton.isEnabled = false
 			}
-        }?.execute()   
+        }?.execute()
+ 
+ 		// Only enable the new post button when there's a category to post in
+        self.tell(self, when: "filterPack") { observer, observed in
+        	observer.newForumButton.isEnabled = observed.filterPack?.category != nil
+        }?.execute()
 	}
 		
     override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		
 		// This will ensure we have *some* content loaded, and also that we'll do a refresh if the content is really stale.
-		if let cat = categoryModel {
-			let sort: ForumFilterPack.SortType = currentFilterType == .allWithActivitySort ? .update : .create
-			filterPack = ForumsDataManager.shared.checkLoadForumTheads(for: cat, sort: sort, userViewingIndex: 0)
+		if let pack = filterPack {
+			ForumsDataManager.shared.checkLoadForumTheads(for: pack, userViewingIndex: 0)
 		}
 	}
 	
@@ -146,34 +146,34 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 		threadDataSource.enableAnimations = true
 	}
 	
-	func buildFilterView () {
-		// Install a button as the nav title.
-		forumsNavTitleButton = UIButton()
-		forumsNavTitleButton.setTitle("All Forums", for: .normal)
-		forumsNavTitleButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
-		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Label Text"), for: .normal)
-		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Secondary Text"), for: .highlighted)
-		navigationItem.titleView = forumsNavTitleButton
-		forumsNavTitleButton.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
-		
-		forumsFilterView.layer.cornerRadius = 8.0
-		forumsFilterView.layer.masksToBounds = true
-		forumsFilterHeightConstraint.constant = 0
-		
-		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-			if observed.isLoggedIn() {
-				observer.forumsNavTitleButton.setImage(UIImage(named: "ChevronDownGrey"), for: .normal)
-			}
-			else {
-				observer.forumsNavTitleButton.setImage(nil, for: .normal)
-				observer.setFilterType(.allWithActivitySort)
-			}
-		}?.execute()
-		
-		forumsNavTitleButton.sizeToFit()
-		
-		// Accessibility
-	}
+//	func buildFilterView () {
+//		// Install a button as the nav title.
+//		forumsNavTitleButton = UIButton()
+//		forumsNavTitleButton.setTitle("All Forums", for: .normal)
+//		forumsNavTitleButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+//		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Label Text"), for: .normal)
+//		forumsNavTitleButton.setTitleColor(UIColor(named: "Kraken Secondary Text"), for: .highlighted)
+//		navigationItem.titleView = forumsNavTitleButton
+//		forumsNavTitleButton.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+//		
+//		forumsFilterView.layer.cornerRadius = 8.0
+//		forumsFilterView.layer.masksToBounds = true
+//		forumsFilterHeightConstraint.constant = 0
+//		
+//		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+//			if observed.isLoggedIn() {
+//				observer.forumsNavTitleButton.setImage(UIImage(named: "ChevronDownGrey"), for: .normal)
+//			}
+//			else {
+//				observer.forumsNavTitleButton.setImage(nil, for: .normal)
+//				observer.setFilterType(.allWithActivitySort)
+//			}
+//		}?.execute()
+//		
+//		forumsNavTitleButton.sizeToFit()
+//		
+//		// Accessibility
+//	}
 	
 	func setFilterType(_ newType: FilterType) {
 	
@@ -242,12 +242,14 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 	}
 
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
+	// Used when we filter on ForumThreads.
 	func createCellModel(_ model: ForumThread) -> BaseCellModel {
 		let cellModel = ForumsThreadCellModel(with: model)
 		return cellModel
 	}
 	
 	// Gets called from within collectionView:cellForItemAt:. Creates cell models from FRC result objects.
+	// Used when we filter on ForumReadCounts.
 	func createReadCountCellModel(_ model: ForumReadCount) -> BaseCellModel {
 		let cellModel = ForumsThreadCellModel(with: model)
 		return cellModel
@@ -256,7 +258,7 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 // MARK: Actions
 
 	@IBAction func newForumButtonTapped(_ sender: Any) {
-		if let catModel = categoryModel {
+		if let catModel = filterPack?.category {
 			performKrakenSegue(.composeForumThread, sender: catModel)
 		}
 	}
@@ -298,6 +300,11 @@ class ForumsCategoryViewController: BaseCollectionViewController {
     	setFilterType(.userHasPosted)
     }
     
+    func doSearch(text: String) {
+    	
+    }
+    
+    
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
 		Set<GlobalKnownSegue>([ .showForumThread, .composeForumThread, .modalLogin ])
@@ -306,18 +313,16 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 	// This is the unwind segue from the compose view.
 	@IBAction func dismissingPostingView(_ segue: UIStoryboardSegue) {
 		// Load new threads when the user creates a new thread.
-		if let cat = categoryModel {
-			let sort: ForumFilterPack.SortType = currentFilterType == .allWithActivitySort ? .update : .create
-			filterPack = ForumsDataManager.shared.forceRefreshForumThreads(for: cat, sort: sort ) 
+		if let pack = filterPack {
+			ForumsDataManager.shared.forceRefreshForumThreads(for: pack) 
 		}
 	}	
 }
 
 extension ForumsCategoryViewController: FRCDataSourceLoaderDelegate {
 	func userIsViewingCell(at indexPath: IndexPath) {
-		if let cat = categoryModel {
-			let sort: ForumFilterPack.SortType = currentFilterType == .allWithActivitySort ? .update : .create
-			ForumsDataManager.shared.checkLoadForumTheads(for: cat, sort: sort, userViewingIndex: indexPath.row)
+		if let pack = filterPack {
+			ForumsDataManager.shared.checkLoadForumTheads(for: pack, userViewingIndex: indexPath.row)
 		}
 	}
 }

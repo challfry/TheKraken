@@ -76,6 +76,7 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return ForumsThreadCell.cellInfo }
 	
 	@IBOutlet weak var subjectLabel: UILabel!
+	@IBOutlet weak var eventTimeLabel: UILabel!
 	@IBOutlet weak var postCountLabel: UILabel!
 	@IBOutlet weak var lastPosterLabel: UILabel!
 	@IBOutlet weak var lastPostTimeLabel: UILabel!
@@ -90,6 +91,7 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 			
 		// Font styling
 		subjectLabel.styleFor(.body)
+		eventTimeLabel.styleFor(.body)
 		lastPosterLabel.styleFor(.body)
 		postCountLabel.styleFor(.body)
 		lastPostTimeLabel.styleFor(.body)
@@ -113,6 +115,15 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 					observer.subjectLabel.text = observed.subject
 				}?.execute())
 
+				addObservation(thread.tell(self, when: "scheduleEvent.startTime") { observer, observed in
+					if let event = observed.scheduleEvent {
+						observer.eventTimeLabel.attributedText = observer.makeTimeString(for: event)
+					}
+					else {
+						observer.eventTimeLabel.text = nil
+					}
+				}?.execute())
+
 				// postCount, posts.count, forumReadCount.numPostsRead
 				// postCount is what the server states to be the # of posts in the thread, while posts.count is 
 				// the number of posts we've actually downloaded.
@@ -121,7 +132,7 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 				}?.execute())
 
 				addObservation(thread.tell(self, when: "lastPoster.displayName") { observer, observed in
-					observer.lastPosterLabel.text = "Last Post: \(observed.lastPoster.displayName)"
+					observer.lastPosterLabel.text = "Last Post: \(observed.lastPoster?.displayName ?? "")"
 				}?.execute())
 				
 				addObservation(thread.tell(self, when: "locked") { observer, observed in
@@ -217,6 +228,43 @@ class ForumsThreadCell: BaseCollectionViewCell, ForumsThreadBindingProtocol {
 		postCountLabel.text = text
 	}
 	
+	func makeTimeString(for event: Event) -> NSAttributedString {
+		let timeString = NSMutableAttributedString()
+		let baseFont = eventTimeLabel.font ?? UIFont.systemFont(ofSize: 17.0)
+		let baseAttrs = timeStringAttributes(baseFont: baseFont)
+		let boatAttrs = timeStringBoatTimeAttributes(baseFont: baseFont)
+		
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateStyle = .short
+		dateFormatter.timeStyle = .short
+		dateFormatter.locale = Locale(identifier: "en_US")
+		if let serverTZ = ServerTime.shared.serverTimezone {
+			dateFormatter.timeZone = serverTZ
+			timeString.append(string: dateFormatter.string(from: event.startTime), attrs: baseAttrs)
+			dateFormatter.dateStyle = .none
+			timeString.append(string: " - \(dateFormatter.string(from: event.endTime))")
+
+			if abs(ServerTime.shared.deviceTimeOffset + TimeInterval(ServerTime.shared.timeZoneOffset)) > 300.0 {
+				timeString.append(string: " (Boat Time)\n", attrs: boatAttrs)
+			}
+		}
+		return timeString
+	}
+	
+	func timeStringAttributes(baseFont: UIFont) -> [NSAttributedString.Key : Any] {
+		let bodyAttrs: [NSAttributedString.Key : Any] = [ .font : baseFont as Any, 
+				.foregroundColor : UIColor(named: "Kraken Label Text") as Any ]
+		return bodyAttrs
+	}
+
+	func timeStringBoatTimeAttributes(baseFont: UIFont) -> [NSAttributedString.Key : Any] {
+        let descriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitItalic)
+        let italicFont = UIFont(descriptor: descriptor!, size: 0) 
+		let bodyAttrs: [NSAttributedString.Key : Any] = [ .font : italicFont as Any, 
+				.foregroundColor : UIColor(named: "Kraken Secondary Text") as Any ]
+		return bodyAttrs
+	}
+
 	override var isHighlighted: Bool {
 		didSet {
 			if !isInteractive { return }

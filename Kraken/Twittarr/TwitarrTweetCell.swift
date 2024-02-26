@@ -184,37 +184,29 @@ import CoreData
 		}?.execute())
 		
 		// Watch for login/out, so we can update like/unlike button state
-		let authorUsername = author?.username ?? ""
 		addObservation(CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
-			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-			observer.loggedInUserIsAuthor = authorUsername == currentUsername
+			let currentUserID = CurrentUser.shared.loggedInUser?.userID
+			observer.loggedInUserIsAuthor = currentUserID != nil && observer.author?.userID == currentUserID
 			observer.canEdit = observer.loggedInUserIsAuthor
 			observer.canDelete = observer.loggedInUserIsAuthor
-			observer.canReport = !currentUsername.isEmpty && !observer.loggedInUserIsAuthor
+			observer.canReport = !observer.loggedInUserIsAuthor
 		
 			// When the current user changes, need to re-evaluate: Replies, DeleteOps, EditOps, Likes, LikeOps
 			observer.currentUserReplyOpCount = tweetModel.opsWithThisParent?.reduce(0) { (result, operation) in 
-				return operation.author.username == currentUsername ? result + 1 : result 
+				return operation.author.userID == currentUserID ? result + 1 : result 
 			} ?? 0
 			observer.currentUserHasDeleteOp = tweetModel.opsDeletingThisTweet?.contains { 
-				$0.author.username == currentUsername 
+				$0.author.userID == currentUserID 
 			} ?? false
-			observer.currentUserHasEditOp = tweetModel.opsEditingThisTweet?.author.username == currentUsername
-			if let likeReaction = tweetModel.reactionDict?["like"] as? Reaction, 
-					likeReaction.users.contains(where: { $0.username == currentUsername }) {
-				observer.currentUserLikesThis = .like
-			}
-			else if let laughReaction = tweetModel.reactionDict?["laugh"] as? Reaction, 
-					laughReaction.users.contains(where: { $0.username == currentUsername }) {
-				observer.currentUserLikesThis = .laugh
-			}
-			if let loveReaction = tweetModel.reactionDict?["love"] as? Reaction, 
-					loveReaction.users.contains(where: { $0.username == currentUsername }) {
-				observer.currentUserLikesThis = .love
+			observer.currentUserHasEditOp = tweetModel.opsEditingThisTweet?.author.userID == currentUserID
+			
+			if let reaction = CurrentUser.shared.loggedInUser?.reactions?.first(where: { $0.user?.userID == currentUserID }) {
+				observer.currentUserLikesThis = reaction.getLikeOpKind()
 			}
 			else {
 				observer.currentUserLikesThis = .none
 			}
+			
 			if let likeOp = tweetModel.getPendingUserReaction() {
 				observer.currentUserHasLikeOp = LikeOpKind.fromString(likeOp.reactionWord)
 			}
@@ -248,13 +240,10 @@ import CoreData
 		
 		// User Like Type
 		addObservation(tweetModel.tell(self, when: ["likeCount", "laughCount", "loveCount"]) { observer, observed in
-			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-			observer.currentUserLikesThis = .none
-			for reaction in observed.reactions {
-				if reaction.users.contains(where: { $0.username == currentUsername}) {
-					observer.currentUserLikesThis = reaction.getLikeOpKind()
-					break
-				}
+			observer.currentUserLikesThis = LikeOpKind.none
+			if let currentUserID = CurrentUser.shared.loggedInUser?.userID,
+					let reaction = observed.reactions.first(where: { $0.user?.userID == currentUserID }) {
+				observer.currentUserLikesThis = reaction.getLikeOpKind()
 			}
 		}?.execute())
 							
@@ -1179,11 +1168,11 @@ class PostCellLikeVC: UIViewController {
 		
 		var likeKind: LikeOpKind?
 		if let twarrt = segueData?.post as? TwitarrPost, let user = CurrentUser.shared.loggedInUser,
-				let reaction = twarrt.reactions.first(where: { $0.users.contains(user) }) {
+				let reaction = twarrt.reactions.first(where: { $0.user?.userID == user.userID }) {
 			likeKind = LikeOpKind.fromString(reaction.word)
 		}
 		else if let post = segueData?.post as? ForumPost, let user = CurrentUser.shared.loggedInUser,
-				let reaction = post.reactions.first(where: { $0.users.contains(user) }) {
+				let reaction = post.reactions.first(where: { $0.user?.userID == user.userID }) {
 			likeKind = LikeOpKind.fromString(reaction.word)		
 		}
 		switch likeKind {

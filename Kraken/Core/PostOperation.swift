@@ -677,6 +677,44 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	}
 }
 
+@objc(PostOpForumFavorite) public class PostOpForumFavorite: PostOperation {
+	@NSManaged public var favorite: Bool
+		
+		// The forum to favorite.
+	@NSManaged public var sourceForum: ForumThread?
+	
+	override public func awakeFromInsert() {
+		super.awakeFromInsert()
+		operationDescription = "Favoriting a Forum Thread."
+	}
+
+	override func post(context: NSManagedObjectContext) {
+		guard let forum = sourceForum else { 
+			self.recordServerErrorFailure(ServerError("The forum has disappeared. Perhaps it was deleted serverside?"))
+			return
+		}
+		let forumObjectID = forum.objectID
+		confirmPostBeingSent(context: context)
+		
+		// POST  /api/v3/forum/ID/favorite
+		var request = NetworkGovernor.buildTwittarRequest(withEscapedPath: 
+				"/api/v3/forum/\(forum.id)/favorite", query: nil)
+		NetworkGovernor.addUserCredential(to: &request, forUser: author)
+		request.httpMethod = favorite ? "POST" : "DELETE"
+		
+		self.queueNetworkPost(request: request, success:  { data in
+			LocalCoreData.shared.performNetworkParsing { context in
+				context.pushOpErrorExplanation("Failure saving change to Forum follow state.")
+				if let forumInContext = context.object(with: forumObjectID) as? ForumThread,
+						let rco = forumInContext.getReadCountObject(context: context) {
+					rco.isFavorite = self.favorite
+				}
+			}
+		})
+	}
+}
+
+
 // Photo data to be attached to a forum post, tweet, or fez post. Specifies *either* a new photo to upload 
 // or an existing photo already on the server.
 @objc(PostOpPhoto_Attachment) public class PostOpPhoto_Attachment: KrakenManagedObject {

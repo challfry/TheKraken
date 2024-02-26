@@ -134,12 +134,10 @@ import UIKit
 		
 		// Likes by current user
 		addObservation(postModel.tell(self, when: ["likeCount", "laughCount", "loveCount"]) { observer, observed in
-			let currentUsername = CurrentUser.shared.loggedInUser?.username ?? ""
-			observer.currentUserLikesThis = .none
-			for reaction in observed.reactions {
-				if reaction.users.contains(where: { $0.username == currentUsername}) {
-					observer.currentUserLikesThis = reaction.getLikeOpKind()
-					break
+			if let currentUserID = CurrentUser.shared.loggedInUser?.userID {
+				observer.currentUserLikesThis = .none
+				if let userReaction = observed.reactions.first(where: { $0.user?.userID == currentUserID }) {
+					observer.currentUserLikesThis = userReaction.getLikeOpKind()
 				}
 			}
 		}?.execute())

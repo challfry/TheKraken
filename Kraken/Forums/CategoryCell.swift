@@ -15,21 +15,43 @@ import CoreData
 	dynamic var numThreads: Int32 { get set }
 }
 
-@objc class CategoryCellModel: BaseCellModel, CategoryCellProtocol, FetchedResultsBindingProtocol {
+@objc class CategoryCellModel: FetchedResultsCellModel, CategoryCellProtocol {
 	private static let validReuseIDs = [ "CategoryCell" : CategoryCell.self ]
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { return validReuseIDs }
 
-	dynamic var model: NSFetchRequestResult?
+	dynamic var category: ForumCategory?
 
 	dynamic var title: String?
 	dynamic var purpose: String?
 	dynamic var numThreads: Int32
 	var tapAction: ((CategoryCellModel) -> Void)?
 	
-	init() {
-		numThreads = 0
-		super.init(bindingWith: CategoryCellProtocol.self)
+	init(category: ForumCategory) {
+		self.category = category
+		self.title = category.title
+		self.purpose = category.purpose
+		self.numThreads = category.numThreads
+		super.init(withModel: category, reuse: "CategoryCell", bindingWith: CategoryCellProtocol.self)
+
+		category.tell(self, when: "numThreads") { observer, observed in 
+			observer.numThreads = observed.numThreads
+		}
 	}
+
+//	init(with frr: NSFetchRequestResult?) {
+//		numThreads = 0
+//		super.init(withModel: frr, reuse: "CategoryCell", bindingWith: CategoryCellProtocol.self)
+//		if let cat = frr as? ForumCategory {
+//			category = cat
+//		}
+//		else if let pivot = frr as? ForumCategoryPivot {
+//			category = pivot.category
+//		}
+//		
+//		self.tell(self, when: "category.numThreads") { observer, observed in 
+//			observer.numThreads = observed.category?.numThreads ?? 0
+//		}
+//	}
 
 	override func cellTapped(dataSource: KrakenDataSource?, vc: UIViewController?) {
 		tapAction?(self)

@@ -10,17 +10,13 @@ import UIKit
 import CoreData
 
 @objc(Reaction) public class Reaction: KrakenManagedObject {
-	@NSManaged public var word: String				// "like" is the most common
+	@NSManaged public var word: String				// V3 defines "like", "love", "laugh". More may be added later.
+	@NSManaged public var bookmark: Bool			// True if the user has bookmarked this content.
 	
-	// How many users have this reaction to this source item. Count is very likely to be larger than the number of 
-	// specific known users.
-	@NSManaged public var count: Int32				// 
-	@NSManaged public var users: Set<KrakenUser> 	// Users known to have given this reaction
-	
-    
     // Reactions must have a source of some sort.
 	@NSManaged public var sourceTweet: TwitarrPost?
 	@NSManaged public var sourceForumPost: ForumPost?
+	@NSManaged public var user: KrakenUser?
 	
 	func getLikeOpKind() -> LikeOpKind {
 		switch word {
@@ -28,6 +24,27 @@ import CoreData
 		case "love": return .love
 		case "laugh": return .laugh
 		default: return .none
+		}
+	}
+	
+	func buildReactionFromLikeAndBookmark(context: NSManagedObjectContext, source: ForumPost, 
+			likeType: TwitarrV3LikeType?, bookmark: Bool) {
+		TestAndUpdate(\.sourceForumPost, source)
+		TestAndUpdate(\.word, likeType?.rawValue ?? "")
+		TestAndUpdate(\.bookmark, bookmark)
+		
+		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+			TestAndUpdate(\.user, currentUser)
+		}
+	}
+	func buildReactionFromLikeAndBookmark(context: NSManagedObjectContext, source: TwitarrPost, 
+			likeType: TwitarrV3LikeType?, bookmark: Bool) {
+		TestAndUpdate(\.sourceTweet, source)
+		TestAndUpdate(\.word, likeType?.rawValue ?? "")
+		TestAndUpdate(\.bookmark, bookmark)
+		
+		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
+			TestAndUpdate(\.user, currentUser)
 		}
 	}
 }

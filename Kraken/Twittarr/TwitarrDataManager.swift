@@ -32,7 +32,7 @@ import UIKit
     @NSManaged public var reactionOps: NSMutableSet?
 
 		// Properties built from reactions
-	@objc dynamic public var reactionDict: NSMutableDictionary?			// the reactions set, keyed by reaction.word
+	@objc dynamic public var reactionDict: NSDictionary?			// the reactions set, keyed by reaction.word
 	@objc dynamic public var likeCount: Int32 = 0
 	@objc dynamic public var loveCount: Int32 = 0
 	@objc dynamic public var laughCount: Int32 = 0
@@ -48,17 +48,9 @@ import UIKit
 		super.awakeFromFetch()
 
 		// Update derived properties
-    	let dict = NSMutableDictionary()
-		for reaction in reactions {
-			dict.setValue(reaction, forKey: reaction.word)
-			switch reaction.word {
-				case "like": likeCount = reaction.count
-				case "love": loveCount = reaction.count
-				case "laugh": laughCount = reaction.count
-				default: break
-			}
-		}
-		reactionDict = dict
+		laughCount = reactionDict?["laugh"] as? Int32 ?? 0
+		likeCount = reactionDict?["like"] as? Int32 ?? 0
+		loveCount = reactionDict?["love"] as? Int32 ?? 0
 	}
     	
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3TwarrtData) {
@@ -98,7 +90,7 @@ import UIKit
 			}
 		}
 		
-		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike, bookmark: v3Object.isBookmarked)
 		
 		// Not handled: isBookmarked,
 	}
@@ -137,67 +129,25 @@ import UIKit
 			}
 		}
 		
-		buildUserReactionFromV3(context: context, userLike: v3Object.userLike)
+		buildUserReactionFromV3(context: context, userLike: v3Object.userLike, bookmark: v3Object.isBookmarked)
 		
-		func setReactionCounts(word: String, users: [TwitarrV3UserHeader]) {
-			if let reactionObj = reactionDict?[word] as? Reaction {
-				reactionObj.count = Int32(users.count)
-			}
-			else if users.count > 0 {
-				let newReaction = Reaction(context: context)
-				newReaction.word = word
-				newReaction.count = Int32(users.count)
-				newReaction.sourceTweet	= self
-			}
-		}
-		setReactionCounts(word: "like", users: v3Object.likes)
-		setReactionCounts(word: "love", users: v3Object.loves)
-		setReactionCounts(word: "laugh", users: v3Object.laughs)
+		// Set reaction counts. The PostDetailData object gives us a list of each user that's reacted, but we aren't using that.
+		let dict: NSDictionary = ["laugh" : v3Object.laughs.count, 
+				"like" : v3Object.likes.count, 
+				"love" : v3Object.loves.count]
+		TestAndUpdate(\.reactionDict, dict)
 	}
 	
-	func buildUserReactionFromV3(context: NSManagedObjectContext, userLike: TwitarrV3LikeType?) {
-		// Set the user's reaction to the tweet
+	func buildUserReactionFromV3(context: NSManagedObjectContext, userLike: TwitarrV3LikeType?, bookmark: Bool) {
+		// Set the user's reaction to the post
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
-			// Find any existing reaction the user has
-			var userCurrentReaction: Reaction?
-			if let userReacts = currentUser.reactions {
-				var userCurrentReactions = reactions.intersection(userReacts)
-				
-				// If the user has multiple reactions, something bad has happended. Remove all.
-				if userCurrentReactions.count > 1 {
-					userCurrentReactions.forEach { 
-						if let _ = $0.users.remove(currentUser) {
-							$0.count -= 1
-						}
-					}
-					userCurrentReactions.removeAll()
-				}
-				
-				// If the new reaction is different or deleted, remove existing reaction from CD.
-				userCurrentReaction = userCurrentReactions.first
-				if let ucr = userCurrentReaction, userLike?.rawValue != ucr.word {
-					if let _ = ucr.users.remove(currentUser) {
-						ucr.count -= 1
-					}
-				}
+			let foundReaction = reactions.first { $0.user?.userID == currentUser.userID } 
+			if foundReaction == nil && userLike == nil && !bookmark {
+				// If there's no user like or bookmark, we don't need to create a reaction object
+				return
 			}
-				
-			// Add new reaction, if any
-			if let newReactionWord = userLike?.rawValue, userCurrentReaction?.word != newReactionWord {
-				if let reaction = reactions.first(where: { $0.word == newReactionWord } ) {
-					let (didInsert, _) = reaction.users.insert(currentUser)
-					if didInsert {
-						reaction.count += 1
-					}
-				}
-				else {
-					let newReaction = Reaction(context: context)
-					newReaction.word = newReactionWord
-					newReaction.count = 1
-					newReaction.users = Set([currentUser])
-					newReaction.sourceTweet	= self
-				}
-			}
+			let reaction = foundReaction ?? Reaction(context: context)
+			reaction.buildReactionFromLikeAndBookmark(context: context, source: self, likeType: userLike, bookmark: bookmark)
 		}
 	}
 			
