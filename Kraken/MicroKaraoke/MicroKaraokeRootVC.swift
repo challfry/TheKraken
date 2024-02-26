@@ -87,6 +87,30 @@ class MicroKaraokeRootViewController: BaseCollectionViewController {
 	
 	var errorObservation: EBNObservation?
 	func makeRecordingButtonTapped() {
+		AVAudioSession.sharedInstance().requestRecordPermission { response in
+			if response {
+				AVCaptureDevice.requestAccess(for: .video, completionHandler: { (granted: Bool) in
+					DispatchQueue.main.async {
+						if granted {
+							self.requestOffer()
+						}
+						else {
+							let alert = UIAlertController(title: "Camera Access Required", message: "Micro Karaoke takes a video of you singing, so we really do need camera access.", preferredStyle: .alert) 
+								alert.addAction(UIAlertAction(title: NSLocalizedString("Okay", comment: ""), style: .default, handler: nil))
+							self.present(alert, animated: true, completion: nil)
+						}
+					}
+				})
+			}
+			else {
+				let alert = UIAlertController(title: "Microphone Access Required", message: "Micro Karaoke records you singing, so we really do need microphone access.", preferredStyle: .alert) 
+					alert.addAction(UIAlertAction(title: NSLocalizedString("Okay", comment: ""), style: .default, handler: nil))
+				self.present(alert, animated: true, completion: nil)
+			}
+		}	
+	}
+	
+	func requestOffer() {
 		explainerCell.enableActionButton = false
 		loadingCell.shouldBeVisible = true
 		loadingCell.statusText = "Asking Server for Song Clip..."

@@ -48,7 +48,7 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
         super.viewDidLoad()
         landscapeRecording = MicroKaraokeDataManager.shared.getCurrentOffer()?.portraitMode == false
 		(UIApplication.shared.delegate as? AppDelegate)?.makeThisVCLandscape = landscapeRecording
-		try? configureAVSession()
+		configureAVSession()
 		
 		// CoreMotion is our own device motion manager, a singleton for the whole app. We use it here to get device
 		// orientation without allowing our UI to actually rotate.
@@ -328,80 +328,81 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 		performSegue(withIdentifier: "cancelledMKRecording", sender: nil)
 	}
 	
-	
 	// Sets up the avSession, with initial settings. Should only run this once per view instantion, at viewDidLoad time. 
-	func configureAVSession() throws {
+	func configureAVSession() {
 		#if targetEnvironment(simulator)
 		return
 		#else
-		
+
 		captureSession.sessionPreset = .hd1280x720
 
 		// Find our initial camera, and set up our array of camera devices
 //		discoverer = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
-// TODO: must guard
 		cameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
 		haveLockOnDevice = false
 		do {
 			try cameraDevice?.lockForConfiguration()
 			haveLockOnDevice = true
+		
+			guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+				throw KrakenError("No default microphone found; can't record audio.")
+			}
+//			let discover = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone], mediaType: .audio, position: .unspecified)
+//			print("audio: \(discover.devices)")
+			self.audioDevice = audioDevice
+				
+			captureSession.beginConfiguration()
+			defer { captureSession.commitConfiguration() }
+			// Add the Front Camera input
+			if let input = try? AVCaptureDeviceInput(device: cameraDevice!), captureSession.canAddInput(input) { 
+				captureSession.addInput(input)
+				cameraInput = input
+			}
+
+			// Add audio input
+			let audioInput = try AVCaptureDeviceInput(device: audioDevice)
+			if captureSession.canAddInput(audioInput) {
+				captureSession.addInput(audioInput)
+				self.audioInput = audioInput
+			} else {
+				throw KrakenError("No default microphone found; can't record audio.")
+			}
+
+	// TODO: Setup max duration of file output
+
+			if captureSession.canAddOutput(videoOutput) {
+				captureSession.addOutput(videoOutput)
+				
+				videoOutput.connections.forEach {
+					if $0.isVideoOrientationSupported {
+						$0.videoOrientation = landscapeRecording ? .landscapeRight : .portrait
+					}
+					if $0.isVideoMirroringSupported {
+						$0.isVideoMirrored = true
+					}
+				}
+			}
+
+			let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+			cameraPreview = previewLayer
+			previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+			if landscapeRecording {
+				previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
+			}
+			else {
+				previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
+			}
+			cameraView.layer.insertSublayer(previewLayer, at: 0)
+			previewLayer.frame = cameraView.bounds
+			
+	//		print("Connections: \(captureSession.connections)")
+			
 		}
 		catch {
 			haveLockOnDevice = false
+			print("Configure AV Session error: \(error)")
+			closeButtonTapped()
 		}
-		
-		guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-			throw KrakenError("No default microphone found; can't record audio.")
-		}
-//let discover = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone], mediaType: .audio, position: .unspecified)
-//print("audio: \(discover.devices)")
-		self.audioDevice = audioDevice
-			
-		captureSession.beginConfiguration()
-		// Add the Front Camera input
-		if let input = try? AVCaptureDeviceInput(device: cameraDevice!), captureSession.canAddInput(input) { 
-			captureSession.addInput(input)
-			cameraInput = input
-		}
-
-		// Add audio input
-	    let audioInput = try AVCaptureDeviceInput(device: audioDevice)
-		if captureSession.canAddInput(audioInput) {
-			captureSession.addInput(audioInput)
-			self.audioInput = audioInput
-		} else {
-			throw KrakenError("No default microphone found; can't record audio.")
-		}
-
-// TODO: Setup max duration of file output
-
-		if captureSession.canAddOutput(videoOutput) {
-			captureSession.addOutput(videoOutput)
-			
-			videoOutput.connections.forEach {
-				if $0.isVideoOrientationSupported {
-					$0.videoOrientation = landscapeRecording ? .landscapeRight : .portrait
-				}
-				if $0.isVideoMirroringSupported {
-					$0.isVideoMirrored = true
-				}
-			}
-		}
-
-		let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-		cameraPreview = previewLayer
-		previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-		if landscapeRecording {
-			previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
-		}
-		else {
-			previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
-		}
-		cameraView.layer.insertSublayer(previewLayer, at: 0)
-		previewLayer.frame = cameraView.bounds
-		captureSession.commitConfiguration()
-		
-//		print("Connections: \(captureSession.connections)")
 		
 		// Running this from the main thread cause the thread perf checker to complain
 		DispatchQueue.global(qos: .background).async {
