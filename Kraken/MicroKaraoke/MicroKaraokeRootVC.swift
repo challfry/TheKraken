@@ -220,6 +220,14 @@ class MKExplainerCell: BaseCollectionViewCell, ExplainerCellProtocol {
 				
 				Later, watch a music video with you in it.
 				""", attrs: bodyTextAttributes())
+		if UIDevice.current.userInterfaceIdiom != .phone {
+			actionButton.isHidden = true
+			explainerText.append(string: """
+				
+				
+				For now, recording only works on phones, but you can watch completed videos below.
+				""", attrs: bodyTextAttributes())
+		}
 		label.attributedText = explainerText
 	}
 	
