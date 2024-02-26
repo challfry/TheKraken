@@ -35,7 +35,7 @@
             </view>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="JT9-yC-hyd" secondAttribute="trailing" priority="900" constant="10" id="0tS-pr-xJe"/>
-                <constraint firstItem="JT9-yC-hyd" firstAttribute="top" secondItem="dGp-kE-xJe" secondAttribute="top" constant="2" id="MAx-xQ-Hbx"/>
+                <constraint firstItem="JT9-yC-hyd" firstAttribute="top" secondItem="dGp-kE-xJe" secondAttribute="top" priority="900" constant="2" id="MAx-xQ-Hbx"/>
                 <constraint firstItem="JT9-yC-hyd" firstAttribute="firstBaseline" secondItem="zFg-GW-9Xb" secondAttribute="firstBaseline" id="Rby-qf-c6A"/>
                 <constraint firstItem="zFg-GW-9Xb" firstAttribute="leading" secondItem="dGp-kE-xJe" secondAttribute="leading" constant="10" id="Ta4-bh-12v"/>
                 <constraint firstItem="JT9-yC-hyd" firstAttribute="leading" secondItem="zFg-GW-9Xb" secondAttribute="trailing" constant="8" id="Wii-jz-l3M"/>
