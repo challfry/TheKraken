@@ -22,6 +22,7 @@ import CoreData
 	@NSManaged public var currentLocation: String?
 	@NSManaged public var roomNumber: String?
 	@NSManaged public var homeLocation: String?
+	@NSManaged public var dinnerTeam: String?
 	@NSManaged public var aboutMessage: String?
 	@NSManaged public var profileMessage: String?
 	
@@ -81,6 +82,7 @@ import CoreData
 		TestAndUpdate(\.pronouns, v3Object.preferredPronoun)
 		TestAndUpdate(\.realName, v3Object.realName)
 		TestAndUpdate(\.roomNumber, v3Object.roomNumber)
+		TestAndUpdate(\.dinnerTeam, v3Object.dinnerTeam?.rawValue)
 
 		// Not handled: Note
 	}

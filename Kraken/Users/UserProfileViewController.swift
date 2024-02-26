@@ -76,12 +76,16 @@ import CoreData
     
 // MARK: Cell Models
 	var avatarCell: ProfileAvatarCellModel?
+	var welcomeMessageCell: LabelCellModel?
+	var pronounCell: UserProfileSingleValueCellModel?
 	var emailCell: UserProfileSingleValueCellModel?
     var homeLocationCell: UserProfileSingleValueCellModel?
     var roomNumberCell: UserProfileSingleValueCellModel?
     var mapRoomCell: ButtonCellModel?
     var currentLocationCell: UserProfileSingleValueCellModel?
-	var authoredTweetsCell: ProfileDisclosureCellModel?
+    var dinnerTeamCell: UserProfileSingleValueCellModel?
+	var aboutMessageCell: UserProfileSingleValueCellModel?
+//	var authoredTweetsCell: ProfileDisclosureCellModel?
 //	var mentionsCell: ProfileDisclosureCellModel?
     var sendSeamailCell: ProfileDisclosureCellModel?
     var editProfileCell: ProfileDisclosureCellModel?
@@ -236,13 +240,17 @@ import CoreData
 
     	let section = dataSource.appendFilteringSegment(named: "UserProfile")
     	avatarCell = ProfileAvatarCellModel(user: modelKrakenUser)
+    	welcomeMessageCell = LabelCellModel(modelKrakenUser?.profileMessage ?? "")
+		pronounCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .pronouns)
 		emailCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .email)
 		homeLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .homeLocation)
 		roomNumberCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .roomNumber)
 		mapRoomCell = ButtonCellModel(title: "Show Room On Map", alignment: .center, action: mapButtonTapped)
-		
 		currentLocationCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .currentLocation)
-		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)
+		dinnerTeamCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .dinnerTeam)
+		aboutMessageCell = UserProfileSingleValueCellModel(user: modelKrakenUser, mode: .aboutMessage)
+
+//		authoredTweetsCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.authoredTweets, vc: self)
 		sendSeamailCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.sendSeamail, vc: self)		
 		editProfileCell = ProfileDisclosureCellModel(user: modelKrakenUser, mode:.editOwnProfile, vc: self)		
 		profileCommentCell = ProfileCommentCellModel(user: modelKrakenUser)
@@ -256,11 +264,15 @@ import CoreData
 		}?.execute()
 
     	section.append(avatarCell!)
+		section.append(welcomeMessageCell!)
+		section.append(pronounCell!)
 		section.append(emailCell!)
 		section.append(homeLocationCell!)
 		section.append(roomNumberCell!)
 		section.append(mapRoomCell!)
 		section.append(currentLocationCell!)
+		section.append(dinnerTeamCell!)
+		section.append(aboutMessageCell!)
 //		section.append(authoredTweetsCell!)
 		section.append(sendSeamailCell!)		
 		section.append(editProfileCell!)		
@@ -273,11 +285,15 @@ import CoreData
     func updateCellModels(to newUser: KrakenUser?) {
 		self.modelKrakenUser = newUser
     	avatarCell?.model = newUser
+    	welcomeMessageCell?.labelText = NSAttributedString(string: newUser?.profileMessage ?? "")
+    	pronounCell?.userModel = newUser
     	emailCell?.userModel = newUser
 		homeLocationCell?.userModel = newUser
 		roomNumberCell?.userModel = newUser
 		currentLocationCell?.userModel = newUser
-		authoredTweetsCell?.userModel = newUser
+		dinnerTeamCell?.userModel = newUser
+    	aboutMessageCell?.userModel = newUser
+//		authoredTweetsCell?.userModel = newUser
 		sendSeamailCell?.userModel = newUser
 		editProfileCell?.userModel = newUser
 		profileCommentCell?.userModel = newUser
@@ -509,10 +525,13 @@ import CoreData
 	dynamic var value: String?
 
 	enum DisplayMode: String {
+		case pronouns = "pronouns"
 		case email = "email"
 		case roomNumber = "room #"
-		case homeLocation = "Hometown"
-		case currentLocation = "Last seen"
+		case homeLocation = "hometown"
+		case currentLocation = "last seen"
+		case dinnerTeam = "dinner team"
+		case aboutMessage = "About this user"
 	}
 	dynamic var displayMode: DisplayMode
 	
@@ -523,6 +542,11 @@ import CoreData
 		super.init(bindingWith: SingleValueCellProtocol.self)
 
 		switch displayMode {
+		case .pronouns:
+			addObservation(self.tell(self, when: "userModel.pronouns") { observer, observed in
+				observer.value = observed.userModel?.pronouns
+				observer.shouldBeVisible = observed.userModel?.pronouns != nil
+			}?.schedule())
 		case .email:
 			addObservation(self.tell(self, when: "userModel.emailAddress") { observer, observed in
 				observer.value = observed.userModel?.emailAddress
@@ -542,6 +566,16 @@ import CoreData
 			addObservation(self.tell(self, when: "userModel.currentLocation") { observer, observed in
 				observer.value = observed.userModel?.currentLocation
 				observer.shouldBeVisible = observed.userModel?.currentLocation != nil
+			}?.schedule())
+		case .dinnerTeam:
+			addObservation(self.tell(self, when: "userModel.dinnerTeam") { observer, observed in
+				observer.value = observed.userModel?.dinnerTeam
+				observer.shouldBeVisible = observed.userModel?.dinnerTeam != nil
+			}?.schedule())
+		case .aboutMessage:
+			addObservation(self.tell(self, when: "userModel.aboutMessage") { observer, observed in
+				observer.value = observed.userModel?.aboutMessage
+				observer.shouldBeVisible = observed.userModel?.aboutMessage != nil
 			}?.schedule())
 		}
 	}

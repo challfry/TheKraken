@@ -209,7 +209,7 @@ import CoreData
 	}
 }
 
-class ReactionDictTransformer: ValueTransformer {
+@objc(ReactionDictTransformer) class ReactionDictTransformer: ValueTransformer {
     public static func register() {
         ValueTransformer.setValueTransformer(ReactionDictTransformer(), 
         		forName: NSValueTransformerName(rawValue: String(describing: ReactionDictTransformer.self)))
@@ -231,7 +231,8 @@ class ReactionDictTransformer: ValueTransformer {
     }
     
     override public func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? NSData, let dict = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSDictionary.self, from: data as Data) else { 
+        guard let data = value as? NSData, let dict = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: 
+        		[NSDictionary.self, NSString.self, NSNumber.self], from: data as Data) else { 
         	return nil
 		}
 		return dict

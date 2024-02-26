@@ -1081,6 +1081,9 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var email: String?
 	@NSManaged public var homeLocation: String?
 	@NSManaged public var roomNumber: String?
+	@NSManaged public var dinnerTeam: String?
+	@NSManaged public var message: String?			// Short message
+	@NSManaged public var aboutMessage: String?		// Long blurb
 
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
@@ -1091,7 +1094,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		confirmPostBeingSent(context: context)
 		
 		let postContent = UserProfileUploadData(header: nil, displayName: displayName, realName: realName, 
-				preferredPronoun: pronouns, homeLocation: homeLocation, roomNumber: roomNumber, email: email, message: "", about: "")
+				preferredPronoun: pronouns, homeLocation: homeLocation, roomNumber: roomNumber, email: email, 
+				message: message, about: aboutMessage, dinnerTeam: DinnerTeam(rawValue: dinnerTeam ?? ""))
 		let postData = try! Settings.v3Encoder.encode(postContent)
 		
 		// POST /api/v3/user/profile`
@@ -1245,4 +1249,6 @@ public struct UserProfileUploadData: Codable {
     var message: String?
    /// An optional blurb about the user.
     var about: String?
+	/// An optional dinner team assignment.
+	var dinnerTeam: DinnerTeam?
 }

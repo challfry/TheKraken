@@ -604,7 +604,7 @@ import UserNotifications
 			
 	// 
 	func changeUserProfileFields(displayName: String?, realName: String?, pronouns: String?, email: String?, 
-			homeLocation: String?, roomNumber: String?) {
+			homeLocation: String?, roomNumber: String?, dinnerTeam: DinnerTeam?, message: String?, about: String?) {
 		guard loggedInUser != nil else { return }
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failed to create op to edit user profile.")
@@ -617,6 +617,9 @@ import UserNotifications
 			op.email = email
 			op.homeLocation = homeLocation
 			op.roomNumber = roomNumber
+			op.dinnerTeam = dinnerTeam?.rawValue
+			op.message = message
+			op.aboutMessage = about
 			op.operationState = .readyToSend
 		}
 	}

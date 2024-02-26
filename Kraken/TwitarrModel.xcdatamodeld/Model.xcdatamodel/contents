@@ -130,6 +130,7 @@
         <attribute name="accessLevel" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="authKey" optional="YES" attributeType="String"/>
         <attribute name="currentLocation" optional="YES" attributeType="String"/>
+        <attribute name="dinnerTeam" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
         <attribute name="emailAddress" optional="YES" attributeType="String"/>
         <attribute name="forumMentions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
@@ -294,9 +295,12 @@
         <attribute name="imageMimetype" attributeType="String"/>
     </entity>
     <entity name="PostOpUserProfileEdit" representedClassName="PostOpUserProfileEdit" parentEntity="PostOperation" syncable="YES">
+        <attribute name="aboutMessage" optional="YES" attributeType="String"/>
+        <attribute name="dinnerTeam" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
         <attribute name="email" optional="YES" attributeType="String"/>
         <attribute name="homeLocation" optional="YES" attributeType="String"/>
+        <attribute name="message" optional="YES" attributeType="String"/>
         <attribute name="pronouns" optional="YES" attributeType="String"/>
         <attribute name="realName" optional="YES" attributeType="String"/>
         <attribute name="roomNumber" optional="YES" attributeType="String"/>

@@ -56,6 +56,15 @@ import Photos
 		}		
 		return cell
 	}()
+	var dinnerTeamCell: SegmentCellModel = {
+		let cellModel = SegmentCellModel(titles: ["None", "Red", "Gold", "Team SRO"])
+		cellModel.cellTitle = "Dinner Team"
+		return cellModel
+	}()
+	var welcomeMessageCell = TextViewCellModel("Welcome Message") 
+	var aboutYouCell = TextViewCellModel("About You") 
+	
+	
 	var profileUpdateStatusCell = PostOpStatusCellModel()
 	
 // MARK: Methods
@@ -96,12 +105,35 @@ import Photos
 		self.tell(self, when: "editProfileOp.displayName") { observer, observed in 
 			observer.roomNumberCell.fieldText = observed.editProfileOp?.roomNumber ?? observer.modelKrakenUser?.roomNumber
 		}?.execute()
+		self.tell(self, when: "editProfileOp.dinnerTeam") { observer, observed in 
+			
+			if let teamString = observed.editProfileOp != nil ? observed.editProfileOp?.dinnerTeam : observer.modelKrakenUser?.dinnerTeam,
+					let team = DinnerTeam(rawValue: teamString) {
+				switch team {
+					case .red: observer.dinnerTeamCell.selectedSegment = 1
+					case .gold: observer.dinnerTeamCell.selectedSegment = 2
+					case .sro: observer.dinnerTeamCell.selectedSegment = 3
+				}
+			}
+			else {
+				observer.dinnerTeamCell.selectedSegment = 0
+			}
+		}?.execute()
+		self.tell(self, when: "editProfileOp.message") { observer, observed in 
+			observer.welcomeMessageCell.editText = observed.editProfileOp?.message ?? observer.modelKrakenUser?.profileMessage
+		}?.execute()
+		self.tell(self, when: "editProfileOp.aboutMessage") { observer, observed in 
+			observer.aboutYouCell.editText = observed.editProfileOp?.aboutMessage ?? observer.modelKrakenUser?.aboutMessage
+		}?.execute()
 
-		let saveButtonCell = ButtonCellModel(title: "Save", action: { 
+		let saveButtonCell = ButtonCellModel(title: "Save", action: {
+			let teams: [DinnerTeam?] = [nil, .red, .gold, .sro]
+			let team = teams[self.dinnerTeamCell.selectedSegment]
 			CurrentUser.shared.changeUserProfileFields(displayName: self.displayNameCell.getText(),
 					realName: self.realNameCell.getText(), pronouns: self.pronounsCell.getText(), 
 					email: self.emailCell.getText(), homeLocation: self.homeLocationCell.getText(), 
-					roomNumber: self.roomNumberCell.getText())
+					roomNumber: self.roomNumberCell.getText(), dinnerTeam: team,
+					message: self.welcomeMessageCell.getText(), about: self.aboutYouCell.getText())
 		})
 		
 		// Debug
@@ -116,6 +148,9 @@ import Photos
 		section.append(emailCell)
 		section.append(homeLocationCell)
 		section.append(roomNumberCell)
+		section.append(dinnerTeamCell)
+		section.append(welcomeMessageCell)
+		section.append(aboutYouCell)
 		section.append(saveButtonCell)
 		section.append(profileUpdateStatusCell)
 		

@@ -114,7 +114,10 @@ class SingleValueCell: BaseCollectionViewCell, SingleValueCellProtocol {
 		didSet { titleLabel.text = title }
 	}
 	var value: String? {
-		didSet { valueLabel.text = value }
+		didSet { 
+			valueLabel.text = value
+			cellSizeChanged()
+		}
 	}
 }
 
