@@ -364,7 +364,7 @@ import Accelerate
 	
 	// Only for moderator users
 	func modApproveSong(song: Int64, done: ((String?) -> Void)?) {
-		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/microkaraoke/mod/approve/\(song)")
+		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/mod/microkaraoke/approve/\(song)")
 		NetworkGovernor.addUserCredential(to: &request)
 		request.httpMethod = "POST"
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in

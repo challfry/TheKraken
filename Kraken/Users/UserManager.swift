@@ -71,6 +71,7 @@ import CoreData
 		TestAndUpdate(\.userID, v3Object.userID)
 		TestAndUpdate(\.displayName, v3Object.displayName ?? v3Object.username)
 		TestAndUpdate(\.userImageName, v3Object.userImage)
+		TestAndUpdate(\.pronouns, v3Object.preferredPronoun)
 	}
 	
 	func buildFromV3Profile(context: NSManagedObjectContext, v3Object: TwitarrV3ProfilePublicData) {
@@ -79,7 +80,6 @@ import CoreData
 		TestAndUpdate(\.profileMessage, v3Object.message)
 		TestAndUpdate(\.emailAddress, v3Object.email)
 		TestAndUpdate(\.homeLocation, v3Object.homeLocation)
-		TestAndUpdate(\.pronouns, v3Object.preferredPronoun)
 		TestAndUpdate(\.realName, v3Object.realName)
 		TestAndUpdate(\.roomNumber, v3Object.roomNumber)
 		TestAndUpdate(\.dinnerTeam, v3Object.dinnerTeam?.rawValue)
@@ -549,27 +549,24 @@ struct TwitarrV3UserHeader: Codable {
 /// Returned by: `GET /api/v3/users/ID/profile`
 ///
 struct TwitarrV3ProfilePublicData: Codable {
-    /// Basic info about the user--their ID, username, displayname, and avatar image.
-    var header: TwitarrV3UserHeader
-
-    /// An optional blurb about the user.
-    var about: String
-    /// An optional email address for the user.
-    var message: String
-    /// An optional preferred pronoun or form of address.
-    var email: String
-    /// An optional home location for the user.
-    var homeLocation: String
-    /// An optional greeting/message to visitors of the profile.
-    var preferredPronoun: String
-    /// An optional real world name of the user.
-    var realName: String
-    /// An optional cabin number for the user.
-    var roomNumber: String
+	/// Basic info about the user--their ID, username, displayname, and avatar image.
+	var header: TwitarrV3UserHeader
+	/// An optional real world name of the user.
+	var realName: String
+	/// An optional home location for the user.
+	var homeLocation: String
+	/// An optional cabin number for the user.
+	var roomNumber: String
+	/// An optional email address for the user.
+	var email: String
+	/// An optional blurb about the user.
+	var about: String
+	/// An optional greeting/message to visitors of the profile.
+	var message: String
 	/// An optional dinner team assignemnt.
 	var dinnerTeam: DinnerTeam?
-    /// A UserNote owned by the visiting user, about the profile's user (see `UserNote`).
-    var note: String?
+	/// A UserNote owned by the visiting user, about the profile's user (see `UserNote`).
+	var note: String?
 }
 
 struct TwitarrV3NoteData: Codable {

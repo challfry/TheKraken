@@ -56,7 +56,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>Calendar access lets Kraken add events from the official cruise schedule.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera Access lets you take photos to attach to Twitarr posts, and selfies for your user avatar. Pirate Selfie mode uses face tracking and the TrueDepth camera to place pirate hats on your head.</string>
+	<string>Camera Access lets you take photos to attach to forum posts, and selfies for your user avatar. Pirate Selfie mode uses face tracking and the TrueDepth camera to place pirate hats on your head. Camera Access is also used to record Micro Karaoke videos.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Kraken requires access to your local network in order to deliver Push Notifications.</string>
 	<key>NSMicrophoneUsageDescription</key>
