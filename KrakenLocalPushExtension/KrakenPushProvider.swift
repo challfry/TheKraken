@@ -181,7 +181,7 @@ class KrakenPushProvider: NEAppPushProvider {
 						case .announcement: title = "Announcement"
 							userInfo["Announcement"] = socketNotification.contentID
 						case .fezUnreadMsg: title = "New Looking For Group Message"
-							userInfo["Fez"] = socketNotification.contentID
+							userInfo["LFG"] = socketNotification.contentID
 						case .seamailUnreadMsg: title = "New Seamail Message"
 							userInfo["Seamail"] = socketNotification.contentID
 						case .alertwordTwarrt: title = "Alert Word"
@@ -211,6 +211,10 @@ class KrakenPushProvider: NEAppPushProvider {
 						case .microKaraokeSongReady:
 							title = "Micro Karaoke Music Video Ready"
 							userInfo["mkSongID"] = socketNotification.contentID
+						case .joinedLFGStarting:
+							userInfo["LFG"] = socketNotification.contentID
+						default:	// @unknown default
+							break
 						}
 						if sendNotification {
 							content.title = title
@@ -361,15 +365,20 @@ struct SocketNotificationData: Codable {
 		case twarrtMention
 		/// A user has posted a Forum Post that @mentions this user.
 		case forumMention
-		/// An event the user is following is about to start. NOT CURRENTLY IMPLEMENTED. Plan is to add support for this as a bulk process that runs every 30 mins
-		/// at :25 and :55, giving all users following an event about to start a notification 5 mins before the event start time.
+		/// An event the user is following is about to start.
 		case followedEventStarting
 		/// Someone is trying to call this user via KrakenTalk.
 		case incomingPhoneCall
-		/// The callee answered the call, possibly on another device. 
+		/// The callee answered the call, possibly on another device.
 		case phoneCallAnswered
-		/// Caller hung up while phone was rining, or other party ended the call in progress
+		/// Caller hung up while phone was rining, or other party ended the call in progress, or callee declined
 		case phoneCallEnded
+		/// A new or edited forum post that now @mentions @moderator.
+		case moderatorForumMention
+		/// A new or edited forum post that now @mentions @twitarrteam.
+		case twitarrTeamForumMention
+		/// An LFG the user has joined is about to start.
+		case joinedLFGStarting
 		/// A Micro Karaoke song the user contributed to is ready for viewing. .
 		case microKaraokeSongReady
 	}

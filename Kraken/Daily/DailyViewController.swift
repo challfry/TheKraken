@@ -92,6 +92,13 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		AlertsUpdater.shared.tell(self, when: "lastUpdateTime") {observer, observed in
 			observer.updateEnabledFeatures(ValidSections.shared.disabledSections)
 		}?.execute()
+		
+		// Hide cells that are only for logged-in states
+		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
+			// The idea here is that while we put a login-gate around content the user may want to get to (like Forums),
+			// nobody wants to make an account just so they can...set up their account's profile.
+			observer.profileCell.shouldBeVisible = observed.loggedInUser != nil
+		}?.execute()
 
 		// Set the badge on the Daily tab
 		AnnouncementDataManager.shared.tell(self, when: ["dailyTabBadgeCount"]) { observer, observed in

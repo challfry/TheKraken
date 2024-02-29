@@ -120,64 +120,78 @@ public struct TwitarrV3UserNotificationData: Codable {
 	var serverTimeZone: String
 	/// Features that are turned off by the server. If the `appName` for a feature is `all`, the feature is disabled at the API layer.
 	/// For all other appName values, the disable is just a notification that the client should not show the feature to users.
-	/// If the list is empty, no features have been deisabled. 
+	/// If the list is empty, no features have been disabled.
 	var disabledFeatures: [TwitarrV3DisabledFeature]
 	/// The name of the shipboard Wifi network
 	var shipWifiSSID: String?
 
-	/// IDs of all active announcements 
+	/// IDs of all active announcements
 	var activeAnnouncementIDs: [Int]
-	
-/// All fields below this line will be 0 or null if called when not logged in.
-	
+
+	/// All fields below this line will be 0 or null if called when not logged in.
+
 	/// Count of announcements the user has not yet seen. 0 if not logged in.
 	var newAnnouncementCount: Int
-	
+
 	/// Number of twarrts that @mention the user. 0 if not logged in.
 	var twarrtMentionCount: Int
 	/// Number of twarrt @mentions that the user has not read (by visiting the twarrt mentions endpoint; reading twarrts in the regular feed doesn't count). 0 if not logged in.
 	var newTwarrtMentionCount: Int
-	
+
 	/// Number of forum posts that @mention the user. 0 if not logged in.
 	var forumMentionCount: Int
 	/// Number of forum post @mentions the user has not read. 0 if not logged in.
 	var newForumMentionCount: Int
-	
+
 	/// Count of # of Seamail threads with new messages. NOT total # of new messages-a single seamail thread with 10 new messages counts as 1. 0 if not logged in.
 	var newSeamailMessageCount: Int
 	/// Count of # of Fezzes with new messages. 0 if not logged in.
 	var newFezMessageCount: Int
-	
-	/// The start time of the earliest event that the user has followed with a start time > now. nil if not logged in.
+
+	/// The start time of the earliest event that the user has followed with a start time > now. nil if not logged in or no matching event.
 	var nextFollowedEventTime: Date?
-	
+
 	/// The event ID of the the next future event the user has followed. This event's start time should always be == nextFollowedEventTime.
 	/// If the user has favorited multiple events that start at the same time, this will be random among them.
 	var nextFollowedEventID: UUID?
 	
 	/// The number of Micro Karaoke songs the user has contributed to and can now view.
 	var microKaraokeFinishedSongCount: Int
-	
+
+	/// The start time of the earliest LFG that the user has joined with a start time > now. nil if not logged in or no matching LFG.
+	var nextJoinedLFGTime: Date?
+
+	/// The LFG ID of the the next future LFG the user has joined. This LFGs's start time should always be == nextJoinedLFGTime.
+	/// If the user has joined multiple LFGs that start at the same time, this will be random among them.
+	var nextJoinedLFGID: UUID?
+
 	/// For each alertword the user has, this returns data on hit counts for that word.
 	var alertWords: [TwitarrV3UserNotificationAlertwordData]
-	
+
 	/// Notification counts that are only relevant for Moderators (and TwitarrTeam).
-	public struct ModeratorNotificationData: Codable {
-		/// The total number of open user reports. Does not count in-process reports (reports being 'handled' by a mod already). 
-		/// This value counts multiple reports on the same piece of content as separate reports. 
+	public struct TwitarrV3ModeratorNotificationData: Codable {
+		/// The total number of open user reports. Does not count in-process reports (reports being 'handled' by a mod already).
+		/// This value counts multiple reports on the same piece of content as separate reports.
 		var openReportCount: Int
-		
+
 		/// The number of Seamails to @moderator (more precisely, ones where @moderator is a participant) that have new messages.
 		/// This value is very similar to `newSeamailMessageCount`, but for any moderator it gives the number of new seamails for @moderator.
 		var newModeratorSeamailMessageCount: Int
 
-		/// The number of Seamails to @TwitarrTeam. Nil if user isn't a member of TwitarrTeam. This is in the Moderator struct because I didn't 
-		/// want to make *another* sub-struct for TwitarrTeam, just to hold one value.
+		/// The number of Seamails to @TwitarrTeam. Nil if user isn't a member of TwitarrTeam. This is in the Moderator struct because I didn't
+		/// want to make *another* sub-struct for TwitarrTeam, just to hold two values.
 		var newTTSeamailMessageCount: Int?
+
+		/// Number of forum post @mentions the user has not read for @moderator.
+		var newModeratorForumMentionCount: Int
+
+		/// Number of forum post @mentions the user has not read for @twitarrteam. Nil if the user isn't a member of TwitarrTeam.
+		/// This is in the Moderator struct because I didn't want to make *another* sub-struct for TwitarrTeam, just to hold two values.
+		var newTTForumMentionCount: Int
 	}
-	
+
 	/// Will be nil for non-moderator accounts.
-	var moderatorData: ModeratorNotificationData?
+	var moderatorData: TwitarrV3ModeratorNotificationData?
 }
 
 public struct TwitarrV3DisabledFeature: Codable {

@@ -58,9 +58,19 @@ class MKCameraViewController: UIViewController, AVAudioPlayerDelegate, AVCapture
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		try? AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: .voiceChat, options: 
-				[.mixWithOthers, .allowBluetoothA2DP])
-		try? AVAudioSession.sharedInstance().setActive(true)
+		do {
+			try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, mode: .voiceChat, options: 
+					[.mixWithOthers, .allowBluetoothA2DP])
+			try AVAudioSession.sharedInstance().setActive(true)
+		}
+		catch {
+			CameraLog.debug("Error while setting up audio session: \(error)")
+			let alert = UIAlertController(title: "No Audio", message: "Kraken could not acquire the device's audio session and can't record Micro Karaoke.", preferredStyle: .alert) 
+			alert.addAction(UIAlertAction(title: NSLocalizedString("Okay", comment: ""), style: .default, handler: { _ in 
+				self.closeButtonTapped()
+			}))
+			present(alert, animated: true, completion: nil)
+		}
 		CoreMotion.shared.start(forClient: "MicroKaraokeRecord", updatesPerSec: 2)
 		cameraPreview?.frame = cameraView.bounds
 		countdownLabel.isHidden = true

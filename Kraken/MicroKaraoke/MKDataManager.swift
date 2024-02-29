@@ -50,6 +50,7 @@ import Accelerate
 	private var currentOfferUser: KrakenUser?				// User who was offered the currentOffer
 	public var currentListenFile: URL?						// LOCAL copy of the audio clip with vocals
 	public var currentRecordFile: URL?						// LOCAL copy of the audio clip with no vocals
+	public var currentOfferSampleDelay: Int	= 0				// Delay from recorded video start to audio start
 	private var offerDoneClosure: (() -> Void)?
 	private var uploadDoneClosure: (() -> Void)?
 	private var doneDownloadingSong: ((AVPlayerItem?, URL?, String?) -> Void)?
@@ -66,6 +67,13 @@ import Accelerate
 		let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
 		let fileUrl = paths[0].appendingPathComponent("processedVideo.mp4")
 		return fileUrl
+	}
+
+	func getPreviewVideoRecordingURL() -> URL {
+		if let path = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
+			return path.appendingPathComponent("previewVideo.mp4")
+		}
+		return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("previewVideo.mp4")
 	}
 	
 	// Note that expired offers MAY still be accepted by the server, if the server hasn't farmed out the slot to someone else yet.
@@ -276,38 +284,44 @@ import Accelerate
 			return
 		}
 		uploadDoneClosure = done
+		
+		do {
+			try composeUploadVideo(delay: currentOfferSampleDelay) { finishedVideoURL in
+				guard let fileUrl = finishedVideoURL, let videoData = try? Data(contentsOf: fileUrl) else {
+					self.lastNetworkError = "Could not prep video file for upload."
+					return
+				}
+				let uploadData = MicroKaraokeRecordingData(offerID: offer.offerID, videoData: videoData)
+				var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/microkaraoke/recording", query: [])
+				request.httpMethod = "POST"
+				request.httpBody = try! Settings.v3Encoder.encode(uploadData)
+				request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+				NetworkGovernor.addUserCredential(to: &request)
 
-		let fileUrl = getProcessedVideoRecordingURL()
-		guard let videoData = try? Data(contentsOf: fileUrl) else {
-			lastNetworkError = "Could not prep video file for upload."
-			return
+				self.videoUploadInProgress = true
+				self.lastNetworkError = nil
+				NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
+					if let error = package.networkError {
+						self.lastNetworkError = error.getErrorString() 
+					}
+					else if let error = package.serverError {
+						self.lastNetworkError = error.getCompleteError() 
+					}
+					else {
+						done()
+						self.uploadDoneClosure = nil
+					}
+					// Success or failure, the upload is 'done'. If it failed we should re-check the reservation, so we clear it here.
+					self.currentOffer = nil
+					self.currentOfferUser = nil
+					self.currentListenFile = nil
+					self.currentRecordFile = nil
+					self.videoUploadInProgress = false
+				}
+			}
 		}
-		let uploadData = MicroKaraokeRecordingData(offerID: offer.offerID, videoData: videoData)
-		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/microkaraoke/recording", query: [])
-		request.httpMethod = "POST"
-		request.httpBody = try! Settings.v3Encoder.encode(uploadData)
-		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-		NetworkGovernor.addUserCredential(to: &request)
-
-		videoUploadInProgress = true
-		lastNetworkError = nil
-		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = package.networkError {
-				self.lastNetworkError = error.getErrorString() 
-			}
-			else if let error = package.serverError {
-				self.lastNetworkError = error.getCompleteError() 
-			}
-			else {
-				done()
-				self.uploadDoneClosure = nil
-			}
-			// Success or failure, the upload is 'done'. If it failed we should re-check the reservation, so we clear it here.
-			self.currentOffer = nil
-			self.currentOfferUser = nil
-			self.currentListenFile = nil
-			self.currentRecordFile = nil
-			self.videoUploadInProgress = false
+		catch {
+			self.lastNetworkError = "Could not prep video file for upload."
 		}
 	}
 	
@@ -508,7 +522,7 @@ import Accelerate
 	let compositionLandscapeSize: CGSize = CGSize(width: 1280, height: 720)
 	let compositionPortraitSize: CGSize = CGSize(width: 720, height: 1280)
 	let compositonAudioRate: CMTimeScale = 44100
-	var showFinalVideoWhenDone = true
+	var showFinalVideoWhenDone = false
 	
 	// Once we have all the parts, assemble the video
 	func assembleCompletedVideo(from manifest: MicroKaraokeSongManifest) {
@@ -584,7 +598,7 @@ import Accelerate
 			playerItem.audioMix = audioMix
 			playerItem.videoComposition = videoCompositor
 	
-			// If TRUE, we play the video for hte user as normal. If false, we open the share sheet. 
+			// If TRUE, we play the video for the user as normal. If false, we open the share sheet. 
 			if showFinalVideoWhenDone {
 				DispatchQueue.main.async {
 					self.doneDownloadingSong?(playerItem, nil, nil)
@@ -637,10 +651,11 @@ import Accelerate
 			let backingSamples = try getPCMBufferForAsset(file: currentListenFile, format: stereoFormat)
 			
 			let (outputBuffer, sampleDelay) = applyAudioFilters(voiceSamples: voiceSamples, backingSamples: backingSamples)
+			currentOfferSampleDelay = sampleDelay
 
 			// 
 			try writeProcessedAudioFile(sourceBuf: outputBuffer)
-			try composeUploadVideo(delay: sampleDelay, done: done)
+			try composePreviewVideo(delay: sampleDelay, done: done)
 		}
 		catch {
 			lastNetworkError = error.localizedDescription
@@ -889,6 +904,82 @@ maxIndex = max(maxIndex, 0)
 			}
 		}
 	}
+	
+	
+	func composePreviewVideo(delay: Int, done: @escaping (URL?) -> Void) throws {
+		let audioURL = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+							.appendingPathComponent("processedAudio.wav")
+		let backingURL = try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+							.appendingPathComponent("recordOrig.mp3")
+		let videoAsset = AVURLAsset(url: getVideoRecordingURL())
+		let audioAsset = AVURLAsset(url: audioURL)
+		let backingAudioAsset = AVURLAsset(url: backingURL)
+		let duration = audioAsset.duration 	// All durations for this export match this duration
+		
+		let comp = AVMutableComposition()
+		comp.naturalSize = getCurrentOffer()?.portraitMode == true ? compositionPortraitSize : compositionLandscapeSize
+		var instructions = [AVMutableVideoCompositionInstruction]()
+
+		let videoTrack = comp.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+		if let videoAssetVideo = videoAsset.tracks(withMediaType: .video).first {
+			let timeRange = CMTimeRange(start: CMTime(value: CMTimeValue(delay), timescale: 44100), duration: duration)
+			try videoTrack.insertTimeRange(timeRange, of: videoAssetVideo, at: .zero)
+			let scaleFactor = max(comp.naturalSize.width, comp.naturalSize.height) /
+					max(videoAssetVideo.naturalSize.height, videoAssetVideo.naturalSize.width)					
+			let transform = videoAssetVideo.preferredTransform.scaledBy(x: scaleFactor, y: scaleFactor )
+			let transformLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+			transformLayerInstruction.setTransform(transform, at: .zero)
+			let videoCompositorInstruction = AVMutableVideoCompositionInstruction()
+			videoCompositorInstruction.timeRange = CMTimeRange(start: .zero, duration: duration)
+			videoCompositorInstruction.layerInstructions = [transformLayerInstruction]
+			instructions.append(videoCompositorInstruction)
+		}
+
+		let audioTrack = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+		if let audioAssetAudio = audioAsset.tracks(withMediaType: .audio).first {
+			let timeRange = CMTimeRange(start: .zero, duration: duration)
+			try audioTrack.insertTimeRange(timeRange, of: audioAssetAudio, at: .zero)
+		}
+		let backingTrack = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+		if let backingAssetAudio = backingAudioAsset.tracks(withMediaType: .audio).first {
+			let timeRange = CMTimeRange(start: .zero, duration: duration)
+			try backingTrack.insertTimeRange(timeRange, of: backingAssetAudio, at: .zero)
+		}
+
+		let audioMix = AVMutableAudioMix()
+		let volumeParam = AVMutableAudioMixInputParameters(track: backingTrack)
+		volumeParam.setVolume(1.0, at: CMTime.zero)
+		audioMix.inputParameters.append(volumeParam)
+		let vp2 = AVMutableAudioMixInputParameters(track: audioTrack)
+		vp2.setVolume(1.0, at: CMTime.zero)
+		audioMix.inputParameters.append(vp2)
+
+		// Video Compositor is intended to be used to describe how to combine multiple video sources into
+		// output frames, but we're just using it to describe the rotation matrix to apply to each clip in the video.
+		let videoCompositor = AVMutableVideoComposition()
+		videoCompositor.instructions = instructions
+		videoCompositor.renderSize = comp.naturalSize
+		videoCompositor.frameDuration = CMTimeMake(value: 1, timescale: 30)
+
+		// Export the video
+		let finishedVideo = getPreviewVideoRecordingURL()
+		try? FileManager.default.removeItem(at: finishedVideo)
+		let export = AVAssetExportSession(asset: comp, presetName: AVAssetExportPreset1280x720)!
+		export.audioMix = audioMix
+		export.outputURL = finishedVideo
+		export.outputFileType = AVFileType.mp4
+		export.videoComposition = videoCompositor
+		export.exportAsynchronously {
+			switch export.status {
+				case .completed:
+					done(finishedVideo)
+				case .failed:
+					self.lastNetworkError = ("Failed: \(export.error as Any)")
+				default:
+					break
+			}
+		}
+	}
 }
 
 // Struct describing a frame of stereo Linear PCM audio
@@ -945,6 +1036,8 @@ public struct MicroKaraokeCompletedSong: Codable {
 	var songName: String
 	/// The artist, as they'd appear in karaoke metadata
 	var artistName: String
+	/// How many song slots this song has. NOT how many are currently filled. This number includes pre-filled 'filler' slots for instrumental sections.
+// 	var totalSnippetSlots: Int		// Awaiting server to have this
 	/// Always TRUE unless the user is a mod, in which case will be FALSE for songs that have all the necessary clips recorded but require mod approval to publish.
 	var modApproved: Bool
 	/// When the song's clips were last modified. Usually the time the final snippet gets uploaded (although 'final' means '30th out of 30'

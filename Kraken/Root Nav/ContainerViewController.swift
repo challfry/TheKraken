@@ -35,11 +35,11 @@ class ContainerViewController: UIViewController, GlobalNavEnabled {
 
 		// Show the background image in Deep Sea Mode
 		Settings.shared.tell(self, when: "uiDisplayStyle") { observer, observed in 
-			if observed.uiDisplayStyle == .deepSeaMode {
+			if observed.uiDisplayStyle == Settings.DisplayStyle.deepSeaMode {
 				observer.buildDeepSeaImage()
 			}
 			UIView.animate(withDuration: 0.3) {
-				observer.deepSeaView?.alpha = observed.uiDisplayStyle == .deepSeaMode ? 1.0 : 0.0
+				observer.deepSeaView?.alpha = observed.uiDisplayStyle == Settings.DisplayStyle.deepSeaMode ? 1.0 : 0.0
 			}
 		}?.execute()
 		

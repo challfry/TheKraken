@@ -172,6 +172,8 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
 	}
 
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+		// LFG notification packets that get here may have "LFG" set in their userDict.
+		// The value will be the UUID of a LFG.
 		return true
 	}
 	

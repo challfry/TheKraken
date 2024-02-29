@@ -48,6 +48,10 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .microKaraoke, 
 					arguments: ["songID" : songID]))
 		}
+		else if let lfgID = response.notification.request.content.userInfo["LFG"] {
+			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .lfg, 
+					arguments: ["LFG" : lfgID]))
+		}
 		completionHandler()
 	}
 
