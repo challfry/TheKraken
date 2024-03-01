@@ -522,7 +522,7 @@ import Accelerate
 	let compositionLandscapeSize: CGSize = CGSize(width: 1280, height: 720)
 	let compositionPortraitSize: CGSize = CGSize(width: 720, height: 1280)
 	let compositonAudioRate: CMTimeScale = 44100
-	var showFinalVideoWhenDone = false
+	var showFinalVideoWhenDone = true
 	
 	// Once we have all the parts, assemble the video
 	func assembleCompletedVideo(from manifest: MicroKaraokeSongManifest) {
