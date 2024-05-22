@@ -43,6 +43,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		cell.shouldBeVisible = (dayAfterCruise() ?? 0) > 1
 		return cell
 	}()
+	
+	var photostreamCell = PhotostreamCellModel()
 
 //	var twitarrCell = SocialCellModel("Twittar", imageNamed: "hourglass")
 	var forumsCell = SocialCellModel("Forums", imageNamed: "person.2")
@@ -98,6 +100,11 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			// The idea here is that while we put a login-gate around content the user may want to get to (like Forums),
 			// nobody wants to make an account just so they can...set up their account's profile.
 			observer.profileCell.shouldBeVisible = observed.loggedInUser != nil
+			
+			// Also, reload some data on login 
+			if observed.loggedInUser != nil {
+				PhotostreamDataManager.shared.updatePhotostream()
+			}
 		}?.execute()
 
 		// Set the badge on the Daily tab
@@ -146,6 +153,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		title = "Today"
 	
 //		dataSource.log.instanceEnabled = true
+		dataSource.viewController = self
 
 		dataSource.append(segment: dailySegment)
 		dailySegment.append(DailyActivityCellModel())
@@ -161,6 +169,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		dataSource.append(segment: announcementSegment)
 		
 		dataSource.append(segment: appFeaturesSegment)
+		appFeaturesSegment.append(photostreamCell)		
 //		appFeaturesSegment.append(twitarrCell)
 		appFeaturesSegment.append(forumsCell)
 		appFeaturesSegment.append(mailCell)
@@ -212,7 +221,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	override var knownSegues : Set<GlobalKnownSegue> {
 		Set<GlobalKnownSegue>([ .twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .lfgRoot, .deckMapRoot, .karaokeRoot, .microKaraokeRoot, 
 				.gamesRoot, .scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile_Name, .userProfile_User, 
-				.editUserProfile, .pirateAR, .initiatePhoneCall])
+				.editUserProfile, .pirateAR, .initiatePhoneCall, .photoStreamCamera, .singleEvent])
 	}
     
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all

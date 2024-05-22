@@ -20,14 +20,15 @@ func cruiseCurrentDate() -> Date {
 
 // For 2022, this date is 12:00 Midnight, Saturday March 5, EST
 // For 2024, this date is 12:00 Midnight, Saturday March 9, EST
+// For 2025, this date is 12:00 Midnight, Sunday March 2, EST
 func cruiseStartDate() -> Date? {
 	let startDayComponents = DateComponents(calendar: Calendar(identifier: .gregorian), timeZone: TimeZone(identifier: "America/New_York"), 
-			year: 2024, month: 3, day: 9)
+			year: 2025, month: 3, day: 2)
 	let startDate = Calendar(identifier: .gregorian).date(from: startDayComponents)		
 	return startDate
 }
 
-// A 1-based counter showing days before March 5, or nil if it's March 7 or later.
+// A 1-based counter showing days before embark day, or nil if it's embark day or later.
 func daysBeforeCruiseStart() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() < startDate {
 		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: cruiseCurrentDate(), to: startDate)
@@ -38,7 +39,7 @@ func daysBeforeCruiseStart() -> Int? {
 	return nil
 }
 
-// A 1-based counter; returns 1 on March 5, and 8 on March 12. Nil on all other days.
+// A 1-based counter; returns 1 on embark day, and 8 on disembark day (for a 1-week cruise). Nil on all other days.
 func dayOfCruise() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() > startDate {
 		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: cruiseCurrentDate())
@@ -49,7 +50,7 @@ func dayOfCruise() -> Int? {
 	return nil
 }
 
-// A 1-based counter; returns 1 on March 13. Nil if date is earlier.
+// A 1-based counter; returns 1 on disembark day. Nil if date is earlier.
 func dayAfterCruise() -> Int? {
 	if let startDate = cruiseStartDate(), cruiseCurrentDate() > startDate {
 		let components = Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: cruiseCurrentDate())
@@ -75,9 +76,10 @@ func cruiseStartRelativeDays() -> Int {
 	
 // For 2023, this date is 12:00 Midnight, Saturday March 12, 2022 EDT
 // For 2024, this date is 12:00 Midnight, Saturday March 12, 2023 EDT
+// For 2025, this date is 12:00 Midnight, Saturday March 16, 2024 EDT
 func lastCruiseEndDate() -> Date? {
 	let endDayComponents = DateComponents(calendar: Calendar(identifier: .gregorian), timeZone: TimeZone(identifier: "America/New_York"), 
-			year: 2023, month: 3, day: 12)
+			year: 2024, month: 3, day: 16)
 	let endDate = Calendar(identifier: .gregorian).date(from: endDayComponents)		
 	return endDate
 }

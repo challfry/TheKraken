@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -54,7 +54,7 @@
                     </stackView>
                 </subviews>
             </view>
-            <color key="backgroundColor" red="0.15021631120000001" green="0.32354319100000001" blue="0.47015506029999998" alpha="0.83936215753424659" colorSpace="custom" customColorSpace="displayP3"/>
+            <color key="backgroundColor" name="PortAndTheme BG"/>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="6tX-gt-Y9J" secondAttribute="trailing" priority="999" constant="20" id="76Y-BK-irx"/>
                 <constraint firstItem="6tX-gt-Y9J" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="dGK-5Y-L3d"/>
@@ -78,6 +78,9 @@
         </namedColor>
         <namedColor name="Kraken Secondary Text">
             <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="PortAndTheme BG">
+            <color red="0.15021631120000001" green="0.32354319100000001" blue="0.47015506029999998" alpha="0.83936215749999998" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
     </resources>
 </document>

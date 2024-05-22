@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="23D60" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="displayUntil" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -36,9 +36,11 @@
         <attribute name="location" optional="YES" attributeType="String"/>
         <attribute name="startTime" attributeType="Date" defaultDateTimeInterval="628801020" usesScalarValueType="NO"/>
         <attribute name="title" attributeType="String"/>
+        <attribute name="uid" optional="YES" attributeType="String"/>
         <relationship name="followedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="followedEvents" inverseEntity="KrakenUser"/>
         <relationship name="forum" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="scheduleEvent" inverseEntity="ForumThread"/>
         <relationship name="opsFollowing" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpEventFollow" inverseName="event" inverseEntity="PostOpEventFollow"/>
+        <relationship name="streamPhotos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StreamPhoto" inverseName="event" inverseEntity="StreamPhoto"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -177,6 +179,7 @@
         <relationship name="seamailReadCounts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailReadCount" inverseName="user" inverseEntity="SeamailReadCount"/>
         <relationship name="seamailReader" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="readUsers" inverseEntity="SeamailMessage"/>
         <relationship name="seamailWaitlisted" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="waitList" inverseEntity="SeamailThread"/>
+        <relationship name="streamPhotos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StreamPhoto" inverseName="author" inverseEntity="StreamPhoto"/>
         <relationship name="targetedByRelationOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpUserRelation" inverseName="targetUser" inverseEntity="PostOpUserRelation"/>
         <relationship name="tweets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="author" inverseEntity="TwitarrPost"/>
         <relationship name="upToDateAnnouncements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Announcement" inverseName="viewedBy" inverseEntity="Announcement"/>
@@ -381,6 +384,19 @@
         <attribute name="fetchDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="fileName" optional="YES" attributeType="String"/>
         <attribute name="jsonData" optional="YES" attributeType="Binary"/>
+    </entity>
+    <entity name="StreamPhoto" representedClassName="StreamPhoto" syncable="YES">
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="imageFilename" attributeType="String"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="streamPhotos" inverseEntity="KrakenUser"/>
+        <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Event" inverseName="streamPhotos" inverseEntity="Event"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="TwitarrPost" representedClassName="TwitarrPost" syncable="YES">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>

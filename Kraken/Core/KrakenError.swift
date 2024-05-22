@@ -8,12 +8,15 @@
 
 import Foundation
 
-@objc class KrakenError: NSObject, Error {
+@objc class KrakenError: NSObject, LocalizedError {
 	var errorString: String						// All errors, concatenated.
 
 	init(_ error: String) {
 		errorString = error
 		super.init()
 	}
-
+	
+	public var errorDescription: String? { 
+		return errorString
+	}
 }

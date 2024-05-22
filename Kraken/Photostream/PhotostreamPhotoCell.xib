@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="PhotostreamPhotoCell" reuseIdentifier="PhotostreamPhotoCell" id="zWI-pj-1Za" customClass="PhotostreamPhotoCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="185" height="254"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" id="a1z-yA-HTh">
+                <rect key="frame" x="0.0" y="0.0" width="185" height="254"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Lsp-RS-oqU">
+                        <rect key="frame" x="0.0" y="0.0" width="170" height="254"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AtR-Oe-n8Z">
+                                <rect key="frame" x="0.0" y="0.0" width="170" height="170"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="170" id="cld-hh-SDF"/>
+                                    <constraint firstAttribute="width" constant="170" id="qV1-pi-qsP"/>
+                                    <constraint firstAttribute="width" secondItem="AtR-Oe-n8Z" secondAttribute="height" multiplier="1:1" id="yzB-Lj-nml"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="240" verticalHuggingPriority="254" text="Location" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ymo-FA-gze">
+                                <rect key="frame" x="10" y="175" width="150" height="20.333333333333343"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <color key="textColor" name="Kraken Label Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="255" text="Time" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EK4-R8-S0u">
+                                <rect key="frame" x="10" y="197.33333333333334" width="150" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="Kraken Secondary Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="EK4-R8-S0u" firstAttribute="top" secondItem="ymo-FA-gze" secondAttribute="bottom" constant="2" id="2dM-3X-Yjt"/>
+                            <constraint firstItem="EK4-R8-S0u" firstAttribute="leading" secondItem="ymo-FA-gze" secondAttribute="leading" id="BSZ-Bk-5Si"/>
+                            <constraint firstItem="EK4-R8-S0u" firstAttribute="trailing" secondItem="ymo-FA-gze" secondAttribute="trailing" id="BkB-pf-NG0"/>
+                            <constraint firstItem="AtR-Oe-n8Z" firstAttribute="leading" secondItem="Lsp-RS-oqU" secondAttribute="leading" id="CQw-Ge-MTC"/>
+                            <constraint firstAttribute="height" priority="900" constant="240" id="GT8-Is-2qR"/>
+                            <constraint firstAttribute="width" constant="170" id="Q8z-zS-f7e"/>
+                            <constraint firstAttribute="trailing" secondItem="AtR-Oe-n8Z" secondAttribute="trailing" id="W7t-ZT-Man"/>
+                            <constraint firstAttribute="trailing" secondItem="ymo-FA-gze" secondAttribute="trailing" constant="10" id="Y6O-h2-Y8C"/>
+                            <constraint firstItem="AtR-Oe-n8Z" firstAttribute="top" secondItem="Lsp-RS-oqU" secondAttribute="top" id="ms0-Na-T0X"/>
+                            <constraint firstItem="ymo-FA-gze" firstAttribute="leading" secondItem="Lsp-RS-oqU" secondAttribute="leading" constant="10" id="q9w-kn-wjW"/>
+                            <constraint firstItem="ymo-FA-gze" firstAttribute="top" secondItem="AtR-Oe-n8Z" secondAttribute="bottom" constant="5" id="ueD-Yx-fID"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Lsp-RS-oqU" firstAttribute="top" secondItem="a1z-yA-HTh" secondAttribute="top" id="4yk-XP-jlQ"/>
+                    <constraint firstAttribute="trailing" secondItem="Lsp-RS-oqU" secondAttribute="trailing" id="671-hs-wgb"/>
+                    <constraint firstItem="Lsp-RS-oqU" firstAttribute="leading" secondItem="a1z-yA-HTh" secondAttribute="leading" id="SGV-KC-DCu"/>
+                    <constraint firstAttribute="bottom" secondItem="Lsp-RS-oqU" secondAttribute="bottom" id="ZSe-tO-KYh"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="185" height="254"/>
+            <connections>
+                <outlet property="imageView" destination="AtR-Oe-n8Z" id="24I-Rk-ePG"/>
+                <outlet property="locationLabel" destination="ymo-FA-gze" id="FeV-il-L9E"/>
+                <outlet property="timeLabel" destination="EK4-R8-S0u" id="UGR-2l-pEz"/>
+            </connections>
+            <point key="canvasLocation" x="142.74809160305344" y="-123.94366197183099"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Secondary Text">
+            <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

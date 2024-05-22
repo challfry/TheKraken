@@ -388,7 +388,7 @@ import EventKitUI
 
     // MARK: - Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .modalLogin, .showRoomOnDeckMap, .showForumThread ])
+		Set<GlobalKnownSegue>([ .modalLogin, .showRoomOnDeckMap, .showForumThread, .singleEvent ])
 	}
 
 	func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
@@ -396,12 +396,15 @@ import EventKitUI
 		let _ = self.view
 		
 		if let eventIDString = packet.arguments["eventID"] as? String, let eventID = UUID(uuidString: eventIDString) {
-			resetFilters()
-			if let results = eventsSegment?.frc?.fetchedObjects, let event = results.first(where: { $0.id == eventID } ),
-					var indexPath = eventsSegment?.frc?.indexPath(forObject: event) {
-				indexPath.section += 1
-				collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
-			}
+		
+		// Older code that displayed the event inline
+//			resetFilters()
+//			if let results = eventsSegment?.frc?.fetchedObjects, let event = results.first(where: { $0.id == eventID } ),
+//					var indexPath = eventsSegment?.frc?.indexPath(forObject: event) {
+//				indexPath.section += 1
+//				collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+//			}
+			performKrakenSegue(.singleEvent, sender: eventID)
 		}
 		return true
 	}

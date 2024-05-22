@@ -534,7 +534,7 @@ extension KrakenDataSource: UICollectionViewDelegate, UICollectionViewDelegateFl
 
 	func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
 		log.debug("shouldSelectItemAt", ["indexPath" : indexPath, "DS" : self])
-		return true
+		return false
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

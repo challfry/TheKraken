@@ -45,7 +45,12 @@ import UIKit
 	func updateServerTime(_ response: TwitarrV3UserNotificationData)
 	{
 		self.serverTimezoneOffset = response.serverTimeOffset
-		self.serverTimezone	= TimeZone(abbreviation: response.serverTimeZone)
+		if let tz = TimeZone(identifier: response.serverTimeZoneID) {
+			self.serverTimezone = tz
+		}
+		else {
+			self.serverTimezone	= TimeZone(abbreviation: response.serverTimeZone)
+		}
 		let serverTime = StringUtilities.isoDateWithFraction.date(from: response.serverTime) ??
 				StringUtilities.isoDateNoFraction.date(from: response.serverTime) ?? Date()
 		self.deviceTimeOffset = Date().timeIntervalSince(serverTime)

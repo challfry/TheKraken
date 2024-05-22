@@ -26,6 +26,7 @@ import UIKit
 		case registration = "registration"
 		case editUserProfile = "user_profile"
 		case directphone = "directphone"
+		case photostream = "photostream"
 		
 		init?(with v3Feature: TwitarrV3SwiftarrFeature) {
 			switch v3Feature {
@@ -53,6 +54,8 @@ import UIKit
 				self = .phonecall
 			case .directphone:
 				self = .directphone
+			case .photostream:
+				self = .photostream
 			case .all:
 				return nil
 			case .unknown:
@@ -69,6 +72,7 @@ import UIKit
 	
 	// All sections are assumed to be enabled, unless this call specifically says they're not.
 	// This means that sections not in the response are assumed to be enabled.
+	@objc dynamic var mutationCount: Int = 0
 	var disabledSections = Set<Section>()
 	var disabledTabs = Set<RootTabBarViewController.Tab>()
 	
@@ -85,6 +89,7 @@ import UIKit
 				}
 			}
 		}
+		self.mutationCount = self.mutationCount + 1
 		self.disabledSections = newDisabledSections
 		self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
 		
@@ -107,6 +112,7 @@ import UIKit
 		case .search: break // return .
 		case .editUserProfile: return .editUserProfile
 		case .registration: break
+		case .photostream: break
 		}
 		
 		return .unknown

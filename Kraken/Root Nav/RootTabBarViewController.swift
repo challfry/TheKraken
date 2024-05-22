@@ -88,6 +88,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 				case .directphone: break
 				case .editUserProfile: newDisabledTabs.insert(.editUserProfile)
 				case .search: break // newDisabledTabs.insert(.)
+				case .photostream: break
 				case .registration: break
 			}
     	}

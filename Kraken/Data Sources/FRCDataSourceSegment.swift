@@ -429,7 +429,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 
 // MARK: UICollectionView Data Source
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-		log.debug("NumberOfSections for FRC: \(cellModelSections.count)")
+		log.debug("NumberOfSections for FRC: \(self.cellModelSections.count)")
     	return cellModelSections.count
     }
 
@@ -687,7 +687,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			}
 		}
 		numVisibleSections = numVisibleSections + insertSections.count - deleteSections.count
-		log.debug("Inside internalRunUpdates: \(numVisibleSections) sections.")
+		log.debug("Inside internalRunUpdates: \(self.numVisibleSections) sections.")
 
 		deleteSections.removeAll()
 		insertSections.removeAll()

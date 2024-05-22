@@ -55,11 +55,22 @@ class SettingsRootViewController: BaseCollectionViewController {
 		CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in
 			networkInfoCell.labelText = observer.getCurrentWifiDescriptionString()
 		}?.schedule()
-		networkInfoSection.append(ServerAddressEditCellModel("Server URL"))
+		let serverEditCell = ServerAddressEditCellModel("Server URL:")
+		let serverMenuCell = ServerAddressAutofillCellModel()
+		networkInfoSection.append(serverEditCell)
+		networkInfoSection.append(serverMenuCell)
 		let buttonCell = ButtonCellModel(alignment: .center)
 		buttonCell.setupButton(1, title: "Reset Server URL to Default", action: resetServerButtonHit)
 		networkInfoSection.append(buttonCell)
 		
+		serverMenuCell.tell(serverEditCell, when: "selectedMenuItem") { observer, observed in
+			let selected = observed.selectedMenuItem
+			if (0..<observed.menuItems.count).contains(selected) {
+				observer.fieldText = observed.menuItems[selected]
+				observer.editedText = observer.fieldText
+			}
+		}
+
 		// Login State, login/out
 		let loginInfoSection = dataSource.appendFilteringSegment(named: "LoginInfo")
 		CurrentUser.shared.tell(self, when: ["credentialedUsers.count", "loggedInUser"]) { observer, observed in 
@@ -228,7 +239,31 @@ class SettingsRootViewController: BaseCollectionViewController {
 			observer.editedText = observer.fieldText
 		}?.schedule()
 	}
+	
+	override func reuseID(traits: UITraitCollection) -> String {
+		return "LargeTextFieldCell"
+	}
 }
+
+@objc class ServerAddressAutofillCellModel: PopupCellModel {
+
+	init() {
+		var knownURLs = Settings.shared.knownServerURLS
+		let currentURL = Settings.shared.baseURL
+		var selectedMenu = -1
+		if let existing = knownURLs.firstIndex(of: currentURL) {
+			selectedMenu = existing
+		}
+		else {
+			knownURLs.insert(currentURL, at: 0)
+			selectedMenu = 0
+		}
+		super.init(title: "Known Servers", menuPrompt: "Known Servers", menuItems: knownURLs.map { $0.absoluteString })
+		selectedMenuItem = selectedMenu
+	}
+}
+
+
 
 @objc protocol SettingsInfoCellProtocol {
 	dynamic var taskIndex: Int { get set }

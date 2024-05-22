@@ -50,6 +50,7 @@
 		EA283FDD297911C6005450E7 /* String+SwiftyMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD1297911C6005450E7 /* String+SwiftyMarkdown.swift */; };
 		EA283FDE297911C6005450E7 /* PerfomanceLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD2297911C6005450E7 /* PerfomanceLog.swift */; };
 		EA283FE0297911C6005450E7 /* SwiftyScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD4297911C6005450E7 /* SwiftyScanner.swift */; };
+		EA2F71252BF04D4500EC3EFB /* ScheduleSingleEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2F71242BF04D4500EC3EFB /* ScheduleSingleEventController.swift */; };
 		EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39B18523DA823600A2FB1B /* AboutViewController.swift */; };
 		EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */; };
 		EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */; };
@@ -105,6 +106,7 @@
 		EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
+		EA7E51952BE886180012A865 /* PhotostreamPhotoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA7E51942BE886180012A865 /* PhotostreamPhotoCell.xib */; };
 		EA82092929343D0D005A251F /* ManageMembersVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA82092829343D0D005A251F /* ManageMembersVC.swift */; };
 		EA820955293EB3FC005A251F /* LFGParticipantCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA820954293EB3FC005A251F /* LFGParticipantCell.swift */; };
 		EA820957293EB422005A251F /* LFGParticipantCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA820956293EB422005A251F /* LFGParticipantCell.xib */; };
@@ -154,6 +156,10 @@
 		EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */; };
 		EA951D2E23CF425C00453B3C /* AlertsUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */; };
 		EA99D27C297B293600C8D63E /* ActiveCallVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA99D27B297B293600C8D63E /* ActiveCallVC.swift */; };
+		EA9A64FB2BD3BB1800C40A87 /* PhotostreamCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9A64FA2BD3BB1800C40A87 /* PhotostreamCell.swift */; };
+		EA9A64FD2BD3BE5A00C40A87 /* PhotostreamCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA9A64FC2BD3BE5A00C40A87 /* PhotostreamCell.xib */; };
+		EA9A64FF2BD4C34800C40A87 /* PhotostreamDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9A64FE2BD4C34800C40A87 /* PhotostreamDataManager.swift */; };
+		EA9A65022BD77B9E00C40A87 /* PhotostreamCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9A65012BD77B9E00C40A87 /* PhotostreamCamera.swift */; };
 		EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA02845232057D900B2B7F1 /* Notifications.swift */; };
 		EAA028482320A94300B2B7F1 /* RootTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA028472320A94300B2B7F1 /* RootTabBarViewController.swift */; };
 		EAA0284C2321ED7300B2B7F1 /* DailyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0284B2321ED7300B2B7F1 /* DailyViewController.swift */; };
@@ -341,6 +347,7 @@
 		EA283FD2297911C6005450E7 /* PerfomanceLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfomanceLog.swift; sourceTree = "<group>"; };
 		EA283FD3297911C6005450E7 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		EA283FD4297911C6005450E7 /* SwiftyScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyScanner.swift; sourceTree = "<group>"; };
+		EA2F71242BF04D4500EC3EFB /* ScheduleSingleEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleSingleEventController.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
 		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		EA39B18523DA823600A2FB1B /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
@@ -407,6 +414,7 @@
 		EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyThemeUpdater.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
+		EA7E51942BE886180012A865 /* PhotostreamPhotoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotostreamPhotoCell.xib; sourceTree = "<group>"; };
 		EA82092829343D0D005A251F /* ManageMembersVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageMembersVC.swift; sourceTree = "<group>"; };
 		EA820954293EB3FC005A251F /* LFGParticipantCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LFGParticipantCell.swift; sourceTree = "<group>"; };
 		EA820956293EB422005A251F /* LFGParticipantCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LFGParticipantCell.xib; sourceTree = "<group>"; };
@@ -455,6 +463,10 @@
 		EA951D2B23CE977800453B3C /* KaraokeFavoriteSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeFavoriteSongCell.xib; sourceTree = "<group>"; };
 		EA951D2D23CF425C00453B3C /* AlertsUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsUpdater.swift; sourceTree = "<group>"; };
 		EA99D27B297B293600C8D63E /* ActiveCallVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveCallVC.swift; sourceTree = "<group>"; };
+		EA9A64FA2BD3BB1800C40A87 /* PhotostreamCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotostreamCell.swift; sourceTree = "<group>"; };
+		EA9A64FC2BD3BE5A00C40A87 /* PhotostreamCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PhotostreamCell.xib; sourceTree = "<group>"; };
+		EA9A64FE2BD4C34800C40A87 /* PhotostreamDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotostreamDataManager.swift; sourceTree = "<group>"; };
+		EA9A65012BD77B9E00C40A87 /* PhotostreamCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotostreamCamera.swift; sourceTree = "<group>"; };
 		EA9E5BD82261C67E0073A863 /* UserProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewController.swift; sourceTree = "<group>"; };
 		EA9E5BDA226548F20073A863 /* Core Data Model Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Core Data Model Notes.md"; sourceTree = "<group>"; };
 		EA9E693522980CC500B4DC6D /* Kraken.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kraken.entitlements; sourceTree = "<group>"; };
@@ -820,6 +832,7 @@
 			isa = PBXGroup;
 			children = (
 				EA534E2B2301FFE500FE4787 /* ScheduleRootViewController.swift */,
+				EA2F71242BF04D4500EC3EFB /* ScheduleSingleEventController.swift */,
 				EA534E2F230299AE00FE4787 /* EventCell.swift */,
 				EA534E30230299AE00FE4787 /* EventCell.xib */,
 				EA6A8A7723190A080071BFEA /* EventSectionHeaderView.swift */,
@@ -848,8 +861,6 @@
 				EA3E11722947279700A3DC19 /* LFGCell.xib */,
 				EA820954293EB3FC005A251F /* LFGParticipantCell.swift */,
 				EA820956293EB422005A251F /* LFGParticipantCell.xib */,
-				EAD0EE10298BB29D00B07DCE /* PopupCell.swift */,
-				EAD0EE0E298BAFD500B07DCE /* PopupCell.xib */,
 				EAD0EE14298C699700B07DCE /* DatePickerCell.swift */,
 				EAD0EE12298C682D00B07DCE /* DatePickerCell.xib */,
 				EAD0EE18298CF8A100B07DCE /* AttendeeCountsCells.swift */,
@@ -912,6 +923,18 @@
 				EA47886E23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib */,
 			);
 			path = Scrapbook;
+			sourceTree = "<group>";
+		};
+		EA9A65002BD77B7C00C40A87 /* Photostream */ = {
+			isa = PBXGroup;
+			children = (
+				EA9A64FA2BD3BB1800C40A87 /* PhotostreamCell.swift */,
+				EA9A64FC2BD3BE5A00C40A87 /* PhotostreamCell.xib */,
+				EA7E51942BE886180012A865 /* PhotostreamPhotoCell.xib */,
+				EA9A65012BD77B9E00C40A87 /* PhotostreamCamera.swift */,
+				EA9A64FE2BD4C34800C40A87 /* PhotostreamDataManager.swift */,
+			);
+			path = Photostream;
 			sourceTree = "<group>";
 		};
 		EAA0284A2321ED4A00B2B7F1 /* Daily */ = {
@@ -994,6 +1017,7 @@
 				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
 				EAD8BF862B5FA4E400C00993 /* MicroKaraoke */,
+				EA9A65002BD77B7C00C40A87 /* Photostream */,
 				EA2286DE23E39B820036C20E /* Games List */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
 				EA951D2823CDB15700453B3C /* Scrapbook */,
@@ -1088,6 +1112,8 @@
 				EA83FC6C2366334A0042C0DC /* SegmentCell.xib */,
 				EA86ADD72272BAD300363CBF /* LoadingStatusCell.swift */,
 				EA278A49226A755400808AED /* LoadingStatusCell.xib */,
+				EAD0EE10298BB29D00B07DCE /* PopupCell.swift */,
+				EAD0EE0E298BAFD500B07DCE /* PopupCell.xib */,
 				EAB4537022D1F8BA00CD1671 /* SwitchCell.swift */,
 				EAB4536E22D1F7F200CD1671 /* SwitchCell.xib */,
 			);
@@ -1360,6 +1386,7 @@
 				EAD0EE0F298BAFD500B07DCE /* PopupCell.xib in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
+				EA9A64FD2BD3BE5A00C40A87 /* PhotostreamCell.xib in Resources */,
 				EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */,
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
 				EA4E84F4232C74FE0059E5EB /* DisabledContentViewController.xib in Resources */,
@@ -1374,6 +1401,7 @@
 				EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */,
 				EA2286F723E42ED90036C20E /* BoardGameCell.xib in Resources */,
 				EAC696EB228D653300EE6EEB /* SeamailMessageCell.xib in Resources */,
+				EA7E51952BE886180012A865 /* PhotostreamPhotoCell.xib in Resources */,
 				EA3E11732947279700A3DC19 /* LFGCell.xib in Resources */,
 				EAD0EE17298CF26F00B07DCE /* AttendeeCountsCell.xib in Resources */,
 				EA8B987F232456BB00E10156 /* KaraokeArtistSectionHeaderView.xib in Resources */,
@@ -1482,6 +1510,7 @@
 				EAAF9BE625C7B7030078C794 /* CategoriesDataManager.swift in Sources */,
 				EA4A1D1722540801008501A3 /* EBNLazyLoader.mm in Sources */,
 				EACB06AE2404FF530075924E /* EmojiDataManager.swift in Sources */,
+				EA9A64FB2BD3BB1800C40A87 /* PhotostreamCell.swift in Sources */,
 				EAD0EE15298C699700B07DCE /* DatePickerCell.swift in Sources */,
 				EA6A8A7823190A080071BFEA /* EventSectionHeaderView.swift in Sources */,
 				EA1099F6239662E700F5172D /* ForumsLoadTimeCell.swift in Sources */,
@@ -1541,11 +1570,13 @@
 				EA283FD6297911C6005450E7 /* SwiftyLineProcessor.swift in Sources */,
 				EA5E2A5C22595AAD00CB4A11 /* TwitarrModel.xcdatamodeld in Sources */,
 				EAC696ED2290159000EE6EEB /* StringUtilities.swift in Sources */,
+				EA9A64FF2BD4C34800C40A87 /* PhotostreamDataManager.swift in Sources */,
 				EA82092929343D0D005A251F /* ManageMembersVC.swift in Sources */,
 				EA8F47452389E40300CF6F1C /* KaraokeDataManager.swift in Sources */,
 				EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */,
 				EA278A99226A86BE00808AED /* FilteringDataSourceSegment.swift in Sources */,
 				EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */,
+				EA2F71252BF04D4500EC3EFB /* ScheduleSingleEventController.swift in Sources */,
 				EA476732233C41CA00F56E08 /* UserProfileEditViewController.swift in Sources */,
 				EAAA68DC23FC977800C9EF82 /* ReportContentViewController.swift in Sources */,
 				EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */,
@@ -1575,6 +1606,7 @@
 				EA283FDB297911C6005450E7 /* SwiftyMarkdown+macOS.swift in Sources */,
 				EAD0EE19298CF8A100B07DCE /* AttendeeCountsCells.swift in Sources */,
 				EAF589CF2401F1EE00ECB7DB /* DisclosureCell.swift in Sources */,
+				EA9A65022BD77B9E00C40A87 /* PhotostreamCamera.swift in Sources */,
 				EA283FD7297911C6005450E7 /* SwiftyMarkdown.swift in Sources */,
 				EAC45AAF23E6CACF00907B1F /* PortAndThemeCell.swift in Sources */,
 				EA1E3B9A2245CF3000017F07 /* CurrentUser.swift in Sources */,

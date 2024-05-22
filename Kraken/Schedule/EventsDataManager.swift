@@ -12,7 +12,8 @@ import UserNotifications
 import CoreData
 
 @objc(Event) public class Event: KrakenManagedObject {
-    @NSManaged public var id: UUID
+    @NSManaged public var id: UUID					// Swiftarr's ID For this event
+    @NSManaged public var uid: String				// Sched.com's ID for this event, aka the iCal file's ID
     @NSManaged public var title: String
 	@NSManaged public var eventDescription: String?
 	@NSManaged public var location: String?
@@ -87,6 +88,7 @@ import CoreData
 	
 	func buildFromV3(context: NSManagedObjectContext, v3Object: TwitarrV3EventData) throws {
 		TestAndUpdate(\.id, v3Object.eventID)
+		TestAndUpdate(\.uid, v3Object.uid)
 		TestAndUpdate(\.title, v3Object.title)
 		TestAndUpdate(\.eventDescription, v3Object.description.decodeHTMLEntities())
 		TestAndUpdate(\.location, v3Object.location)
@@ -94,7 +96,15 @@ import CoreData
 		TestAndUpdate(\.startTime, v3Object.startTime)
 		TestAndUpdate(\.endTime, v3Object.endTime)
 		TestAndUpdate(\.forumThreadID, v3Object.forum)
-
+		
+		// Not parsed: timeZone, timeZoneID, lastUpdateTime. Since events from the API have accurate dates, the timezone
+		// becomes less important. (Sched.com returns UTC datetimes that are *meant* to be parsed as floating dates in EST/EDT.
+		// That is, a datetime from Sched that indicates 'Noon UTC' is a datetime that equates to '7:00 AM EST' (assuming EST 
+		// time of year). That datetime is intended to be interpreted as "7:00 AM in whatever TZ the ship is in then", which
+		// will NOT BE NOON UTC if the ship's timezone isn't EST.
+		//
+		// Anyway, the server fixes this before vending out dates.
+		
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
 			setFavoriteState(context: context, user: currentUser, to: v3Object.isFavorite)
 		}
@@ -600,26 +610,32 @@ struct TwitarrV2EventResponse : Codable {
 
 // MARK: - API V3 Parsing
 struct TwitarrV3EventData: Codable {
-    /// The event's ID. This is the Swiftarr database record for this event.
-    var eventID: UUID
-    /// The event's UID. This is the VCALENDAR/ICS File/sched.com identifier for this event--what calendar software uses to correllate whether 2 events are the same event.
-    var uid: String
-    /// The event's title.
-    var title: String
-    /// A description of the event.
-    var description: String
-    /// Starting time of the event
-    var startTime: Date
-    /// Ending time of the event.
-    var endTime: Date
-    /// The location of the event.
-    var location: String
-    /// The event category.
-    var eventType: String
-    /// The event's associated `Forum`.
-    var forum: UUID?
-    /// Whether user has favorited event.
-    var isFavorite: Bool
+	/// The event's ID. This is the Swiftarr database record for this event.
+	var eventID: UUID
+	/// The event's UID. This is the VCALENDAR/ICS File/sched.com identifier for this event--what calendar software uses to correllate whether 2 events are the same event.
+	var uid: String
+	/// The event's title.
+	var title: String
+	/// A description of the event.
+	var description: String
+	/// Starting time of the event
+	var startTime: Date
+	/// Ending time of the event.
+	var endTime: Date
+	/// The timezone that the ship is going to be in when the event occurs. Delivered as an abbreviation e.g. "EST".
+	var timeZone: String
+	/// The timezone ID that the ship is going to be in when the event occurs. Example: "America/New_York".
+	var timeZoneID: String
+	/// The location of the event.
+	var location: String
+	/// The event category.
+	var eventType: String
+	/// The last time data for this event was modified. Used for change management.
+	var lastUpdateTime: Date
+	/// The event's associated `Forum`.
+	var forum: UUID?
+	/// Whether user has favorited event.
+	var isFavorite: Bool
 }
 
 // GET /api/v3/events

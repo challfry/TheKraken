@@ -116,6 +116,8 @@ public struct TwitarrV3UserNotificationData: Codable {
 	var serverTime: String
 	/// Server Time Zone offset, in seconds from UTC. One hour before UTC is -3600. EST  timezone is -18000.
 	var serverTimeOffset: Int
+	/// The geopolitical region identifier that identifies the time zone -- e.g. "America/Los Angeles" 
+	var serverTimeZoneID: String
 	/// Human-readable time zone name, like "EDT"
 	var serverTimeZone: String
 	/// Features that are turned off by the server. If the `appName` for a feature is `all`, the feature is disabled at the API layer.
@@ -244,18 +246,20 @@ public enum TwitarrV3SwiftarrClientApp: String, Codable, CaseIterable {
 }
 
 public enum TwitarrV3SwiftarrFeature: String, Codable, CaseIterable {
-	case tweets
+	case tweets				// Tweet stream; perma-disabled
 	case forums
-	case seamail
+	case seamail			// Chat. Includes group chats and 'open' chats that allow membership changes after creation
 	case schedule
-	case friendlyfez
-	case karaoke
-	case microkaraoke
-	case gameslist
-	case images
-	case users
-	case phone
-	case directphone
+	case friendlyfez		// Looking For Group.
+	case karaoke			// DB of songs available on Karaoke machine
+	case microkaraoke		// Builds karaoke videos from people recording short song snippets on their phone.
+	case gameslist			// DB of games available in gaming area
+	case images				// Routes that retrieve user-uploaded images (/api/v3/image/**)
+	case users				// User profile view/edit; block/mute mgmt, alertword/muteword mgmt, user role mgmt
+	case phone				// User-to-user VOIP, voice data passes through server
+	case directphone		// Also User-to-user VOIP, voice data goes directly phone to phone.
+	case photostream		// Photos taken on the ship. Web UI cannot have photo upload, for THO reasons. 
+
 	case all
 	
 	/// For clients use. Clients need to be prepared for additional values to be added serverside. Those new values get decoded as 'unknown'.

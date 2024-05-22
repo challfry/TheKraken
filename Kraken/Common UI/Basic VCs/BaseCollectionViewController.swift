@@ -42,6 +42,7 @@ enum GlobalKnownSegue: String {
 	case seamailManageMembers = 	"SeamailManageMenbers"
 
 	case eventsRoot = 				"EventsRoot"
+	case singleEvent = 				"SingleEvent"
 	
 	case lfgRoot = 					"LFGRoot"
 	case lfgCreateEdit = 			"LFGCreate"
@@ -58,6 +59,7 @@ enum GlobalKnownSegue: String {
 	case scrapbookRoot =			"ScrapbookRoot"
 	case lighterMode =				"RockBalladMode"
 	case pirateAR =					"PirateARCamera"
+	case photoStreamCamera = 		"PhotostreamCamera"
 	
 	case settingsRoot = 			"SettingsRoot"
 	case postOperations =			"PostOperations"
@@ -107,6 +109,7 @@ enum GlobalKnownSegue: String {
 		case .seamailManageMembers: return SeamailThread.self
 		
 		case .eventsRoot: return String.self
+		case .singleEvent: return UUID.self
 		
 		case .lfgRoot: return Void.self
 		case .lfgCreateEdit: return Any.self
@@ -123,6 +126,7 @@ enum GlobalKnownSegue: String {
 		case .scrapbookRoot: return Void.self
 		case .lighterMode: return Void.self
 		case .pirateAR: return BaseCollectionViewCell.self
+		case .photoStreamCamera: return Void.self
 
 		case .settingsRoot: return Void.self
 		case .postOperations: return Any.self
@@ -698,7 +702,11 @@ class BaseCollectionViewController: UIViewController {
 			}
 // Events
 		case .eventsRoot: break
-			
+		
+		case .singleEvent: 
+			if let destVC = destination as? ScheduleSingleEventController, let eventID = sender as? UUID {
+				destVC.eventID = eventID
+			}
 			
 // Maps
 		case .showRoomOnDeckMap:

@@ -48,6 +48,26 @@ import Foundation
 	}
 #endif
 
+	public var knownServerURLS: [URL] {
+		get {
+#if DEBUG
+			return getSetting(name: "knownServerURLs", defaultValue: [
+				URL(string:"http://192.168.0.88:8081")!,
+				URL(string:"http://127.0.0.1:8081")!,
+				URL(string:"https://beta.twitarr.com")!,
+				URL(string:"https://twitarr.wookieefive.net")!
+			])
+#else
+			return getSetting(name: "knownServerURLs", defaultValue: [
+				URL(string:"https://twitarr.com")!,
+			])
+#endif			
+		}
+		set {
+			setSetting(name: "knownServerURLs", newValue: newValue)
+		}
+	}
+
 	// Saves the last user to be 'active'. Unless they're logged in with multiple accounts, this will just 
 	// be the user.
 	public var activeUsername: String? {
@@ -124,7 +144,7 @@ import Foundation
 		set { setSetting(name: "blockEmptyingPostOpsQueue", newValue: newValue) }
 	}
 
-	// Makes the schedule filters act as if the current time is mid-cruise 2019.
+	// Makes the schedule filters act as if the current time is mid-cruise week.
 	@objc dynamic public var debugTimeWarpToCruiseWeek: Bool {
 		get { return getSetting(name: "debugTimeWarpToCruiseWeek", defaultValue: false) }
 		set { setSetting(name: "debugTimeWarpToCruiseWeek", newValue: newValue) }

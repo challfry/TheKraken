@@ -15,6 +15,7 @@ import BackgroundTasks
 			AlertsUpdater.shared,
 			AnnouncementDataManager.shared,
 			DailyThemeUpdater.shared,
+			PhotostreamDataManager.shared,
 	]
 	static var numActiveUpdaters: Int = 0
 	static var allUpdatesComplete: (() -> Void)?
