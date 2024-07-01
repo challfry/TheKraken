@@ -149,7 +149,7 @@ class BoardGameParserDelegate: NSObject, XMLParserDelegate {
 				isParsingPrimaryName = true
 			}
 		}
-		if ["name", "description", "yearpublished"].contains(elementName) {
+		if ["name", "description", "yearpublished", "boardgamesubdomain", "boardgamecategory", "boardgamemechanic"].contains(elementName) {
 			tempChars = ""
 		}
 		if elementName == "poll" && attributeDict["name"] == "suggested_numplayers" {
@@ -206,6 +206,9 @@ class BoardGameParserDelegate: NSObject, XMLParserDelegate {
 			case "playingtime": gameObj.avgPlayingTime = Int(numberConversionChars)
 			case "age": gameObj.minAge = Int(numberConversionChars)
 			case "description": gameObj.gameDescription = tempChars
+			case "boardgamesubdomain": gameObj.gameTypes.append(tempChars)
+			case "boardgamecategory": gameObj.categories.append(tempChars)
+			case "boardgamemechanic": gameObj.mechanisms.append(tempChars)
 			default: break
 			}
 		}
@@ -228,7 +231,7 @@ if fileContents == nil {
 // Shortened contents for testing
 if false {
 	fileContents = """
-	Blood Bowl: Team Manager - The Card Game	1
+	Ticket to Ride	1
 	"""
 
 let xtra = """
@@ -258,7 +261,7 @@ let scanner = Scanner(string: fileContents!)
 while !scanner.isAtEnd, let thisLine = scanner.scanUpToCharacters(from: CharacterSet.newlines) {
 	let tabFields = thisLine.split(separator: "\t", maxSplits: 8, omittingEmptySubsequences: false)
 	let thisGame = String(tabFields[0])
-	var strippedName = thisGame.replacingOccurrences(of: " – ", with: " ").replacingOccurrences(of: " - ", with: " ")
+	let strippedName = thisGame.replacingOccurrences(of: " – ", with: " ").replacingOccurrences(of: " - ", with: " ")
 
 	var numCopies = 1
 	if tabFields.count >= 2 {

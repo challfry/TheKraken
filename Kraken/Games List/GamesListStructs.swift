@@ -14,10 +14,13 @@ import Foundation
 
 
 struct JsonGamesListGame: Codable {
-	var gameName: String
-	var bggGameName: String?
-	var yearPublished: String?
-	var gameDescription: String?
+	var gameName: String				// Joco Games list name for the game
+	var bggGameName: String?			// <name primary="true">
+	var yearPublished: String?			// <yearpublished>
+	var gameDescription: String?		// <description>
+	var gameTypes: [String] 			// <boardgamesubdomain>
+	var categories: [String]			// <boardgamecategory>	
+	var mechanisms: [String]			// <boardgamemechanic>
 
 	var minPlayers: Int?
 	var maxPlayers: Int?
@@ -36,4 +39,13 @@ struct JsonGamesListGame: Codable {
 	var notes: String?
 	var expands: String?
 	var numCopies: Int = 1
+}
+
+extension JsonGamesListGame {
+	init(gameName: String) {
+		self.gameName = gameName
+		gameTypes = []
+		categories = []
+		mechanisms = []
+	}
 }
