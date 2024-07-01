@@ -43,7 +43,13 @@ import Foundation
 	}
 #else
 	@objc dynamic public var settingsBaseURL: URL {
-		get { return getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.com")!) }
+		get { 
+			let savedValue = getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.com")!)
+			if savedValue.path.contains("hollandamerica.com") {
+				return "https://twitarr.com"
+			}
+			return savedValue
+		}
 		set { setSetting(name: "baseURL", newValue: newValue) }
 	}
 #endif
