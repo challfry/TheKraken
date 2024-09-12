@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,15 +18,15 @@
                 <rect key="frame" x="0.0" y="0.0" width="412" height="270"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p7H-X1-Ops">
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p7H-X1-Ops" userLabel="Spacer View">
                         <rect key="frame" x="0.0" y="0.0" width="412" height="1"/>
-                        <color key="backgroundColor" name="Kraken Secondary Text"/>
+                        <color key="backgroundColor" name="Cell Horizontal Rule"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="1" id="PtI-at-YXD"/>
                         </constraints>
                     </view>
-                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="KeK-lK-1hP">
-                        <rect key="frame" x="20" y="2" width="372" height="248"/>
+                    <stackView opaque="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" axis="vertical" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="KeK-lK-1hP">
+                        <rect key="frame" x="20" y="1" width="372" height="250"/>
                         <subviews>
                             <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KLj-Qb-XgX">
                                 <rect key="frame" x="0.0" y="0.0" width="372" height="50"/>
@@ -71,8 +71,15 @@
                                 <color key="textColor" name="Kraken Label Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G1P-VF-vkj" userLabel="Performers Container">
+                                <rect key="frame" x="0.0" y="119.5" width="372" height="0.0"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" id="tZF-pk-2gE"/>
+                                </constraints>
+                            </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nWw-G0-qFe">
-                                <rect key="frame" x="0.0" y="119.5" width="372" height="82.5"/>
+                                <rect key="frame" x="0.0" y="121.5" width="372" height="82.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Follow Pending" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u3p-3v-UYB">
                                         <rect key="frame" x="216" y="33.5" width="98" height="17"/>
@@ -98,7 +105,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="K3D-KG-vXn">
-                                <rect key="frame" x="0.0" y="204" width="372" height="44"/>
+                                <rect key="frame" x="0.0" y="206" width="372" height="44"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="o9L-xR-AW5">
                                         <rect key="frame" x="36" y="0.0" width="336" height="44"/>
@@ -172,13 +179,13 @@
             <constraints>
                 <constraint firstItem="p7H-X1-Ops" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="4EL-96-uMM"/>
                 <constraint firstItem="p7H-X1-Ops" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="SMw-3q-qqu"/>
+                <constraint firstItem="KeK-lK-1hP" firstAttribute="top" secondItem="p7H-X1-Ops" secondAttribute="bottom" id="XPK-bp-lk8"/>
                 <constraint firstItem="yzT-FW-5Jd" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="Xyz-Qi-cBb"/>
                 <constraint firstItem="yzT-FW-5Jd" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Y0m-si-98t"/>
                 <constraint firstAttribute="bottom" secondItem="KeK-lK-1hP" secondAttribute="bottom" priority="200" constant="2" id="lKY-5N-Ny3"/>
-                <constraint firstItem="KeK-lK-1hP" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="2" id="mYE-zC-Rpf"/>
                 <constraint firstAttribute="trailing" secondItem="p7H-X1-Ops" secondAttribute="trailing" id="swB-er-PhV"/>
                 <constraint firstItem="KeK-lK-1hP" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="20" id="u1B-E7-eil"/>
-                <constraint firstAttribute="trailing" secondItem="KeK-lK-1hP" secondAttribute="trailing" priority="900" constant="20" id="v9K-qp-zUI"/>
+                <constraint firstAttribute="trailing" secondItem="KeK-lK-1hP" secondAttribute="trailing" constant="20" id="v9K-qp-zUI"/>
                 <constraint firstAttribute="bottom" secondItem="yzT-FW-5Jd" secondAttribute="bottom" id="ybl-IG-76B"/>
             </constraints>
             <size key="customSize" width="412" height="270"/>
@@ -196,6 +203,8 @@
                 <outlet property="localNotificationButton" destination="HEV-3D-6c7" id="raP-GV-NpY"/>
                 <outlet property="locationLabel" destination="gvf-h0-fI8" id="3Id-iL-6BS"/>
                 <outlet property="mapButton" destination="BTX-Ie-csc" id="6AA-Ry-4Bp"/>
+                <outlet property="performersContainerView" destination="G1P-VF-vkj" id="dJd-zE-1bQ"/>
+                <outlet property="performersVisibleConstraint" destination="tZF-pk-2gE" id="avF-sd-fbm"/>
                 <outlet property="ribbonView" destination="yzT-FW-5Jd" id="qkz-u6-AyT"/>
                 <outlet property="ribbonViewLabel" destination="OI9-hx-Xgg" id="xh4-mx-AD0"/>
                 <outlet property="titleLabel" destination="cpP-Du-eol" id="e10-o2-Jap"/>
@@ -204,11 +213,11 @@
         </collectionViewCell>
     </objects>
     <resources>
+        <namedColor name="Cell Horizontal Rule">
+            <color white="0.70099997520446777" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </namedColor>
         <namedColor name="Kraken Label Text">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-        </namedColor>
-        <namedColor name="Kraken Secondary Text">
-            <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="Pending Op Background">
             <color red="1" green="0.97100001573562622" blue="0.74199998378753662" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

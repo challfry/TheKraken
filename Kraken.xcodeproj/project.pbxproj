@@ -51,6 +51,10 @@
 		EA283FDE297911C6005450E7 /* PerfomanceLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD2297911C6005450E7 /* PerfomanceLog.swift */; };
 		EA283FE0297911C6005450E7 /* SwiftyScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD4297911C6005450E7 /* SwiftyScanner.swift */; };
 		EA2F71252BF04D4500EC3EFB /* ScheduleSingleEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2F71242BF04D4500EC3EFB /* ScheduleSingleEventController.swift */; };
+		EA356E962C8583450006717D /* PerformerGalleryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA356E952C8583450006717D /* PerformerGalleryVC.swift */; };
+		EA356E982C8AC1EE0006717D /* PerformerGalleryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA356E972C8AC1EE0006717D /* PerformerGalleryCell.xib */; };
+		EA356E9A2C8C1A730006717D /* PerformerSearchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA356E992C8C1A730006717D /* PerformerSearchCell.xib */; };
+		EA356E9C2C8D8CDB0006717D /* PerformerBioVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA356E9B2C8D8CDB0006717D /* PerformerBioVC.swift */; };
 		EA39B18623DA823600A2FB1B /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39B18523DA823600A2FB1B /* AboutViewController.swift */; };
 		EA3ABF8E22F19A5C00441F99 /* PhotoDataSourceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */; };
 		EA3ABF9622F2EA2700441F99 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3ABF9522F2EA2700441F99 /* CameraViewController.swift */; };
@@ -192,6 +196,7 @@
 		EAAF9BE625C7B7030078C794 /* CategoriesDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF9BE525C7B7030078C794 /* CategoriesDataManager.swift */; };
 		EAAF9BF025CBDECE0078C794 /* ForumPostDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAF9BEF25CBDECE0078C794 /* ForumPostDataManager.swift */; };
 		EAAFB04127BAD40C005508D4 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAA12B6527B4A55B002F9C47 /* NetworkExtension.framework */; };
+		EAB34B582C822B2600730C59 /* PerformerDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB34B572C822B2600730C59 /* PerformerDataManager.swift */; };
 		EAB4536922D1F63900CD1671 /* LabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536822D1F63900CD1671 /* LabelCell.swift */; };
 		EAB4536B22D1F6DF00CD1671 /* TextCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536A22D1F6DF00CD1671 /* TextCells.swift */; };
 		EAB4536D22D1F75600CD1671 /* ButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4536C22D1F75600CD1671 /* ButtonCell.swift */; };
@@ -238,6 +243,7 @@
 		EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */; };
 		EAE59152229EA345002B5DEF /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAE59151229EA345002B5DEF /* Photos.framework */; };
 		EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */; };
+		EAEEB94D2C8E672E009DE676 /* PerformerBioCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAEEB94C2C8E672E009DE676 /* PerformerBioCell.xib */; };
 		EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF340F224ED88300C7A0D9 /* LoginCells.swift */; };
 		EAEF3414224EED9100C7A0D9 /* SeamailRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */; };
 		EAEF3416224FF6C300C7A0D9 /* TwitarrTweetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */; };
@@ -350,6 +356,10 @@
 		EA2F71242BF04D4500EC3EFB /* ScheduleSingleEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleSingleEventController.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
 		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		EA356E952C8583450006717D /* PerformerGalleryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformerGalleryVC.swift; sourceTree = "<group>"; };
+		EA356E972C8AC1EE0006717D /* PerformerGalleryCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PerformerGalleryCell.xib; sourceTree = "<group>"; };
+		EA356E992C8C1A730006717D /* PerformerSearchCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PerformerSearchCell.xib; sourceTree = "<group>"; };
+		EA356E9B2C8D8CDB0006717D /* PerformerBioVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformerBioVC.swift; sourceTree = "<group>"; };
 		EA39B18523DA823600A2FB1B /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		EA3ABF8A22F198D000441F99 /* Credits.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Credits.md; sourceTree = "<group>"; };
 		EA3ABF8D22F19A5C00441F99 /* PhotoDataSourceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDataSourceSegment.swift; sourceTree = "<group>"; };
@@ -510,6 +520,7 @@
 		EAAF9BDB25C78B1C0078C794 /* ForumsRootVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumsRootVC.swift; sourceTree = "<group>"; };
 		EAAF9BE525C7B7030078C794 /* CategoriesDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesDataManager.swift; sourceTree = "<group>"; };
 		EAAF9BEF25CBDECE0078C794 /* ForumPostDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostDataManager.swift; sourceTree = "<group>"; };
+		EAB34B572C822B2600730C59 /* PerformerDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformerDataManager.swift; sourceTree = "<group>"; };
 		EAB4536822D1F63900CD1671 /* LabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelCell.swift; sourceTree = "<group>"; };
 		EAB4536A22D1F6DF00CD1671 /* TextCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCells.swift; sourceTree = "<group>"; };
 		EAB4536C22D1F75600CD1671 /* ButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonCell.swift; sourceTree = "<group>"; };
@@ -556,6 +567,7 @@
 		EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectionCell.swift; sourceTree = "<group>"; };
 		EAE59151229EA345002B5DEF /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenDataSource.swift; sourceTree = "<group>"; };
+		EAEEB94C2C8E672E009DE676 /* PerformerBioCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PerformerBioCell.xib; sourceTree = "<group>"; };
 		EAEF340F224ED88300C7A0D9 /* LoginCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCells.swift; sourceTree = "<group>"; };
 		EAEF3413224EED9100C7A0D9 /* SeamailRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailRootViewController.swift; sourceTree = "<group>"; };
 		EAEF3415224FF6C300C7A0D9 /* TwitarrTweetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitarrTweetCell.swift; sourceTree = "<group>"; };
@@ -1012,11 +1024,12 @@
 				EA1E3B8D2245795100017F07 /* Twittarr */,
 				EA1E3B8E2245796F00017F07 /* Forums */,
 				EA1E3B8F2245798400017F07 /* Seamail */,
+				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA820953293EB398005A251F /* LFG */,
 				EAAA68EC24013A1200C9EF82 /* Users_Hashtags_Emoji */,
-				EA534E2A2301FFA700FE4787 /* Schedule */,
 				EA8B986D232321C500E10156 /* Karaoke */,
 				EAD8BF862B5FA4E400C00993 /* MicroKaraoke */,
+				EAB34B562C822AE000730C59 /* Performers */,
 				EA9A65002BD77B7C00C40A87 /* Photostream */,
 				EA2286DE23E39B820036C20E /* Games List */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
@@ -1136,6 +1149,19 @@
 				EAF589D42403EE8300ECB7DB /* EmojiDataManager.swift */,
 			);
 			path = Users_Hashtags_Emoji;
+			sourceTree = "<group>";
+		};
+		EAB34B562C822AE000730C59 /* Performers */ = {
+			isa = PBXGroup;
+			children = (
+				EA356E952C8583450006717D /* PerformerGalleryVC.swift */,
+				EA356E9B2C8D8CDB0006717D /* PerformerBioVC.swift */,
+				EAEEB94C2C8E672E009DE676 /* PerformerBioCell.xib */,
+				EA356E992C8C1A730006717D /* PerformerSearchCell.xib */,
+				EA356E972C8AC1EE0006717D /* PerformerGalleryCell.xib */,
+				EAB34B572C822B2600730C59 /* PerformerDataManager.swift */,
+			);
+			path = Performers;
 			sourceTree = "<group>";
 		};
 		EABD2FFD23DAD7E000232F28 /* SwiftyMarkdown */ = {
@@ -1389,6 +1415,7 @@
 				EA9A64FD2BD3BE5A00C40A87 /* PhotostreamCell.xib in Resources */,
 				EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */,
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
+				EAEEB94D2C8E672E009DE676 /* PerformerBioCell.xib in Resources */,
 				EA4E84F4232C74FE0059E5EB /* DisabledContentViewController.xib in Resources */,
 				EA71E0EA2B8AC17F00A9376C /* ForumSearchCell.xib in Resources */,
 				EA1B9FE723514E8100BFEB46 /* PostOpStatusCell.xib in Resources */,
@@ -1416,10 +1443,12 @@
 				EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */,
 				EA2286F923E430BC0036C20E /* JoCoGamesCatalog.lzfse in Resources */,
 				EAF8393A2B70791000954EE4 /* LoadingStatusBubbleCell.xib in Resources */,
+				EA356E982C8AC1EE0006717D /* PerformerGalleryCell.xib in Resources */,
 				EAF589D12402296000ECB7DB /* HashtagCompletionCell.xib in Resources */,
 				EAA8A577236F963E0021C43C /* Decks.pdf in Resources */,
 				EAC45AB023E6CACF00907B1F /* PortAndThemeCell.xib in Resources */,
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
+				EA356E9A2C8C1A730006717D /* PerformerSearchCell.xib in Resources */,
 				EA8694B123D48F2500ABE391 /* DailyActivityCell3.xib in Resources */,
 				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
 				EA47886F23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib in Resources */,
@@ -1578,6 +1607,7 @@
 				EA1E3B9222457A1800017F07 /* TwitarrViewController.swift in Sources */,
 				EA2F71252BF04D4500EC3EFB /* ScheduleSingleEventController.swift in Sources */,
 				EA476732233C41CA00F56E08 /* UserProfileEditViewController.swift in Sources */,
+				EAB34B582C822B2600730C59 /* PerformerDataManager.swift in Sources */,
 				EAAA68DC23FC977800C9EF82 /* ReportContentViewController.swift in Sources */,
 				EA1E3BA3224D858700017F07 /* ImageManager.swift in Sources */,
 				EA86ADCF226AC55B00363CBF /* UserProfileViewController.swift in Sources */,
@@ -1631,6 +1661,7 @@
 				EA2286F323E40D810036C20E /* GamesListViewController.swift in Sources */,
 				EA83FC6F2368F01D0042C0DC /* Styler.swift in Sources */,
 				EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */,
+				EA356E962C8583450006717D /* PerformerGalleryVC.swift in Sources */,
 				EA4E84F2232C74D00059E5EB /* DisabledContentViewController.swift in Sources */,
 				EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */,
 				EAC696E7228CDB7B00EE6EEB /* SeamailThreadViewController.swift in Sources */,
@@ -1644,6 +1675,7 @@
 				EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,
+				EA356E9C2C8D8CDB0006717D /* PerformerBioVC.swift in Sources */,
 				EAF777F722A3B1D000B27803 /* ModalLoginViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

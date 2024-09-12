@@ -31,6 +31,7 @@ import CoreData
     @NSManaged public var followedBy: Set<KrakenUser>
     @NSManaged public var opsFollowing: Set<PostOpEventFollow>
     @NSManaged public var forum: ForumThread?
+    @NSManaged public var performers: Set<Performer>
 
 // Not saved in CD    
     @objc dynamic public var followCount: Int = 0
@@ -117,7 +118,18 @@ import CoreData
 			if let foundThread = cdThreads.first {
 				forum = foundThread
 			}
-		}			
+		}
+			
+		// Link Event to Performers
+		if !v3Object.performers.isEmpty {
+			let request = NSFetchRequest<Performer>(entityName: "Performer")
+			let performerIDs = v3Object.performers.map { $0.id }
+			request.predicate = NSPredicate(format: "id IN %@", performerIDs)
+			let cdPerformers = try Set(context.fetch(request))
+			if performers != cdPerformers {
+				performers = cdPerformers
+			}
+		}		
 	}
 	
 	func setFavoriteState(context: NSManagedObjectContext, user: KrakenUser, to newState: Bool) {
@@ -508,6 +520,11 @@ class EventsDataManager: NSObject {
 	func parseV3Events(_ events: [TwitarrV3EventData], isFullList: Bool) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure adding Schedule events from network response to Core Data.")
+			
+			// Pull all the PerformerHeaders and ingest them
+			let headers = Array(Set<TwitarrV3PerformerHeaderData>(events.flatMap { $0.performers }))
+			PerformerDataManager.shared.ingestPerformers(from: headers, arrayContents: .somePerformers)
+			
 			let fetchRequest = NSFetchRequest<Event>(entityName: "Event")
 			let cdEvents = try? context.fetch(fetchRequest)
 
@@ -636,6 +653,8 @@ struct TwitarrV3EventData: Codable {
 	var forum: UUID?
 	/// Whether user has favorited event.
 	var isFavorite: Bool
+	/// The performers who will be at the event. 
+	var performers: [TwitarrV3PerformerHeaderData]
 }
 
 // GET /api/v3/events

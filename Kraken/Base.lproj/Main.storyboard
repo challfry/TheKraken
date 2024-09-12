@@ -3,7 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -2681,7 +2681,7 @@ Additional info:</string>
         <scene sceneID="7hU-H1-u6J">
             <objects>
                 <navigationController storyboardIdentifier="DailyNavController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="FbF-R0-wHc" userLabel="Daily" customClass="KrakenNavController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Daily" image="Social.png" id="NSX-bp-aed" userLabel="Daily"/>
+                    <tabBarItem key="tabBarItem" title="Daily" image="calendar.day.timeline.left" catalog="system" id="NSX-bp-aed" userLabel="Daily"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Wx2-VR-7a7">
                         <rect key="frame" x="0.0" y="48" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -3303,6 +3303,86 @@ Rotate your device to continue.</string>
             </objects>
             <point key="canvasLocation" x="-4000.0000000000005" y="-1718.3035714285713"/>
         </scene>
+        <!--Performer Bio View Controller-->
+        <scene sceneID="VLD-dr-cE3">
+            <objects>
+                <viewController restorationIdentifier="PerformerBioViewController" storyboardIdentifier="PerformerBioViewController" id="vrh-xv-5x4" customClass="PerformerBioViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="d4J-kl-2Vl">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="zyj-kM-BqA">
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="6kT-vX-Dnb">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="YF9-6f-D3c"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="YF9-6f-D3c" firstAttribute="trailing" secondItem="zyj-kM-BqA" secondAttribute="trailing" id="42c-kD-ao3"/>
+                            <constraint firstItem="YF9-6f-D3c" firstAttribute="bottom" secondItem="zyj-kM-BqA" secondAttribute="bottom" id="IQB-c1-3ex"/>
+                            <constraint firstItem="zyj-kM-BqA" firstAttribute="top" secondItem="YF9-6f-D3c" secondAttribute="top" id="jsQ-WJ-JaQ"/>
+                            <constraint firstItem="zyj-kM-BqA" firstAttribute="leading" secondItem="YF9-6f-D3c" secondAttribute="leading" id="r1K-6i-5DS"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="aKI-HE-FFx"/>
+                    <connections>
+                        <outlet property="collectionView" destination="zyj-kM-BqA" id="jdK-OO-et4"/>
+                        <segue destination="ppy-9j-Eyt" kind="show" identifier="ShowForumThread" id="xBi-3d-3gR"/>
+                        <segue destination="v2p-69-U1W" kind="show" identifier="ShowRoomOnDeckMap" id="ZMd-4V-Y0z"/>
+                        <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="1HB-e0-7yo"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VQz-If-TWc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-4000" y="-2525"/>
+        </scene>
+        <!--Performers-->
+        <scene sceneID="jYC-xl-f5c">
+            <objects>
+                <viewController restorationIdentifier="PerformerGalleryViewController" storyboardIdentifier="PerformerGalleryViewController" title="Performers" id="gwC-1s-EZt" customClass="PerformerGalleryViewController" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Gd9-ZV-f06">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="4Ae-lK-OdY">
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="C0C-s7-wPy">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="uGJ-uX-poZ"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="4Ae-lK-OdY" firstAttribute="leading" secondItem="uGJ-uX-poZ" secondAttribute="leading" id="0TZ-85-uwV"/>
+                            <constraint firstItem="uGJ-uX-poZ" firstAttribute="trailing" secondItem="4Ae-lK-OdY" secondAttribute="trailing" id="80U-3T-vCN"/>
+                            <constraint firstItem="4Ae-lK-OdY" firstAttribute="top" secondItem="uGJ-uX-poZ" secondAttribute="top" id="HAZ-nj-lnn"/>
+                            <constraint firstItem="uGJ-uX-poZ" firstAttribute="bottom" secondItem="4Ae-lK-OdY" secondAttribute="bottom" id="hEJ-at-f3K"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="sSh-3J-zeg"/>
+                    <connections>
+                        <outlet property="collectionView" destination="4Ae-lK-OdY" id="TeX-sz-ROF"/>
+                        <segue destination="vrh-xv-5x4" kind="show" identifier="PerformerBio" id="9RY-87-8ST"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="rsf-hU-0yN" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3178" y="-2525"/>
+        </scene>
         <!--LFG Nav Controller-->
         <scene sceneID="fuA-6v-647">
             <objects>
@@ -3531,6 +3611,7 @@ Rotate your device to continue.</string>
                         <segue destination="CO8-iB-ING" kind="show" identifier="MicroKaraokeRoot" id="Azj-8J-Wkq"/>
                         <segue destination="RFN-Iz-qKb" kind="showDetail" identifier="PhotostreamCamera" id="Y2d-Tf-CTY"/>
                         <segue destination="tAA-bi-a4f" kind="show" identifier="SingleEvent" id="QAK-cX-ZPK"/>
+                        <segue destination="gwC-1s-EZt" kind="show" identifier="PerformerGallery" id="FHT-MY-TUH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R26-At-KAA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -3551,8 +3632,8 @@ Rotate your device to continue.</string>
                         <segue destination="FbF-R0-wHc" kind="relationship" relationship="viewControllers" id="mB2-NL-D0V"/>
                         <segue destination="gIv-0z-S2i" kind="relationship" relationship="viewControllers" id="pJS-Ae-whZ"/>
                         <segue destination="lfF-py-CrU" kind="relationship" relationship="viewControllers" id="FeF-ZL-OTc"/>
-                        <segue destination="lVq-Ex-gy3" kind="relationship" relationship="viewControllers" id="9M4-J3-8MR"/>
                         <segue destination="Qvm-8E-Tdo" kind="relationship" relationship="viewControllers" id="4il-18-rih"/>
+                        <segue destination="lVq-Ex-gy3" kind="relationship" relationship="viewControllers" id="9M4-J3-8MR"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
@@ -3605,22 +3686,22 @@ Rotate your device to continue.</string>
         <segue reference="Azj-8J-Wkq"/>
         <segue reference="ixJ-gR-Thn"/>
         <segue reference="iin-6d-KBo"/>
-        <segue reference="Pow-sP-93l"/>
-        <segue reference="eWg-hD-M7J"/>
+        <segue reference="5OF-Gt-GA5"/>
+        <segue reference="j6p-gx-tT1"/>
         <segue reference="Nie-gD-4T3"/>
         <segue reference="Xin-A8-aio"/>
         <segue reference="xJS-a0-3Zb"/>
-        <segue reference="g1q-Cb-8AB"/>
+        <segue reference="ZaT-fl-KcI"/>
         <segue reference="xJS-kz-sQt"/>
-        <segue reference="nVa-Wl-Nva"/>
-        <segue reference="toq-gL-f1f"/>
+        <segue reference="OYC-iy-go3"/>
+        <segue reference="xBi-3d-3gR"/>
         <segue reference="9El-ZA-7WU"/>
         <segue reference="1ve-Md-YVN"/>
-        <segue reference="d2l-zp-S48"/>
+        <segue reference="yZ3-I6-e7Y"/>
         <segue reference="RHM-8H-1Ru"/>
-        <segue reference="Ieo-oe-rtR"/>
+        <segue reference="1HB-e0-7yo"/>
         <segue reference="gdr-Cd-yXW"/>
-        <segue reference="ZQM-8h-AgF"/>
+        <segue reference="ZMd-4V-Y0z"/>
         <segue reference="wjx-Zr-mfc"/>
         <segue reference="rR9-QS-2f0"/>
         <segue reference="2Ae-eC-yt5"/>
@@ -3654,8 +3735,8 @@ Rotate your device to continue.</string>
         <image name="ScrapbookFill" width="24" height="24"/>
         <image name="Seamail.png" width="36" height="36"/>
         <image name="Settings.png" width="36" height="36"/>
-        <image name="Social.png" width="36" height="36"/>
         <image name="Twitarr.png" width="23" height="23"/>
+        <image name="calendar.day.timeline.left" catalog="system" width="128" height="91"/>
         <image name="person.3.sequence.fill" catalog="system" width="128" height="63"/>
         <image name="square.and.arrow.up" width="24" height="24"/>
         <image name="square.and.arrow.up.fill" width="24" height="24"/>

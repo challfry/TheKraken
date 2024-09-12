@@ -123,6 +123,8 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 	}
 	
 	override func awakeFromNib() {
+		super.awakeFromNib()
+		
 		// Font styling
 		announcementHeaderLabel.styleFor(.body)
 		authorLabel.styleFor(.body)

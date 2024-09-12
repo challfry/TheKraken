@@ -99,6 +99,8 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	@IBOutlet var eventTimeLabel: UILabel!
 	@IBOutlet var locationLabel: UILabel!
 	@IBOutlet var descriptionLabel: UILabel!
+	@IBOutlet var performersContainerView: UIView!
+	@IBOutlet var performersVisibleConstraint: NSLayoutConstraint!
 	@IBOutlet var ribbonView: RibbonView!
 	@IBOutlet var ribbonViewLabel: UILabel!
 	
@@ -159,7 +161,7 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	
 	var disclosureLevel: Int = 4 {
 		didSet {
-			isPrototypeCell ? setLabelStrings() : UIView.animate(withDuration: 0.3, animations: setLabelStrings)
+			animateIfNotPrototype(withDuration: 0.3, block: { self.setLabelStrings() })
 			cellSizeChanged()
 		}
 	}
@@ -205,10 +207,85 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 				addObservation(CurrentUser.shared.tell(self, when:"loggedInUser") { observer, observed in
 					observer.setForumButtonState()
 				}?.execute())
+				
+				addObservation(eventModel.tell(self, when: "performers") { (observer: EventCell, observed) in 
+					observer.performersContainerView.subviews.forEach { $0.removeFromSuperview() }
+					var lastCapsuleLine = [UIView]()
+					observed.performers.enumerated().forEach { index, performerHeader in
+						let performerCapsule = UIView()
+						let nameLabel = UILabel()
+						let imageView = UIImageView(image: UserManager.shared.noAvatarImage)
+						performerCapsule.translatesAutoresizingMaskIntoConstraints = false
+						nameLabel.translatesAutoresizingMaskIntoConstraints = false
+						imageView.translatesAutoresizingMaskIntoConstraints = false
+
+						nameLabel.text = performerHeader.name
+						nameLabel.numberOfLines = 0
+						nameLabel.lineBreakMode = .byWordWrapping
+						performerCapsule.addSubview(nameLabel)
+						performerCapsule.addSubview(imageView)
+						NSLayoutConstraint.activate([ performerCapsule.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 0),
+								performerCapsule.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0),
+								imageView.heightAnchor.constraint(equalToConstant: 24),
+								imageView.widthAnchor.constraint(equalToConstant: 24)
+						])
+						let bottomConstraint = performerCapsule.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0)
+						bottomConstraint.priority = UILayoutPriority(rawValue: 700)
+						bottomConstraint.isActive = true
+						NSLayoutConstraint.activate([ performerCapsule.topAnchor.constraint(lessThanOrEqualTo: nameLabel.topAnchor, constant: 2.0),
+								performerCapsule.bottomAnchor.constraint(greaterThanOrEqualTo: nameLabel.bottomAnchor, constant: 2.0),
+								performerCapsule.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 0),
+								performerCapsule.widthAnchor.constraint(equalToConstant: 
+										(observer.performersContainerView.frame.size.width - 10.0) / 2.0),
+								imageView.trailingAnchor.constraint(equalTo: nameLabel.leadingAnchor, constant: -8)
+						])
+						if let imageFilename = performerHeader.imageFilename {
+							ImageManager.shared.image(withSize:.medium, forKey: imageFilename) { image in
+								imageView.image = image ?? UserManager.shared.noAvatarImage
+								self.cellSizeChanged()
+							}
+						}
+						observer.performersContainerView.addSubview(performerCapsule)
+						if let lastCap = lastCapsuleLine.last {
+							if index % 2 == 0 {
+								NSLayoutConstraint.activate([
+										observer.performersContainerView.leadingAnchor.constraint(equalTo: performerCapsule.leadingAnchor, constant: 0),
+										lastCap.bottomAnchor.constraint(lessThanOrEqualTo: performerCapsule.topAnchor, constant: -8),
+										])
+								if let firstCap = lastCapsuleLine.first {
+									firstCap.bottomAnchor.constraint(lessThanOrEqualTo: performerCapsule.topAnchor, constant: -8).isActive = true
+								}
+								lastCapsuleLine.removeAll()
+							}
+							else {
+								NSLayoutConstraint.activate([
+										lastCap.trailingAnchor.constraint(lessThanOrEqualTo: performerCapsule.leadingAnchor, constant: -10),
+								//		observer.performersContainerView.trailingAnchor.constraint(equalTo: performerCapsule.trailingAnchor, constant: 0),
+										lastCap.topAnchor.constraint(equalTo: performerCapsule.topAnchor, constant: 0)
+										])
+								let trail = observer.performersContainerView.trailingAnchor.constraint(equalTo: performerCapsule.trailingAnchor, constant: 0)
+								trail.priority = UILayoutPriority(rawValue: 900)
+								trail.isActive = true
+							}
+						}
+						else {
+							NSLayoutConstraint.activate([
+									observer.performersContainerView.leadingAnchor.constraint(equalTo: performerCapsule.leadingAnchor, constant: 0),
+									observer.performersContainerView.topAnchor.constraint(equalTo: performerCapsule.topAnchor, constant: -8)])
+						}
+						lastCapsuleLine.append(performerCapsule)
+					}
+					if let lastCap = lastCapsuleLine.last {
+						let bottomConstraint = observer.performersContainerView.bottomAnchor.constraint(equalTo: lastCap.bottomAnchor, constant: 0)
+						bottomConstraint.priority = UILayoutPriority(rawValue: 900)
+						bottomConstraint.isActive = true
+					}
+				}?.execute())
 			}
 			else {
 				setFollowState()
 				setForumButtonState()
+				performersContainerView.subviews.forEach { $0.removeFromSuperview() }
 			}
 		}
 	}
@@ -248,12 +325,18 @@ class EventCell: BaseCollectionViewCell, EventCellBindingProtocol {
 	func setLabelStrings() {
 		guard let event = model as? Event else { return }
 		let effectiveDisclosure = privateSelected ? 4 : disclosureLevel
-		titleLabel.text = event.title
-		descriptionLabel.text = effectiveDisclosure > 3 ?  event.eventDescription : ""
-		locationLabel.text = effectiveDisclosure > 2 ? event.location : ""
-		eventTimeLabel.attributedText = effectiveDisclosure > 1 ? makeTimeString() : nil
-		setRibbonStates()
+		UIView.animate(withDuration: 0.3, animations: { 
+			self.titleLabel.text = event.title
+			self.descriptionLabel.text = effectiveDisclosure > 3 ?  event.eventDescription : ""
+			self.locationLabel.text = effectiveDisclosure > 2 ? event.location : ""
+			self.eventTimeLabel.attributedText = effectiveDisclosure > 1 ? self.makeTimeString() : nil
+			
+			self.performersVisibleConstraint.priority = self.privateSelected ? UILayoutPriority(rawValue: 1) : UILayoutPriority(rawValue: 1000)
+			self.layoutIfNeeded() 
+		})
+//		UIView.animate(withDuration: 0.3, animations: { self.layoutIfNeeded() } )
 
+		setRibbonStates()
 		cellSizeChanged()
 	}
 	

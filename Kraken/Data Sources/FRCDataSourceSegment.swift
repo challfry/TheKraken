@@ -460,10 +460,10 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 		
 		// If this reuseID isn't registered with the CV yet, ask the cell model to register its cell classes and reuseIDs.
 		let reuseID = cellModel.reuseID(traits: collectionView.traitCollection)
-		if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
-			dataSource?.registeredCellReuseIDs.insert(reuseID)
+		if dataSource?.registeredCellReuseIDs[reuseID] == nil {
 			let classType = type(of: cellModel).validReuseIDDict[reuseID]
 			classType?.registerCells(with: collectionView)
+			dataSource?.registeredCellReuseIDs[reuseID] = classType
 		}
 		let cell = cellModel.makeCell(for: collectionView, indexPath: indexPath)
 		return cell

@@ -27,6 +27,7 @@ import UIKit
 		case editUserProfile = "user_profile"
 		case directphone = "directphone"
 		case photostream = "photostream"
+		case performers = "performers"
 		
 		init?(with v3Feature: TwitarrV3SwiftarrFeature) {
 			switch v3Feature {
@@ -40,6 +41,8 @@ import UIKit
 				self = .lfg
 			case .schedule:
 				self = .calendar
+			case .performers:
+				self = .performers
 			case .karaoke:
 				self = .karaoke
 			case .microkaraoke:
@@ -91,30 +94,31 @@ import UIKit
 		}
 		self.mutationCount = self.mutationCount + 1
 		self.disabledSections = newDisabledSections
-		self.disabledTabs = Set(newDisabledSections.map { self.tabForSection($0) })
+		self.disabledTabs = Set(newDisabledSections.flatMap { self.tabsForSection($0) })
 		
 		Settings.shared.useDirectVOIPConnnections = !newDisabledSections.contains(.directphone)
 	}
 	
-	func tabForSection(_ section: Section) -> RootTabBarViewController.Tab {
+	func tabsForSection(_ section: Section) -> [RootTabBarViewController.Tab] {
 		switch section {
-		case .forums: return .forums
-		case .stream: return .twitarr
-		case .seamail: return .seamail
-		case .lfg: return .lfg
-		case .calendar: return .events
-		case .deckPlans: return .deckPlans
-		case .games: return .games
-		case .karaoke: return .karaoke
-		case .microKaraoke: return .microKaraoke
-		case .phonecall: return .initiatePhoneCall
+		case .forums: return [.forums]
+		case .stream: return [.twitarr]
+		case .seamail: return [.seamail]
+		case .lfg: return [.lfg]
+		case .calendar: return [.events]
+		case .performers: return [.officialPerformers, .shadowPerformers]
+		case .deckPlans: return [.deckPlans]
+		case .games: return [.games]
+		case .karaoke: return [.karaoke]
+		case .microKaraoke: return [.microKaraoke]
+		case .phonecall: return [.initiatePhoneCall]
 		case .directphone: break
 		case .search: break // return .
-		case .editUserProfile: return .editUserProfile
+		case .editUserProfile: return [.editUserProfile]
 		case .registration: break
 		case .photostream: break
 		}
 		
-		return .unknown
+		return [.unknown]
 	}
 }

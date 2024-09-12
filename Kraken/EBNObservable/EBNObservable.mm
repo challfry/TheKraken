@@ -2545,7 +2545,16 @@ void EBN_RunLoopObserverCallBack(CFRunLoopObserverRef observer, CFRunLoopActivit
 	for (NSObject *obj in objectsToReap)
 	{
 		[obj ebn_reapBlocks];
-	}	
+	}
+	
+	// If the blocks we ran generated more blocks to run, have the runloop loop again immediately without sleeping
+	@synchronized(EBNObservableSynchronizationToken)
+	{
+		if ([EBN_ObserverBlocksToRunAfterThisEvent count])
+		{
+			CFRunLoopWakeUp(CFRunLoopGetMain());
+		}
+	}
 }
 
 /****************************************************************************************************

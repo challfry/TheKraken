@@ -564,3 +564,13 @@ enum TwitarrV3LikeType: String, Codable {
     /// A ❤️.
     case love
 }
+
+public struct TwitarrV3PostSearchData: Codable {
+	/// The search query used to create these results.
+	var queryString: String
+	/// The posts in the forum.
+	var posts: [TwitarrV3PostData]
+	/// Pagination into the results set. Because `/forum/post/search` filters the result set after the db query, `posts.count` could be less than `paginator.limit`
+	/// even if we're not at the end of the results. To get the next 'page' of results, be sure to add `limit` to `start`; don't add`posts.count`.
+	var paginator: TwitarrV3Paginator
+}

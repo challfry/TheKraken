@@ -307,7 +307,7 @@ struct PrototypeCellInfo {
 	}
 	
 	func animateIfNotPrototype(withDuration: TimeInterval, block: @escaping () -> Void) {
-		if self.isPrototypeCell {
+		if isPrototypeCell || isBuildingCell {
 			block()
 		}
 		else {

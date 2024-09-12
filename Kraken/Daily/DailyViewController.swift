@@ -49,8 +49,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 //	var twitarrCell = SocialCellModel("Twittar", imageNamed: "hourglass")
 	var forumsCell = SocialCellModel("Forums", imageNamed: "person.2")
 	var mailCell = SocialCellModel("Seamail", imageNamed: "text.bubble")
-	var scheduleCell = SocialCellModel("Schedule", imageNamed: "calendar")
 	var lfgCell = SocialCellModel("LFG", imageNamed: "person.3.sequence.fill")
+	var scheduleCell = SocialCellModel("Schedule", imageNamed: "calendar")
+	var officialPerformersCell = SocialCellModel("Performers", imageNamed: "figure.taichi")
+	var shadowPerformersCell = SocialCellModel("Shadow Cruise", imageNamed: "figure.taichi")
 	var deckMapCell = SocialCellModel("Deck Maps", imageNamed: "map")
 	var karaokeCell = SocialCellModel("Karaoke", imageNamed: "music.mic")
 	var microKaraokeCell = SocialCellModel("Micro Karaoke", imageNamed: "music.mic.circle")
@@ -71,8 +73,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 //		twitarrCell.navPacket = GlobalNavPacket(from: self, tab: .twitarr)
 		forumsCell.navPacket = GlobalNavPacket(from: self, tab: .forums)
 		mailCell.navPacket = GlobalNavPacket(from: self, tab: .seamail)
-		scheduleCell.navPacket = GlobalNavPacket(from: self, tab: .events)
 		lfgCell.navPacket = GlobalNavPacket(from: self, tab: .lfg)
+		scheduleCell.navPacket = GlobalNavPacket(from: self, tab: .events)
+		officialPerformersCell.navPacket = GlobalNavPacket(from: self, tab: .officialPerformers, segue: .performerRoot, sender: true)
+		shadowPerformersCell.navPacket = GlobalNavPacket(from: self, tab: .shadowPerformers, segue: .performerRoot, sender: false)
 		deckMapCell.navPacket = GlobalNavPacket(from: self, tab: .deckPlans)
 		karaokeCell.navPacket = GlobalNavPacket(from: self, tab: .karaoke)
 		microKaraokeCell.navPacket = GlobalNavPacket(from: self, tab: .microKaraoke)
@@ -173,8 +177,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 //		appFeaturesSegment.append(twitarrCell)
 		appFeaturesSegment.append(forumsCell)
 		appFeaturesSegment.append(mailCell)
-		appFeaturesSegment.append(scheduleCell)
 		appFeaturesSegment.append(lfgCell)
+		appFeaturesSegment.append(scheduleCell)
+		appFeaturesSegment.append(officialPerformersCell)
+		appFeaturesSegment.append(shadowPerformersCell)
 		appFeaturesSegment.append(deckMapCell)
 		appFeaturesSegment.append(karaokeCell)
 		appFeaturesSegment.append(microKaraokeCell)
@@ -221,7 +227,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	override var knownSegues : Set<GlobalKnownSegue> {
 		Set<GlobalKnownSegue>([ .twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .lfgRoot, .deckMapRoot, .karaokeRoot, .microKaraokeRoot, 
 				.gamesRoot, .scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile_Name, .userProfile_User, 
-				.editUserProfile, .pirateAR, .initiatePhoneCall, .photoStreamCamera, .singleEvent])
+				.editUserProfile, .pirateAR, .initiatePhoneCall, .photoStreamCamera, .singleEvent, .performerRoot])
 	}
     
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
@@ -243,8 +249,11 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .twitarr: performKrakenSegue(.twitarrRoot, sender: packet)
 			case .forums: performKrakenSegue(.forumsRoot, sender: packet)
 			case .seamail: performKrakenSegue(.seamailRoot, sender: packet)
-			case .events: performKrakenSegue(.eventsRoot, sender: packet)
 			case .lfg: performKrakenSegue(.lfgRoot, sender: packet)
+			case .events: performKrakenSegue(.eventsRoot, sender: packet)
+			
+			case .officialPerformers: performKrakenSegue(.performerRoot, sender: packet)
+			case .shadowPerformers: performKrakenSegue(.performerRoot, sender: packet)
 			case .deckPlans: performKrakenSegue(.deckMapRoot, sender: packet)
 			case .karaoke: performKrakenSegue(.karaokeRoot, sender: packet)
 			case .microKaraoke: performKrakenSegue(.microKaraokeRoot, sender: packet)
@@ -274,6 +283,8 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		mailCell.contentDisabled = disabledSections.contains(.seamail)
 		lfgCell.contentDisabled = disabledSections.contains(.lfg)
 		scheduleCell.contentDisabled = disabledSections.contains(.calendar)
+		officialPerformersCell.contentDisabled = disabledSections.contains(.performers)
+		shadowPerformersCell.contentDisabled = disabledSections.contains(.performers)
 		deckMapCell.contentDisabled = disabledSections.contains(.deckPlans)
 		karaokeCell.contentDisabled = disabledSections.contains(.karaoke)
 		microKaraokeCell.contentDisabled = disabledSections.contains(.microKaraoke)

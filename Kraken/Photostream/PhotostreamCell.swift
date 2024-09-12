@@ -59,7 +59,12 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 			DispatchQueue.main.async() {
 				let vc = self.viewController as? BaseCollectionViewController
 				self.photostreamDataSource?.register(with: self.photoCollectionView, viewController: vc)
-			}
+			
+				// If this cell was re-made, have to re-register all the cell types our collection uses
+				self.photostreamDataSource?.registeredCellReuseIDs.values.forEach {
+					$0?.registerCells(with: self.photoCollectionView)
+				}
+		}
 		}
 	}
 		
@@ -86,12 +91,12 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 
 // MARK: - Cells Within Cells
 
-@objc protocol PhotostreamPhotoCellProtocol {
+@objc protocol PhotostreamPhotoCellProtocol: FetchedResultsBindingProtocol {
 //	var buttonHit: ((PhotoCameraCellProtocol) -> Void)? { get set }
 	var photo: StreamPhoto? { get set }
 }
 
-@objc class PhotostreamPhotoCellModel: BaseCellModel, PhotostreamPhotoCellProtocol {
+@objc class PhotostreamPhotoCellModel: FetchedResultsCellModel, PhotostreamPhotoCellProtocol {
 	override class var validReuseIDDict: [String: BaseCollectionViewCell.Type ] { 
 		return [ "PhotostreamPhotoCell" : PhotostreamPhotoCell.self ] 
 	}
@@ -100,7 +105,7 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 	
 	init(photo: StreamPhoto) {
 		self.photo = photo
-		super.init(bindingWith: PhotostreamPhotoCellProtocol.self)
+		super.init(withModel: photo, reuse: "PhotostreamPhotoCell", bindingWith: PhotostreamPhotoCellProtocol.self)
 	}
 }
 
@@ -111,6 +116,8 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 	@IBOutlet weak var imageView: UIImageView!
 	@IBOutlet weak var locationLabel: UILabel!
 	@IBOutlet weak var timeLabel: UILabel!
+	
+	var model: NSFetchRequestResult?
 
 	dynamic var photo: StreamPhoto? {
 		didSet {

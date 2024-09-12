@@ -62,7 +62,7 @@ class KrakenDataSource: NSObject {
 	@objc dynamic var allSegments = NSMutableArray() // [KrakenDataSourceSegmentProtocol]()
 	var visibleSegments = [KrakenDSS]()
 
-	var registeredCellReuseIDs = Set<String>()
+	var registeredCellReuseIDs = [String : BaseCollectionViewCell.Type?]()
 	var log = CollectionViewLog(instanceEnabled: false)
 
 	override init() {

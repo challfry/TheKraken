@@ -830,3 +830,7 @@ public struct TwitarrV3Paginator: Codable {
 	/// The number of results requested. The collection array could be smaller than this number.
 	var limit: Int
 }
+
+protocol Content: Codable {
+
+}

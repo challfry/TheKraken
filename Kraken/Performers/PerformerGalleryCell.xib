@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="PerformerGalleryCell" reuseIdentifier="PerformerGalleryCell" id="yz8-PE-ARj" customClass="PerformerGalleryCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="254" height="258"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="KbQ-l0-4Kp">
+                <rect key="frame" x="0.0" y="0.0" width="254" height="258"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lrm-XG-IJG">
+                        <rect key="frame" x="0.0" y="0.0" width="254" height="0.0"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="dqT-IS-aeS">
+                                <rect key="frame" x="0.0" y="0.0" width="254" height="254"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="dqT-IS-aeS" secondAttribute="height" multiplier="1:1" id="z4r-e5-SnJ"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="width" priority="999" constant="254" id="1a4-23-xoP"/>
+                            <constraint firstAttribute="height" id="THF-Eh-Qmg"/>
+                            <constraint firstAttribute="trailing" secondItem="dqT-IS-aeS" secondAttribute="trailing" id="Xbe-wz-vkh"/>
+                            <constraint firstAttribute="bottom" secondItem="dqT-IS-aeS" secondAttribute="bottom" priority="900" id="gaY-wu-vaM"/>
+                            <constraint firstItem="dqT-IS-aeS" firstAttribute="leading" secondItem="lrm-XG-IJG" secondAttribute="leading" id="kp7-bK-qQi"/>
+                            <constraint firstItem="dqT-IS-aeS" firstAttribute="top" secondItem="lrm-XG-IJG" secondAttribute="top" id="ttj-bL-RVd"/>
+                        </constraints>
+                    </view>
+                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="902" verticalHuggingPriority="902" horizontalCompressionResistancePriority="901" verticalCompressionResistancePriority="901" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5Ib-9e-e3V">
+                        <rect key="frame" x="0.0" y="0.0" width="254" height="35"/>
+                        <state key="normal" title="Button"/>
+                        <buttonConfiguration key="configuration" style="filled" title="Button"/>
+                        <connections>
+                            <action selector="buttonTapped:" destination="yz8-PE-ARj" eventType="touchUpInside" id="xhV-4T-XKg"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="lrm-XG-IJG" firstAttribute="leading" secondItem="KbQ-l0-4Kp" secondAttribute="leading" id="3Em-aS-byE"/>
+                    <constraint firstItem="5Ib-9e-e3V" firstAttribute="top" secondItem="lrm-XG-IJG" secondAttribute="bottom" id="C2Y-dO-q8M"/>
+                    <constraint firstItem="lrm-XG-IJG" firstAttribute="top" secondItem="KbQ-l0-4Kp" secondAttribute="top" id="eSW-t4-JHX"/>
+                    <constraint firstAttribute="bottom" secondItem="5Ib-9e-e3V" secondAttribute="bottom" priority="901" id="hiX-Zp-rp8"/>
+                    <constraint firstAttribute="trailing" secondItem="5Ib-9e-e3V" secondAttribute="trailing" id="k71-Nc-yun"/>
+                    <constraint firstAttribute="trailing" secondItem="lrm-XG-IJG" secondAttribute="trailing" id="qmd-sZ-j0V"/>
+                    <constraint firstItem="5Ib-9e-e3V" firstAttribute="leading" secondItem="KbQ-l0-4Kp" secondAttribute="leading" id="sNe-ZN-vwV"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="254" height="258"/>
+            <connections>
+                <outlet property="button" destination="5Ib-9e-e3V" id="tJN-Iy-b8t"/>
+                <outlet property="imageHeightConstraint" destination="THF-Eh-Qmg" id="3t9-mf-AMT"/>
+                <outlet property="imageView" destination="dqT-IS-aeS" id="tvj-J2-1wg"/>
+                <outlet property="widthConstraint" destination="1a4-23-xoP" id="6g4-bx-7qd"/>
+            </connections>
+            <point key="canvasLocation" x="-56.488549618320612" y="-30.281690140845072"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

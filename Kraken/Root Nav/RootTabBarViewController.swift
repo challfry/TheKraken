@@ -17,10 +17,11 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case twitarr = "TwitarrNavController"
 		case forums = "ForumsNavViewController" 
 		case seamail = "SeamailNavViewController"
-		case events = "ScheduleNavController"
 		case lfg = "LFGNavViewController"
+		case events = "ScheduleNavController"
 		
-		case settings = "SettingsNavController"
+		case officialPerformers = "PerformerGalleryViewController"
+		case shadowPerformers = "PerformerGalleryViewController2"
 		case karaoke = "KaraokeNavController"
 		case microKaraoke = "MicroKaraokeNavController"
 		case games = "GamesListNavController"
@@ -30,6 +31,8 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case scrapbook = "ScrapbookNavController"
 		case lighter = "RockBalladViewController"
 		case pirateAR = "CameraViewController"
+
+		case settings = "SettingsNavController"
 		case twitarrHelp = "ServerTextFileDisplay"
 		case about = "AboutViewController"
 		case unknown = ""
@@ -75,11 +78,15 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		var newDisabledTabs = Set<Tab>()
     	for section in disabledSections {
     		switch section {
-				case .forums: newDisabledTabs.insert(.forums)
 				case .stream: newDisabledTabs.insert(.twitarr)
+				
+				case .forums: newDisabledTabs.insert(.forums)
 				case .seamail: newDisabledTabs.insert(.seamail)
 				case .lfg: newDisabledTabs.insert(.lfg)
 				case .calendar: newDisabledTabs.insert(.events)
+				
+				case .performers: newDisabledTabs.insert(.officialPerformers)
+					newDisabledTabs.insert(.shadowPerformers)
 				case .deckPlans: newDisabledTabs.insert(.deckPlans)
 				case .games: break // newDisabledTabs.insert(.)
 				case .karaoke: newDisabledTabs.insert(.karaoke)

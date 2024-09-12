@@ -81,9 +81,9 @@ extension PhotoDataSourceSegment: KrakenDataSourceSegmentProtocol {
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath, offsetPath: IndexPath) -> UICollectionViewCell {
 		guard let reuse = reuseID else { return UICollectionViewCell() }
-		if dataSource?.registeredCellReuseIDs.contains(reuse) == false {
-			dataSource?.registeredCellReuseIDs.insert(reuse)
+		if dataSource?.registeredCellReuseIDs[reuse] == nil {
 			cellClass?.registerCells(with: collectionView)
+			dataSource?.registeredCellReuseIDs[reuse] = cellClass
 		}
 
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuse, for: indexPath) 

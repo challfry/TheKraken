@@ -259,6 +259,7 @@ public enum TwitarrV3SwiftarrFeature: String, Codable, CaseIterable {
 	case phone				// User-to-user VOIP, voice data passes through server
 	case directphone		// Also User-to-user VOIP, voice data goes directly phone to phone.
 	case photostream		// Photos taken on the ship. Web UI cannot have photo upload, for THO reasons. 
+	case performers			// Official and Shadow performers.
 
 	case all
 	

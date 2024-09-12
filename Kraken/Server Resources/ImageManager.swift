@@ -252,6 +252,7 @@ class ImageCache {
 					self.cacheImage(fromData:data, withKey:key, done: done)
 				} else {
 					ImageLog.error("Couldn't load image from server.", ["cacheKey" : key])
+					DispatchQueue.main.async { done(nil) }
 				}
 			}
 		}
@@ -297,6 +298,10 @@ class ImageManager : NSObject {
 	// Also, the returned image could be smaller or larger than the requested size class.
 	// If the done block is called with nil, that indicates fetching completed with some sort of failure.
 	func image(withSize: ImageSizeEnum, forKey: String, done: @escaping (UIImage?) -> Void) {
+		if forKey == "" {
+			DispatchQueue.main.async { done(nil) }
+			return
+		}
 		let imageFileName = forKey
 		switch withSize {
 			case .small: smallImageCache.image(forKey: imageFileName, done: done)

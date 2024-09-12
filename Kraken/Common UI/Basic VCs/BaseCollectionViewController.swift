@@ -41,11 +41,13 @@ enum GlobalKnownSegue: String {
 	case editSeamailThreadOp = 		"EditSeamailThreadOp"
 	case seamailManageMembers = 	"SeamailManageMenbers"
 
-	case eventsRoot = 				"EventsRoot"
-	case singleEvent = 				"SingleEvent"
-	
 	case lfgRoot = 					"LFGRoot"
 	case lfgCreateEdit = 			"LFGCreate"
+	
+	case eventsRoot = 				"EventsRoot"
+	case singleEvent = 				"SingleEvent"
+	case performerRoot = 			"PerformerGallery"
+	case performerBio = 			"PerformerBio"
 	
 	case deckMapRoot =				"DeckMapRoot"
 	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
@@ -108,11 +110,13 @@ enum GlobalKnownSegue: String {
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
 		case .seamailManageMembers: return SeamailThread.self
 		
-		case .eventsRoot: return String.self
-		case .singleEvent: return UUID.self
-		
 		case .lfgRoot: return Void.self
 		case .lfgCreateEdit: return Any.self
+		
+		case .eventsRoot: return String.self
+		case .singleEvent: return UUID.self
+		case .performerRoot: return Bool.self					// TRUE for official performers
+		case .performerBio: return UUID.self
 		
 		case .deckMapRoot: return Void.self
 		case .showRoomOnDeckMap: return String.self
@@ -555,6 +559,7 @@ class BaseCollectionViewController: UIViewController {
 
 	// Most global segues are only dependent on their destination VC and info in the sender parameter.
 	// We handle most of them here. Subclasses can override this to handle segues with special needs.
+	// This is a UIViewcontroller override, called from inside of performSegue()
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     	if let _ = prepareGlobalSegue(for: segue, sender: sender) {
     		return
@@ -706,6 +711,17 @@ class BaseCollectionViewController: UIViewController {
 		case .singleEvent: 
 			if let destVC = destination as? ScheduleSingleEventController, let eventID = sender as? UUID {
 				destVC.eventID = eventID
+			}
+			
+// Performers
+		case .performerRoot: 
+			if let destVC = destination as? PerformerGalleryViewController, let official = sender as? Bool {
+				destVC.showOfficialPerformers = official
+			}
+			
+		case .performerBio: 
+			if let destVC = destination as? PerformerBioViewController, let id = sender as? UUID {
+				destVC.performerID = id
 			}
 			
 // Maps

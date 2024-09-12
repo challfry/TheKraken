@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="displayUntil" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -40,6 +40,7 @@
         <relationship name="followedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="followedEvents" inverseEntity="KrakenUser"/>
         <relationship name="forum" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="scheduleEvent" inverseEntity="ForumThread"/>
         <relationship name="opsFollowing" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOpEventFollow" inverseName="event" inverseEntity="PostOpEventFollow"/>
+        <relationship name="performers" toMany="YES" deletionRule="Nullify" destinationEntity="Performer" inverseName="events" inverseEntity="Performer"/>
         <relationship name="streamPhotos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StreamPhoto" inverseName="event" inverseEntity="StreamPhoto"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -199,6 +200,25 @@
         <attribute name="modApproved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="songName" optional="YES" attributeType="String"/>
         <attribute name="userContributed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="Performer" representedClassName="Performer" syncable="YES">
+        <attribute name="bio" optional="YES" attributeType="String"/>
+        <attribute name="facebookURL" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imageFilename" optional="YES" attributeType="String"/>
+        <attribute name="instagramURL" optional="YES" attributeType="String"/>
+        <attribute name="isOfficialPerformer" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastFullFetchTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="organization" optional="YES" attributeType="String"/>
+        <attribute name="pronouns" optional="YES" attributeType="String"/>
+        <attribute name="sortOrder" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="website" optional="YES" attributeType="String"/>
+        <attribute name="xURL" optional="YES" attributeType="String"/>
+        <attribute name="yearsAttended" optional="YES" attributeType="String"/>
+        <attribute name="youtubeURL" optional="YES" attributeType="String"/>
+        <relationship name="events" toMany="YES" deletionRule="Nullify" destinationEntity="Event" inverseName="performers" inverseEntity="Event"/>
     </entity>
     <entity name="PhotoDetails" representedClassName="PhotoDetails" syncable="YES">
         <attribute name="animated" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

@@ -103,10 +103,10 @@ fileprivate struct Log: LoggingProtocol {
 		let model = visibleCellModels[offsetPath.row]
 		let reuseID = model.reuseID(traits: collectionView.traitCollection)
 		
-		if dataSource?.registeredCellReuseIDs.contains(reuseID) == false {
-			dataSource?.registeredCellReuseIDs.insert(reuseID)
+		if dataSource?.registeredCellReuseIDs[reuseID] == nil {
 			let classType = type(of: model).validReuseIDDict[reuseID]
 			classType?.registerCells(with: collectionView)
+			dataSource?.registeredCellReuseIDs[reuseID] = classType
 		}
 		
 		let resultCell = model.makeCell(for: collectionView, indexPath: indexPath)
