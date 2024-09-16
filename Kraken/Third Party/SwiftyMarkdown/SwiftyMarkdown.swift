@@ -399,7 +399,26 @@ If that is not set, then the system default will be used.
 		}
 		let attributedString = NSMutableAttributedString(string: "")
 		self.lineProcessor.processEmptyStrings = MarkdownLineStyle.body
-		let foundAttributes : [SwiftyLine] = lineProcessor.process(self.string)
+		var foundAttributes : [SwiftyLine] = lineProcessor.process(self.string)
+		
+		// Merge Lines
+		// --rcf Added this to merge multi-line Body blocks into a single `SwiftyLine` so it formats correctly.
+		var mergedLines = [SwiftyLine]()
+		for line in foundAttributes {
+			guard let lastLine = mergedLines.last, lastLine.line != "" , line.line != "" else {
+				mergedLines.append(line)
+				continue
+			}
+			switch (lastLine.lineStyle as! MarkdownLineStyle, line.lineStyle as! MarkdownLineStyle) {
+				case (.body, .body), (.unorderedList, .body), (.orderedList, .body),
+						(.unorderedList, .codeblock), (.orderedList, .codeblock):
+					mergedLines.removeLast()
+					mergedLines.append(SwiftyLine(line: lastLine.line + " " + line.line, lineStyle: lastLine.lineStyle))
+				default:
+					mergedLines.append(line)
+			}
+		}
+		foundAttributes = mergedLines
 		
 		let references : [SwiftyLine] = foundAttributes.filter({ $0.line.starts(with: "[") && $0.line.contains("]:") })
 		let referencesRemoved : [SwiftyLine] = foundAttributes.filter({ !($0.line.starts(with: "[") && $0.line.contains("]:") ) })
