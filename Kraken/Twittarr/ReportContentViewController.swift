@@ -29,7 +29,7 @@ class ReportContentViewController: UIViewController {
 	@IBAction func viewCodeOfConductButtonTapped(_ sender: Any) {
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
-			textFileVC.package = ServerTextFileSeguePackage(titleText: "Code of Conduct", fileToLoad: "codeofconduct.json")
+			textFileVC.package = ServerTextFileSeguePackage(titleText: "Code of Conduct", serverFilePath:  "/public/codeofconduct.md")
 			present(textFileVC, animated: true, completion: nil)
 		}
 	}

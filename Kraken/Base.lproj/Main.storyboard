@@ -2605,18 +2605,30 @@ Additional info:</string>
                                 <color key="textColor" name="Red Alert Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YOU-QE-nZs">
+                                <rect key="frame" x="0.0" y="56" width="414" height="830"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="4Ua-38-chx"/>
                         <color key="backgroundColor" name="VC Background"/>
                         <constraints>
+                            <constraint firstItem="4Ua-38-chx" firstAttribute="bottom" secondItem="YOU-QE-nZs" secondAttribute="bottom" id="1az-u3-fsA"/>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="0h4-xi-YN3" secondAttribute="trailing" id="2Xg-gx-Ibc"/>
                             <constraint firstItem="0h4-xi-YN3" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" id="77k-HN-LZc"/>
+                            <constraint firstItem="YOU-QE-nZs" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" id="AI6-qf-f2W"/>
                             <constraint firstItem="0h4-xi-YN3" firstAttribute="top" secondItem="4Ua-38-chx" secondAttribute="top" id="GrA-tu-wXG"/>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="D8o-wD-yDJ" secondAttribute="trailing" constant="20" id="HaR-ai-2qF"/>
                             <constraint firstItem="D8o-wD-yDJ" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" constant="20" id="L8C-7f-Iqt"/>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="bottom" secondItem="tl2-Ms-rZh" secondAttribute="bottom" id="LUX-y8-agm"/>
+                            <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="YOU-QE-nZs" secondAttribute="trailing" id="UTm-0s-ZJv"/>
                             <constraint firstItem="tl2-Ms-rZh" firstAttribute="top" secondItem="0h4-xi-YN3" secondAttribute="bottom" id="XQe-B2-P9f"/>
                             <constraint firstItem="pf7-5i-5Ym" firstAttribute="centerY" secondItem="4Ua-38-chx" secondAttribute="centerY" id="apw-nC-MbY"/>
+                            <constraint firstItem="YOU-QE-nZs" firstAttribute="top" secondItem="0h4-xi-YN3" secondAttribute="bottom" id="bTO-m3-0YX"/>
                             <constraint firstItem="tl2-Ms-rZh" firstAttribute="leading" secondItem="4Ua-38-chx" secondAttribute="leading" constant="16" id="fXs-Fu-J40"/>
                             <constraint firstItem="D8o-wD-yDJ" firstAttribute="top" secondItem="pf7-5i-5Ym" secondAttribute="bottom" id="ogF-q3-cGa"/>
                             <constraint firstItem="4Ua-38-chx" firstAttribute="trailing" secondItem="tl2-Ms-rZh" secondAttribute="trailing" constant="16" id="opM-5x-eSA"/>
@@ -2629,6 +2641,7 @@ Additional info:</string>
                         <outlet property="loadingView" destination="pf7-5i-5Ym" id="sZO-Xz-Odd"/>
                         <outlet property="navItem" destination="dr5-3A-nVq" id="5cc-kl-eod"/>
                         <outlet property="textView" destination="tl2-Ms-rZh" id="6dM-2p-Mlw"/>
+                        <outlet property="webView" destination="YOU-QE-nZs" id="swk-Fp-ASs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VyN-g5-Dam" userLabel="First Responder" sceneMemberID="firstResponder"/>

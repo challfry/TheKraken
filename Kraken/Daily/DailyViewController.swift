@@ -233,6 +233,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
     // nav pushes on iPad.
     @discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+    	// If this is a true 'global' nav, switch to the Daily tab and pop all VCs.
+    	if let tbc = self.tabBarController {
+    		tbc.selectedViewController = self.navigationController
+    	}
     	navigationController?.popToRootViewController(animated: false)
     
     	if ValidSections.shared.disabledTabs.contains(packet.tab) {
@@ -264,10 +268,20 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .settings: performKrakenSegue(.settingsRoot, sender: packet)
 			case .lighter: performKrakenSegue(.lighterMode, sender: packet)
 			case .pirateAR: performKrakenSegue(.pirateAR, sender: packet)
-			case .twitarrHelp: performKrakenSegue(.twitarrHelp, sender: 
-					ServerTextFileSeguePackage(titleText: packet.arguments["title"] as? String, fileToLoad: 
-					packet.arguments["filename"] as? String))
-			case .about: performKrakenSegue(.about, sender: packet)			
+			
+			case .twitarrHelp: showTextFile(title: "Twitarr Help", serverPath: "/public/twitarrhelptext.md")
+			case .codeOfConduct: showTextFile(title: "Code Of Conduct", serverPath: "/public/codeofconduct.md")
+			case .about: showTextFile(title: "About Kraken", serverPath: "", localPath: "AboutKraken.md")
+			case .faq: showTextFile(title: "Cruise FAQ", serverPath: "/public/faq.html")
+			case .serverFile:
+				if let url = packet.arguments["url"] as? URL,  ["twitarr.com", "joco.hollandamerica.com", 
+						Settings.shared.settingsBaseURL.host].contains(url.host ?? "nohostfoundasdfasfasf") {
+					showTextFile(title: "", serverPath: url.path)
+				}
+				else {
+					// Alert
+				}
+
 			case .unknown: break
 		}
 		
@@ -275,6 +289,14 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			performKrakenSegue(.userProfile_Name, sender: username)			
 		}
 		return true
+	}
+	
+	func showTextFile(title: String, serverPath: String, localPath: String? = nil) {
+		let storyboard = UIStoryboard(name: "Main", bundle: nil)
+		if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
+			textFileVC.package = ServerTextFileSeguePackage(titleText: title, serverFilePath: serverPath, localFilePath: localPath)
+			present(textFileVC, animated: true, completion: nil)
+		}
 	}
 	
     func updateEnabledFeatures(_ disabledSections: Set<ValidSections.Section>) {

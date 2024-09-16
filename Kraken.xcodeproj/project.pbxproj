@@ -107,6 +107,8 @@
 		EA71E0E62B88B2CB00A9376C /* MetronomeClick.m4a in Resources */ = {isa = PBXBuildFile; fileRef = EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */; };
 		EA71E0EA2B8AC17F00A9376C /* ForumSearchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA71E0E92B8AC17F00A9376C /* ForumSearchCell.xib */; };
 		EA71E0EC2B8ACEAE00A9376C /* ForumSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA71E0EB2B8ACEAE00A9376C /* ForumSearchCell.swift */; };
+		EA7373982C9426E7009B7091 /* codeofconduct.md in Resources */ = {isa = PBXBuildFile; fileRef = EA7373972C9426E7009B7091 /* codeofconduct.md */; };
+		EA73739A2C9429CE009B7091 /* twitarrhelptext.md in Resources */ = {isa = PBXBuildFile; fileRef = EA7373992C9429CE009B7091 /* twitarrhelptext.md */; };
 		EA78423C27C01336003D8E7F /* DailyThemeUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */; };
 		EA7E4556239883D90015C7CB /* ForumThreadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */; };
 		EA7E45582398A99C0015C7CB /* ForumPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7E45572398A99C0015C7CB /* ForumPostCell.swift */; };
@@ -183,8 +185,6 @@
 		EAA62C7122C55CC00031A999 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA62C7022C55CC00031A999 /* Logging.swift */; };
 		EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAA62C7222CC57060031A999 /* DraftImageCell.xib */; };
 		EAA8A577236F963E0021C43C /* Decks.pdf in Resources */ = {isa = PBXBuildFile; fileRef = EAA8A576236F963E0021C43C /* Decks.pdf */; };
-		EAAA68D823FB209300C9EF82 /* codeofconduct.json in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68D723FB209200C9EF82 /* codeofconduct.json */; };
-		EAAA68DA23FB209900C9EF82 /* helptext.json in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68D923FB209900C9EF82 /* helptext.json */; };
 		EAAA68DC23FC977800C9EF82 /* ReportContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68DB23FC977800C9EF82 /* ReportContentViewController.swift */; };
 		EAAA68E123FD0C1600C9EF82 /* RockBalladViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */; };
 		EAAA68E323FD122F00C9EF82 /* RockBalladMode.mov in Resources */ = {isa = PBXBuildFile; fileRef = EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */; };
@@ -206,7 +206,6 @@
 		EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537422D58FEA00CD1671 /* UserListCell.swift */; };
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
-		EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */ = {isa = PBXBuildFile; fileRef = EABD2FFB23DA8B0800232F28 /* AboutText.md */; };
 		EABF8B492B70C2AB0045036F /* UploadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EABF8B482B70C2AB0045036F /* UploadCell.xib */; };
 		EABF8B4B2B70F3C60045036F /* CompletedSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EABF8B4A2B70F3C60045036F /* CompletedSongCell.xib */; };
 		EABF8B4D2B719A0E0045036F /* CompletedSongCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABF8B4C2B719A0E0045036F /* CompletedSongCell.swift */; };
@@ -242,6 +241,7 @@
 		EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */; };
 		EAE5914E229E5A78002B5DEF /* PhotoSelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */; };
 		EAE59152229EA345002B5DEF /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAE59151229EA345002B5DEF /* Photos.framework */; };
+		EAE835442C94325F009CAAA9 /* AboutKraken.md in Resources */ = {isa = PBXBuildFile; fileRef = EAE835432C94325F009CAAA9 /* AboutKraken.md */; };
 		EAEC5A7622B7041800605F5F /* KrakenDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */; };
 		EAEEB94D2C8E672E009DE676 /* PerformerBioCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAEEB94C2C8E672E009DE676 /* PerformerBioCell.xib */; };
 		EAEF3410224ED88300C7A0D9 /* LoginCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEF340F224ED88300C7A0D9 /* LoginCells.swift */; };
@@ -421,6 +421,8 @@
 		EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = MetronomeClick.m4a; sourceTree = "<group>"; };
 		EA71E0E92B8AC17F00A9376C /* ForumSearchCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ForumSearchCell.xib; sourceTree = "<group>"; };
 		EA71E0EB2B8ACEAE00A9376C /* ForumSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumSearchCell.swift; sourceTree = "<group>"; };
+		EA7373972C9426E7009B7091 /* codeofconduct.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = codeofconduct.md; path = Resources/codeofconduct.md; sourceTree = SOURCE_ROOT; };
+		EA7373992C9429CE009B7091 /* twitarrhelptext.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = twitarrhelptext.md; sourceTree = "<group>"; };
 		EA78423B27C01336003D8E7F /* DailyThemeUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyThemeUpdater.swift; sourceTree = "<group>"; };
 		EA7E4555239883D90015C7CB /* ForumThreadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumThreadViewController.swift; sourceTree = "<group>"; };
 		EA7E45572398A99C0015C7CB /* ForumPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForumPostCell.swift; sourceTree = "<group>"; };
@@ -508,8 +510,6 @@
 		EAA62C7022C55CC00031A999 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EAA62C7222CC57060031A999 /* DraftImageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DraftImageCell.xib; sourceTree = "<group>"; };
 		EAA8A576236F963E0021C43C /* Decks.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Decks.pdf; sourceTree = "<group>"; };
-		EAAA68D723FB209200C9EF82 /* codeofconduct.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = codeofconduct.json; sourceTree = "<group>"; };
-		EAAA68D923FB209900C9EF82 /* helptext.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = helptext.json; sourceTree = "<group>"; };
 		EAAA68DB23FC977800C9EF82 /* ReportContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportContentViewController.swift; sourceTree = "<group>"; };
 		EAAA68E023FD0C1600C9EF82 /* RockBalladViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RockBalladViewController.swift; sourceTree = "<group>"; };
 		EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = RockBalladMode.mov; sourceTree = "<group>"; };
@@ -530,7 +530,6 @@
 		EAB4537422D58FEA00CD1671 /* UserListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListCell.swift; sourceTree = "<group>"; };
 		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
-		EABD2FFB23DA8B0800232F28 /* AboutText.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AboutText.md; sourceTree = "<group>"; wrapsLines = 1; };
 		EABF8B482B70C2AB0045036F /* UploadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UploadCell.xib; sourceTree = "<group>"; };
 		EABF8B4A2B70F3C60045036F /* CompletedSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CompletedSongCell.xib; sourceTree = "<group>"; };
 		EABF8B4C2B719A0E0045036F /* CompletedSongCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedSongCell.swift; sourceTree = "<group>"; };
@@ -566,6 +565,7 @@
 		EAE4D10E22FA92A200887AC1 /* CoreMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMotion.swift; sourceTree = "<group>"; };
 		EAE5914C229E5A78002B5DEF /* PhotoSelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectionCell.swift; sourceTree = "<group>"; };
 		EAE59151229EA345002B5DEF /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		EAE835432C94325F009CAAA9 /* AboutKraken.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = AboutKraken.md; sourceTree = "<group>"; };
 		EAEC5A7522B7041800605F5F /* KrakenDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KrakenDataSource.swift; sourceTree = "<group>"; };
 		EAEEB94C2C8E672E009DE676 /* PerformerBioCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PerformerBioCell.xib; sourceTree = "<group>"; };
 		EAEF340F224ED88300C7A0D9 /* LoginCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCells.swift; sourceTree = "<group>"; };
@@ -785,7 +785,6 @@
 			isa = PBXGroup;
 			children = (
 				EA39B18523DA823600A2FB1B /* AboutViewController.swift */,
-				EABD2FFB23DA8B0800232F28 /* AboutText.md */,
 			);
 			path = About;
 			sourceTree = "<group>";
@@ -903,10 +902,11 @@
 		EA86ADD22272855000363CBF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EAE835432C94325F009CAAA9 /* AboutKraken.md */,
+				EA7373972C9426E7009B7091 /* codeofconduct.md */,
+				EA7373992C9429CE009B7091 /* twitarrhelptext.md */,
 				EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */,
 				EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */,
-				EAAA68D723FB209200C9EF82 /* codeofconduct.json */,
-				EAAA68D923FB209900C9EF82 /* helptext.json */,
 				EA2286DC23E275A40036C20E /* KrakenIcon100px.png */,
 				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
 				EAC2D3B323CC7AEC0055780C /* Hats.scnassets */,
@@ -1413,6 +1413,7 @@
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
 				EA9A64FD2BD3BE5A00C40A87 /* PhotostreamCell.xib in Resources */,
+				EA7373982C9426E7009B7091 /* codeofconduct.md in Resources */,
 				EAC2D3B423CC7AEC0055780C /* Hats.scnassets in Resources */,
 				EA3C630C2290D3E300077E3B /* SeamailSelfMessageCell.xib in Resources */,
 				EAEEB94D2C8E672E009DE676 /* PerformerBioCell.xib in Resources */,
@@ -1458,7 +1459,6 @@
 				EA83FC6D2366334A0042C0DC /* SegmentCell.xib in Resources */,
 				EA86ADD12272813800363CBF /* LoginHeaderCell.xib in Resources */,
 				EA278A4A226A755400808AED /* LoadingStatusCell.xib in Resources */,
-				EABD2FFC23DA8B0800232F28 /* AboutText.md in Resources */,
 				EA2286DD23E275A40036C20E /* KrakenIcon100px.png in Resources */,
 				EABF8B4B2B70F3C60045036F /* CompletedSongCell.xib in Resources */,
 				EA86ADD62272B1EE00363CBF /* TextFieldCell.xib in Resources */,
@@ -1471,9 +1471,9 @@
 				EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */,
 				EA86ADDA22730C7300363CBF /* ButtonCell.xib in Resources */,
 				EAA62C7322CC57060031A999 /* DraftImageCell.xib in Resources */,
-				EAAA68D823FB209300C9EF82 /* codeofconduct.json in Resources */,
-				EAAA68DA23FB209900C9EF82 /* helptext.json in Resources */,
 				EA3C63172297EFD400077E3B /* SettingsInfoCell.xib in Resources */,
+				EA73739A2C9429CE009B7091 /* twitarrhelptext.md in Resources */,
+				EAE835442C94325F009CAAA9 /* AboutKraken.md in Resources */,
 				EA444A59229BEC640098DE97 /* EmojiSelectionCell.xib in Resources */,
 				EA86ADE6227983E500363CBF /* SingleValueCell.xib in Resources */,
 				EA86ADE4227983B600363CBF /* ProfileAvatarTopCell.xib in Resources */,

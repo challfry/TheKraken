@@ -8,7 +8,7 @@
 
 ## Wait, wait. What's JoCo Cruise? What's Twitarr? ##
 
-JoCo is Jonathan Coulton. JoCo Cruise is a yearly theme cruise—in 2024 the cruise will be in the Carribbean, from March 9-16. Twitarr is a server that cruisegoers bring onto the ship, providing several social media features for cruisegoers.
+JoCo is Jonathan Coulton. JoCo Cruise is a yearly theme cruise—in 2025 the cruise will be in the Carribbean, from March 2-9. Twitarr is a server that cruisegoers bring onto the ship, providing several social media features for cruisegoers.
 
 Because Twitarr is on the ship, it's always available onboard, even if you don't have Internet access. However, because Twitarr is on the ship, it isn't available when ashore, even if you do have Internet access.
 
@@ -30,7 +30,7 @@ Twitarr has a website that I can access. Why use The Kraken instead?
  - Take a Pirate Selfie, and share it with everyone.
  - Now with phone call support. You can call other passengers and talk to them aboard the ship, if they also have the Kraken app. 
  - Rock Ballad Mode, which shows a video of a Zippo lighter flame, has proven to be suprisingly popular.
- - New this year is Micro Karaoke, an activity where you record yourself singing one line of a song into your phone, and then later watch a music video with you in it.
+ - Micro Karaoke, an activity where you record yourself singing one line of a song into your phone, and then later watch a music video with you in it.
 
 
 ## Caveats ##

@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
-		let packet = GlobalNavPacket(from: nil, url: url.absoluteString)
+		let packet = GlobalNavPacket(from: nil, url: url)
 		globalNavigateTo(packet: packet)
 		return true
 	}
@@ -146,7 +146,7 @@ protocol GlobalNavEnabled {
 struct GlobalNavPacket {
 	var column: Int								// Which column of the container view gets the nav
 	var tab: RootTabBarViewController.Tab
-	var segue: GlobalKnownSegue?
+	var segue: GlobalKnownSegue? = nil
 	var sender: Any?
 	var arguments: [String : Any]
 	
@@ -169,22 +169,38 @@ struct GlobalNavPacket {
 		self.arguments = arguments
 	}
 	
-	init(from viewController: UIViewController?, url urlString: String) {
+	init(from viewController: UIViewController?, url: URL) {
 		column = 0
 		if let nav = viewController?.navigationController as? KrakenNavController {
 			column = nav.columnIndex
 		}
-		arguments = ["url": urlString]
-		if let url = URL(string: urlString), // let components = URLComponents(string: urlString),
-				 url.pathComponents.count > 1, url.pathComponents[0] == "/" {
+		arguments = ["url": url]
+
+		// Don't route to a VC if it's not our server.
+		guard ["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host].contains(url.host ?? "nohostfoundasdfasfasf") else {
+			tab = .unknown
+			arguments["externalURL"] = url
+			return
+		}
+
+		if url.pathComponents.count > 1, url.pathComponents[0] == "/" {
 			switch url.pathComponents[1] {
+			//	case "login":
+			//	case "createAccount":
+				case "about":
+					tab = .about
+				case "faq":
+					tab = .faq
+				case "codeOfConduct":
+					tab = .codeOfConduct
+					
 				case "profile": 
 					tab = .daily
 					segue = .userProfile_Name
 					sender = url.lastPathComponent
 				case "tweets": 
 					tab = .twitarr
-					let filterPack = TwitarrFilterPack(urlString: urlString)
+					let filterPack = TwitarrFilterPack(urlString: url.absoluteString)
 					sender = filterPack
 					segue = filterPack.hasFilter() ? .tweetFilter : .twitarrRoot
 				case "forums":
@@ -209,8 +225,39 @@ struct GlobalNavPacket {
 					tab = .lfg
 				case "events":
 					tab = .events
+				case "boardgames":
+					tab = .games
+				case "karaoke":
+					tab = .karaoke
+				case "map":
+					tab = .deckPlans
 				case "microkaraoke":
 					tab = .microKaraoke
+				case "performers":
+					tab = .officialPerformers
+					if url.pathComponents.last == "shadow" {
+						tab = .shadowPerformers
+						sender = false
+					}
+				case "performer":
+					tab = .officialPerformers
+					if let performerIDString = url.pathComponents.last, let performerID = UUID(uuidString: performerIDString) {
+						segue = .performerBio
+						sender = performerID
+					}
+					else {
+						segue = .performerRoot
+						sender = true
+					}
+				case "time":
+					tab = .settings
+				
+				// Files in Twitarr's 'public' folder; we don't know what they are
+				 case "public":
+				 	//check for at least 2 components?
+				 	tab = .serverFile
+				 	
+					
 				default: tab = .daily
 			}
 		}
@@ -222,7 +269,10 @@ struct GlobalNavPacket {
 
 extension AppDelegate: GlobalNavEnabled {
 	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
-    	if let containerVC = ContainerViewController.shared, containerVC.globalNavigateTo(packet: packet) {
+		if let externalURL = packet.arguments["externalURL"] as? URL {
+			UIApplication.shared.open(externalURL)
+		}
+    	else if let containerVC = ContainerViewController.shared, containerVC.globalNavigateTo(packet: packet) {
     		return true
     	}
     	return true

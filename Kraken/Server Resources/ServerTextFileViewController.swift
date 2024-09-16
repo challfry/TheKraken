@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import WebKit
 
 struct ServerTextFileSeguePackage {
 	var titleText: String?
-	var fileToLoad: String?
+	var serverFilePath: String
+	var localFilePath: String?
 }
 
 class ServerTextFileViewController: UIViewController {
@@ -19,6 +21,7 @@ class ServerTextFileViewController: UIViewController {
 	@IBOutlet var navItem: UINavigationItem!
 	@IBOutlet var loadingView: UIView!
 	@IBOutlet var errorLabel: UILabel!
+	@IBOutlet var webView: WKWebView!
 	
 	@objc dynamic var parser: ServerTextFileParser?
 	var package: ServerTextFileSeguePackage?
@@ -26,34 +29,64 @@ class ServerTextFileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let title = package?.titleText {
+        guard var filePath = package?.serverFilePath else {
+        	return
+        }
+		let fp = filePath.lowercased()
+        
+        // Do a bit of link-rewriting. 
+		if fp == "/about" {
+			filePath = "/public/twitarrhelptext.md"
+		}
+		else if fp == "/codeofconduct" {
+			filePath = "/public/codeofconduct.md"
+		}
+        
+		guard let fileName = filePath.split(separator: "/").last else {
+        	return
+        }
+		let fn = fileName.lowercased()
+
+		if let title = package?.titleText {
 	        navItem.title = title
 		}
 		else {
-			if package?.fileToLoad?.hasPrefix("twitarrhelptext") == true {
+			if fn.hasPrefix("twitarrhelptext") {
 				navItem.title = "Twitarr Help"
 			}
-			else if package?.fileToLoad?.hasPrefix("codeofconduct") == true {
+			else if fn.hasPrefix("codeofconduct") {
 				navItem.title = "Code of Conduct"
+			}
+			else if fn.hasPrefix("faq") {
+				navItem.title = "FAQ"
 			}
 		}
         
-        if let fileName = package?.fileToLoad {
-        	parser = ServerTextFileParser(forFile: fileName)
-        }
+		if fileName.hasSuffix(".md") || fileName.hasSuffix(".json") {
+			webView.isHidden = true
+			parser = ServerTextFileParser(forPath: filePath)
+			
+			self.tell(self, when: "parser.fileContents") { observer, observed in 
+				observer.textView.attributedText = observed.parser?.fileContents
+			}?.execute()
 
-        self.tell(self, when: "parser.fileContents") { observer, observed in 
-        	observer.textView.attributedText = observed.parser?.fileContents
-        }?.execute()
+			self.tell(self, when: "parser.isFetchingData") { observer, observed in 
+				observer.loadingView.isHidden = observed.parser?.isFetchingData != true
+			}?.execute()
+			
+			self.tell(self, when: "parser.lastError") { observer, observed in 
+				observer.errorLabel.isHidden = observed.parser?.lastError == nil
+				observer.errorLabel.text = "Could not load file \"\(observer.package?.serverFilePath ?? "")\" from server. \(observed.parser?.lastError ?? "")"
+			}?.execute()
+		}
+		else {
+			webView.isHidden = false
+			var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
+			components?.path = filePath
+			let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(filePath)
+			webView.load(URLRequest(url: builtURL))
+		}
 
-        self.tell(self, when: "parser.isFetchingData") { observer, observed in 
-        	observer.loadingView.isHidden = observed.parser?.isFetchingData != true
-        }?.execute()
-        
-        self.tell(self, when: "parser.lastError") { observer, observed in 
-        	observer.errorLabel.isHidden = observed.parser?.lastError == nil
-        	observer.errorLabel.text = "Could not load file \"\(observer.package?.fileToLoad ?? "")\" from server. \(observed.parser?.lastError?.errorString ?? "")"
-        }?.execute()
     }
     
     @IBAction func doneButton() {

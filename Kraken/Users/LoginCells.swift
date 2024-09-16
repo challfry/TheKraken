@@ -410,7 +410,7 @@ class ModeSwitchButtonCellModel: ButtonCellModel {
 	func readCodeOfConductAction() {
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
-			textFileVC.package = ServerTextFileSeguePackage(titleText: "Code of Conduct", fileToLoad: "codeofconduct.json")
+			textFileVC.package = ServerTextFileSeguePackage(titleText: "Code of Conduct", serverFilePath: "/public/codeofconduct.md")
 			dataSource?.viewController?.present(textFileVC, animated: true, completion: nil)
 		}
 	}

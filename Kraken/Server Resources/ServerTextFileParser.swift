@@ -29,53 +29,73 @@ import CoreData
 class ServerTextFileParser: NSObject {
 
 	// The last error we got from the server. Cleared when we start a new call.
-	@objc dynamic var lastError: ServerError?
+	@objc dynamic var lastError: String?
 	@objc dynamic var fileContents: NSAttributedString? 
 	@objc dynamic var isFetchingData = false
 	
-	init(forFile named: String) {
+	init(forPath path: String) {
 		super.init()
-		getServerTextFile(named: named)
+		getServerTextFile(path: path)
 	}
 		
-	func getServerTextFile(named: String) {
+	func getServerTextFile(path: String) {
+	
+		guard let fn = path.split(separator: "/").last else {
+			lastError = "Invalid path."
+			return
+		}
+		let filename = String(fn)
 
-		//
-		let request = NetworkGovernor.buildTwittarRequest(withPath:"/public/\(named)", query: nil)
+		// 
+		let request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
 		isFetchingData = true
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
-			if let error = package.serverError {
-				self.lastError = error
-				self.loadLocallySavedFile(named: named)
+			if let error = package.getAnyError() {
+				self.lastError = error.getErrorString()
+				self.loadLocallySavedFile(named: filename)
 			}
 			else if let data = package.data {
 				do {
-					if named.hasSuffix("md"), let markdownText = String(data: data, encoding: .utf8) {
-						let markdown = SwiftyMarkdown(string: markdownText)
-						markdown.body.fontName = "Georgia"
-						self.fileContents = markdown.attributedString()
-					}
-					else if named.hasSuffix("json") {
-						let decoder = JSONDecoder()
-						let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: data)
-						if self.parseJSONToString(from: response, cachedAtDate: nil) {
-							self.saveResponseFile(named: named, withData: data)
-						}
-					}
+					try self.parseFile(fileName: filename,  fileData: data)
+					self.saveResponseFile(named: filename, withData: data)
 				}
 				catch {
-					self.lastError = ServerError()
-					self.loadLocallySavedFile(named: named)
+					self.lastError = error.localizedDescription
+					self.loadLocallySavedFile(named: filename)
 				}
 			} 
 			self.isFetchingData = false
 		}
 	}
 	
+	// Takes the file data (from the server, CoreData, or the local fs) and fills in the fileContents attributed string.
+	func parseFile(fileName: String, fileData: Data) throws {
+		if fileName.hasSuffix("md"), let markdownText = String(data: fileData, encoding: .utf8) {
+			let markdown = SwiftyMarkdown(string: markdownText)
+			markdown.body.fontName = "Georgia"
+			markdown.body.color = UIColor(named: "Kraken Label Text") ?? UIColor.black
+			fileContents = markdown.attributedString()
+		}
+		else if fileName.hasSuffix("json") {
+			let decoder = JSONDecoder()
+			do {
+				let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: fileData)
+				try self.parseJSONToString(from: response, cachedAtDate: nil) 
+			}
+			catch {
+				print(error)
+			}
+		}
+		else if fileName.hasSuffix("html") {
+			
+		}
+		else {
+			// Throw?
+		}
+	}
+	
 	// cachedAtDate is only for when we fail to get a server response, but have a possibly out-of-date version cached locally.
-	func parseJSONToString(from response: TwitarrV2TextFileResponse, cachedAtDate: Date?) -> Bool {
-		guard response.count == 1, let sectionDict = response.first?.value, 
-				let sections: [TwitarrV2TextFileSection] = sectionDict["sections"] else { return false }
+	func parseJSONToString(from response: TwitarrV2TextFileResponse, cachedAtDate: Date?) throws {
 				
 		let baseFont = UIFont(name:"Georgia", size: 17)
 		let headerFont = UIFont(name:"Georgia-Bold", size: 17)
@@ -85,6 +105,12 @@ class ServerTextFileParser: NSObject {
 		headerParaStyle.paragraphSpacing = 20
 		let headerAttrs: [NSAttributedString.Key : Any] = [ .font : headerFont?.withSize(20) as Any, 
 				.paragraphStyle : headerParaStyle, .foregroundColor : UIColor(named: "Kraken Label Text") as Any]
+
+		let header2ParaStyle = NSMutableParagraphStyle()
+		header2ParaStyle.headIndent = 0
+		header2ParaStyle.paragraphSpacing = 15
+		let header2Attrs: [NSAttributedString.Key : Any] = [ .font : headerFont?.withSize(17) as Any, 
+				.paragraphStyle : header2ParaStyle, .foregroundColor : UIColor(named: "Kraken Label Text") as Any]
 		
 		let bodyParaStyle = NSMutableParagraphStyle()
 		bodyParaStyle.headIndent = 0
@@ -117,24 +143,34 @@ class ServerTextFileParser: NSObject {
 			resultString.append(warningText)
 		}
 
-		for section in sections {
-			let sectionStr = NSAttributedString(string: section.header + "\n", attributes: headerAttrs)
-			resultString.append(sectionStr)
+		for (sectionName, superSection) in response {
+			if let header = superSection.header {
+				let superSectionStr = NSAttributedString(string: header + "\n", attributes: headerAttrs)
+				resultString.append(superSectionStr)
+			}
 			
-			for paragraph in section.paragraphs {
-				if let text = paragraph.text {
-					let paragraphText = NSAttributedString(string: text + "\n", attributes: bodyAttrs)
-					resultString.append(paragraphText)
-				}
-				paragraph.list?.forEach { text in
-					let paragraphText = NSAttributedString(string: "•\t\(text)\n", attributes: listAttrs)
-					resultString.append(paragraphText)
+			if let sections = superSection.sections {
+				for section in sections {
+					if let headerStr = section.header {
+						let sectionStr = NSAttributedString(string: headerStr + "\n", attributes: header2Attrs)
+						resultString.append(sectionStr)
+					}
+					
+					for paragraph in section.paragraphs {
+						if let text = paragraph.text {
+							let paragraphText = NSAttributedString(string: text + "\n", attributes: bodyAttrs)
+							resultString.append(paragraphText)
+						}
+						paragraph.list?.forEach { text in
+							let paragraphText = NSAttributedString(string: "•\t\(text)\n", attributes: listAttrs)
+							resultString.append(paragraphText)
+						}
+					}
 				}
 			}
 		}
 		
 		fileContents = resultString
-		return true
 	}
 	
 	func saveResponseFile(named: String, withData: Data) {
@@ -165,22 +201,19 @@ class ServerTextFileParser: NSObject {
 				let request = LocalCoreData.shared.persistentContainer.managedObjectModel.fetchRequestFromTemplate(withName: "FindServerTextFile", 
 						substitutionVariables: [ "fileName" : named ]) as! NSFetchRequest<ServerTextFile>
 				let results = try request.execute()
+				var fileData: Data?
 				if let serverTextFile = results.first {
-					let decoder = JSONDecoder()
-					let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: serverTextFile.jsonData)
-					if self.parseJSONToString(from: response, cachedAtDate: serverTextFile.fetchDate) {
-						self.lastError = nil
-					}
+					fileData = serverTextFile.jsonData
 				}
-				else if let localTextFileURL = Bundle.main.url(forResource: named, withExtension: "json") {
-					let fileData = try Data(contentsOf: localTextFileURL)
-					let decoder = JSONDecoder()
-					let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: fileData)
-					if self.parseJSONToString(from: response, cachedAtDate: nil) {
-						self.lastError = nil
-					}
+				else if let localTextFileURL = Bundle.main.url(forResource: named, withExtension: "") {
+					fileData = try Data(contentsOf: localTextFileURL)
 				}
-			}
+				guard let fileData = fileData else {
+					return
+				}
+				
+				try self.parseFile(fileName: named, fileData: fileData)
+				}
 			catch {
 				CoreDataLog.error("Failed to load server file from CD.", ["error" : error])
 			}
@@ -190,10 +223,15 @@ class ServerTextFileParser: NSObject {
 	
 }
 
-typealias TwitarrV2TextFileResponse = [String : [ String : [TwitarrV2TextFileSection]]]
+typealias TwitarrV2TextFileResponse = [String : TwitarrV2TextFileSuperSection]
+
+struct TwitarrV2TextFileSuperSection: Codable {
+	var header: String?
+	var sections: [TwitarrV2TextFileSection]?
+}
 
 struct TwitarrV2TextFileSection: Codable {
-	let header: String
+	let header: String?
 	let paragraphs: [TwitarrV2TextFileParagraph]
 }
 

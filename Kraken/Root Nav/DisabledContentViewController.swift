@@ -58,11 +58,17 @@ class DisabledContentViewController: UIViewController {
 			tabName = "Lighter"
 		case .pirateAR:
 			tabName = "PirateAR"
+		case .codeOfConduct:
+			tabName = "Code of Conduct"
 		case .twitarrHelp:
 			tabName = "Help"
 		case .about:
 			tabName = "About"
+		case .faq:
+			tabName = "Cruise FAQ"
 		case .unknown:
+			tabName = "Tab"
+		case .serverFile:
 			tabName = "Tab"
 		}
 		
@@ -115,7 +121,7 @@ class DisabledContentViewController: UIViewController {
 			featurePath = "/karaoke"
 		case .microKaraoke:
 			featureName = "the Micro Karaoke Feature"
-			featurePath = ""
+			featurePath = ""					// Local; not on server
 		case .games:
 			featureName = "the Board Games List"
 			featurePath = "/boardgames"
@@ -127,21 +133,30 @@ class DisabledContentViewController: UIViewController {
 			featurePath = "/profile/edit"
 		case .deckPlans:
 			featureName = "Deck Maps"
-			featurePath = ""
+			featurePath = "/map"
 		case .scrapbook:
 			featureName = "Scrapbook"
 			featurePath = ""
 		case .lighter:
 			featureName = "Lighter"
-			featurePath = ""
+			featurePath = ""					// Local; not on server
 		case .pirateAR:
 			featureName = "Pirate Selfie"
-			featurePath = ""
+			featurePath = ""					// Local; not on server
+		case .codeOfConduct:
+			featureName = "Code Of Conduct"
+			featurePath = "/public/codeOfConduct.md"
+		case .faq:
+			featureName = "Cruise FAQ"
+			featurePath = "/faq"
 		case .twitarrHelp:
 			featureName = "Help"
-			featurePath = ""
+			featurePath = "/about"				
 		case .about:
 			featureName = "About Kraken"
+			featurePath = ""					// Local; not on server
+		case .serverFile:
+			featureName =  "Server File Viewer"
 			featurePath = ""
 		case .unknown:
 			featureName = "this feature"

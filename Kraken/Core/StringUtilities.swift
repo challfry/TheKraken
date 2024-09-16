@@ -212,6 +212,22 @@ class StringUtilities {
 								}
 							case "karaoke": 
 								linkText = "[Karaoke Link]"
+							case "microkaraoke": 
+								linkText = "[Micro Karaoke Link]"
+							case "performers": 
+								linkText = "[Performer Gallery Link]"
+							case "performer": 
+								linkText = "[Performer Link]"
+							case "faq": 
+								linkText = "[FAQ Link]"
+							case "about": 
+								linkText = "[About Twitarr Link]"
+							case "codeOfConduct": 
+								linkText = "[Code Of Conduct Link]"
+							case "time": 
+								linkText = "[Time Zone Check]"
+							case "public":
+								linkText = "[Public File Link]"
 							default: linkText = "[Twitarr Link]"
 						}
 					}

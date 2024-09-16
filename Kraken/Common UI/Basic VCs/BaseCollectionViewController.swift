@@ -494,10 +494,11 @@ class BaseCollectionViewController: UIViewController {
 	
 	// MARK: Navigation
 
-	// FFS Apple should provide this as part of their API. This is used by collectionView cells to see if they're
-	// attached to a ViewController that supports launching a given segue; if not they generally hide/disable buttons.
-	// This only matters if you make cells that are usable in multiple VCs, which Apple apparently recommends against --
-	// a recommendation about as useful as Q-Tips recommending you not use Q-Tips in your ears.
+	// FFS Apple should provide this as part of their API--a call that answers "Does this VC have a segue with this name?"
+	// 
+	// This is used by collectionView cells to see if they're attached to a ViewController that supports launching a given segue; 
+	//if not they generally hide/disable buttons. This only matters if you make cells that are usable in multiple VCs, which Apple 
+	// apparently recommends against -- a recommendation about as useful as Q-Tips recommending you not use Q-Tips in your ears.
 	func canPerformSegue(_ segue: GlobalKnownSegue) -> Bool {
 		return knownSegues.contains(segue)
 	}
@@ -513,10 +514,19 @@ class BaseCollectionViewController: UIViewController {
 			return
 		}
 	
-		let packet = GlobalNavPacket(from: self, url: url.absoluteString)
+		let packet = GlobalNavPacket(from: self, url: url)
 		// If the current VC can perform the segue, do it
 		if let segueType = packet.segue, canPerformSegue(segueType) {
 			performKrakenSegue(segueType, sender: packet.sender)
+		}
+		else if packet.tab.presentByCovering() {
+			// This controller shows files it loads from the server, and supports viewers for serveral file formats. It can be called
+			// from so many places in the storyboard it's not worth making segues for them all.
+			let storyboard = UIStoryboard(name: "Main", bundle: nil)
+			if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
+				textFileVC.package = ServerTextFileSeguePackage(titleText: nil, serverFilePath: url.path)
+				present(textFileVC, animated: true, completion: nil)
+			}
 		}
 		else {
 			// Use global nav to get to the dest.
