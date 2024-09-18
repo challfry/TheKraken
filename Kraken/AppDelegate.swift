@@ -253,8 +253,7 @@ struct GlobalNavPacket {
 					tab = .settings
 				
 				// Files in Twitarr's 'public' folder; we don't know what they are
-				 case "public":
-				 	//check for at least 2 components?
+				case "public":
 				 	tab = .serverFile
 				 	
 					

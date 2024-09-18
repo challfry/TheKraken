@@ -291,6 +291,24 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		return true
 	}
 	
+	func showTextFile(serverURL: URL) {
+		// Filetypes we can show with ServerTextFileViewController
+		if ServerTextFileParser.parseableFileTypes().contains(serverURL.pathExtension) || ["html", ""].contains(serverURL.pathExtension) {
+			showTextFile(title: "", serverPath: serverURL.path)
+		}
+		else {
+			let alert = UIAlertController(title: "Download and Save", message: 
+					"Download the file \(serverURL.lastPathComponent) and save it locally? You can manage the file in the Files app once downloaded.", 
+					preferredStyle: .alert) 
+			alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), style: .cancel, handler: nil))
+			alert.addAction(UIAlertAction(title: NSLocalizedString("Save", comment: "Default action"), 
+					style: .default, handler: { _ in
+						let parser = ServerTextFileParser(forPath: serverURL.path, saveFile: true)
+					}))
+			present(alert, animated: true, completion: nil)
+		}
+	}
+	
 	func showTextFile(title: String, serverPath: String, localPath: String? = nil) {
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {

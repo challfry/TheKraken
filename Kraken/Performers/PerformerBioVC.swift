@@ -93,7 +93,7 @@ extension PerformerBioViewController: FRCDataSourceLoaderDelegate {
     }
 }
 
-class PerformerBioCell: BaseCollectionViewCell, PerformerBioCellBindingProtocol {
+class PerformerBioCell: BaseCollectionViewCell, PerformerBioCellBindingProtocol, UITextViewDelegate {
  	private static let cellInfo = [ "PerformerBioCell" : PrototypeCellInfo("PerformerBioCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 	
@@ -113,6 +113,8 @@ class PerformerBioCell: BaseCollectionViewCell, PerformerBioCellBindingProtocol 
 	
 	override func awakeFromNib() {
 		super.awakeFromNib()
+		bioTextView.delegate = self
+		
 		websiteURL.imageView?.tintColor = UIColor.white
 		facebookURL.imageView?.tintColor = UIColor.white
 		instagramURL.imageView?.tintColor = UIColor.white
@@ -212,5 +214,13 @@ class PerformerBioCell: BaseCollectionViewCell, PerformerBioCellBindingProtocol 
 		    UIApplication.shared.open(url, options: [:], completionHandler: nil)
 		}
 	}
+	
+	// Handler for tapping on linktext. The textView is non-editable.
+	func textView(_ textView: UITextView, shouldInteractWith link: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+		if let vc = viewController as? BaseCollectionViewController {
+	 		vc.segueOrNavToLink(link)
+		}
+        return false
+    }
 }
 

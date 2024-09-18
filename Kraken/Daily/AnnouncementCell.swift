@@ -143,7 +143,7 @@ class AnnouncementCell: BaseCollectionViewCell, AnnouncementCellBindingProtocol,
 	// Handler for tapping on linktext. The textView is non-editable.
 	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange,  interaction: UITextItemInteraction) -> Bool {
 		if let vc = viewController as? BaseCollectionViewController {
-	 		vc.segueOrNavToLink(URL.absoluteString)
+	 		vc.segueOrNavToLink(URL)
 		}
         return false
     }

@@ -72,7 +72,7 @@ import CoreData
 	var isDeleted: Bool { get set }
 	
 	// 
-	func linkTextTapped(link: String)
+	func linkTextTapped(link: URL)
 	func authorIconTapped()
 	func likeButtonTapped(sender: UIButton)
 	func replyButtonTapped()
@@ -264,7 +264,7 @@ import CoreData
 	}
 
 //MARK: Action Handlers
-	func linkTextTapped(link: String) {
+	func linkTextTapped(link: URL) {
 		viewController?.segueOrNavToLink(link)
 	}
 	
@@ -416,7 +416,7 @@ import CoreData
 		// Pending Ops cannot have replies, deleteOps, editOps, LikeOps, or reactOps applied to them, so they are all false
 	}
 	
-	func linkTextTapped(link: String) {	}
+	func linkTextTapped(link: URL) {	}
 	func authorIconTapped() { }
 	func likeButtonTapped(sender: UIButton) { }
 	func replyButtonTapped() { }
@@ -939,13 +939,12 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	// Handler for tapping on linktext. The textView is non-editable.
 	func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, 
 			interaction: UITextItemInteraction) -> Bool {
- //		UIApplication.shared.open(URL, options: [:])
  		guard isInteractive else { return false }
- 		linkTextTapped(link: URL.absoluteString)
+ 		linkTextTapped(link: URL)
         return false
     }
     
-    func linkTextTapped(link: String) {
+    func linkTextTapped(link: URL) {
  		if let bindingModel = cellModel as? TwitarrTweetCellBindingProtocol {
 			bindingModel.linkTextTapped(link: link)
 		}

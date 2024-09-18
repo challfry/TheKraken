@@ -159,7 +159,7 @@ import UIKit
 	}
 
 //MARK: Action Handlers
-	func linkTextTapped(link: String) {
+	func linkTextTapped(link: URL) {
 		viewController?.segueOrNavToLink(link)
 	}
 	
@@ -321,7 +321,7 @@ import UIKit
 	}
 
 //MARK: Action Handlers
-	func linkTextTapped(link: String) {
+	func linkTextTapped(link: URL) {
 	}
 	
 	func authorIconTapped() {

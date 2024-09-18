@@ -503,11 +503,7 @@ class BaseCollectionViewController: UIViewController {
 		return knownSegues.contains(segue)
 	}
 	
-	func segueOrNavToLink(_ link: String) {
-		// Bail if we can't make a valid URL
-		guard let url = URL(string: link, relativeTo: Settings.shared.settingsBaseURL) else {
-			return
-		}
+	func segueOrNavToLink(_ url: URL) {
 		// Open externally if it's not our link
 		guard ["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host].contains(url.host ?? "nohostfoundasdfasfasf") else {
 			UIApplication.shared.open(url)
@@ -520,12 +516,26 @@ class BaseCollectionViewController: UIViewController {
 			performKrakenSegue(segueType, sender: packet.sender)
 		}
 		else if packet.tab.presentByCovering() {
-			// This controller shows files it loads from the server, and supports viewers for serveral file formats. It can be called
-			// from so many places in the storyboard it's not worth making segues for them all.
-			let storyboard = UIStoryboard(name: "Main", bundle: nil)
-			if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
-				textFileVC.package = ServerTextFileSeguePackage(titleText: nil, serverFilePath: url.path)
-				present(textFileVC, animated: true, completion: nil)
+			// Filetypes we can show with ServerTextFileViewController
+			if ServerTextFileParser.parseableFileTypes().contains(url.pathExtension) || ["html", ""].contains(url.pathExtension) {
+				// This controller shows files it loads from the server, and supports viewers for serveral file formats. It can be called
+				// from so many places in the storyboard it's not worth making segues for them all.
+				let storyboard = UIStoryboard(name: "Main", bundle: nil)
+				if let textFileVC = storyboard.instantiateViewController(withIdentifier: "ServerTextFileDisplay") as? ServerTextFileViewController {
+					textFileVC.package = ServerTextFileSeguePackage(titleText: nil, serverFilePath: url.path)
+					present(textFileVC, animated: true, completion: nil)
+				}
+			}
+			else {
+				let alert = UIAlertController(title: "Download and Save", message: 
+						"Download the file \(url.lastPathComponent) and save it locally? You can manage the file in the Files app once downloaded.", 
+						preferredStyle: .alert) 
+				alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), style: .cancel, handler: nil))
+				alert.addAction(UIAlertAction(title: NSLocalizedString("Save", comment: "Default action"), 
+						style: .default, handler: { _ in
+							_ = ServerTextFileParser(forPath: url.path, saveFile: true)
+						}))
+				present(alert, animated: true, completion: nil)
 			}
 		}
 		else {

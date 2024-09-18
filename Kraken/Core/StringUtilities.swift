@@ -154,6 +154,11 @@ class StringUtilities {
 		for match in matches.reversed() {
 			guard let stringRange = Range(match.range(at: 0), in: attrString.string) else { continue }
 			var urlStr = String(attrString.string[stringRange])
+			
+			// The link regex sometimes matches "filename.md" and similar. We don't want those.
+			if !urlStr.contains("/") {
+				return
+			}
 
 			// iOS Safari doesn't put "http(s)://" at the start links copied from the linkbar.
 			// If the scheme isn't specified it messes with the URLComponents constructor and it
@@ -227,7 +232,8 @@ class StringUtilities {
 							case "time": 
 								linkText = "[Time Zone Check]"
 							case "public":
-								linkText = "[Public File Link]"
+								let linkName = url.lastPathComponent.isEmpty ? "Public File Link" : url.lastPathComponent
+								linkText = "[\(linkName)]"
 							default: linkText = "[Twitarr Link]"
 						}
 					}
@@ -716,5 +722,13 @@ extension String {
 		pathComponentChars.remove(charactersIn: "/")
 		let encoded = addingPercentEncoding(withAllowedCharacters: pathComponentChars) ?? ""
 		return encoded
+	}
+}
+
+extension Substring {
+	// Gets a String from a Substring, in a way that allows function chaining. This in turn lets us work with
+	// Optional Substrings easier, as we can do things like `stringVariable.split("/").last?.lowercased().string`
+	var string: String {
+		String(self)	
 	}
 }

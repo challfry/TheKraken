@@ -58,14 +58,14 @@ import Accelerate
 // MARK: -	
 	// Gets the file URL that user-recorded videos get saved to. Should only be one video at a time, so they all use the same path.
 	func getVideoRecordingURL() -> URL {
-		let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-		let fileUrl = paths[0].appendingPathComponent("output.mp4")
+		let dir = FileManager.default.temporaryDirectory
+		let fileUrl = dir.appendingPathComponent("output.mp4")
 		return fileUrl
 	}
 	
 	func getProcessedVideoRecordingURL() -> URL {
-		let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-		let fileUrl = paths[0].appendingPathComponent("processedVideo.mp4")
+		let dir = FileManager.default.temporaryDirectory
+		let fileUrl = dir.appendingPathComponent("processedVideo.mp4")
 		return fileUrl
 	}
 
@@ -73,7 +73,7 @@ import Accelerate
 		if let path = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
 			return path.appendingPathComponent("previewVideo.mp4")
 		}
-		return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("previewVideo.mp4")
+		return FileManager.default.temporaryDirectory.appendingPathComponent("previewVideo.mp4")
 	}
 	
 	// Note that expired offers MAY still be accepted by the server, if the server hasn't farmed out the slot to someone else yet.

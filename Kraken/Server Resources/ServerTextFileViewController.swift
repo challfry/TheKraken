@@ -46,7 +46,8 @@ class ServerTextFileViewController: UIViewController {
         	return
         }
 		let fn = fileName.lowercased()
-
+		let fileSuffix: String = fn.split(separator: ".").last?.string ?? ""
+		
 		if let title = package?.titleText {
 	        navItem.title = title
 		}
@@ -61,13 +62,14 @@ class ServerTextFileViewController: UIViewController {
 				navItem.title = "FAQ"
 			}
 		}
+		
         
-		if fileName.hasSuffix(".md") || fileName.hasSuffix(".json") {
+		if ServerTextFileParser.parseableFileTypes().contains(fileSuffix) {
 			webView.isHidden = true
 			parser = ServerTextFileParser(forPath: filePath)
 			
-			self.tell(self, when: "parser.fileContents") { observer, observed in 
-				observer.textView.attributedText = observed.parser?.fileContents
+			self.tell(self, when: "parser.parsedContents") { observer, observed in 
+				observer.textView.attributedText = observed.parser?.parsedContents
 			}?.execute()
 
 			self.tell(self, when: "parser.isFetchingData") { observer, observed in 
@@ -79,12 +81,20 @@ class ServerTextFileViewController: UIViewController {
 				observer.errorLabel.text = "Could not load file \"\(observer.package?.serverFilePath ?? "")\" from server. \(observed.parser?.lastError ?? "")"
 			}?.execute()
 		}
-		else {
+		else if fileSuffix == "" || fileSuffix == "html" {
+			// Show html in a web view
 			webView.isHidden = false
 			var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)
 			components?.path = filePath
 			let builtURL = components?.url ?? Settings.shared.baseURL.appendingPathComponent(filePath)
 			webView.load(URLRequest(url: builtURL))
+
+		}
+		else {
+//			if let url = URL(string: filePath, relativeTo: Settings.shared.settingsBaseURL) {
+//				let doc = UIDocumentInteractionController(url: url)
+//				doc.presentOptionsMenu(from: in:animated:)
+//			}
 		}
 
     }

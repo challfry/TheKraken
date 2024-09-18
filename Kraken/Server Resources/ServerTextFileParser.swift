@@ -30,21 +30,27 @@ class ServerTextFileParser: NSObject {
 
 	// The last error we got from the server. Cleared when we start a new call.
 	@objc dynamic var lastError: String?
-	@objc dynamic var fileContents: NSAttributedString? 
+	@objc dynamic var fileName: String?
+	@objc dynamic var parsedContents: NSAttributedString? 
 	@objc dynamic var isFetchingData = false
+	var saveFileToDocuments = false
 	
-	init(forPath path: String) {
+	init(forPath path: String, saveFile: Bool = false) {
 		super.init()
 		getServerTextFile(path: path)
+		self.saveFileToDocuments = saveFile
+	}
+	
+	static func parseableFileTypes() -> [String] {
+		return ["md", "json"]
 	}
 		
 	func getServerTextFile(path: String) {
-	
-		guard let fn = path.split(separator: "/").last else {
+		guard let filename = path.split(separator: "/").last?.string else {
 			lastError = "Invalid path."
 			return
 		}
-		let filename = String(fn)
+		self.fileName = filename
 
 		// 
 		let request = NetworkGovernor.buildTwittarRequest(withPath: path, query: nil)
@@ -56,6 +62,11 @@ class ServerTextFileParser: NSObject {
 			}
 			else if let data = package.data {
 				do {
+					if self.saveFileToDocuments {
+						try self.saveToDocuments(data)
+						return
+					}
+					// We could, at this point, get the MIME type out of the response.
 					try self.parseFile(fileName: filename,  fileData: data)
 					self.saveResponseFile(named: filename, withData: data)
 				}
@@ -68,23 +79,26 @@ class ServerTextFileParser: NSObject {
 		}
 	}
 	
-	// Takes the file data (from the server, CoreData, or the local fs) and fills in the fileContents attributed string.
+	func saveToDocuments(_ data: Data) throws {
+		let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+		if let fn = self.fileName, let fileUrl = paths.first?.appendingPathComponent(fn) {
+			try data.write(to: fileUrl)
+		}
+	}
+	
+	// Takes the file data (from the server, CoreData, or the local fs) and fills in the parsedContents attributed string.
 	func parseFile(fileName: String, fileData: Data) throws {
+		
 		if fileName.hasSuffix("md"), let markdownText = String(data: fileData, encoding: .utf8) {
 			let markdown = SwiftyMarkdown(string: markdownText)
 			markdown.body.fontName = "Georgia"
 			markdown.body.color = UIColor(named: "Kraken Label Text") ?? UIColor.black
-			fileContents = markdown.attributedString()
+			parsedContents = markdown.attributedString()
 		}
 		else if fileName.hasSuffix("json") {
 			let decoder = JSONDecoder()
-			do {
-				let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: fileData)
-				try self.parseJSONToString(from: response, cachedAtDate: nil) 
-			}
-			catch {
-				print(error)
-			}
+			let response = try decoder.decode(TwitarrV2TextFileResponse.self, from: fileData)
+			try self.parseJSONToString(from: response, cachedAtDate: nil) 
 		}
 		else if fileName.hasSuffix("html") {
 			
@@ -170,7 +184,7 @@ class ServerTextFileParser: NSObject {
 			}
 		}
 		
-		fileContents = resultString
+		parsedContents = resultString
 	}
 	
 	func saveResponseFile(named: String, withData: Data) {
