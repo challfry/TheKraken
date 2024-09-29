@@ -168,7 +168,7 @@ import CoreData
 		}?.execute())
 							
 		// Photos
-		addObservation(tweetModel.tell(self, when: "photoDetails.count") { observer, observed in
+		addObservation(tweetModel.tell(self, when: "photoDetails.*") { observer, observed in
 			observer.photoDetails = observed.photoDetails.array as? [PhotoDetails]
 		}?.execute())
 		
@@ -382,6 +382,7 @@ import CoreData
 				postTime = nil
 				postText = nil				
   				photoDetails = nil
+  				photoAttachments = nil
   				isDeleted = true
   				shouldBeVisible = false
   			}
@@ -612,6 +613,7 @@ class TwitarrTweetCell: BaseCollectionViewCell, TwitarrTweetCellBindingProtocol,
 	}
 	
 	func setupPhotos() {
+		postImagesCollection.reloadData()
 		if authorIsBlocked {
 			postImage.image = nil
 			postImage.isHidden = true
