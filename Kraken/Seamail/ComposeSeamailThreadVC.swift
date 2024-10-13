@@ -243,8 +243,8 @@ import CoreData
     func postAction() {
 		if let subjectText = subjectCell.getText(), let messageText = messageCell.getText(),
 				subjectText.count > 0, messageText.count > 0, usersInThread.count > 0 {
-			SeamailDataManager.shared.queueNewSeamailThreadOp(existingOp: threadToEdit, subject: subjectText, 
-					message: messageText, recipients: usersInThread, makeOpen: openOrClosedCell.switchState, done: postQueued)
+			SeamailDataManager.shared.queueNewSeamailThreadOp(existingOp: threadToEdit, subject: subjectText, message: messageText, 
+					photo: nil, recipients: usersInThread, makeOpen: openOrClosedCell.switchState, done: postQueued)
 			isBusyPosting = true
 			postStatusCell.shouldBeVisible = true
 		}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -11,10 +11,10 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="SeamailMessageCell" id="gTV-IL-0wX" customClass="SeamailMessageCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="377" height="58"/>
+            <rect key="frame" x="0.0" y="0.0" width="377" height="269"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="377" height="58"/>
+                <rect key="frame" x="0.0" y="0.0" width="377" height="269"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="a5q-jX-fle">
@@ -37,10 +37,10 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GDG-zu-4cq">
-                        <rect key="frame" x="55" y="24" width="73" height="24.5"/>
+                        <rect key="frame" x="55" y="24" width="73" height="39"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Message" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aax-xt-iJL">
-                                <rect key="frame" x="2" y="2" width="69" height="20.5"/>
+                                <rect key="frame" x="2" y="2" width="69" height="35"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -54,14 +54,23 @@
                             <constraint firstItem="aax-xt-iJL" firstAttribute="top" secondItem="GDG-zu-4cq" secondAttribute="top" constant="2" id="WPC-cG-Ge1"/>
                         </constraints>
                     </view>
+                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="iOm-dC-5xA">
+                        <rect key="frame" x="55" y="67" width="311" height="200"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="200" id="hvi-bf-gGf"/>
+                        </constraints>
+                    </imageView>
                 </subviews>
             </view>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="LGe-9d-rdl" secondAttribute="trailing" priority="900" constant="11" id="13A-Po-W6q"/>
+                <constraint firstItem="iOm-dC-5xA" firstAttribute="top" secondItem="GDG-zu-4cq" secondAttribute="bottom" constant="4" id="CsP-Dt-1pe"/>
+                <constraint firstItem="iOm-dC-5xA" firstAttribute="trailing" secondItem="LGe-9d-rdl" secondAttribute="trailing" id="EYi-x5-Eq9"/>
                 <constraint firstItem="LGe-9d-rdl" firstAttribute="firstBaseline" secondItem="cdR-ea-J2s" secondAttribute="firstBaseline" id="FEC-4b-8SN"/>
                 <constraint firstItem="cdR-ea-J2s" firstAttribute="top" secondItem="a5q-jX-fle" secondAttribute="top" id="Hnr-gH-oFe"/>
                 <constraint firstItem="LGe-9d-rdl" firstAttribute="leading" secondItem="cdR-ea-J2s" secondAttribute="trailing" constant="8" id="LLc-LO-KUl"/>
                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="GDG-zu-4cq" secondAttribute="trailing" priority="900" constant="60" id="MqK-LT-MaU"/>
+                <constraint firstItem="iOm-dC-5xA" firstAttribute="leading" secondItem="cdR-ea-J2s" secondAttribute="leading" id="NEs-i3-6bZ"/>
                 <constraint firstItem="GDG-zu-4cq" firstAttribute="leading" secondItem="cdR-ea-J2s" secondAttribute="leading" id="ROK-aQ-kRm"/>
                 <constraint firstItem="GDG-zu-4cq" firstAttribute="top" secondItem="cdR-ea-J2s" secondAttribute="bottom" constant="4" id="WPv-nl-9Qt"/>
                 <constraint firstItem="a5q-jX-fle" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="2" id="eym-7v-9li"/>
@@ -69,15 +78,18 @@
                 <constraint firstItem="a5q-jX-fle" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="2" id="qmy-W0-NOU"/>
                 <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="GDG-zu-4cq" secondAttribute="bottom" priority="900" constant="2" id="ued-51-lmd"/>
                 <constraint firstItem="cdR-ea-J2s" firstAttribute="leading" secondItem="a5q-jX-fle" secondAttribute="trailing" constant="5" id="vA9-14-wOi"/>
+                <constraint firstAttribute="bottom" secondItem="iOm-dC-5xA" secondAttribute="bottom" priority="600" constant="2" id="znY-Id-aoU"/>
             </constraints>
-            <size key="customSize" width="377" height="58"/>
+            <size key="customSize" width="377" height="269"/>
             <connections>
                 <outlet property="authorImage" destination="a5q-jX-fle" id="FRo-iW-GXc"/>
                 <outlet property="authorUsernameLabel" destination="cdR-ea-J2s" id="dXv-Zx-UxZ"/>
+                <outlet property="imageView" destination="iOm-dC-5xA" id="Y4r-4r-I7P"/>
+                <outlet property="imageViewHeight" destination="hvi-bf-gGf" id="EIp-ve-2Jw"/>
                 <outlet property="messageLabel" destination="aax-xt-iJL" id="7h8-kn-8JL"/>
                 <outlet property="postTimeLabel" destination="LGe-9d-rdl" id="IMN-mB-Kjg"/>
             </connections>
-            <point key="canvasLocation" x="202.17391304347828" y="155.35714285714286"/>
+            <point key="canvasLocation" x="200.72463768115944" y="237.38839285714283"/>
         </collectionViewCell>
     </objects>
     <resources>

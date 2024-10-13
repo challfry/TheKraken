@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23231" systemVersion="24A335" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="displayUntil" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -231,6 +231,7 @@
         <attribute name="thumbWidth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="forumPosts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumPost" inverseName="photos" inverseEntity="ForumPost"/>
         <relationship name="postsWithThisPhoto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TwitarrPost" inverseName="photoDetails" inverseEntity="TwitarrPost"/>
+        <relationship name="seamailsWithThisPhoto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailMessage" inverseName="image" inverseEntity="SeamailMessage"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -283,10 +284,12 @@
         <attribute name="imageData" optional="YES" attributeType="Binary"/>
         <attribute name="mimetype" optional="YES" attributeType="String"/>
         <relationship name="parentForumPostOp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpForumPost" inverseName="photos" inverseEntity="PostOpForumPost"/>
+        <relationship name="parentSeamailPostOp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpSeamailMessage" inverseName="photo" inverseEntity="PostOpSeamailMessage"/>
         <relationship name="parentTweetPostOp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpTweet" inverseName="photos" inverseEntity="PostOpTweet"/>
     </entity>
     <entity name="PostOpSeamailMessage" representedClassName="PostOpSeamailMessage" parentEntity="PostOperation" syncable="YES">
         <attribute name="text" attributeType="String"/>
+        <relationship name="photo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpPhoto_Attachment" inverseName="parentSeamailPostOp" inverseEntity="PostOpPhoto_Attachment"/>
         <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="opsAddingMessages" inverseEntity="SeamailThread"/>
     </entity>
     <entity name="PostOpSeamailThread" representedClassName="PostOpSeamailThread" parentEntity="PostOperation" syncable="YES">
@@ -357,6 +360,7 @@
         <attribute name="text" attributeType="String"/>
         <attribute name="timestamp" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailAuthor" inverseEntity="KrakenUser"/>
+        <relationship name="image" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PhotoDetails" inverseName="seamailsWithThisPhoto" inverseEntity="PhotoDetails"/>
         <relationship name="readUsers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="seamailReader" inverseEntity="KrakenUser"/>
         <relationship name="thread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="messages" inverseEntity="SeamailThread"/>
         <uniquenessConstraints>

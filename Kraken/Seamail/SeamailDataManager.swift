@@ -16,6 +16,7 @@ import CoreData
     @NSManaged public var timestamp: Date	
     @NSManaged public var readUsers: Set<KrakenUser>
     @NSManaged public var thread: SeamailThread?
+    @NSManaged public var image: PhotoDetails?
 
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
@@ -36,7 +37,19 @@ import CoreData
 			}
 		}
 		
-		// FIXME: Not handled: Image
+		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
+		if let imageFilename = v3Object.image {
+			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+			if let photo = photoDict[imageFilename] {
+				image = photo
+			}
+			else {
+				image = nil
+			}
+		} 
+		else {
+			image = nil
+		}
 	}
 }
 
@@ -138,6 +151,10 @@ import CoreData
 		
 			// Posts
 			if let posts = members.posts {
+				// Get all the photos attached to all the posts into a Photos set.
+				let allPhotoFilenames = posts.compactMap { $0.image }
+				ImageManager.shared.updateV3(imageFilenames: allPhotoFilenames, inContext: context)
+
 				let postIDs = posts.map { $0.postID }
 				let request = NSFetchRequest<SeamailMessage>(entityName: "SeamailMessage")
 				request.predicate = NSPredicate(format: "id IN %@", postIDs)
@@ -438,6 +455,11 @@ import CoreData
 	func ingestSeamailPost(from post: TwitarrV3FezPostData, toThread: SeamailThread, inContext context: NSManagedObjectContext) throws {
 		UserManager.shared.update(users: [post.author], inContext: context)
 
+		// Get the photo attached to this post; place into the context's userInfo.
+		if let imageFilename = post.image {
+			ImageManager.shared.updateV3(imageFilenames: [imageFilename], inContext: context)
+		}
+
 		let request = NSFetchRequest<SeamailMessage>(entityName: "SeamailMessage")
 		request.predicate = NSPredicate(format: "id == %d", post.postID)
 		request.fetchLimit = 1
@@ -515,7 +537,7 @@ import CoreData
 // MARK: Actions
 	
 	// Creates a pending POST operation to create a new Seamail thread
-	func queueNewSeamailThreadOp(existingOp: PostOpSeamailThread?, subject: String, message: String, 
+	func queueNewSeamailThreadOp(existingOp: PostOpSeamailThread?, subject: String, message: String, photo: PhotoDataType?,
 			recipients: Set<PossibleKrakenUser>, makeOpen: Bool, done: @escaping (PostOpSeamailThread?) -> Void) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
@@ -531,6 +553,13 @@ import CoreData
 			newThread.text = message
 			newThread.author = currentUser
 			newThread.makeOpen = makeOpen
+			
+			// photo should always be nil currently.
+			if let photo = photo {
+				let photoOp = PostOpPhoto_Attachment(context: context)
+				photoOp.setupFromPhotoData(photo)
+				photoOp.parentSeamailThreadOp = newThread
+			}
 			
 			// Why both possibleUsers and potentialUsers? I didn't want to create the CoreData objects until a 
 			// thread was queued for sending, and I therefore can't create CoreData PotentialUsers while the user is still
@@ -564,7 +593,7 @@ import CoreData
 	}
 	
 	// Creates a pending POST operation to create a new Seamail message
-	func queueNewSeamailMessageOp(existingOp: PostOpSeamailMessage?, message: String, 
+	func queueNewSeamailMessageOp(existingOp: PostOpSeamailMessage?, message: String, photo: PhotoDataType? = nil, photoOp: PostOpPhoto_Attachment? = nil,
 			thread: SeamailThread, done: @escaping (PostOpSeamailMessage?) -> Void) {
 		let context = LocalCoreData.shared.networkOperationContext
 		context.perform {
@@ -578,6 +607,15 @@ import CoreData
 					messageOp = PostOpSeamailMessage(context: context)
 				}
 				let threadInContext = try context.existingObject(with: thread.objectID) as? SeamailThread
+				
+				if let photo = photo {
+					let photoOp = PostOpPhoto_Attachment(context: context)
+					photoOp.setupFromPhotoData(photo)
+					photoOp.parentSeamailPostOp = messageOp
+				}
+				else if let photoOp = photoOp {
+					photoOp.parentSeamailPostOp = messageOp
+				}
 				
 				messageOp.text = message
 				messageOp.thread = threadInContext

@@ -62,7 +62,7 @@ import UIKit
 			else {
 				observer.errorText = nil
 			}
-		}?.schedule()
+		}?.execute()
 	}
 }
 

@@ -154,7 +154,30 @@ import MobileCoreServices
 	lazy var emojiCell: EmojiSelectionCellModel = 
 		EmojiSelectionCellModel(paster: weakify(self, ForumComposeViewController.emojiButtonTapped))
 		
-	lazy var photoCell = PhotoSelectionCellModel()
+	lazy var photoCell: PhotoSelectionCellModel = {
+		let cell = PhotoSelectionCellModel()
+		if let editPost {
+			for photoThing in editPost.photos {
+				if let photo = photoThing as? PhotoDetails {
+					let photoDataType = PhotoDataType.server(photo.id, "")
+					cell.appendSelectedPhoto(path: nil, photo: photoDataType)
+				}
+			}
+		}
+		else if let photoset = draftPost?.photos ?? inProgressOp?.photos {
+			for photoThing in photoset {
+				if let photo = photoThing as? PostOpPhoto_Attachment {
+					if let imageData = photo.imageData {
+						cell.appendSelectedPhoto(path: nil, photo: PhotoDataType.data(imageData, ""))
+					}
+					else if let serverFilename = photo.filename {
+						cell.appendSelectedPhoto(path: nil, photo: PhotoDataType.server(serverFilename, ""))
+					}
+				}
+			}
+		}
+		return cell
+	}()
 	
 // MARK: Methods
 	
@@ -258,35 +281,33 @@ import MobileCoreServices
     	guard let _ = postTextCell.editedText ?? postTextCell.editText else { return }
     	setPostingState(true)
     	    	
-		if photoCell.shouldBeVisible, let selectedPhoto = photoCell.selectedPhoto {
-			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
-					progress: imageiCloudDownloadProgress) { photoData, error in
-				if let err = error {
-					self.statusCell.errorText = err.getCompleteError()
-				}
-				else if let container = photoData {
-					self.postWithPreparedImages([container])
-				}
-				else {
-					self.postWithPreparedImages(nil)
-				}
-			}
+		if photoCell.shouldBeVisible, !photoCell.selectedPhotos.isEmpty {
+			prepareNextImage(photos: photoCell.selectedPhotos, processedPhotos: [])
 		} else {
-//			var image: Data?
-//			var mimeType: String?
-			
-			// If editing a draft (as yet undelivered to server) post, we already have the photo to attach
-			// saved as an NSData, not a PHImage in the photos library. So, we handle it a bit differently.
-			// (also, delivering a post with an attached image should work even if the user disables photo access
-			// after tapping Post).
-//			if !removeDraftImage {
-//				image = draftTweet?.image as Data?
-//				mimeType = draftTweet?.imageMimetype
-//			}
 			self.postWithPreparedImages(nil)
 		}
 	}
 	
+    func prepareNextImage(photos: [PhotoDataType], processedPhotos: [PhotoDataType]) {
+    	if processedPhotos.count == photos.count {
+			self.postWithPreparedImages(processedPhotos)
+			return
+		}
+		let nextIndex = processedPhotos.count
+		ImageManager.shared.resizeImageForUpload(imageContainer: photos[nextIndex], 
+				progress: imageiCloudDownloadProgress) { (photoData, error) in
+			if let err = error {
+				self.statusCell.errorText = err.getCompleteError()
+				self.setPostingState(false)
+			}
+			else if let photoData = photoData {
+				var newProcessedPhotos = processedPhotos
+				newProcessedPhotos.append(photoData)
+				self.prepareNextImage(photos: photos, processedPhotos: newProcessedPhotos)
+			}
+		}
+	}
+
     func imageiCloudDownloadProgress(_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, 
     		_ info: [AnyHashable : Any]?) {
 		if let error = error {

@@ -727,6 +727,8 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	// One of these must be set.
 	@NSManaged public var parentForumPostOp: PostOpForumPost?
 	@NSManaged public var parentTweetPostOp: PostOpTweet?
+	@NSManaged public var parentSeamailPostOp: PostOpSeamailMessage?
+	@NSManaged public var parentSeamailThreadOp: PostOpSeamailThread?
 	
 	func setupFromPhotoData(_ from: PhotoDataType) {
 		switch from {
@@ -831,6 +833,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpSeamailThread) public class PostOpSeamailThread: PostOperation {
 	@NSManaged public var subject: String
 	@NSManaged public var text: String
+//	@NSManaged public var photo: PostOpPhoto_Attachment? 		// If the post is being edited, and has a photo, must be non-nil to keep photo
 	@NSManaged public var recipients: Set<PotentialUser>?
 	@NSManaged public var makeOpen: Bool
 
@@ -866,10 +869,11 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		request.httpBody = newThreadData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
+		// Post the new thread, when that's done ingest the created thread into our db, when that's done post the message.
 		self.queueNetworkPost(request: request, success: { data in
 			let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
 			SeamailDataManager.shared.ingestSeamailThread(from: response) { thread in
-				SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: self.text, 
+				SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: self.text, photoOp: nil,
 						thread: thread, done: { msg in return})
 			}
 		})
@@ -886,6 +890,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var endTime: Date
 	@NSManaged public var minCapacity: Int32
 	@NSManaged public var maxCapacity: Int32
+//	@NSManaged public var photo: PostOpPhoto_Attachment? 		// If the post is being edited, and has a photo, must be non-nil to keep photo
 
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
@@ -941,6 +946,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 @objc(PostOpSeamailMessage) public class PostOpSeamailMessage: PostOperation {
 	@NSManaged public var thread: SeamailThread?
 	@NSManaged public var text: String
+	@NSManaged public var photo: PostOpPhoto_Attachment? 		// If the post is being edited, and has a photo, must be non-nil to keep photo
 
 	override public func awakeFromInsert() {
 		super.awakeFromInsert()
@@ -952,13 +958,17 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 			self.recordServerErrorFailure(ServerError("The Seamail thread has disappeared. Perhaps it was deleted on the server?"))
 			return
 		}
+		var uploadImage: [TwitarrV3ImageUploadData] = []
+		if let photo = photo { 
+			uploadImage.append(photo.makeV3ImageUploadData())
+		}
 		confirmPostBeingSent(context: context)
 		
 		// POST /api/v3/fez/ID/post
 		var request = NetworkGovernor.buildTwittarRequest(withPath: "/api/v3/fez/\(seamailThread.id)/post", query: nil)
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
-		let newMessageStruct = TwitarrV3PostContentData(text: text, images: [])
+		let newMessageStruct = TwitarrV3PostContentData(text: text, images: uploadImage)
 		let newMessageData = try! Settings.v3Encoder.encode(newMessageStruct)
 		request.httpBody = newMessageData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")

@@ -151,7 +151,7 @@ struct PrototypeCellInfo {
 		}
 	}
 
-	var cellModel: BaseCellModel? 							// Not all datasources use cell models
+	@objc dynamic var cellModel: BaseCellModel? 							// Not all datasources use cell models
 	weak var dataSource: KrakenDataSource?						
 	@objc dynamic weak var viewController: UIViewController?  // For launching segues
 

@@ -317,15 +317,19 @@ class ComposeTweetViewController: BaseCollectionViewController {
     	
     	// TODO: Need to disable photo selection, too.
     	
-		if photoSelectionCell.shouldBeVisible == true, let selectedPhoto = photoSelectionCell.selectedPhoto {
-			ImageManager.shared.resizeImageForUpload(imageContainer: selectedPhoto, 
-					progress: imageiCloudDownloadProgress) { (photoData, error) in
-				if let err = error {
-					self.postStatusCell.errorText = err.getCompleteError()
-					self.setPostingState(false)
-				}
-				else if let photoData = photoData {
-					self.post(withPhotos: [photoData])
+    	// Repackage selectedPhotos to be .data or .server so we can upload them if necessary
+		if photoSelectionCell.shouldBeVisible == true, !photoSelectionCell.selectedPhotos.isEmpty {
+			prepareNextImage(photos: photoSelectionCell.selectedPhotos, processedPhotos: [])
+			for photo in photoSelectionCell.selectedPhotos {
+				ImageManager.shared.resizeImageForUpload(imageContainer: photo, 
+						progress: imageiCloudDownloadProgress) { (photoData, error) in
+					if let err = error {
+						self.postStatusCell.errorText = err.getCompleteError()
+						self.setPostingState(false)
+					}
+					else if let photoData = photoData {
+						self.post(withPhotos: [photoData])
+					}
 				}
 			}
 		} else {
@@ -338,6 +342,26 @@ class ComposeTweetViewController: BaseCollectionViewController {
 			}
 		}
     }
+    
+    func prepareNextImage(photos: [PhotoDataType], processedPhotos: [PhotoDataType]) {
+    	if processedPhotos.count == photos.count {
+			post(withPhotos: processedPhotos)
+			return
+		}
+		let nextIndex = processedPhotos.count
+		ImageManager.shared.resizeImageForUpload(imageContainer: photos[nextIndex], 
+				progress: imageiCloudDownloadProgress) { (photoData, error) in
+			if let err = error {
+				self.postStatusCell.errorText = err.getCompleteError()
+				self.setPostingState(false)
+			}
+			else if let photoData = photoData {
+				var newProcessedPhotos = processedPhotos
+				newProcessedPhotos.append(photoData)
+				self.prepareNextImage(photos: photos, processedPhotos: newProcessedPhotos)
+			}
+		}
+	}
     
     // Queues up the PostOp object for this content.
     func post(withPhotos photos: [PhotoDataType]?) {

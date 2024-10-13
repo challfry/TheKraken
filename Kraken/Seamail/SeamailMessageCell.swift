@@ -36,7 +36,10 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 	@IBOutlet var authorUsernameLabel: UILabel?
 	@IBOutlet var postTimeLabel: UILabel?
 	@IBOutlet var messageLabel: UILabel!
-		
+	
+	@IBOutlet var imageView: UIImageView!
+	@IBOutlet var imageViewHeight: NSLayoutConstraint!
+	
 	private static let cellInfo = [ "SeamailMessageCell" : PrototypeCellInfo("SeamailMessageCell"),
 			"SeamailSelfMessageCell" : PrototypeCellInfo("SeamailSelfMessageCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo] { return SeamailMessageCell.cellInfo }
@@ -59,11 +62,17 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 				self.postTimeLabel?.attributedText = self.authorAndTime(author: nil, time: dateString)
 			}
 		}
-    }
+		
+		if !isPrototypeCell {
+	 		let photoTap = UITapGestureRecognizer(target: self, action: #selector(SeamailMessageCell.photoTapped(_:)))
+		 	imageView.addGestureRecognizer(photoTap)
+		}
+	}
     
     var model: NSFetchRequestResult? {
     	didSet {
-    		if let message = model as? SeamailMessage, !message.isDeleted {
+     		clearObservations()
+	   		if let message = model as? SeamailMessage, !message.isDeleted {
 	    	//	authorUsernameLabel.text = message.author.username
 				let msgFont = UIFont(name: "TimesNewRomanPSMT", size: 17.0) ?? UIFont.preferredFont(forTextStyle: .body)
 	    		messageLabel.attributedText = StringUtilities.cleanupText(message.text, font: msgFont)
@@ -72,12 +81,32 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 				postTimeLabel?.attributedText = authorAndTime(author: nil, time: dateString)
 				contentView.backgroundColor = UIColor(named: "Cell Background")
  
-				message.author?.loadUserThumbnail()
-				message.author?.tell(self, when:"thumbPhoto") { observer, observed in
-					observed.loadUserThumbnail()
-					observer.authorImage.image = observed.thumbPhoto
+				addObservation(message.tell(self, when: "author") { observer, observed in
+					observed.author?.loadUserThumbnail()
+				}?.execute())
+				addObservation(message.tell(self, when:"author.thumbPhoto") { observer, observed in
+					observer.authorImage.image = observed.author?.thumbPhoto
 //					CollectionViewLog.debug("Setting user image for \(observed.username)", ["image" : observed.thumbPhoto])
-				}?.schedule()
+				}?.execute())
+				
+				message.tell(self, when: "image") { observer, observed in
+					if let photoDetails = message.image {
+						ImageManager.shared.image(withSize: .full, forKey: photoDetails.id) { image in
+							observer.imageView.image = image
+							let newHeight = image != nil ? 200.0 : 0.0
+							if observer.imageViewHeight.constant != newHeight {
+								observer.imageViewHeight.constant = newHeight
+								observer.cellSizeChanged()
+							}
+						}
+						observer.imageViewHeight.constant = 200
+					}
+					else {
+						observer.imageView.image = nil
+						observer.imageViewHeight.constant = 0
+					}
+					observer.cellSizeChanged()
+				}?.execute()
 				
 				var authorAccessibility = "You"
 				if authorUsernameLabel?.isHidden == false, let authorName = message.author?.username {
@@ -90,6 +119,25 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 	    		messageLabel.text = message.text
 				postTimeLabel?.attributedText = authorAndTime(author: nil, time: "In the near future")
 				authorUsernameLabel?.text = "\(message.author.username), In the near future"
+				if let photoDetails = message.photo {
+					if let imageData = photoDetails.imageData {
+						imageView.image = UIImage(data: imageData)
+						imageViewHeight.constant = imageView.image != nil ? 200 : 0
+						cellSizeChanged()
+					}
+					else if let imageName = photoDetails.filename {
+						ImageManager.shared.image(withSize: .full, forKey: imageName) { image in
+							self.imageView.image = image
+							self.imageViewHeight.constant = self.imageView.image != nil ? 200 : 0
+							self.cellSizeChanged()
+						}
+					}
+				}
+				else {
+					imageView.image = nil
+					imageViewHeight.constant = 0
+					cellSizeChanged()
+				}
 				contentView.backgroundColor = UIColor(named: "Cell Background Selected")
 			}
     	}
@@ -118,5 +166,11 @@ class SeamailMessageCell: BaseCollectionViewCell, FetchedResultsBindingProtocol 
 		let postTimeColor = UIColor.lightGray
 		let result: [NSAttributedString.Key : Any] = [ .font : postTimeFont?.withSize(14) as Any, .foregroundColor : postTimeColor ]
 		return result
+	}
+	
+	@objc func photoTapped(_ sender: UITapGestureRecognizer) {
+		if let vc = viewController as? BaseCollectionViewController, let image = imageView.image {
+			vc.showImageInOverlay(image: image)
+		}
 	}
 }

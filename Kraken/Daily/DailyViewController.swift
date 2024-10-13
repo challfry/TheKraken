@@ -303,7 +303,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), style: .cancel, handler: nil))
 			alert.addAction(UIAlertAction(title: NSLocalizedString("Save", comment: "Default action"), 
 					style: .default, handler: { _ in
-						let parser = ServerTextFileParser(forPath: serverURL.path, saveFile: true)
+						_ = ServerTextFileParser(forPath: serverURL.path, saveFile: true)
 					}))
 			present(alert, animated: true, completion: nil)
 		}

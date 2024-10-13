@@ -546,37 +546,37 @@ import CoreData
 			addObservation(self.tell(self, when: "userModel.pronouns") { observer, observed in
 				observer.value = observed.userModel?.pronouns
 				observer.shouldBeVisible = observed.userModel?.pronouns != nil
-			}?.schedule())
+			}?.execute())
 		case .email:
 			addObservation(self.tell(self, when: "userModel.emailAddress") { observer, observed in
 				observer.value = observed.userModel?.emailAddress
 				observer.shouldBeVisible = observed.userModel?.emailAddress != nil
-			}?.schedule())
+			}?.execute())
 		case .roomNumber: 
 			addObservation(self.tell(self, when: "userModel.roomNumber") { observer, observed in
 				observer.value = observed.userModel?.roomNumber
 				observer.shouldBeVisible = observed.userModel?.roomNumber != nil
-			}?.schedule())
+			}?.execute())
 		case .homeLocation:
 			addObservation(self.tell(self, when: "userModel.homeLocation") { observer, observed in
 				observer.value = observed.userModel?.homeLocation
 				observer.shouldBeVisible = observed.userModel?.homeLocation != nil
-			}?.schedule())
+			}?.execute())
 		case .currentLocation:
 			addObservation(self.tell(self, when: "userModel.currentLocation") { observer, observed in
 				observer.value = observed.userModel?.currentLocation
 				observer.shouldBeVisible = observed.userModel?.currentLocation != nil
-			}?.schedule())
+			}?.execute())
 		case .dinnerTeam:
 			addObservation(self.tell(self, when: "userModel.dinnerTeam") { observer, observed in
 				observer.value = observed.userModel?.dinnerTeam
 				observer.shouldBeVisible = observed.userModel?.dinnerTeam != nil
-			}?.schedule())
+			}?.execute())
 		case .aboutMessage:
 			addObservation(self.tell(self, when: "userModel.aboutMessage") { observer, observed in
 				observer.value = observed.userModel?.aboutMessage
 				observer.shouldBeVisible = observed.userModel?.aboutMessage != nil
-			}?.schedule())
+			}?.execute())
 		}
 	}
 }

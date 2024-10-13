@@ -1,81 +1,289 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="PhotoSelectionCell" id="gTV-IL-0wX" customClass="PhotoSelectionCell" customModule="Kraken" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="412" height="80"/>
+            <rect key="frame" x="0.0" y="0.0" width="412" height="221"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="412" height="80"/>
+                <rect key="frame" x="0.0" y="0.0" width="412" height="221"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="l7G-yu-J9U">
-                        <rect key="frame" x="0.0" y="0.0" width="412" height="80"/>
-                        <color key="backgroundColor" name="Cell Background"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="80" id="Zff-90-Qjv"/>
-                        </constraints>
-                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="7oo-g4-BDI">
-                            <size key="itemSize" width="80" height="80"/>
-                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                        </collectionViewFlowLayout>
-                        <connections>
-                            <outlet property="dataSource" destination="gTV-IL-0wX" id="aqo-Zi-mHg"/>
-                            <outlet property="delegate" destination="gTV-IL-0wX" id="KIp-GT-0A8"/>
-                        </connections>
-                    </collectionView>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mob-BF-bC7">
-                        <rect key="frame" x="0.0" y="0.0" width="412" height="80"/>
+                    <stackView opaque="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="NiY-L5-A5q">
+                        <rect key="frame" x="0.0" y="0.0" width="412" height="297"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xFL-hY-55B">
-                                <rect key="frame" x="151" y="24" width="241" height="30"/>
-                                <state key="normal" title="Tap here to authorize photo access"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QRE-fb-DR9">
+                                <rect key="frame" x="0.0" y="0.0" width="412" height="30"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add up to 4 images to your post" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8iw-qa-FpF">
+                                        <rect key="frame" x="20" y="4" width="372" height="22"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" name="Kraken Label Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="5Bt-Pg-ubp"/>
+                                    <constraint firstItem="8iw-qa-FpF" firstAttribute="top" secondItem="QRE-fb-DR9" secondAttribute="top" constant="4" id="ANh-sw-OIO"/>
+                                    <constraint firstAttribute="bottom" secondItem="8iw-qa-FpF" secondAttribute="bottom" priority="999" constant="4" id="BTI-BQ-cxb"/>
+                                    <constraint firstAttribute="trailing" secondItem="8iw-qa-FpF" secondAttribute="trailing" constant="20" id="sqo-RZ-BXt"/>
+                                    <constraint firstItem="8iw-qa-FpF" firstAttribute="leading" secondItem="QRE-fb-DR9" secondAttribute="leading" constant="20" id="yT1-L4-LLl"/>
+                                </constraints>
+                            </view>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="LXz-ux-Ydu">
+                                <rect key="frame" x="0.0" y="30" width="412" height="187"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f7j-CH-twD">
+                                        <rect key="frame" x="0.0" y="0.0" width="103" height="187"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JdT-LE-LsK">
+                                                <rect key="frame" x="45.5" y="44" width="12" height="31.5"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                                <color key="textColor" name="Kraken Label Text"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ynI-PX-SNI" userLabel="PhotoView">
+                                                <rect key="frame" x="12" y="20" width="79" height="79"/>
+                                                <color key="backgroundColor" name="Photocell Image BG"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="80" id="Web-gg-zL6"/>
+                                                    <constraint firstAttribute="width" secondItem="ynI-PX-SNI" secondAttribute="height" multiplier="1:1" id="kl3-Pu-tbw"/>
+                                                    <constraint firstAttribute="height" priority="700" constant="80" id="qWS-1s-lPp"/>
+                                                </constraints>
+                                            </imageView>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pcr-VR-ixQ">
+                                                <rect key="frame" x="79" y="8" width="24" height="24"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="24" id="ukp-5Q-uz1"/>
+                                                    <constraint firstAttribute="height" constant="24" id="vzP-xQ-vd3"/>
+                                                </constraints>
+                                                <buttonConfiguration key="configuration" style="filled">
+                                                    <color key="baseBackgroundColor" name="Kraken Secondary Text"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="cancelPicButtonTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="N7y-tK-x5B"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstItem="JdT-LE-LsK" firstAttribute="centerX" secondItem="ynI-PX-SNI" secondAttribute="centerX" id="Cnn-za-fCP"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="ynI-PX-SNI" secondAttribute="trailing" constant="12" id="JlW-ec-FeH"/>
+                                            <constraint firstItem="JdT-LE-LsK" firstAttribute="centerY" secondItem="ynI-PX-SNI" secondAttribute="centerY" id="Nxp-Uv-SZl"/>
+                                            <constraint firstItem="ynI-PX-SNI" firstAttribute="top" secondItem="Pcr-VR-ixQ" secondAttribute="centerY" id="OyX-ER-Kpz"/>
+                                            <constraint firstAttribute="bottom" secondItem="ynI-PX-SNI" secondAttribute="bottom" priority="630" constant="12" id="bII-te-tcq"/>
+                                            <constraint firstItem="Pcr-VR-ixQ" firstAttribute="centerX" secondItem="ynI-PX-SNI" secondAttribute="trailing" id="gVD-fk-ZnZ"/>
+                                            <constraint firstItem="ynI-PX-SNI" firstAttribute="top" secondItem="f7j-CH-twD" secondAttribute="top" constant="20" id="ipL-wJ-zNg"/>
+                                            <constraint firstItem="ynI-PX-SNI" firstAttribute="centerX" secondItem="f7j-CH-twD" secondAttribute="centerX" id="uGL-2c-gh5"/>
+                                            <constraint firstItem="ynI-PX-SNI" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="f7j-CH-twD" secondAttribute="leading" priority="900" constant="12" id="uaI-Xr-fht"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8n3-UW-n42">
+                                        <rect key="frame" x="103" y="0.0" width="103" height="187"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AYv-J8-Y8Z">
+                                                <rect key="frame" x="44" y="44" width="15.5" height="31.5"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                                <color key="textColor" name="Kraken Label Text"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="26z-M6-Ul1" userLabel="PhotoView">
+                                                <rect key="frame" x="12" y="20" width="79" height="79"/>
+                                                <color key="backgroundColor" name="Photocell Image BG"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="80" id="Yej-GV-iLe"/>
+                                                    <constraint firstAttribute="width" secondItem="26z-M6-Ul1" secondAttribute="height" multiplier="1:1" id="qL0-AE-KuO"/>
+                                                </constraints>
+                                            </imageView>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AYo-Yu-Zj3">
+                                                <rect key="frame" x="79" y="8" width="24" height="24"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="24" id="VV3-CV-OJ5"/>
+                                                    <constraint firstAttribute="height" constant="24" id="lO6-3E-Nb7"/>
+                                                </constraints>
+                                                <buttonConfiguration key="configuration" style="filled">
+                                                    <color key="baseBackgroundColor" name="Kraken Secondary Text"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="cancelPicButtonTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="8cy-zW-oy1"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstItem="AYv-J8-Y8Z" firstAttribute="centerX" secondItem="26z-M6-Ul1" secondAttribute="centerX" id="232-nl-6Z9"/>
+                                            <constraint firstItem="26z-M6-Ul1" firstAttribute="centerX" secondItem="8n3-UW-n42" secondAttribute="centerX" id="498-vu-64Y"/>
+                                            <constraint firstItem="26z-M6-Ul1" firstAttribute="top" secondItem="8n3-UW-n42" secondAttribute="top" constant="20" id="K9C-be-YnV"/>
+                                            <constraint firstItem="AYo-Yu-Zj3" firstAttribute="centerX" secondItem="26z-M6-Ul1" secondAttribute="trailing" id="Qj9-fE-XQN"/>
+                                            <constraint firstItem="26z-M6-Ul1" firstAttribute="top" secondItem="AYo-Yu-Zj3" secondAttribute="centerY" id="eNZ-CI-tni"/>
+                                            <constraint firstAttribute="bottom" secondItem="26z-M6-Ul1" secondAttribute="bottom" priority="620" constant="12" id="rIY-7Y-jh5"/>
+                                            <constraint firstItem="26z-M6-Ul1" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="8n3-UW-n42" secondAttribute="leading" priority="900" constant="12" id="rLe-At-l8v"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="26z-M6-Ul1" secondAttribute="trailing" constant="12" id="set-AK-GL5"/>
+                                            <constraint firstItem="AYv-J8-Y8Z" firstAttribute="centerY" secondItem="26z-M6-Ul1" secondAttribute="centerY" id="toV-D7-jNw"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mec-Cp-nuq">
+                                        <rect key="frame" x="206" y="0.0" width="103" height="187"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="byk-Dj-G2G">
+                                                <rect key="frame" x="43.5" y="44" width="16" height="31.5"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                                <color key="textColor" name="Kraken Label Text"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gwJ-v4-rtW" userLabel="PhotoView">
+                                                <rect key="frame" x="12" y="20" width="79" height="79"/>
+                                                <color key="backgroundColor" name="Photocell Image BG"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" secondItem="gwJ-v4-rtW" secondAttribute="height" multiplier="1:1" id="VgD-kr-2CG"/>
+                                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="80" id="bJd-1G-Woj"/>
+                                                </constraints>
+                                            </imageView>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="huv-V7-pui">
+                                                <rect key="frame" x="79" y="8" width="24" height="24"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="24" id="D4R-dJ-bAq"/>
+                                                    <constraint firstAttribute="width" constant="24" id="hRg-Ua-97R"/>
+                                                </constraints>
+                                                <buttonConfiguration key="configuration" style="filled">
+                                                    <color key="baseBackgroundColor" name="Kraken Secondary Text"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="cancelPicButtonTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="MwS-Bv-v60"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstItem="gwJ-v4-rtW" firstAttribute="top" secondItem="Mec-Cp-nuq" secondAttribute="top" constant="20" id="9PA-gj-wnK"/>
+                                            <constraint firstItem="gwJ-v4-rtW" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Mec-Cp-nuq" secondAttribute="leading" priority="900" constant="12" id="dNS-Q3-wao"/>
+                                            <constraint firstAttribute="bottom" secondItem="gwJ-v4-rtW" secondAttribute="bottom" priority="610" constant="12" id="dl0-Ck-97W"/>
+                                            <constraint firstItem="byk-Dj-G2G" firstAttribute="centerX" secondItem="gwJ-v4-rtW" secondAttribute="centerX" id="drn-tX-gfS"/>
+                                            <constraint firstItem="gwJ-v4-rtW" firstAttribute="top" secondItem="huv-V7-pui" secondAttribute="centerY" id="hMV-oa-igb"/>
+                                            <constraint firstItem="byk-Dj-G2G" firstAttribute="centerY" secondItem="gwJ-v4-rtW" secondAttribute="centerY" id="l8P-7a-Gh0"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="gwJ-v4-rtW" secondAttribute="trailing" constant="12" id="lDy-qL-K5D"/>
+                                            <constraint firstItem="gwJ-v4-rtW" firstAttribute="centerX" secondItem="Mec-Cp-nuq" secondAttribute="centerX" id="oBq-ux-fKG"/>
+                                            <constraint firstItem="huv-V7-pui" firstAttribute="centerX" secondItem="gwJ-v4-rtW" secondAttribute="trailing" id="rcI-ee-UJ4"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eEd-yf-RXU">
+                                        <rect key="frame" x="309" y="0.0" width="103" height="187"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="4" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y86-ec-E36">
+                                                <rect key="frame" x="43.5" y="44" width="16.5" height="31.5"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                                <color key="textColor" name="Kraken Label Text"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6zs-pt-bd2" userLabel="PhotoView">
+                                                <rect key="frame" x="12" y="20" width="79" height="79"/>
+                                                <color key="backgroundColor" name="Photocell Image BG"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="80" id="I2b-oW-QK4"/>
+                                                    <constraint firstAttribute="width" secondItem="6zs-pt-bd2" secondAttribute="height" multiplier="1:1" id="TmA-qv-aYB"/>
+                                                </constraints>
+                                            </imageView>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nfj-Cd-HGJ">
+                                                <rect key="frame" x="79" y="8" width="24" height="24"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="24" id="2nS-jA-IUo"/>
+                                                    <constraint firstAttribute="height" constant="24" id="pCG-hI-wx0"/>
+                                                </constraints>
+                                                <buttonConfiguration key="configuration" style="filled">
+                                                    <color key="baseBackgroundColor" name="Kraken Secondary Text"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="cancelPicButtonTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="XHc-0F-eWo"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstItem="6zs-pt-bd2" firstAttribute="centerX" secondItem="eEd-yf-RXU" secondAttribute="centerX" id="5x2-lN-fWQ"/>
+                                            <constraint firstItem="nfj-Cd-HGJ" firstAttribute="centerX" secondItem="6zs-pt-bd2" secondAttribute="trailing" id="D6a-Ug-N3W"/>
+                                            <constraint firstItem="6zs-pt-bd2" firstAttribute="top" secondItem="nfj-Cd-HGJ" secondAttribute="centerY" id="EcA-51-gTU"/>
+                                            <constraint firstItem="y86-ec-E36" firstAttribute="centerX" secondItem="6zs-pt-bd2" secondAttribute="centerX" id="Gcx-ng-0fF"/>
+                                            <constraint firstItem="6zs-pt-bd2" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="eEd-yf-RXU" secondAttribute="leading" priority="900" constant="12" id="SHv-lP-epw"/>
+                                            <constraint firstAttribute="bottom" secondItem="6zs-pt-bd2" secondAttribute="bottom" priority="600" constant="12" id="VqE-iy-Wz5"/>
+                                            <constraint firstItem="6zs-pt-bd2" firstAttribute="top" secondItem="eEd-yf-RXU" secondAttribute="top" constant="20" id="Yam-0M-b1x"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="6zs-pt-bd2" secondAttribute="trailing" constant="12" id="Yrh-nE-CuQ"/>
+                                            <constraint firstItem="y86-ec-E36" firstAttribute="centerY" secondItem="6zs-pt-bd2" secondAttribute="centerY" id="qy0-9o-4Ev"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                            </stackView>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="l7G-yu-J9U">
+                                <rect key="frame" x="0.0" y="217" width="412" height="80"/>
+                                <color key="backgroundColor" name="Cell Background"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="80" id="Zff-90-Qjv"/>
+                                </constraints>
+                                <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="7oo-g4-BDI">
+                                    <size key="itemSize" width="80" height="80"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
                                 <connections>
-                                    <action selector="authButtonTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="E7R-lY-Ljm"/>
+                                    <outlet property="dataSource" destination="gTV-IL-0wX" id="aqo-Zi-mHg"/>
+                                    <outlet property="delegate" destination="gTV-IL-0wX" id="KIp-GT-0A8"/>
                                 </connections>
-                            </button>
+                            </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="xFL-hY-55B" firstAttribute="top" secondItem="mob-BF-bC7" secondAttribute="top" constant="24" id="5vY-wi-2BC"/>
-                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" id="Jbe-tB-rgw"/>
-                            <constraint firstAttribute="trailing" secondItem="xFL-hY-55B" secondAttribute="trailing" constant="20" id="zgh-Ru-qI6"/>
-                        </constraints>
-                    </view>
+                    </stackView>
                 </subviews>
             </view>
             <constraints>
-                <constraint firstItem="l7G-yu-J9U" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="BFz-Dz-Qqi"/>
-                <constraint firstItem="mob-BF-bC7" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="JTl-Hg-ejx"/>
-                <constraint firstItem="l7G-yu-J9U" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="OGl-UL-LwR"/>
-                <constraint firstAttribute="trailing" secondItem="mob-BF-bC7" secondAttribute="trailing" priority="900" id="Oev-A1-00K"/>
-                <constraint firstAttribute="trailing" secondItem="l7G-yu-J9U" secondAttribute="trailing" priority="900" id="PUD-FG-DGq"/>
-                <constraint firstItem="mob-BF-bC7" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Ves-Z0-UL0"/>
-                <constraint firstAttribute="bottom" secondItem="l7G-yu-J9U" secondAttribute="bottom" priority="900" id="cno-Pv-unE"/>
-                <constraint firstAttribute="bottom" secondItem="mob-BF-bC7" secondAttribute="bottom" priority="900" id="igA-bU-Q0I"/>
+                <constraint firstItem="NiY-L5-A5q" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="JYA-se-Eci"/>
+                <constraint firstAttribute="bottom" secondItem="NiY-L5-A5q" secondAttribute="bottom" priority="700" id="S41-zv-8Re"/>
+                <constraint firstItem="NiY-L5-A5q" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="SX4-DW-0Ib"/>
+                <constraint firstAttribute="trailing" secondItem="NiY-L5-A5q" secondAttribute="trailing" id="b08-fW-pig"/>
             </constraints>
-            <size key="customSize" width="412" height="83"/>
+            <size key="customSize" width="412" height="224"/>
             <connections>
-                <outlet property="authorizationView" destination="mob-BF-bC7" id="89V-tn-Qwc"/>
-                <outlet property="heightConstraint" destination="Zff-90-Qjv" id="aQd-lM-ZEx"/>
+                <outlet property="addPicsContainer" destination="QRE-fb-DR9" id="YQF-Qk-b0X"/>
+                <outlet property="addPicsHeight" destination="5Bt-Pg-ubp" id="TDa-Wz-qPV"/>
+                <outlet property="addPicsLabel" destination="8iw-qa-FpF" id="IrI-Ab-qff"/>
+                <outlet property="cancelPic1Btn" destination="Pcr-VR-ixQ" id="fDN-0q-ViF"/>
+                <outlet property="cancelPic2Btn" destination="AYo-Yu-Zj3" id="25c-g0-w5d"/>
+                <outlet property="cancelPic3Btn" destination="huv-V7-pui" id="q8Q-qO-FDR"/>
+                <outlet property="cancelPic4Btn" destination="nfj-Cd-HGJ" id="u7j-em-aD8"/>
+                <outlet property="photo1" destination="ynI-PX-SNI" id="zSi-OI-WdG"/>
+                <outlet property="photo2" destination="26z-M6-Ul1" id="lP4-07-4Jk"/>
+                <outlet property="photo3" destination="gwJ-v4-rtW" id="pf9-XZ-bK6"/>
+                <outlet property="photo4" destination="6zs-pt-bd2" id="AUV-yQ-UIu"/>
                 <outlet property="photoCollectionView" destination="l7G-yu-J9U" id="1mm-tc-Dde"/>
+                <outlet property="selectedPhotosStack" destination="LXz-ux-Ydu" id="F7u-Vx-AkM"/>
+                <outlet property="verticalStackView" destination="NiY-L5-A5q" id="KPz-u5-9hL"/>
             </connections>
-            <point key="canvasLocation" x="101.44927536231884" y="163.39285714285714"/>
+            <point key="canvasLocation" x="101.44927536231884" y="209.93303571428569"/>
         </collectionViewCell>
     </objects>
     <resources>
         <namedColor name="Cell Background">
             <color red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Secondary Text">
+            <color red="0.66600000858306885" green="0.66600000858306885" blue="0.66600000858306885" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Photocell Image BG">
+            <color red="0.89999997615814209" green="0.89999997615814209" blue="0.89999997615814209" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

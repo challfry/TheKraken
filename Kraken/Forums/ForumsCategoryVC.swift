@@ -76,6 +76,8 @@ class ForumsCategoryViewController: BaseCollectionViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		title = filterPack?.category?.title ?? "Forums"
+		
 //		buildFilterView()
 		forumsFilterView.isHidden = true
 	

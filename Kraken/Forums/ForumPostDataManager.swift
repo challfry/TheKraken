@@ -65,24 +65,26 @@ import CoreData
 		}
 		
 		// Intent is to update photos in a way where we don't modify photos until we're sure it's changing.
-		if let newImageFilenames = v3Object.images {
-			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+		// If image arrays are the same, do nothing
+		let newImageFilenames = v3Object.images ?? []
+		var sameArrays: Bool = photos.count == newImageFilenames.count
+		if sameArrays {
 			for (index, image) in newImageFilenames.enumerated() {
-				if photos.count <= index, let photoToAdd = photoDict[image] {
-					photos.add(photoToAdd)
-				} 
-				if (photos[index] as? PhotoDetails)?.id != image, let photoToAdd = photoDict[image] {
-					photos.replaceObject(at:index, with: photoToAdd)
+				if (photos[index] as? PhotoDetails)?.id != image {
+					sameArrays = false
 				}
 			}
-			if photos.count > newImageFilenames.count {
-				photos.removeObjects(in: NSRange(location: newImageFilenames.count, length: photos.count - newImageFilenames.count))
+		}
+		if !sameArrays {
+			let newPhotos = NSMutableOrderedSet()
+			let photoDict: [String : PhotoDetails] = context.userInfo.object(forKey: "PhotoDetails") as! [String : PhotoDetails] 
+			for image in newImageFilenames {
+				if let foundPhoto = photoDict[image] {
+					newPhotos.add(foundPhoto)
+				}
 			}
-		} 
-		else {
-			if photos.count > 0 {
-				photos.removeAllObjects()
-			}
+			// For CD to notice the change, apparently we have to replace the ordered set.
+			photos = newPhotos
 		}
 		
 		buildUserReactionFromV3(context: context, userLike: v3Object.userLike, bookmark: v3Object.isBookmarked)

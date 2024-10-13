@@ -388,6 +388,9 @@ extension NetworkGovernor: URLSessionDelegate {
 		// One place where this is called is when we connect to an HTTPS server for the first time.
 		// It's possible to add code here to do things like manually validate a self-signed server cert.
 		completionHandler(.performDefaultHandling, nil)
+
+		// This line should be used instead when accessing beta.twitarr.com, as it has a self-signed cert.
+//		completionHandler(URLSession.AuthChallengeDisposition.useCredential,  URLCredential(trust: challenge.protectionSpace.serverTrust!))
 	}
 
     public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {

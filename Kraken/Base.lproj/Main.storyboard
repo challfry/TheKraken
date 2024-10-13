@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5Ka-4x-J1E">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5Ka-4x-J1E">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -103,6 +103,8 @@
                         <segue destination="4Kh-NN-fXm" kind="show" identifier="UserProfile" id="YBf-1C-vwM"/>
                         <segue destination="Slh-I1-F98" kind="show" identifier="LFGCreate" id="9Vl-4N-xRJ"/>
                         <segue destination="Mfl-7M-Dg4" kind="presentation" identifier="ReportContent" id="jyo-2T-54r"/>
+                        <segue destination="PPA-A5-VUC" kind="presentation" identifier="fullScreenCamera" modalPresentationStyle="fullScreen" id="9yi-ca-Z6C"/>
+                        <segue destination="Rrr-Wq-uEq" kind="presentation" identifier="cropCamera" modalPresentationStyle="fullScreen" id="h0Q-lM-vyL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Ms-N4-lZA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -604,7 +606,7 @@
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
                                 <rect key="frame" x="214" y="92" width="200" height="200.5"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -3695,16 +3697,16 @@ Rotate your device to continue.</string>
     <inferredMetricsTieBreakers>
         <segue reference="QAK-cX-ZPK"/>
         <segue reference="HJe-et-hA8"/>
-        <segue reference="K5i-zM-yNP"/>
+        <segue reference="9Vl-4N-xRJ"/>
         <segue reference="Azj-8J-Wkq"/>
         <segue reference="ixJ-gR-Thn"/>
         <segue reference="iin-6d-KBo"/>
         <segue reference="5OF-Gt-GA5"/>
-        <segue reference="j6p-gx-tT1"/>
+        <segue reference="jyo-2T-54r"/>
         <segue reference="Nie-gD-4T3"/>
-        <segue reference="Xin-A8-aio"/>
+        <segue reference="ebe-iD-3Jr"/>
         <segue reference="xJS-a0-3Zb"/>
-        <segue reference="ZaT-fl-KcI"/>
+        <segue reference="YBf-1C-vwM"/>
         <segue reference="xJS-kz-sQt"/>
         <segue reference="OYC-iy-go3"/>
         <segue reference="xBi-3d-3gR"/>
@@ -3749,7 +3751,7 @@ Rotate your device to continue.</string>
         <image name="Seamail.png" width="36" height="36"/>
         <image name="Settings.png" width="36" height="36"/>
         <image name="Twitarr.png" width="23" height="23"/>
-        <image name="calendar.day.timeline.left" catalog="system" width="128" height="91"/>
+        <image name="calendar.day.timeline.left" catalog="system" width="128" height="88"/>
         <image name="person.3.sequence.fill" catalog="system" width="128" height="63"/>
         <image name="square.and.arrow.up" width="24" height="24"/>
         <image name="square.and.arrow.up.fill" width="24" height="24"/>

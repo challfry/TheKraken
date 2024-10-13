@@ -157,7 +157,7 @@ class ServerTextFileParser: NSObject {
 			resultString.append(warningText)
 		}
 
-		for (sectionName, superSection) in response {
+		for (_, superSection) in response {
 			if let header = superSection.header {
 				let superSectionStr = NSAttributedString(string: header + "\n", attributes: headerAttrs)
 				resultString.append(superSectionStr)

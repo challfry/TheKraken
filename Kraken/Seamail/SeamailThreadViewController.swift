@@ -8,9 +8,11 @@
 
 import UIKit
 import CoreData
+import Photos
 
 class SeamailThreadViewController: BaseCollectionViewController {
 
+	// Set by calling VC
 	@objc dynamic var threadModel: SeamailThread?
 	
 	private let compositeDataSource = KrakenDataSource()
@@ -21,7 +23,48 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	private let dataManager = SeamailDataManager.shared
 	private let coreData = LocalCoreData.shared
 	
-	var postingCell = TextViewCellModel("")
+	@objc dynamic lazy var postingCell: TextViewCellModel =  {
+		let cell = TextViewCellModel("")
+		cell.labelText = "New Message"
+		self.tell(cell, when: "threadModel.participants") { observer, observed in
+			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
+			observer.shouldBeVisible = isMember
+		}?.execute()
+		postingCell = cell
+		return cell
+	}()
+	
+	lazy var pictureCell: PhotoSelectionCellModel = {
+		let cell = PhotoSelectionCellModel()
+		cell.maxPhotos = 1
+		cell.shouldBeVisible = false
+		self.tell(cell, when: "threadModel") { observer, observed in
+			if let model = observed.threadModel, let fezType = TwitarrV3FezType(rawValue: model.fezType), 
+        			fezType != .open && fezType != .closed {
+				observer.shouldBeVisible = true
+			}
+		}?.execute()
+		return cell
+	}()
+
+	lazy var statusCell: PostOpStatusCellModel = {
+		let cell = PostOpStatusCellModel()
+		cell.shouldBeVisible = false
+        cell.showSpinner = true
+        cell.statusText = "Posting..."
+        
+        cell.cancelAction = { [weak cell, weak self] in
+        	if let cell = cell, let op = cell.postOp {
+        		PostOperationDataManager.shared.remove(op: op)
+        		cell.postOp = nil
+        	}
+        	if let self = self {
+        		self.isBusyPosting = false
+        	}
+        }
+        return cell
+	}()
+
 	private var isBusyPosting: Bool = false
 	private var postAuthor: String = ""
 
@@ -98,8 +141,10 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		messageSegment.loaderDelegate = self
 							
 		// Next, the segment for the new message text field, send button, and join/leave/manage buttons.
-		newMessageSegment.append(createNewPostEditCell())
+		newMessageSegment.append(postingCell)
+		newMessageSegment.append(pictureCell)
 		newMessageSegment.append(createSendButtonCell())
+        newMessageSegment.append(statusCell)
 		newMessageSegment.append(createOpenChatInfoCell())
 		newMessageSegment.append(createJoinLeaveManageCell())
 		newMessageSegment.append(createEditLFGCell())
@@ -128,11 +173,29 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	}
 
 	func sendButtonHit() {
-		if let messageText = postingCell.getText(), messageText.count > 0, let thread = threadModel {
-			SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: messageText,
-					thread: thread, done: postQueued)
+		if let messageText = postingCell.getText(), !messageText.isEmpty, let thread = threadModel {
 			isBusyPosting = true
-			postingCell.clearText()
+			let attachedPhoto = pictureCell.selectedPhotos.first
+			ImageManager.shared.resizeImageForUpload(imageContainer: attachedPhoto, 
+					progress: { (_ progress: Double?, _ error: Error?, _ stopPtr: UnsafeMutablePointer<ObjCBool>, _ info: [AnyHashable : Any]?) in
+				if let error = error {
+					self.statusCell.errorText = error.localizedDescription
+				}
+				else if let resultInCloud = info?[PHImageResultIsInCloudKey] as? NSNumber, resultInCloud.boolValue == true {
+					self.statusCell.statusText = "Downloading full-sized photo from iCloud"
+				}
+			}, done: { (photoData, error) in
+				if let err = error {
+					self.statusCell.errorText = err.getCompleteError()
+					self.isBusyPosting = false
+				}
+				else {
+					SeamailDataManager.shared.queueNewSeamailMessageOp(existingOp: nil, message: messageText, photo: photoData,
+							thread: thread, done: self.postQueued)
+					self.postingCell.clearText()
+					self.pictureCell.clearAllSelectedPhotos()
+				}
+			})
 		}
 	}
 	
@@ -363,6 +426,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	
 	func createNewPostEditCell() -> TextViewCellModel {
 		let cell = TextViewCellModel("")
+		cell.labelText = "New Message"
 		self.tell(cell, when: "threadModel.participants") { observer, observed in
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
 			observer.shouldBeVisible = isMember
@@ -370,6 +434,17 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		postingCell = cell
 		return cell
 	}
+	
+//	func createAttachPhotoCell() -> PhotoSelectionCellModel {
+//		let cell = PhotoSelectionCellModel()
+//		cell.maxPhotos = 1
+//		cell.shouldBeVisible = false
+//        if let model = threadModel, let fezType = TwitarrV3FezType(rawValue: model.fezType), 
+//        		fezType != .open && fezType != .closed {
+//			cell.shouldBeVisible = true
+//		}
+//		return cell
+//	}
 	
 	func createSendButtonCell() -> ButtonCellModel {
 		let buttonCell = ButtonCellModel(title: "Send", action: weakify(self, type(of: self).sendButtonHit))
@@ -389,6 +464,9 @@ class SeamailThreadViewController: BaseCollectionViewController {
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
 			observer.shouldBeVisible = isMember
 		}?.execute()
+		self.tell(buttonCell, when: "postingCell.editedText") { observer, observed in
+			observer.button1Enabled = !(observed.postingCell.editedText?.isEmpty ?? true)
+		}?.execute()
 		return buttonCell
 	}
 	
@@ -397,7 +475,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 				attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitItalic), 
 				.foregroundColor: UIColor(named: "Kraken Secondary Text") as Any])
 		let cell = LabelCellModel(labelText)
-		self.tell(cell, when: "threadModel.fezType") { observer, observed in
+		self.tell(cell, when: "postingCell.") { observer, observed in
 			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str) {
 				observer.shouldBeVisible = type == .open
 			}
@@ -474,7 +552,8 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .lfgCreateEdit, .userProfile_User, .userProfile_Name, .reportContent ])
+		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .lfgCreateEdit, .userProfile_User, .userProfile_Name, .reportContent,
+				.fullScreenCamera, .cropCamera ])
 	}
 
 	// This is the unwind segue from the Manage Members view.
