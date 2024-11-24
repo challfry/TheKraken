@@ -173,8 +173,6 @@
         <relationship name="lastPosterInForum" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="lastPoster" inverseEntity="ForumThread"/>
         <relationship name="mutedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="mutedUsers" inverseEntity="KrakenUser"/>
         <relationship name="mutedUsers" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="mutedBy" inverseEntity="KrakenUser"/>
-        <relationship name="personalEventParticipant" optional="YES" toMany="YES" deletionRule="Nullify"/>
-        <relationship name="personalEvents" optional="YES" toMany="YES" deletionRule="Nullify"/>
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="user" inverseEntity="Reaction"/>
         <relationship name="seamailAttendee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="attendees" inverseEntity="SeamailThread"/>
