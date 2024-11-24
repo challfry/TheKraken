@@ -87,6 +87,11 @@ class KrakenDataSource: NSObject {
 			self.privateRunUpdates()				// Clear out any updates just before setting ourselves as the DS
 			cv.dataSource = self
 			cv.delegate = self
+			
+			if let headerClass = self.sectionHeaderClass, let headerNib = headerClass.nib  {
+				cv.register(headerNib, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+						withReuseIdentifier: headerClass.reuseID)
+			}
 
 			// It appears (rdar://47325370) that prefetch may not work if estimatedSize is set.
 //			cv.prefetchDataSource = self

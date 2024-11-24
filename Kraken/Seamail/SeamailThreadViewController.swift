@@ -28,7 +28,8 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		cell.labelText = "New Message"
 		self.tell(cell, when: "threadModel.participants") { observer, observed in
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
-			observer.shouldBeVisible = isMember
+			let isPersonalEvent = observed.threadModel?.isPersonalEventType() ?? false
+			observer.shouldBeVisible = isMember && !isPersonalEvent
 		}?.execute()
 		postingCell = cell
 		return cell
@@ -40,7 +41,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		cell.shouldBeVisible = false
 		self.tell(cell, when: "threadModel") { observer, observed in
 			if let model = observed.threadModel, let fezType = TwitarrV3FezType(rawValue: model.fezType), 
-        			fezType != .open && fezType != .closed {
+        			![.open, .closed, .personalEvent].contains(fezType) {
 				observer.shouldBeVisible = true
 			}
 		}?.execute()
@@ -103,8 +104,14 @@ class SeamailThreadViewController: BaseCollectionViewController {
 					title = "\(model.participants.count) Member Chat "
 				}
 			}
-			else {
+			else if model.isLFGType() {
 				title = "\(fezType.label) LFG"
+			}
+			else if model.isPrivateEventType() {
+				title = "Private Event"
+			}
+			else {
+				title = "Personal Event"
 			}
         }
         
@@ -222,7 +229,12 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	}
 	
 	func editLFGButtonHit() {
-		performKrakenSegue(.lfgCreateEdit, sender: threadModel)
+		if let threadModel, threadModel.isPrivateEventType() || threadModel.isPersonalEventType() {
+			performKrakenSegue(.privateEventCreate, sender: threadModel)
+		}
+		else {
+			performKrakenSegue(.lfgCreateEdit, sender: threadModel)
+		}
 	}
 	
 	func reportLFGButtonHit() {
@@ -231,8 +243,9 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	}
 	
 	func cancelLFGButtonHit() {
-		let message = "Cancelling the LFG will mark the LFG as not happening and notify all participants. The LFG won't be deleted; participants can still create and read posts."
-   		let alert = UIAlertController(title: "Cancel LFG", message: message,  preferredStyle: .alert) 
+		let typeName = threadModel?.generalTypeName() ?? "LFG"
+		let message = "Cancelling the \(typeName) will mark the \(typeName) as not happening and notify all participants. The \(typeName) won't be deleted; participants can still create and read posts."
+   		let alert = UIAlertController(title: "Cancel \(typeName)", message: message,  preferredStyle: .alert) 
 		alert.addAction(UIAlertAction(title: NSLocalizedString("Do It", comment: "Cancel action"), 
 				style: .destructive, handler: cancelLFGConfirmedHandler))
 		alert.addAction(UIAlertAction(title: NSLocalizedString("Wait--Don't", comment: "Default action"), 
@@ -263,7 +276,8 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	}
 
 	func createCanceledHeaderCell() -> LabelCellModel {
-		let cell = LabelCellModel("This LFG has been canceled by its creator.", stringTraits: [.foregroundColor: UIColor(named: "Red Alert Text") as Any])
+		let typeName = threadModel?.generalTypeName() ?? "LFG"
+		let cell = LabelCellModel("This \(typeName) has been canceled by its creator.", stringTraits: [.foregroundColor: UIColor(named: "Red Alert Text") as Any])
 		self.tell(cell, when: ["threadModel.cancelled"]) { observer, observed in
 			observer.shouldBeVisible = observed.threadModel?.cancelled == true
 		}?.execute()
@@ -334,22 +348,29 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		return cell
 	}
 	
+	// Attendee counts, but not avatars/specific names. For nonmembers of LFGs
 	func createAttendeeCountsCell() -> LabelCellModel {
 		let cell = LabelCellModel("")
 		self.tell(cell, when: ["threadModel.participantCount", "threadModel.maxParticipants"]) { observer, observed in
 			let labelText = NSMutableAttributedString()
 			if let model = observed.threadModel {
-				labelText.append(NSAttributedString(string: "\(model.participantCount)/\(model.maxParticipants) attendees", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+				if model.maxParticipants == 0 {
+					labelText.append(NSAttributedString(string: "\(model.participantCount) attendees", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+				}
+				else {
+					labelText.append(NSAttributedString(string: "\(model.participantCount)/\(model.maxParticipants) attendees", attributes: [.font: UIFont.systemFont(ofSize: 17, symbolicTraits: .traitBold)]))
+				}
 			}
 			observer.labelText = labelText
 		}?.execute()
 		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
-			observer.shouldBeVisible = !["open", "closed"].contains(observed.threadModel?.fezType) && !isMember
+			observer.shouldBeVisible = !["open", "closed", "personalEvent"].contains(observed.threadModel?.fezType) && !isMember
 		}?.execute()
 		return cell
 	}
 	
+	// Participants in an open or closed chat.
 	func createParticipantsHeaderCell() -> SeamailParticipantsCellModel {
 		let cell = SeamailParticipantsCellModel(withTitle: "Participants:")
 		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
@@ -366,16 +387,18 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		return cell
 	}
 	
+	// Attendees of an LFG or private event
 	func createAttendeesHeaderCell() -> SeamailParticipantsCellModel {
 		let cell = SeamailParticipantsCellModel(withTitle: "Attendees:")
 		self.tell(cell, when: ["threadModel.attendees"]) { observer, observed in
 			observer.users = (observed.threadModel?.attendees.array as? [MaybeUser]) ?? []
-			observer.title = "\(observed.threadModel?.attendees.count ?? 0)/\(observed.threadModel?.maxParticipants ?? 0) attendees:"
+			let maxStr = observed.threadModel?.maxParticipants != 0 ? "/\(observed.threadModel?.maxParticipants ?? 0)" : ""
+			observer.title = "\(observed.threadModel?.attendees.count ?? 0)\(maxStr) attendees:"
 		}?.execute()
 		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
 			if let thread = observed.threadModel {
 				let isMember = thread.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
-				observer.shouldBeVisible = !["open", "closed"].contains(thread.fezType) && isMember
+				observer.shouldBeVisible = !["open", "closed", "personalEvent"].contains(thread.fezType) && isMember
 			}
 			else {
 				observer.shouldBeVisible = false
@@ -391,7 +414,7 @@ class SeamailThreadViewController: BaseCollectionViewController {
 			observer.title = "\(observed.threadModel?.waitList.count ?? 0) on wait list:"
 		}?.execute()
 		self.tell(cell, when: ["threadModel.fezType", "threadModel.participants"]) { observer, observed in
-			let isLFG = !["open", "closed"].contains(observed.threadModel?.fezType)
+			let isLFG = observed.threadModel?.isLFGType() ?? false
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
 			let hasWaitlist = observed.threadModel?.waitList.count ?? 0 > 0
 			observer.shouldBeVisible = isLFG && hasWaitlist && isMember
@@ -405,7 +428,8 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		cell.bgColor = UIColor(named: "Info Title Background")
 		self.tell(cell, when: "threadModel.participants") { observer, observed in
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
-			observer.shouldBeVisible = isMember
+			let isPersonalEvent = observed.threadModel?.isPersonalEventType() ?? false
+			observer.shouldBeVisible = isMember && !isPersonalEvent
 		}?.execute()
 		return cell
 	}
@@ -429,23 +453,13 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		cell.labelText = "New Message"
 		self.tell(cell, when: "threadModel.participants") { observer, observed in
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
-			observer.shouldBeVisible = isMember
+			let isPersonalEvent = observed.threadModel?.isPersonalEventType() ?? false
+			observer.shouldBeVisible = isMember && !isPersonalEvent
 		}?.execute()
 		postingCell = cell
 		return cell
 	}
-	
-//	func createAttachPhotoCell() -> PhotoSelectionCellModel {
-//		let cell = PhotoSelectionCellModel()
-//		cell.maxPhotos = 1
-//		cell.shouldBeVisible = false
-//        if let model = threadModel, let fezType = TwitarrV3FezType(rawValue: model.fezType), 
-//        		fezType != .open && fezType != .closed {
-//			cell.shouldBeVisible = true
-//		}
-//		return cell
-//	}
-	
+		
 	func createSendButtonCell() -> ButtonCellModel {
 		let buttonCell = ButtonCellModel(title: "Send", action: weakify(self, type(of: self).sendButtonHit))
 		CurrentUser.shared.tell(buttonCell, when: ["loggedInUser", "credentialedUsers"]) { observer, observed in
@@ -462,7 +476,8 @@ class SeamailThreadViewController: BaseCollectionViewController {
 		}?.execute()
 		self.tell(buttonCell, when: "threadModel.participants") { observer, observed in
 			let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
-			observer.shouldBeVisible = isMember
+			let isPersonalEvent = observed.threadModel?.isPersonalEventType() ?? false
+			observer.shouldBeVisible = isMember && !isPersonalEvent
 		}?.execute()
 		self.tell(buttonCell, when: "postingCell.editedText") { observer, observed in
 			observer.button1Enabled = !(observed.postingCell.editedText?.isEmpty ?? true)
@@ -489,17 +504,26 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	func createJoinLeaveManageCell() -> ButtonCellModel {
 		let cell = ButtonCellModel(title: "Join this LFG", alignment: .center, action: weakify(self, type(of: self).joinLeaveManageButtonHit))
 		self.tell(cell, when: ["threadModel.participants", "threadModel.owner.userID"]) { observer, observed in
-			if observed.threadModel?.owner?.userID == CurrentUser.shared.loggedInUser?.userID {
-				observer.button1Text = "Manage Members" 
+			guard let threadModel = observed.threadModel, let userID = CurrentUser.shared.loggedInUser?.userID else { return }
+			if threadModel.owner?.userID == userID {
+				observer.button1Text = threadModel.isPrivateEventType() ? "Manage Invitees" : "Manage Members" 
 			}
 			else {
-				let isMember = observed.threadModel?.participants.first { $0.userID == CurrentUser.shared.loggedInUser?.userID } != nil
-				observer.button1Text = isMember ? "Leave this LFG" : "Join this LFG" 
+				let isMember = threadModel.participants.first { $0.userID == userID } != nil
+				if threadModel.isPrivateEventType() {
+					observer.button1Text = "Decline this Event (leaves chat)"
+				}
+				else if threadModel.isLFGType() {
+					observer.button1Text = isMember ? "Leave this LFG" : "Join this LFG" 
+				}
+				else if threadModel.fezType == "open" {
+					observer.button1Text = "Leave this Chat"
+				}
 			}
 		}?.execute()
 		self.tell(cell, when: "threadModel.fezType") { observer, observed in
 			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str) {
-				observer.shouldBeVisible = type != .closed
+				observer.shouldBeVisible = ![.closed, .personalEvent].contains(type)
 			}
 			else {
 				observer.shouldBeVisible = false
@@ -511,13 +535,15 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	func createEditLFGCell() -> ButtonCellModel {
 		let cell = ButtonCellModel(title: "Edit LFG", alignment: .center, action: weakify(self, type(of: self).editLFGButtonHit))
 		self.tell(cell, when: ["threadModel.fezType", "threadModel.owner"]) { observer, observed in
-			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str), ![.closed, .open].contains(type),
-					let owner = observed.threadModel?.owner, owner.userID == CurrentUser.shared.loggedInUser?.userID {
+			guard let threadModel = observed.threadModel, let currentUserID = CurrentUser.shared.loggedInUser?.userID,
+					let type = TwitarrV3FezType(rawValue: threadModel.fezType) else { return }
+			if ![.closed, .open].contains(type), let ownerID = threadModel.owner?.userID, ownerID == currentUserID {
 				observer.shouldBeVisible = true
 			}
 			else {
 				observer.shouldBeVisible = false
 			}
+			observer.button1Text = "Edit \(threadModel.generalTypeName())"
 		}?.execute()
 		return cell
 	}
@@ -525,12 +551,9 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	func createReportLFGCell() -> ButtonCellModel {
 		let cell = ButtonCellModel(title: "Report this LFG", alignment: .center, action: weakify(self, type(of: self).reportLFGButtonHit))
 		self.tell(cell, when: ["threadModel.fezType"]) { observer, observed in
-			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str), ![.closed, .open].contains(type) {
-				observer.shouldBeVisible = true
-			}
-			else {
-				observer.shouldBeVisible = false
-			}
+			guard let threadModel = observed.threadModel, let type = TwitarrV3FezType(rawValue: threadModel.fezType) else { return }
+			observer.shouldBeVisible = ![.closed, .personalEvent].contains(type)
+			observer.button1Text = "Report this \(threadModel.generalTypeName())"
 		}?.execute()
 		return cell
 	}
@@ -538,22 +561,23 @@ class SeamailThreadViewController: BaseCollectionViewController {
 	func createCancelLFGCell() -> ButtonCellModel {
 		let cell = ButtonCellModel(title: "Cancel this LFG", alignment: .center, action: weakify(self, type(of: self).cancelLFGButtonHit))
 		self.tell(cell, when: ["threadModel.fezType", "threadModel.owner", "threadModel.cancelled"]) { observer, observed in
-			if let str = observed.threadModel?.fezType, let type = TwitarrV3FezType(rawValue: str), ![.closed, .open].contains(type),
-					let owner = observed.threadModel?.owner, owner.userID == CurrentUser.shared.loggedInUser?.userID,
-					let cancelled = observed.threadModel?.cancelled, cancelled == false {
+			guard let threadModel = observed.threadModel, let currentUserID = CurrentUser.shared.loggedInUser?.userID,
+					let type = TwitarrV3FezType(rawValue: threadModel.fezType) else { return }
+			if ![.closed, .open].contains(type), threadModel.owner?.userID == currentUserID, threadModel.cancelled == false {
 				observer.shouldBeVisible = true
 			}
 			else {
 				observer.shouldBeVisible = false
 			}
+			observer.button1Text = "Cancel this \(threadModel.generalTypeName())"
 		}?.execute()
 		return cell
 	}
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .lfgCreateEdit, .userProfile_User, .userProfile_Name, .reportContent,
-				.fullScreenCamera, .cropCamera ])
+		Set<GlobalKnownSegue>([ .dismiss, .seamailManageMembers, .lfgCreateEdit, .privateEventCreate, .userProfile_User, .userProfile_Name, 
+				.reportContent, .fullScreenCamera, .cropCamera ])
 	}
 
 	// This is the unwind segue from the Manage Members view.

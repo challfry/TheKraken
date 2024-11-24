@@ -56,7 +56,7 @@ class TwitarrViewController: BaseCollectionViewController, GlobalNavEnabled {
         		observer.tweetDataSource.register(with: observer.collectionView, viewController: observer)
 				observer.postButton.isEnabled = true
 				observer.collectionView.refreshControl = UIRefreshControl()
-				observer.collectionView.refreshControl?.addTarget(self, action: #selector(self.self.startRefresh), for: .valueChanged)
+				observer.collectionView.refreshControl?.addTarget(self, action: #selector(self.startRefresh), for: .valueChanged)
 				observer.startRefresh()
 			}
        		else {

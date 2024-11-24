@@ -99,23 +99,9 @@ enum PhotoDataType {
 	
 	// PhotoDataType can't be observed (objC issues) so instead we pass the images to the cell
 	var selectedPhotos: [PhotoDataType] = []
-	
-	override var shouldBeVisible: Bool {
-		didSet {
-			let status = PHPhotoLibrary.authorizationStatus()
-			if status == .restricted || status == .denied {
-				shouldBeVisible = false
-			}
-		}
-	}
-	
+		
 	init() {
 		super.init(bindingWith: PhotoSelectionCellProtocol.self)
-		
-		let status = PHPhotoLibrary.authorizationStatus()
-		if status == .restricted || status == .denied {
-			shouldBeVisible = false
-		}
 	}
 	
 	func appendSelectedPhoto(path: IndexPath?, photo: PhotoDataType) {
@@ -235,13 +221,14 @@ enum PhotoDataType {
 		cameraSegment.append(cameraCell)
 
 		// Auth buttons for camera and library access
+		authSegment.segmentName = "Auth"
   		photoDataSource.append(segment: authSegment)
 		authSegment.append(authCell)
 		authCell.buttonHit = authButtonTapped
   		
   		let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
 		authCell.shouldBeVisible = status == .notDetermined
-		if status == .authorized {
+		if [.authorized, .limited].contains(status) {
 			attachPhotoSegment()
 		}
 		
@@ -271,12 +258,14 @@ enum PhotoDataType {
 	@IBAction func authButtonTapped(_ sender: Any) {
 		PHPhotoLibrary.requestAuthorization { status in
 			DispatchQueue.main.async {
-				if status == .restricted || status == .denied {
-					self.authCell.shouldBeVisible = false
-				}
-				if status == .authorized {
+				switch status {
+				case .authorized, .limited: 
 					self.attachPhotoSegment()
 					self.authCell.shouldBeVisible = false
+				case .restricted, .denied: 
+					self.authCell.shouldBeVisible = false
+				case .notDetermined: break
+				@unknown default: break
 				}
 			}
 		}
@@ -559,10 +548,10 @@ enum PhotoDataType {
 class HorizontalLineLayout: UICollectionViewLayout {
 	weak var parentCell: PhotoSelectionCell?
 	
-	static let cellWidth = 80
-	static let cellSpacing = 6
-	static var cellStride: Int { return cellWidth + cellSpacing }
-	
+	let cellWidth = 80
+	let cellSpacing = 6
+	var cellStride: Int { return cellWidth + cellSpacing }
+		
 	init(withParent: PhotoSelectionCell) {
 		parentCell = withParent
 		super.init()
@@ -584,10 +573,10 @@ class HorizontalLineLayout: UICollectionViewLayout {
 	override var collectionViewContentSize: CGSize {
 		if let cv = collectionView {
 			let photoCount = totalCellCount(in: cv)
-			var result = CGSize(width: photoCount * (HorizontalLineLayout.cellStride), height: 80)
+			var result = CGSize(width: photoCount * (cellStride), height: 80)
 			if PHPhotoLibrary.authorizationStatus(for: .readWrite) == .notDetermined {
-				let authWidth = cv.bounds.width - CGFloat(HorizontalLineLayout.cellStride)
-				result.width += authWidth - CGFloat(HorizontalLineLayout.cellWidth)
+				let authWidth = cv.bounds.width - CGFloat(cellStride)
+				result.width += authWidth - CGFloat(cellWidth)
 			}
 			return result
 		}
@@ -595,18 +584,24 @@ class HorizontalLineLayout: UICollectionViewLayout {
 	}
 
 	override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-		guard let cv = collectionView, let ds = cv.dataSource else { return nil }
+		guard let cv = collectionView, let ds = cv.dataSource as? KrakenDataSource else { return nil }
 		var result: [UICollectionViewLayoutAttributes] = []
 		let photoCount = totalCellCount(in: cv)
-		var first = Int(Int(rect.origin.x) / HorizontalLineLayout.cellStride)
+		var first = Int(Int(rect.origin.x) / cellStride)
 		first = first.clamped(to: 0...photoCount)
-		var last = Int(ceil((rect.origin.x + rect.size.width) / CGFloat(HorizontalLineLayout.cellStride)))
+		var last = Int(ceil((rect.origin.x + rect.size.width) / CGFloat(cellStride)))
 		last = last.clamped(to: 0...photoCount)
+		
+		// Determine whether the special auth cell is visible
+		var authCellVisible = false
+		if let authSeg = ds.segment(named: "Auth"), authSeg.numVisibleSections > 0 {
+			authCellVisible = true
+		}
 		
 		var path = IndexPath(row: 0, section: 0)
 		var cellStartIndex = 0
 		var cellsInThisSection = 0
-		let numSections = ds.numberOfSections?(in: cv) ?? 0
+		let numSections = ds.numberOfSections(in: cv)
 		for sectionIndex in 0..<numSections {
 			let nextSectionStartIndex = cellStartIndex + ds.collectionView(cv, numberOfItemsInSection: sectionIndex)
 			if nextSectionStartIndex > first {
@@ -618,7 +613,8 @@ class HorizontalLineLayout: UICollectionViewLayout {
 			cellStartIndex = nextSectionStartIndex
 		}
 		
-		for index in first..<last {
+		var xOffset: Int = first * cellStride
+		for _ in first..<last {
 			if path.row >= cellsInThisSection {
 				path.section += 1
 				path.row = 0
@@ -627,15 +623,16 @@ class HorizontalLineLayout: UICollectionViewLayout {
 
 			let val = UICollectionViewLayoutAttributes(forCellWith: path)
 			val.isHidden = false
-			val.frame = CGRect(x: index * HorizontalLineLayout.cellStride, y: 0, width: HorizontalLineLayout.cellWidth, height: 80)
 			
-			// Cheezing it. Checking the cell at this path--if it's the auth cell, give it a special size.
-			if path.section == 1, path.row == 0 {
-				let cell = ds.collectionView(cv, cellForItemAt: path)
-				if let _ = cell as? PhotoAuthCell {
-					let width = Int(cv.bounds.width) - HorizontalLineLayout.cellStride
-					val.frame = CGRect(x: index * HorizontalLineLayout.cellStride, y: 0, width: width, height: 80)
-				}
+			// Checking the cell at this path--if it's the auth cell, give it a special size.
+			if authCellVisible && path == IndexPath(row: 0, section: 1) {
+				let width = Int(cv.bounds.width) - cellStride
+				val.frame = CGRect(x: xOffset, y: 0, width: width, height: 80)
+				xOffset += width + cellSpacing
+			}
+			else {
+				val.frame = CGRect(x: xOffset, y: 0, width: cellWidth, height: 80)
+				xOffset += cellStride
 			}
 			result.append(val)
 			
@@ -662,8 +659,7 @@ class HorizontalLineLayout: UICollectionViewLayout {
 		}
 	
 		result.isHidden = false
-		result.frame = CGRect(x: cellFlatIndex * HorizontalLineLayout.cellStride, y: 0,
-				width: HorizontalLineLayout.cellWidth, height: 80)
+		result.frame = CGRect(x: cellFlatIndex * cellStride, y: 0, width: cellWidth, height: 80)
 		return result
 	}
 
@@ -675,7 +671,7 @@ class HorizontalLineLayout: UICollectionViewLayout {
 				xOffset += collectionView!.dataSource!.collectionView(collectionView!, numberOfItemsInSection: section)
 			}
 			
-            attributes.frame = CGRect(x: xOffset * HorizontalLineLayout.cellStride + 60, y: 0, width: 20, height: 20)
+            attributes.frame = CGRect(x: xOffset * cellStride + 60, y: 0, width: 20, height: 20)
             return attributes
         }
         return nil

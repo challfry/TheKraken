@@ -59,7 +59,7 @@ class SeamailRootViewController: BaseCollectionViewController, GlobalNavEnabled 
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
 			if let currentUserID = observed.loggedInUser?.userID {
 				let pred = NSCompoundPredicate(andPredicateWithSubpredicates: [
-						NSPredicate(format: "fezType IN %@", ["open", "closed"] as CVarArg),
+						NSPredicate(format: "fezType IN %@", ["open", "closed", "privateEvent"] as CVarArg),
 						NSPredicate(format: "ANY participants.userID == %@", currentUserID as CVarArg)])
 				observer.threadSegment.changePredicate(to: pred)
         		observer.threadDataSource.register(with: observer.collectionView, viewController: observer)

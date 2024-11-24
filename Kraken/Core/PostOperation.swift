@@ -890,6 +890,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 	@NSManaged public var endTime: Date
 	@NSManaged public var minCapacity: Int32
 	@NSManaged public var maxCapacity: Int32
+	@NSManaged public var participants: Set<PotentialUser>?		// Only Private Events have participants at creation, and they're not ordered.
 //	@NSManaged public var photo: PostOpPhoto_Attachment? 		// If the post is being edited, and has a photo, must be non-nil to keep photo
 
 	override public func awakeFromInsert() {
@@ -915,6 +916,21 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		}
 		confirmPostBeingSent(context: context)
 		
+		// Put together participant list; resolve any 'unknown' users where we only have a name.
+		while let unknownUser = participants?.first(where: { $0.actualUser == nil }) {
+			UserManager.shared.loadUser(unknownUser.username, inContext: context) { actualUser in
+				LocalCoreData.shared.performLocalCoreDataChange { context, currentUser in
+					if let foundUser = actualUser {
+						unknownUser.actualUser = foundUser
+					}
+					else {
+						self.participants?.remove(unknownUser)
+					}
+				}
+			}
+		}
+		let participantIDs = participants?.compactMap { $0.actualUser?.userID } ?? []
+		
 		var path: String
 		if let lfgBeingEdited = editingLFG { 
 			// POST /api/v3/fez/ID/update -- updating an existing LFG
@@ -928,7 +944,7 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		NetworkGovernor.addUserCredential(to: &request, forUser: author)
 		request.httpMethod = "POST"
 		let newLFGStruct = TwitarrV3FezContentData(fezType: lfgtype, title: title, info: info,  startTime: startTime, endTime: endTime, 
-				location: location, minCapacity: minCapacity, maxCapacity: maxCapacity, initialUsers: [])
+				location: location, minCapacity: minCapacity, maxCapacity: maxCapacity, initialUsers: participantIDs)
 		let newThreadData = try! Settings.v3Encoder.encode(newLFGStruct)
 		request.httpBody = newThreadData
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")

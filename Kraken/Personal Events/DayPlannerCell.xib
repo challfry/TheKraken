@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="DayPlannerCell" reuseIdentifier="DayPlannerCell" id="0iC-ZD-sS0" customClass="DayPlannerCell" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="383" height="243"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="YrV-XQ-hoA">
+                <rect key="frame" x="0.0" y="0.0" width="383" height="243"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pZg-Tk-aNC">
+                        <rect key="frame" x="10" y="5" width="363" height="233"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="hNY-39-2fC">
+                                <rect key="frame" x="0.0" y="0.0" width="363" height="233"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i7R-p2-iLN">
+                                        <rect key="frame" x="0.0" y="0.0" width="363" height="33"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="200" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9sb-hH-sDJ">
+                                                <rect key="frame" x="0.0" y="2" width="148.33333333333334" height="29"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="chevron.right" catalog="system" imagePlacement="trailing" title="Day Planner">
+                                                    <fontDescription key="titleFontDescription" type="boldSystem" pointSize="19"/>
+                                                    <color key="baseForegroundColor" name="Kraken Label Text"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="dayPlannerButtonHit:" destination="0iC-ZD-sS0" eventType="touchUpInside" id="9Es-sw-Py7"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kwp-Es-zj8">
+                                                <rect key="frame" x="312.33333333333331" y="2" width="50.666666666666686" height="29"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="calendar.badge.plus" catalog="system">
+                                                    <color key="baseForegroundColor" name="AnnouncementBody"/>
+                                                </buttonConfiguration>
+                                                <connections>
+                                                    <action selector="addButtonHit:" destination="0iC-ZD-sS0" eventType="touchUpInside" id="MCr-Xd-SUg"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" name="PortAndTheme BG"/>
+                                        <constraints>
+                                            <constraint firstItem="Kwp-Es-zj8" firstAttribute="top" secondItem="i7R-p2-iLN" secondAttribute="top" priority="700" constant="2" id="2FA-VR-HuH"/>
+                                            <constraint firstItem="9sb-hH-sDJ" firstAttribute="top" relation="greaterThanOrEqual" secondItem="i7R-p2-iLN" secondAttribute="top" constant="2" id="8lR-9p-5TA"/>
+                                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="9sb-hH-sDJ" secondAttribute="bottom" constant="2" id="FbD-WF-q5u"/>
+                                            <constraint firstItem="9sb-hH-sDJ" firstAttribute="leading" secondItem="i7R-p2-iLN" secondAttribute="leading" id="Fbu-4k-eTG"/>
+                                            <constraint firstAttribute="bottom" secondItem="Kwp-Es-zj8" secondAttribute="bottom" constant="2" id="Kwa-cX-hDA"/>
+                                            <constraint firstAttribute="trailing" secondItem="Kwp-Es-zj8" secondAttribute="trailing" id="X0w-qr-3XN"/>
+                                            <constraint firstItem="Kwp-Es-zj8" firstAttribute="centerY" secondItem="9sb-hH-sDJ" secondAttribute="centerY" id="hAt-cP-0uI"/>
+                                            <constraint firstItem="Kwp-Es-zj8" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="9sb-hH-sDJ" secondAttribute="trailing" constant="10" id="p3b-jB-GIe"/>
+                                        </constraints>
+                                    </view>
+                                    <view clipsSubviews="YES" contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="Owf-gI-Xhy" userLabel="DayPlanner BG View" customClass="DayPlannerBgView" customModule="Kraken" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="33" width="363" height="200"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="200" id="Xxf-3H-hcc"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="hNY-39-2fC" secondAttribute="bottom" id="1qu-BN-93i"/>
+                            <constraint firstItem="hNY-39-2fC" firstAttribute="top" secondItem="pZg-Tk-aNC" secondAttribute="top" id="Dby-ad-VDk"/>
+                            <constraint firstAttribute="trailing" secondItem="hNY-39-2fC" secondAttribute="trailing" id="eHZ-f3-gpB"/>
+                            <constraint firstItem="hNY-39-2fC" firstAttribute="leading" secondItem="pZg-Tk-aNC" secondAttribute="leading" id="lw8-6M-8M8"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstItem="pZg-Tk-aNC" firstAttribute="leading" secondItem="YrV-XQ-hoA" secondAttribute="leading" constant="10" id="3mq-Bg-0ug"/>
+                    <constraint firstItem="pZg-Tk-aNC" firstAttribute="top" secondItem="YrV-XQ-hoA" secondAttribute="top" constant="5" id="HSJ-ia-O6e"/>
+                    <constraint firstAttribute="bottom" secondItem="pZg-Tk-aNC" secondAttribute="bottom" priority="999" constant="5" id="hoX-lx-PCA"/>
+                    <constraint firstAttribute="trailing" secondItem="pZg-Tk-aNC" secondAttribute="trailing" constant="10" id="lnp-49-isF"/>
+                </constraints>
+            </collectionViewCellContentView>
+            <size key="customSize" width="383" height="243"/>
+            <connections>
+                <outlet property="addButton" destination="Kwp-Es-zj8" id="iRL-Bs-vdI"/>
+                <outlet property="calendarHeight" destination="Xxf-3H-hcc" id="OTI-7b-dbC"/>
+                <outlet property="calendarView" destination="Owf-gI-Xhy" id="40Q-FC-05f"/>
+                <outlet property="dayPlannerButton" destination="9sb-hH-sDJ" id="lJ3-Oz-hWp"/>
+                <outlet property="headerView" destination="i7R-p2-iLN" id="kwI-2p-Nmz"/>
+                <outlet property="pillView" destination="pZg-Tk-aNC" id="uwV-9n-4J4"/>
+                <outlet property="pillViewBottom" destination="hoX-lx-PCA" id="ytc-Iu-LER"/>
+                <outlet property="pillViewLeading" destination="3mq-Bg-0ug" id="bDg-6a-65F"/>
+                <outlet property="pillViewTop" destination="HSJ-ia-O6e" id="bJf-Pg-IQx"/>
+                <outlet property="pillViewTrailing" destination="lnp-49-isF" id="0iw-cE-3g9"/>
+            </connections>
+            <point key="canvasLocation" x="205.34351145038167" y="-134.85915492957747"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="calendar.badge.plus" catalog="system" width="128" height="109"/>
+        <image name="chevron.right" catalog="system" width="97" height="128"/>
+        <namedColor name="AnnouncementBody">
+            <color red="0.9100000262260437" green="0.9089999794960022" blue="0.76200002431869507" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="PortAndTheme BG">
+            <color red="0.15000000596046448" green="0.32400000095367432" blue="0.4699999988079071" alpha="0.83899998664855957" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

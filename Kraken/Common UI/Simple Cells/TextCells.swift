@@ -16,7 +16,8 @@ import UIKit
 	dynamic var errorText: String? { get set }
 	dynamic var purpose: TextFieldCellModel.Purpose { get set }
 	dynamic var showClearTextButton: Bool { get set }
-	dynamic var returnButtonHit: ((String) -> Void)? { get set } 
+	dynamic var returnButtonHit: ((String) -> Void)? { get set }
+	dynamic var placeholderText: String? { get set }
 }
 
 @objc class TextFieldCellModel: BaseCellModel, TextFieldCellProtocol {	
@@ -29,6 +30,8 @@ import UIKit
 	dynamic var purpose: Purpose = .normal
 	dynamic var showClearTextButton: Bool = false
 	dynamic var returnButtonHit: ((String) -> Void)?
+	@objc dynamic var placeholderText: String?		
+
 	@objc dynamic var editedText: String?			// Cell fills this in
 	
 	@objc enum Purpose: Int {
@@ -107,6 +110,11 @@ class TextFieldCell: BaseCollectionViewCell, TextFieldCellProtocol, UITextFieldD
 	}
 	var errorText: String? {
 		didSet { errorLabel.text = errorText; cellSizeChanged() }
+	}
+	var placeholderText: String? {
+		didSet {
+			textField.placeholder = placeholderText
+		}
 	}
 	
 	var purpose: TextFieldCellModel.Purpose = .normal {

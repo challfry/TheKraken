@@ -16,6 +16,8 @@ class BaseCollectionSupplementaryView: UICollectionReusableView {
 		return ""
 	}
 	var isPrototype = false
+	weak var collectionView: UICollectionView?
+	var indexPath: IndexPath?
 	
 	class func getPrototypeView(_ cv: UICollectionView, cellModel: BaseCellModel) -> BaseCollectionSupplementaryView? {
 		if let nibContents = nib?.instantiate(withOwner: nil, options: nil) {
@@ -31,6 +33,8 @@ class BaseCollectionSupplementaryView: UICollectionReusableView {
 			-> BaseCollectionSupplementaryView {
 		let newView = cv.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: reuseID, 
 				for: indexPath) as! BaseCollectionSupplementaryView
+		newView.collectionView = cv
+		newView.indexPath = indexPath
 		newView.setup(cellModel: cellModel)	
 		return newView	
 	}

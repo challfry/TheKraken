@@ -99,7 +99,12 @@ class LFGCell: BaseCollectionViewCell, LFGCellBindingProtocol {
 					observer.ownerLabel.text = "by @\(observed.author.username)"
 	    		}?.execute())
 	    		addObservation(op.tell(self, when: "maxCapacity") { observer, observed in
-					observer.attendeesLabel.text = "\(observed.maxCapacity) attendees max"
+	    			if observed.lfgType == "privateEvent" || observed.lfgType == "personalEvent" {
+						observer.attendeesLabel.text = ""
+					}
+					else {
+						observer.attendeesLabel.text = "\(observed.maxCapacity) attendees max"
+					}
 	    		}?.execute())
 	    		addObservation(op.tell(self, when: "lfgType") { observer, observed in
 					observer.categoryLabel.text = "\(observed.lfgType)"

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -14,60 +15,72 @@
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotostreamCell" id="7Hd-1v-Dc6" customClass="PhotostreamCell" customModule="Kraken" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="414" height="297"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="uVD-MW-hqo" customClass="PhotostreamRoundedRectView" customModule="Kraken" customModuleProvider="target">
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="uVD-MW-hqo">
                 <rect key="frame" x="0.0" y="0.0" width="414" height="297"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VFO-Yl-Xkq" userLabel="Header">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="42"/>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="M5r-YY-2jL">
+                        <rect key="frame" x="10" y="5" width="394" height="287"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Photostream" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VCb-cL-WwG">
-                                <rect key="frame" x="19.999999999999993" y="12" width="117.33333333333331" height="23"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="19"/>
-                                <color key="textColor" name="Kraken Label Text"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T5q-JK-8vk">
-                                <rect key="frame" x="364" y="9" width="30" height="29"/>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <connections>
-                                    <action selector="addPhotoButtonTapped:" destination="7Hd-1v-Dc6" eventType="touchUpInside" id="3n1-J4-O9A"/>
-                                </connections>
-                            </button>
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VFO-Yl-Xkq" userLabel="Header">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="42"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Photostream" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VCb-cL-WwG">
+                                        <rect key="frame" x="9.9999999999999929" y="7" width="117.33333333333331" height="23"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="19"/>
+                                        <color key="textColor" name="Kraken Label Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T5q-JK-8vk">
+                                        <rect key="frame" x="354" y="4" width="30" height="29"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <connections>
+                                            <action selector="addPhotoButtonTapped:" destination="7Hd-1v-Dc6" eventType="touchUpInside" id="3n1-J4-O9A"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" name="PortAndTheme BG"/>
+                                <constraints>
+                                    <constraint firstItem="VCb-cL-WwG" firstAttribute="centerY" secondItem="T5q-JK-8vk" secondAttribute="centerY" id="5cb-Zr-cNU"/>
+                                    <constraint firstItem="T5q-JK-8vk" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="VCb-cL-WwG" secondAttribute="trailing" constant="10" id="USt-27-2Ck"/>
+                                    <constraint firstAttribute="trailing" secondItem="T5q-JK-8vk" secondAttribute="trailing" constant="10" id="huE-wr-vin"/>
+                                    <constraint firstAttribute="bottom" secondItem="T5q-JK-8vk" secondAttribute="bottom" constant="4" id="pZa-xt-h70"/>
+                                    <constraint firstItem="VCb-cL-WwG" firstAttribute="leading" secondItem="VFO-Yl-Xkq" secondAttribute="leading" constant="10" id="rQ3-Tb-y5r"/>
+                                    <constraint firstItem="T5q-JK-8vk" firstAttribute="top" secondItem="VFO-Yl-Xkq" secondAttribute="top" constant="4" id="yqb-ez-H63"/>
+                                </constraints>
+                            </view>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="eFo-mz-GH5">
+                                <rect key="frame" x="0.0" y="37" width="394" height="250"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="250" id="RsL-kY-hdX"/>
+                                </constraints>
+                                <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="pf0-rH-378">
+                                    <size key="itemSize" width="170" height="230"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                            </collectionView>
                         </subviews>
-                        <color key="backgroundColor" name="PortAndTheme BG"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="VCb-cL-WwG" firstAttribute="centerY" secondItem="T5q-JK-8vk" secondAttribute="centerY" id="5cb-Zr-cNU"/>
-                            <constraint firstItem="T5q-JK-8vk" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="VCb-cL-WwG" secondAttribute="trailing" constant="10" id="USt-27-2Ck"/>
-                            <constraint firstAttribute="trailing" secondItem="T5q-JK-8vk" secondAttribute="trailing" constant="20" id="huE-wr-vin"/>
-                            <constraint firstAttribute="bottom" secondItem="T5q-JK-8vk" secondAttribute="bottom" constant="4" id="pZa-xt-h70"/>
-                            <constraint firstItem="VCb-cL-WwG" firstAttribute="leading" secondItem="VFO-Yl-Xkq" secondAttribute="leading" constant="20" id="rQ3-Tb-y5r"/>
-                            <constraint firstItem="T5q-JK-8vk" firstAttribute="top" secondItem="VFO-Yl-Xkq" secondAttribute="top" constant="9" id="yqb-ez-H63"/>
+                            <constraint firstAttribute="bottom" secondItem="eFo-mz-GH5" secondAttribute="bottom" id="QvO-jY-IXJ"/>
+                            <constraint firstItem="eFo-mz-GH5" firstAttribute="top" secondItem="VFO-Yl-Xkq" secondAttribute="bottom" id="dtr-qp-IEE"/>
+                            <constraint firstItem="VFO-Yl-Xkq" firstAttribute="top" secondItem="M5r-YY-2jL" secondAttribute="top" id="dxV-5q-Lz3"/>
+                            <constraint firstAttribute="trailing" secondItem="VFO-Yl-Xkq" secondAttribute="trailing" id="ftP-K4-yKV"/>
+                            <constraint firstItem="eFo-mz-GH5" firstAttribute="leading" secondItem="M5r-YY-2jL" secondAttribute="leading" id="rf7-As-DbW"/>
+                            <constraint firstAttribute="trailing" secondItem="eFo-mz-GH5" secondAttribute="trailing" id="ubR-dm-He8"/>
+                            <constraint firstItem="VFO-Yl-Xkq" firstAttribute="leading" secondItem="M5r-YY-2jL" secondAttribute="leading" id="znK-Zj-9e2"/>
                         </constraints>
                     </view>
-                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="eFo-mz-GH5">
-                        <rect key="frame" x="11" y="42" width="392" height="250"/>
-                        <color key="backgroundColor" name="CollectionView Background"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="250" id="RsL-kY-hdX"/>
-                        </constraints>
-                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="pf0-rH-378">
-                            <size key="itemSize" width="170" height="230"/>
-                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                            <inset key="sectionInset" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
-                        </collectionViewFlowLayout>
-                    </collectionView>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
-                    <constraint firstItem="VFO-Yl-Xkq" firstAttribute="top" secondItem="uVD-MW-hqo" secondAttribute="top" id="2cJ-dZ-vkF"/>
-                    <constraint firstAttribute="trailing" secondItem="eFo-mz-GH5" secondAttribute="trailing" constant="11" id="5U6-nC-Bbz"/>
-                    <constraint firstAttribute="trailing" secondItem="VFO-Yl-Xkq" secondAttribute="trailing" id="DLG-CT-eif"/>
-                    <constraint firstAttribute="bottom" secondItem="eFo-mz-GH5" secondAttribute="bottom" priority="999" constant="5" id="DbJ-Jr-eea"/>
-                    <constraint firstItem="eFo-mz-GH5" firstAttribute="leading" secondItem="uVD-MW-hqo" secondAttribute="leading" constant="11" id="Epy-En-n4D"/>
-                    <constraint firstItem="VFO-Yl-Xkq" firstAttribute="leading" secondItem="uVD-MW-hqo" secondAttribute="leading" id="H3c-kZ-U3p"/>
-                    <constraint firstItem="eFo-mz-GH5" firstAttribute="top" secondItem="VFO-Yl-Xkq" secondAttribute="bottom" id="JOS-SA-aQQ"/>
+                    <constraint firstAttribute="bottom" secondItem="M5r-YY-2jL" secondAttribute="bottom" constant="5" id="9oh-ri-4mr"/>
+                    <constraint firstItem="M5r-YY-2jL" firstAttribute="leading" secondItem="uVD-MW-hqo" secondAttribute="leading" constant="10" id="CU3-LP-Xsz"/>
+                    <constraint firstAttribute="trailing" secondItem="M5r-YY-2jL" secondAttribute="trailing" constant="10" id="gvM-yb-yik"/>
+                    <constraint firstItem="M5r-YY-2jL" firstAttribute="top" secondItem="uVD-MW-hqo" secondAttribute="top" constant="5" id="zKW-Ym-o0P"/>
                 </constraints>
             </collectionViewCellContentView>
             <size key="customSize" width="414" height="297"/>
@@ -75,6 +88,7 @@
                 <outlet property="addButton" destination="T5q-JK-8vk" id="7Ly-fh-dJ3"/>
                 <outlet property="photoCollectionView" destination="eFo-mz-GH5" id="RHr-sV-gPb"/>
                 <outlet property="photostreamLabel" destination="VCb-cL-WwG" id="W3D-l6-LhO"/>
+                <outlet property="pillView" destination="M5r-YY-2jL" id="2GX-Sy-BMh"/>
             </connections>
             <point key="canvasLocation" x="187.78625954198472" y="-98.943661971830991"/>
         </collectionViewCell>
@@ -89,5 +103,8 @@
         <namedColor name="PortAndTheme BG">
             <color red="0.15000000596046448" green="0.32400000095367432" blue="0.4699999988079071" alpha="0.83899998664855957" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

@@ -101,11 +101,11 @@ class LFGRootViewController: BaseCollectionViewController, GlobalNavEnabled {
         CurrentUser.shared.tell(self, when: "loggedInUser") { observer, observed in        		
 			if let currentUserID = observed.loggedInUser?.userID {
 				let joinedPred = NSCompoundPredicate(andPredicateWithSubpredicates: [
-						NSPredicate(format: "NOT (fezType IN %@)", ["open", "closed"] as CVarArg),
+						NSPredicate(format: "NOT (fezType IN %@)", ["open", "closed", "personalEvent", "privateEvent"] as CVarArg),
 						NSPredicate(format: "ANY participants.userID == %@", currentUserID as CVarArg)])
 				observer.joinedSegment.changePredicate(to: joinedPred)
 				let openPred = NSCompoundPredicate(andPredicateWithSubpredicates: [
-						NSPredicate(format: "NOT (fezType IN %@)", ["open", "closed"] as CVarArg),
+						NSPredicate(format: "NOT (fezType IN %@)", ["open", "closed", "personalEvent", "privateEvent"] as CVarArg),
 						NSPredicate(format: "SUBQUERY(participants, $x, $x.userID == %@).@count == 0", currentUserID as CVarArg),
 						NSPredicate(format: "startTime > %@", cruiseCurrentDate() - 3600 as CVarArg),
 						NSPredicate(format: "cancelled == false"),

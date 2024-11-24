@@ -20,6 +20,8 @@ import CoreData
     @NSManaged public var eventType: String
 	@NSManaged public var startTime: Date
 	@NSManaged public var endTime: Date
+	@NSManaged public var timeZoneID: String
+	@NSManaged public var timeZoneAbbrev: String
 	@NSManaged public var forumThreadID: UUID?
     
     // Note that both the linked Calendar Event and the linked Local Notification are NOT gated on the logged in user!
@@ -105,6 +107,8 @@ import CoreData
 		// will NOT BE NOON UTC if the ship's timezone isn't EST.
 		//
 		// Anyway, the server fixes this before vending out dates.
+		TestAndUpdate(\.timeZoneID, v3Object.timeZoneID)
+		TestAndUpdate(\.timeZoneAbbrev, v3Object.timeZone)
 		
 		if let currentUser = CurrentUser.shared.getLoggedInUser(in: context) {
 			setFavoriteState(context: context, user: currentUser, to: v3Object.isFavorite)

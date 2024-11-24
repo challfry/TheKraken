@@ -49,6 +49,9 @@ enum GlobalKnownSegue: String {
 	case performerRoot = 			"PerformerGallery"
 	case performerBio = 			"PerformerBio"
 	
+	case dayPlannerRoot = 			"DayPlannerRoot"
+	case privateEventCreate = 		"PrivateEventCreate"
+	
 	case deckMapRoot =				"DeckMapRoot"
 	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
 	
@@ -117,6 +120,9 @@ enum GlobalKnownSegue: String {
 		case .singleEvent: return UUID.self
 		case .performerRoot: return Bool.self					// TRUE for official performers
 		case .performerBio: return UUID.self
+	
+		case .dayPlannerRoot: return Void.self
+		case .privateEventCreate: return Any.self
 		
 		case .deckMapRoot: return Void.self
 		case .showRoomOnDeckMap: return String.self
@@ -725,6 +731,18 @@ class BaseCollectionViewController: UIViewController {
 					destVC.opToEdit = op
 				}
 			}
+			
+// Private Event/Personal Event
+		case .privateEventCreate:
+			if let destVC = destination as? ComposePersonalEventVC{
+				if let thread = sender as? SeamailThread {
+					destVC.eventModel = thread
+				}
+				else if let op = sender as? PostOpLFGCreate {
+					destVC.opToEdit = op
+				}
+			}
+			
 // Events
 		case .eventsRoot: break
 		

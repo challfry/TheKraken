@@ -82,7 +82,7 @@ import EventKitUI
         
 	func createCellModel(_ model: Event) -> BaseCellModel {
 		let cellModel = EventCellModel(withModel: model)
-				
+		cellModel.privateSelected = true
 		return cellModel
 	}
 			

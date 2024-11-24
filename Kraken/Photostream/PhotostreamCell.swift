@@ -50,6 +50,7 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 	private static let cellInfo = [ "PhotostreamCell" : PrototypeCellInfo("PhotostreamCell") ]
 	override class var validReuseIDDict: [ String: PrototypeCellInfo ] { return cellInfo }
 
+	@IBOutlet weak var pillView: UIView!
 	@IBOutlet weak var photostreamLabel: UILabel!
 	@IBOutlet weak var addButton: UIButton!
 	@IBOutlet weak var photoCollectionView: UICollectionView!
@@ -71,13 +72,27 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 	override func awakeFromNib() {
 		super.awakeFromNib()
 		
+		pillView.layer.cornerRadius = 12
+		pillView.layer.borderWidth = 1
+		pillView.layer.borderColor = UIColor(named: "PortAndTheme BG")!.cgColor
+		pillView.layer.masksToBounds = true
+		
 		// Font Styling
 		photostreamLabel.styleFor(.title2)
 		
+//		addButton.setImage(UIImage(systemName: "photo.badge.plus"), for: .normal)
+//		addButton.setImage(UIImage(systemName: "photo.badge.plus.fill"), for: .highlighted)
+//		let config = UIImage.SymbolConfiguration(pointSize: 25).applying(UIImage.SymbolConfiguration.preferringMulticolor())
+//		addButton.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+
 		addButton.setImage(UIImage(systemName: "photo.badge.plus"), for: .normal)
 		addButton.setImage(UIImage(systemName: "photo.badge.plus.fill"), for: .highlighted)
-		let config = UIImage.SymbolConfiguration(pointSize: 25).applying(UIImage.SymbolConfiguration.preferringMulticolor())
-		addButton.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+		var colors = [ UIColor.green, UIColor(named: "Kraken Label Text")! ]
+		let normalConfig = UIImage.SymbolConfiguration(pointSize: 25).applying(UIImage.SymbolConfiguration(paletteColors: colors))
+		addButton.setPreferredSymbolConfiguration(normalConfig, forImageIn: .normal)
+		colors = [ UIColor.green, UIColor.white ]
+		let hiliteConfig = UIImage.SymbolConfiguration(pointSize: 25).applying(UIImage.SymbolConfiguration(paletteColors: colors))
+		addButton.setPreferredSymbolConfiguration(hiliteConfig, forImageIn: .highlighted)
 	}
 	
 	@IBAction func addPhotoButtonTapped(_ sender: Any) {
@@ -185,24 +200,30 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 
 }
 
-@objc class PhotostreamRoundedRectView: UIView {
-	override func draw(_ rect: CGRect) {
-		let pathBounds = bounds.insetBy(dx: 10, dy: 5)
+//@objc class PhotostreamRoundedRectView: UIView {
+//	override func awakeFromNib() {
+//		super.awakeFromNib()
+//		layer.cornerRadius = 12
+//		layer.borderWidth = 1
+//	}
 
-		let rectShape = CAShapeLayer()
-		rectShape.bounds = pathBounds
-		rectShape.position = self.center
-		let rectPath = UIBezierPath(roundedRect: pathBounds, cornerRadius: 12)
-		rectShape.path = rectPath.cgPath
-		layer.mask = rectShape
-		layer.masksToBounds = true
-		
-		let context = UIGraphicsGetCurrentContext()
-		if let color = UIColor(named: "PortAndTheme BG") {
-			context?.setStrokeColor(color.cgColor)
-			rectPath.stroke()
-		}
-
-	}
-}
+//	override func draw(_ rect: CGRect) {
+//		let pathBounds = bounds.insetBy(dx: 10, dy: 5)
+//		let rectPath = UIBezierPath(roundedRect: pathBounds, cornerRadius: 12)
+//		let context = UIGraphicsGetCurrentContext()
+//		if let color = UIColor(named: "PortAndTheme BG") {
+//			context?.setStrokeColor(color.cgColor)
+//			rectPath.stroke()
+//		}
+//
+//		let rectShape = CAShapeLayer()
+//		rectShape.bounds = pathBounds
+//		rectShape.position = self.center
+//		rectShape.path = rectPath.cgPath
+//		layer.mask = rectShape
+//		layer.masksToBounds = true
+//		
+//
+//	}
+//}
 

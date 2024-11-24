@@ -12,7 +12,7 @@ import Foundation
 // by modifying the return value of this function.
 func cruiseCurrentDate() -> Date {
 	// Uncomment this to make the app think 'today' is some day relative to the cruise start date.
-//	return cruiseStartDate()! + 86400 * 0 + 3600 * 10		
+	return cruiseStartDate()! + 86400 * 1 + 3600 * 12
 
 	// Always return this when not specifically testing dates.
 	return Date()
@@ -26,6 +26,11 @@ func cruiseStartDate() -> Date? {
 			year: 2025, month: 3, day: 2)
 	let startDate = Calendar(identifier: .gregorian).date(from: startDayComponents)		
 	return startDate
+}
+
+// How many days the cruise is. For a one week cruise, this value should be 8 (8 days, 7 nights).
+func cruiseNumDays() -> Int {
+	return 8
 }
 
 // A 1-based counter showing days before embark day, or nil if it's embark day or later.
@@ -71,6 +76,15 @@ func cruiseStartRelativeDays() -> Int {
 		return dayCount
 	}
 	return 0
+}
+
+// MARK: - Last Year's Cruise
+
+func lastCruiseStartDate() -> Date {
+	let startDayComponents = DateComponents(calendar: Calendar(identifier: .gregorian), timeZone: TimeZone(identifier: "America/New_York"), 
+			year: 2024, month: 3, day: 9)
+	let startDate = Calendar(identifier: .gregorian).date(from: startDayComponents)!	
+	return startDate
 }
 	
 	

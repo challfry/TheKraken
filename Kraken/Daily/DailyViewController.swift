@@ -45,6 +45,13 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	}()
 	
 	var photostreamCell = PhotostreamCellModel()
+	var dayPlannerCell: DayPlannerCellModel = {
+		let cell = DayPlannerCellModel()
+		CurrentUser.shared.tell(cell, when: "loggedInUser") { observer, observed in 
+			observer.shouldBeVisible = observed.isLoggedIn()
+		}?.execute()
+		return cell
+	}()
 
 //	var twitarrCell = SocialCellModel("Twittar", imageNamed: "hourglass")
 	var forumsCell = SocialCellModel("Forums", imageNamed: "person.2")
@@ -174,6 +181,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 		
 		dataSource.append(segment: appFeaturesSegment)
 		appFeaturesSegment.append(photostreamCell)		
+		appFeaturesSegment.append(dayPlannerCell)		
 //		appFeaturesSegment.append(twitarrCell)
 		appFeaturesSegment.append(forumsCell)
 		appFeaturesSegment.append(mailCell)
@@ -225,9 +233,16 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
     
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .twitarrRoot, .forumsRoot, .seamailRoot, .eventsRoot, .lfgRoot, .deckMapRoot, .karaokeRoot, .microKaraokeRoot, 
-				.gamesRoot, .scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, .userProfile_Name, .userProfile_User, 
-				.editUserProfile, .pirateAR, .initiatePhoneCall, .photoStreamCamera, .singleEvent, .performerRoot])
+		Set<GlobalKnownSegue>([ 
+				.twitarrRoot,
+				.forumsRoot, 
+				.seamailRoot, .showSeamailThread, .lfgRoot,
+				.eventsRoot, .singleEvent, .performerRoot, 
+				.privateEventCreate, .dayPlannerRoot,
+				.gamesRoot, .karaokeRoot, .microKaraokeRoot, 
+				.userProfile_Name, .userProfile_User, .editUserProfile, 
+				.deckMapRoot, .scrapbookRoot, .settingsRoot, .twitarrHelp, .about, .lighterMode, 
+				.pirateAR, .initiatePhoneCall, .photoStreamCamera])
 	}
     
     // Why is this done with globaNav? Because some of these segues are tab switches on iPhone, and they're all
@@ -348,6 +363,10 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 //		}
 	}	
 
+	// This is the unwind segue from the compose view for Personal Events.
+	@IBAction func dismissingCreateEvent(_ segue: UIStoryboardSegue) {
+		SeamailDataManager.shared.loadSeamails()
+	}	
 	
 
 }

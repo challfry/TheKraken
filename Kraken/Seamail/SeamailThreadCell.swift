@@ -50,7 +50,12 @@ import CoreData
 		
 		self.tell(self, when: "threadModel.subject") { observer, observed in
 			if let thread = observer.threadModel {
-				observer.title = thread.subject.isEmpty ? "<No Subject>" : thread.subject
+				if thread.isPrivateEventType() {
+					observer.title = thread.subject.isEmpty ? "<No Subject>" : "Event: \(thread.subject)"
+				}
+				else {
+					observer.title = thread.subject.isEmpty ? "<No Subject>" : thread.subject
+				}
 			}
 			else {
 				observer.title = ""

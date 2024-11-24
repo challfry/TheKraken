@@ -58,7 +58,8 @@ class SettingsTasksViewController: BaseCollectionViewController  {
 	
 // MARK: Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
-		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp, .lfgCreateEdit ])
+		Set<GlobalKnownSegue>([ .userProfile_User, .userProfile_Name, .editTweetOp, .editForumPostDraft, .editSeamailThreadOp, 
+				.lfgCreateEdit, .privateEventCreate ])
 	}
 
 	// This is the unwind segue handler for the profile edit VC
@@ -161,7 +162,15 @@ extension SettingsTasksViewController: NSFetchedResultsControllerDelegate {
 // LFG
 		case let lfgCreateTask as PostOpLFGCreate:
 			let cellModel = LFGCellModel(withModel: lfgCreateTask, reuse: "LFGCell")
-			taskSection.append(SettingsInfoCellModel("Create an LFG:", taskIndex: sectionIndex))
+			if lfgCreateTask.lfgType == "privateEvent" {
+				taskSection.append(SettingsInfoCellModel("Create a private event:", taskIndex: sectionIndex))
+			}
+			else if lfgCreateTask.lfgType == "personalEvent" {
+				taskSection.append(SettingsInfoCellModel("Create a personal calendar entry:", taskIndex: sectionIndex))
+			}
+			else {
+				taskSection.append(SettingsInfoCellModel("Create an LFG:", taskIndex: sectionIndex))
+			}
 			taskSection.append(cellModel)
 
 // Events
@@ -408,8 +417,12 @@ class TaskEditButtonsCellModel: ButtonCellModel {
 		else if task is PostOpSeamailThread {
 			viewController?.performKrakenSegue(.editSeamailThreadOp, sender: task)
 		}
-		else if task is PostOpLFGCreate {
-			viewController?.performKrakenSegue(.lfgCreateEdit, sender: task)
+		else if let lfgTask = task as? PostOpLFGCreate {
+			if lfgTask.lfgType == "personalEvent" || lfgTask.lfgType == "privateEvent" {
+				viewController?.performKrakenSegue(.privateEventCreate, sender: task)
+			} else {
+				viewController?.performKrakenSegue(.lfgCreateEdit, sender: task)
+			}
 		}
 		else if task is PostOpUserProfileEdit {
 			viewController?.performKrakenSegue(.editUserProfile, sender: task)

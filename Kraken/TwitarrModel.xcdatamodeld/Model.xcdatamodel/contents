@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23231" systemVersion="24A335" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24B91" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="2">
     <entity name="Announcement" representedClassName="Announcement" syncable="YES">
         <attribute name="displayUntil" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -35,6 +35,8 @@
         <attribute name="localNotificationID" optional="YES" attributeType="String"/>
         <attribute name="location" optional="YES" attributeType="String"/>
         <attribute name="startTime" attributeType="Date" defaultDateTimeInterval="628801020" usesScalarValueType="NO"/>
+        <attribute name="timeZoneAbbrev" optional="YES" attributeType="String"/>
+        <attribute name="timeZoneID" optional="YES" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="uid" optional="YES" attributeType="String"/>
         <relationship name="followedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="followedEvents" inverseEntity="KrakenUser"/>
@@ -171,6 +173,8 @@
         <relationship name="lastPosterInForum" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ForumThread" inverseName="lastPoster" inverseEntity="ForumThread"/>
         <relationship name="mutedBy" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="mutedUsers" inverseEntity="KrakenUser"/>
         <relationship name="mutedUsers" toMany="YES" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="mutedBy" inverseEntity="KrakenUser"/>
+        <relationship name="personalEventParticipant" optional="YES" toMany="YES" deletionRule="Nullify"/>
+        <relationship name="personalEvents" optional="YES" toMany="YES" deletionRule="Nullify"/>
         <relationship name="postOps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PostOperation" inverseName="author" inverseEntity="PostOperation"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="user" inverseEntity="Reaction"/>
         <relationship name="seamailAttendee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="attendees" inverseEntity="SeamailThread"/>
@@ -278,6 +282,7 @@
         <attribute name="startTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="editingLFG" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SeamailThread" inverseName="opsEditingLFG" inverseEntity="SeamailThread"/>
+        <relationship name="participants" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PotentialUser" inverseName="inLFG" inverseEntity="PotentialUser"/>
     </entity>
     <entity name="PostOpPhoto_Attachment" representedClassName="PostOpPhoto_Attachment" syncable="YES">
         <attribute name="filename" optional="YES" attributeType="String"/>
@@ -339,6 +344,7 @@
     <entity name="PotentialUser" representedClassName="PotentialUser" syncable="YES">
         <attribute name="username" attributeType="String"/>
         <relationship name="actualUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="KrakenUser" inverseName="fromPotential" inverseEntity="KrakenUser"/>
+        <relationship name="inLFG" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpLFGCreate" inverseName="participants" inverseEntity="PostOpLFGCreate"/>
         <relationship name="inSeamailThread" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PostOpSeamailThread" inverseName="recipients" inverseEntity="PostOpSeamailThread"/>
     </entity>
     <entity name="Reaction" representedClassName="Reaction" syncable="YES">
@@ -421,6 +427,11 @@
                 <constraint value="id"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
+    </entity>
+    <entity name="TimeZoneChange" representedClassName="TimeZoneChange" syncable="YES">
+        <attribute name="activeDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="timeZoneAbbrev" optional="YES" attributeType="String"/>
+        <attribute name="timeZoneID" optional="YES" attributeType="String"/>
     </entity>
     <entity name="TwitarrPost" representedClassName="TwitarrPost" syncable="YES">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>

@@ -236,19 +236,59 @@ import CoreData
 			}
 		}
 	}
+	
+	func isLFGType() -> Bool {
+		TwitarrV3FezType(rawValue: fezType)?.isLFGType ?? false
+	}
+	
+	func isPrivateEventType() -> Bool {
+		TwitarrV3FezType(rawValue: fezType) == .privateEvent
+	}
+	func isPersonalEventType() -> Bool {
+		TwitarrV3FezType(rawValue: fezType) == .personalEvent
+	}
+	
+	func generalTypeName() -> String {
+		switch TwitarrV3FezType(rawValue: fezType) ?? .closed {
+		case .closed, .open: "Chat"
+		case .privateEvent: "Private Event"
+		case .personalEvent: "Personal Event"
+		case .activity, .dining, .gaming, .meetup, .music, .other, .shore: "LFG"
+		}
+	}
 }
 
-@objc class SeamailDataManager: NSObject {
+@objc class SeamailDataManager: ServerUpdater {
 	static let shared = SeamailDataManager()
 	
 	private let coreData = LocalCoreData.shared
 	@objc dynamic var lastError : ServerError?
 	@objc dynamic var isLoading = false
+	@objc dynamic var isLoadingJoined = false			// TRUE during load of seamails the user's joined.
+	@objc dynamic var isLoadingOpenLFGs = false
 	
 	var recentLoads: [UUID : Date] = [:]
 	
 // MARK: Methods
-	@objc dynamic var isLoadingJoined = false
+	init() {
+		super.init(60.0 * 5)
+	}
+
+	// ServerUpdater override method
+	override func updateMethod() {
+		refreshIfNecessary()
+	}
+	
+	func refreshIfNecessary() {
+		if isLoading { return }
+		
+		if lastUpdateTime.timeIntervalSinceNow < 0 - 60 * 5 {
+			// LoadEvents will update the lastEventsUpdateTime when it succeeds.
+			loadSeamails()
+		}
+	}
+	
+	// Loads seamails/LFGs/PEs the user's joined.
 	func loadSeamails(done: (() -> Void)? = nil) {
 		// TODO: Add Limiter
 
@@ -285,7 +325,6 @@ import CoreData
 		}
 	}
 	
-	@objc dynamic var isLoadingOpenLFGs = false
 	func loadOpenLFGs(done: (() -> Void)? = nil) {
 		// TODO: Add Limiter
 
@@ -561,24 +600,7 @@ import CoreData
 				photoOp.parentSeamailThreadOp = newThread
 			}
 			
-			// Why both possibleUsers and potentialUsers? I didn't want to create the CoreData objects until a 
-			// thread was queued for sending, and I therefore can't create CoreData PotentialUsers while the user is still
-			// selecting thread participants.
-			for possibleUser in recipients {
-				let newPotential = PotentialUser(context: context)
-				newPotential.username = possibleUser.username
-				if let actualUser = possibleUser.user {
-					let actualUserInContext = context.object(with: actualUser.objectID) as? KrakenUser
-					newPotential.actualUser = actualUserInContext
-				}
-				newThread.recipients?.insert(newPotential)
-				
-				// We could at this point do a final search for actual users matching a username that doesn't have 
-				// a KrakenUser attached. But why? If we don't find one, it's still not definitive, it's too late to
-				// tell the user anything useful (they already know there might not be an actual user with this name)
-				// and we're just going to send the name to the server where it'll get validated anyway.
-			}
-						
+			newThread.recipients = self.buildPotentialUsers(from: recipients, in: context)						
 			newThread.operationState = .readyToSend
 			do {
 				try context.save()
@@ -632,9 +654,32 @@ import CoreData
 		}
 	}
 	
+	func buildPotentialUsers(from userList: Set<PossibleKrakenUser>, in context: NSManagedObjectContext) -> Set<PotentialUser> {
+		var results: Set<PotentialUser> = []
+		// Why both possibleUsers and potentialUsers? I didn't want to create the CoreData objects until a 
+		// thread was queued for sending, and I therefore can't create CoreData PotentialUsers while the user is still
+		// selecting thread participants.
+		for possibleUser in userList {
+			let newPotential = PotentialUser(context: context)
+			newPotential.username = possibleUser.username
+			if let actualUser = possibleUser.user {
+				let actualUserInContext = context.object(with: actualUser.objectID) as? KrakenUser
+				newPotential.actualUser = actualUserInContext
+			}
+			results.insert(newPotential)
+			
+			// We could at this point do a final search for actual users matching a username that doesn't have 
+			// a KrakenUser attached. But why? If we don't find one, it's still not definitive, it's too late to
+			// tell the user anything useful (they already know there might not be an actual user with this name)
+			// and we're just going to send the name to the server where it'll get validated anyway.
+		}
+		return results
+	}
+	
 	// Creates a pending POST operation to create a new LFG
 	func queueNewLFGOp(existingOp: PostOpLFGCreate?, existingLFG: SeamailThread?, lfgType: TwitarrV3FezType, title: String, info: String, location: String, 
-			startTime: Date, endTime: Date, minCapacity: Int32, maxCapacity: Int32, done: ((PostOpLFGCreate?) -> Void)?) {
+			startTime: Date, endTime: Date, minCapacity: Int32, maxCapacity: Int32, participants: Set<PossibleKrakenUser>? = nil, 
+			done: ((PostOpLFGCreate?) -> Void)?) {
 		LocalCoreData.shared.performNetworkParsing { context in
 			context.pushOpErrorExplanation("Failure creating LFG in Core Data.")
 			
@@ -659,6 +704,7 @@ import CoreData
 			lfgCreateOp.minCapacity = minCapacity
 			lfgCreateOp.maxCapacity = maxCapacity
 			lfgCreateOp.operationState = .readyToSend
+			lfgCreateOp.participants = self.buildPotentialUsers(from: participants ?? [], in: context)
 
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { saveSuccess in		
 				let mainThreadPost = LocalCoreData.shared.mainThreadContext.object(with: lfgCreateOp.objectID) as? PostOpLFGCreate 
@@ -780,6 +826,28 @@ enum TwitarrV3FezType: String, CaseIterable, Codable {
     /// A shore excursion LFG.
     case shore
     
+	/// A personal calendar event. Has a location and start/end time, but no participants and no chat. Operates just like an event in your phone's Calendar app.
+	case personalEvent
+	/// A calendar event where the owner can add other users (like an open chat), but should display the event's location and time. No capacity.
+	/// Unlike LFGs, there's no searching for events you don't belong to.
+	case privateEvent
+
+	/// The types that are LFGs, and a computed property to test it.
+	static var lfgTypes: [TwitarrV3FezType] {
+		[.activity, .dining, .gaming, .meetup, .music, .other, .shore]
+	}
+	var isLFGType: Bool {
+		TwitarrV3FezType.lfgTypes.contains(self)
+	}
+	
+	/// Types that are Semails.
+	static var seamailTypes: [TwitarrV3FezType] {
+		[.open, .closed]
+	}
+	var isSeamailType: Bool {
+		TwitarrV3FezType.lfgTypes.contains(self)
+	}
+
     /// `.label` returns consumer-friendly case names.
     var label: String {
         switch self {

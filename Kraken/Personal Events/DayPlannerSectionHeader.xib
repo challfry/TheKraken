@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="DayPlannerSectionHeader" reuseIdentifier="DayPlannerSectionHeader" id="umv-Ha-NST" customClass="DayPlannerSectionHeader" customModule="Kraken" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="50"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="n6U-yT-gkG">
+                    <rect key="frame" x="10" y="-2" width="50" height="54"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="plain">
+                        <imageReference key="image" image="chevron.backward.circle" catalog="system" symbolScale="large"/>
+                    </buttonConfiguration>
+                    <connections>
+                        <action selector="previousDayButtonHit:" destination="umv-Ha-NST" eventType="touchUpInside" id="ER4-zl-KZg"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" text="Sun, Mar 2" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JKe-1T-ACe">
+                    <rect key="frame" x="155.66666666666666" y="-2" width="82" height="50"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" name="Kraken Label Text"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gIw-U0-m8V">
+                    <rect key="frame" x="333" y="-2" width="50" height="54"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="plain">
+                        <imageReference key="image" image="chevron.forward.circle" catalog="system" symbolScale="large"/>
+                    </buttonConfiguration>
+                    <connections>
+                        <action selector="nextDayButtonHit:" destination="umv-Ha-NST" eventType="touchUpInside" id="PeO-SL-QHq"/>
+                    </connections>
+                </button>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="mqz-da-s5P"/>
+            <color key="backgroundColor" name="Info Title Background"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="JKe-1T-ACe" secondAttribute="bottom" priority="999" constant="2" id="7Ar-VJ-Jbt"/>
+                <constraint firstItem="n6U-yT-gkG" firstAttribute="leading" secondItem="umv-Ha-NST" secondAttribute="leading" constant="10" id="Fxw-dh-nI4"/>
+                <constraint firstItem="n6U-yT-gkG" firstAttribute="bottom" secondItem="umv-Ha-NST" secondAttribute="bottom" priority="999" constant="2" id="Hj7-HT-Rff"/>
+                <constraint firstItem="JKe-1T-ACe" firstAttribute="centerX" secondItem="umv-Ha-NST" secondAttribute="centerX" id="Mo9-5D-5Ku"/>
+                <constraint firstAttribute="top" secondItem="n6U-yT-gkG" secondAttribute="top" constant="2" id="OlN-Qp-su3"/>
+                <constraint firstItem="gIw-U0-m8V" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="JKe-1T-ACe" secondAttribute="trailing" constant="10" id="SYu-4b-6W9"/>
+                <constraint firstAttribute="top" secondItem="gIw-U0-m8V" secondAttribute="top" constant="2" id="Uqk-74-Wvj"/>
+                <constraint firstItem="JKe-1T-ACe" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="n6U-yT-gkG" secondAttribute="trailing" constant="10" id="WrI-Pa-Q34"/>
+                <constraint firstAttribute="top" secondItem="JKe-1T-ACe" secondAttribute="top" constant="2" id="dPq-Rg-zgX"/>
+                <constraint firstAttribute="trailing" secondItem="gIw-U0-m8V" secondAttribute="trailing" constant="10" id="m9W-FJ-aBn"/>
+                <constraint firstItem="gIw-U0-m8V" firstAttribute="bottom" secondItem="umv-Ha-NST" secondAttribute="bottom" priority="999" constant="2" id="mMb-aK-DXf"/>
+            </constraints>
+            <connections>
+                <outlet property="nextDayButton" destination="gIw-U0-m8V" id="vvQ-dc-dOg"/>
+                <outlet property="previousDayButton" destination="n6U-yT-gkG" id="ZXc-F7-YCy"/>
+                <outlet property="timeLabel" destination="JKe-1T-ACe" id="Pb5-hA-DA6"/>
+            </connections>
+            <point key="canvasLocation" x="105" y="-265"/>
+        </collectionReusableView>
+    </objects>
+    <resources>
+        <image name="chevron.backward.circle" catalog="system" width="128" height="123"/>
+        <image name="chevron.forward.circle" catalog="system" width="128" height="123"/>
+        <namedColor name="Info Title Background">
+            <color red="1" green="0.97299998998641968" blue="0.87599998712539673" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="Kraken Label Text">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

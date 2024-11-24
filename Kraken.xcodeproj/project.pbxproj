@@ -51,6 +51,10 @@
 		EA283FDE297911C6005450E7 /* PerfomanceLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD2297911C6005450E7 /* PerfomanceLog.swift */; };
 		EA283FE0297911C6005450E7 /* SwiftyScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA283FD4297911C6005450E7 /* SwiftyScanner.swift */; };
 		EA2F71252BF04D4500EC3EFB /* ScheduleSingleEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2F71242BF04D4500EC3EFB /* ScheduleSingleEventController.swift */; };
+		EA328ABE2CCA3FD900373AC6 /* ComposePersonalEventVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA328ABD2CCA3FD900373AC6 /* ComposePersonalEventVC.swift */; };
+		EA328AC02CCCB58C00373AC6 /* DayPlannerRootVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA328ABF2CCCB57900373AC6 /* DayPlannerRootVC.swift */; };
+		EA328AC22CCE2DBA00373AC6 /* DayPlannerSectionHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA328AC12CCE2DBA00373AC6 /* DayPlannerSectionHeader.xib */; };
+		EA328AC42CCE303C00373AC6 /* DayPlannerSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA328AC32CCE303100373AC6 /* DayPlannerSectionHeader.swift */; };
 		EA356E962C8583450006717D /* PerformerGalleryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA356E952C8583450006717D /* PerformerGalleryVC.swift */; };
 		EA356E982C8AC1EE0006717D /* PerformerGalleryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA356E972C8AC1EE0006717D /* PerformerGalleryCell.xib */; };
 		EA356E9A2C8C1A730006717D /* PerformerSearchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA356E992C8C1A730006717D /* PerformerSearchCell.xib */; };
@@ -146,6 +150,8 @@
 		EA86ADF2227F7EA600363CBF /* SeamailDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */; };
 		EA86ADF522880AD300363CBF /* SeamailThreadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */; };
 		EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */; };
+		EA8A806D2CBFC38100E74999 /* DayPlannerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8A806C2CBFC38100E74999 /* DayPlannerCell.swift */; };
+		EA8A806F2CC1103700E74999 /* DayPlannerCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8A806E2CC1103700E74999 /* DayPlannerCell.xib */; };
 		EA8B986423225E4F00E10156 /* SocialCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B986323225E4F00E10156 /* SocialCell.xib */; };
 		EA8B9873232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse in Resources */ = {isa = PBXBuildFile; fileRef = EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */; };
 		EA8B98752323A58100E10156 /* KaraokeSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EA8B98742323A58100E10156 /* KaraokeSongCell.xib */; };
@@ -354,6 +360,10 @@
 		EA283FD3297911C6005450E7 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		EA283FD4297911C6005450E7 /* SwiftyScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyScanner.swift; sourceTree = "<group>"; };
 		EA2F71242BF04D4500EC3EFB /* ScheduleSingleEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleSingleEventController.swift; sourceTree = "<group>"; };
+		EA328ABD2CCA3FD900373AC6 /* ComposePersonalEventVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposePersonalEventVC.swift; sourceTree = "<group>"; };
+		EA328ABF2CCCB57900373AC6 /* DayPlannerRootVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPlannerRootVC.swift; sourceTree = "<group>"; };
+		EA328AC12CCE2DBA00373AC6 /* DayPlannerSectionHeader.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DayPlannerSectionHeader.xib; sourceTree = "<group>"; };
+		EA328AC32CCE303100373AC6 /* DayPlannerSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPlannerSectionHeader.swift; sourceTree = "<group>"; };
 		EA333C3F22540D1300247B3E /* Kraken-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Kraken-Bridging-Header.h"; path = "Core/Kraken-Bridging-Header.h"; sourceTree = "<group>"; };
 		EA333C8E225818A600247B3E /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		EA356E952C8583450006717D /* PerformerGalleryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformerGalleryVC.swift; sourceTree = "<group>"; };
@@ -460,6 +470,8 @@
 		EA86ADF1227F7EA600363CBF /* SeamailDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailDataManager.swift; sourceTree = "<group>"; };
 		EA86ADF322880AD300363CBF /* SeamailThreadCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeamailThreadCell.swift; sourceTree = "<group>"; };
 		EA86ADF422880AD300363CBF /* SeamailThreadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SeamailThreadCell.xib; sourceTree = "<group>"; };
+		EA8A806C2CBFC38100E74999 /* DayPlannerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPlannerCell.swift; sourceTree = "<group>"; };
+		EA8A806E2CC1103700E74999 /* DayPlannerCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DayPlannerCell.xib; sourceTree = "<group>"; };
 		EA8B986323225E4F00E10156 /* SocialCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SocialCell.xib; sourceTree = "<group>"; };
 		EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = JoCoKaraokeSongCatalog.lzfse; sourceTree = "<group>"; };
 		EA8B98742323A58100E10156 /* KaraokeSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KaraokeSongCell.xib; sourceTree = "<group>"; };
@@ -927,6 +939,19 @@
 			path = Karaoke;
 			sourceTree = "<group>";
 		};
+		EA8BB5842CBC904E007274EE /* Personal Events */ = {
+			isa = PBXGroup;
+			children = (
+				EA328ABF2CCCB57900373AC6 /* DayPlannerRootVC.swift */,
+				EA328ABD2CCA3FD900373AC6 /* ComposePersonalEventVC.swift */,
+				EA8A806C2CBFC38100E74999 /* DayPlannerCell.swift */,
+				EA8A806E2CC1103700E74999 /* DayPlannerCell.xib */,
+				EA328AC32CCE303100373AC6 /* DayPlannerSectionHeader.swift */,
+				EA328AC12CCE2DBA00373AC6 /* DayPlannerSectionHeader.xib */,
+			);
+			path = "Personal Events";
+			sourceTree = "<group>";
+		};
 		EA951D2823CDB15700453B3C /* Scrapbook */ = {
 			isa = PBXGroup;
 			children = (
@@ -1030,6 +1055,7 @@
 				EA8B986D232321C500E10156 /* Karaoke */,
 				EAD8BF862B5FA4E400C00993 /* MicroKaraoke */,
 				EAB34B562C822AE000730C59 /* Performers */,
+				EA8BB5842CBC904E007274EE /* Personal Events */,
 				EA9A65002BD77B7C00C40A87 /* Photostream */,
 				EA2286DE23E39B820036C20E /* Games List */,
 				EA83FC7023693A560042C0DC /* Deck Maps */,
@@ -1451,6 +1477,7 @@
 				EAC71D6D228ACC4F002F7BB3 /* SmallUserCell.xib in Resources */,
 				EA356E9A2C8C1A730006717D /* PerformerSearchCell.xib in Resources */,
 				EA8694B123D48F2500ABE391 /* DailyActivityCell3.xib in Resources */,
+				EA328AC22CCE2DBA00373AC6 /* DayPlannerSectionHeader.xib in Resources */,
 				EA027020237CE55900071C5E /* Colors.xcassets in Resources */,
 				EA47886F23EBFB2D00897A5A /* ScrapbookSectionHeaderView.xib in Resources */,
 				EAB4536F22D1F7F200CD1671 /* SwitchCell.xib in Resources */,
@@ -1466,6 +1493,7 @@
 				EAD4CB1D293EC9530018C381 /* PhotoSelectionCell.xib in Resources */,
 				EA951D2C23CE977800453B3C /* KaraokeFavoriteSongCell.xib in Resources */,
 				EA86ADE22279836D00363CBF /* ProfileAvatarLeftCell.xib in Resources */,
+				EA8A806F2CC1103700E74999 /* DayPlannerCell.xib in Resources */,
 				EA86ADF622880AD300363CBF /* SeamailThreadCell.xib in Resources */,
 				EA86ADEA2279B4E400363CBF /* ProfileCommentCell.xib in Resources */,
 				EA86ADDE2275BD3500363CBF /* LabelCell.xib in Resources */,
@@ -1591,7 +1619,9 @@
 				EAA12B7427B4AB92002F9C47 /* LocalPush.swift in Sources */,
 				EAE4D10F22FA92A200887AC1 /* CoreMotion.swift in Sources */,
 				EAA62C7122C55CC00031A999 /* Logging.swift in Sources */,
+				EA328AC02CCCB58C00373AC6 /* DayPlannerRootVC.swift in Sources */,
 				EA8694AC23D3091A00ABE391 /* DailyActivityCell.swift in Sources */,
+				EA328ABE2CCA3FD900373AC6 /* ComposePersonalEventVC.swift in Sources */,
 				EA6DBB1122D172EC009D479D /* PendingTwitarrRepliesVC.swift in Sources */,
 				EADE3C1122EEEE3E00841DF4 /* RefreshTimers.swift in Sources */,
 				EA1E3B9D22461D0300017F07 /* NetworkGovernor.swift in Sources */,
@@ -1616,6 +1646,7 @@
 				EA4E84F0232A2D330059E5EB /* ValidSections.swift in Sources */,
 				EA257F7C276602CE00910CC5 /* CategoryCell.swift in Sources */,
 				EA1B9E0B2266A1E50082A908 /* BaseCollectionViewCell.swift in Sources */,
+				EA328AC42CCE303C00373AC6 /* DayPlannerSectionHeader.swift in Sources */,
 				EAA02846232057D900B2B7F1 /* Notifications.swift in Sources */,
 				EA4A1D1E22540801008501A3 /* EBNObservable.mm in Sources */,
 				EA99D27C297B293600C8D63E /* ActiveCallVC.swift in Sources */,
@@ -1675,6 +1706,7 @@
 				EAD37BF52363D31B000219AE /* ProfileAvatarEditCell.swift in Sources */,
 				EA3C631522975D8400077E3B /* SettingsRootViewController.swift in Sources */,
 				EA4A1D1A22540801008501A3 /* NSArray+EBNObservable.m in Sources */,
+				EA8A806D2CBFC38100E74999 /* DayPlannerCell.swift in Sources */,
 				EA356E9C2C8D8CDB0006717D /* PerformerBioVC.swift in Sources */,
 				EAF777F722A3B1D000B27803 /* ModalLoginViewController.swift in Sources */,
 			);

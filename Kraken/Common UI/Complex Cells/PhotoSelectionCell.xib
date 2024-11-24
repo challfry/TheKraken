@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -245,7 +245,7 @@
             </view>
             <constraints>
                 <constraint firstItem="NiY-L5-A5q" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="JYA-se-Eci"/>
-                <constraint firstAttribute="bottom" secondItem="NiY-L5-A5q" secondAttribute="bottom" priority="700" id="S41-zv-8Re"/>
+                <constraint firstAttribute="bottom" secondItem="NiY-L5-A5q" secondAttribute="bottom" priority="700" constant="2" id="S41-zv-8Re"/>
                 <constraint firstItem="NiY-L5-A5q" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="SX4-DW-0Ib"/>
                 <constraint firstAttribute="trailing" secondItem="NiY-L5-A5q" secondAttribute="trailing" id="b08-fW-pig"/>
             </constraints>

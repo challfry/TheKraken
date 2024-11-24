@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5Ka-4x-J1E">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="5Ka-4x-J1E">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -105,6 +106,7 @@
                         <segue destination="Mfl-7M-Dg4" kind="presentation" identifier="ReportContent" id="jyo-2T-54r"/>
                         <segue destination="PPA-A5-VUC" kind="presentation" identifier="fullScreenCamera" modalPresentationStyle="fullScreen" id="9yi-ca-Z6C"/>
                         <segue destination="Rrr-Wq-uEq" kind="presentation" identifier="cropCamera" modalPresentationStyle="fullScreen" id="h0Q-lM-vyL"/>
+                        <segue destination="i08-8D-38w" kind="show" identifier="PrivateEventCreate" id="OQS-MU-PfC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Ms-N4-lZA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -162,7 +164,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="C2s-xh-PZw">
                                 <rect key="frame" x="0.0" y="92" width="414" height="721"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="e0J-Y9-Ahl">
                                     <size key="itemSize" width="128" height="128"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -173,7 +175,7 @@
                             </collectionView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Erv-FN-2OO"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" name="VC Background"/>
                         <constraints>
                             <constraint firstItem="C2s-xh-PZw" firstAttribute="leading" secondItem="Erv-FN-2OO" secondAttribute="leading" id="DpZ-jf-iIt"/>
                             <constraint firstItem="Erv-FN-2OO" firstAttribute="bottom" secondItem="C2s-xh-PZw" secondAttribute="bottom" id="MXg-WY-eRp"/>
@@ -604,9 +606,9 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3pO-ce-PFD">
-                                <rect key="frame" x="214" y="92" width="200" height="200.5"/>
+                                <rect key="frame" x="214" y="92" width="200" height="201"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="8P0-gz-fsa">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="200" height="201"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" text="Enter a room name or a suite number:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bme-xg-gJA">
@@ -807,6 +809,7 @@
                         <segue destination="PbB-bw-9Xu" kind="show" identifier="EditUserProfile" id="TWa-ya-eZ5"/>
                         <segue destination="H8G-Ue-1rY" kind="show" identifier="EditForumPostDraft" id="nVa-Wl-Nva"/>
                         <segue destination="Slh-I1-F98" kind="show" identifier="LFGCreate" id="FtV-Tf-a8c"/>
+                        <segue destination="i08-8D-38w" kind="show" identifier="PrivateEventCreate" id="qMc-gv-fP0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hhu-Il-zkk" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -858,6 +861,7 @@
                         </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
+                    <navigationItem key="navigationItem" id="QVm-Xx-9nE"/>
                     <connections>
                         <outlet property="collectionView" destination="EKe-Yu-qws" id="zg1-wi-j0b"/>
                     </connections>
@@ -3471,7 +3475,102 @@ Rotate your device to continue.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CLB-Md-k6y" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-801.44927536231887" y="-1910.4910714285713"/>
+            <point key="canvasLocation" x="-801" y="-1718"/>
+        </scene>
+        <!--Day Planner-->
+        <scene sceneID="fsP-fR-Ev8">
+            <objects>
+                <viewController storyboardIdentifier="DayPlannerRootVC" title="Day Planner" id="pGh-vg-L2C" customClass="DayPlannerRootVC" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Rb8-Tc-Qdn">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="SXr-To-sPf">
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Bte-Qe-cVI">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="nKO-P2-bG5"/>
+                        <color key="backgroundColor" name="VC Background"/>
+                        <constraints>
+                            <constraint firstItem="nKO-P2-bG5" firstAttribute="trailing" secondItem="SXr-To-sPf" secondAttribute="trailing" id="T0j-li-tUb"/>
+                            <constraint firstItem="SXr-To-sPf" firstAttribute="leading" secondItem="nKO-P2-bG5" secondAttribute="leading" id="efz-wI-aj5"/>
+                            <constraint firstItem="SXr-To-sPf" firstAttribute="top" secondItem="nKO-P2-bG5" secondAttribute="top" id="sw2-df-KlM"/>
+                            <constraint firstItem="nKO-P2-bG5" firstAttribute="bottom" secondItem="SXr-To-sPf" secondAttribute="bottom" id="z63-3v-lAC"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Title" id="cmy-f5-ThW">
+                        <barButtonItem key="rightBarButtonItem" id="e8u-eM-5ha">
+                            <imageReference key="image" image="calendar.badge.plus" catalog="system" renderingMode="hierarchical">
+                                <hierarchicalColors>
+                                    <color systemColor="systemGreenColor"/>
+                                    <color name="Kraken Label Text"/>
+                                    <color systemColor="tertiaryLabelColor"/>
+                                </hierarchicalColors>
+                            </imageReference>
+                            <connections>
+                                <action selector="addEventButtonHit:" destination="pGh-vg-L2C" id="KDE-Xc-8ZW"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="collectionView" destination="SXr-To-sPf" id="elg-pe-YP1"/>
+                        <outlet property="newEventButton" destination="e8u-eM-5ha" id="T5U-iZ-mdX"/>
+                        <segue destination="i08-8D-38w" kind="show" identifier="PrivateEventCreate" id="5ZP-KZ-bXp"/>
+                        <segue destination="UX8-5D-MNK" kind="show" identifier="ShowSeamailThread" id="bMx-lJ-Mkz"/>
+                        <segue destination="tAA-bi-a4f" kind="show" identifier="SingleEvent" id="5oT-Zf-Pdh"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="vPc-X0-Zcg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="813" y="-1718"/>
+        </scene>
+        <!--Create Personal Event-->
+        <scene sceneID="eVe-VZ-Im9">
+            <objects>
+                <viewController storyboardIdentifier="ComposePersonalEventVC" title="Create Personal Event" id="i08-8D-38w" customClass="ComposePersonalEventVC" customModule="Kraken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ep0-ZL-3qv">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="qDs-Sl-YqD">
+                                <rect key="frame" x="0.0" y="92" width="414" height="721"/>
+                                <color key="backgroundColor" name="CollectionView Background"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="RaP-vZ-dBD">
+                                    <size key="itemSize" width="128" height="128"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                            </collectionView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="3fC-Ln-hxN"/>
+                        <color key="backgroundColor" name="VC Background"/>
+                        <constraints>
+                            <constraint firstItem="qDs-Sl-YqD" firstAttribute="leading" secondItem="3fC-Ln-hxN" secondAttribute="leading" id="DAP-Kj-mXj"/>
+                            <constraint firstItem="3fC-Ln-hxN" firstAttribute="bottom" secondItem="qDs-Sl-YqD" secondAttribute="bottom" id="P6E-qQ-ckL"/>
+                            <constraint firstItem="qDs-Sl-YqD" firstAttribute="top" secondItem="3fC-Ln-hxN" secondAttribute="top" id="UXW-cr-o66"/>
+                            <constraint firstItem="3fC-Ln-hxN" firstAttribute="trailing" secondItem="qDs-Sl-YqD" secondAttribute="trailing" id="VfR-TI-jAC"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="88L-oK-IWi"/>
+                    <connections>
+                        <outlet property="collectionView" destination="qDs-Sl-YqD" id="bLI-a4-QSZ"/>
+                        <segue destination="aDT-HH-fOR" kind="unwind" identifier="dismissingCreateEvent" unwindAction="dismissingCreateEvent:" id="NXt-qv-gGp"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="raV-wp-8Lv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="aDT-HH-fOR" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="1600" y="-1718"/>
         </scene>
         <!--Active CallVC-->
         <scene sceneID="zfs-ba-RLs">
@@ -3572,7 +3671,7 @@ Rotate your device to continue.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BtG-5Q-Ls9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="10.144927536231885" y="-1910.4910714285713"/>
+            <point key="canvasLocation" x="-2262" y="-1718"/>
         </scene>
         <!--Daily View Controller-->
         <scene sceneID="2E2-7P-xh6">
@@ -3627,6 +3726,9 @@ Rotate your device to continue.</string>
                         <segue destination="RFN-Iz-qKb" kind="showDetail" identifier="PhotostreamCamera" id="Y2d-Tf-CTY"/>
                         <segue destination="tAA-bi-a4f" kind="show" identifier="SingleEvent" id="QAK-cX-ZPK"/>
                         <segue destination="gwC-1s-EZt" kind="show" identifier="PerformerGallery" id="FHT-MY-TUH"/>
+                        <segue destination="i08-8D-38w" kind="show" identifier="PrivateEventCreate" id="pwR-PU-i4p"/>
+                        <segue destination="UX8-5D-MNK" kind="show" identifier="ShowSeamailThread" id="4xs-Ig-DC2"/>
+                        <segue destination="pGh-vg-L2C" kind="show" identifier="DayPlannerRoot" id="r3e-yG-BBm"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R26-At-KAA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -3687,6 +3789,9 @@ Rotate your device to continue.</string>
                     <navigationItem key="navigationItem" title="Schedule" id="PWs-K8-zaC"/>
                     <connections>
                         <outlet property="collectionView" destination="npM-Rq-J9b" id="phd-24-Zfn"/>
+                        <segue destination="v2p-69-U1W" kind="show" identifier="ShowRoomOnDeckMap" id="VCx-40-K16"/>
+                        <segue destination="ppy-9j-Eyt" kind="show" identifier="ShowForumThread" id="gU9-Rb-fWh"/>
+                        <segue destination="DA5-7s-QTr" kind="presentation" identifier="ModalLogin" id="ZHC-JJ-gPP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xhF-AK-zFX" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -3695,33 +3800,34 @@ Rotate your device to continue.</string>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="QAK-cX-ZPK"/>
+        <segue reference="5oT-Zf-Pdh"/>
+        <segue reference="qMc-gv-fP0"/>
         <segue reference="HJe-et-hA8"/>
-        <segue reference="9Vl-4N-xRJ"/>
+        <segue reference="FtV-Tf-a8c"/>
         <segue reference="Azj-8J-Wkq"/>
         <segue reference="ixJ-gR-Thn"/>
         <segue reference="iin-6d-KBo"/>
-        <segue reference="5OF-Gt-GA5"/>
+        <segue reference="Pow-sP-93l"/>
         <segue reference="jyo-2T-54r"/>
         <segue reference="Nie-gD-4T3"/>
-        <segue reference="ebe-iD-3Jr"/>
-        <segue reference="xJS-a0-3Zb"/>
-        <segue reference="YBf-1C-vwM"/>
+        <segue reference="9yi-ca-Z6C"/>
+        <segue reference="TWa-ya-eZ5"/>
+        <segue reference="ZNA-4Q-2gl"/>
         <segue reference="xJS-kz-sQt"/>
-        <segue reference="OYC-iy-go3"/>
-        <segue reference="xBi-3d-3gR"/>
+        <segue reference="nVa-Wl-Nva"/>
+        <segue reference="gU9-Rb-fWh"/>
         <segue reference="9El-ZA-7WU"/>
-        <segue reference="1ve-Md-YVN"/>
-        <segue reference="yZ3-I6-e7Y"/>
+        <segue reference="ibx-KH-vcj"/>
+        <segue reference="d2l-zp-S48"/>
         <segue reference="RHM-8H-1Ru"/>
-        <segue reference="1HB-e0-7yo"/>
+        <segue reference="vXi-dK-Rxk"/>
         <segue reference="gdr-Cd-yXW"/>
-        <segue reference="ZMd-4V-Y0z"/>
+        <segue reference="ZQM-8h-AgF"/>
         <segue reference="wjx-Zr-mfc"/>
         <segue reference="rR9-QS-2f0"/>
         <segue reference="2Ae-eC-yt5"/>
         <segue reference="jdD-6N-h46"/>
-        <segue reference="eE5-IR-ObY"/>
+        <segue reference="bMx-lJ-Mkz"/>
         <segue reference="jrK-s2-V8J"/>
     </inferredMetricsTieBreakers>
     <resources>
@@ -3751,6 +3857,7 @@ Rotate your device to continue.</string>
         <image name="Seamail.png" width="36" height="36"/>
         <image name="Settings.png" width="36" height="36"/>
         <image name="Twitarr.png" width="23" height="23"/>
+        <image name="calendar.badge.plus" catalog="system" width="128" height="109"/>
         <image name="calendar.day.timeline.left" catalog="system" width="128" height="88"/>
         <image name="person.3.sequence.fill" catalog="system" width="128" height="63"/>
         <image name="square.and.arrow.up" width="24" height="24"/>
@@ -3795,16 +3902,22 @@ Rotate your device to continue.</string>
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemBlueColor">
-            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemGreenColor">
+            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemTealColor">
-            <color red="0.18823529411764706" green="0.69019607843137254" blue="0.7803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.18823529410000001" green="0.69019607839999997" blue="0.78039215689999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="tertiaryLabelColor">
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
