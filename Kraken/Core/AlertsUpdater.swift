@@ -116,7 +116,7 @@ public struct TwitarrV3UserNotificationData: Codable {
 	var serverTime: String
 	/// Server Time Zone offset, in seconds from UTC. One hour before UTC is -3600. EST  timezone is -18000.
 	var serverTimeOffset: Int
-	/// The geopolitical region identifier that identifies the time zone -- e.g. "America/Los Angeles" 
+	/// The geopolitical region identifier that identifies the time zone -- e.g. "America/Los Angeles"
 	var serverTimeZoneID: String
 	/// Human-readable time zone name, like "EDT"
 	var serverTimeZone: String
@@ -144,11 +144,23 @@ public struct TwitarrV3UserNotificationData: Codable {
 	var forumMentionCount: Int
 	/// Number of forum post @mentions the user has not read. 0 if not logged in.
 	var newForumMentionCount: Int
+	
+	/// The number of Seamail chats the user's been added to but not yet viewed. Does not include Seamails the user creates. Chats counted here will continue
+	/// to be counted here and not in `newSeamailMessageCount` even if there are also new messages--until the user views the chat and clears the notification.
+	var addedToSeamailCount: Int
+	/// The number of LFGs the user's been added to but not yet viewed. Doesn't include LFGs the user created nor ones they Joined by their own action. 
+	/// If a chat the user was added to (but hasn't yet viewed) gets new messages, that chat is counted in this total and not in `newFezMessageCount`.
+	var addedToLFGCount: Int
+	/// The number of Private Events the user's been added to but not yet viewed. Doesn't include PEs the user created. 
+	/// If a chat the user was added to (but hasn't yet viewed) gets new messages, that chat is counted in this total and not in `newPrivateEventMessageCount`.
+	var addedToPrivateEventCount: Int
 
 	/// Count of # of Seamail threads with new messages. NOT total # of new messages-a single seamail thread with 10 new messages counts as 1. 0 if not logged in.
 	var newSeamailMessageCount: Int
-	/// Count of # of Fezzes with new messages. 0 if not logged in.
+	/// Count of # of LFGs with new messages. 0 if not logged in.
 	var newFezMessageCount: Int
+	/// Count of # of Private Events with new messages. 0 if not logged in.
+	var newPrivateEventMessageCount: Int
 
 	/// The start time of the earliest event that the user has followed with a start time > now. nil if not logged in or no matching event.
 	var nextFollowedEventTime: Date?
@@ -156,7 +168,7 @@ public struct TwitarrV3UserNotificationData: Codable {
 	/// The event ID of the the next future event the user has followed. This event's start time should always be == nextFollowedEventTime.
 	/// If the user has favorited multiple events that start at the same time, this will be random among them.
 	var nextFollowedEventID: UUID?
-	
+
 	/// The number of Micro Karaoke songs the user has contributed to and can now view.
 	var microKaraokeFinishedSongCount: Int
 
@@ -171,7 +183,7 @@ public struct TwitarrV3UserNotificationData: Codable {
 	var alertWords: [TwitarrV3UserNotificationAlertwordData]
 
 	/// Notification counts that are only relevant for Moderators (and TwitarrTeam).
-	public struct TwitarrV3ModeratorNotificationData: Codable {
+	public struct ModeratorNotificationData: Content {
 		/// The total number of open user reports. Does not count in-process reports (reports being 'handled' by a mod already).
 		/// This value counts multiple reports on the same piece of content as separate reports.
 		var openReportCount: Int
@@ -193,7 +205,7 @@ public struct TwitarrV3UserNotificationData: Codable {
 	}
 
 	/// Will be nil for non-moderator accounts.
-	var moderatorData: TwitarrV3ModeratorNotificationData?
+	var moderatorData: ModeratorNotificationData?
 }
 
 public struct TwitarrV3DisabledFeature: Codable {
@@ -260,6 +272,7 @@ public enum TwitarrV3SwiftarrFeature: String, Codable, CaseIterable {
 	case directphone		// Also User-to-user VOIP, voice data goes directly phone to phone.
 	case photostream		// Photos taken on the ship. Web UI cannot have photo upload, for THO reasons. 
 	case performers			// Official and Shadow performers.
+	case personalevents 	 // Personal event schedule
 
 	case all
 	

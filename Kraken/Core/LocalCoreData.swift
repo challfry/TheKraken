@@ -37,7 +37,16 @@ extension TestAndSettable where Self : KrakenManagedObject {
 		super.awakeFromFetch()
 		ebn_handleAwakeFromFetch()
 	}
-
+	
+	// DOESN"T YET WORK WITH USER OBJECTS! Need to predicate on 'userID' not 'id'.
+	static func fetchWithDatabaseID(_ id: UUID, 
+			context: NSManagedObjectContext = LocalCoreData.shared.mainThreadContext) throws -> Self? {
+		let request = Self.fetchRequest() as! NSFetchRequest<Self>
+		request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+		request.fetchLimit = 1
+		let cdObject = try context.fetch(request).first
+		return cdObject
+	}
 }
 
 class LocalCoreData: NSObject {
@@ -180,6 +189,7 @@ class LocalCoreData: NSObject {
 		}
 	}
 	
+	// After Save block runs on the main thread
 	func setAfterSaveBlock(for context: NSManagedObjectContext, block: @escaping (Bool) -> Void) {
 		context.userInfo["afterSaveClosure"] = block
 	}

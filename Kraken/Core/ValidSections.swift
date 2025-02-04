@@ -28,6 +28,7 @@ import UIKit
 		case directphone = "directphone"
 		case photostream = "photostream"
 		case performers = "performers"
+		case privateEvents = "privateevents"
 		
 		init?(with v3Feature: TwitarrV3SwiftarrFeature) {
 			switch v3Feature {
@@ -59,6 +60,8 @@ import UIKit
 				self = .directphone
 			case .photostream:
 				self = .photostream
+			case .personalevents:
+				self = .privateEvents
 			case .all:
 				return nil
 			case .unknown:
@@ -117,6 +120,7 @@ import UIKit
 		case .editUserProfile: return [.editUserProfile]
 		case .registration: break
 		case .photostream: break
+		case .privateEvents: return [.privateEvent]
 		}
 		
 		return [.unknown]

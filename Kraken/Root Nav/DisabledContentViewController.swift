@@ -66,9 +66,11 @@ class DisabledContentViewController: UIViewController {
 			tabName = "About"
 		case .faq:
 			tabName = "Cruise FAQ"
-		case .unknown:
-			tabName = "Tab"
 		case .serverFile:
+			tabName = "Tab"
+		case .privateEvent:
+			tabName = "Private Event"
+		case .unknown:
 			tabName = "Tab"
 		}
 		
@@ -158,6 +160,10 @@ class DisabledContentViewController: UIViewController {
 		case .serverFile:
 			featureName =  "Server File Viewer"
 			featurePath = ""
+		case .privateEvent:
+			featureName =  "Private Events"
+			featurePath = "/privateevent"
+
 		case .unknown:
 			featureName = "this feature"
 			featurePath = ""

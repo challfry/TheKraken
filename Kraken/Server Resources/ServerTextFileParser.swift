@@ -35,10 +35,17 @@ class ServerTextFileParser: NSObject {
 	@objc dynamic var isFetchingData = false
 	var saveFileToDocuments = false
 	
-	init(forPath path: String, saveFile: Bool = false) {
+	init(forServerPath path: String, saveFile: Bool = false) {
 		super.init()
 		getServerTextFile(path: path)
 		self.saveFileToDocuments = saveFile
+	}
+	
+	init(forLocalFile filename: String) {
+		super.init()
+		if let fileURL = Bundle.main.url(forResource: filename, withExtension: ""), let contents = try? Data(contentsOf: fileURL) {
+			try? self.parseFile(fileName: filename,  fileData: contents)
+		}
 	}
 	
 	static func parseableFileTypes() -> [String] {

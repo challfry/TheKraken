@@ -354,33 +354,26 @@ import CoreData
 			self.isLoadingOpenLFGs = false
 		}
 	}
-	
-	func updateSeamailWithID(threadID: UUID) {
-		do {
-			let request = NSFetchRequest<SeamailThread>(entityName: "SeamailThread")
-			request.predicate = NSPredicate(format: "id == %@", threadID as CVarArg)
-			request.fetchLimit = 1
-			let cdThreads = try LocalCoreData.shared.mainThreadContext.fetch(request)
-			if let cdThread = cdThreads.first {
-				loadSeamailThread(thread: cdThread, done: {})
-			}
-		}
-		catch {
-			print(error)
+		
+	// If successful, this fn may cause the server to mark this thread as fully read by the user.
+	func loadSeamailThread(thread: SeamailThread, start: Int = -1, done: @escaping () -> Void) {
+		loadSeamailThread(id: thread.id, start: thread.messages.count) { thread in
+			done()
 		}
 	}
 	
-	// If successful, this fn may cause the server to mark this thread as fully read by the user.
-	func loadSeamailThread(thread: SeamailThread, start: Int = -1, done: @escaping () -> Void) {
-		if let lastLoadDate = recentLoads[thread.id], lastLoadDate.timeIntervalSinceNow > -10.0 {
+	func loadSeamailThread(id: UUID, start: Int = 0, done: ((SeamailThread?) -> Void)? = nil) {
+		if let obj = try? SeamailThread.fetchWithDatabaseID(id) {
+			done?(obj)
+		}
+		if let lastLoadDate = recentLoads[id], lastLoadDate.timeIntervalSinceNow > -10.0 {
 			return
 		}
-		recentLoads[thread.id] = Date()
+		recentLoads[id] = Date()
 
 		var queryParams: [URLQueryItem] = []
-		let startParam = start != -1 ? start : thread.messages.count
-		queryParams.append(URLQueryItem(name:"start", value: "\(startParam)"))
-		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(thread.id)", query: queryParams)
+		queryParams.append(URLQueryItem(name:"start", value: "\(start)"))
+		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/fez/\(id)", query: queryParams)
 		NetworkGovernor.addUserCredential(to: &request)
 		NetworkGovernor.shared.queue(request) { (package: NetworkResponse) in
 			if let error = package.serverError {
@@ -389,15 +382,13 @@ import CoreData
 			else if let data = package.data {
 				do {
 					let response = try Settings.v3Decoder.decode(TwitarrV3FezData.self, from: data)
-					self.ingestSeamailThread(from: response)
-					self.recentLoads.removeValue(forKey: thread.id)
+					self.ingestSeamailThread(from: response, done: done)
+					self.recentLoads.removeValue(forKey: id)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Seamails.", ["Error" : error, "url" : request.url as Any])
 				} 
 			}
-			
-			done()
 		}
 	}
 		
@@ -483,10 +474,12 @@ import CoreData
 					user.newLFGMessages -= 1
 				}
 			}
-
+			
 			LocalCoreData.shared.setAfterSaveBlock(for: context) { success in 
 				self.updateNotifications(context: context)
-				done?(cdThread)
+				if let obj = try? SeamailThread.fetchWithDatabaseID(thread.fezID) {
+					done?(obj)
+				}
 			}
 		}
 	}

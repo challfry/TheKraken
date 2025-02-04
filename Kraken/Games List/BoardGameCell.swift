@@ -52,7 +52,12 @@ class BoardGameCell: BaseCollectionViewCell, BoardGameCellBindingProtocol {
     		
     		if let model = model {
 	    		gameTitleLabel.text = model.bggGameName ?? model.gameName
-	    		publishYearLabel.text = model.yearPublished
+	    		if let year = model.yearPublished, Int(year) ?? 0 > 1000 {
+					publishYearLabel.text = year
+				}
+				else {
+		    		publishYearLabel.text = ""
+				}
 	    		
 	    		addObservation(model.tell(self, when: "isFavorite") { observer, observed in 
 	    			observer.favoriteButton.isSelected = observed.isFavorite

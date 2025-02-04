@@ -18,9 +18,9 @@ struct JsonGamesListGame: Codable {
 	var bggGameName: String?			// <name primary="true">
 	var yearPublished: String?			// <yearpublished>
 	var gameDescription: String?		// <description>
-	var gameTypes: [String] 			// <boardgamesubdomain>
-	var categories: [String]			// <boardgamecategory>	
-	var mechanisms: [String]			// <boardgamemechanic>
+	var gameTypes: [String]? 			// <boardgamesubdomain>
+	var categories: [String]?			// <boardgamecategory>	
+	var mechanisms: [String]?			// <boardgamemechanic>
 
 	var minPlayers: Int?
 	var maxPlayers: Int?

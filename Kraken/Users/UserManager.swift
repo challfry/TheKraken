@@ -83,6 +83,15 @@ import CoreData
 		TestAndUpdate(\.realName, v3Object.realName)
 		TestAndUpdate(\.roomNumber, v3Object.roomNumber)
 		TestAndUpdate(\.dinnerTeam, v3Object.dinnerTeam?.rawValue)
+		
+		if let loggedInUser = CurrentUser.shared.getLoggedInUser(in: context) {
+			if v3Object.isFavorite && !loggedInUser.favoriteUsers.contains(self) {
+				loggedInUser.favoriteUsers.insert(self)
+			}
+			else if loggedInUser.favoriteUsers.contains(self) {
+				loggedInUser.favoriteUsers.remove(self)
+			}
+		}
 
 		// Not handled: Note
 	}
@@ -567,6 +576,8 @@ struct TwitarrV3ProfilePublicData: Codable {
 	var dinnerTeam: DinnerTeam?
 	/// A UserNote owned by the visiting user, about the profile's user (see `UserNote`).
 	var note: String?
+	/// Whether the requesting user has favorited this user.
+	var isFavorite: Bool
 }
 
 struct TwitarrV3NoteData: Codable {

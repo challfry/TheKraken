@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -19,19 +19,19 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" horizontalCompressionResistancePriority="600" text="Game Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2bm-Wm-Lng">
-                        <rect key="frame" x="20" y="6" width="111" height="26.5"/>
+                        <rect key="frame" x="20" y="6" width="110" height="26.5"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" horizontalCompressionResistancePriority="700" text="2017" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mLW-om-VsE">
-                        <rect key="frame" x="137" y="11" width="201" height="20.5"/>
+                        <rect key="frame" x="136" y="11" width="226" height="20.5"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" name="Kraken Label Text"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L7S-Df-20v">
-                        <rect key="frame" x="346" y="-5" width="48" height="48.5"/>
+                        <rect key="frame" x="370" y="7.5" width="24" height="24"/>
                         <state key="normal" image="FavoriteHeartGrey"/>
                         <state key="selected" image="FavoriteHeart"/>
                         <connections>
@@ -39,43 +39,57 @@
                         </connections>
                     </button>
                     <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="200" distribution="equalSpacing" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="OB8-Vy-EKN">
-                        <rect key="frame" x="20" y="40" width="374" height="20.5"/>
+                        <rect key="frame" x="20" y="38.5" width="374" height="20.5"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ages 10+" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L6l-SJ-SE2">
-                                <rect key="frame" x="0.0" y="0.0" width="70" height="20.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="69" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2-6 players" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZoW-Hr-9mF">
-                                <rect key="frame" x="129.5" y="0.0" width="87.5" height="20.5"/>
+                                <rect key="frame" x="129.5" y="0.0" width="87" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="30-180 mins" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ALT-dq-hcY">
-                                <rect key="frame" x="276.5" y="0.0" width="97.5" height="20.5"/>
+                                <rect key="frame" x="277" y="0.0" width="97" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                     </stackView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="Rating: 8.6/10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S7q-kl-pU7">
-                        <rect key="frame" x="20" y="69" width="105.5" height="20.5"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <color key="textColor" name="Kraken Secondary Text"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Complexity: 3.2/5" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4Q-su-DDj">
-                        <rect key="frame" x="141.5" y="69" width="252.5" height="20.5"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <color key="textColor" name="Kraken Secondary Text"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="0zN-kP-2GA">
-                        <rect key="frame" x="20" y="98" width="374" height="18"/>
+                    <stackView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="200" verticalCompressionResistancePriority="700" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="0zN-kP-2GA">
+                        <rect key="frame" x="20" y="59" width="374" height="0.0"/>
                         <subviews>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tzc-bx-fHM" userLabel="Spacer View">
+                                <rect key="frame" x="0.0" y="0.0" width="374" height="0.0"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="Rating: 8.6/10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S7q-kl-pU7">
+                                        <rect key="frame" x="0.0" y="6" width="104.5" height="0.0"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" name="Kraken Secondary Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="200" verticalHuggingPriority="251" text="Complexity: 3.2/5" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4Q-su-DDj">
+                                        <rect key="frame" x="241" y="-4" width="133" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" name="Kraken Secondary Text"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="S7q-kl-pU7" firstAttribute="top" secondItem="Tzc-bx-fHM" secondAttribute="top" constant="6" id="1gN-CU-h2X"/>
+                                    <constraint firstAttribute="trailing" secondItem="h4Q-su-DDj" secondAttribute="trailing" id="Di9-xc-z4c"/>
+                                    <constraint firstItem="h4Q-su-DDj" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="S7q-kl-pU7" secondAttribute="trailing" constant="10" id="RKU-h6-zCG"/>
+                                    <constraint firstAttribute="bottom" secondItem="S7q-kl-pU7" secondAttribute="bottom" priority="900" constant="6" id="Zyn-W5-w64"/>
+                                    <constraint firstItem="h4Q-su-DDj" firstAttribute="centerY" secondItem="S7q-kl-pU7" secondAttribute="centerY" id="kqb-H5-Ybp"/>
+                                    <constraint firstItem="S7q-kl-pU7" firstAttribute="leading" secondItem="Tzc-bx-fHM" secondAttribute="leading" id="nSe-D8-kBK"/>
+                                </constraints>
+                            </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="Expands: game" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OWK-ZJ-CfT">
                                 <rect key="frame" x="0.0" y="0.0" width="374" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -83,49 +97,43 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="2 copies" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pGa-Uk-ujT">
-                                <rect key="frame" x="0.0" y="6" width="374" height="0.0"/>
+                                <rect key="frame" x="0.0" y="0.0" width="374" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="750" text="Donated by: user" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QNM-cM-3mN">
-                                <rect key="frame" x="0.0" y="12" width="374" height="0.0"/>
+                                <rect key="frame" x="0.0" y="0.0" width="374" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Secondary Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="210" verticalCompressionResistancePriority="210" text="Description" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MgT-Tt-dJ6">
-                                <rect key="frame" x="0.0" y="18" width="374" height="0.0"/>
+                                <rect key="frame" x="0.0" y="0.0" width="374" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="Kraken Label Text"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <constraints>
-                            <constraint firstAttribute="height" priority="999" id="B8P-bQ-Ovj"/>
+                            <constraint firstAttribute="height" id="B8P-bQ-Ovj"/>
                         </constraints>
                     </stackView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="OB8-Vy-EKN" firstAttribute="top" secondItem="2bm-Wm-Lng" secondAttribute="bottom" constant="7.5" id="00P-0W-MZe"/>
+                    <constraint firstItem="OB8-Vy-EKN" firstAttribute="top" secondItem="2bm-Wm-Lng" secondAttribute="bottom" constant="6" id="00P-0W-MZe"/>
+                    <constraint firstItem="0zN-kP-2GA" firstAttribute="leading" secondItem="kWh-e9-8G6" secondAttribute="leading" constant="20" id="08U-VA-WpS"/>
                     <constraint firstItem="OB8-Vy-EKN" firstAttribute="leading" secondItem="2bm-Wm-Lng" secondAttribute="leading" id="0gT-hL-udQ"/>
                     <constraint firstAttribute="trailing" secondItem="L7S-Df-20v" secondAttribute="trailing" constant="20" id="0kn-me-bGY"/>
                     <constraint firstItem="mLW-om-VsE" firstAttribute="leading" secondItem="2bm-Wm-Lng" secondAttribute="trailing" constant="6" id="8fu-5t-1B0"/>
                     <constraint firstItem="L7S-Df-20v" firstAttribute="leading" secondItem="mLW-om-VsE" secondAttribute="trailing" constant="8" id="Axn-2s-sfE"/>
-                    <constraint firstAttribute="bottom" secondItem="S7q-kl-pU7" secondAttribute="bottom" priority="200" constant="8" id="KrY-Ye-88I"/>
+                    <constraint firstAttribute="trailing" secondItem="0zN-kP-2GA" secondAttribute="trailing" constant="20" id="CzJ-GG-UCu"/>
                     <constraint firstItem="L7S-Df-20v" firstAttribute="centerY" secondItem="2bm-Wm-Lng" secondAttribute="centerY" id="LeK-dP-Kna"/>
-                    <constraint firstItem="0zN-kP-2GA" firstAttribute="leading" secondItem="S7q-kl-pU7" secondAttribute="leading" id="MBl-Jj-Itm"/>
                     <constraint firstItem="2bm-Wm-Lng" firstAttribute="top" secondItem="kWh-e9-8G6" secondAttribute="top" constant="6" id="SOG-ZJ-5TV"/>
                     <constraint firstItem="2bm-Wm-Lng" firstAttribute="leading" secondItem="kWh-e9-8G6" secondAttribute="leading" constant="20" id="SgA-8J-2pD"/>
-                    <constraint firstItem="S7q-kl-pU7" firstAttribute="top" secondItem="OB8-Vy-EKN" secondAttribute="bottom" constant="8.5" id="TgD-U9-faZ"/>
                     <constraint firstItem="OB8-Vy-EKN" firstAttribute="trailing" secondItem="L7S-Df-20v" secondAttribute="trailing" id="URC-vV-hfg"/>
-                    <constraint firstItem="0zN-kP-2GA" firstAttribute="trailing" secondItem="h4Q-su-DDj" secondAttribute="trailing" id="ZUO-dJ-QkG"/>
-                    <constraint firstItem="h4Q-su-DDj" firstAttribute="trailing" secondItem="ALT-dq-hcY" secondAttribute="trailing" id="ZdQ-2r-b5D"/>
-                    <constraint firstItem="S7q-kl-pU7" firstAttribute="leading" secondItem="L6l-SJ-SE2" secondAttribute="leading" id="b7V-Wx-WVj"/>
-                    <constraint firstItem="0zN-kP-2GA" firstAttribute="top" secondItem="S7q-kl-pU7" secondAttribute="bottom" constant="8.5" id="e5z-nl-1Ld"/>
-                    <constraint firstAttribute="bottom" secondItem="0zN-kP-2GA" secondAttribute="bottom" priority="210" constant="6" id="eVq-mp-d7t"/>
-                    <constraint firstItem="h4Q-su-DDj" firstAttribute="firstBaseline" secondItem="S7q-kl-pU7" secondAttribute="firstBaseline" id="itR-gt-xcU"/>
-                    <constraint firstItem="h4Q-su-DDj" firstAttribute="leading" secondItem="S7q-kl-pU7" secondAttribute="trailing" constant="16" id="nCy-O4-OeQ"/>
+                    <constraint firstAttribute="bottom" secondItem="0zN-kP-2GA" secondAttribute="bottom" priority="190" constant="6" id="eVq-mp-d7t"/>
+                    <constraint firstItem="0zN-kP-2GA" firstAttribute="top" secondItem="OB8-Vy-EKN" secondAttribute="bottom" id="rh6-jF-5XI"/>
                     <constraint firstItem="mLW-om-VsE" firstAttribute="firstBaseline" secondItem="2bm-Wm-Lng" secondAttribute="firstBaseline" id="xEV-mi-vyo"/>
                 </constraints>
             </collectionViewCellContentView>

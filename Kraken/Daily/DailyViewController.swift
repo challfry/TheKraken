@@ -59,7 +59,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 	var lfgCell = SocialCellModel("LFG", imageNamed: "person.3.sequence.fill")
 	var scheduleCell = SocialCellModel("Schedule", imageNamed: "calendar")
 	var officialPerformersCell = SocialCellModel("Performers", imageNamed: "figure.taichi")
-	var shadowPerformersCell = SocialCellModel("Shadow Cruise", imageNamed: "figure.taichi")
+	var shadowPerformersCell = SocialCellModel("Shadow Cruise", imageNamed: "ShadowCruise.png")
 	var deckMapCell = SocialCellModel("Deck Maps", imageNamed: "map")
 	var karaokeCell = SocialCellModel("Karaoke", imageNamed: "music.mic")
 	var microKaraokeCell = SocialCellModel("Micro Karaoke", imageNamed: "music.mic.circle")
@@ -283,6 +283,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			case .settings: performKrakenSegue(.settingsRoot, sender: packet)
 			case .lighter: performKrakenSegue(.lighterMode, sender: packet)
 			case .pirateAR: performKrakenSegue(.pirateAR, sender: packet)
+			case .privateEvent: performKrakenSegue(.dayPlannerRoot, sender: packet)
 			
 			case .twitarrHelp: showTextFile(title: "Twitarr Help", serverPath: "/public/twitarrhelptext.md")
 			case .codeOfConduct: showTextFile(title: "Code Of Conduct", serverPath: "/public/codeofconduct.md")
@@ -318,7 +319,7 @@ class DailyViewController: BaseCollectionViewController, GlobalNavEnabled {
 			alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), style: .cancel, handler: nil))
 			alert.addAction(UIAlertAction(title: NSLocalizedString("Save", comment: "Default action"), 
 					style: .default, handler: { _ in
-						_ = ServerTextFileParser(forPath: serverURL.path, saveFile: true)
+						_ = ServerTextFileParser(forServerPath: serverURL.path, saveFile: true)
 					}))
 			present(alert, animated: true, completion: nil)
 		}

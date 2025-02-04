@@ -39,10 +39,10 @@ class MicroKaraokeSongAndArtistVC: UIViewController {
 // MARK: Navigation
 	@IBAction func okayButtonHit(_ sender: Any) {
 		if MicroKaraokeDataManager.shared.getCurrentOffer()?.portraitMode == true {
-			performSegue(withIdentifier: GlobalKnownSegue.microKaraokeCamera.rawValue, sender: self)
+			performSegue(withIdentifier: GlobalKnownSegue.microKaraokeCamera.segueName, sender: self)
 		}
 		else {
-			performSegue(withIdentifier: GlobalKnownSegue.microKaraokeCameraLandscape.rawValue, sender: self)
+			performSegue(withIdentifier: GlobalKnownSegue.microKaraokeCameraLandscape.segueName, sender: self)
 		}
 	}
 	

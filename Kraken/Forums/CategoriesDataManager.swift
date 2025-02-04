@@ -31,7 +31,7 @@ import CoreData
 		TestAndUpdate(\.id, v3Object.categoryID)
 		TestAndUpdate(\.title, v3Object.title)
 		TestAndUpdate(\.purpose, v3Object.purpose)
-		TestAndUpdate(\.numThreads, v3Object.numThreads)
+		TestAndUpdate(\.numThreads, Int32(v3Object.paginator.total))
 		TestAndUpdate(\.isEventCategory, v3Object.isEventCategory)
 		TestAndUpdate(\.visibleWhenLoggedOut, index != nil)
 		if let index = index {
@@ -137,20 +137,22 @@ import CoreData
 // MARK: - V3 API Decoding
 
 // GET /api/v3/forum/categories
-struct TwitarrV3CategoryData: Codable {
-    /// The ID of the category.
-    var categoryID: UUID
-    /// The title of the category.
-    var title: String
-    /// The purpose string for the category.
-    var purpose: String
-    /// If TRUE, the user cannot create/modify threads in this forum. Should be sorted to top of category list.
-    var isRestricted: Bool
+struct TwitarrV3CategoryData: Content {
+	/// The ID of the category.
+	var categoryID: UUID
+	/// The title of the category.
+	var title: String
+	/// The purpose string for the category.
+	var purpose: String
+	/// If TRUE, the user cannot create/modify threads in this forum. Should be sorted to top of category list.
+	var isRestricted: Bool
 	/// if TRUE, this category is for Event Forums, and is prepopulated with forum threads for each Schedule Event.
 	var isEventCategory: Bool
-    /// The number of threads in this category
-    var numThreads: Int32
-    ///The threads in the category. Only populated for /categories/ID.
-    var forumThreads: [TwitarrV3ForumListData]?
+	/// The threads in the category. Only populated for /categories/ID.
+	var forumThreads: [TwitarrV3ForumListData]?
+	/// Pagination of the results. For the `GET /api/v3/categories` endpoint only the `Paginator`s `total` is meaningful.
+	/// That values is the number of threads in the category (prior to blocks). It is never the number of categories.
+	/// Queries to `GET /api/v3/categories/:ID` return paginated results for the threads within that category.
+	var paginator: TwitarrV3Paginator
 }
 

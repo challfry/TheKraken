@@ -13,6 +13,7 @@ import Photos
 class SeamailThreadViewController: BaseCollectionViewController {
 
 	// Set by calling VC
+	@objc dynamic var threadID: UUID?
 	@objc dynamic var threadModel: SeamailThread?
 	
 	private let compositeDataSource = KrakenDataSource()
@@ -72,10 +73,19 @@ class SeamailThreadViewController: BaseCollectionViewController {
 // MARK: Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let thread = threadModel {
-	        SeamailDataManager.shared.loadSeamailThread(thread: thread) {
-      		}
-		}
+        
+        if let threadID, threadModel == nil {
+			SeamailDataManager.shared.loadSeamailThread(id: threadID) { thread in
+				self.threadModel = thread
+			}
+        }
+        
+        self.tell(self, when: "threadModel") { observer, observed in
+			if let thread = observed.threadModel {
+				SeamailDataManager.shared.loadSeamailThread(thread: thread) {
+				}
+			}
+		}?.execute()
         
         // Save the name of the logged in user at load time; if that user changes dismiss the view.
         // We *might* loosen this restriction so that if both prev and current user are in the thread

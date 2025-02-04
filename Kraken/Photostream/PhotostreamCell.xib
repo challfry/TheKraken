@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -22,8 +22,8 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="M5r-YY-2jL">
                         <rect key="frame" x="10" y="5" width="394" height="287"/>
                         <subviews>
-                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VFO-Yl-Xkq" userLabel="Header">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="42"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VFO-Yl-Xkq" userLabel="Header">
+                                <rect key="frame" x="0.0" y="0.0" width="394" height="37"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Photostream" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VCb-cL-WwG">
                                         <rect key="frame" x="9.9999999999999929" y="7" width="117.33333333333331" height="23"/>
@@ -77,7 +77,7 @@
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
-                    <constraint firstAttribute="bottom" secondItem="M5r-YY-2jL" secondAttribute="bottom" constant="5" id="9oh-ri-4mr"/>
+                    <constraint firstAttribute="bottom" secondItem="M5r-YY-2jL" secondAttribute="bottom" priority="900" constant="5" id="9oh-ri-4mr"/>
                     <constraint firstItem="M5r-YY-2jL" firstAttribute="leading" secondItem="uVD-MW-hqo" secondAttribute="leading" constant="10" id="CU3-LP-Xsz"/>
                     <constraint firstAttribute="trailing" secondItem="M5r-YY-2jL" secondAttribute="trailing" constant="10" id="gvM-yb-yik"/>
                     <constraint firstItem="M5r-YY-2jL" firstAttribute="top" secondItem="uVD-MW-hqo" secondAttribute="top" constant="5" id="zKW-Ym-o0P"/>

@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class DayPlannerRootVC: BaseCollectionViewController {
+class DayPlannerRootVC: BaseCollectionViewController, GlobalNavEnabled {
 	@IBOutlet var newEventButton: UIBarButtonItem!
 
 	let loginDataSource = KrakenDataSource()
@@ -94,8 +94,19 @@ class DayPlannerRootVC: BaseCollectionViewController {
 // MARK: - Navigation
 	override var knownSegues : Set<GlobalKnownSegue> {
 		Set<GlobalKnownSegue>([ 
-				.privateEventCreate, .showSeamailThread, .singleEvent
+				.privateEventCreate, .showSeamailThread, .showSeamailThreadID, .singleEvent
 		])
+	}
+
+	@discardableResult func globalNavigateTo(packet: GlobalNavPacket) -> Bool {
+		if let eventID = packet.arguments["PrivateEvent"] as? UUID {
+			performKrakenSegue(.showSeamailThreadID, sender: eventID)
+		}
+		else if let segue = packet.segue, [.showForumCategory, .showForumThread, .showForumFilterPack].contains(segue) {
+			performKrakenSegue(segue, sender: packet.sender)
+			return true
+		}
+		return false
 	}
 
 	// This is the unwind segue from the compose view for Personal Events.

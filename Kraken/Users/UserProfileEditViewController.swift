@@ -201,7 +201,8 @@ import Photos
 	}
 
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-		if let segueID = prepareGlobalSegue(for: segue, sender: sender) {
+		if let wrapper = sender as? SegueSenderWrapper, let segueID = prepareGlobalSegue(for: wrapper.id, 
+				source: segue.source, destination: segue.destination, sender: sender) {
 			
 			// Override default camera behavior when we're the source, so the camera starts in selfie mode.
 			switch segueID {

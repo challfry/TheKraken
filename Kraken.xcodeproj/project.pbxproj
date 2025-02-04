@@ -212,6 +212,7 @@
 		EAB4537622D58FEA00CD1671 /* UserListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB4537422D58FEA00CD1671 /* UserListCell.swift */; };
 		EAB4537722D58FEA00CD1671 /* UserListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EAB4537522D58FEA00CD1671 /* UserListCell.xib */; };
 		EAB94EA022A9AC6D0018FEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */; };
+		EAB9DAB12D378CBF003E20DE /* ShadowCruise.png in Resources */ = {isa = PBXBuildFile; fileRef = EAB9DAB02D378CBF003E20DE /* ShadowCruise.png */; };
 		EABF8B492B70C2AB0045036F /* UploadCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EABF8B482B70C2AB0045036F /* UploadCell.xib */; };
 		EABF8B4B2B70F3C60045036F /* CompletedSongCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EABF8B4A2B70F3C60045036F /* CompletedSongCell.xib */; };
 		EABF8B4D2B719A0E0045036F /* CompletedSongCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EABF8B4C2B719A0E0045036F /* CompletedSongCell.swift */; };
@@ -542,6 +543,7 @@
 		EAB4537422D58FEA00CD1671 /* UserListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListCell.swift; sourceTree = "<group>"; };
 		EAB4537522D58FEA00CD1671 /* UserListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UserListCell.xib; sourceTree = "<group>"; };
 		EAB94E9F22A9AC6D0018FEC6 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		EAB9DAB02D378CBF003E20DE /* ShadowCruise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ShadowCruise.png; sourceTree = "<group>"; };
 		EABF8B482B70C2AB0045036F /* UploadCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UploadCell.xib; sourceTree = "<group>"; };
 		EABF8B4A2B70F3C60045036F /* CompletedSongCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CompletedSongCell.xib; sourceTree = "<group>"; };
 		EABF8B4C2B719A0E0045036F /* CompletedSongCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedSongCell.swift; sourceTree = "<group>"; };
@@ -920,6 +922,7 @@
 				EA71E0E52B88B2CB00A9376C /* MetronomeClick.m4a */,
 				EAAA68E223FD122E00C9EF82 /* RockBalladMode.mov */,
 				EA2286DC23E275A40036C20E /* KrakenIcon100px.png */,
+				EAB9DAB02D378CBF003E20DE /* ShadowCruise.png */,
 				EA8B9872232393C500E10156 /* JoCoKaraokeSongCatalog.lzfse */,
 				EAC2D3B323CC7AEC0055780C /* Hats.scnassets */,
 			);
@@ -1436,6 +1439,7 @@
 				EA8694AD23D3091A00ABE391 /* DailyActivityCell2.xib in Resources */,
 				EA47673823435CC600F56E08 /* ProfileAvatarEditCell.xib in Resources */,
 				EAD0EE0F298BAFD500B07DCE /* PopupCell.xib in Resources */,
+				EAB9DAB12D378CBF003E20DE /* ShadowCruise.png in Resources */,
 				EA6A8A76231908F80071BFEA /* EventSectionHeaderView.xib in Resources */,
 				EA86ADE02277A76D00363CBF /* TwitarrTweetCell.xib in Resources */,
 				EA9A64FD2BD3BE5A00C40A87 /* PhotostreamCell.xib in Resources */,

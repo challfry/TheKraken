@@ -12,7 +12,7 @@ import Foundation
 // by modifying the return value of this function.
 func cruiseCurrentDate() -> Date {
 	// Uncomment this to make the app think 'today' is some day relative to the cruise start date.
-	return cruiseStartDate()! + 86400 * 1 + 3600 * 12
+//	return cruiseStartDate()! + 86400 * 1 + 3600 * 12
 
 	// Always return this when not specifically testing dates.
 	return Date()

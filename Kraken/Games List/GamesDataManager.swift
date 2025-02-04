@@ -121,6 +121,9 @@ import Compression
 					return Data(bytes: rebound, count: decodedCharCount)
 				}
 	//			print ("Decode Time: \(ProcessInfo.processInfo.systemUptime - startTime)")
+	//			let writePath = FileManager.default.temporaryDirectory.appendingPathComponent("JoCoGamesCatalog.json")
+	//			try? fileData.write(to: writePath)
+	//			print("Wrote JSON to: \(writePath)\n")
 				
 				// Step 3: Parse the file, creating local versions of the 'full state' vars.
 				var threadGames: [GamesListGame] = []

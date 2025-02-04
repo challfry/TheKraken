@@ -9,76 +9,152 @@
 import UIKit
 
 // The raw values for these enums are the Storyboard Segue Identifiers. 
-enum GlobalKnownSegue: String {
-	case dismiss =					"dismiss"
-	case dismissCamera =			"dismissCamera"
+enum GlobalKnownSegue {
+	case dismiss
+	case dismissCamera
 	
-	case modalLogin = 				"ModalLogin"
-	case reportContent = 			"ReportContent"
+	case modalLogin
+	case reportContent
 
-	case twitarrRoot = 				"TwitarrRoot"
-	case tweetFilter = 				"TweetFilter"
-	case showLikeOptions = 			"LikesPopover"
-	case pendingReplies = 			"PendingReplies"
-	case composeReplyTweet = 		"ComposeReplyTweet"
-	case editTweet = 				"EditTweet"
-	case editTweetOp = 				"EditTweetOp"
-	case composeTweet = 			"ComposeTweet"
-	case showUserTweets = 			"ShowUserTweets"
-	case showUserMentions = 		"ShowUserMentions"
+	case twitarrRoot
+	case tweetFilter
+	case showLikeOptions
+	case pendingReplies
+	case composeReplyTweet
+	case editTweet
+	case editTweetOp
+	case composeTweet
+	case showUserTweets
+	case showUserMentions
 	
-	case forumsRoot = 				"ForumsRoot"
-	case showForumCategory = 		"ShowForumCategory"
-	case showForumFilterPack = 		"ShowForumFilterPack"
-	case showForumThread = 			"ShowForumThread"
-	case composeForumThread = 		"ComposeForumThread"
-	case composeForumPost = 		"ComposeForumPost"
-	case editForumPost = 			"EditForumPost"
-	case editForumPostDraft = 		"EditForumPostDraft"
+	case forumsRoot
+	case showForumCategory
+	case showForumFilterPack
+	case showForumThread
+	case composeForumThread
+	case composeForumPost
+	case editForumPost
+	case editForumPostDraft
 	
-	case seamailRoot = 				"SeamailRoot"
-	case showSeamailThread = 		"ShowSeamailThread"
-	case editSeamailThreadOp = 		"EditSeamailThreadOp"
-	case seamailManageMembers = 	"SeamailManageMenbers"
+	case seamailRoot
+	case showSeamailThread
+	case showSeamailThreadID
+	case editSeamailThreadOp
+	case seamailManageMembers
 
-	case lfgRoot = 					"LFGRoot"
-	case lfgCreateEdit = 			"LFGCreate"
+	case lfgRoot
+	case lfgCreateEdit
 	
-	case eventsRoot = 				"EventsRoot"
-	case singleEvent = 				"SingleEvent"
-	case performerRoot = 			"PerformerGallery"
-	case performerBio = 			"PerformerBio"
+	case eventsRoot
+	case singleEvent
+	case performerRoot
+	case performerBio
 	
-	case dayPlannerRoot = 			"DayPlannerRoot"
-	case privateEventCreate = 		"PrivateEventCreate"
+	case dayPlannerRoot
+	case privateEventCreate
 	
-	case deckMapRoot =				"DeckMapRoot"
-	case showRoomOnDeckMap = 		"ShowRoomOnDeckMap"
+	case deckMapRoot
+	case showRoomOnDeckMap
 	
-	case karaokeRoot =				"KaraokeRoot"
-	case microKaraokeRoot =			"MicroKaraokeRoot"
-	case microKaraokeTitleCard =	"MicroKaraokeTitleCard"
-	case microKaraokeCamera =		"MicroKaraokeCamera"
-	case microKaraokeCameraLandscape =	"MicroKaraokeCameraLandscape"
-	case gamesRoot =				"GamesRoot"
-	case scrapbookRoot =			"ScrapbookRoot"
-	case lighterMode =				"RockBalladMode"
-	case pirateAR =					"PirateARCamera"
-	case photoStreamCamera = 		"PhotostreamCamera"
+	case karaokeRoot
+	case microKaraokeRoot
+	case microKaraokeTitleCard
+	case microKaraokeCamera
+	case microKaraokeCameraLandscape
+	case gamesRoot
+	case scrapbookRoot
+	case lighterMode
+	case pirateAR
+	case photoStreamCamera
 	
-	case settingsRoot = 			"SettingsRoot"
-	case postOperations =			"PostOperations"
-	case about = 					"AboutViewController"
-	case twitarrHelp = 				"TwitarrHelp"
+	case settingsRoot
+	case postOperations
+	case about
+	case twitarrHelp
 
-	case userProfile_Name = 		"UserProfile_Name"
-	case userProfile_User = 		"UserProfile"
-	case editUserProfile = 			"EditUserProfile"
-	case initiatePhoneCall = 		"InitiatePhoneCall"
-	case activePhoneCall = 			"ActivePhoneCall"
+	case userProfile_Name
+	case userProfile_User
+	case editUserProfile
+	case initiatePhoneCall
+	case activePhoneCall
 	
-	case fullScreenCamera = 		"fullScreenCamera"
-	case cropCamera = 				"cropCamera"
+	case fullScreenCamera
+	case cropCamera
+	
+	var segueName: String {
+		switch self {
+		case .dismiss:						return "dismiss"
+		case .dismissCamera:				return "dismissCamera"
+		
+		case .modalLogin: 					return "ModalLogin"
+		case .reportContent: 				return "ReportContent"
+
+		case .twitarrRoot: 					return "TwitarrRoot"
+		case .tweetFilter: 					return "TweetFilter"
+		case .showLikeOptions: 				return "LikesPopover"
+		case .pendingReplies: 				return "PendingReplies"
+		case .composeReplyTweet: 			return "ComposeReplyTweet"
+		case .editTweet: 					return "EditTweet"
+		case .editTweetOp: 					return "EditTweetOp"
+		case .composeTweet: 				return "ComposeTweet"
+		case .showUserTweets: 				return "ShowUserTweets"
+		case .showUserMentions: 			return "ShowUserMentions"
+		
+		case .forumsRoot: 					return "ForumsRoot"
+		case .showForumCategory: 			return "ShowForumCategory"
+		case .showForumFilterPack: 			return "ShowForumFilterPack"
+		case .showForumThread: 				return "ShowForumThread"
+		case .composeForumThread: 			return "ComposeForumThread"
+		case .composeForumPost: 			return "ComposeForumPost"
+		case .editForumPost: 				return "EditForumPost"
+		case .editForumPostDraft: 			return "EditForumPostDraft"
+		
+		case .seamailRoot: 					return "SeamailRoot"
+		case .showSeamailThread: 			return "ShowSeamailThread"
+		case .showSeamailThreadID: 			return "ShowSeamailThread"
+		case .editSeamailThreadOp: 			return "EditSeamailThreadOp"
+		case .seamailManageMembers: 		return "SeamailManageMenbers"
+
+		case .lfgRoot: 						return "LFGRoot"
+		case .lfgCreateEdit: 				return "LFGCreate"
+		
+		case .eventsRoot: 					return "EventsRoot"
+		case .singleEvent: 					return "SingleEvent"
+		case .performerRoot: 				return "PerformerGallery"
+		case .performerBio: 				return "PerformerBio"
+		
+		case .dayPlannerRoot: 				return "DayPlannerRoot"
+		case .privateEventCreate: 			return "PrivateEventCreate"
+		
+		case .deckMapRoot:					return "DeckMapRoot"
+		case .showRoomOnDeckMap: 			return "ShowRoomOnDeckMap"
+		
+		case .karaokeRoot:					return "KaraokeRoot"
+		case .microKaraokeRoot:				return "MicroKaraokeRoot"
+		case .microKaraokeTitleCard:		return "MicroKaraokeTitleCard"
+		case .microKaraokeCamera:			return "MicroKaraokeCamera"
+		case .microKaraokeCameraLandscape:	return "MicroKaraokeCameraLandscape"
+		case .gamesRoot:					return "GamesRoot"
+		case .scrapbookRoot:				return "ScrapbookRoot"
+		case .lighterMode:					return "RockBalladMode"
+		case .pirateAR:						return "PirateARCamera"
+		case .photoStreamCamera: 			return "PhotostreamCamera"
+		
+		case .settingsRoot: 				return "SettingsRoot"
+		case .postOperations:				return "PostOperations"
+		case .about: 						return "AboutViewController"
+		case .twitarrHelp: 					return "TwitarrHelp"
+
+		case .userProfile_Name: 			return "UserProfile"
+		case .userProfile_User: 			return "UserProfile"
+		case .editUserProfile: 				return "EditUserProfile"
+		case .initiatePhoneCall: 			return "InitiatePhoneCall"
+		case .activePhoneCall: 				return "ActivePhoneCall"
+		
+		case .fullScreenCamera: 			return "fullScreenCamera"
+		case .cropCamera: 					return "cropCamera"
+		}
+	}
 	
 	var senderType: Any.Type {
 		switch self {
@@ -110,6 +186,7 @@ enum GlobalKnownSegue: String {
 		
 		case .seamailRoot: return Void.self
 		case .showSeamailThread: return SeamailThread.self
+		case .showSeamailThreadID: return UUID.self
 		case .editSeamailThreadOp: return PostOpSeamailThread.self
 		case .seamailManageMembers: return SeamailThread.self
 		
@@ -152,15 +229,7 @@ enum GlobalKnownSegue: String {
 		case .fullScreenCamera: return BaseCollectionViewCell.self
 		case .cropCamera: return BaseCollectionViewCell.self
 
-//		@unknown default: return Void.self
-		}
-	}
-	
-	func segueName() -> String {
-		switch self {
-			case .userProfile_Name: return "UserProfile"
-			case .userProfile_User: return "UserProfile"
-			default: return rawValue
+		@unknown default: return Void.self
 		}
 	}
 }
@@ -539,7 +608,7 @@ class BaseCollectionViewController: UIViewController {
 				alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel action"), style: .cancel, handler: nil))
 				alert.addAction(UIAlertAction(title: NSLocalizedString("Save", comment: "Default action"), 
 						style: .default, handler: { _ in
-							_ = ServerTextFileParser(forPath: url.path, saveFile: true)
+							_ = ServerTextFileParser(forServerPath: url.path, saveFile: true)
 						}))
 				present(alert, animated: true, completion: nil)
 			}
@@ -553,7 +622,7 @@ class BaseCollectionViewController: UIViewController {
 	func performKrakenSegue(_ id: GlobalKnownSegue, sender: Any?) {
 		guard canPerformSegue(id) else {
 			let vcType = type(of: self)
-			AppLog.error("VC \(vcType) doesn't claim to support segue \(id.rawValue)")
+			AppLog.error("VC \(vcType) doesn't claim to support segue \(id.segueName)")
 			return 
 		}
 		
@@ -579,29 +648,31 @@ class BaseCollectionViewController: UIViewController {
 		}
 	}
 	
+	struct SegueSenderWrapper {
+		var id: GlobalKnownSegue
+		var sender: Any?
+	}
+	
 	func performSegueWrapper(withIdentifier id: GlobalKnownSegue, sender: Any?) {
-		performSegue(withIdentifier: id.segueName(), sender: sender)
+		let wrapper = SegueSenderWrapper(id: id, sender: sender)
+		DispatchQueue.main.async {
+			self.performSegue(withIdentifier: id.segueName, sender: wrapper)
+		}
 	}
 
 	// Most global segues are only dependent on their destination VC and info in the sender parameter.
 	// We handle most of them here. Subclasses can override this to handle segues with special needs.
 	// This is a UIViewcontroller override, called from inside of performSegue()
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    	if let _ = prepareGlobalSegue(for: segue, sender: sender) {
-    		return
-    	}
+    	if let wrapper = sender as? SegueSenderWrapper {
+			prepareGlobalSegue(for: wrapper.id, source: segue.source, destination: segue.destination, sender: wrapper.sender)
+			return
+		}
     }
     
 	// Set up data in destination view controllers when we're about to segue to them.
 	// Note: This fn has knowledge of a bunch of its subclasses. A cooler solution would be some sort of 
 	// registration system but boy is that needlessly complicated.
-    func prepareGlobalSegue(for segue: UIStoryboardSegue, sender: Any?) -> GlobalKnownSegue? {
-    	guard let segueName = segue.identifier, let id = GlobalKnownSegue(rawValue: segueName) else {
-    		return nil
-    	}
-    	return prepareGlobalSegue(for: id, source: segue.source, destination: segue.destination, sender: sender)	
-	}
-    	
 	@discardableResult func prepareGlobalSegue(for id: GlobalKnownSegue, source: UIViewController, 
 			destination: UIViewController, sender: Any?) -> GlobalKnownSegue? {
     	
@@ -709,6 +780,11 @@ class BaseCollectionViewController: UIViewController {
 		case .showSeamailThread:
 			if let destVC = destination as? SeamailThreadViewController, let threadModel = sender as? SeamailThread {
 				destVC.threadModel = threadModel
+			}
+			
+		case .showSeamailThreadID:
+			if let destVC = destination as? SeamailThreadViewController, let threadID = sender as? UUID {
+				destVC.threadID = threadID
 			}
 			
 		case .editSeamailThreadOp:

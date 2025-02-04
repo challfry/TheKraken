@@ -37,6 +37,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 		case scrapbook
 		case lighter
 		case pirateAR
+		case privateEvent
 
 		case settings
 		case about
@@ -68,6 +69,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 				case .scrapbook: return "ScrapbookNavController"
 				case .lighter: return "RockBalladViewController"
 				case .pirateAR: return "CameraViewController"
+				case .privateEvent: return "DayPlannerRootVC"
 
 				case .settings: return "SettingsNavController"
 				case .about: return "AboutViewController"
@@ -144,6 +146,7 @@ class RootTabBarViewController: UITabBarController, GlobalNavEnabled {
 				case .search: break // newDisabledTabs.insert(.)
 				case .photostream: break
 				case .registration: break
+				case .privateEvents: newDisabledTabs.insert(.privateEvent);
 			}
     	}
     	

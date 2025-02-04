@@ -11,7 +11,7 @@ import WebKit
 
 struct ServerTextFileSeguePackage {
 	var titleText: String?
-	var serverFilePath: String
+	var serverFilePath: String?
 	var localFilePath: String?
 }
 
@@ -29,12 +29,12 @@ class ServerTextFileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard var filePath = package?.serverFilePath else {
-        	return
-        }
-		let fp = filePath.lowercased()
+		var filePath: String = package?.localFilePath ?? package?.serverFilePath ?? ""
+        var fileName: String
+        var fileSuffix: String = ""
         
         // Do a bit of link-rewriting. 
+		let fp = filePath.lowercased()
 		if fp == "/about" {
 			filePath = "/public/twitarrhelptext.md"
 		}
@@ -42,31 +42,37 @@ class ServerTextFileViewController: UIViewController {
 			filePath = "/public/codeofconduct.md"
 		}
         
-		guard let fileName = filePath.split(separator: "/").last else {
-        	return
-        }
-		let fn = fileName.lowercased()
-		let fileSuffix: String = fn.split(separator: ".").last?.string ?? ""
+        // Determine the title
+		fileName = filePath.split(separator: "/").last?.string ?? ""
+		if !fileName.isEmpty {
+			let fn = fileName.lowercased()
+			fileSuffix = fn.split(separator: ".").last?.string ?? ""
 		
-		if let title = package?.titleText {
-	        navItem.title = title
-		}
-		else {
-			if fn.hasPrefix("twitarrhelptext") {
-				navItem.title = "Twitarr Help"
+			if let title = package?.titleText {
+				navItem.title = title
 			}
-			else if fn.hasPrefix("codeofconduct") {
-				navItem.title = "Code of Conduct"
-			}
-			else if fn.hasPrefix("faq") {
-				navItem.title = "FAQ"
+			else {
+				if fn.hasPrefix("twitarrhelptext") {
+					navItem.title = "Twitarr Help"
+				}
+				else if fn.hasPrefix("codeofconduct") {
+					navItem.title = "Code of Conduct"
+				}
+				else if fn.hasPrefix("faq") {
+					navItem.title = "FAQ"
+				}
 			}
 		}
 		
         
 		if ServerTextFileParser.parseableFileTypes().contains(fileSuffix) {
 			webView.isHidden = true
-			parser = ServerTextFileParser(forPath: filePath)
+			if let localFP = package?.localFilePath {
+				parser = ServerTextFileParser(forLocalFile: localFP)
+			}
+			else {
+				parser = ServerTextFileParser(forServerPath: filePath)
+			}
 			
 			self.tell(self, when: "parser.parsedContents") { observer, observed in 
 				observer.textView.attributedText = observed.parser?.parsedContents
@@ -96,9 +102,8 @@ class ServerTextFileViewController: UIViewController {
 //				doc.presentOptionsMenu(from: in:animated:)
 //			}
 		}
-
     }
-    
+        
     @IBAction func doneButton() {
     	dismiss(animated: true, completion: nil)
     }

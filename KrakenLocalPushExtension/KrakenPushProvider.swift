@@ -56,6 +56,7 @@ class KrakenPushProvider: NEAppPushProvider {
 	var isInApp: Bool = false
 	var incomingPhonecallHandler: (([AnyHashable : Any]) -> Void)?
 	var socketPingTimer: Timer?
+	var debugAddr: String = ""
 	
 	// Config values that can come from ProviderConfiguration. Must be non-nil to open socket
 	private var serverURL: URL?
@@ -64,11 +65,12 @@ class KrakenPushProvider: NEAppPushProvider {
 	init(isInApp: Bool = false) {
 		self.isInApp = isInApp
 		super.init()
-		logger.log("KrakenPushProvider init()")
+		debugAddr = Unmanaged.passUnretained(self).toOpaque().debugDescription
+		logger.log("KrakenPushProvider WebsocketNotifier.init() inApp: \(isInApp) addr: \(self.debugAddr, privacy: .public)")
 	}
 	
 	deinit {
-		logger.log("KrakenPushProvider de-init.")
+		logger.log("KrakenPushProvider de-init. inApp: \(self.isInApp)")
 	}
 	
 	// Don't call this from within websocketnotifier.
@@ -97,11 +99,14 @@ class KrakenPushProvider: NEAppPushProvider {
 		if startState == true {
 			logger.log("KrakenPushProvider start() called while already started.")
 		}
-		else if let _ = self.serverURL, let token = self.token, !token.isEmpty {
-			logger.log("KrakenPushProvider \(self.isInApp ? "In-App" : "Extension", privacy: .public) start()")
+		else if self.serverURL == nil {
+			logger.log("KrakenPushProvider \(self.isInApp ? "In-App" : "Extension", privacy: .public) can't start -- no server URL")
+		}
+		else if self.token == nil || token == "" {
+			logger.log("KrakenPushProvider \(self.isInApp ? "In-App" : "Extension", privacy: .public) can't start -- no user token")
 		}
 		else {
-			logger.log("KrakenPushProvider \(self.isInApp ? "In-App" : "Extension", privacy: .public) start -- can't start this config")
+			logger.log("KrakenPushProvider \(self.isInApp ? "In-App" : "Extension", privacy: .public) start()")
 		}
 		startState = true
 		openWebSocket()
@@ -158,32 +163,43 @@ class KrakenPushProvider: NEAppPushProvider {
 					self.session?.finishTasksAndInvalidate()
 					self.session = nil					
 				case .success(let msg):
-					self.logger.log("got a successful message.")
+					self.logger.log("got a successful message. Instance: \(debugAddr, privacy: .public)")
 					var msgData: Data?
 					switch msg {
 					case .string(let str): 
-						self.logger.log("DATA: \(str, privacy: .public)")
+						self.logger.log("STRING MESSAGE: \(str, privacy: .public)")
 						msgData = str.data(using: .utf8)
 					case .data(let data): 
+						self.logger.log("DATA MESSAGE: \(data, privacy: .public)")
 						msgData = data
 					@unknown default:
 						self.logger.error("Error during websocket receive: Unknown ws data type delivered.)")
-					}
+					}					
 					if let msgData = msgData, let socketNotification = try? JSONDecoder().decode(SocketNotificationData.self, from: msgData) {
 						var sendNotification = true
-						let content = UNMutableNotificationContent()
 						var title = "From Kraken"
 						var userInfo: [String: Any] = [
-//								"type": socketNotification.type,
+//								"type": socketNotification.type.rawValue,
 								"message": socketNotification.info
 						]
 						switch socketNotification.type {
 						case .announcement: title = "Announcement"
 							userInfo["Announcement"] = socketNotification.contentID
+							
+						case .addedToSeamail: title = "Added to Seamail"
+							userInfo["Seamail"] = socketNotification.contentID
+						case .addedToLFG: title = "Added to LFG"
+							userInfo["LFG"] = socketNotification.contentID
+						case .addedToPrivateEvent: title = "Added to Private Event"
+							userInfo["PrivateEvent"] = socketNotification.contentID
+
 						case .fezUnreadMsg: title = "New Looking For Group Message"
 							userInfo["LFG"] = socketNotification.contentID
 						case .seamailUnreadMsg: title = "New Seamail Message"
 							userInfo["Seamail"] = socketNotification.contentID
+						case .privateEventUnreadMsg: title = "New Private Event Message"
+							userInfo["PrivateEvent"] = socketNotification.contentID
+							
 						case .alertwordTwarrt: title = "Alert Word"
 							userInfo["Twarrt"] = socketNotification.contentID
 						case .alertwordPost: title = "Alert Word"
@@ -192,8 +208,18 @@ class KrakenPushProvider: NEAppPushProvider {
 							userInfo["Twarrt"] = socketNotification.contentID
 						case .forumMention: title = "Someone Mentioned You"
 							userInfo["ForumPost"] = socketNotification.contentID
+						case .moderatorForumMention:
+							break
+						case .twitarrTeamForumMention:
+							break
+							
 						case .followedEventStarting: title = "Event Starting Soon"
 							userInfo["eventID"] = socketNotification.contentID
+						case .joinedLFGStarting:
+							userInfo["LFG"] = socketNotification.contentID
+						case .personalEventStarting:
+							break
+							
 						case .incomingPhoneCall:
 							if let caller = socketNotification.caller {
 								self.incomingCallNotification(name: socketNotification.info, callID: socketNotification.contentID,
@@ -208,15 +234,15 @@ class KrakenPushProvider: NEAppPushProvider {
 							sendNotification = false
 							UserDefaults(suiteName: "group.com.challfry-FQD.Kraken")?.set(socketNotification.contentID, forKey: "phoneCallEnded")
 							self.logger.log("KrakenPushProvider set UserDefault for phoneCallEnded")
+					
 						case .microKaraokeSongReady:
 							title = "Micro Karaoke Music Video Ready"
 							userInfo["mkSongID"] = socketNotification.contentID
-						case .joinedLFGStarting:
-							userInfo["LFG"] = socketNotification.contentID
-						default:	// @unknown default
+						@unknown default:
 							break
 						}
 						if sendNotification {
+							let content = UNMutableNotificationContent()
 							content.title = title
 							content.body = socketNotification.info
 							content.sound = .default
@@ -351,12 +377,37 @@ extension WebsocketNotifier: URLSessionWebSocketDelegate {
 
 struct SocketNotificationData: Codable {
 	enum NotificationTypeData: Codable {
+// Notifies Everyone
 		/// A server-wide announcement has just been added.
 		case announcement
-		/// A participant in a Fez the user is a member of has posted a new message.
+		
+// Added to Chat - only fires when someone else adds you to their chat
+// Note: I'm specifically not making notificaitons for "Removed From Chat" because: it can feel mean to receive that notification, and
+// there's nowhere for the notification to take the user. 
+		///  Only for 'open' seamails. The owner of the chata has added this user.
+		case addedToSeamail
+		/// The creator of the LFG has added this user.
+		case addedToLFG
+		/// The creator of the event has added this user.
+		case addedToPrivateEvent
+		
+// New Chat Messages
+		/// A participant in a Chat the user is a member of has posted a new message.
 		case fezUnreadMsg
 		/// A participant in a Seamail thread the user is a member of has posted a new message.
 		case seamailUnreadMsg
+		/// An invitee to a Private Event has posted a new chat message in the event's chat.
+		case privateEventUnreadMsg
+
+// Starting Soon
+		/// An event the user is following is about to start.
+		case followedEventStarting
+		/// An LFG the user has joined is about to start.
+		case joinedLFGStarting
+		/// A Personal Event the user has created or was added to is about to start.
+		case personalEventStarting
+
+// @mentions and Alertwords
 		/// A user has posted a Twarrt that contains a word this user has set as an alertword.
 		case alertwordTwarrt
 		/// A user has posted a Forum Post that contains a word this user has set as an alertword.
@@ -365,27 +416,30 @@ struct SocketNotificationData: Codable {
 		case twarrtMention
 		/// A user has posted a Forum Post that @mentions this user.
 		case forumMention
-		/// An event the user is following is about to start.
-		case followedEventStarting
-		/// Someone is trying to call this user via KrakenTalk.
+		
+// Phonecalls
+		/// Someone is trying to call this user via KrakenTalk.'
 		case incomingPhoneCall
 		/// The callee answered the call, possibly on another device.
 		case phoneCallAnswered
 		/// Caller hung up while phone was rining, or other party ended the call in progress, or callee declined
 		case phoneCallEnded
+		
+// Micro Karaoke
+		/// A Micro Karaoke song the user contributed to is ready for viewing. .
+		case microKaraokeSongReady
+
+// Mod Stuff
 		/// A new or edited forum post that now @mentions @moderator.
 		case moderatorForumMention
 		/// A new or edited forum post that now @mentions @twitarrteam.
 		case twitarrTeamForumMention
-		/// An LFG the user has joined is about to start.
-		case joinedLFGStarting
-		/// A Micro Karaoke song the user contributed to is ready for viewing. .
-		case microKaraokeSongReady
+		
 	}
-	/// The type of event that happened. See <doc:SocketNotificationData.NotificationTypeData> for values.
+	/// The type of event that happened. See `SocketNotificationData.NotificationTypeData` for values.
 	var type: NotificationTypeData
 	/// A string describing what happened, suitable for adding to a notification alert.
-	var info: String 
+	var info: String
 	/// An ID of an Announcement, Fez, Twarrt, ForumPost, or Event.
 	var contentID: String
 	/// For .incomingPhoneCall notifications, the caller.

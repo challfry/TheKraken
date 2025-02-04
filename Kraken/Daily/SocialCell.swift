@@ -99,6 +99,10 @@ class SocialCell: BaseCollectionViewCell, SocialCellProtocol {
 			imageView.image = UIImage(named: "Disabled")?.withRenderingMode(.alwaysTemplate)
 		} 
 		else if let name = iconName {
+			if let image = UIImage(named: name) {
+				imageView.image = image
+			}
+			else
 //			imageView.image = UIImage(named: name)?.withRenderingMode(.alwaysTemplate)
 			if #available(iOS 15.0, *) {
 //				let config = UIImage.SymbolConfiguration(hierarchicalColor: UIColor(named: "Kraken Icon Blue")!)

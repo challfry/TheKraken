@@ -52,6 +52,10 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .lfg, 
 					arguments: ["LFG" : lfgID]))
 		}
+		else if let peID = response.notification.request.content.userInfo["PrivateEvent"] as? String, let peUUID = UUID(uuidString: peID) {
+			ContainerViewController.shared?.globalNavigateTo(packet: GlobalNavPacket(column: 0, tab: .privateEvent,
+					arguments: ["PrivateEvent" : peUUID]))
+		}
 		completionHandler()
 	}
 
@@ -73,7 +77,13 @@ class Notifications: NSObject, UNUserNotificationCenterDelegate {
 		notifications.forEach { notification in
 			// Load a thread if there's a new message.
 			if let seamailIDStr = notification.request.content.userInfo["Seamail"] as? String, let seamailID = UUID(uuidString: seamailIDStr) {
-				SeamailDataManager.shared.updateSeamailWithID(threadID: seamailID)
+				SeamailDataManager.shared.loadSeamailThread(id: seamailID)
+			}
+			else if let lfgIDStr = notification.request.content.userInfo["LFG"] as? String, let lfgID = UUID(uuidString: lfgIDStr) {
+				SeamailDataManager.shared.loadSeamailThread(id: lfgID)
+			}
+			else if let peIDStr = notification.request.content.userInfo["PrivateEvent"] as? String, let peID = UUID(uuidString: peIDStr) {
+				SeamailDataManager.shared.loadSeamailThread(id: peID)
 			}
 			else if let _ = notification.request.content.userInfo["Announcement"] {
 				AnnouncementDataManager.shared.updateAnnouncements()
