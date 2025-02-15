@@ -210,8 +210,8 @@ extension KaraokeDataManager {
 	// to somewhere inside /Library/Developer/CoreSimulator) and copy the new compressed file into the Git repo.
 	func compressSongFile() {
 		do {
-			if let fileUrl = Bundle.main.url(forResource: "JoCoKaraokeSongCatalog", withExtension: "txt"),
-					let fileContents = try? String(contentsOf: fileUrl, encoding: .utf8) {
+			if let fileUrl = Bundle.main.url(forResource: "JoCoKaraokeSongCatalog", withExtension: "txt") {
+				let fileContents = try String(contentsOf: fileUrl, encoding: .utf8)
 				var sourceBuffer = Array(fileContents.utf8)
 				let destinationBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: sourceBuffer.count)
 				let compressedSize = compression_encode_buffer(destinationBuffer, sourceBuffer.count,

@@ -34,7 +34,14 @@ class KaraokeRootViewController: UIViewController, TableIndexDelegate {
         super.viewDidLoad()
         self.title = "Karaoke"
 
-//		compressSongFile()
+	// DO NOT CALL THIS METHOD AS PART OF NORMAL APP EXECUTION!
+	// This is a utility fn that's here to compress the Karaoke source file. To use, add the Karaoke TEXT file
+	// to the app as a Resource file, add a call to this method somewhere, and run the app on the simulator. 
+	// After this method runs, look at the console output and grab the file URL to the compressed file (which will point 
+	// to somewhere inside /Library/Developer/CoreSimulator) and copy the new compressed file into the Git repo.
+//		KaraokeDataManager.shared.compressSongFile()
+
+
 		songData.loadSongFile {
 			if let err = self.songData.fileLoadError {
 				self.showErrorState(err)
