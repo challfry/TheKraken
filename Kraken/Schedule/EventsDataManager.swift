@@ -224,8 +224,9 @@ import CoreData
 				calendar = eventStore.calendar(withIdentifier: calendarID)
 			}
 			if calendar == nil {
+				let year = Calendar(identifier: .gregorian).component(.year, from: cruiseStartDate() ?? Date())
 				let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
- 				newCalendar.title = "JoCo Cruise 2024"
+ 				newCalendar.title = "JoCo Cruise \(year)"
 				if eventStore.sources.count == 0 {
 					newCalendar.source = EKSource()
 				}

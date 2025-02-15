@@ -25,6 +25,17 @@ class ServerTextFileViewController: UIViewController {
 	
 	@objc dynamic var parser: ServerTextFileParser?
 	var package: ServerTextFileSeguePackage?
+	
+	static func canShowFile(path: URL) -> Bool {
+		let suffix = path.pathExtension
+		if ["html", "pdf", ""].contains(suffix) {
+			return true
+		}
+		if ServerTextFileParser.parseableFileTypes().contains(path.pathExtension) {
+			return true
+		}
+		return false
+	}	
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,6 +72,9 @@ class ServerTextFileViewController: UIViewController {
 				else if fn.hasPrefix("faq") {
 					navItem.title = "FAQ"
 				}
+				else {
+					navItem.title = fileName
+				}
 			}
 		}
 		
@@ -87,7 +101,7 @@ class ServerTextFileViewController: UIViewController {
 				observer.errorLabel.text = "Could not load file \"\(observer.package?.serverFilePath ?? "")\" from server. \(observed.parser?.lastError ?? "")"
 			}?.execute()
 		}
-		else if fileSuffix == "" || fileSuffix == "html" {
+		else if fileSuffix == "" || fileSuffix == "html" || fileSuffix == "pdf" {
 			// Show html in a web view
 			webView.isHidden = false
 			var components = URLComponents(url: Settings.shared.baseURL, resolvingAgainstBaseURL: false)

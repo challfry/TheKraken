@@ -592,7 +592,7 @@ class BaseCollectionViewController: UIViewController {
 		}
 		else if packet.tab.presentByCovering() {
 			// Filetypes we can show with ServerTextFileViewController
-			if ServerTextFileParser.parseableFileTypes().contains(url.pathExtension) || ["html", ""].contains(url.pathExtension) {
+			if ServerTextFileViewController.canShowFile(path: url) {
 				// This controller shows files it loads from the server, and supports viewers for serveral file formats. It can be called
 				// from so many places in the storyboard it's not worth making segues for them all.
 				let storyboard = UIStoryboard(name: "Main", bundle: nil)
