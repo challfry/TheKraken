@@ -58,6 +58,9 @@ class PhotostreamCell: BaseCollectionViewCell, PhotostreamCellProtocol {
 	dynamic var photostreamDataSource: KrakenDataSource? {
 		didSet {
 			DispatchQueue.main.async() {
+				if self.photoCollectionView.dataSource === self.photostreamDataSource {
+					return
+				}
 				let vc = self.viewController as? BaseCollectionViewController
 				self.photostreamDataSource?.register(with: self.photoCollectionView, viewController: vc)
 			

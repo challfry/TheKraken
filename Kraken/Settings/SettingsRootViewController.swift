@@ -258,7 +258,11 @@ class SettingsRootViewController: BaseCollectionViewController {
 			knownURLs.insert(currentURL, at: 0)
 			selectedMenu = 0
 		}
-		super.init(title: "Known Servers", menuPrompt: "Known Servers", menuItems: knownURLs.map { $0.absoluteString })
+		var promptText = "Known Servers"
+		#if DEBUG
+			promptText += " (Debug)"
+		#endif
+		super.init(title: "Known Servers", menuPrompt: promptText, menuItems: knownURLs.map { $0.absoluteString })
 		selectedMenuItem = selectedMenu
 	}
 }

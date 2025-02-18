@@ -98,6 +98,11 @@ import CoreData
 			done?()
 			return
 		}
+		
+		if !CurrentUser.shared.isLoggedIn() {
+			done?()
+			return
+		}
 	
 		var request = NetworkGovernor.buildTwittarRequest(withPath:"/api/v3/photostream", query: nil)
 		NetworkGovernor.addUserCredential(to: &request)

@@ -66,6 +66,7 @@ import Foundation
 #else
 			return getSetting(name: "knownServerURLs", defaultValue: [
 				URL(string:"https://twitarr.com")!,
+				URL(string:"https://start.twitarr.com")!,
 			])
 #endif			
 		}

@@ -593,6 +593,7 @@ class FRCDataSourceSegment<FetchedObjectType>: KrakenDataSourceSegment, KrakenDa
 			// many cells are in the section after the update is done, and we add cells to our internal list just below.
 			insertCells = insertCells.filter { !insertSections.contains($0.section) }
 			collectionView?.insertItems(at: addSectionOffset(insertOffset, insertCells))
+//			log.debug("Inserting items to cv: \(self.insertCells)")
 		}
 		
 // The Part Where We Update Our Internal Model To Match The Changes

@@ -534,7 +534,8 @@ class BaseCollectionViewController: UIViewController {
 	}
 
     @objc func keyboardDidShowNotification(notification: NSNotification) {
-    	if let indexPath = indexPathToScrollToVisible {
+		if let indexPath = indexPathToScrollToVisible, collectionView.numberOfSections > indexPath.section, 
+				collectionView.numberOfItems(inSection: indexPath.section) > indexPath.row {
 			collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
 		}
 	}

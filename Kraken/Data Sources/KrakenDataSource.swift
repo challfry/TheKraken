@@ -363,13 +363,17 @@ class KrakenDataSource: NSObject {
 				disabledAnimations = true
 			}
 			
+//			var numSections = collectionView?.numberOfSections ?? 0
+//			var sec0Items = numSections > 0 ? collectionView?.numberOfItems(inSection: 0) ?? -1 : -1	
+//			self.log.debug("Just Before Batch.", ["DS" : self, "numSections" : numSections, "sec0Items" : sec0Items])
+			
 			self.collectionView?.performBatchUpdates( {
 				self.animationsRunning = true
 				updateBlock()
 				self.updateScheduled = false
 			}, completion: { completed in
+				self.log.debug("In Batch Completion Handler.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
 				self.animationsRunning = false
-				self.log.debug("After batch.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
 				self.itemsToRunAfterBatchUpdates.forEach { $0() }
 				self.itemsToRunAfterBatchUpdates.removeAll()
 				if self.updateScheduled {
@@ -377,8 +381,13 @@ class KrakenDataSource: NSObject {
 					self.updateScheduled = false
 					self.runUpdates()
 				}
+				self.log.debug("Leaving Batch Completion Handler.", ["DS" : self, "blocks" : self.itemsToRunAfterBatchUpdates as Any])
 			})
-
+			
+//			numSections = collectionView?.numberOfSections ?? 0
+//			sec0Items = numSections > 0 ? collectionView?.numberOfItems(inSection: 0) ?? -1 : -1	
+//			self.log.debug("Just After Batch.", ["DS" : self, "numSections" : numSections, "sec0Items" : sec0Items])
+			
 			if disabledAnimations {
 				UIView.setAnimationsEnabled(true)
 			}
@@ -466,6 +475,7 @@ extension KrakenDataSource: UICollectionViewDataSource {
 		var returnValue = 0
 		if let (segment, offset) = segmentAndOffset(forSection: section) {
 			returnValue = segment.collectionView(collectionView, numberOfItemsInSection: offset)
+//			log.debug("DS numberOfItemsInSection", ["segment" : segment, "numItems" : returnValue])
 		}
 		return returnValue
 	}
