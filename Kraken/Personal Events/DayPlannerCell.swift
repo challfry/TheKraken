@@ -208,7 +208,7 @@ enum AppointmentColor {
 			appointments.append(AppointmentVisualData(event: event))
 		}
 		// Testing
-		let hour = 3600.0
+//		let hour = 3600.0
 //		appointments.append(AppointmentVisualData(startTime: displayStartTime + hour, endTime: displayStartTime + hour * 2))
 //		appointments.append(AppointmentVisualData(startTime: displayStartTime + hour, endTime: displayStartTime + hour * 2))
 //		appointments.append(AppointmentVisualData(startTime: displayStartTime + hour, endTime: displayStartTime + hour * 2))

@@ -46,7 +46,7 @@ import Foundation
 		get { 
 			let savedValue = getSetting(name: "baseURL", defaultValue: URL(string:"https://twitarr.com")!)
 			if savedValue.path.contains("hollandamerica.com") {
-				return "https://twitarr.com"
+				return URL(string: "https://twitarr.com")!
 			}
 			return savedValue
 		}
