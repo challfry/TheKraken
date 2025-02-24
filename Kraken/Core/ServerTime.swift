@@ -196,7 +196,7 @@ import UIKit
 				let result = TimeZone(identifier: currentTZ.timeZoneID) ?? TimeZone(abbreviation: currentTZ.timeZoneAbbrev) {
 			return result
 		}
-		return deviceTimezone
+		return portTimeZone()
 	}
 	
 	/// Returns the 3 letter abbreviation for the time zone the ship will be in at the given Date, or the current time if no Date specified. If you're using this with 
@@ -208,7 +208,7 @@ import UIKit
 				let tz = TimeZone(identifier: currentRecord.timeZoneID) ?? TimeZone(abbreviation: currentRecord.timeZoneAbbrev) {
 			return tz.abbreviation(for: actualTime) ?? currentRecord.timeZoneAbbrev
 		}
-		return deviceTimezone.abbreviation(for: actualTime) ?? "EST"
+		return portTimeZone().abbreviation(for: actualTime) ?? "EST"
 	}
 
 	// Twitarr often has to deal with Date objects that actually attempt to specify a 'floating local time', e.g. `March 10, 2:00 PM`

@@ -78,6 +78,14 @@ func cruiseStartRelativeDays() -> Int {
 	return 0
 }
 
+// MARK: - Time Zones
+
+
+// The TZ of the port the ship sails from
+func portTimeZone() -> TimeZone {
+	return TimeZone(identifier: "America/New_York") ?? TimeZone.current
+}
+
 // MARK: - Last Year's Cruise
 
 func lastCruiseStartDate() -> Date {

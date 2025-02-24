@@ -82,6 +82,7 @@ class DayPlannerRootVC: BaseCollectionViewController, GlobalNavEnabled {
 		loginDataSource.enableAnimations = true
 		dayPlannerDataSource.enableAnimations = true
 		loginSection.clearAllSensitiveFields()
+		EventsDataManager.shared.refreshEventsIfNecessary()
 	}
 	    
 // MARK: - Actions

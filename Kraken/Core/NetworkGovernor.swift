@@ -355,7 +355,8 @@ struct NetworkResponse {
 				
 				// Field errors from the server are almost always form input errors; don't log 'em.
 				let serverError = resultError.errorString
-				NetworkLog.error("Server Error:", ["Error" : serverError])
+				let url = response.url?.absoluteString ?? ""
+				NetworkLog.error("Server Error:", ["Error" : serverError, "Status" : response.statusCode, "url" : url ])
 			
 				return resultError
 			}
@@ -385,12 +386,15 @@ extension NetworkGovernor: URLSessionDelegate {
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, 
     		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
 		NetworkLog.debug("NetworkGovernor received URLAuthenticationChallenge of type \(challenge.protectionSpace.authenticationMethod).")
+
+		// This line should be used instead when accessing beta.twitarr.com, as it has a self-signed cert.
+		if challenge.protectionSpace.host == "beta.twitarr.com" {
+			completionHandler(URLSession.AuthChallengeDisposition.useCredential,  URLCredential(trust: challenge.protectionSpace.serverTrust!))
+		}
+		
 		// One place where this is called is when we connect to an HTTPS server for the first time.
 		// It's possible to add code here to do things like manually validate a self-signed server cert.
 		completionHandler(.performDefaultHandling, nil)
-
-		// This line should be used instead when accessing beta.twitarr.com, as it has a self-signed cert.
-//		completionHandler(URLSession.AuthChallengeDisposition.useCredential,  URLCredential(trust: challenge.protectionSpace.serverTrust!))
 	}
 
     public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
@@ -491,7 +495,7 @@ extension NetworkGovernor: URLSessionTaskDelegate {
 		if let resp = task.response as? HTTPURLResponse {
 		
 			// Handle globally applicable status codes here
-			if resp.statusCode == 401 {
+			if resp.statusCode == 401, let headers = task.originalRequest?.allHTTPHeaderFields, headers["Authorization"] != nil {
 				CurrentUser.shared.logoutUser(nil, sendLogoutMsg: false)
 			}
 			

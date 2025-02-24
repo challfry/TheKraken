@@ -126,8 +126,8 @@ enum AppointmentColor {
 		comp.nanosecond = 0
 		if fullDay, let forCruiseDay {
 			// Calendar here is midnight to midnight, which may be more or less than 24 hours with tz changes.
-	//		let noonEmbark = (cruiseStartDate() ?? Date()) + 3600.0 * 12.0
-			let noonEmbark = lastCruiseStartDate() + 3600.0 * 12.0
+			let noonEmbark = (cruiseStartDate() ?? Date()) + 3600.0 * 12.0
+//			let noonEmbark = cruiseStartDate() + 3600.0 * 12.0
 			var cal = Calendar.current
 			cal.timeZone = ServerTime.shared.tzAtTime(noonEmbark)
 			let noon = cal.date(byAdding: .day, value: forCruiseDay, to: noonEmbark) ?? Date()

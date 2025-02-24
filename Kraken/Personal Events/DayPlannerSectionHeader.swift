@@ -36,6 +36,9 @@ class DayPlannerSectionHeader: BaseCollectionSupplementaryView {
 		if let serverTZ = ServerTime.shared.serverTimezone {
 			dateFormatter.timeZone = serverTZ
 		}
+		else {
+			dateFormatter.timeZone = ServerTime.shared.tzAtTime(displayTime)
+		}
 
 //		dateFormatter.setLocalizedDateFormatFromTemplate("eeee MMM d" )
 		dateFormatter.dateFormat = "eeee MMM d"
