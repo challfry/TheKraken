@@ -1806,7 +1806,7 @@
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1839,7 +1839,7 @@
 				CODE_SIGN_ENTITLEMENTS = KrakenLocalPushExtension/KrakenLocalPushExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_TEAM = FQD36VNG36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KrakenLocalPushExtension/Info.plist;
