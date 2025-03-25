@@ -37,6 +37,11 @@ enum AppointmentColor {
 		guard let start = lfg.startTime, let end = lfg.endTime else {
 			return nil
 		}
+		guard let currentUser = CurrentUser.shared.loggedInUser,
+				lfg.participants.contains(currentUser) else {
+			return nil
+		}
+		
 		startTime = start
 		endTime = end
 		concurrentCount = 0
