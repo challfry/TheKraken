@@ -898,17 +898,17 @@ extension PostOperationDataManager : NSFetchedResultsControllerDelegate {
 		operationDescription = nil
 	}
 
-  override public func willSave() {
-    super.willSave()
-    let typeName = (TwitarrV3FezType(rawValue: lfgType) ?? .closed).generalTypeName
-    // willSave gets called repeatedly until we don't set any values!
-    if editingLFG != nil && operationDescription != "Updating your \(typeName)" {
-      operationDescription = "Updating your \(typeName)"
-    }
-    else if editingLFG == nil && operationDescription != "Creating a new \(typeName)" {
-      operationDescription = "Creating a new \(typeName)"
-    }
-  }
+	override public func willSave() {
+		super.willSave()
+		let typeName = (TwitarrV3FezType(rawValue: lfgType) ?? .closed).generalTypeName
+		// willSave gets called repeatedly until we don't set any values!
+		if editingLFG != nil && operationDescription != "Updating your \(typeName)" {
+			operationDescription = "Updating your \(typeName)"
+		}
+		else if editingLFG == nil && operationDescription != "Creating a new \(typeName)" {
+			operationDescription = "Creating a new \(typeName)"
+		}
+	}
 
 	override func post(context: NSManagedObjectContext) {
 		guard let lfgtype = TwitarrV3FezType(rawValue: lfgType) else {
