@@ -170,21 +170,23 @@ struct GlobalNavPacket {
 	}
 	
 	init(from viewController: UIViewController?, url: URL) {
+		let absoluteURL = URL(string: url.absoluteString, relativeTo: Settings.shared.baseURL) ?? url
+	
 		column = 0
 		if let nav = viewController?.navigationController as? KrakenNavController {
 			column = nav.columnIndex
 		}
-		arguments = ["url": url]
+		arguments = ["url": absoluteURL]
 
 		// Don't route to a VC if it's not our server.
-		guard ["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host].contains(url.host ?? "nohostfoundasdfasfasf") else {
+		guard ["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host].contains(absoluteURL.host ?? "nohostfoundasdfasfasf") else {
 			tab = .unknown
-			arguments["externalURL"] = url
+			arguments["externalURL"] = absoluteURL
 			return
 		}
 
-		if url.pathComponents.count > 1, url.pathComponents[0] == "/" {
-			switch url.pathComponents[1] {
+		if absoluteURL.pathComponents.count > 1, absoluteURL.pathComponents[0] == "/" {
+			switch absoluteURL.pathComponents[1] {
 			//	case "login":
 			//	case "createAccount":
 				case "about":
@@ -197,10 +199,10 @@ struct GlobalNavPacket {
 				case "profile": 
 					tab = .daily
 					segue = .userProfile_Name
-					sender = url.lastPathComponent
+					sender = absoluteURL.lastPathComponent
 				case "tweets": 
 					tab = .twitarr
-					let filterPack = TwitarrFilterPack(urlString: url.absoluteString)
+					let filterPack = TwitarrFilterPack(urlString: absoluteURL.absoluteString)
 					sender = filterPack
 					segue = filterPack.hasFilter() ? .tweetFilter : .twitarrRoot
 				case "forums":
@@ -241,7 +243,7 @@ struct GlobalNavPacket {
 					}
 				case "performer":
 					tab = .officialPerformers
-					if let performerIDString = url.pathComponents.last, let performerID = UUID(uuidString: performerIDString) {
+					if let performerIDString = absoluteURL.pathComponents.last, let performerID = UUID(uuidString: performerIDString) {
 						segue = .performerBio
 						sender = performerID
 					}

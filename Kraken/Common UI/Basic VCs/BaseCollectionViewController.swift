@@ -580,12 +580,6 @@ class BaseCollectionViewController: UIViewController {
 	}
 	
 	func segueOrNavToLink(_ url: URL) {
-		// Open externally if it's not our link
-		guard ["twitarr.com", "joco.hollandamerica.com", Settings.shared.settingsBaseURL.host].contains(url.host ?? "nohostfoundasdfasfasf") else {
-			UIApplication.shared.open(url)
-			return
-		}
-	
 		let packet = GlobalNavPacket(from: self, url: url)
 		// If the current VC can perform the segue, do it
 		if let segueType = packet.segue, canPerformSegue(segueType) {
@@ -616,7 +610,9 @@ class BaseCollectionViewController: UIViewController {
 		}
 		else {
 			// Use global nav to get to the dest.
-			ContainerViewController.shared?.globalNavigateTo(packet: packet)
+			if let appDel = UIApplication.shared.delegate as? AppDelegate {
+    			appDel.globalNavigateTo(packet: packet)
+			}
 		}
 	}
 	

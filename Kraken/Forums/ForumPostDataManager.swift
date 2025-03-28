@@ -252,13 +252,18 @@ import CoreData
 	@objc dynamic var isPerformingLoad: Bool = false
 
 	// Requests the posts in a forum thread, merges the response into CoreData's store.
-	func loadThreadPosts(for thread: ForumThread? = nil, forID: UUID? = nil, fromOffset: Int, 
-			done: ((ForumThread?, Int) -> Void)? = nil) {
+	func loadThreadPosts(for thread: ForumThread? = nil, forID: UUID? = nil, fromOffset: Int, done: ((ForumThread?, Int) -> Void)? = nil) {
 		let threadIDOptional: UUID? = thread?.id ?? forID
 		guard let threadID = threadIDOptional else {
 			AppLog.debug("LoadThreadPosts requires either a thread or a threadID to load from.")
 			return
 		}
+		
+		// Call the done fn with whatever's in the db already
+		if let thread = try? thread ?? ForumThread.fetchWithDatabaseID(threadID) {
+			done?(thread, fromOffset)
+		}
+		
 		isPerformingLoad = true
 		
 		let queryParams: [URLQueryItem] = [ URLQueryItem(name: "start", value: String(fromOffset)) ]
@@ -275,7 +280,6 @@ import CoreData
 				do {
 					let response = try Settings.v3Decoder.decode(TwitarrV3ForumData.self, from: data)
 					self.parseThreadWithPosts(for: thread, from: response, offset: fromOffset, done: done)
-					done?(thread, fromOffset)
 				}
 				catch {
 					NetworkLog.error("Failure parsing Forums response.", ["Error" : error, "url" : request.url as Any])
