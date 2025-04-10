@@ -249,12 +249,7 @@ import CoreData
 	}
 	
 	func generalTypeName() -> String {
-		switch TwitarrV3FezType(rawValue: fezType) ?? .closed {
-		case .closed, .open: "Chat"
-		case .privateEvent: "Private Event"
-		case .personalEvent: "Personal Event"
-		case .activity, .dining, .gaming, .meetup, .music, .other, .shore: "LFG"
-		}
+		return (TwitarrV3FezType(rawValue: fezType) ?? .closed).generalTypeName
 	}
 }
 
@@ -855,6 +850,14 @@ enum TwitarrV3FezType: String, CaseIterable, Codable {
             default: return "Other"
         }
     }
+	var generalTypeName: String {
+		switch self {
+		case .closed, .open: "Chat"
+		case .privateEvent: "Private Event"
+		case .personalEvent: "Personal Event"
+		case .activity, .dining, .gaming, .meetup, .music, .other, .shore: "LFG"
+		}
+	}
 }
 
 struct TwitarrV3FezPostData: Codable {
